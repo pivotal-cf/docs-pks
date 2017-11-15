@@ -7,80 +7,98 @@ owner: PKS
 
 This topic describes how to use Pivotal Container Services (PKS).
 
-After an operator has [installed](installing.html) PKS, developers can use the PKS Command Line Interface (PKS CLI) to do the following:
+After an operator has [installed](installing.html) PKS, developers can use `curl` to do the following:
 
 * [Create](#create-cluster) a Kubernetes cluster
 * [Update](#update-cluster) the name of a Kubernetes cluster
 * [View](#view-cluster) the list of running Kubernetes clusters
 * [Delete](#delete-cluster) a Kubernetes cluster
 
+<p class="note"><strong>Note</strong>: The PKS CLI is still under development. Until then, use the <code>curl</code> commands documented in this topic to create and manage Kubernetes clusters.</p>
+
 To deploy application workloads to a Kubernetes cluster, developers use `kubectl`, the Kubernetes CLI. For more information, see the [Kubernetes documentation](https://kubernetes.io/docs/user-guide/kubectl-overview/).
 
 ##<a id='prereqs'></a> Prerequisites
 
-To perform the procedures in this topic, you must have the following:
-
-1. The PKS CLI installed on your local machine
-1. A Pivotal Cloud Foundry (PCF) deployment with Ops Manager and PKS installed, but not Pivotal Application Service (PAS)
+To perform the procedures in this topic, you must have the following a Pivotal Cloud Foundry (PCF) deployment with Ops Manager and PKS installed, but not Pivotal Application Service (PAS). This procedure only works if PAS is not installed.
 
 ##<a id='create-cluster'></a> Create Cluster
 
-<p class="note"><strong>Note</strong>: The PKS CLI is still under development. Until then, use the following commands to create a cluster.</p>
-
-
 To create a cluster, perform the following steps:
 
-1. Create a cluster with the PKS CLI, specifying the cluster name and the load balancer for the cluster.
-`
-curl -k -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json;charset=UTF-8' -d '{"name": "${CLUSTER_NAME}","parameters": {"kubernetes_master_host": "${KUBERNETES_SERVICE_HOST}","worker_haproxy_ip_addresses": "${WORKLOAD_ADDRESS:-}", "authorization_mode": "$AUTHORIZATION_MODE" },"plan_id": ""}' https://{PKS_API_ENDPOINT}:9021/v1/clusters/
-`
-Where `$CLUSTER_NAME` is the unique name of cluster, and `$AUTHORIZATION_MODE` is either abac or rbac.
+1. Choose a unique name for your cluster and set it as an environment variable named `CLUSTER_NAME`. For example:
+  <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
 
-2. Bind a user to the newly created cluster. If the command completes successfully, it displays the cluster credentials and downloads the cluster configuration, known as the kubeconfig, to your local machine.
-`
-curl -k -s -X POST -d "{}" https://{PKS_API_ENDPOINT}:9021/v1/clusters/{CLUSTER_NAME}/binds
-`
-The following JSON is returned from the request:
-```
-{
-  "credentials": {
-    "kubeconfig": {
-      "apiVersion": "v1",
-      "clusters": [
-        {
-          "cluster": {
-            "certificate-authority-data": "some_data",
-            "server": "https://server"
-          },
-          "name": "kubo-cluster"
+1. Retrieve the IP address of your Kubernetes master host and set it as an environment variable named `KUBERNETES_SERVICE_HOST`. For example:
+  <pre class="terminal">$ export KUBERNETES\_SERVICE\_HOST="192.0.2.0"</pre>
+
+1. Retrieve the IP addresses of your Kubernetes worker nodes and set them as an environment variable named `WORKLOAD_ADDRESS`. For example:
+  <pre class="terminal">$ export WORKLOAD\_ADDRESS="192.0.2.1,192.0.2.2,192.0.2.3"</pre>
+
+1. Choose either attribute-based access control (ABAC) or role-based access control (RBAC) for your authorization mode. Set an environment variable named `AUTHORIZATION_MODE` to `abac` or `rbac`. For example:
+  <pre class="terminal">$ export AUTHORIZATION\_MODE="abac"</pre>
+  For more information about authorization modes, see the [Kubernetes documentation](https://kubernetes.io/docs/admin/authorization/#authorization-modules).
+
+1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+  <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
+
+1. Create a cluster with the following command:
+  <pre class="terminal">$ curl -k -s -X POST \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json;charset=UTF-8' \
+  -d '{"name": "$CLUSTER\_NAME","parameters": \
+  {"kubernetes\_master\_host": \
+  "$KUBERNETES\_SERVICE\_HOST","worker_haproxy\_ip\_addresses": \
+  "$WORKLOAD\_ADDRESS:-", "authorization\_mode": \
+  "$AUTHORIZATION\_MODE" },"plan\_id": ""}' \
+  https://$PKS\_API\_ENDPOINT:9021/v1/clusters/</pre>
+
+2. Bind a user to the newly created cluster with the following command:
+  <pre class="terminal">$ curl -k -s -X POST \
+  -d "{}" \
+  https://$PKS\_API\_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/binds
+  </pre>
+
+    If the command completes successfully, it returns a JSON response with the cluster credentials and the cluster configuration, known as the kubeconfig. The response resembles the following:
+    <pre class="terminal">
+    {
+      "credentials": {
+        "kubeconfig": {
+          "apiVersion": "v1",
+          "clusters": [
+            {
+              "cluster": {
+                "certificate-authority-data": "some\_data",
+                "server": "http<span>s:/</span>/server"
+              },
+              "name": "kubo-cluster"
+            }
+          ],
+          "contexts": [
+            {
+              "context": {
+                "cluster": "kubo-cluster",
+                "user": "some\_user"
+              },
+              "name": "kubo-cluster"
+            }
+          ],
+          "current-context": "kubo-cluster",
+          "kind": "Config",
+          "preferences": {},
+          "users": [
+            {
+              "name": "some\_name",
+              "user": {
+                "token": "some\_token"
+              }
+            }
+          ]
         }
-      ],
-      "contexts": [
-        {
-          "context": {
-            "cluster": "kubo-cluster",
-            "user": "some_user"
-          },
-          "name": "kubo-cluster"
-        }
-      ],
-      "current-context": "kubo-cluster",
-      "kind": "Config",
-      "preferences": {},
-      "users": [
-        {
-          "name": "some_name",
-          "user": {
-            "token": "some_token"
-          }
-        }
-      ]
+      }
     }
-  }
-}
-```
-
-Extract the kubeconfig by copying the json value under "kubeconfig", and then save it to the file `$HOME/.kube/config`.
+    </pre>
+    Extract the kubeconfig by copying the JSON value under `kubeconfig`, and saving it to the file `$HOME/.kube/config`.
 
 You can use the credentials and the kubeconfig to deploy application workloads to your cluster with `kubectl`. For more information, see the [Kubernetes documentation](https://kubernetes.io/docs/user-guide/kubectl-overview/).
 
@@ -88,21 +106,32 @@ You can use the credentials and the kubeconfig to deploy application workloads t
 
 <p class="note"><strong>Note</strong>: This section is still under development.</p>
 
-
 ##<a id='view-cluster'></a> View Cluster List
 
-<p class="note"><strong>Note</strong>: This section is still under development.</p>
-To view details of the clusters that were deployed, execute the following command:
-`
-curl -k -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/json;charset=UTF-8'https://$PKS_API_ADDRESS:9021/v1/clusters
-`
-The response lists details including the cluster name and status
+To view information about the deployed clusters, perform the following steps:
+
+1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+  <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
+
+1. View information about the deployed clusters with the following command:
+  <pre class="terminal">$ curl -k -s -X GET \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json;charset=UTF-8'\
+    https://$PKS_API_ENDPOINT:9021/v1/clusters</pre>
+  The response lists details about the deployed clusters, including  cluster name and status.
 
 ##<a id='delete-cluster'></a> Delete Cluster
 
-<p class="note"><strong>Note</strong>: This section is still under development.</p>
-To delete a cluster, execute the following command:
-`
-curl -k -s -X DELETE --header 'Content-Type: application/json' --header 'Accept: application/json;charset=UTF-8' https://$PKS_API_ADDRESS:9021/v1/clusters/$CLUSTER_NAME/
-`, where `$CLUSTER_NAME is the name of the cluster being deleted.
+To delete a cluster, perform the following steps:
 
+1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+  <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
+
+1. Set the name of the cluster you want to delete as an environment variable named `CLUSTER_NAME`. For example:
+  <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
+
+1. Delete the cluster with the following command:
+  <pre class="terminal">$ curl -k -s -X DELETE \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json;charset=UTF-8' \
+  https://$PKS\_API\_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/</pre>
