@@ -159,3 +159,51 @@ After configuring the tile, return to the Ops Manager Installation Dashboard and
 After the deployment finishes, click the tile and navigate to the **Status** tab to retrieve the IP address for the PKS API endpoint. 
 This is the endpoint that developers use to create and manage clusters. See [Using PKS](using.html) for more information.
 
+##<a id='post-deployment-steps'></a> Step 4: Post Deployment Steps (Temporary)
+
+###<a id='runtime-config'></a> Runtime Config
+
+Currently Ops Manager deploys a `runtime-config` that disables the name resolution on all VMs. The CFCR release requires that `bosh-dns` is running and resolving names.
+
+Post tile deployment prior to creating a cluster the following command should be run.
+
+```bash
+
+runtime_config=$(bosh-cli runtime-config --name ops_manager_dns_runtime)
+
+bosh-cli --non-interactive update-runtime-config --name ops_manager_dns_runtime \
+    <(echo "$runtime_config" | sed /override_nameserver/s/false/true/)
+    
+```
+
+This need to be run anytime a change is made in Ops Manager that would update the default runtime-config
+
+###<a id='runtime-config'></a> Cloud Config
+
+On GCP before creating a cluster we need to update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`
+
+Post tile deployment prior to creating a cluster the following command should be run. Where the `GCP_SERVICE_ACCOUNT` is the account to be used by the Kubernetes cloud provider.
+
+```bash
+bosh-cli cloud-config > cloud-config.yml
+
+vm_types=$(cat cloud-config.yml | ruby -ryaml -rjson -e 'puts JSON.pretty_generate(YAML.load(ARGF))' | jq -r '.vm_types[].name')
+
+echo "" > update_service_account
+
+for vm_type in $vm_types
+do
+  echo "- type: replace" >> update_service_account
+  echo "  path: /vm_types/name=${vm_type}/cloud_properties/service_account?" >> update_service_account
+  echo "  value: ((gcp_service_account))" >> update_service_account
+done
+
+bosh-cli --non-interactive update-cloud-config cloud-config.yml --ops-file update_service_account --var=gcp_service_account=<GCP_SERVICE_ACCOUNT>
+```
+
+
+
+
+
+
+
