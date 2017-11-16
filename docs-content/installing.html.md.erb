@@ -156,55 +156,70 @@ To edit the stemcell configuration, click **Stemcell**. Click **Import Stemcell*
 
 After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
 
-After the deployment finishes, click the tile and navigate to the **Status** tab to retrieve the IP address for the PKS API endpoint. 
-This is the endpoint that developers use to create and manage clusters. See [Using PKS](using.html) for more information.
+##<a id='post-deployment-steps'></a> Step 4: Post-Deployment Steps
 
-##<a id='post-deployment-steps'></a> Step 4: Post Deployment Steps (Temporary)
+After deploying the tile, you must use the BOSH CLI v2 to upload the BOSH DNS release and update the [runtime config](https://bosh.io/docs/runtime-config.html) on your BOSH Director. If you are using Google Cloud Platform (GCP), you must also update the [cloud config](https://bosh.io/docs/cloud-config.html).
 
-###<a id='runtime-config'></a> Runtime Config
+You must upload the BOSH DNS release and update the runtime config whenever you make a change in Ops Manager that updates the default runtime config.
 
-Currently Ops Manager deploys a `runtime-config` that disables the name resolution on all VMs. The CFCR release requires that `bosh-dns` is running and resolving names.
+###<a id='runtime-config'></a> Upload the BOSH DNS Release and Update the Runtime Config
 
-Post tile deployment prior to creating a cluster the following command should be run.
+Ops Manager deploys a [runtime config](https://bosh.io/docs/runtime-config.html) that disables the name resolution on all VMs. The [Cloud Foundry Container Runtime](https://docs-kubo.cfapps.io) release included in PKS requires that the `bosh-dns` job is running and resolving names. 
 
-```bash
+For more information about BOSH DNS, see the [BOSH documentation](https://bosh.io/docs/dns.html).
 
-bosh-cli upload-release "http://bosh.io/d/github.com/cloudfoundry/bosh-dns-release?v=0.0.8"
+Perform the following steps to upload the BOSH DNS release and update the runtime config:
 
-runtime_config=$(bosh-cli runtime-config --name ops_manager_dns_runtime \
-	| sed /override_nameserver/s/false/true/ \
+1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI v2 to log in to the BOSH Director from the Ops Manager VM. For more information, see [Advanced Troubleshooting with the BOSH CLI
+](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
+1. Upload the BOSH DNS release, specifying the name of your environment. For example:
+	<pre class="terminal">$ bosh2 -e my-env -d upload-release \
+	"htt<span>p:</span>//bosh.io/d/github.com/cloudfoundry/bosh-dns-release?v=0.0.8"</pre>
+1. Use the BOSH CLI v2 to set your runtime config as an environment variable. For example:
+	<pre class="terminal">$ RUNTIME\_CONFIG=$(bosh2 -e my-env runtime-config --name ops\_manager\_dns\_runtime \
+	| sed /override\_nameserver/s/false/true/ \
 	| sed /version/s/0.0.8.*$/0.0.8/)
-bosh-cli --non-interactive update-runtime-config --name ops_manager_dns_runtime \
-<(echo "$runtime_config")
-    
-```
+	</pre>
+1. Use the BOSH CLI v2 to update your runtime config. For example:
+	<pre class="terminal">$ bosh2 --non-interactive update-runtime-config --name ops_manager\_dns\_runtime \
+	<(echo "$RUNTIME\_CONFIG")
+	</pre>
+1. If you are using GCP, perform the procedure in [Update the Cloud Config (GCP Only)](#cloud-config). If you are not using GCP, continue to [Retrieve PKS API Endpoint](#retrieve-pks-api).
 
-This need to be run anytime a change is made in Ops Manager that would update the default runtime-config
+###<a id='cloud-config'></a> Update the Cloud Config (GCP Only)
 
-###<a id='runtime-config'></a> Cloud Config
+If you are using GCP, you must also update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`.
 
-On GCP before creating a cluster we need to update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`
+1. Set the GCP service account to be used by the Kubernetes cloud provider as an environment variable. For example:
+	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT = "example-acct"</pre>
+1. Use the BOSH CLI v2 to export your cloud config as a YAML file, specifying the name of your environment:
+	<pre class="terminal">$ bosh2 -e my-env cloud-config > cloud-config.yml</pre>
+1. Create an environment variable with your VM types. You must have [Ruby](https://www.ruby-lang.org/en/downloads/) and [jq](https://stedolan.github.io/jq/) installed. Enter the following command:
+	<pre class="terminal">$ VM\_TYPES=$(cat cloud-config.yml | ruby -ryaml -rjson -e 'puts JSON.pretty_generate(YAML.load(ARGF))' | jq -r '.VM\_TYPES[].name')</pre>
+1. Create a blank environment variable with the following command:
+	<pre class="terminal">$ echo "" > UPDATE\_SERVICE\_ACCOUNT</pre>
+1. Enter the following Bash script on the command line:
 
-Post tile deployment prior to creating a cluster the following command should be run. Where the `GCP_SERVICE_ACCOUNT` is the account to be used by the Kubernetes cloud provider.
+	```
+	for vm_type in $VM_TYPES
+	do
+	  echo "- type: replace" >> UPDATE_SERVICE_ACCOUNT
+	  echo "  path: /VM_TYPES/name=${vm_type}/cloud_properties/service_account?" >> UPDATE_SERVICE_ACCOUNT
+	  echo "  value: (($GCP_SERVICE_ACCOUNT))" >> UPDATE_SERVICE_ACCOUNT
+	done
+	```
+1. Use the BOSH CLI v2 to update the cloud config. For example:
+	<pre class="terminal">$ bosh2 --non-interactive update-cloud-config \ 
+	cloud-config.yml --ops-file UPDATE\_SERVICE\_ACCOUNT \
+	--var=gcp\_service\_account=$GCP\_SERVICE\_ACCOUNT</pre>
 
-```bash
-bosh-cli cloud-config > cloud-config.yml
+##<a id='retrieve-pks-api'></a> Step 5: Retrieve PKS API Endpoint
 
-vm_types=$(cat cloud-config.yml | ruby -ryaml -rjson -e 'puts JSON.pretty_generate(YAML.load(ARGF))' | jq -r '.vm_types[].name')
+Perform the following steps to retrieve the PKS API endpoint:
 
-echo "" > update_service_account
-
-for vm_type in $vm_types
-do
-  echo "- type: replace" >> update_service_account
-  echo "  path: /vm_types/name=${vm_type}/cloud_properties/service_account?" >> update_service_account
-  echo "  value: ((gcp_service_account))" >> update_service_account
-done
-
-bosh-cli --non-interactive update-cloud-config cloud-config.yml --ops-file update_service_account --var=gcp_service_account=<GCP_SERVICE_ACCOUNT>
-```
-
-
+1. Navigate to the Ops Manager Installation Dashboard. 
+1. Click the PKS tile.
+1. Click the **Status** tab and locate the IP address of the PKS API endpoint. This is the endpoint that developers use to create and manage clusters. See [Using PKS](using.html) for more information.
 
 
 
