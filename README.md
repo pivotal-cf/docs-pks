@@ -1,8 +1,8 @@
 # Pivotal Container Service (PKS) Documentation
 
-This repo contains the documentation for Pivotal Container Service (PKS).
+This repo contains the content for the documentation for Pivotal Container Service (PKS).
 
-The content in this repo publishes to the the PKS documentation site at https://docs-pks.cfapps.io.
+The content in this repo publishes to the PKS documentation site at https://docs-pks.cfapps.io.
 
 **This documentation is currently in development.**
 
