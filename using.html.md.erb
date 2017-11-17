@@ -20,7 +20,11 @@ To deploy application workloads to a Kubernetes cluster, developers use `kubectl
 
 ##<a id='prereqs'></a> Prerequisites
 
-To perform the procedures in this topic, you must have a Pivotal Cloud Foundry (PCF) deployment with Ops Manager and PKS installed, but not Pivotal Application Service (PAS). This procedure only works if PAS is not installed.
+The procedures in this topic have the following prerequisites:
+
+* A Pivotal Cloud Foundry (PCF) deployment with Ops Manager and PKS installed, but not Pivotal Application Service (PAS). This procedure only works if PAS is not installed.
+
+* An external load balancer must be configured to forward traffic to the PKS API endpoint. For more information, see the [Step 6: Configure External Load Balancer](installing.html#loadbalancer-pks-api) section of <em>Installing and Configuring PKS</em>.
 
 ##<a id='create-cluster'></a> Create Cluster
 
@@ -29,12 +33,9 @@ To create a cluster, perform the following steps:
 1. Choose a unique name for your cluster and set it as an environment variable named `CLUSTER_NAME`. For example:
   <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
 
-1. Retrieve the IP address of your Kubernetes master host and set it as an environment variable named `KUBERNETES_SERVICE_HOST`. For example:
+1. Retrieve the IP address of your external load balancer and set it as an environment variable named `KUBERNETES_SERVICE_HOST`. For example:
   <pre class="terminal">$ export KUBERNETES\_SERVICE\_HOST="192.0.2.0"</pre>
-
-1. Retrieve the IP addresses of your Kubernetes worker nodes and set them as an environment variable named `WORKLOAD_ADDRESS`. For example:
-  <pre class="terminal">$ export WORKLOAD\_ADDRESS="192.0.2.1,192.0.2.2,192.0.2.3"</pre>
-
+  
 1. Choose either attribute-based access control (ABAC) or role-based access control (RBAC) for your authorization mode. Set an environment variable named `AUTHORIZATION_MODE` to `abac` or `rbac`. For example:
   <pre class="terminal">$ export AUTHORIZATION\_MODE="abac"</pre>
   For more information about authorization modes, see the [Kubernetes documentation](https://kubernetes.io/docs/admin/authorization/#authorization-modules).
@@ -47,13 +48,15 @@ To create a cluster, perform the following steps:
   --header 'Content-Type: application/json' \
   --header 'Accept: application/json;charset=UTF-8' \
   -d '{"name": "$CLUSTER\_NAME","parameters": \
-  {"kubernetes\_master\_host": \
-  "$KUBERNETES\_SERVICE\_HOST","worker_haproxy\_ip\_addresses": \
-  "$WORKLOAD\_ADDRESS:-", "authorization\_mode": \
-  "$AUTHORIZATION\_MODE" },"plan\_id": ""}' \
+  {"kubernetes\_master\_host": "$KUBERNETES\_SERVICE\_HOST", \
+  "kubernetes\_master\_port": "8843", \
+   "authorization\_mode": "$AUTHORIZATION\_MODE" }, \
+   "plan\_id": ""}' \
   https://$PKS\_API\_ENDPOINT:9021/v1/clusters/</pre>
+  
+2. Ensure your operator has configured the external load balancer to point to the newly created cluster's master VM.
 
-2. Bind a user to the newly created cluster with the following command and export the output as an environment variable named `CREDENTIALS`:
+3. Bind a user to the newly created cluster with the following command and export the output as an environment variable named `CREDENTIALS`:
   <pre class="terminal">$ export CREDENTIALS="$(curl -k -s -X POST \
   -d "{}" \
   https://$PKS\_API\_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/binds)"
