@@ -25,6 +25,10 @@ This repo publishes two different versions of PKS docs:
 
 **Master is not a published branch.**
 
+The subnav for the v0.5.0-26 docs is located at https://github.com/pivotal-cf/docs-book-pks/blob/master/master_middleman/source/subnavs/pks_subnav_0_5_0.erb.
+
+The subnav for the v0.5.2 docs is located at https://github.com/pivotal-cf/docs-book-pks/blob/master/master_middleman/source/subnavs/pks_subnav_0_5_2.erb.
+
 ## How To Use Bookbinder To View Your Docs
 
 [Bookbinder](https://github.com/pivotal-cf/bookbinder/blob/master/README.md) is a command-line utility for stitching Markdown docs into a hostable web app. The PCF Docs Team uses Bookbinder to publish our documentation sites, but you can also use Bookbinder to view a live version of your documentation on your local machine.
