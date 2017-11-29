@@ -53,11 +53,11 @@ To create a cluster, perform the following steps:
   --header 'Accept: application/json;charset=UTF-8' \
   -d '{"name": "$CLUSTER\_NAME","parameters": \
   {"kubernetes\_master\_host": "$KUBERNETES\_SERVICE\_HOST", \
-  "kubernetes\_master\_port": "8443", \
    "authorization\_mode": "$AUTHORIZATION\_MODE" }, \
    "plan\_id": ""}' \
   https://$PKS\_API\_ENDPOINT:9021/v1/clusters/</pre>
   <br>
+<p class="note"><strong>Note</strong>: By default, the kubernetes api is set to point to port 8443. Read "Configuring Kubernetes API port" for details on how to configure it.</p>
   This command creates a cluster with 1 master, 1 etcd node, and 1 worker node. To create a cluster with more workers, perform the following steps:
     1. Set the environment variable named `KUBERNETES_WORKER_INSTANCES` to your desired number of Kubernetes worker nodes. This value must be between 1 and 50, inclusive. For example:
     <pre class="terminal">$ export KUBERNETES\_WORKER\_INSTANCES=3</pre>
@@ -67,7 +67,6 @@ To create a cluster, perform the following steps:
       --header 'Accept: application/json;charset=UTF-8' \
       -d '{"name": "$CLUSTER\_NAME","parameters": \
       {"kubernetes\_master\_host": "$KUBERNETES\_SERVICE\_HOST", \
-      "kubernetes\_master\_port": "8443", \
       "kubernetes\_worker\_instances": $KUBERNETES\_WORKER\_INSTANCES, \
        "authorization\_mode": "$AUTHORIZATION\_MODE" }, \
        "plan\_id": ""}' \
@@ -124,6 +123,43 @@ To create a cluster, perform the following steps:
   <pre class="terminal">$ bosh int <(echo "${CREDENTIALS}") --path="/credentials/kubeconfig" > "${HOME}/.kube/config"</pre>
 
 You can use the credentials and the kubeconfig to deploy application workloads to your cluster with `kubectl`. For more information on how to access your cluster, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/).
+
+##<a id='config-k8s-port'></a> Configuring Kubernetes API port
+
+To create a cluster, perform the following steps:
+
+1. Choose a unique name for your cluster and set it as an environment variable named `CLUSTER_NAME`. For example:
+  <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
+
+1. Retrieve the IP address of your external load balancer and set it as an environment variable named `KUBERNETES_SERVICE_HOST`. For example:
+  <pre class="terminal">$ export KUBERNETES\_SERVICE\_HOST="192.0.2.0"</pre>
+
+1. Retrieve the IP address of your external load balancer and set it as an environment variable named `KUBERNETES_SERVICE_HOST`. For example:
+  <pre class="terminal">$ export KUBERNETES\_SERVICE\_PORT="1234"</pre>
+
+1. Choose either attribute-based access control (ABAC) or role-based access control (RBAC) for your authorization mode. Set an environment variable named `AUTHORIZATION_MODE` to `abac` or `rbac`. For example:
+  <pre class="terminal">$ export AUTHORIZATION\_MODE="abac"</pre>
+  For more information about authorization modes, see the [Kubernetes documentation](https://kubernetes.io/docs/admin/authorization/#authorization-modules).
+
+1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+  <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
+
+1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+  <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
+
+1. Create a cluster with the following command:
+  <pre class="terminal">$ curl -k -u $PKS\_API\_CREDS -s -X POST \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json;charset=UTF-8' \
+  -d '{"name": "$CLUSTER\_NAME","parameters": \
+  {"kubernetes\_master\_host": "$KUBERNETES\_SERVICE\_HOST", \
+  "kubernetes\_master\_port": "$KUBERNETES\_SERVICE\_PORT", \
+   "authorization\_mode": "$AUTHORIZATION\_MODE" }, \
+   "plan\_id": ""}' \
+  https://$PKS\_API\_ENDPOINT:9021/v1/clusters/</pre>
+  <br>
+
+2. Proceed to the "Create Cluster" section for steps on how to complete cluster binding.
 
 ##<a id='update-cluster'></a> Update Cluster Name
 
