@@ -189,46 +189,34 @@ Perform the following steps to update the runtime config:
 	<pre class="terminal">$ bosh --non-interactive update-runtime-config --name ops_manager\_dns\_runtime \
 	<(echo "$RUNTIME\_CONFIG")
 	</pre>
-1. If you are using GCP, perform the procedure in [Update the Cloud Config (GCP Only)](#cloud-config). If you are not using GCP, continue to [Retrieve PKS API Endpoint](#retrieve-pks-api).
+1. If you are using GCP, perform the procedure in [Create Service Accounts and Update the Cloud Config (GCP Only)](#cloud-config). If you are not using GCP, continue to [Retrieve PKS API Endpoint](#retrieve-pks-api).
 
-###<a id='cloud-config'></a> Update the Cloud Config (GCP Only)
+###<a id='cloud-config'></a> Create Service Accounts and Update the Cloud Config (GCP Only)
 
-#### Notes on Service accounts for master and worker
+If you are deploying on GCP, you must also create service accounts and update the cloud config.
 
-**Why are service accounts required?**
+In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create service accounts for both the master and worker nodes with sufficient permissions. Then you must update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`. 
 
-Kubernetes needs to be able to create load balancers and attach persistent disks to pods for which it requires service accounts with sufficient permissions defined by roles below.
+Perform the following steps:
 
-
-**What are the roles required for the service account?**
-
-* Master Service Account 
-  * `roles/iam.serviceAccountActor` (Project > Service Account Actor)
-  * `roles/compute.instanceAdmin`  (Compute Engine > Compute Instance Admin)
-  * `roles/compute.securityAdmin` (Compute Engine > Compute Security Admin)
-  * `roles/compute.networkAdmin` (Compute Engine > Compute Network Admin)
-  * `roles/compute.storageAdmin` (Compute Engine > Compute Storage Admin)
-* Worker Service Account
-  * `roles/compute.viewer` (Compute Engine > Compute Viewer)
-
-[See details here](https://github.com/cloudfoundry-incubator/kubo-deployment/blob/master/docs/user-guide/platforms/gcp/kubo-infrastructure.tf#L61-L110)
-
-  
-**Where to specify roles?**
-
-To create service account, go to Service Accounts on GCP Console and click Create Service Account:
-
-1. Specify a Service Account Name.
-2. In the Role dropdown, select the above roles.
-3. Check Furnish a new private key and choose key type as JSON.
-4. Click Create.
-
--------
-
-If you are deploying on GCP, you must also update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`. 
-
+1. Navigate to the **IAM & admin > Service accounts** section of the GCP Console.
+1. Click **Create Service Account**.
+1. Enter a name for the service account for the master nodes, and add the following roles:
+  * `roles/iam.serviceAccountActor` (**Project > Service Account Actor**)
+  * `roles/compute.instanceAdmin`  (**Compute Engine > Compute Instance Admin**)
+  * `roles/compute.securityAdmin` (**Compute Engine > Compute Security Admin**)
+  * `roles/compute.networkAdmin` (**Compute Engine > Compute Network Admin**)
+  * `roles/compute.storageAdmin` (**Compute Engine > Compute Storage Admin**)
+	<p class="note"><strong>Note</strong>: See the <code>kubo-deployment</code> GitHub <a href="https://github.com/cloudfoundry-incubator/kubo-deployment/blob/master/docs/user-guide/platforms/gcp/kubo-infrastructure.tf#L61-L110">repo</a> for more information about the required roles.</p>
+1. Click **Furnish a new private key** and select **JSON**.
+1. Click **Create**.
+1. Click **Create Service Account**.
+1. Enter a name for the service account for the worker nodes, and add the following role:
+  * `roles/compute.viewer` (**Compute Engine > Compute Viewer**)
+1. Click **Furnish a new private key** and select **JSON**.
+1. Click **Create**.
 1. Set the GCP service account to be used by the Kubernetes cloud provider as an environment variable. For example:
-	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT="example-acct@project.iam.gserviceaccount.com"</pre>
+	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT="example-acct<span>@</span>project.iam.gserviceaccount.com"</pre>
 1. Use the BOSH CLI v2 to export your cloud config as a YAML file, specifying the name of your environment:
 	<pre class="terminal">$ bosh -e my-env cloud-config > cloud-config.yml</pre>
 1. Create an environment variable with your VM types. You must have [Ruby](https://www.ruby-lang.org/en/downloads/) and [jq](https://stedolan.github.io/jq/) installed. Enter the following command:
