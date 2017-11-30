@@ -14,21 +14,6 @@ The easiest way to contribute is to file a pull request through GitHub.
 
 Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a corresponding file in this repo. Locate the correct file and make a pull request against it. You can also navigate to the topic in the PKS documentation site and click "View the source for this page in GitHub" at the bottom of the topic.
 
-**Make sure to make your PR against the correct branch, depending on which version of the docs you want to modify. See the Versioned Branches section below.**
-
-## Versioned Branches
-
-This repo publishes two different versions of PKS docs:
-
-* The [0.5.0-26](https://github.com/pivotal-cf/docs-pks/tree/0.5.0-26) branch publishes the v0.5.0-26 docs at https://docs-pks.cfapps.io/pks/0-5-0/.
-* The [0.5.2](https://github.com/pivotal-cf/docs-pks/tree/0.5.2) branch publishes the v0.5.2 docs at https://docs-pks.cfapps.io/pks/0-5-2.
-
-**Master is not a published branch.**
-
-The subnav for the v0.5.0-26 docs is located at https://github.com/pivotal-cf/docs-book-pks/blob/master/master_middleman/source/subnavs/pks_subnav_0_5_0.erb.
-
-The subnav for the v0.5.2 docs is located at https://github.com/pivotal-cf/docs-book-pks/blob/master/master_middleman/source/subnavs/pks_subnav_0_5_2.erb.
-
 ## How To Use Bookbinder To View Your Docs
 
 [Bookbinder](https://github.com/pivotal-cf/bookbinder/blob/master/README.md) is a command-line utility for stitching Markdown docs into a hostable web app. The PCF Docs Team uses Bookbinder to publish our documentation sites, but you can also use Bookbinder to view a live version of your documentation on your local machine.
