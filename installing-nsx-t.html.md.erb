@@ -1,0 +1,269 @@
+---
+title: Configuring PKS with NSX-T Integration
+owner: PKS
+---
+
+<p class="note"><strong>Note</strong>: The PKS documentation is under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
+
+This topic describes how to configure NSX-T with Pivotal Container Service (PKS).
+
+##<a id='resources'></a> Resource Requirements
+
+Integrating NSX-T with PKS Requires that NSX-T be deployed in addition to Operations Manager & PKS.   NSX-T requires the following resources from your environment:
+
+<table>
+<tr>
+  <th>NSX-T Component</th>
+  <th>Memory</th>
+  <th>vCPU</th>
+  <th>Disk Space</th>
+</tr>
+<tr>
+  <td>NSX-T Manager Appliance</td>
+    <td>16 GB</td>
+    <td>4</td>
+    <td>140 GB</td>
+</tr>
+<tr>
+  <td>NSX-T Controller(s) (1-3)</td>
+    <td>16 GB</td>
+    <td>4 GB</td>
+    <td>120 GB</td>
+</tr>
+<tr>
+  <td>NSX-T Edge</td>
+    <td>16 GB</td>
+    <td>4 GB</td>
+    <td>120 GB</td>
+</tr>
+</table>
+
+
+##<a id='prereqs'></a> Prerequisites
+
+Integrating  NSX-T with PKS requires the following vSphere / NSX-T Version Dependancies:
+
+<table class="nice">
+    <th>Component</th>
+    <th>Version</th>
+    <tr>
+        <td>VMware vSphere</td>
+        <td>6.5 GA and 6.5 U1</td>
+    </tr>
+    <tr>
+        <td>VMware NSX-T</td>
+        <td>2.1</td>
+    </tr>
+
+</table>
+
+
+**(1)** NSX-T must be deployed prior to integrating with PKS.  Overview steps and conditions listed below must have been completed in order to proceed:
+
+* NSX-T Manager must be deployed
+* NSX-T Controller(s) must be deployed
+* NSX-T Control Cluster must be joined to NSX-T Manger & initialized
+* ESX Host(s) must be added to the NSX-T Fabric
+
+* vCenter, NSX-T components, and ESXi hosts should be able to communicate with each other
+  * `TODO Define Ports`
+* Ops Manager Director VM should be able to communicate with vCenter and NSX-T manager
+  * `TODO Define Ports`
+* Ops Manager Director VM should be able to communicate with ALL nodes in ALL K8's clusters
+  * `TODO Define Ports`
+* Each PKS Deployed Kubernetes Cluster will deploy a NCP pod which will need access to NSX-manager
+  * `TODO Define Ports`
+
+ Please refer to [VMware NSX-T Documentation] (https://docs.vmware.com/en/VMware-NSX-T/index.html) for detailed NSX-T installation information to accomplish the above requirements.
+
+
+
+**(2)** After NSX-T components above has been deployed, the following objects must be created in the NSX-T deployment for use with PKS.  Please refer to VMWare NSX-T documentation for planning and configuration guidance,  the following are provided:
+
+
+* Create a NSX IP Pool for ESX Host Tunnel Endpoints - [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html)
+* Create '2' NSX Transport Zones (TZ) - [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html)
+  * 1 NSX Overlay TZ: for PKS Kubernetes Cluster Deployment Overlay Network(s)
+  * 1 NSX VLAN TZ: for NSX Edge Uplink (Ingress/Egress) for PKS Kubernetes Cluster(s)
+* Create a NSX Uplink Host Profile if the default profile is not applicable in your use case. [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html)
+* Create NSX Transport Nodes for desired ESX hosts [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-D7CA778B-6554-4A23-879D-4BC336E01031.html)
+* Create NSX IP Block
+* Deploy NSX one or more Edge(s) onto desired NSX-T Fabric Hosts/Nodes
+* Join NSX Edge to NSX-T Fabric [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html)
+* Create a NSX Edge Uplink Host Profile if the default profile is not applicable in your use case [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html)
+* Create NSX Edge Transport Node [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-53295329-F02F-44D7-A6E0-2E3A9FAE6CF9.html)
+  * Add to Both Transport Zones to the Edge Transport Node
+* Create a NSX Edge Cluster [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-898099FC-4ED2-4553-809D-B81B494B67E7.html)
+  * Add the NSX Edge Transport Nodes to the cluster
+* Create a Tier-0 (T0) Logical Router [VMW documentation link](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html)
+* Uplink the T0 to the Ingress/Egress Logical Switch
+  * Assign Logical Router Port & IP Address 
+* Create a NSX logical Switch for the PKS Service Network
+* Create a Tier 1 (T1) Logical Router to Attach to the T0 and route NSX logical Switch for the PKS Service Network externally
+
+  
+  
+  
+##<a id='install'></a> Step 1: Install PKS
+
+###<a id='install-bosh'></a> Define NSX Logical Switch in the Opsman Director Config
+
+Add the Following Networks into the <strong>Ops Manager Director</strong> Tile in Ops Manager
+
+1. Navigate to `YOUR-OPSMAN-FQDN` in a browser to log in to the Ops Manager Installation Dashboard.
+1. In addition to configuring Ops Manager Director for vSphere, Click the **Ops Manager Director Tile** two configure required networks:
+   * Click **Create Networks** and create two networks:
+     * Create a network for Deployment of the PKS Control Plane VM(s)
+     * Create a 'service' network for the Deployment of PKS Kubernetes Cluster Nodes
+         * This network should map to the NSX logical Switch created for the PKS Service Network
+1. After configuring remaining Options for vSphere, return to the Ops Manager Installation Dashboard and click **Apply Changes**
+
+###<a id='install-bosh'></a> Install PKS Tile
+
+After Adding the NSX logical Switch for the PKS Service Network ...
+
+1. Download the PKS product file from [Pivotal Network](https://network.pivotal.io).
+1. Navigate to `YOUR-OPSMAN-FQDN` in a browser to log in to the Ops Manager Installation Dashboard.
+1. From the Ops Manager Installation Dashboard, click **Import a Product** to upload the product file.
+1. Under **Pivotal Container Service** in the left column, click the plus sign to add this product to your staging area.
+
+##<a id='configure'></a> Step 2: Configure PKS with NSX-T Integration
+
+Click the orange **Pivotal Container Service** tile to PKS with NSX-T Networking Integration.
+  <p class="note"><strong>Note</strong>: At this time (early access), configuration of NSX-T or Flannel <strong>cannot</strong> be changed after initial install.</p>
+
+###<a id='azs-networks'></a> Assign AZs and Networks
+
+Perform the following steps:
+
+1. Click **Assign AZs and Networks**.
+1. Select an availability zone for your singleton jobs, and one or more availability zones to balance other jobs in. This is where PCF creates the PKS broker.
+1. Under **Network**, select a `Singleton Availability Zone` network. This will provide network placement for the PKS broker. 
+1. Under **Service Network**, select the `Service Network` linked to the NSX logical Switch created in the previous step.  This will provide network placement for the on-demand service instances created by the PKS broker.
+1. Click **Save**.
+
+###<a id='pks-api'></a> PKS API
+
+Perform the following steps:
+
+1. Click **PKS API**.
+1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters.
+1. Under **Certificate**, provide your own certificate or have Ops Manager generate one.
+1. Under **Generate RSA Certificate**, provide the domain names that you want your certificate to have. The domain names should contain 
+the hostname you intend to use for accessing the PKS API service. 
+1. Click **Save**.
+
+###<a id='broker'></a> Broker
+
+Perform the following steps:
+
+1. Click **Broker**.
+1. Under **Routing mode**, select a routing mode for the PKS deployed Kubernetes Clusters.
+1. Under **AZ placement**, select an availability zone for the PKS deployed Kubernetes Clusters.
+1. Click **Save**.
+
+###<a id='plan'></a> Plan
+
+Perform the following steps:
+
+1. Click **Plan**.
+1. Under **Plan description**, edit the description as needed. The plan description appears in the Services Marketplace, which developers can access by using either the Cloud Foundry Command Line Interface (cf CLI) or Apps Manager. 
+1. Under **ETCD VM Type**, select the type of VM to use for the Kubernetes etcd nodes. 
+	<p class="note"><strong>Note</strong>: This configuration is temporary until the master and etcd nodes are merged.</p>
+1. Under **Master VM Type**, select the type of VM to use for Kubernetes master nodes.
+1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker nodes.
+1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker nodes.
+1. Under **Worker Instances**, select the default number of Kubernetes worker nodes to provision for each cluster.
+1. Click **Save**.
+
+###<a id='iaas'></a> IaaS
+
+Perform the following steps:
+
+1. Click **IaaS**.
+1. Under **Choose your IaaS**, select your IaaS.
+1. Perform the steps specific to your IaaS.
+	* For vSphere, ensure the values match those in the **vCenter Config** section of the **Ops Manager** tile:
+		1. Enter your **vCenter Host**, such as `vcenter.cf-example.com`.
+		1. Enter your **Datacenter Name**, such as `cf-example-dc`.
+		1. For **VM Folder**, enter the name of a VM and Template Folder in vCenter.
+	* For GCP, ensure the values match those in the **Google Config** section of the **Ops Manager** tile:
+	  1. Enter your **GCP Project Id**.
+	  1. Enter your **GCP Network**, which is the VPC network name for your Ops Manager environment.
+1. Click **Save**.
+
+###<a id='nsx-t'></a> NSX-T `Location in Tile TBD`
+
+`TODO Confirm Tile Input Options`
+
+1. Click **NSX-T**
+1. Under **NSX Manager Address**, Please enter the NSX Manager hostname or IP address
+1. Under **NSX Manager Credentials**, Please enter the credentials to connect to the NSX Manager
+1. Under **NSX Manager CA Cert**, Please enter the CA certificate to be used to connect to NSX Manager
+1. Select the **Disable SSL certificate verification** Checkbox to bypass TLS verification (disabled by default)
+1. Under **Tier 0 Router ID**, Plaese enter the T0 router ID
+1. Under **IP Block ID**, Please enter the IP block ID
+1. Under **Floating IP pool IDs**, Please enter the Floating IP pool IDs
+
+
+
+###<a id='resources'></a> (Optional) Resource Config
+
+To modify the resource usage of PKS, click **Resource Config** and edit the **PKS on-demand broker** job.
+
+###<a id='stemcell'></a> (Optional) Stemcell
+
+To edit the stemcell configuration, click **Stemcell**. Click **Import Stemcell** to import a new stemcell. 
+
+##<a id='apply-changes'></a> Step 3: Apply Changes
+
+After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
+
+##<a id='post-deployment-steps'></a> Step 4: Post-Deployment Steps
+
+After deploying the tile, you must use the BOSH CLI v2 to update the [runtime config](https://bosh.io/docs/runtime-config.html) on your BOSH Director.
+
+You must update the runtime config whenever you make a change in Ops Manager that updates the default runtime config.
+
+###<a id='runtime-config'></a> Update the Runtime Config
+
+Ops Manager deploys a [runtime config](https://bosh.io/docs/runtime-config.html) that disables the name resolution on all VMs. The [Cloud Foundry Container Runtime](https://docs-kubo.cfapps.io) release included in PKS requires that the `bosh-dns` job is running and resolving names. 
+
+For more information about BOSH DNS, see the [BOSH documentation](https://bosh.io/docs/dns.html).
+
+Perform the following steps to update the runtime config:
+
+1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI v2 to log in to the BOSH Director from the Ops Manager VM. For more information, see [Advanced Troubleshooting with the BOSH CLI
+](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
+1. Use the BOSH CLI v2 to set your runtime config as an environment variable. For example:
+	<pre class="terminal">$ RUNTIME\_CONFIG=$(bosh -e my-env runtime-config --name ops\_manager\_dns\_runtime \
+	| sed /override\_nameserver/s/false/true/ )
+	</pre>
+1. Use the BOSH CLI v2 to update your runtime config. For example:
+	<pre class="terminal">$ bosh --non-interactive update-runtime-config --name ops_manager\_dns\_runtime \
+	<(echo "$RUNTIME\_CONFIG")
+	</pre>
+
+
+##<a id='retrieve-pks-api'></a> Step 5: Retrieve PKS API Endpoint
+
+You must share the PKS API endpoint to allow your organization to use the API to create, update, and delete clusters.
+
+When an operator creates a cluster, they provide an IP address for the Kubernetes master host, then point the load balancer to the newly created cluster.
+If you use a load balancer as a service (LBaaS) tool, your LBaaS may manage cluster creation and configuration.
+
+See [Using PKS](using.html#create-cluster) for more information.
+
+Perform the following steps to retrieve the PKS API endpoint:
+
+1. Navigate to the Ops Manager Installation Dashboard. 
+1. Click the PKS tile.
+1. Click the **Status** tab and locate the IP address of the PKS API endpoint. This is the endpoint that developers use to create and manage clusters.
+
+##<a id='loadbalancer-pks-api'></a> Step 6: Configure External Load Balancer
+
+Configure your external load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration. Your external load balancer will forward traffic to the PKS API endpoint.
+
+
+
+
