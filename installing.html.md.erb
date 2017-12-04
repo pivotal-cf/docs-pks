@@ -3,7 +3,7 @@ title: Installing and Configuring PKS
 owner: PKS
 ---
 
-<p class="note"><strong>Note</strong>: The PKS documentation is still under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
+<p class="note"><strong>Note</strong>: The PKS documentation is under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
 
 This topic describes how to install and configure Pivotal Container Service (PKS).
 
@@ -19,15 +19,7 @@ Installing PKS deploys the following two virtual machines (VMs):
 <th>Ephemeral Disk</th>
 <th>Persistent Disk</th>
 </tr>
-<tr>
-<td>Separate BOSH Director</td>
-<td>2</td>
-<td>4 GB</td>
-<td>20 GB</td>
-<td>32 GB</td>
-</tr>
-<tr>
-<td>On-Demand Broker</td>
+<td>Pivotal Container Service</td>
 <td>1</td>
 <td>4 GB</td>
 <td>20 GB</td>
@@ -46,27 +38,27 @@ Each Kubernetes cluster provisioned through PKS deploys the following VMs:
 <th>Ephemeral Disk</th>
 <th>Persistent Disk</th>
 </tr>
-<td>3</td>
+<td>1</td>
 <td>etcd</td>
 <td>1</td>
-<td>4 GB</td>
-<td>20 GB</td>
-<td>5 GB</td>
+<td>1 GB</td>
+<td>8 GB</td>
+<td>2 GB</td>
 </tr>
-<tr>
-<td>2</td>
+</tr>
+<td>1</td>
 <td>master</td>
 <td>1</td>
 <td>4 GB</td>
-<td>20 GB</td>
+<td>8 GB</td>
 <td>n/a</td>
 </tr>
 <tr>
-<td>3</td>
-<td>worker</td>
-<td>4</td>
+<td>1</td>
+<td>worker node</td>
+<td>2</td>
+<td>4 GB</td>
 <td>8 GB</td>
-<td>100 GB</td>
 <td>10 GB</td>
 </tr>
 </table>
@@ -169,12 +161,26 @@ After configuring the tile, return to the Ops Manager Installation Dashboard and
 
 If you are using Google Cloud Platform (GCP), you must also update the [cloud config](http://bosh.io/docs/cloud-config.html). You have to update cloud-config, each time you click "Apply Changes" on OpsManager.
 
-###<a id='cloud-config'></a> Update the Cloud Config (GCP Only)
+If you are deploying on GCP, you must also create a service account and update the cloud config.
 
-If you are deploying on GCP, you must also update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`. 
+In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create a service account with sufficient permissions. Then you must update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`. 
 
-1. Set the GCP service account to be used by the Kubernetes cloud provider as an environment variable. For example:
-	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT="example-acct@project.iam.gserviceaccount.com"</pre>
+Perform the following steps:
+
+1. Navigate to the **IAM & admin > Service accounts** section of the GCP Console.
+1. Click **Create Service Account**.
+1. Enter a name for the service account, and add the following roles:
+  * `roles/iam.serviceAccountActor` (**Project > Service Account Actor**)
+  * `roles/compute.instanceAdmin`  (**Compute Engine > Compute Instance Admin**)
+  * `roles/compute.securityAdmin` (**Compute Engine > Compute Security Admin**)
+  * `roles/compute.networkAdmin` (**Compute Engine > Compute Network Admin**)
+  * `roles/compute.storageAdmin` (**Compute Engine > Compute Storage Admin**)
+  * `roles/compute.viewer` (**Compute Engine > Compute Viewer**)
+	<p class="note"><strong>Note</strong>: See the <code>kubo-deployment</code> GitHub <a href="https://github.com/cloudfoundry-incubator/kubo-deployment/blob/master/docs/user-guide/platforms/gcp/kubo-infrastructure.tf#L61-L110">repository</a> for more information about the required roles.</p>
+1. Click **Furnish a new private key** and select **JSON**.
+1. Click **Create**.
+1. Set the name of the GCP service account as an environment variable. For example:
+	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT="example-acct<span>@</span>project.iam.gserviceaccount.com"</pre>
 1. Use the BOSH CLI v2 to export your cloud config as a YAML file, specifying the name of your environment:
 	<pre class="terminal">$ bosh -e my-env cloud-config > cloud-config.yml</pre>
 1. Create an environment variable with your VM types. You must have [Ruby](https://www.ruby-lang.org/en/downloads/) and [jq](https://stedolan.github.io/jq/) installed. Enter the following command:
