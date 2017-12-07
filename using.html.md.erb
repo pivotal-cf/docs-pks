@@ -10,22 +10,29 @@ This topic describes how to use Pivotal Container Service (PKS).
 After an operator has [installed](installing.html) PKS, developers can use `curl` or the PKS CLI to do the following:
 
 * [Create](#create-cluster) a Kubernetes cluster
-* [Get Credentials] (#get-credentials) for a kubernetes cluster
+* [Retrieve the credentials and configuration](#get-credentials) for a Kubernetes cluster so that developers can deploy application workloads to the cluster with `kubectl`
 * [View](#view-cluster-list) the list of running Kubernetes clusters
-* [View](#view-cluster) details on the kubernetes cluster of your choice
+* [View](#view-cluster) details about a Kubernetes cluster 
 * [View](#view-cluster-plans) the list of available plans for deploying a Kubernetes cluster
-* [Resize](#resize) the number of worker nodes in the cluster
+* [Resize](#resize) the number of worker nodes in a Kubernetes cluster
 * [Delete](#delete-cluster) a Kubernetes cluster
 
-To deploy application workloads to a Kubernetes cluster, developers use `kubectl`, the Kubernetes CLI. For more information, see the [Kubernetes documentation](https://kubernetes.io/docs/user-guide/kubectl-overview/) and [download from here](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl)
+To deploy application workloads to a Kubernetes cluster, developers use `kubectl`, the Kubernetes CLI. 
+To download and install `kubectl`, see the [Install and Set Up kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl) topic in the Kubernetes documentation.
+For more information about using `kubectl`, see the `kubectl` [documentation](https://kubernetes.io/docs/user-guide/kubectl-overview/).
 
 ##<a id='prereqs'></a> Prerequisites
 
 The procedures in this topic have the following prerequisites:
 
-* A Pivotal Cloud Foundry (PCF) deployment with Ops Manager and PKS installed, but not Pivotal Application Service (PAS). This procedure only works if PAS is not installed.
+* A Pivotal Cloud Foundry (PCF) deployment with Ops Manager and PKS installed, but not Pivotal Application Service (PAS). The procedures in this topic only work if PAS is not installed.
 
 * An external load balancer must be configured to forward traffic to the PKS API endpoint. For more information, see the [Step 6: Configure External Load Balancer](installing.html#loadbalancer-pks-api) section of <em>Installing and Configuring PKS</em>.
+
+* You must have your PKS API endpoint and your PKS API credentials. To retrieve these values, perform the following steps:
+  1. Navigate to the **Pivotal Container Service** tile in the Ops Manager Installation Dashboard. 
+  1. Click the **Status** tab.
+  1. Retrieve the PKS API endpoint under **IPs**, and the PKS API credentials under **PKS Basic Auth**.
 
 ###<a id='install-cli'></a> Install the PKS CLI
 
@@ -50,7 +57,7 @@ Binaries are only provided for 64-bit architectures.
 ####<a id="pks-cli-windows"></a> Windows
 
 1. Download the [Windows](https://storage.googleapis.com/pks-public/bin/windows/pks.exe) binary.
-  <pre class="terminal">$ curl -LO https://storage.googleapis.com/pks-public/bin/windows/pks</pre>
+              <pre class="terminal">$ curl -LO http<span>s:</span>//storage.googleapis.com/pks-public/bin/windows/pks</pre>
 
 2. Move the binary into your `PATH`.
 
@@ -68,44 +75,45 @@ To create a cluster, perform the following steps:
   <pre class="terminal">$ export AUTHORIZATION\_MODE="rbac"</pre>
   For more information about authorization modes, see the [Kubernetes documentation](https://kubernetes.io/docs/admin/authorization/#authorization-modules).
 
-1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. This can be found in the status tab of the tile under "IPS" For example:
+1. Set your PKS API endpoint as an environment variable named `PKS_API_ENDPOINT`. For example:
   <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
 
-1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+1. Set your PKS API credentials as an environment variable named `PKS_API_CREDS`. For example:
   <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
 
 1. Create a cluster with the following command:
   <pre class="terminal">$ curl -k -u $PKS\_API\_CREDS -s -X POST \
   --header 'Content-Type: application/json' \
   --header 'Accept: application/json;charset=UTF-8' \
-  -d '{"name": "$CLUSTER\_NAME","parameters": \
-  {"kubernetes\_master\_host": "$KUBERNETES\_SERVICE\_HOST", \
-   "authorization\_mode": "$AUTHORIZATION\_MODE" }, \
-   "plan\_id": ""}' \
+  -d "{\"name\": \"$CLUSTER\_NAME\",\"parameters\": \
+  {\"kubernetes\_master\_host\": \"$KUBERNETES\_SERVICE\_HOST\", \
+   \"authorization\_mode\": \"$AUTHORIZATION\_MODE\" }}" \
   https://$PKS\_API\_ENDPOINT:9021/v1/clusters/</pre>
   <br>
   By default, the Kubernetes API listens on port 8443. To configure a different port, add the `kubernetes_master_port` parameter to the `curl` command above and set it to your desired port.
   <br><br>
-  This command creates a cluster with 1 master, 1 etcd node, and 1 worker node (if the number of worker nodes were set to 1 in the plan). To create a cluster with more workers, perform the following steps:
+  This command creates a cluster with 1 master, 1 etcd node, and the number of worker nodes specified when configuring the **Plan** section of the PKS tile. For more information, see [Plan](installing.html#plan) in <em>Installing and Configuring PKS</em>.
+  <br><br>
+  To create a cluster with more workers, perform the following steps:
     1. Set the environment variable named `KUBERNETES_WORKER_INSTANCES` to your desired number of Kubernetes worker nodes. This value must be between 1 and 50, inclusive. For example:
     <pre class="terminal">$ export KUBERNETES\_WORKER\_INSTANCES=3</pre>
     1. Create the cluster with the following command:
       <pre class="terminal">$ curl -k -u $PKS\_API\_CREDS -s -X POST \
       --header 'Content-Type: application/json' \
       --header 'Accept: application/json;charset=UTF-8' \
-      -d '{"name": "$CLUSTER\_NAME","parameters": \
-      {"kubernetes\_master\_host": "$KUBERNETES\_SERVICE\_HOST", \
-      "kubernetes\_master\_port": "8443", \
-      "kubernetes\_worker\_instances": $KUBERNETES\_WORKER\_INSTANCES, \
-       "authorization\_mode": "$AUTHORIZATION\_MODE" }, \
-       "plan\_id": ""}' \
+      -d "{\"name\": \"$CLUSTER\_NAME\",\"parameters\": \
+      {\"kubernetes\_master\_host\": \"$KUBERNETES\_SERVICE\_HOST\", \
+      \"kubernetes\_worker\_instances\": $KUBERNETES\_WORKER\_INSTANCES, \
+      \"authorization\_mode\": \"$AUTHORIZATION\_MODE\" }}" \
       https://$PKS\_API\_ENDPOINT:9021/v1/clusters/</pre>
 
 2. Ensure your operator has configured the external load balancer to point to the newly created cluster's master VM.
 
-##<a id='get-credentials'></a> Get Credentials and Bind to the Cluster
+##<a id='get-credentials'></a> Retrieve Cluster Credentials and Configuration
 
-1. Bind a user to the newly created cluster with the following command and export the output as an environment variable named `CREDENTIALS`:
+To retrieve cluster credentials and configuration so that developers can deploy application workloads to the cluster with `kubectl`, perform the following steps:
+
+1. Retrieve the cluster credentials and configuration with the following command and export the output as an environment variable named `CREDENTIALS`:
   <pre class="terminal">$ export CREDENTIALS="$(curl -k -u $PKS_API_CREDS -s -X POST \
   --header 'Content-Type: application/json' \
   https://$PKS\_API\_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/binds)"
@@ -152,19 +160,18 @@ To create a cluster, perform the following steps:
     </pre>
 2. Use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to convert the JSON output to a YAML file at `$HOME/.kube/config`:
   <pre class="terminal">$ bosh int <(echo "${CREDENTIALS}") --path="/credentials/kubeconfig" > "${HOME}/.kube/config"</pre>
+    <p class="note"><strong>Note</strong>: If you have an existing file at <code>$HOME/.kube/config</code>, the BOSH CLI command will overwrite it.</p>
 
-Note: If you alreadyhave an existing config file this will overwrite it.  
-
-You can use the credentials and the kubeconfig to deploy application workloads to your cluster with `kubectl`. For more about accessing your cluster, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/).
+You can use the credentials and the kubeconfig to deploy application workloads to your cluster with `kubectl`. For more information about accessing your cluster, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/).
 
 ##<a id='view-cluster-list'></a> View Cluster List
 
 To view information about the deployed clusters, perform the following steps:
 
-1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+1. Set your PKS API endpoint as an environment variable named `PKS_API_ENDPOINT`. For example:
   <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
 
-1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+1. Set your PKS API credentials as an environment variable named `PKS_API_CREDS`. For example:
   <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
 
 1. View information about the deployed clusters with the following command:
@@ -172,36 +179,35 @@ To view information about the deployed clusters, perform the following steps:
     --header 'Content-Type: application/json' \
     --header 'Accept: application/json;charset=UTF-8'\
     https://$PKS_API_ENDPOINT:9021/v1/clusters</pre>
-  The response lists details about the deployed clusters, including  cluster name and status.
+  The response lists details about the deployed clusters, including cluster name and status.
 
-##<a id='view-cluster'></a> View Details on an Individual Cluster
+##<a id='view-cluster'></a> View Cluster Details
 
-To view details about an individual clsuter, perform the following:
+To view details about an individual cluster, perform the following steps:
 
-1. Choose a unique name for your cluster and set it as an environment variable named `CLUSTER_NAME`. For example:
+1. Set the name of the cluster as an environment variable named `CLUSTER_NAME`. For example:
   <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
 
-1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+1. Set your PKS API endpoint as an environment variable named `PKS_API_ENDPOINT`. For example:
   <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
 
-1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+1. Set your PKS API credentials as an environment variable named `PKS_API_CREDS`. For example:
   <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
 
-1. View information about the available plans with the following command:
+1. View details about the cluster with the following command:
   <pre class="terminal">$ curl -k -u $PKS\_API\_CREDS -s -X GET \
     --header 'Content-Type: application/json' \
     --header 'Accept: application/json;charset=UTF-8'\
     https://$PKS_API_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/</pre>
-  The response lists details about the available plans, including the plan name and description.
 
 ##<a id='view-cluster-plans'></a> View Cluster Plans
 
 To view information about the available plans for deploying a cluster, perform the following steps:
 
-1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+1. Set your PKS API endpoint as an environment variable named `PKS_API_ENDPOINT`. For example:
   <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
 
-1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+1. Set your PKS API credentials as an environment variable named `PKS_API_CREDS`. For example:
   <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
 
 1. View information about the available plans with the following command:
@@ -212,21 +218,23 @@ To view information about the available plans for deploying a cluster, perform t
   The response lists details about the available plans, including the plan name and description.
 
 ##<a id='scale-clusters'></a> Scale Existing Clusters
-To scale up the number of worker nodes in your cluster you can call the following command. Note: The number of worker nodes cannot be scaled down, only up.
 
-1. Choose a unique name for your cluster and set it as an environment variable named `CLUSTER_NAME`. For example:
+To scale up the number of worker nodes in your cluster, perform the following command:
+  <p class="note"><strong>Note</strong>: The number of worker nodes cannot be scaled down, only up.</p>
+
+1. Set the name for the cluster as an environment variable named `CLUSTER_NAME`. For example:
   <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
 
-1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+1. Set your PKS API endpoint as an environment variable named `PKS_API_ENDPOINT`. For example:
   <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
 
-1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+1. Set your PKS API credentials as an environment variable named `PKS_API_CREDS`. For example:
   <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
 
 1. Set the environment variable named `KUBERNETES_WORKER_INSTANCES` to your desired number of Kubernetes worker nodes. This value must be between 1 and 50, inclusive. For example:
   <pre class="terminal">$ export KUBERNETES\_WORKER\_INSTANCES=3</pre>
 
-1. View information about the available plans with the following command:
+1. Scale the number of Kubernetes worker nodes with the following command:
   <pre class="terminal">$ curl -k -u $PKS\_API\_CREDS -s -X PATCH \
     --header 'Content-Type: application/json' \
     --header 'Accept: application/json;charset=UTF-8'\
@@ -238,10 +246,10 @@ To scale up the number of worker nodes in your cluster you can call the followin
 
 To delete a cluster, perform the following steps:
 
-1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+1. Set your PKS API endpoint as an environment variable named `PKS_API_ENDPOINT`. For example:
   <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
 
-1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+1. Set your PKS API credentials as an environment variable named `PKS_API_CREDS`. For example:
   <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
 
 1. Set the name of the cluster you want to delete as an environment variable named `CLUSTER_NAME`. For example:
