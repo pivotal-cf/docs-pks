@@ -7,15 +7,17 @@ owner: PKS
 
 This topic describes how to use Pivotal Container Service (PKS).
 
-After an operator has [installed](installing.html) PKS, developers can use `curl` to do the following:
+After an operator has [installed](installing.html) PKS, developers can use `curl` or the PKS CLI to do the following:
 
 * [Create](#create-cluster) a Kubernetes cluster
-* [Update](#update-cluster) the name of a Kubernetes cluster
-* [View](#view-cluster) the list of running Kubernetes clusters
+* [Get Credentials] (#get-credentials) for a kubernetes cluster
+* [View](#view-cluster-list) the list of running Kubernetes clusters
+* [View](#view-cluster) details on the kubernetes cluster of your choice
 * [View](#view-cluster-plans) the list of available plans for deploying a Kubernetes cluster
+* [Resize](#resize) the number of worker nodes in the cluster
 * [Delete](#delete-cluster) a Kubernetes cluster
 
-To deploy application workloads to a Kubernetes cluster, developers use `kubectl`, the Kubernetes CLI. For more information, see the [Kubernetes documentation](https://kubernetes.io/docs/user-guide/kubectl-overview/).
+To deploy application workloads to a Kubernetes cluster, developers use `kubectl`, the Kubernetes CLI. For more information, see the [Kubernetes documentation](https://kubernetes.io/docs/user-guide/kubectl-overview/) and [download from here](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl)
 
 ##<a id='prereqs'></a> Prerequisites
 
@@ -46,6 +48,7 @@ Binaries are only provided for 64-bit architectures.
 ####<a id="pks-cli-windows"></a> Windows
 
 1. Download the [Windows](https://storage.googleapis.com/pks-public/bin/windows/pks.exe) binary.
+  <pre class="terminal">$ curl -LO https://storage.googleapis.com/pks-public/bin/windows/pks.exe</pre>
 
 2. Move the binary into your `PATH`.
 
@@ -60,10 +63,10 @@ To create a cluster, perform the following steps:
   <pre class="terminal">$ export KUBERNETES\_SERVICE\_HOST="192.0.2.0"</pre>
 
 1. Choose either attribute-based access control (ABAC) or role-based access control (RBAC) for your authorization mode. Set an environment variable named `AUTHORIZATION_MODE` to `abac` or `rbac`. For example:
-  <pre class="terminal">$ export AUTHORIZATION\_MODE="abac"</pre>
+  <pre class="terminal">$ export AUTHORIZATION\_MODE="rbac"</pre>
   For more information about authorization modes, see the [Kubernetes documentation](https://kubernetes.io/docs/admin/authorization/#authorization-modules).
 
-1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. This can be found in the status tab of the tile under "IPS" For example:
   <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
 
 1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
@@ -81,7 +84,7 @@ To create a cluster, perform the following steps:
   <br>
   By default, the Kubernetes API listens on port 8443. To configure a different port, add the `kubernetes_master_port` parameter to the `curl` command above and set it to your desired port.
   <br><br>
-  This command creates a cluster with 1 master, 1 etcd node, and 1 worker node. To create a cluster with more workers, perform the following steps:
+  This command creates a cluster with 1 master, 1 etcd node, and 1 worker node (if the number of worker nodes were set to 1 in the plan). To create a cluster with more workers, perform the following steps:
     1. Set the environment variable named `KUBERNETES_WORKER_INSTANCES` to your desired number of Kubernetes worker nodes. This value must be between 1 and 50, inclusive. For example:
     <pre class="terminal">$ export KUBERNETES\_WORKER\_INSTANCES=3</pre>
     1. Create the cluster with the following command:
@@ -98,7 +101,9 @@ To create a cluster, perform the following steps:
 
 2. Ensure your operator has configured the external load balancer to point to the newly created cluster's master VM.
 
-3. Bind a user to the newly created cluster with the following command and export the output as an environment variable named `CREDENTIALS`:
+##<a id='get-credentials'></a> Get Credentials and Bind to the Cluster
+
+1. Bind a user to the newly created cluster with the following command and export the output as an environment variable named `CREDENTIALS`:
   <pre class="terminal">$ export CREDENTIALS="$(curl -k -u $PKS_API_CREDS -s -X POST \
   --header 'Content-Type: application/json' \
   https://$PKS\_API\_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/binds)"
@@ -143,16 +148,14 @@ To create a cluster, perform the following steps:
       }
     }
     </pre>
-4. Use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to convert the JSON output to a YAML file at `$HOME/.kube/config`:
+2. Use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to convert the JSON output to a YAML file at `$HOME/.kube/config`:
   <pre class="terminal">$ bosh int <(echo "${CREDENTIALS}") --path="/credentials/kubeconfig" > "${HOME}/.kube/config"</pre>
+
+Note: If you alreadyhave an existing config file this will overwrite it.  
 
 You can use the credentials and the kubeconfig to deploy application workloads to your cluster with `kubectl`. For more about accessing your cluster, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/).
 
-##<a id='update-cluster'></a> Update Cluster Name
-
-<p class="note"><strong>Note</strong>: This section is under development.</p>
-
-##<a id='view-cluster'></a> View Cluster List
+##<a id='view-cluster-list'></a> View Cluster List
 
 To view information about the deployed clusters, perform the following steps:
 
@@ -168,6 +171,26 @@ To view information about the deployed clusters, perform the following steps:
     --header 'Accept: application/json;charset=UTF-8'\
     https://$PKS_API_ENDPOINT:9021/v1/clusters</pre>
   The response lists details about the deployed clusters, including  cluster name and status.
+
+##<a id='view-cluster'></a> View Details on an Individual Cluster
+
+To view details about an individual clsuter, perform the following:
+
+1. Choose a unique name for your cluster and set it as an environment variable named `CLUSTER_NAME`. For example:
+  <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
+
+1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+  <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
+
+1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+  <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
+
+1. View information about the available plans with the following command:
+  <pre class="terminal">$ curl -k -u $PKS\_API\_CREDS -s -X GET \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json;charset=UTF-8'\
+    https://$PKS_API_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/</pre>
+  The response lists details about the available plans, including the plan name and description.
 
 ##<a id='view-cluster-plans'></a> View Cluster Plans
 
@@ -187,8 +210,27 @@ To view information about the available plans for deploying a cluster, perform t
   The response lists details about the available plans, including the plan name and description.
 
 ##<a id='scale-clusters'></a> Scale Existing Clusters
+To scale up the number of worker nodes in your cluster you can call the following command. Note: The number of worker nodes cannot be scaled down, only up.
 
-<p class="note"><strong>Note</strong>: Downscaling of clusters is not currently supported.</p>
+1. Choose a unique name for your cluster and set it as an environment variable named `CLUSTER_NAME`. For example:
+  <pre class="terminal">$ export CLUSTER\_NAME="my-cluster"</pre>
+
+1. Retrieve your PKS API endpoint and set it as an environment variable named `PKS_API_ENDPOINT`. For example:
+  <pre class="terminal">$ export PKS\_API\_ENDPOINT="pks.example.com"</pre>
+
+1. Retrieve your PKS API credentials and set them as an environment variable named `PKS_API_CREDS`. For example:
+  <pre class="terminal">$ export PKS\_API\_CREDS="username:password"</pre>
+
+1. Set the environment variable named `KUBERNETES_WORKER_INSTANCES` to your desired number of Kubernetes worker nodes. This value must be between 1 and 50, inclusive. For example:
+  <pre class="terminal">$ export KUBERNETES\_WORKER\_INSTANCES=3</pre>
+
+1. View information about the available plans with the following command:
+  <pre class="terminal">$ curl -k -u $PKS\_API\_CREDS -s -X PATCH \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: application/json;charset=UTF-8'\
+    -d '{"kubernetes_worker_instances": $KUBERNETES\_WORKER\_INSTANCES }'\
+    https://$PKS_API_ENDPOINT:9021/v1/clusters/$CLUSTER\_NAME/</pre>
+  There is currently no response from the command.
 
 ##<a id='delete-cluster'></a> Delete Cluster
 
