@@ -3,9 +3,11 @@ title: Installing and Configuring PKS
 owner: PKS
 ---
 
-<p class="note"><strong>Note</strong>: The PKS documentation is still under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
+<p class="note"><strong>Note</strong>: The PKS documentation is under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
 
 This topic describes how to install and configure Pivotal Container Service (PKS).
+
+If you want to install PKS on vSphere with NSX-T integration, see [Installing and Configuring PKS with NSX-T Integration](installing-nsx-t.html). If you want to use Harbor to store and manage container images, see the VMware Harbor Registry [documentation](https://docs.pivotal.io/partners/vmware-harbor).
 
 ##<a id='resources'></a> Resource Requirements
 
@@ -19,15 +21,7 @@ Installing PKS deploys the following two virtual machines (VMs):
 <th>Ephemeral Disk</th>
 <th>Persistent Disk</th>
 </tr>
-<tr>
-<td>Separate BOSH Director</td>
-<td>2</td>
-<td>4 GB</td>
-<td>20 GB</td>
-<td>32 GB</td>
-</tr>
-<tr>
-<td>On-Demand Broker</td>
+<td>Pivotal Container Service</td>
 <td>1</td>
 <td>4 GB</td>
 <td>20 GB</td>
@@ -46,39 +40,53 @@ Each Kubernetes cluster provisioned through PKS deploys the following VMs:
 <th>Ephemeral Disk</th>
 <th>Persistent Disk</th>
 </tr>
-<td>3</td>
+<td>1</td>
 <td>etcd</td>
 <td>1</td>
-<td>4 GB</td>
-<td>20 GB</td>
-<td>5 GB</td>
+<td>1 GB</td>
+<td>8 GB</td>
+<td>2 GB</td>
 </tr>
-<tr>
-<td>2</td>
+</tr>
+<td>1</td>
 <td>master</td>
 <td>1</td>
 <td>4 GB</td>
-<td>20 GB</td>
+<td>8 GB</td>
 <td>n/a</td>
 </tr>
 <tr>
-<td>3</td>
-<td>worker</td>
-<td>4</td>
+<td>1</td>
+<td>worker node</td>
+<td>2</td>
+<td>4 GB</td>
 <td>8 GB</td>
-<td>100 GB</td>
 <td>10 GB</td>
 </tr>
 </table>
 
 ##<a id='prereqs'></a> Prerequisites
 
-Installing PKS requires the following:
+###<a id='ops-man'></a> Ops Manager v2.0
+
+To install PKS, you must have Ops Manager v2.0 installed. Consult the following documentation specific to your IaaS:
+
+* [vSphere](https://docs-pcf-staging.cfapps.io/pivotalcf/2-0/customizing/vsphere.html)
+* [Google Cloud Platform](https://docs-pcf-staging.cfapps.io/pivotalcf/2-0/customizing/gcp.html) (GCP)
+
+When configuring Ops Manager v2.0, you must create a service network for PKS and enable post-deploy scripts.
+
+In addition, PKS requires that BOSH DNS is deployed in your PCF installation. By default, BOSH DNS is enabled. If you opted to disable BOSH DNS in Ops Manager, you must enable BOSH DNS and redeploy PCF before installing PKS. 
+
+If using GCP, configure your services subnet to use a DNS range from the internal Google network. Set this value on the <strong>Create Networks</strong> page in the Ops Manager Director tile.</p>
+
+###<a id='other-prereqs'></a> Additional Prerequisites
+
+Installing PKS also requires the following:
 
 * An external load balancer to access the PKS API
 * An external load balancer to access each created cluster
-* Ops Manager v2.0 configured with a [service network](https://docs.pivotal.io/pivotalcf/customizing/vsphere-config.html#create-networks) and [post-deploy scripts enabled](https://docs.pivotal.io/pivotalcf/customizing/vsphere-config.html#dir-config)
-  <p class="note"><strong>Note</strong>: Configure your services subnet to use a DNS range from the internal Google network. Set this value on the <strong>Create Networks</strong> page in the Ops Manager Director tile.</p>
+* [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/), the Kubernetes CLI, to access created cluster
 
 ##<a id='install'></a> Step 1: Install PKS
 
@@ -119,8 +127,8 @@ the hostname you intend to use for accessing the PKS API service.
 Perform the following steps:
 
 1. Click **Broker**.
-1. Under **Routing mode**, select a routing mode for the PKS broker.
-1. Under **AZ placement**, select an availability zone for the PKS broker.
+1. Under **Routing mode**, select a routing mode for the Kubernetes clusters deployed by PKS.
+1. Under **AZ placement**, select an availability zone for the Kubernetes clusters deployed by PKS.
 1. Click **Save**.
 
 ###<a id='plan'></a> Plan
@@ -144,16 +152,28 @@ Perform the following steps:
 1. Click **IaaS**.
 1. Under **Choose your IaaS**, select your IaaS.
 1. Perform the steps specific to your IaaS.
-	* For vSphere, ensure the values match those in the **vCenter Config** section of the **Ops Manager** tile:
+	* For **vSphere**, ensure the values match those in the **vCenter Config** section of the **Ops Manager** tile:
 		1. Enter your **vCenter Host**, such as `vcenter.cf-example.com`.
 		1. Enter your **Datacenter Name**, such as `cf-example-dc`.
+		1. Enter your **Cluster Name**, such as `cf-example-cluster`.
+		1. Enter your **Datastore Name**, such as `cf-example-ds`.
 		1. For **VM Folder**, enter the name of a VM and Template Folder in vCenter.
-	* For GCP, ensure the values match those in the **Google Config** section of the **Ops Manager** tile:
+	* For **GCP**, ensure the values match those in the **Google Config** section of the **Ops Manager** tile:
 	  1. Enter your **GCP Project Id**.
 	  1. Enter your **GCP Network**, which is the VPC network name for your Ops Manager environment.
 1. Click **Save**.
 
-###<a id='resources'></a> (Optional) Resource Config
+###<a id='networking'></a> Networking
+
+Perform the following steps:
+
+1. Click **Networking**.
+1. Under **Network**, select the Container Network Interface to use.
+	* For **Flannel**, no additional fields are required.
+	* For **NSX-T**, see [Installing and Configuring PKS with NSX-T Integration](installing-nsx-t.html).
+1. Click **Save**.
+
+###<a id='resource-config'></a> (Optional) Resource Config
 
 To modify the resource usage of PKS, click **Resource Config** and edit the **PKS on-demand broker** job.
 
@@ -165,38 +185,30 @@ To edit the stemcell configuration, click **Stemcell**. Click **Import Stemcell*
 
 After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
 
-##<a id='post-deployment-steps'></a> Step 4: Post-Deployment Steps
+##<a id='post-deployment-steps'></a> Step 4: Post-Deployment Steps (GCP Only)
 
-After deploying the tile, you must use the BOSH CLI v2 to update the [runtime config](https://bosh.io/docs/runtime-config.html) on your BOSH Director. If you are using Google Cloud Platform (GCP), you must also update the [cloud config](https://bosh.io/docs/cloud-config.html).
+If you are deploying on GCP, you must create a service account and update the [cloud config](http://bosh.io/docs/cloud-config.html) after deploying the tile.
 
-You must update the runtime config whenever you make a change in Ops Manager that updates the default runtime config.
+In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create a service account with sufficient permissions. Then you must update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`. 
 
-###<a id='runtime-config'></a> Update the Runtime Config
+<p class="note"><strong>Note</strong>: You must update the cloud config each time you redeploy PKS by clicking <strong>Apply Changes</strong> in Ops Manager.</p>
 
-Ops Manager deploys a [runtime config](https://bosh.io/docs/runtime-config.html) that disables the name resolution on all VMs. The [Cloud Foundry Container Runtime](https://docs-kubo.cfapps.io) release included in PKS requires that the `bosh-dns` job is running and resolving names. 
+Perform the following steps:
 
-For more information about BOSH DNS, see the [BOSH documentation](https://bosh.io/docs/dns.html).
-
-Perform the following steps to update the runtime config:
-
-1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI v2 to log in to the BOSH Director from the Ops Manager VM. For more information, see [Advanced Troubleshooting with the BOSH CLI
-](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
-1. Use the BOSH CLI v2 to set your runtime config as an environment variable. For example:
-	<pre class="terminal">$ RUNTIME\_CONFIG=$(bosh -e my-env runtime-config --name ops\_manager\_dns\_runtime \
-	| sed /override\_nameserver/s/false/true/ )
-	</pre>
-1. Use the BOSH CLI v2 to update your runtime config. For example:
-	<pre class="terminal">$ bosh --non-interactive update-runtime-config --name ops_manager\_dns\_runtime \
-	<(echo "$RUNTIME\_CONFIG")
-	</pre>
-1. If you are using GCP, perform the procedure in [Update the Cloud Config (GCP Only)](#cloud-config). If you are not using GCP, continue to [Retrieve PKS API Endpoint](#retrieve-pks-api).
-
-###<a id='cloud-config'></a> Update the Cloud Config (GCP Only)
-
-If you are deploying on GCP, you must also update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`. 
-
-1. Set the GCP service account to be used by the Kubernetes cloud provider as an environment variable. For example:
-	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT="example-acct@project.iam.gserviceaccount.com"</pre>
+1. Navigate to the **IAM & admin > Service accounts** section of the GCP Console.
+1. Click **Create Service Account**.
+1. Enter a name for the service account, and add the following roles:
+  * `roles/iam.serviceAccountActor` (**Project > Service Account Actor**)
+  * `roles/compute.instanceAdmin`  (**Compute Engine > Compute Instance Admin**)
+  * `roles/compute.securityAdmin` (**Compute Engine > Compute Security Admin**)
+  * `roles/compute.networkAdmin` (**Compute Engine > Compute Network Admin**)
+  * `roles/compute.storageAdmin` (**Compute Engine > Compute Storage Admin**)
+  * `roles/compute.viewer` (**Compute Engine > Compute Viewer**)
+	<p class="note"><strong>Note</strong>: See the <code>kubo-deployment</code> GitHub <a href="https://github.com/cloudfoundry-incubator/kubo-deployment/blob/master/docs/user-guide/platforms/gcp/kubo-infrastructure.tf#L61-L110">repository</a> for more information about the required roles.</p>
+1. Click **Furnish a new private key** and select **JSON**.
+1. Click **Create**.
+1. Set the name of the GCP service account as an environment variable. For example:
+	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT="example-acct<span>@</span>project.iam.gserviceaccount.com"</pre>
 1. Use the BOSH CLI v2 to export your cloud config as a YAML file, specifying the name of your environment:
 	<pre class="terminal">$ bosh -e my-env cloud-config > cloud-config.yml</pre>
 1. Create an environment variable with your VM types. You must have [Ruby](https://www.ruby-lang.org/en/downloads/) and [jq](https://stedolan.github.io/jq/) installed. Enter the following command:

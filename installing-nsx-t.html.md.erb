@@ -1,0 +1,209 @@
+---
+title: Installing and Configuring PKS with NSX-T Integration
+owner: PKS
+---
+
+<p class="note"><strong>Note</strong>: The PKS documentation is under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
+
+This topic describes how to integrate [NSX-T](https://docs.vmware.com/en/VMware-NSX-T/index.html) with Pivotal Container Service (PKS). In order to integrate NSX-T with PKS, you must deploy NSX-T in addition to installing PKS on vSphere.
+
+If you want to use Harbor to store and manage container images, see the VMware Harbor Registry [documentation](https://docs.pivotal.io/partners/vmware-harbor).
+
+##<a id='resources'></a> Resource Requirements
+
+### <a id='pks-reqs'></a>PKS Requirements
+
+See [Resource Requirements](installing.html#resources) in <em>Installing and Configuring PKS</em>.
+
+### <a id='nsx-t-reqs'></a>NSX-T Requirements
+
+Deploying NSX-T requires the following resources from your vSphere environment:
+
+<table>
+<tr>
+  <th>NSX-T Component</th>
+  <th>Instance Count</th>
+  <th>Memory</th>
+  <th>vCPU</th>
+  <th>Disk Space</th>
+</tr>
+<tr>
+  <td>NSX-T Manager Appliance</td>
+    <td>1</td>
+    <td>16 GB</td>
+    <td>4</td>
+    <td>140 GB</td>
+</tr>
+<tr>
+  <td>NSX-T Controller(s)</td>
+    <td>1 or 3</td>
+    <td>16 GB</td>
+    <td>4</td>
+    <td>120 GB</td>
+</tr>
+<tr>
+  <td>NSX-T Edge</td>
+    <td>1 or more</td>
+    <td>16 GB</td>
+    <td>8</td>
+    <td>120 GB</td>
+</tr>
+</table>
+
+##<a id='prereqs'></a> Prerequisites
+
+###<a id='pks-prereqs'></a> PKS Prerequisites
+
+See [Prerequisites](installing.html#prereqs) in <em>Installing and Configuring PKS</em>.
+
+###<a id='nsx-t-prereqs'></a> NSX-T Prerequisites
+
+Integrating NSX-T with PKS requires the following vSphere and NSX-T version dependencies:
+
+<table class="nice">
+    <th>Component</th>
+    <th>Version</th>
+    <tr>
+        <td>VMware vSphere</td>
+        <td>6.5 GA and 6.5 U1</td>
+    </tr>
+    <tr>
+        <td>VMware NSX-T</td>
+        <td>2.1</td>
+    </tr>
+</table>
+
+##<a id='deploy-nsx-t'></a> Step 1: Deploy NSX-T
+
+Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to deploy the following core NSX-T components:
+
+1. Deploy the NSX-T Manager.
+1. Deploy the NSX-T Controller(s).
+1. Join the NSX-T Control Cluster to the NSX-T Manger and initialize it.
+1. Add your ESX host(s) to the NSX-T fabric.
+
+##<a id='config-network'></a> Step 2: Configure Network Requirements for NSX-T Management Access
+
+Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to configure your network topology to enable the following:
+
+* vCenter, NSX-T components, and ESXi hosts must be able to communicate with each other.
+* The Ops Manager Director VM must be able to communicate with vCenter and the NSX-T Manager.
+* The Ops Manager Director VM must be able to communicate with all nodes in all Kubernetes clusters.
+* Each Kubernetes cluster deployed by PKS will deploy a NSX-T Container Plug-in (NCP) pod that must be able to communicate with the NSX-T Manager.
+
+##<a id='create-objects'></a> Step 3: Create Required NSX-T Objects for PKS
+
+Refer to the following [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) topics in order to create the objects in the NSX-T deployment required for PKS. 
+
+<p class="note"><strong>Note</strong>: The procedures below use one possible network topology for an NSX-T deployment that supports PKS, but other topologies are available.</p> 
+
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html) an NSX IP pool for ESX host GENEVE tunnel endpoints.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html) the following two NSX Transport Zones (TZs):
+  * One NSX `OVERLAY` TZ for PKS Kubernetes cluster deployment overlay network(s)
+  * One NSX `VLAN` TZ for NSX Edge uplink (ingress/egress) for PKS Kubernetes cluster(s)
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html) an NSX uplink host profile if the default profile is not applicable in your use case.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-D7CA778B-6554-4A23-879D-4BC336E01031.html) NSX host transport node(s) for desired ESX hosts.
+1. Add the `OVERLAY` TZ to the NSX Edge transport node.
+  <p class="note"><strong>Note</strong>: The transport nodes must be placed on free host NICs and must use an IP Pool that will allow them to route and communicate with other transport nodes to build GENEVE tunnels.</p>
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) an NSX IP block for CNI plugin use.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html) the following NSX logical switches:
+  * One for the `PKS Service Network` attached to the `OVERLAY` Transport Zone/Host Switch
+  * One for `T0 ingress/egress Uplink` attached to the `VLAN` Transport Zone/Host Switch
+1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) NSX Edge(s) onto your desired NSX-T fabric hosts/nodes.
+1. Attach the first Edge interface to your environment's PortGroup where your Edge Management IP can route and communicate with the NSX-T Manager.
+1. Attach the second Edge interface to your environment's PortGroup where your T0 uplink interface will be located.
+1. Attach the third Edge interface to your environment's PortGroup where your GENEVE VTEPs can route and communicate with each other.
+1. [Join](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html) the NSX Edge(s) to the NSX-T fabric.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html) an NSX Edge uplink host profile if the default profile is not applicable in your use case. 
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-53295329-F02F-44D7-A6E0-2E3A9FAE6CF9.html) NSX Edge transport node(s).
+1. Add both TZs to the NSX Edge transport node(s).
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-898099FC-4ED2-4553-809D-B81B494B67E7.html) an NSX Edge cluster.
+1. Add the NSX Edge transport node(s) to the cluster.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html) a tier-0 (T0) logical router.
+1. Attach as an uplink the `T0 to the ingress/egress` logical switch you created earlier.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) the logical router port and IP address and CIDR where your PKS Kubernetes clusters will be deployed.
+* [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) appropriate T0 routing to the rest of your environment. 
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-A6042263-374F-4292-892E-BC86876325A4.html) a tier-1 (T1) logical router to link to the T0 and route the NSX logical switch for the PKS Service Network externally.
+1. Attach to your `OVERLAY` NSX logical switch.
+1. [Enable](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-B6AF9E08-1334-4D3A-B8ED-D0CAB3B563FB.html) route advertisement.
+  
+##<a id='config-ops-man'></a> Step 4: Configure Ops Manager
+
+Perform the following steps to configure Ops Manager for the NSX logical switch:
+
+1. Navigate to `YOUR-OPSMAN-FQDN` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Click the **Ops Manager Director** tile.
+1. Click **Create Networks**.
+1. Create the following two networks:
+  * A network for deploying the PKS control plane VM(s)
+  * A service network for deploying PKS Kubernetes cluster nodes, which should map to the NSX logical switch created for the `PKS Service Network` in [Step 3: Create Required Objects](#create-objects)
+1. Return to the Ops Manager Installation Dashboard and click **Apply Changes**.
+
+##<a id='install'></a> Step 5: Install and Configure PKS
+
+Perform the following steps to install and configure PKS:
+
+1. Perform the procedure in [Step 1: Install PKS](installing.html#install) of <em>Installing and Configuring PKS</em> to install the PKS tile.
+1. Click the orange **Pivotal Container Service** tile to start the configuration process.
+    <p class="note"><strong>Note</strong>: Configuration of NSX-T or Flannel <strong>cannot</strong> be changed after installing PKS.</p>
+
+###<a id='azs-networks'></a> Assign AZs and Networks
+
+Perform the following steps:
+
+1. Click **Assign AZs and Networks**.
+1. Select an availability zone for your singleton jobs, and one or more availability zones to balance other jobs in. This is where PCF creates the PKS broker.
+1. Under **Network**, select a **Singleton Availability Zone** network. This will provide network placement for the PKS broker. 
+1. Under **Service Network**, select the **Service Network** linked to the NSX logical switch you created in [Step 4: Configure Ops Manager](#config-ops-man). This will provide network placement for the on-demand service instances created by the PKS broker.
+1. Click **Save**.
+
+###<a id='pks-api'></a> PKS API
+
+Perform the procedure in [PKS API](installing.html#pks-api) of <em>Installing and Configuring PKS</em>.
+
+###<a id='broker'></a> Broker
+
+Perform the procedure in [Broker](installing.html#broker) of <em>Installing and Configuring PKS</em>.
+
+###<a id='plan'></a> Plan
+
+Perform the procedures in [Plan](installing.html#plan) of <em>Installing and Configuring PKS</em>.
+
+###<a id='iaas'></a> IaaS
+
+Perform the procedures in [IaaS](installing.html#iaas) of <em>Installing and Configuring PKS</em>.
+
+###<a id='networking'></a> Networking
+
+Perform the following steps:
+
+1. Click **Networking**.
+1. Under **Network**, select **NSX-T** as the Container Network Interface to use.
+1. For **NSX Manager hostname**, enter the NSX Manager hostname or IP address.
+1. For **NSX Manager credentials**, enter the credentials to connect to the NSX Manager.
+1. For **NSX Manager CA Cert**, optionally enter the custom CA certificate to be used to connect to the NSX Manager.
+1. The **Disable SSL certificate verification?** checkbox is **not** selected by default. In order to disable TLS verification, select the checkbox. You may want to disable TLS verification if you did not enter a CA certificate, or if your CA certificate is self-signed.
+1. For **Tier 0 Router ID**, enter the T0 router ID. This can be located in the NSX-T UI router overview.
+1. For **IP Block ID**, enter the IP block ID.
+1. For **Floating IP pool ID**, enter the Floating IP pool ID that was created for GENEVE VTEPs.
+1. Click **Save**.
+
+###<a id='errands'></a> Errands
+
+Perform the following steps:
+
+1. Click **Errands**.
+1. For **Post Deploy Errands**, select **Default (On)** for the **NSX-T Validation errand**. This errand will validate your NSX-T configuration and will tag the proper resources.
+1. Click **Save**.
+
+###<a id='resources'></a> (Optional) Resource Config and Stemcell
+
+To modify the resource usage or stemcell configuration of PKS, see [(Optional) Resource Config](installing.html#resource-config) and [(Optional) Stemcell](installing.html#stemcell) in <em>Installing and Configuring PKS</em>.
+
+##<a id='apply-changes'></a> Step 6: Apply Changes
+
+After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
+
+Finish your PKS installation by performing the procedures in [Step 5: Retrieve PKS Endpoint](installing.html#retrieve-pks-api) and [Step 6: Configure External Load Balancer](installing.html#loadbalancer-pks-api) of <em>Installing and Configuring PKS</em>.
+
+
