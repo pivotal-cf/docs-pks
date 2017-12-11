@@ -9,142 +9,132 @@ This topic describes how to install and configure Pivotal Container Service (PKS
 
 Before performing the procedures in this topic, consult the requirements in the [PKS With NSX-T Integration](requirements.html#pks-with-nsx-t) section of <em>Prerequisites and Resource Requirements</em>.
 
+##<a id='overview'></a> Overview
+
+The following diagram details the architecture of the NSX-T deployment described in this topic.
+
+![NSX & PKS Overview](images/nsx-t-pks-doc-overview.png)
+
+<p class="note"><strong>Note</strong>: The procedures below can be used to deploy a NAT network topology for an NSX-T deployment that supports PKS, but other topologies are configurable.</p> 
+
 ##<a id='deploy-nsx-t'></a> Step 1: Deploy NSX-T
 
 Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to deploy the following core NSX-T components:
 
 1. Deploy the NSX-T Manager.
 1. Deploy the NSX-T Controller(s).
-1. Join the NSX-T Control Cluster to the NSX-T Manger and initialize the NSX Controller Cluster.
-1. Add your ESX host(s) to the NSX-T fabric.
+1. Join the NSX-T Control Cluster to the NSX-T Manager and initialize the NSX Controller Cluster.
+1. Add your ESX host(s) to the NSX-T Fabric.
 
 ##<a id='config-network'></a> Step 2: Configure Network Requirements for NSX-T Management Access
 
 Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to provide or configure your network topology to enable the following:
 
-* IPV4 Address Space
-  * When Using a simple NAT Topology For your Kubernetes Clusters, various network CIDRs will be required that should be routable in your environment:
-     * **VTEP CIDR(s)**: This will be the network(s) that will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes.  It should be sized to support all of your expected Host and Edge Transport Nodes.
-         * Example: 192.168.1.0/24 - 254 Usable IPs
-     * **PKS MANAGEMENT CIDR**: This will be a small network that will be used to NAT access to your PKS Management Components like Pivotal Operations Manager.   **It must be routable in your environment**.
-         * Example:  10.172.1.0/28 - 14 Usable IPs
-     * **PKS LB CIDR**: This will be the network that will provide your load balancing address space for each Kubernetes cluster created by PKS.  **It must be routable in your environment**.
-         * Example:  10.172.2.0/25 - 126 Usable IPs
-
-
 * vCenter, NSX-T components, and ESXi hosts must be able to communicate with each other.
 * The Ops Manager Director VM must be able to communicate with vCenter and the NSX-T Manager.
 * The Ops Manager Director VM must be able to communicate with all nodes in all Kubernetes clusters.
-* Each Kubernetes cluster deployed by PKS will deploy a NSX-T Container Plug-in (NCP) pod that must be able to communicate with the NSX-T Manager.
+* Each Kubernetes cluster deployed by PKS will deploy a NCP pod that must be able to communicate with the NSX-T Manager.
+
+If you are using a simple NAT topology for your Kubernetes Clusters, refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to create the following network CIDRs in the IPv4 address space and ensure they are routable in your environment:
+
+* **VTEP CIDR(s)**: This network(s) will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the network(s) to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` will provide 254 usable IPs.
+* **PKS MANAGEMENT CIDR**: This small network will be used for NAT access to PKS management components like Ops Manager. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs.
+* **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. For example, `10.172.2.0/25` will provide 126 usable IPs.
 
 ##<a id='create-objects'></a> Step 3: Create Required NSX-T Objects for PKS
 
+The following sections refer to topics in the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to describe how to create the objects in the NSX-T deployment required for PKS. 
 
-Refer to the following [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) topics in order to create the objects in the NSX-T deployment required for PKS. 
+###<a id='create-objects-network-objects'></a> Create NSX Network Objects
 
-![NSX & PKS Overview](images/nsx-t-pks-doc-overview.png)
-
-
-
-<p class="note"><strong>Note</strong>: The procedures below can be used to deploy a NAT network topology for an NSX-T deployment that supports PKS, but other topologies are configurable.</p> 
-
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html) two NSX IP Pools
-  * One NSX IP pool for GENEVE Tunnel Endpoints `ip-pool-vteps`.
-     * Use the appropriate **VTEP CIDR** and usable range.
-  * One NSX IP pool for NSX Load Balancing VIPs `ip-pool-vips`.
-     * Use the appropriate **PKS LB CIDR** and usable range.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html) two NSX IP Pools:
+  * One NSX IP pool for GENEVE Tunnel Endpoints `ip-pool-vteps,` within the usable range of the **VTEP CIDR** created in the previous section
+  * One NSX IP pool for NSX Load Balancing VIPs `ip-pool-vips,` within the usable range of the **PKS LB CIDR** created in the previous section
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html) two NSX Transport Zones (TZs):
-  * One NSX TZ for PKS Control Plane Services & Kubernetes Cluster deployment overlay network(s) `tz-overlay` and the associated Host Switch `hs-overlay`
-  * One NSX TZ for NSX Edge uplinks (ingress/egress) for PKS Kubernetes cluster(s) `tz-vlan`and the associated Host Switch `hs-vlan`
-
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html) a NSX Uplink Host Profile
-<p class="note"><strong>Note</strong>: This task is optional if the default uplink profile is not applicable in your use case.</p> 
-
+  * One NSX TZ for PKS control plane Services and Kubernetes Cluster deployment overlay network(s) called `tz-overlay` and the associated host switch `hs-overlay`
+  * One NSX TZ for NSX Edge uplinks (ingress/egress) for PKS Kubernetes cluster(s) called `tz-vlan` and the associated host switch `hs-vlan`
+1. If the default uplink profile is not applicable in your use case, [create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html) a NSX uplink host profile.
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-D7CA778B-6554-4A23-879D-4BC336E01031.html) NSX Host Transport Node(s) 
-  * For each host in Fabric: `tnode-host-#`.
+  * For each host in the NSX-T Fabric, create a node named `tnode-host-NUMBER`. For example, if you have three hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`.
   * Add the `tz-overlay` NSX Transport Zone to each NSX Host Transport Node.
-  <p class="note"><strong>Note</strong>: The transport nodes must be placed on free host NICs not already used by other vSwitches on the ESX host.  Use the IP Pool (`ip-pool-vteps`) that will allow them to route and communicate with each other as well as other Edge Transport Nodes to build GENEVE tunnels.</p>
+  <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESX host. Use the `ip-pool-vteps` IP Pool that will allow them to route and communicate with each other as well as other Edge Transport Nodes to build GENEVE tunnels.</p>
 
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) a NSX IP Block `ip-block-pks-deployments`
-  * IP Block will be used for NSX NCP & PKS to assign address space to Kubernetes Pods via (CNI).
-  * Suggested CIDR: `172.16.0.0/16`.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) a NSX IP Block named `ip-block-pks-deployments`. The NSX-T Container Plug-in (NCP) and PKS will use this IP Block to assign address space to Kubernetes pods through the Container Networking Interface (CNI). Pivotal recommends using the CIDR block `172.16.0.0/16`.
+
+###<a id='create-objects-logical-switches'></a> Create Logical Switches
 
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html) the following NSX Logical Switches:
-  * One for T0 ingress/egress uplink port `ls-pks-uplink`
-     * Attach to the `tz-vlan` NSX Transport Zone
-  * One for the PKS Management Network `ls-pks-mgmt` 
-     * Attach to the `tz-overlay` NSX Transport Zone 
-  * One for the PKS Service Network `ls-pks-service` 
-     * Attach to the `tz-overlay` NSX Transport Zone
+  * One for T0 ingress/egress uplink port `ls-pks-uplink` 
+  * One for the PKS Management Network `ls-pks-mgmt`
+  * One for the PKS Service Network `ls-pks-service`
+1. Attach your first NSX Logical Switch to the `tz-vlan` NSX Transport Zone.
+1. Attach your second and third NSX Logical Switches to the `tz-overlay` NSX Transport Zone.
 
-1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) NSX Edge VMs(s).
+###<a id='create-objects-create-nsx-edge'></a> Create NSX Edge Objects
 
-  When deploying NSX Edge VMs,  you will be required to connect the NSX Edge VM's vNICs to an appropriate portgroup for your environment:
+1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) NSX Edge VMs(s). When deploying NSX Edge VMs, you must connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment by performing the following steps:
+  1. Connect the first Edge interface to your environment's PortGroup/VLAN where your Edge Management IP can route and communicate with the NSX-T Manager.
+  1. Connect the second Edge interface to your environment's PortGroup/VLAN where your T0 uplink interface will be located.  Your **`PKS MANAGEMENT CIDR** and **PKS LB CIDR** should be routable to this PortGroup.
+  1. Connect the third Edge interface to your environment's PortGroup/VLAN where your GENEVE VTEPs can route and communicate with each other. Your **VTEP CIDR** should be routable to this PortGroup.
+  1. [Join](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html) the NSX Edge VM(s) to the NSX-T Fabric.
+  1. If the default uplink profile is not applicable in your use case, [create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html) a NSX Edge uplink profile.
 
-  * Connect the **first** Edge interface to your environment's PortGroup/VLAN where your Edge Management IP can route and communicate with the NSX-T Manager.
-  * Connect the **second** Edge interface to your environment's PortGroup/VLAN where your T0 uplink interface will be located.  Your (`PKS MANAGEMENT CIDR`) and (`PKS LB CIDR`) should be routable to this portgroup.
-  * Connect the **third** Edge interface to your environment's PortGroup/VLAN where your GENEVE VTEPs can route and communicate with each other. Your (`VTEP CIDR`) should be routable to this portgroup.
-
-1. [Join](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html) the NSX Edge VM(s) to the NSX-T Fabric.
-
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html) a NSX Edge Uplink Profile
-<p class="note"><strong>Note</strong>: This task is optional if the default uplink profile is not applicable in your use case.</p>
- 
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-53295329-F02F-44D7-A6E0-2E3A9FAE6CF9.html) NSX Edge Transport Node(s).
-  * Add both `tz-vlan` and `tz-overlay` NSX Transport Zones to the NSX Edge transport node(s).
-  * Refer to the mac addresses of the Edge VM interfaces you deployed in a previous step to deploy your virtual NSX Edge(s):
-     * Connect the `hs-vlan` host switch to Virtual nic (fp-eth#) that matches the mac address of the second nic from your deployed edge.
-     * Connect the `hs-overlay` host switch to Virtual nic (fp-eth#) that matches the mac address of the third nic from your deployed edge. 
+1. Add both `tz-vlan` and `tz-overlay` NSX Transport Zones to the NSX Edge Transport Node(s).
+1. Refer to the MAC addresses of the Edge VM interfaces you deployed to deploy your virtual NSX Edge(s):
+  1. Connect the `hs-vlan` host switch to the vNIC (`fp-eth#`) that matches the MAC address of the second NIC from your deployed Edge VM.
+  1. Connect the `hs-overlay` host switch to the vNIC (`fp-eth#`) that matches the MAC address of the third NIC from your deployed Edge VM. 
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-898099FC-4ED2-4553-809D-B81B494B67E7.html) an NSX Edge cluster called `edge-cluster-pks`.
+1. Add the NSX Edge Transport Node(s) to the cluster.
 
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-898099FC-4ED2-4553-809D-B81B494B67E7.html) an NSX Edge Cluster `edge-cluster-pks`.
-  * Add the NSX Edge Transport Node(s) to the cluster.
+###<a id='create-objects-logical-routers'></a> Create Logical Routers
 
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html) a Tier-0 (T0) Logical Router `t0-pks`.
-  * Choose Edge Cluster `edge-cluster-pks`
-  * Attach as an uplink to the `ls-pks-uplink` logical switch you created in a previous step.
-  * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-uplink` and assign an IP address and CIDR that your environment will use to route to all PKS assigned IP Pools and IP Blocks.
-  * [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) T0 routing to the rest of your environment using the appropriate routing protocol for your environment or by using static routes. 
-  		*  The CIDR used in `ip-pool-vips` must route to this IP
-  		*  The CIDR used in `ip-block-pks-deployments` must route to this IP
+####<a id='create-objects-logical-router-pks'></a> Create Logical Router for PKS
 
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-A6042263-374F-4292-892E-BC86876325A4.html) a Tier-1 (T1) Logical Router for PKS Management VMs `t1-pks-mgmt`
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html) a Tier-0 (T0) logical router named `t0-pks`, selecting `edge-cluster-pks` for the cluster.
+1. [Attach](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html#GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4) the logical router to the `ls-pks-uplink` logical switch you created in a previous step.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-uplink` and assign an IP address and CIDR that your environment will use to route to all PKS assigned IP Pools and IP Blocks.
+1. [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) T0 routing to the rest of your environment using the appropriate routing protocol for your environment or by using static routes. Keep in mind the following:
+  *  The CIDR used in `ip-pool-vips` must route to this IP.
+  *  The CIDR used in `ip-block-pks-deployments` must route to this IP.
+
+####<a id='create-objects-logical-router-pks-mgmt'></a> Create Logical Router for PKS Management VMs
+
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-A6042263-374F-4292-892E-BC86876325A4.html) a Tier-1 (T1) Logical Router for PKS Management VMs `t1-pks-mgmt`:
   * Link to the `t0-pks` logical switch you created in a previous step.
-  * Choose Edge Cluster `edge-cluster-pks`
-  * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-mgmt` and assign the following IP Address:  (`172.31.0.1/24`).
-  * [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-B6AF9E08-1334-4D3A-B8ED-D0CAB3B563FB.html) route advertisement on the T1.
-     * Enable: Advertise All NSX Connected Routes
-     * Enable: Advertise All NAT Routes
-     * Enable: Advertise All LB VIP Routes
-  * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Management VMs to communicate with your environment.
-     * Example: SNAT  `172.31.0.0/24` -> `10.172.1.1` where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**.
-  * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) a DNAT rule on the T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the IP you will deploy Pivotal Operations Manager with on the `ls-pks-mgmt` logical switch.
-     * Example: DNAT `10.172.1.2` -> `172.31.0.2` where `172.31.0.2` is the IP address You assign to Pivotal Operations Manager when connected to `ls-pks-mgmt`
+  * Select `edge-cluster-pks` for the cluster.
+* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-mgmt` and assign the following CIDR block: `172.31.0.1/24`.
+* [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-B6AF9E08-1334-4D3A-B8ED-D0CAB3B563FB.html) route advertisement on the T1 as follows:
+   * Enable **Advertise All NSX Connected Routes**.
+   * Enable **Advertise All NAT Routes**.
+   * Enable **Advertise All LB VIP Routes**.
+* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Management VMs to communicate with your environment. For example, a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**.
+* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) a DNAT rule on the T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the IP where you will deploy Ops Manager on the `ls-pks-mgmt` logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
 
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-A6042263-374F-4292-892E-BC86876325A4.html) a Tier-1 (T1) Logical Router for PKS Service VMs `t1-pks-service`
+####<a id='create-objects-logical-router-pks-service'></a> Create Logical Router for PKS Service VMs
+
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-A6042263-374F-4292-892E-BC86876325A4.html) a Tier-1 (T1) Logical Router for PKS Service VMs `t1-pks-service`:
   * Link to the `t0-pks` logical switch you created in a previous step.
-  * Choose Edge Cluster `edge-cluster-pks`
-  * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-service` and assign the following IP Address:  (`172.31.2.1/23`).
-  * [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-B6AF9E08-1334-4D3A-B8ED-D0CAB3B563FB.html) route advertisement on the T1.
-     * Enable: Advertise All NSX Connected Routes
-     * Enable: Advertise All NAT Routes
-     * Enable: Advertise All LB VIP Routes
-  * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Kubernetes Cluster VMs to communicate with your environment's NSX-T Manager.
-     * Example: SNAT  `172.31.2.0/23` -> `10.172.1.1` where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**.
-  
+  * Select `edge-cluster-pks` for the cluster.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-service` and assign the following CIDR block: `172.31.2.1/23`.
+* [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-B6AF9E08-1334-4D3A-B8ED-D0CAB3B563FB.html) route advertisement on the T1 as follows:
+   * Enable **Advertise All NSX Connected Routes**.
+   * Enable **Advertise All NAT Routes**.
+   * Enable **Advertise All LB VIP Routes**.
+* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Kubernetes Cluster VMs to communicate with your environment's NSX-T Manager. For example, a SNAT rule that maps `172.31.2.0/23` to `10.172.1.1`, where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**.
+
 ##<a id='config-ops-man'></a> Step 4: Configure Ops Manager
 
 Perform the following steps to configure Ops Manager for the NSX logical switches:
 
-<p class="note"><strong>Note</strong>: Before proceeding, using this NAT topology,  you should have already deployed Operations Manager connected to the `ls-pks-mgmt` NSX Logical Switch with an IP you have NAT'd correctly in a previous step, for example `172.31.0.2/24` and your `YOUR-OPSMAN-FQDN` should resolve to this IP.</p>
+<p class="note"><strong>Note</strong>: Using this NAT topology, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch with an IP that successfully resolves through NAT, such as <code>172.31.0.2/24</code>. Your <code>YOUR-OPSMAN-FQDN</code> should resolve to this IP.</p>
 
 1. Navigate to `YOUR-OPSMAN-FQDN` in a browser to log in to the Ops Manager Installation Dashboard.
 1. Click the **Ops Manager Director** tile.
 1. Click **Create Networks**.
 1. Create the following two networks:
-  * A network for deploying the PKS control plane VM(s)
-     * This should map to the NSX logical switch `ls-pks-mgmt` created for the PKS Management Network in [Step 3: Create Required Objects](#create-objects)
-  * A service network for deploying PKS Kubernetes cluster nodes
-     * This should map to the NSX logical switch `ls-pks-service` created for the PKS Service Network in [Step 3: Create Required Objects](#create-objects)
+  * A network for deploying the PKS control plane VM(s) that maps to the NSX logical switch named `ls-pks-mgmt` created for the PKS Management Network in [Step 3: Create Required Objects](#create-objects)
+  * A service network for deploying PKS Kubernetes cluster nodes that maps to the NSX logical switch named `ls-pks-service` created for the PKS Service Network in [Step 3: Create Required Objects](#create-objects)
 1. Return to the Ops Manager Installation Dashboard and click **Apply Changes**.
 
 ##<a id='install'></a> Step 5: Install and Configure PKS
@@ -186,15 +176,15 @@ Perform the procedures in [IaaS](installing.html#iaas) of <em>Installing and Con
 Perform the following steps:
 
 1. Click **Networking**.
-  * Under **Network**, select **NSX-T** as the Container Network Type to use.
-  * For **NSX Manager hostname**, enter the NSX Manager hostname or IP address.
-  * For **NSX Manager credentials**, enter the credentials to connect to the NSX Manager.
-  * For **NSX Manager CA Cert**, optionally enter the custom CA certificate to be used to connect to the NSX Manager.
-  * The **Disable SSL certificate verification?** checkbox is **not** selected by default. In order to disable TLS verification, select the checkbox. You may want to disable TLS verification if you did not enter a CA certificate, or if your CA certificate is self-signed.
-  * For **Tier 0 Router ID**, enter the `t0-pks` T0 router ID. This can be located in the NSX-T UI router overview.
-  * For **IP Block ID**, enter the `ip-block-pks-deployments` IP block ID. This can also be located in the NSX-T UI.
-  * For **Floating IP pool ID**, enter the `ip-pool-vips` Floating IP pool ID that was created for Load Balancer VIPs.
-  * Click **Save**.
+1. Under **Network**, select **NSX-T** as the **Container Network Type** to use.
+1. For **NSX Manager hostname**, enter the NSX Manager hostname or IP address.
+1. For **NSX Manager credentials**, enter the credentials to connect to the NSX Manager.
+1. For **NSX Manager CA Cert**, optionally enter the custom CA certificate to be used to connect to the NSX Manager.
+1. The **Disable SSL certificate verification?** checkbox is **not** selected by default. In order to disable TLS verification, select the checkbox. You may want to disable TLS verification if you did not enter a CA certificate, or if your CA certificate is self-signed.
+1. For **Tier 0 Router ID**, enter the `t0-pks` T0 router ID. This can be located in the NSX-T UI router overview.
+1. For **IP Block ID**, enter the `ip-block-pks-deployments` IP block ID. This can also be located in the NSX-T UI.
+1. For **Floating IP pool ID**, enter the `ip-pool-vips` Floating IP pool ID that was created for load balancer VIPs.
+1. Click **Save**.
 
 ###<a id='errands'></a> Errands
 
@@ -208,50 +198,43 @@ Perform the following steps:
 
 To modify the resource usage or stemcell configuration of PKS, see [(Optional) Resource Config](installing.html#resource-config) and [(Optional) Stemcell](installing.html#stemcell) in <em>Installing and Configuring PKS</em>.
 
-##<a id='apply-changes'></a> Step 6: Apply Changes & Retrieve the PKS Endpoint
+##<a id='apply-changes'></a> Step 6: Apply Changes and Retrieve the PKS Endpoint
 
-After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the PKS tile.
+1. After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the PKS tile.
+1. When the installation is completed, retrieve the PKS endpoint by performing the following steps:
+  1. From the Ops Manager Installation Dashboard, click the **Pivotal Container Service** tile.
+  1. Click the **Status** tab and record the IP address assigned to the `Pivotal Container Service` job.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) a DNAT rule on the `t1-pks-mgmt` T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the PKS endpoint. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.4`, where `172.31.0.4` is PKS endpoint.
 
-When the Installation is completed, you must retrieve the newly deployed Pivotal Container Service VM endpoint and record its IP address.  This will be utilized to create a T1 Nat rule similar to the one previously created for Pivotal Operations Manager.
+Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using PKS](using.html).
 
- * Select the **Pivotal Container Service** tile
- * Select The **Status** tab and make note of the IP address assigned to the `Pivotal Container Service` VM/Job.
- * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) a DNAT rule on the `t1-pks-mgmt` T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the IP you have just collected.
-  * Example: DNAT `10.172.1.2` -> `172.31.0.4` where `172.31.0.4` is the IP address you have just collected for the Pivotal Container Service VM.
+##<a id='nsxt-master-lb'></a> Step 7: Create NSX Load Balancers
 
-You can now use the DNAT IP Address you have just assigned as the `-a PKS_API` flag for the PKS CLI.
+In the current version of PKS, NSX-T does not automatically configure a NSX Load Balancer for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
 
-##<a id='nsxt-master-lb'></a> Step 7: Create a NSX Load Balancer for each deployed Kubernetes cluster API
+<p class="note"><strong>Note</strong>: Unless otherwise noted, select the default options in the NSX-T UI.</p>
 
-In the current Controlled Release of PKS,  NSX-T will **NOT** automatically configure a NSX Load Balancer for each Kubernetes Cluster's Master node.   You must perform the following action(s) for each cluster deployed in order to leverage the `kubectl` cli against the clusters API:
-
-* Create a NSX Load Balancer
-
-  <p class="note"><strong>Note</strong>: Unless otherwise noted,  default options may be accepted when performing the the following tasks.</p>
-
-  1. Retrieve the `--external-hostname` value used to create the cluster via the PKS CLI.
-  1. Login to the NSX-T UI
-  1. Create a **Server Pool**
-     * Name: `lb-pool-my-k8s-cluster` - unique name per cluster.
-     * Pool Member: Add the IP Address of the cluster's Master node
-         * This can be retrieved via a `bosh instances` command
-  1. Create a **Virtual Server**
-     * Name: `lb-vip-my-k8s-cluster` - unique name per cluster.
-     * Application Type: Layer 4 - TCP
-     * Application Profile: Default-NCP-LbFastTCPProfile
-     * IP Address: A valid IP from your **PKS LB CIDR**
-       <p class="note"><strong>Note</strong>: The IP must = the FQDN or IP Address passed as the `--external-hostname` value used to create the cluster via the PKS CLI</p>
-       <p class="note"><strong>Note</strong>: The IP must be excluded from your `ip-pool-vips` Floating IP pool.  The Pool is where the NCP will auto-assign VIPs for Kubernetes Ingress/LoadBalancer kinds.  A suggestion is to reserve a portion of the **PKS LB CIDR** to  exclude from the `ip-pool-vips` range to utilize for Master Load Balancer VIPs.  The Example below would reserve the first 20 IPs to Load balance access to Kubernetes cluster master nodes.</p>
-         * Example:   **PKS LB CIDR** = 10.172.2.0/25  & `ip-pool-vips` range = 10.172.2.20-10.172.2.126 
-     * Port: 8443
-     * Maximum Current Connections: 100
-     * Maximum New Connection Rate: 100
-     * Server Pool: `lb-pool-my-k8s-cluster`
-  1. Create a **Load Balancer**
-     * Name: `lb-my-k8s-cluster` - unique name per cluster.
-     * Load Balancer Size: Small
-  1. Attach the **Load Balancer** `lb-my-k8s-cluster` to the `t1-pks-service` Logical Router
-  1. Attach the **Load Balancer** `lb-my-k8s-cluster` to the `lb-vip-my-k8s-cluster` **Virtual Server**
+1. Retrieve the `--external-hostname` value used to create the cluster via the PKS CLI. For more information, see [Using PKS](using.html).
+1. Log in to the NSX-T UI.
+1. Create a **Server Pool** with the following configuration:
+   * **Name**: Enter a unique name per cluster, such as `lb-pool-my-k8s-cluster`.
+   * **Pool Member**: Add the IP address of the cluster's master node. To retrieve this address, use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to log in to your BOSH Director and list all instances with `bosh -e YOUR-ENV instances`.
+1. Create a **Virtual Server** with the following configuration:
+   * **Name**: Enter a unique name per cluster, such as `lb-vip-my-k8s-cluster`.
+   * **Application Type**: Select **Layer 4 - TCP**.
+   * **Application Profile**: Select **Default-NCP-LbFastTCPProfile**.
+   * **IP Address**: Enter a valid IP address from your **PKS LB CIDR**. The address must meet the following conditions:
+     * It must match the IP address passed as `--external-hostname` when creating the cluster via the PKS CLI, or it must resolve to the FQDN used for that value.
+     * It must be excluded from your `ip-pool-vips` Floating IP pool. This pool is where the NCP will auto-assign VIPs for Kubernetes Ingress/LoadBalancer kinds. Pivotal recommends reserving a portion of the **PKS LB CIDR** to exclude from the `ip-pool-vips` range to use for master node load balancer VIPs. For example, if your **PKS LB CIDR** is `10.172.2.0/25`, an `ip-pool-vips` range of `10.172.2.20-10.172.2.126` would reserve the first 20 IPs to load balance access to Kubernetes cluster master nodes. 
+   * **Port**: Enter `8443`.
+   * **Maximum Current Connections**: Enter `100`.
+   * **Maximum New Connection Rate**: Enter `100`.
+   * **Server Pool**: Enter the name of your server pool, such as `lb-pool-my-k8s-cluster`.
+1. Create a **Load Balancer** with the following configuration:
+   * **Name**: Enter a unique name per cluster, such as `lb-my-k8s-cluster`.
+   * **Load Balancer Size**: Select **Small**.
+1. Attach the **Load Balancer** `lb-my-k8s-cluster` to the `t1-pks-service` logical router.
+1. Attach the **Load Balancer** `lb-my-k8s-cluster` to the `lb-vip-my-k8s-cluster` virtual server.
 
 
      
