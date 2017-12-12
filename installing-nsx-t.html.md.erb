@@ -11,39 +11,49 @@ Before performing the procedures in this topic, consult the requirements in the 
 
 ##<a id='overview'></a> Overview
 
-The following diagram details the architecture of the NSX-T deployment described in this topic.
+<p class="note"><strong>Note</strong>:The following diagram details the architecture of a NSX-T with PKS Network Address Translation (NAT) deployment described in this topic.</p> 
+
 
 ![NSX & PKS Overview](images/nsx-t-overview.png)
 
 Click [here](https://docs-pks.cfapps.io/pks/images/nsx-t-overview.png) to view a larger version of this image.
 
-<p class="note"><strong>Note</strong>: The procedures below deploy a NAT network topology for an NSX-T deployment that supports PKS, but other topologies are configurable.</p> 
+This NAT Topology as depicted in the image above, has the following characteristcs:
 
-##<a id='deploy-nsx-t'></a> Step 1: Deploy NSX-T
+* BOSH Director, Operations Manager, and PKS Service Instance are all located on a Logical Switch NAT'd behind a T1.
+* All Kubernetes Cluster Nodes are all located on a Logical Switch NAT'd behind a T1.   This will require NAT rules to allow acces to Kubernetes APIs.
 
-Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to deploy the following core NSX-T components:
+Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to create/assign the following network CIDRs in the IPv4 address space and ensure they are routable in your environment:
 
-1. Deploy the NSX-T Manager.
-1. Deploy the NSX-T Controller(s).
-1. Join the NSX-T Control Cluster to the NSX-T Manager and initialize the NSX Controller Cluster.
-1. Add your ESX host(s) to the NSX-T Fabric.
+* **VTEP CIDR(s)**: This network(s) will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the network(s) to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` will provide 254 usable IPs.
+* **PKS MANAGEMENT CIDR**: This small network will be used for NAT access to PKS management components like Ops Manager. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs.
+* **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. For example, `10.172.2.0/25` will provide 126 usable IPs.
 
-##<a id='config-network'></a> Step 2: Configure Network Requirements for NSX-T Management Access
-
-Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to provide or configure your network topology to enable the following:
+You must also refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to provide or configure your network topology to enable the following:
 
 * vCenter, NSX-T components, and ESXi hosts must be able to communicate with each other.
 * The Ops Manager Director VM must be able to communicate with vCenter and the NSX-T Manager.
 * The Ops Manager Director VM must be able to communicate with all nodes in all Kubernetes clusters.
 * Each Kubernetes cluster deployed by PKS will deploy a NCP pod that must be able to communicate with the NSX-T Manager.
 
-If you are using a simple NAT topology for your Kubernetes Clusters, refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to create the following network CIDRs in the IPv4 address space and ensure they are routable in your environment:
+##<a id='deploy-nsx-t'></a> Step 1: Deploy NSX-T
 
-* **VTEP CIDR(s)**: This network(s) will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the network(s) to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` will provide 254 usable IPs.
-* **PKS MANAGEMENT CIDR**: This small network will be used for NAT access to PKS management components like Ops Manager. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs.
-* **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. For example, `10.172.2.0/25` will provide 126 usable IPs.
+Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to deploy the following core NSX-T components:
 
-##<a id='create-objects'></a> Step 3: Create Required NSX-T Objects for PKS
+
+1. Deploy the NSX-T Manager.
+1. Deploy the NSX-T Controller(s).
+1. Join the NSX-T Control Cluster to the NSX-T Manager and initialize the NSX Controller Cluster.
+1. Add your ESX host(s) to the NSX-T Fabric.
+  * Each Host must have at least one free vmnic not already used by other vSwitches on the ESX host for use with Host Transport Nodes.
+1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) NSX Edge VMs(s). When deploying NSX Edge VMs, you must connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment by performing the following steps:
+  1. Connect the first Edge interface to your environment's PortGroup/VLAN where your Edge Management IP can route and communicate with the NSX-T Manager.
+  1. Connect the second Edge interface to your environment's PortGroup/VLAN where your T0 uplink interface will be located.  Your **PKS MANAGEMENT CIDR** and **PKS LB CIDR** should be routable to this PortGroup.
+  1. Connect the third Edge interface to your environment's PortGroup/VLAN where your GENEVE VTEPs can route and communicate with each other. Your **VTEP CIDR** should be routable to this PortGroup.
+  1. [Join](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html) the NSX Edge VM(s) to the NSX-T Fabric.
+
+
+##<a id='create-objects'></a> Step 2: Create Required NSX-T Objects for PKS
 
 The following sections refer to topics in the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to describe how to create the objects in the NSX-T deployment required for PKS. 
 
@@ -127,7 +137,7 @@ The following sections refer to topics in the [NSX-T documentation](https://docs
    * Enable **Advertise All LB VIP Routes**.
 * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Kubernetes Cluster VMs to communicate with your environment's NSX-T Manager. For example, a SNAT rule that maps `172.31.2.0/23` to `10.172.1.1`, where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**.
 
-##<a id='config-ops-man'></a> Step 4: Configure Ops Manager
+##<a id='config-ops-man'></a> Step 3: Configure Ops Manager
 
 Perform the following steps to configure Ops Manager for the NSX logical switches:
 
@@ -141,7 +151,7 @@ Perform the following steps to configure Ops Manager for the NSX logical switche
   * A service network for deploying PKS Kubernetes cluster nodes that maps to the NSX logical switch named `ls-pks-service` created for the PKS Service Network in [Step 3: Create Required Objects](#create-objects)
 1. Return to the Ops Manager Installation Dashboard and click **Apply Changes**.
 
-##<a id='install'></a> Step 5: Install and Configure PKS
+##<a id='install'></a> Step 4: Install and Configure PKS
 
 Perform the following steps to install and configure PKS:
 
@@ -202,7 +212,7 @@ Perform the following steps:
 
 To modify the resource usage or stemcell configuration of PKS, see [(Optional) Resource Config](installing.html#resource-config) and [(Optional) Stemcell](installing.html#stemcell) in <em>Installing and Configuring PKS</em>.
 
-##<a id='apply-changes'></a> Step 6: Apply Changes and Retrieve the PKS Endpoint
+##<a id='apply-changes'></a> Step 5: Apply Changes and Retrieve the PKS Endpoint
 
 1. After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the PKS tile.
 1. When the installation is completed, retrieve the PKS endpoint by performing the following steps:
@@ -212,7 +222,7 @@ To modify the resource usage or stemcell configuration of PKS, see [(Optional) R
 
 Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using PKS](using.html).
 
-##<a id='nsxt-master-nat'></a> Step 7: Enable NAT Access
+##<a id='nsxt-master-nat'></a> Step 6: Enable NAT Access
 
 In the current version of PKS, NSX-T does not automatically configure a NAT for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
 
