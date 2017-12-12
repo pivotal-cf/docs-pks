@@ -94,6 +94,7 @@ The following sections refer to topics in the [NSX-T documentation](https://docs
 ####<a id='create-objects-logical-router-pks'></a> Create Logical Router for PKS
 
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html) a Tier-0 (T0) logical router named `t0-pks`, selecting `edge-cluster-pks` for the cluster.
+   * High Availability Mode must be set to **Active-Standby** 
 1. [Attach](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html#GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4) the logical router to the `ls-pks-uplink` logical switch you created in a previous step.
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-uplink` and assign an IP address and CIDR that your environment will use to route to all PKS assigned IP Pools and IP Blocks.
 1. [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) T0 routing to the rest of your environment using the appropriate routing protocol for your environment or by using static routes. Keep in mind the following:
@@ -210,33 +211,29 @@ To modify the resource usage or stemcell configuration of PKS, see [(Optional) R
 
 Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using PKS](using.html).
 
-##<a id='nsxt-master-lb'></a> Step 7: Create NSX Load Balancers
+##<a id='nsxt-master-nat'></a> Step 7: Enable NAT access to a deployed Kubernetes cluster
 
-In the current version of PKS, NSX-T does not automatically configure a NSX Load Balancer for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
+In the current version of PKS, NSX-T does not automatically configure a  NAT for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
 
-<p class="note"><strong>Note</strong>: Unless otherwise noted, select the default options in the NSX-T UI.</p>
+1. Install script dependancies on your Linux workstation
+   * `sudo apt-get install -y curl`
+   * `curl --silent https://bootstrap.pypa.io/get-pip.py | sudo python3`
+   * `wget https://storage.googleapis.com/pks-releases/nsx_cleanup.tar.gz`
 
-1. Retrieve the `--external-hostname` value used to create the cluster via the PKS CLI. For more information, see [Using PKS](using.html).
-1. Log in to the NSX-T UI.
-1. Create a **Server Pool** with the following configuration:
-   * **Name**: Enter a unique name per cluster, such as `lb-pool-my-k8s-cluster`.
-   * **Pool Member**: Add the IP address of the cluster's master node. To retrieve this address, use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to log in to your BOSH Director and list all instances with `bosh -e YOUR-ENV instances`.
-1. Create a **Virtual Server** with the following configuration:
-   * **Name**: Enter a unique name per cluster, such as `lb-vip-my-k8s-cluster`.
-   * **Application Type**: Select **Layer 4 - TCP**.
-   * **Application Profile**: Select **Default-NCP-LbFastTCPProfile**.
-   * **IP Address**: Enter a valid IP address from your **PKS LB CIDR**. The address must meet the following conditions:
-     * It must match the IP address passed as `--external-hostname` when creating the cluster via the PKS CLI, or it must resolve to the FQDN used for that value.
-     * It must be excluded from your `ip-pool-vips` Floating IP pool. This pool is where the NCP will auto-assign VIPs for Kubernetes Ingress/LoadBalancer kinds. Pivotal recommends reserving a portion of the **PKS LB CIDR** to exclude from the `ip-pool-vips` range to use for master node load balancer VIPs. For example, if your **PKS LB CIDR** is `10.172.2.0/25`, an `ip-pool-vips` range of `10.172.2.20-10.172.2.126` would reserve the first 20 IPs to load balance access to Kubernetes cluster master nodes. 
-   * **Port**: Enter `8443`.
-   * **Maximum Current Connections**: Enter `100`.
-   * **Maximum New Connection Rate**: Enter `100`.
-   * **Server Pool**: Enter the name of your server pool, such as `lb-pool-my-k8s-cluster`.
-1. Create a **Load Balancer** with the following configuration:
-   * **Name**: Enter a unique name per cluster, such as `lb-my-k8s-cluster`.
-   * **Load Balancer Size**: Select **Small**.
-1. Attach the **Load Balancer** `lb-my-k8s-cluster` to the `t1-pks-service` logical router.
-1. Attach the **Load Balancer** `lb-my-k8s-cluster` to the `lb-vip-my-k8s-cluster` virtual server.
+1. Set the following variables in your shell
+   * `export NSX_MANAGER_USERNAME="your_admin_user" `
+   * `export NSX_MANAGER_PASSWORD="your_password" ` 
+   * `export NSX_MANAGER_IP="your_nsxt_mgr_ip" `
+1. Make the script executable
+   * `chmod 755 nsx-cli.sh`
 
+1. Find an available NAT IP from the `ip-pool-vips` NSX IP Pool
+   * Retrieve the IP Pool ID. This can be located in the NSX-T UI.
+   * `./nsx-cli.sh ipam allocate [IP_POOL_ID]`
+1. The IP adrress retrieved can be leveraged to deploy a cluster
+   * The IP address can be passed as the `--external-hostname` value used to create a cluster via the PKS CLI 
+1. Create the NAT rule to allow access to the Kubernetes API for the cluster
+   * Retrieve the `t0-pks` T0 Router ID. This can be located in the NSX-T UI.
+   * Retrieve the address BOSH has assigned to the cluster master node, use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to log in to your BOSH Director and list all instances with `bosh -e YOUR-ENV instances`.
 
-     
+   * `./nsx-cli.sh nat create-rule [T0_Router_ID] [NAT_IP] [MASTER_IP]`
