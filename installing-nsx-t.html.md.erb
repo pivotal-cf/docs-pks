@@ -49,7 +49,7 @@ The following sections refer to topics in the [NSX-T documentation](https://docs
 
 ###<a id='create-objects-network-objects'></a> Create NSX Network Objects
 
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html) two NSX IP Pools:
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html) two NSX IP pools:
   * One NSX IP pool for GENEVE Tunnel Endpoints `ip-pool-vteps,` within the usable range of the **VTEP CIDR** created in the previous section
   * One NSX IP pool for NSX Load Balancing VIPs `ip-pool-vips,` within the usable range of the **PKS LB CIDR** created in the previous section
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html) two NSX Transport Zones (TZs):
@@ -59,7 +59,7 @@ The following sections refer to topics in the [NSX-T documentation](https://docs
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.install.doc/GUID-D7CA778B-6554-4A23-879D-4BC336E01031.html) NSX Host Transport Node(s) 
   * For each host in the NSX-T Fabric, create a node named `tnode-host-NUMBER`. For example, if you have three hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`.
   * Add the `tz-overlay` NSX Transport Zone to each NSX Host Transport Node.
-  <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESX host. Use the `ip-pool-vteps` IP Pool that will allow them to route and communicate with each other as well as other Edge Transport Nodes to build GENEVE tunnels.</p>
+  <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESX host. Use the `ip-pool-vteps` IP pool that will allow them to route and communicate with each other as well as other Edge Transport Nodes to build GENEVE tunnels.</p>
 
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) a NSX IP Block named `ip-block-pks-deployments`. The NSX-T Container Plug-in (NCP) and PKS will use this IP Block to assign address space to Kubernetes pods through the Container Networking Interface (CNI). Pivotal recommends using the CIDR block `172.16.0.0/16`.
 
@@ -93,10 +93,11 @@ The following sections refer to topics in the [NSX-T documentation](https://docs
 
 ####<a id='create-objects-logical-router-pks'></a> Create Logical Router for PKS
 
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html) a Tier-0 (T0) logical router named `t0-pks`, selecting `edge-cluster-pks` for the cluster.
-   * High Availability Mode must be set to **Active-Standby** 
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html) a Tier-0 (T0) logical router named `t0-pks`: 
+  * Select `edge-cluster-pks` for the cluster.   
+  * Set **High Availability Mode** to **Active-Standby**. 
 1. [Attach](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html#GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4) the logical router to the `ls-pks-uplink` logical switch you created in a previous step.
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-uplink` and assign an IP address and CIDR that your environment will use to route to all PKS assigned IP Pools and IP Blocks.
+1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) a logical router port for `ls-pks-uplink` and assign an IP address and CIDR that your environment will use to route to all PKS assigned IP pools and IP blocks.
 1. [Configure](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) T0 routing to the rest of your environment using the appropriate routing protocol for your environment or by using static routes. Keep in mind the following:
   *  The CIDR used in `ip-pool-vips` must route to this IP.
   *  The CIDR used in `ip-block-pks-deployments` must route to this IP.
@@ -211,29 +212,47 @@ To modify the resource usage or stemcell configuration of PKS, see [(Optional) R
 
 Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using PKS](using.html).
 
-##<a id='nsxt-master-nat'></a> Step 7: Enable NAT access to a deployed Kubernetes cluster
+##<a id='nsxt-master-nat'></a> Step 7: Enable NAT Access
 
-In the current version of PKS, NSX-T does not automatically configure a  NAT for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
+In the current version of PKS, NSX-T does not automatically configure a NAT for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
 
-1. Install script dependancies on your Linux workstation
-   * `sudo apt-get install -y curl`
-   * `curl --silent https://bootstrap.pypa.io/get-pip.py | sudo python3`
-   * `wget https://storage.googleapis.com/pks-releases/nsx_cleanup.tar.gz`
+1. [Download](https://www.python.org/downloads/) and install Python v3.x. 
+1. Download and install the Python package manager:
+  <pre class="terminal">
+  $ curl --silent http<span>s:</span>//bootstrap.pypa.io/get-pip.py | sudo python3
+  </pre>
+1. Download the NSX scripts:
+  <pre class="terminal">
+  $ wget http<span>s:</span>//storage.googleapis.com/pks-releases/nsx_cleanup.tar.gz
+  </pre>
+1. Untar the `nsx_cleanup.tar.gz` file:
+  <pre class="terminal">
+  $ tar xvf nsx_cleanup.tar.gz
+  </pre>
+1. One of the files from the tarball is `nsx-cli.sh`. Make the script executable:
+  <pre class="terminal">
+  $ chmod 755 nsx-cli.sh
+  </pre>
+1. Set your NSX Manager admin user, password, and IP address as environment variables named `NSX_MANAGER_USERNAME`, `NSX_MANAGER_PASSWORD`, and `NSX_MANAGER_IP`. For example:
+  <pre class="terminal">
+  $ export NSX_MANAGER_USERNAME="admin-user" 
+  $ export NSX_MANAGER_PASSWORD="admin-password"
+  $ export NSX_MANAGER_IP="192.0.2.1" 
+1. Log in to the NSX-T UI and retrieve the ID of the `ip-pool-vips` NSX IP pool.
+1. Execute the `nsx-cli` script with the following command, specifying the ID of `ip-pool-vips` as `IP-POOL-ID`:
 
-1. Set the following variables in your shell
-   * `export NSX_MANAGER_USERNAME="your_admin_user" `
-   * `export NSX_MANAGER_PASSWORD="your_password" ` 
-   * `export NSX_MANAGER_IP="your_nsxt_mgr_ip" `
-1. Make the script executable
-   * `chmod 755 nsx-cli.sh`
+    ```
+    ./nsx-cli.sh ipam allocate IP-POOL-ID
+    ```
+1. In the NSX-T UI, find an available NAT IP from the `ip-pool-vips` NSX IP pool. Developers can use this IP address as the `--external-hostname` value to create a cluster via the PKS CLI. For more information, see [Using PKS](using.html).
+1. Use the `nsx-cli` script to create a NAT rule to allow access to the Kubernetes API for the cluster. Execute the following command:
 
-1. Find an available NAT IP from the `ip-pool-vips` NSX IP Pool
-   * Retrieve the IP Pool ID. This can be located in the NSX-T UI.
-   * `./nsx-cli.sh ipam allocate [IP_POOL_ID]`
-1. The IP adrress retrieved can be leveraged to deploy a cluster
-   * The IP address can be passed as the `--external-hostname` value used to create a cluster via the PKS CLI 
-1. Create the NAT rule to allow access to the Kubernetes API for the cluster
-   * Retrieve the `t0-pks` T0 Router ID. This can be located in the NSX-T UI.
-   * Retrieve the address BOSH has assigned to the cluster master node, use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to log in to your BOSH Director and list all instances with `bosh -e YOUR-ENV instances`.
-
-   * `./nsx-cli.sh nat create-rule [T0_Router_ID] [NAT_IP] [MASTER_IP]`
+    ```
+    ./nsx-cli.sh nat create-rule T0-ROUTER-ID NAT-IP MASTER-IP
+    ```
+    <br>
+    Where:
+    <br>
+    * `T0-ROUTER-ID` is the ID of the `t0-pks` T0 router. Retrieve this value from the NSX-T UI.
+    * `NAT-IP` is the NAT IP from the `ip-pool-vips` NSX IP pool retrieved above.
+    * `MASTER-IP` is the IP address that BOSH has assigned to the master node of the cluster. To retrieve this value, use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to log in to your BOSH Director and list all instances with `bosh -e YOUR-ENV instances`.
