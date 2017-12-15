@@ -235,44 +235,54 @@ Developers should use the DNAT IP address when logging in with the PKS CLI. For 
 
 In the current version of PKS, NSX-T does not automatically configure a NAT for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
 
-1. [Download](https://www.python.org/downloads/) and install Python v3.x. 
-1. Download and install the Python package manager:
-  <pre class="terminal">
-  $ curl --silent http<span>s:</span>//bootstrap.pypa.io/get-pip.py | sudo python3
-  </pre>
 1. Download the NSX scripts:
   <pre class="terminal">
-  $ wget http<span>s:</span>//storage.googleapis.com/pks-releases/nsx_cleanup.tar.gz
-  </pre>
-1. Untar the `nsx_cleanup.tar.gz` file:
+  $ wget https://storage.googleapis.com/pks-releases/nsx-helper-pkg.tar.gz  </pre>
+1. Untar the `nsx-helper-pkg.tar.gz` file:
   <pre class="terminal">
-  $ tar xvf nsx_cleanup.tar.gz
+  $ tar -xvzf nsx-helper-pkg.tar.gz
   </pre>
+1. Install required packages:
+   <pre class="terminal">
+   $ sudo apt-get install git
+   $ sudo apt-get install -y httpie 
+   </pre>
 1. One of the files from the tarball is `nsx-cli.sh`. Make the script executable:
   <pre class="terminal">
   $ chmod 755 nsx-cli.sh
   </pre>
 1. Set your NSX Manager admin user, password, and IP address as environment variables named `NSX_MANAGER_USERNAME`, `NSX_MANAGER_PASSWORD`, and `NSX_MANAGER_IP`. For example:
   <pre class="terminal">
-  $ export NSX_MANAGER_USERNAME="admin-user" 
-  $ export NSX_MANAGER_PASSWORD="admin-password"
-  $ export NSX_MANAGER_IP="192.0.2.1" 
-1. Log in to the NSX-T UI and retrieve the ID of the `ip-pool-vips` NSX IP pool.
-1. Execute the `nsx-cli` script with the following command, specifying the ID of `ip-pool-vips` as `IP-POOL-ID`:
+  $ export NSX&#95;MANAGER&#95;USERNAME="admin-user" 
+  $ export NSX&#95;MANAGER&#95;PASSWORD="admin-password"
+  $ export NSX&#95;MANAGER&#95;IP="192.0.2.1" 
+
+1. Execute the `nsx-cli` script with the following command:
 
     ```
-    ./nsx-cli.sh ipam allocate IP-POOL-ID
+    $ ./nsx-cli.sh ipam allocate
     ```
-1. In the NSX-T UI, find an available NAT IP from the `ip-pool-vips` NSX IP pool. Developers can use this IP address as the `--external-hostname` value to create a cluster via the PKS CLI. For more information, see [Using PKS](using.html).
+  Developers can use this IP address as the `--external-hostname` value to create a cluster via the PKS CLI. For more information, see [Using PKS](using.html).
+
+
+
+1. Collect the Cluster UUID after cluster has been successfully created. 
+
+ <pre class="terminal">
+ $ pks list-clusters
+ </pre>
+
+
+
 1. Use the `nsx-cli` script to create a NAT rule to allow access to the Kubernetes API for the cluster. Execute the following command:
 
     ```
-    ./nsx-cli.sh nat create-rule T0-ROUTER-ID NAT-IP MASTER-IP
+    ./nsx-cli.sh nat create-rule CLUSTER-UUID NAT-IP MASTER-IP
     ```
     <br>
     Where:
     <br>
-    * `T0-ROUTER-ID` is the ID of the `t0-pks` T0 router. Retrieve this value from the NSX-T UI.
+    * `CLUSTER-UUID` is the ID of the cluster retrieved in a previous.
     * `NAT-IP` is the NAT IP from the `ip-pool-vips` NSX IP pool retrieved above.
     * `MASTER-IP` is the IP address that BOSH has assigned to the master node of the cluster. To retrieve this value, use the [BOSH CLI v2](https://bosh.io/docs/cli-v2.html) to log in to your BOSH Director and list all instances with `bosh -e YOUR-ENV instances`.
 
