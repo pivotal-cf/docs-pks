@@ -28,7 +28,7 @@ Refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index
 
 * **VTEP CIDR(s)**: This network(s) will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the network(s) to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` will provide 254 usable IPs.   It will be leveraged when creating the `ip-pool-vteps` in a later step.
 * **PKS MANAGEMENT CIDR**: This small network will be used for NAT access to PKS management components like Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs.
-* **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. It will provide IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/25` will provide 126 usable IPs.  It will be leveraged when creating the `ip-pool-vips` in a later step.
+* **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. The network will also provide IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/25` will provide 126 usable IPs. This network will be used when creating the `ip-pool-vips` in [Create NSX Network Objects](#create-objects-network-objects) below.
 
 You must also refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) in order to provide or configure your network topology to enable the following:
 
@@ -118,9 +118,9 @@ The following sections refer to topics in the [NSX-T documentation](https://docs
    * Enable **Advertise All NSX Connected Routes**.
    * Enable **Advertise All NAT Routes**.
    * Enable **Advertise All LB VIP Routes**.
-* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the PKS Management VMs to communicate with your environments vCenter & NSX Manager. For example, a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**.
+* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the PKS Management VMs to communicate with your vCenter and NSX Manager environments. For example, a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**.
 
-  <p class="note"><strong>Note</strong>: The Destination CIDR for the SNAT rules must be limited to the subnet(s) containing your vCenter and NSX Manager IP Addreses.</p>
+  <p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnet(s) that contain your vCenter and NSX Manager IP addreses.</p>
 
 * [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) a DNAT rule on the T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the IP where you will deploy Ops Manager on the `ls-pks-mgmt` logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
 
@@ -134,24 +134,24 @@ The following sections refer to topics in the [NSX-T documentation](https://docs
    * Enable **Advertise All NSX Connected Routes**.
    * Enable **Advertise All NAT Routes**.
    * Enable **Advertise All LB VIP Routes**.
-* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Kubernetes Cluster VMs to communicate with your environment's NSX-T Manager.  Thsi will allow the NCP pod on each cluster to communicate with your NSX-T Manager. For example, a SNAT rule that maps `172.31.2.0/23` to `10.172.1.3`, where `10.172.1.3` is a routable IP from your **PKS MANAGEMENT CIDR**.
+* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Kubernetes Cluster VMs to communicate with your environment's NSX-T Manager and allow the NCP pod on each cluster to communicate with your NSX-T Manager. For example, a SNAT rule that maps `172.31.2.0/23` to `10.172.1.3`, where `10.172.1.3` is a routable IP from your **PKS MANAGEMENT CIDR**.
 
 
-  <p class="note"><strong>Note</strong>: The Destination CIDR for the SNAT rules must be limited to the subnet(s) containing your NSX Manager IP Addreses.</p>
+  <p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnet(s) that contain your vCenter and NSX Manager IP addreses.</p>
 
 ##<a id='config-ops-man'></a> Step 4: Configure Ops Manager
 
 
 Perform the following steps to configure Ops Manager for the NSX logical switches:
 
-<p class="note"><strong>Note</strong>: Using this NAT topology, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch with an IP that you created a DNAT rule for in Step 3: Create Logical Router for PKS Management VMs.   You will use the DNAT IP address to Access Operations Manager.</p>
+<p class="note"><strong>Note</strong>: Using this NAT topology, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following [Step 3: Create Logical Router for PKS Management VMs](#create-objects) above. You will use the DNAT IP address to Access Operations Manager.</p>
 
-<p class="note"><strong>Note</strong>: <strong>Do Not</strong> enable <strong>NSX Networking</strong> on the <strong>vCenter Config</strong> page. You will configure NSX-T integration for PKS in a following step.
+<p class="note warning"><strong>WARNING</strong>: Do not enable <strong>NSX Networking</strong> on the <strong>vCenter Config</strong> page. You will configure NSX-T integration for PKS in a following step.
 </p>
 
 1. Navigate to `https://YOUR-OPSMAN-FQDN` in a browser to log in to the Ops Manager Installation Dashboard.
 1. Click the **Ops Manager Director** tile.
-1. [Configure](https://docs.pivotal.io/pivotalcf/1-12/customizing/vsphere-config.html) Operations Manager Director Tile for vSphere
+1. Configure the Operations Manager Director tile for vSphere. For more information, see [Configuring Ops Manager Director for VMware vSphere](https://docs.pivotal.io/pivotalcf/1-12/customizing/vsphere-config.html).
 1. Click **Create Networks**.
 1. Create the following two networks:
   * A network for deploying the PKS control plane VM(s) that maps to the NSX logical switch named `ls-pks-mgmt` created for the PKS Management Network in [Step 3: Create Required Objects](#create-objects)
@@ -228,11 +228,11 @@ To modify the resource usage or stemcell configuration of PKS, see [(Optional) R
 1. When the installation is completed, retrieve the PKS endpoint by performing the following steps:
   1. From the Ops Manager Installation Dashboard, click the **Pivotal Container Service** tile.
   1. Click the **Status** tab and record the IP address assigned to the `Pivotal Container Service` job.
-1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) a DNAT rule on the `t1-pks-mgmt` T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the PKS endpoint. For example, a DNAT rule that maps `10.172.1.4` to `172.31.0.4`, where `172.31.0.4` is PKS endpoint IP address on the `ls-pks-mgmt` NSX Logical Switch.
+1. Create a DNAT rule on the `t1-pks-mgmt` T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the PKS endpoint. For example, a DNAT rule that maps `10.172.1.4` to `172.31.0.4`, where `172.31.0.4` is PKS endpoint IP address on the `ls-pks-mgmt` NSX Logical Switch. For more information, see [Configure Destination NAT on a Tier-1 Router]( https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) in the VMware documentation.
 
 Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using PKS](using.html).
 
-##<a id='nsxt-master-nat'></a> Step 7: Deploys a Cluster & Enable NAT Access
+##<a id='nsxt-master-nat'></a> Step 7: Deploy a Cluster and Enable NAT Access
 
 In the current version of PKS, NSX-T does not automatically configure a NAT for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use `kubectl`: 
 
