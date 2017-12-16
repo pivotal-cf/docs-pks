@@ -37,7 +37,6 @@ Perform the following steps:
 Perform the following steps:
 
 1. Click **PKS API**.
-1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters.
 1. Under **Certificate**, provide your own certificate or have Ops Manager generate one.
 1. Under **Generate RSA Certificate**, provide the domain names that you want your certificate to have. The domain names should contain 
 the hostname you intend to use for accessing the PKS API service. 
@@ -58,6 +57,7 @@ Perform the following steps:
 
 1. Click **Plan**.
 1. Under **Plan description**, edit the description as needed. The plan description appears in the Services Marketplace, which developers can access by using either the Cloud Foundry Command Line Interface (cf CLI) or Apps Manager. 
+1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters.
 1. Under **ETCD VM Type**, select the type of VM to use for the Kubernetes etcd nodes. 
 	<p class="note"><strong>Note</strong>: This configuration is temporary until the master and etcd nodes are merged.</p>
 1. Under **Master VM Type**, select the type of VM to use for Kubernetes master nodes.
@@ -66,22 +66,21 @@ Perform the following steps:
 1. Under **Worker Instances**, select the default number of Kubernetes worker nodes to provision for each cluster.
 1. Click **Save**.
 
-###<a id='iaas'></a> IaaS
+###<a id='kubernetes-cloud-provider'></a> Kubernetes Cloud Provider
 
 Perform the following steps:
 
-1. Click **IaaS**.
+1. Click **Kubernetes Cloud Provider**.
 1. Under **Choose your IaaS**, select your IaaS.
 1. Perform the steps specific to your IaaS.
 	* For **vSphere**, ensure the values match those in the **vCenter Config** section of the **Ops Manager** tile:
 		1. Enter your **vCenter Host**, such as `vcenter.cf-example.com`.
 		1. Enter your **Datacenter Name**, such as `cf-example-dc`.
 		1. Enter your **Datastore Name**, such as `cf-example-ds`.
-		1. Enter the **VM Folder** where the VMs are stored so that the persistent stores know where to find the VMs. To retrieve the name of the folder, navigate to your Ops Manager Director tile, click **vCenter Config**, and locate the value for **VM Folder**. 
+		1. Enter the **Stored VM Folder** so that the persistent stores know where to find the VMs. To retrieve the name of the folder, navigate to your Ops Manager Director tile, click **vCenter Config**, and locate the value for **VM Folder**. 
 	* For **GCP**, ensure the values match those in the **Google Config** section of the **Ops Manager** tile:
 	  1. Enter your **GCP Project Id**.
-	  1. Enter your **GCP Network**, which is the VPC network name for your Ops Manager environment.
-	  1. Enter your **GCP Service Key**, which you created using [the instructions from the GCP prerequisites](requirements.html#gcp-prereqs).
+	  1. Enter your **VPC Network**, which is the VPC network name for your Ops Manager environment.
 1. Click **Save**.
 
 ###<a id='networking'></a> Networking
@@ -106,52 +105,7 @@ To edit the stemcell configuration, click **Stemcell**. Click **Import Stemcell*
 
 After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
 
-##<a id='post-deployment-steps'></a> Step 4: Post-Deployment Steps (GCP Only)
-
-If you are deploying on GCP, you must create a service account and update the [cloud config](http://bosh.io/docs/cloud-config.html) after deploying the tile.
-
-In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create a service account with sufficient permissions. Then you must update the cloud config for all `vm_types` to include a `cloud_properties` value for `service_account`. 
-
-<p class="note"><strong>Note</strong>: You must update the cloud config each time you redeploy PKS by clicking <strong>Apply Changes</strong> in Ops Manager.</p>
-
-Perform the following steps:
-
-1. Navigate to the **IAM & admin > Service accounts** section of the GCP Console.
-1. Click **Create Service Account**.
-1. Enter a name for the service account, and add the following roles:
-  * `roles/iam.serviceAccountActor` (**Project > Service Account Actor**)
-  * `roles/compute.instanceAdmin`  (**Compute Engine > Compute Instance Admin**)
-  * `roles/compute.securityAdmin` (**Compute Engine > Compute Security Admin**)
-  * `roles/compute.networkAdmin` (**Compute Engine > Compute Network Admin**)
-  * `roles/compute.storageAdmin` (**Compute Engine > Compute Storage Admin**)
-  * `roles/compute.viewer` (**Compute Engine > Compute Viewer**)
-	<p class="note"><strong>Note</strong>: See the <code>kubo-deployment</code> GitHub <a href="https://github.com/cloudfoundry-incubator/kubo-deployment/blob/master/docs/user-guide/platforms/gcp/kubo-infrastructure.tf#L61-L110">repository</a> for more information about the required roles.</p>
-1. Click **Furnish a new private key** and select **JSON**.
-1. Click **Create**.
-1. Set the name of the GCP service account as an environment variable. For example:
-	<pre class="terminal">$ GCP\_SERVICE\_ACCOUNT="example-acct<span>@</span>project.iam.gserviceaccount.com"</pre>
-1. Use the BOSH CLI v2 to export your cloud config as a YAML file, specifying the name of your environment:
-	<pre class="terminal">$ bosh -e my-env cloud-config > cloud-config.yml</pre>
-1. Create an environment variable with your VM types. You must have [Ruby](https://www.ruby-lang.org/en/downloads/) and [jq](https://stedolan.github.io/jq/) installed. Enter the following command:
-	<pre class="terminal">$ VM\_TYPES=$(cat cloud-config.yml | ruby -ryaml -rjson -e 'puts JSON.pretty_generate(YAML.load(ARGF))' | jq -r '.vm\_types[].name')</pre>
-1. Create an empty file with the following command:
-	<pre class="terminal">$ echo "" > UPDATE\_SERVICE\_ACCOUNT</pre>
-1. Enter the following Bash script on the command line:
-
-	```
-	for vm_type in $VM_TYPES
-	do
-	  echo "- type: replace" >> UPDATE_SERVICE_ACCOUNT
-	  echo "  path: /vm_types/name=${vm_type}/cloud_properties/service_account?" >> UPDATE_SERVICE_ACCOUNT
-	  echo "  value: $GCP_SERVICE_ACCOUNT" >> UPDATE_SERVICE_ACCOUNT
-	done
-	```
-1. Use the BOSH CLI v2 to update the cloud config. For example:
-	<pre class="terminal">$ bosh --non-interactive update-cloud-config \ 
-	cloud-config.yml --ops-file UPDATE\_SERVICE\_ACCOUNT</pre>
-   Your PKS installation is now ready to use.
-
-##<a id='retrieve-pks-api'></a> Step 5: Retrieve PKS API Endpoint
+##<a id='retrieve-pks-api'></a> Step 4: Retrieve PKS API Endpoint
 
 You must share the PKS API endpoint to allow your organization to use the API to create, update, and delete clusters.
 
@@ -166,7 +120,7 @@ Perform the following steps to retrieve the PKS API endpoint:
 1. Click the PKS tile.
 1. Click the **Status** tab and locate the IP address of the PKS API endpoint. This is the endpoint that developers use to create and manage clusters.
 
-##<a id='loadbalancer-pks-api'></a> Step 6: Configure External Load Balancer
+##<a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
 
 Configure your external load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration. Your external load balancer will forward traffic to the PKS API endpoint.
 
