@@ -15,6 +15,7 @@ After an operator has [installed](installing.html) PKS, developers can use or th
 * [View](#view-cluster) details about a Kubernetes cluster
 * [View](#view-cluster-plans) the list of available plans for deploying a Kubernetes cluster
 * [Resize](#resize) the number of worker nodes in a Kubernetes cluster
+* [Deploy](#deploy-access-workloads) and access basic workloads
 * [Delete](#delete-cluster) a Kubernetes cluster
 
 <p class="note warning"><strong>WARNING</strong>: The PKS CLI is under active development and commands may change. To ensure you have installed the latest version, we recommend that you re-install the PKS CLI before you use it. To install the PKS CLI, see <a href="installing-pks-cli.html">Installing the PKS CLI</a>.</p>
@@ -400,6 +401,68 @@ Follow the steps below to scale up an existing cluster with `curl` commands.
     https://$PKS_API_ENDPOINT:9021/v1/clusters/$CLUSTER_NAME/
   </pre>
   <p class="note"><strong>Note</strong>: This command provides no on-screen response.</p>
+
+##<a id='deploy-access-workloads'></a> Deploy and Access Basic Workloads
+
+You can deploy and access workloads in a number of ways. This PKS release focuses on `routing_mode: external` and does not include a bundled load balancing component. Select an option based on your PKS deployment:
+
+* [No Load Balancer Abstraction Configured / vSphere without NSX-T](#without-lb)
+
+* [Load Balancer Abstraction Configured / GCP or vSphere with NSX-T](#with-lb)
+
+* [External Load Balancer](#external-lb)
+
+###<a id='without-lb'></a> No Load Balancer Abstraction Configured / vSphere without NSX-T
+
+If you use vSphere without NSX-T or configuring a load balancer abstraction, follow the steps below to deploy and access basic workloads.
+
+1. Expose the workload using a Service with `type: NodePort`.
+
+1. Download the spec for a basic NGINX app from the [pivotal-cf-experimental/kubo-ci](https://github.com/pivotal-cf-experimental/kubo-ci/blob/master/specs/nginx.yml) GitHub repository.
+
+1. Run `kubectl create -f nginx.yml` to deploy the basic NGINX app. This command creates three pods (replicas) that span three worker nodes.
+
+1. Retrieve the IP address for a worker node with a running NGINX pod.
+  <p class='note'><strong>Note</strong>: If you deployed more than four worker
+  nodes, some worker nodes may not contain a running NGINX pod. Select a worker
+  node that contains a running NGINX pod.</p>
+  <br>
+  You can retrieve the IP address for a worker node with a running NGINX pod in
+  one of the following ways:
+  * On the command line, run `kubectl get nodes`. Select a node name, then locate the node name in the vCenter or GCP Console to find the IP address.
+  * On the Ops Manager command line, run `bosh vms` to find the IP address.
+
+1. On the command line, run `kubectl get svc nginx`. Find the node port number in the `3XXXX` range.
+
+1. On the command line of a server with network connectivity and visibility to the IP address of the worker node, run `curl http://NODE-IP:NODE-PORT` to access the app. Replace `NODE-IP` with the IP address of the worker node, and `NODE-PORT` with the node port number.
+
+###<a id='with-lb'></a> Load Balancer Abstraction / GCP or vSphere with NSX-T
+
+If you use GCP or vSphere with NSX-T, follow the steps below to deploy and access basic workloads.
+
+<p class='note'><strong>Note</strong>: This approach creates a dedicated load balancer for each workload. This may be an inefficient use of resources in clusters with many apps.</p>
+
+1. Expose the workload using a Service with `type: LoadBalancer`.
+
+1. Download the spec for a basic NGINX app from the [pivotal-cf-experimental/kubo-ci](https://github.com/pivotal-cf-experimental/kubo-ci/blob/master/specs/nginx.yml) GitHub repository.
+
+1. Run `kubectl create -f nginx.yml` to deploy the basic NGINX app. This command creates three pods (replicas) that span three worker nodes.
+
+1. Wait until the GCP CloudProvider interacts with GCP to create a dedicated load balancer and connects it the the worker nodes on a specific port.
+
+1. Run `kubectl get svc nginx` and retrieve the load balancer IP address and port number.
+
+1. On the command line of a server with network connectivity and visibility to the IP address of the worker node, run `curl http://EXTERNAL-IP:PORT` to access the app. Replace `EXTERNAL-IP:PORT` with the IP address of the load balancer, and `PORT` with the port number.
+
+###<a id='external-lb'></a> External Load Balancer
+
+All deployments could use an external load balancer. If you want to use an external load balancer, follow the steps below to deploy and access basic workloads.
+
+1. Expose every workload and app using a Service with `type: NodePort`.
+
+1. Map each node port exposed in the worker nodes that you need to an external port in your external load balancer. The process to map these ports depends on your load balancer. See your external load balancer documentation for more information.
+
+1. For each app, run `curl http://LOAD-BALANCER-IP:EXTERNAL-PORT`. Replace `LOAD-BALANCER-IP` with the IP address of your external load balancer and `EXTERNAL-PORT` with the external port number.
 
 ##<a id='delete-cluster'></a> Delete Cluster
 
