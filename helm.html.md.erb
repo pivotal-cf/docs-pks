@@ -1,15 +1,46 @@
 ---
-title: Helm
+title: Using Helm with PKS
 owner: PKS
 ---
 
-This topic describes how you can use the package manager [Helm](https://helm.sh/) for your Kubernetes apps running on Pivotal Container Service (PKS). 
+<strong><%= modified_date %></strong>
 
-Helm packages are called [charts](https://docs.helm.sh/developing_charts/). Here are some examples of charts you can use:
+This topic describes how you can use the package manager [Helm](https://helm.sh/)
+for your Kubernetes apps running on Pivotal Container Service (PKS).
+
+Helm packages are called [charts](https://docs.helm.sh/developing_charts/).
+Here are some examples of charts you can use:
 
 * [Concourse](https://github.com/kubernetes/charts/tree/master/stable/concourse) for CI/CD pipelines
 * [Datadog](https://github.com/kubernetes/charts/tree/master/stable/datadog) for monitoring
 * [MySQL](https://github.com/kubernetes/charts/tree/master/stable/mysql) for storage
 
-For more charts, see the Kubernetes [charts repository](https://github.com/kubernetes/charts) on GitHub. 
+For more charts, see the Kubernetes [charts repository](https://github.com/kubernetes/charts) on GitHub.
 
+## <a id='concourse'></a>Install Concourse Using Helm
+
+Perform the steps in this section to install Concourse using Helm.
+
+1. Download the `StorageClass` spec for your cloud provider.
+  * **GCP**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-gcp.yml</pre>
+  * **vSphere**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-vsphere.yml</pre>
+
+1. Apply the spec by running `kubectl create -f STORAGE-CLASS-SPEC.yml`.
+Replace `STORAGE-CLASS-SPEC` with the name of the file you downloaded in the previous step.
+For example:
+<pre class="terminal">$ kubectl create -f storage-class-gcp.yml</pre>
+
+1. Install the Concourse Helm chart by running
+`helm install --set persistence.worker.storageClass=STORAGE-CLASS,postgresql.persistence.storageClass=STORAGE-CLASS stable/concourse`.
+Replace `STORAGE-CLASS` with your `StorageClass` spec.
+For example:
+<pre class="terminal">$ helm install --set persistence.worker.storageClass=ci-storage,postgresql.persistence.storageClass=ci-storage stable/concourse</pre>
+
+1. Forward the port number so that you can access Concourse from localhost.
+The Concourse chart does not expose services outside the cluster.
+  1. Export the pod name. For example:
+  <pre class="terminal">$ export POD_NAME=$(kubectl get pods --namespace default -l "app=concourse-web" -o jsonpath="{.items[0].metadata.name}")</pre>
+  1. Forward the port number by running the following command:
+  <pre class="terminal">$ kubectl port-forward --namespace default $POD_NAME 8080:8080</pre>
+
+1. Navigate to `http://127.0.0.1:8080` in your browser to access Concourse.
