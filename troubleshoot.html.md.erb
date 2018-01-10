@@ -6,11 +6,7 @@ owner: Ops Manager
 
 This topic is intended to provide assistance when diagnosing and troubleshooting issues installing or using Pivotal Container Service (PKS).
 
-##<a id='troubleshooting'></a> Diagnose and Troubleshoot Installation
-
-This section describes the symptoms of common installation errors and provides troubleshooting procedures.
-
-###<a id='missing-addons'></a>Missing Add-ons
+##<a id='missing-addons'></a>Add Missing Add-ons
 
 Your provisioned cluster requires system add-ons like `kube-dns`.
 Perform the following steps to supply any missing system add-ons to your cluster.
@@ -26,11 +22,82 @@ Perform the following steps to supply any missing system add-ons to your cluster
 1. After Ops Manager finishes applying changes, enter `pks delete-cluster` on the command line to delete the cluster. For more information, see the [Delete Cluster](using.html#delete-cluster) section of _Using PKS_.
 1. Enter `pks create-cluster` on the command line to recreate the cluster. For more information, see the [Create Cluster](using.html#create-cluster) section of the _Using PKS_.
 
+##<a id='bosh-pks-map'></a>View Logs Files
 
+Follow the steps below to access PKS log files.
 
+1. On a command line, run `bosh -e pks -d YOUR-DEPLOYMENT-NAME vms` to list the virtual machines (VMs) in your PKS deployment.
 
+1. Run `bosh -e pks -d YOUR-DEPLOYMENT-NAME ssh VM-NAME/GUID` to ssh into a PKS VM. 
+    * To access logs on the master VM, replace `VM-NAME/GUID` with the name of the PKS master VM, and `GUID` with the GUID of the master VM. 
+    * To access logs on a worker VM, replace `VM-NAME/GUID` with the name of a PKS worker VM, and `GUID` with the GUID of the same worker VM. 
 
+1. Run `sudo su` to act as super user on the PKS VM.
 
+1. Navigate to `/vars/vcap/sys/log` on the PKS VM:
+  <pre class="terminal">
+  $ cd /var/vcap/sys/log
+  </pre>
 
+1. Examine the following file:
+  * On the PKS master VM, examine the `kubernetes-api` log file.
+  * On a PKS worker VM, examine the `kubelet` log file.
 
+##<a id='bosh-pks-map'></a>Error: Failed Jobs
+
+If you see an error referencing `post-start scripts failed` or `Failed Jobs`, follow the steps below to enable Post Deploy scripts in Ops Manager.
+
+1. In a web browser, navigate to the fully qualified domain name (FQDN) of the Ops Manager director.
+
+1. Click the Ops Manager Director tile.
+
+1. Select **Director Config** to open the **Director Config** page.
+
+1. Select the **Enable Post Deploy Scripts** checkbox.
+
+1. Click **Save**.
+
+1. Click the **Installation Dashboard** link to return to the Installation Dashboard.
+
+1. Click **Apply Changes**. 
+
+1. Ops Manager Director re-installs. This may take a few moments. When the installation process successfully completes, a **Changes Applied** window appears.
+
+##<a id='delete-cluster'></a> Delete a Cluster
+
+You can delete a cluster using the PKS CLI or with `curl` commands.
+
+### Delete a Cluster Using the PKS CLI
+
+Follow the steps below to delete a cluster using the PKS CLI.
+
+1. On the command line, run `pks login -a PKS_API -u USERNAME -p PASSWORD` to log in. Replace the placeholder values in the command as follows:
+  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
+  * `USERNAME` is your PKS API username.
+  * `PASSWORD` is your PKS API password.
+
+1. Run `pks delete-cluster CLUSTER-NAME` to delete a cluster. Replace `CLUSTER-NAME` with the unique name for your cluster.
+For example:
+  <pre class="terminal">$ pks delete-cluster my-cluster</pre>
+
+### Delete a Cluster Using curl Commands
+
+Follow the steps below to delete a cluster using `curl` commands.
+
+1. On the command line, set your PKS API endpoint as an environment variable named `PKS_API_ENDPOINT`. For example:
+  <pre class="terminal">$ export PKS_API_ENDPOINT="pks.example.com"</pre>
+
+1. Set your PKS API credentials as an environment variable named `PKS_API_CREDS`. For example:
+  <pre class="terminal">$ export PKS_API_CREDS="username:password"</pre>
+
+1. Set the name of the cluster you want to delete as an environment variable named `CLUSTER_NAME`. For example:
+  <pre class="terminal">$ export CLUSTER_NAME="my-cluster"</pre>
+
+1. Run the following command to delete the cluster:
+  <pre class="code">
+  curl -k -u $PKS_API_CREDS -s -X DELETE \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json;charset=UTF-8' \
+  https://$PKS_API_ENDPOINT:9021/v1/clusters/$CLUSTER_NAME/
+  </pre>
 
