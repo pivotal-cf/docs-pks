@@ -1,0 +1,126 @@
+---
+title: Using Helm with PKS
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how you can use the package manager [Helm](https://helm.sh/)
+for your Kubernetes apps running on Pivotal Container Service (PKS).
+
+Helm includes of the following components:
+
+<table>
+  <tr>
+    <th>Component</th>
+    <th>Role</th>
+    <th>Location</th>
+  </tr>
+  <tr>
+    <td><code>helm</code></td>
+    <td>Client</td>
+    <td>Runs on your local workstation</td>
+  </tr>
+  <tr>
+    <td><code>tiller</code></td>
+    <td>Server</td>
+    <td>Runs inside your Kubernetes cluster</td>
+  </tr>
+</table>
+
+Helm packages are called [charts](https://docs.helm.sh/developing_charts/).
+Here are some examples of charts you can use:
+
+* [Concourse](https://github.com/kubernetes/charts/tree/master/stable/concourse) for CI/CD pipelines
+* [Datadog](https://github.com/kubernetes/charts/tree/master/stable/datadog) for monitoring
+* [MySQL](https://github.com/kubernetes/charts/tree/master/stable/mysql) for storage
+
+This topic includes a procedure for installing [Concourse](#concourse) using Helm.
+For more charts, see the Kubernetes [charts repository](https://github.com/kubernetes/charts) on GitHub.
+
+## <a id='tiller'></a>Configure Tiller
+
+Tiller runs inside the Kubernetes cluster and requires access to the Kubernetes API.
+If you use role-based access control (RBAC) in PKS, perform the steps in this section to grant
+Tiller permission to access the API.
+
+1. Create a service account for Tiller by running the following command:
+  <pre class="terminal">
+  $ kubectl create serviceaccount tiller --namespace kube-system
+  </pre>
+
+1. Bind the service account to the `cluster-admin` role by adding the following section to `rbac-config.yaml`:
+
+    ```yaml
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: tiller
+      namespace: kube-system
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBinding
+    metadata:
+      name: tiller
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cluster-admin
+    subjects:
+      - kind: ServiceAccount
+        name: tiller
+        namespace: kube-system
+    ```
+
+1. Apply the role by running the following command:
+  <pre class="terminal">
+  $ kubectl create -f rbac-config.yaml
+  </pre>
+
+1. Deploy Helm using the service account by running the following command:
+  <pre class="terminal">
+  $ helm init --service-account tiller
+  </pre>
+
+1. Run `helm ls` to verify that the permissions are configured.
+
+To apply more granular permissions to the Tiller service account, see the [Helm](https://github.com/kubernetes/helm/blob/master/docs/rbac.md) documentation.
+
+## <a id='concourse'></a>Install Concourse Using Helm
+
+Perform the steps in this section to install Concourse using Helm.
+
+1. Download the StorageClass spec for your cloud provider.
+  * **GCP**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-gcp.yml</pre>
+  * **vSphere**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-vsphere.yml</pre>
+
+1. Apply the spec by running `kubectl create -f STORAGE-CLASS-SPEC.yml`.
+Replace `STORAGE-CLASS-SPEC` with the name of the file you downloaded in the previous step.
+For example:
+<pre class="terminal">$ kubectl create -f storage-class-gcp.yml</pre>
+
+1. Install the Concourse Helm chart by running `helm install stable/concourse` with the following options:
+  * `--name APP-NAME`: (Optional) Replace `APP-NAME` with a name you provide for the installed chart.
+  * `--set persistence.worker.storageClass=STORAGE-CLASS`: Replace `STORAGE-CLASS` with your StorageClass to apply the spec to the Concourse worker persistent volumes.
+  * `--set postgresql.persistence.storageClass=STORAGE-CLASS`: Replace `STORAGE-CLASS` with your StorageClass to apply the spec to the PostgreSQL database persistent volumes.
+
+    For example:
+    <pre class="terminal">$ helm install --name my-concourse --set persistence.worker.storageClass=ci-storage,postgresql.persistence.storageClass=ci-storage stable/concourse</pre>
+
+1. Forward the port number so that you can access Concourse from localhost.
+By default, the Concourse chart does not expose services outside the cluster.
+  1. Export the pod name as an environment variable. For example:
+  <pre class="terminal">$ export POD_NAME=$(kubectl get pods --namespace default -l "app=concourse-web" -o jsonpath="{.items[0].metadata.name}")</pre>
+  1. Forward the port number by running the following command:
+  <pre class="terminal">$ kubectl port-forward --namespace default $POD_NAME 8080:8080</pre>
+
+1. Navigate to `http://127.0.0.1:8080` in your browser to access Concourse.
+Use the default credentials to log in.
+
+1. Log in to your Concourse instance from the command line by running `fly -t MY-CONCOURSE login -c http://127.0.0.1:8080`.
+For example:
+  <pre class="terminal">
+  $ fly -t ci-helm login -c http&#58;//127.0.0.1:8080
+  </pre>
+
+For more configuration options, see the [Concourse Helm chart](https://github.com/kubernetes/charts/tree/master/stable/concourse) documentation.
