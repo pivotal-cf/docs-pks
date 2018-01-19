@@ -36,6 +36,71 @@ For more information, see [Advanced Troubleshooting with the BOSH CLI](https://d
 	<pre class="terminal">$ bosh -e pks -d pivotal-container-service-aa1234567bc8de9f0a1c logs pks/0</pre>
 	See [Diagnosing and Troubleshooting PKS](troubleshoot.html#bosh-pks-map) for information about using cluster logs to diagnose issues in your PKS deployment.
 
+##<a id='upgrade-downtime'></a> Prepare Workloads for an Upgrade
+
+To prevent workload downtime during a PKS upgrade, define the following settings in the deployment manifest:
+
+[//]: # (* Set `max_in_flight` to 1.)
+[//]: # (This value cannot be configured in the current PKS version.)
+* Increase the number of worker nodes by editing the `spec.replicas` value.
+If you are unsure of your worker capacity, scale the cluster by 1.
+* Schedule pod replicas to run on separate workers by defining a `podAntiAffinity` rule.
+
+For example:
+
+```yaml
+kind: Deployment
+metadata:
+  # ...
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: APP-NAME
+    spec:
+      containers:
+      - name: MY-APP
+        image: MY-IMAGE
+        ports:
+        - containerPort: 12345
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - APP-NAME
+              topologyKey: "kubernetes.io/hostname"
+```
+
+See the following table for descriptions of the values you must edit in the deployment manifest:
+
+<table>
+  <tr>
+    <th>Key-Value Pair</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><pre>spec:<br>  replicas: 3</pre></td>
+    <td>Set this value to at least 2 to increase the number of worker nodes.</td>
+  </tr>
+  <tr>
+    <td><pre>app: APP-NAME</pre></td>
+    <td>Use this app name when you define the anti-affinity rule later in the spec.</td>
+  </tr>
+  <tr>
+    <td><pre>matchExpressions: <br>- key: "app"</pre></td>
+    <td>This value matches <code>spec.template.metadata.labels.app</code>.</td>
+  </tr>
+  <tr>
+    <td><pre>values: <br>- APP-NAME</pre></td>
+    <td>This value matches the <code>APP-NAME</code> you defined earlier in the spec.</td>
+  </tr>
+</table>
+
 ##<a id='delete-errand'></a> Delete PKS
 
 To delete PKS, perform the following steps:
