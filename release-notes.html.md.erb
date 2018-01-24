@@ -23,3 +23,18 @@ PKS (Pivotal Container Service) is used to create and manage on-demand Kubernete
 * PKS v0.8 with NSX-T integration does not support inserting external SSL certificates to trust NSX-T Manager. You must select **Disable SSL certificate verification**. This issue will be resolved for PKS v1.0.
 * Operators who use the NSX-T integration can only assign 40 characters to a pod’s namespace.
 * The `pks resize` command may roll additional VMs in the cluster, affecting workloads if the worker nodes are at capacity.
+* Master nodes don't have persistent disk attached. Perform following steps for workaround - This will not affect existing clusters and will need to be re-run after each 'Apply Changes'
+  1. Create a file called `add_persistent_disk.yml` with the contents below
+     ```
+     - type: replace
+       path: /instance_groups/name=pivotal-container-service/properties/service_catalog/plans/name=default/instance_groups/name=master/persistent_disk_type?
+       value: 5120
+     ```
+  1. Obtain the ops manager bosh credentials
+  1. Log in to bosh. 
+  1. Get the pivotal-container-service deployment name using `bosh deployments`
+  1. Run 
+     ```
+     bosh -d <DEPLOYMENT-NAME> manifest > manifest.yml
+     bosh -d <DEPLOYMENT-NAME> deploy manifest.yml --ops-file add_persistent_disk.yml
+     ```
