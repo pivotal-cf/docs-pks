@@ -44,12 +44,11 @@ Perform the following steps:
 Perform the following steps:
 
 1. Click **PKS API**.
-1. Under **Default Authorization Mode**, leave **RBAC** selected. For more information, see the [RBAC Support in Kubernetes](http://blog.kubernetes.io/2017/04/rbac-support-in-kubernetes.html) blog post.
 1. Under **Certificate**, provide your own certificate or have Ops Manager generate one.
 To generate a new certificate and key, enter a wildcard domain you own.
 For example, `*.pks.pcfvsphere.mydomain.com`.
 1. Under **Generate RSA Certificate**, provide the domain names that you want your certificate to have.
-The domain names should contain the hostname you intend to use for accessing the PKS API service.
+The domain names should contain the hostname you intend to use for accessing the PKS API service and UAA.
 1. Click **Save**.
 
 ###<a id='plans'></a> Plans
@@ -62,13 +61,14 @@ To activate a plan, perform the following steps:
 1. Under **Plan name**, provide a unique name for the plan.
 1. Under **Plan description**, edit the description as needed.
 The plan description appears in the Services Marketplace, which developers can access by using either the Cloud Foundry Command Line Interface (cf CLI) or Apps Manager.
-1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters.
+1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters. For more information, see the [RBAC Support in Kubernetes](http://blog.kubernetes.io/2017/04/rbac-support-in-kubernetes.html) blog post.
 1. Under **AZ placement**, select an AZ for the Kubernetes clusters deployed by PKS.
 1. Under **ETCD/Master VM Type**, select the type of VM to use for Kubernetes etcd and master nodes.
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker nodes.
 1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker nodes.
 1. Under **Worker Instances**, select the default number of Kubernetes worker nodes to provision for each cluster.
 1. (Optional) Under **Default Cluster Apps**, enter additional YAML configuration to [add custom workloads](managing.html#custom-workloads) to each cluster in this plan. You can specify multiple files using `---` as a separator.
+1. Under **Errand VM Type**, select the size of the VM where the errand will run. The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
 1. Click **Save**.
 
 To deactivate a plan, perform the following steps:
@@ -126,7 +126,10 @@ To specify the destination for PKS log messages, perform the following steps:
 1. Enter the destination syslog endpoint.
 1. Enter the destination syslog port.
 1. Select a transport protocol for log forwarding.
-  1. If you select TLS to forward encrypted logs, provide a TLS certificate.
+1. (Optional) If you select TLS to forward encrypted logs, perform the following steps:
+  1. Provide a permitter peer. For example, `*.YOUR-LOGGING-SYSTEM.com`.
+  1. Provide a TLS certificate for the destination syslog endpoint.
+  <p class="note"><strong>Note</strong>: You do not need to provide a new certificate if the TLS certificate for the destination syslog endpoint is signed by a Certificate Authority (CA) in your BOSH certificate store.</p>
 
 ###<a id='resource-config'></a> (Optional) Resource Config
 
@@ -134,7 +137,7 @@ To modify the resource usage of PKS, click **Resource Config** and edit the **PK
 
 ###<a id='stemcell'></a> (Optional) Stemcell
 
-<p class="note warning"><strong>WARNING</strong>: Updating PKS with a new stemcell will roll other tiles that have floating stemcells enabled in your deployment.</p>
+<p class="note warning"><strong>WARNING</strong>: Updating the PKS tile with a new stemcell triggers the rolling of each VM in each cluster. Also, updating other tiles in your deployment with new stemcells causes the rolling of the PKS tile.</p>
 
 PKS allows the use of floating stemcells. Floating stemcells allow upgrades to the minor versions of stemcells but not the major versions. 
 For example, a stemcell can float from `1234.56` to `1234.99` but not from `1234.991` to `1235.0`.
@@ -162,7 +165,8 @@ Perform the following steps to retrieve the PKS API endpoint:
 
 ##<a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
 
-Configure your external TCP or HTTPS load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration. Your external load balancer will forward traffic to the PKS API endpoint.
+Configure your external TCP or HTTPS load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration.
+Your external load balancer forwards traffic to the PKS API endpoint on port 9021 and the UAA endpoint on port 8443.
 
 The load balancer should be configured with:
 
