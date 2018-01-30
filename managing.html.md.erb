@@ -7,35 +7,49 @@ owner: PKS
 
 This topic describes how to manage Pivotal Container Service (PKS).
 
-Please send any feedback you have to [pks-feedback@pivotal.io](mailto:pks-feedback@pivotal.io).
+##<a id='access'></a> Configure PKS API Access
 
-##<a id='access'></a> Configuring PKS API access
+To configure access to the PKS API, perform the following steps:
 
-* You must have an external TCP load balancer configured to forward traffic to the PKS API endpoint. For more information, see the [Configure External Load Balancer](installing.html#loadbalancer-pks-api) section of <em>Installing and Configuring PKS</em>.
+1. Configure an external load balancer to forward traffic to the PKS API endpoint.
+For more information, see the [Configure External Load Balancer](installing.html#loadbalancer-pks-api) section of <em>Installing and Configuring PKS</em>.
+  <p class="note"><strong>Note</strong>: If your PKS installation is integrated with NSX-T, map the external load balancer to the DNAT IP address assigned in the <a href="installing-nsx-t.html#apply-changes">Apply Changes and Retrieve the PKS Endpoint</a> section of <em>Installing and Configuring PKS with NSX-T Integration</em>.</p>
 
-  <p class="note"><strong>Note</strong> If your PKS installation is integrated with NSX-T, developers should map the external TCP loadbalancer to the DNAT IP address assigned in the <a href="installing-nsx-t.html#apply-changes">Apply Changes and Retrieve the PKS Endpoint</a> section of <em>Installing and Configuring PKS with NSX-T Integration</em>.</p>
+1. Configure a DNS entry that points to the load balancer and uses the domain configured in the [PKS API](installing.html#pks-api) section of <em>Installing and Configuring PKS</em>.
 
-* You must configure a DNS entry which points to the TCP load balancer and uses the domain configured in the certificate during [tile configuration](installing.html#pks-api).
+##<a id='users'></a> Manage Users in UAA
 
-##<a id='access'></a> Configuring users in UAA
+Create and manage users in UAA with the [UAA Command Line Interface (UAAC)](https://docs.pivotal.io/pivotalcf/uaa/uaa-user-management.html).
 
-You configure users in the UAA [using uaac](https://docs.cloudfoundry.org/uaa/uaa-user-management.html). To retrieve the UAA admin client secret, the operator performs the following steps:
+###<a id='uaa-admin'></a> Retrieve UAA Admin Credentials
 
-1. Navigate to the Pivotal Container Service tile in the Ops Manager Installation Dashboard.
-1. Click 'Credentials' tab 
-1. Get the 'Uaa Admin Secret'
+To retrieve the UAA admin client secret, perform the following steps:
 
-PKS uses the following scopes:
-  * pks.clusters.admin - users with this scope have full access to all clusters.
-  * pks.clusters.manage - users with this scope only have access to clusters they created.
+1. In a web browser, navigate to the fully qualified domain name (FQDN) of Ops Manager and click the **Pivotal Container Service** tile.
+1. Click **Credentials**.
+1. To view the UAA admin client credentials, click **Uaa Admin Secret**.
 
-```
-uaac target https://pks-api.example.com:8443
-uaac token client get admin -s <SECRET>
-uaac user add alana --emails alana@example.com -p <PASSWORD>
-uaac member add pks.clusters.admin alana	
-```
-	
+###<a id='uaa-scopes'></a> Grant Cluster Access to a User
+
+To allow a user to access clusters in PKS, perform the following steps using UAAC:
+
+1. Target your PKS API endpoint using `uaac target https://YOUR-PKS-API:8443`. Replace `YOUR-PKS-API` with your PKS API endpoint URL. For example:
+  <pre class="terminal">$ uaac target https&#58;//pks-api.example.com:8443</pre>
+
+1. Authenticate with UAA using the secret you retrieved in the previous section.
+Run the following command, replacing `UAA-ADMIN-SECRET` with your UAA admin secret: <pre>uaac token client get admin -s UAA-ADMIN-SECRET</pre>
+
+1. Create a user by running `uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD`. For example:
+  <pre class="terminal">$ uaac user add alana --emails alana&#64;example.com -p password</pre>
+
+1. Assign a scope to the user to allow them to access Kubernetes clusters.
+Run `uaac member add UAA-SCOPE USERNAME`, replacing `UAA-SCOPE` with one of the following UAA scopes:
+  * `pks.clusters.admin`: Users with this scope have full access to all clusters.
+  * `pks.clusters.manage`: Users with this scope can only access clusters they create.
+
+    For example:
+    <pre class="terminal">$ uaac member add pks.clusters.admin alana</pre>
+
 ##<a id='ssh'></a> Manage PKS Deployments with BOSH
 
 To manage your PKS deployment with BOSH, perform the following steps:
