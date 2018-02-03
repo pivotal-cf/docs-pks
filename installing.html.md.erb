@@ -9,7 +9,11 @@ owner: PKS
 
 This topic describes how to install and configure Pivotal Container Service (PKS) on Google Cloud Platform (GCP) or vSphere without NSX-T integration.
 
-Before performing the procedures in this topic, consult the requirements in the [Prerequisites and Resource Requirements](requirements.html) topic.
+Before performing the procedures in this topic, consult the requirements in the topic for your cloud provider:
+
+* [GCP Prerequisites and Resource Requirements](gcp-requirements.html)
+* [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html)
+
 
 ##<a id='install'></a> Step 1: Install PKS
 
@@ -38,7 +42,7 @@ Perform the following steps:
 
     ![Assign AZs and Networks pane in Ops Manager](images/azs-networks.png)
 
-1. Select an availability zone for your singleton jobs and one or more availability zones to balance other jobs in.
+1. Select an availability zone (AZ) for your singleton jobs and one or more AZs to balance other jobs in.
   <p class="note"><strong>Note</strong>: If you upgrade PKS, you must place singleton jobs in the AZ you selected when you first installed the PKS tile.
   You cannot move singleton jobs to another AZ.</p>
   <p class="note"><strong>Note</strong>: In PKS, Pivotal Container Service is a singleton job. This broker VM enables the creation of PKS clusters through the PKS CLI.</p>
@@ -60,37 +64,34 @@ Pivotal recommends selecting **RBAC**. For more information, see the [RBAC Suppo
 To generate a new certificate and key, enter a wildcard domain you own.
 For example, `*.pks.pcfvsphere.mydomain.com`.
 1. Under **Generate RSA Certificate**, provide the domain names that you want your certificate to have.
-The domain names should contain the hostname you intend to use for accessing the PKS API service.
+The domain names should contain the hostname you intend to use for accessing the PKS API service and UAA.
 1. Click **Save**.
 
-###<a id='broker'></a> Broker
+###<a id='plans'></a> Plans
 
-Perform the following steps:
+To activate a plan, perform the following steps:
 
-1. Click **Broker**.
-
-    ![Broker pane in Ops Manager](images/broker.png)
-
-1. Under **Routing mode**, select a routing mode for the Kubernetes clusters deployed by PKS.
-<p class="note"><strong>Note</strong>: In PKS v0.8, the only routing mode option is <code>external</code>.</p>
-1. Under **AZ placement**, select an availability zone for the Kubernetes clusters deployed by PKS.
-1. Click **Save**.
-
-###<a id='plan'></a> Plan
-
-Perform the following steps:
-
-1. Click **Plan**.
-
-    ![Plan pane in Ops Manager](images/plan.png)
-
-1. Under **Plan description**, edit the description as needed. The plan description appears in the Services Marketplace, which developers can access by using either the Cloud Foundry Command Line Interface (cf CLI) or Apps Manager. 
-1. Under **ETCD VM Type**, select the type of VM to use for the Kubernetes etcd nodes. 
-	<p class="note"><strong>Note</strong>: This configuration is temporary until the master and etcd nodes are merged.</p>
-1. Under **Master VM Type**, select the type of VM to use for Kubernetes master nodes.
+1. Click the **Plan 1**, **Plan 2**, or **Plan 3** tab.
+  <p class="note"><strong>Note</strong>: A plan defines a set of resource types used for deploying clusters. You can configure up to three plans.</p>
+1. Select **Active** to activate the plan and make it available to developers deploying clusters.
+1. Under **Name**, provide a unique name for the plan.
+1. Under **Description**, edit the description as needed.
+The plan description appears in the Services Marketplace, which developers can access by using PKS CLI.
+1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters. For more information, see the [RBAC Support in Kubernetes](http://blog.kubernetes.io/2017/04/rbac-support-in-kubernetes.html) blog post.
+1. Under **AZ placement**, select an AZ for the Kubernetes clusters deployed by PKS.
+1. Under **ETCD/Master VM Type**, select the type of VM to use for Kubernetes etcd and master nodes.
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker nodes.
 1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker nodes.
 1. Under **Worker Instances**, select the default number of Kubernetes worker nodes to provision for each cluster.
+1. Under **Errand VM Type**, select the size of the VM where the errand will run. The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
+1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to [add custom workloads](managing.html#custom-workloads) to each cluster in this plan. You can specify multiple files using `---` as a separator.
+1. If you want users to be able to create [pods with privileged containers](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers), select "Enable Privileged Containers - Use with caution" option.
+1. Click **Save**.
+
+To deactivate a plan, perform the following steps:
+
+1. Click the **Plan 1**, **Plan 2**, or **Plan 3** tab.
+1. Select **Plan Inactive**.
 1. Click **Save**.
 
 ###<a id='iaas'></a> IaaS
@@ -101,20 +102,28 @@ Perform the following steps:
 1. Under **Choose your IaaS**, select your IaaS.
 1. Perform the steps specific to your IaaS.
 	* For **vSphere**, ensure the values match those in the **vCenter Config** section of the **Ops Manager** tile:
-
-        ![vSphere IaaS pane in Ops Manager](images/iaas-vsphere.png)
-        1. Enter your **vCenter Credentials**.
+	
+		![vSphere IaaS pane in Ops Manager](images/iaas-vsphere.png)
+		1. Enter your **vCenter Credentials**.
 		1. Enter your **vCenter Host**, such as `vcenter.cf-example.com`.
 		1. Enter your **Datacenter Name**, such as `cf-example-dc`.
 		1. Enter your **Datastore Name**, such as `cf-example-ds`.
 		1. Enter the **Stored VM Folder** so that the persistent stores know where to find the VMs. To retrieve the name of the folder, navigate to your Ops Manager Director tile, click **vCenter Config**, and locate the value for **VM Folder**. The default folder name is `pcf_vms`.
 	* For **GCP**, ensure the values match those in the **Google Config** section of the **Ops Manager** tile:
-
-        ![GCP IaaS pane in Ops Manager](images/iaas-gcp.png)
-		1. For **GCP Project Id**, enter the name of the  deployment in your Ops Manager environment. 
-		1. For **GCP Network**, enter the name of the VPC network in your Ops Manager environment.
-		1. Enter your **GCP Service Key**, which you created using [the instructions from the GCP prerequisites](requirements.html#gcp-prereqs).
+		1. Enter your **GCP Project Id**, which is the name of the  deployment in your Ops Manager environment. 
+		1. Enter your **VPC Network**, which is the VPC network name for your Ops Manager environment.
+		1. Enter your **GCP Service Key**, which you created using [the instructions from the GCP prerequisites](gcp-requirements.html).
 1. Click **Save**.
+
+###<a id='uaa'></a> UAA
+
+Perform the following steps:
+
+1. Click **UAA**.
+1. Enter the URL you use to access UAA.
+<p class="note"><strong>Note</strong>: This must match the wildcard domain provided when generating the PKS API certificate in the [PKS API](installing.html#pks-api) section, or in the SAN for the certificate if you provided your own.</p>
+1. Enter the time (in seconds) for the PKS CLI access token lifetime.
+1. Enter the time (in seconds) for the PKS CLI refresh token lifetime.
 
 ###<a id='networking'></a> Networking
 
@@ -126,15 +135,21 @@ Perform the following steps:
 	* For **NSX-T**, see [Installing and Configuring PKS with NSX-T Integration](installing-nsx-t.html).
 1. Click **Save**.
 
-###<a id='errands'></a> (Optional) Errands
+###<a id='syslog'></a> (Optional) Syslog
 
-1. Click **Errands**.
+You can designate an external syslog endpoint for PKS component and cluster log messages.
 
-    ![Errands pane in Ops Manager](images/errands.png)
+To specify the destination for PKS log messages, perform the following steps:
 
-1. To modify the post-deploy errand settings for PKS, select the errand behavior under **Post-Deploy Errands**.
-1. To modify the pre-delete errand settings for PKS, select the errand behavior under **Pre-Delete Errands**.
-1. Click **Save**.
+1. Click **Syslog**.
+1. Select **Yes** to configure syslog forwarding.
+1. Enter the destination syslog endpoint.
+1. Enter the destination syslog port.
+1. Select a transport protocol for log forwarding.
+1. (Optional) If you select TLS to forward encrypted logs, perform the following steps:
+  1. Provide the accepted fingerprint (SHA1) or name of remote peer. For example, `*.YOUR-LOGGING-SYSTEM.com`.
+  1. Provide a TLS certificate for the destination syslog endpoint.
+  <p class="note"><strong>Note</strong>: You do not need to provide a new certificate if the TLS certificate for the destination syslog endpoint is signed by a Certificate Authority (CA) in your BOSH certificate store.</p>
 
 ###<a id='resource-config'></a> (Optional) Resource Config
 
@@ -171,7 +186,8 @@ Perform the following steps to retrieve the PKS API endpoint:
 
 ##<a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
 
-Configure your external TCP or HTTPS load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration. Your external load balancer will forward traffic to the PKS API endpoint.
+Configure your external TCP or HTTPS load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration.
+Your external load balancer forwards traffic to the PKS API endpoint on port 9021 and the UAA endpoint on port 8443.
 
 The load balancer should be configured with:
 
