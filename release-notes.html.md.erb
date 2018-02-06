@@ -3,9 +3,9 @@ title: PKS Release Notes
 owner: PKS
 ---
 
-## <a id="v0.8"></a>v0.8
+## <a id="v1.0.0"></a>v1.0.0
 
-**Release Date**: December 22, 2017
+**Release Date**: February 8, 2018
 
 PKS (Pivotal Container Service) is used to create and manage on-demand Kubernetes clusters via the PKS CLI.
 
@@ -15,29 +15,23 @@ PKS (Pivotal Container Service) is used to create and manage on-demand Kubernete
 * Native support for NSX-T and Flannel
 * Easily obtain kubeconfigs to use each cluster
 * Use kubectl to view the Kubernetes dashboard
-* Define a set plan that pre-configures VM size, authentication (RBAC or ABAC), and the number of workers for others to use when creating Kubernetes clusters
+* Define plans that pre-configure VM size, authentication, default number of workers, and addons when creating Kubernetes clusters
+* User/Admin configurations for access to PKS API
+* Centralized logging through syslog
 
 ### <a id="known"></a>Known Issues
 
-* PKS v0.8 does not support air-gapped environments. This issue will be resolved for PKS v1.0. 
-* PKS v0.8 with NSX-T integration does not support inserting external SSL certificates to trust NSX Manager. You must select **Disable SSL certificate verification**. This issue will be resolved for PKS v1.0.
-* Operators who use the NSX-T integration can only assign 40 characters to a pod’s namespace.
-* Updating the PKS tile with a new stemcell triggers the rolling of each VM in each cluster. Also, updating other tiles in your deployment with new stemcells causes the rolling of the PKS tile. This is enabled by the **Upgrade all clusters errand**. Pivotal recommends that this errand remains on because automatic rolling of VMs ensures that all deployed cluster VMs are patched. This automatic rolling could cause downtime in your deployment.
-* The `pks resize` command may roll additional VMs in the cluster, affecting workloads if the worker nodes are at capacity.
-* Master nodes do not have persistent disk attached. Perform the steps below, as a workaround. This workaround does not add persistent disks to existing clusters. This workaround must be executed after every time you select `Apply Changes` within a deployment configuration.
-  1. Create a file named `add_persistent_disk.yml` with the contents below:
-     ```
-     - type: replace
-       path: /instance_groups/name=pivotal-container-service/properties/service_catalog/plans/name=default/instance_groups/name=master/persistent_disk_type?
-       value: 5120
-     ```
-  1. Obtain the Ops Manager BOSH credentials.
-  1. Log in to BOSH. 
-  1. Obtain the pivotal-container-service deployment name running the `bosh deployments` command.
-  1. Run the following commands:
-     ```
-     bosh -d <DEPLOYMENT-NAME> manifest > manifest.yml
-     bosh -d <DEPLOYMENT-NAME> deploy manifest.yml --ops-file add_persistent_disk.yml
-     ```
-* The `pks resize` command may roll additional VMs in the cluster, affecting workloads if the worker nodes are at capacity.
-* Updating the PKS tile with a new stemcell triggers the rolling of each VM in each cluster. Also, updating other tiles in your deployment with new stemcells causes the rolling of the PKS tile. This is enabled by the **Upgrade all clusters errand**. Pivotal recommends that this errand remains on because automatic rolling of VMs ensures that all deployed cluster VMs are patched. This automatic rolling could cause downtime in your deployment.
+#### Stemcell Updates Cause Automatic VM Rolling
+Enabling the **Upgrade all clusters** errand allows automatic rolling for VMs in your deployment.
+Pivotal recommends enabling this errand to ensure that all deployed cluster VMs are patched.
+
+When you enable the **Upgrade all clusters** errand, the following actions can cause downtime:
+
+* Updating the PKS tile with a new stemcell triggers the rolling of each VM in each cluster.
+* Updating other tiles in your deployment with new stemcells causes the rolling of the PKS tile.
+
+
+#### Upgrade Errand Fails with Failed Deployments
+The **Upgrade all clusters** errand fails if any deployments are in a failed state.
+
+To work around this issue, [delete the failed cluster](using.html#delete-cluster) using the PKS CLI or [redeploy the failed cluster](managing.html#ssh) with the BOSH CLI to ensure the cluster is in a successful state.
