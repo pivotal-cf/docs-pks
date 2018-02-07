@@ -5,156 +5,28 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to manage Pivotal Container Service (PKS).
+This topic describes how to manage Pivotal Container Service (PKS). See the following sections:
 
-##<a id='access'></a> Configure PKS API Access
-
-To configure access to the PKS API, perform the following steps:
-
-1. Configure an external load balancer to forward traffic to the PKS API endpoint.
-For more information, see the Configure External Load Balancer section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#loadbalancer-pks-api) or [vSphere](installing-pks-vsphere.html#loadbalancer-pks-api)</em>.
-  <p class="note"><strong>Note</strong>: If your PKS installation is integrated with NSX-T, map the external load balancer to the DNAT IP address assigned in the <a href="installing-nsx-t.html#apply-changes">Apply Changes and Retrieve the PKS Endpoint</a> section of <em>Installing and Configuring PKS with NSX-T Integration</em>.</p>
-
-1. Configure a DNS entry that points to the load balancer and uses the domain configured in the PKS API section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#pks-api) or [vSphere](installing-pks-vsphere.html#pks-api)</em>.
-
-##<a id='users'></a> Manage Users in UAA
-
-Create and manage users in UAA with the [UAA Command Line Interface (UAAC)](https://docs.pivotal.io/pivotalcf/uaa/uaa-user-management.html).
-
-###<a id='uaa-admin'></a> Retrieve UAA Admin Credentials
-
-To retrieve the UAA admin client secret, perform the following steps:
-
-1. In a web browser, navigate to the fully qualified domain name (FQDN) of Ops Manager and click the **Pivotal Container Service** tile.
-1. Click **Credentials**.
-1. To view the UAA admin client credentials, click **Uaa Admin Secret**.
-
-###<a id='uaa-scopes'></a> Grant Cluster Access to a User
-
-To allow a user to access clusters in PKS, perform the following steps using UAAC:
-
-1. Target your PKS API endpoint using `uaac target https://YOUR-PKS-API:8443`. Replace `YOUR-PKS-API` with your PKS API endpoint URL. For example:
-  <pre class="terminal">$ uaac target https&#58;//pks-api.example.com:8443</pre>
-
-1. Authenticate with UAA using the secret you retrieved in the previous section.
-Run the following command, replacing `UAA-ADMIN-SECRET` with your UAA admin secret: <pre>uaac token client get admin -s UAA-ADMIN-SECRET</pre>
-
-1. Create a user by running `uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD`. For example:
-  <pre class="terminal">$ uaac user add alana --emails alana&#64;example.com -p password</pre>
-
-1. Assign a scope to the user to allow them to access Kubernetes clusters.
-Run `uaac member add UAA-SCOPE USERNAME`, replacing `UAA-SCOPE` with one of the following UAA scopes:
-  * `pks.clusters.admin`: Users with this scope have full access to all clusters.
-  * `pks.clusters.manage`: Users with this scope can only access clusters they create.
-
-    For example:
-    <pre class="terminal">$ uaac member add pks.clusters.admin alana</pre>
-
-##<a id='ssh'></a> Manage PKS Deployments with BOSH
-
-To manage your PKS deployment with BOSH, perform the following steps:
-
-1. Gather credential and IP address information for your BOSH Director and SSH into the Ops Manager VM.
-See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
-1. Create a BOSH alias for your PKS environment. For example:
-  <pre class="terminal">$ bosh alias-env pks -e 10.0.0.3 --ca-cert /var/tempest/workspaces/default/root_ca_certificate</pre>
-1. Log in to the BOSH Director.
-  <pre class="terminal">$ bosh -e pks log-in</pre>
-1. Follow the procedures in the [Use the BOSH CLI for Troubleshooting](https://docs.pivotal.io/pivotalcf/1-12/customizing/trouble-advanced.html#cli) topic to manage your PKS deployment with BOSH.
-
-##<a id='custom-workloads'></a> Add Custom Workloads
-
-To apply custom Kubernetes workloads to every cluster created on a plan, add YAML to the tile config under **Default Cluster Apps**.
-Use this configuration to define what a cluster includes out of the box.
-For example, use custom workloads to configure metrics or logging.
-
-##<a id='download-logs'></a> Download Cluster Logs
-
-To download cluster logs, perform the following steps:
-
-1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI v2 to log in to the BOSH Director from the Ops Manager VM.
-For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
-1. After logging in to the BOSH Director, identify the name of your PKS deployment. For example:
-  <pre class="terminal">$ bosh -e pks deployments</pre>
-  Your PKS deployment name begins with `pivotal-container-service` and includes a BOSH-generated hash.
-1. Identify the names of the VMs you want to retrieve logs from by listing all VMs in your deployment. For example:
-	<pre class="terminal">$ bosh -e pks -d pivotal-container-service-aa1234567bc8de9f0a1c vms</pre>
-1. Download the logs from the VM. For example:
-	<pre class="terminal">$ bosh -e pks -d pivotal-container-service-aa1234567bc8de9f0a1c logs pks/0</pre>
-	See [Diagnosing and Troubleshooting PKS](troubleshoot.html#bosh-pks-map) for information about using cluster logs to diagnose issues in your PKS deployment.
-
-##<a id='upgrade-downtime'></a> Prepare Workloads for an Upgrade
-
-To prevent workload downtime during a PKS upgrade, define the following settings in the deployment manifest:
-
-[//]: # (* Set `max_in_flight` to 1.)
-[//]: # (This value cannot be configured in the current PKS version.)
-* Increase the number of worker nodes by editing the `spec.replicas` value.
-* Schedule pod replicas to run on separate workers by defining a `podAntiAffinity` rule.
-
-For example:
-
-```yaml
-kind: Deployment
-metadata:
-  # ...
-spec:
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        app: APP-NAME
-    spec:
-      containers:
-      - name: MY-APP
-        image: MY-IMAGE
-        ports:
-        - containerPort: 12345
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                    - APP-NAME
-              topologyKey: "kubernetes.io/hostname"
-```
-
-See the following table for descriptions of the values you must edit in the deployment manifest:
-
-<table>
-  <tr>
-    <th>Key-Value Pair</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td><pre>spec:<br>  replicas: 3</pre></td>
-    <td>Set this value to at least 2 to increase the number of worker nodes.
-    If you are unsure of your worker capacity, begin by increasing the value by 1.</td>
-  </tr>
-  <tr>
-    <td><pre>app: APP-NAME</pre></td>
-    <td>Use this app name when you define the anti-affinity rule later in the spec.</td>
-  </tr>
-  <tr>
-    <td><pre>matchExpressions: <br>- key: "app"</pre></td>
-    <td>This value matches <code>spec.template.metadata.labels.app</code>.</td>
-  </tr>
-  <tr>
-    <td><pre>values: <br>- APP-NAME</pre></td>
-    <td>This value matches the <code>APP-NAME</code> you defined earlier in the spec.</td>
-  </tr>
-</table>
-
-##<a id='delete-errand'></a> Delete PKS
-
-To delete PKS, perform the following steps:
-
-1. Navigate to the Ops Manager Installation Dashboard.
-1. Click the trash icon on the PKS tile.
-1. Click **Confirm** in the dialog box that appears.
-1. By default, deleting the PKS tile will also delete all the clusters created by PKS. To preserve the clusters, click the **Delete all clusters** errand under **Pending Changes** and select **Off**.
-1. Click **Apply Changes**.
-
+<ul>
+  <li>
+    <a href="/runtimes/pks/1-0/configure-api.html">Configure PKS API Access</a>
+  </li>
+  <li>
+    <a href="/runtimes/pks/1-0/manage-users.html">Manage Users in UAA</a>
+  </li>
+  <li>
+    <a href="/runtimes/pks/1-0/manage-deployments.html">Manage PKS Deployments with BOSH</a>
+  </li>
+  <li>
+    <a href="/runtimes/pks/1-0/custom-workloads.html">Add Custom Workloads</a>
+  </li>
+  <li>
+    <a href="/runtimes/pks/1-0/download-logs.html">Download Cluster Logs</a>
+  </li>
+  <li>
+    <a href="/runtimes/pks/1-0/prepare-upgrade.html">Prepare Workloads for an Upgrade</a>
+  </li>         
+  <li>
+    <a href="/runtimes/pks/1-0/delete.html">Delete PKS</a>
+  </li>
+</ul>
