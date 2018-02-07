@@ -9,7 +9,7 @@ This topic describes how to install and configure Pivotal Container Service (PKS
 
 Before performing the procedures in this topic, consult the requirements in the [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html) topic.
 
-<p class="note"><strong>Note</strong>: When using NSX-T, namespaces for pods can be no longer than 40 characters.</p>
+<p class="note"><strong>Note</strong>: When using NSX-T 2.1, creating namespaces with names longer than 40 characters may result in a truncated/hashed name.</p>
 
 ##<a id='overview'></a>Overview
 
@@ -19,7 +19,7 @@ This topic describes how to deploy NSX-T with PKS using the Network Address Tran
 
 Click [here](https://docs-pks.cfapps.io/pks/images/nsx-t-overview.png) to view a larger version of this image.
 
-The NAT topology has the following characteristics:
+The topology has the following characteristics:
 
 * The BOSH Director, Ops Manager, and the PKS service instance are all located on a logical switch NAT'd behind a T1.
 * All Kubernetes cluster nodes are located on a logical switch NAT'd behind a T1. This will require NAT rules to allow access to Kubernetes APIs.
@@ -27,7 +27,7 @@ The NAT topology has the following characteristics:
 <p class="note"><strong>Note</strong>: The instructions in this section are cumulative.
 For each step, be sure to follow instructions precisely, and complete any confirmation tasks described in the <a href="https://docs.vmware.com/en/VMware-NSX-T/index.html">NSX-T documentation</a> to verify your setup before proceeding to the next step.</p>
 
-##<a id='config-network'></a> Step 1: Configure Network CIDRs
+##<a id='config-network'></a> Step 1: Pre-allocate Network Subnets
 
 Create and assign the following network CIDRs in the IPv4 address space according to the instructions in the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html). Ensure that they are routable in your environment.
 
@@ -52,12 +52,12 @@ Deploy NSX-T according to the instructions in the [NSX-T documentation](https://
 1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-A65FE3DD-C4F1-47EC-B952-DEDF1A3DD0CF.html) the NSX Manager.
 1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-447C0417-A37B-4C2E-965E-499F52587160.html) NSX Controllers.
 1. [Join](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-05434745-7D74-4DA8-A68E-9FE17093DA7B.html) the NSX Controllers to the NSX Manager and [initialize](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-273F6344-7212-4105-9FBA-A872CD75803F.html) the Control Cluster.
-1. Add your ESX host(s) to the NSX-T Fabric. Each host must have at least one **free nic/vmnic** not already used by other vSwitches on the ESX host for use with NSX Host Transport Nodes.
-1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) NSX Edge VMs. Each deployed NSX Edge VM will require free resources in your vSphere Environment to provide 8 vCPU, 16 GB of RAM, and 120 GB of storage. When deploying, you must connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment by completing the following steps:
+1. [Add](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-8C0EEC08-3A63-4918-A5E2-7A94AD50B0E6.html) your ESX host(s) to the NSX-T Fabric. Each host must have at least one **free nic/vmnic** not already used by other vSwitches on the ESX host for use with NSX Host Transport Nodes.
+1. [Deploy](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) NSX Edge VMs (recommended at least two). Each deployed NSX Edge VM will require free resources in your vSphere Environment to provide 8 vCPU, 16 GB of RAM, and 120 GB of storage. When deploying, you must connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment by completing the following steps:
   1. Connect the first Edge interface to your environment's PortGroup/VLAN where your Edge Management IP can route and communicate with the NSX Manager.
   1. Connect the second Edge interface to your environment's PortGroup/VLAN where your T0 uplink interface will be located.  Your **PKS MANAGEMENT CIDR** and **PKS LB CIDR** should be routable to this PortGroup.  
   1. Connect the third Edge interface to your environment's PortGroup/VLAN where your GENEVE VTEPs can route and communicate with each other. Your **VTEP CIDR** should be routable to this PortGroup.
-  1. [Join](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html) the NSX Edge VM(s) to the NSX-T Fabric.
+  1. [Join](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html) the NSX Edge VMs to the NSX-T Fabric.
 
 
 ##<a id='create-objects'></a> Step 3: Create the NSX-T Objects Required for PKS
@@ -93,7 +93,7 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
 
 
 1. [Create](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-53295329-F02F-44D7-A6E0-2E3A9FAE6CF9.html) NSX Edge Transport Node(s).
-1. Add both `tz-vlan` and `tz-overlay` NSX Transport Zones to the NSX Edge Transport Node(s).
+1. Add both `tz-vlan` and `tz-overlay` NSX Transport Zones to the NSX Edge Transport Node(s). Controller Connectivity and Manager Connectivity should be **UP**.
 1. Refer to the MAC addresses of the Edge VM interfaces you deployed to deploy your virtual NSX Edge(s):
   1. Connect the `hs-vlan` N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the second NIC from your deployed Edge VM.
   1. Connect the `hs-overlay` N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the third NIC from your deployed Edge VM. 
@@ -123,9 +123,19 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
    * Enable **Advertise All NSX Connected Routes**.
    * Enable **Advertise All NAT Routes**.
    * Enable **Advertise All LB VIP Routes**.
-1. Create a SNAT rule on the T1 to allow the PKS Management VMs to communicate with your vCenter and NSX Manager environments. For example, a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**. For more information, see [Configure Source NAT on a Tier-1 Router](https://docs.vmware.com/en/VMware-NSX-T/2.1com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) in the VMware documentation.
-  <p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnet(s) that contain your vCenter and NSX Manager IP addresses.</p>
-1. Create a DNAT rule on the T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the IP where you will deploy Ops Manager on the `ls-pks-mgmt` logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`. For more information, see [Configure Destination NAT on a Tier-1 Router](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) in the VMware documentation.
+1. Create an SNAT rule on the T1 to allow the PKS Management VMs to communicate with your vCenter and NSX Manager environments. Limit the Destination CIDR for the SNAT rules to the subnet(s) that contain your vCenter and NSX Manager IP addresses. Use the following settings:<br>
+      Opsman & BOSH Director -> DNS<br> 
+      Opsman & BOSH Director -> NTP<br> 
+      Opsman & BOSH Director -> vCenter<br> 
+      Opsman & BOSH Director -> ESXi<br> 
+      Opsman & BOSH Director -> NSX-T Manager<br> 
+      For example, an SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP from your **PKS MANAGEMENT CIDR**. For more information, see [Configure Source NAT on a Tier-1 Router](https://docs.vmware.com/en/VMware-NSX-T/2.1com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) in the VMware documentation.
+
+1. Create a DNAT rule on the T1 to map an external IP from the **PKS MANAGEMENT CIDR** to the IP where you will deploy Ops Manager on the `ls-pks-mgmt` logical switch. Use the following settings:<br>
+      External -> Opsman<br>
+      External -> Pivotal Container Service<br>
+      For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`. For more information, see [Configure Destination NAT on a Tier-1 Router](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-0B572AF0-8AAE-4C4E-83A6-A7DEF4CF5DCD.html) in the VMware documentation.<br>
+      Later you will create another DNAT rule to map an external IP from the **PKS MANAGEMENT CIDR** to the PKS endpoint.
 
 ####<a id='create-objects-logical-router-pks-service'></a> Create T1 Logical Router for PKS Service VMs
 
@@ -137,7 +147,14 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
    * Enable **Advertise All NSX Connected Routes**.
    * Enable **Advertise All NAT Routes**.
    * Enable **Advertise All LB VIP Routes**.
-* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) a SNAT rule on the T1 to allow the Kubernetes Cluster VMs to communicate with your environment's NSX Manager and allow the NCP pod on each cluster to communicate with your NSX Manager. For example, a SNAT rule that maps `172.31.2.0/23` to `10.172.1.3`, where `10.172.1.3` is a routable IP from your **PKS MANAGEMENT CIDR**.
+* [Create](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-31CEF010-0C34-4C10-9443-13A0EAAABFD6.html) an SNAT rule on the T1 to allow the Kubernetes Cluster VMs to communicate with your environment's NSX Manager and allow the NCP pod on each cluster to communicate with your NSX Manager. Use the following settings:<br>
+  K8s Workers -> External Registries (example: DockerHub)<br>
+  K8s Workers -> DNS<br>
+  K8s Workers -> NTP<br>
+  K8s Workers -> NSX-T Manager (NCP)<br>
+  K8s Workers -> vCenter (vSphere Cloud Provider)<br>
+  K8s Workers -> External Service Endpoints for Workloads<br>
+  For example, a SNAT rule that maps `172.31.2.0/23` to `10.172.1.3`, where `10.172.1.3` is a routable IP from your **PKS MANAGEMENT CIDR**.
   <p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnet(s) that contain your vCenter and NSX Manager IP addresses.</p>
 
 ##<a id='config-ops-man'></a> Step 4: Configure Ops Manager
