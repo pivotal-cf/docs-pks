@@ -1,0 +1,46 @@
+---
+title: Avoiding Workload Downtime
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+<p class="note"><strong>Note</strong>: The PKS documentation is under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
+
+This topic describes how to avoid workload downtime during a cluster upgrade.
+
+##<a id='overview'></a> Overview
+Currently, the product only allows 1 worker node to be upgraded at a time. To avoid workload downtime, an operator should:
+- Create clusters with at least 2 worker nodes, ideally 3. This can be configured on the plan used to create the cluster or by using the cli flag `--num-nodes` when creating the cluster.
+- On the workload configuration applied to the cluster, ensure that the number of pod replicas is **at least** 2, ideally 3.
+- Ensure that the pod spec contains a `podAntiAffinity` setting which ensures that pod replicas are not scheduled on the same worker (see below).
+
+Below is an example configuration to deploy a `nginx` workload with 3 replicas and a `podAntiAffinity` rule set up.
+
+```yaml
+kind: Deployment
+metadata:
+  # ...
+spec:
+  replicas: 3 # <= Pod replica number
+  template:
+    metadata:
+      labels:
+        app: APP-NAME # <= used for anti-afinity rule below
+    spec:
+      containers:
+      - name: MY-APP
+        image: MY-IMAGE
+        ports:
+        - containerPort: 12345
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app" # <= matches "spec.template.metadata.labels.app"
+                    operator: In
+                    values:
+                    - APP-NAME
+              topologyKey: "kubernetes.io/hostname"
+```
