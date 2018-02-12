@@ -1,0 +1,59 @@
+---
+title: Create a Cluster
+owner: PKS
+---
+
+Follow the steps below to create a Kubernetes cluster using the PKS CLI.
+
+1. Locate the external hostname for accessing the Kubernetes API.
+Use one of the following methods, depending on your PKS installation:
+  * If your PKS installation is **integrated with NSX-T**, use the NAT IP from the `ip-pool-vips` NSX IP pool.
+  For more information, see [Enable NAT Access](installing-nsx-t.html#nsxt-master-nat) in <em>Installing and Configuring PKS with NSX-T Integration</em>.
+  * If your PKS installation is **not integrated with NSX-T**, [create an external load balancer](deploy-workloads.html#external-lb) and record its IP address or hostname.
+  Each new cluster requires its own TCP or HTTPS load balancer to allow external access.
+  When you provide the external hostname later in this procedure, you can either use the load balancer IP address or a hostname from the domain you specified for the PKS API.
+  For more information, see the PKS API section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#pks-api) or [vSphere](installing-pks-vsphere.html#pks-api)</em>.
+
+1. On the command line, run the following command to log in:
+  <pre>
+  pks login -a PKS_API -u USERNAME -p PASSWORD
+  </pre>
+  Replace the placeholder values in the command as follows:
+  * `PKS_API` is your PKS API hostname. For example, `pks.example.com`. The PKS CLI uses port 9021 by default. `PKS_API` is the same URL configured in the **UAA URL** field. Refer to **Ops Manager** > **Pivotal Container Service** > **UAA** > **UAA URL** for the **UAA URL**.
+  * `USERNAME` is your PKS API username. The `USERNAME` is the user created as a result of the _Grant Cluster Access to a User_ step in the [Manage Users in UAA](manage-users.html#uaa-scopes) topic.
+  * `PASSWORD` is your PKS API password. The `PASSWORD` can be retrieved by following the steps detailed in the _Grant Cluster Access to a User_ section of the [Manage Users in UAA](manage-users.html#uaa-scopes) topic.
+
+2. Run the following command to create a cluster:
+  <pre>
+  pks create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME [--num-nodes WORKER-NODES]
+  </pre>
+  Replace the placeholder values in the command as follows:
+  * `CLUSTER-NAME` is a unique name for your cluster.
+  * `HOSTNAME` is the external hostname for accessing the Kubernetes API. Use the hostname you located earlier in this procedure.
+  * `PLAN-NAME` is the name of the plan you want to use to create the cluster.
+  * `WORKER-NODES` is the number of worker nodes for the cluster.  For high availability, Pivotal recommends creating clusters with at least 3 worker nodes. The maximum value is 50. This flag is optional.
+  <br><br>
+  For example:
+  <pre class="terminal">$ pks create-cluster my-cluster --external-hostname 10.0.0.1 --plan large --num-nodes 3</pre>
+
+1. Track the cluster creation process by running `pks cluster CLUSTER-NAME`.
+Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
+  <pre class="terminal">$ pks cluster my-cluster</pre>
+  The cluster status appears in the **Last Action State** column.
+  If the last action state is `error`, troubleshoot cluster creation by logging in to the BOSH Director and running `bosh tasks`.
+  See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
+
+1. When cluster creation is complete, configure the external hostname.
+  1. Run `pks cluster CLUSTER-NAME`to view cluster details. Replace `CLUSTER-NAME` with the unique name for your cluster.
+For example:
+  <pre class="terminal">$ pks cluster my-cluster</pre>
+  1. Locate the master IP address for the cluster in the `kubernetes_master_ips` row.
+  1. Configure your external TCP or HTTPS load balancer to point to the master IP address.
+
+1. To access your cluster, run `pks get-credentials CLUSTER-NAME`.
+This command creates a local `kubeconfig` that allows you to manage the cluster.
+See [Retrieve Cluster Credentials and Configuration](cluster-credentials.html) for more information.
+
+1. Run `kubectl cluster-info` to confirm you can access your cluster using the Kubernetes CLI.
+
+See [Managing PKS](managing.html) for information about checking cluster health and viewing cluster logs.

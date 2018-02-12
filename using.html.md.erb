@@ -9,351 +9,43 @@ This topic describes how to use Pivotal Container Service (PKS).
 
 <p class="note"><strong>Note</strong>: Because PKS does not currently support the Kubernetes Service Catalog or the GCP Service Broker, binding clusters to Kubernetes services is not supported.</p>
 
-##<a id='prereqs'></a> Prerequisites
-
-The procedures in this topic have the following prerequisites:
-
-* You must have a Pivotal Cloud Foundry (PCF) deployment with Ops Manager v2.0 or later and PKS installed.
-
-* You must have the [PKS CLI](installing-pks-cli.html) installed.
-  <p class="note warning"><strong>WARNING</strong>: The PKS CLI is under active development and commands may change. To ensure you have installed the latest version, we recommend that you re-install the PKS CLI before you use it. To install the PKS CLI, see <a href="installing-pks-cli.html">Installing the PKS CLI</a>.</p>
-
-* You must have `kubectl`, the Kubernetes CLI, installed. To download and install `kubectl`, see the [Install and Set Up kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl) topic in the Kubernetes documentation. For more information about using `kubectl`, see the [kubectl documentation](https://kubernetes.io/docs/user-guide/kubectl-overview/).
-
-* You must have an external TCP or HTTPS load balancer configured to forward traffic to the PKS API endpoint. For more information, see the Configure External Load Balancer section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#loadbalancer-pks-api) or [vSphere](installing-pks-vsphere.html#loadbalancer-pks-api)</em>.
-
-* You must have your PKS API endpoint and your UAA credentials. To retrieve these values, perform the following steps:
-  1. Navigate to the **Pivotal Container Service** tile in the Ops Manager Installation Dashboard.
-  1. Click **Credentials**.
-  1. To retrieve the UAA credentials, click **Uaa Admin Secret**.
-  1. Click the **Status** tab.
-  1. Retrieve the PKS API IP under **IPs**.
-  <p class="note"><strong>Note</strong>: If your PKS installation is integrated with NSX-T, use the DNAT IP address assigned in the <a href="installing-nsx-t.html#apply-changes">Apply Changes and Retrieve the PKS Endpoint</a> section of <em>Installing and Configuring PKS with NSX-T Integration</em>.</p>
-
-##<a id='create-cluster'></a> Create a Cluster
-
-Follow the steps below to create a Kubernetes cluster using the PKS CLI.
-
-1. Locate the external hostname for accessing the Kubernetes API.
-Use one of the following methods, depending on your PKS installation:
-  * If your PKS installation is **integrated with NSX-T**, use the NAT IP from the `ip-pool-vips` NSX IP pool.
-  For more information, see [Enable NAT Access](installing-nsx-t.html#nsxt-master-nat) in <em>Installing and Configuring PKS with NSX-T Integration</em>.
-  * If your PKS installation is **not integrated with NSX-T**, [create an external load balancer](#external-lb) and record its IP address or hostname.
-  Each new cluster requires its own TCP or HTTPS load balancer to allow external access.
-  When you provide the external hostname later in this procedure, you can either use the load balancer IP address or a hostname from the domain you specified for the PKS API.
-  For more information, see the PKS API section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#pks-api) or [vSphere](installing-pks-vsphere.html#pks-api)</em>.
-
-1. On the command line, run the following command to log in:
-  <br>
-  ```
-  pks login -a PKS_API -u USERNAME -p PASSWORD
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
-  * `USERNAME` is your PKS API username.
-  * `PASSWORD` is your PKS API password.
-
-2. Run the following command to create a cluster:
-  <br>
-  ```
-  pks create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME [--num-nodes WORKER-NODES]
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `CLUSTER-NAME` is a unique name for your cluster.
-  * `HOSTNAME` is the external hostname for accessing the Kubernetes API. Use the hostname you located earlier in this procedure.
-  * `PLAN-NAME` is the name of the plan you want to use to create the cluster.
-  * `WORKER-NODES` is the number of worker nodes for the cluster. The maximum value is 50. This flag is optional.
-  <br><br>
-  For example:
-  <pre class="terminal">$ pks create-cluster my-cluster --external-hostname 10.0.0.1 --plan large --num-nodes 3</pre>
-
-1. Track the cluster creation process by running `pks cluster CLUSTER-NAME`.
-Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
-  <pre class="terminal">$ pks cluster my-cluster</pre>
-  The cluster status appears in the **Last Action State** column.
-  If the last action state is `error`, troubleshoot cluster creation by logging in to the BOSH Director and running `bosh tasks`.
-  See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
-
-1. When cluster creation is complete, configure the external hostname.
-  1. Run `pks cluster CLUSTER-NAME`to view cluster details. Replace `CLUSTER-NAME` with the unique name for your cluster.
-For example:
-  <pre class="terminal">$ pks cluster my-cluster</pre>
-  1. Locate the master IP address for the cluster in the `kubernetes_master_ips` row.
-  1. Configure your external TCP or HTTPS load balancer to point to the master IP address.
-
-1. To access your cluster, run `pks get-credentials CLUSTER-NAME`.
-This command creates a local `kubeconfig` that allows you to manage the cluster.
-See [Retrieve Cluster Credentials and Configuration](#get-credentials) for more information.
-
-1. Run `kubectl cluster-info` to confirm you can access your cluster using the Kubernetes CLI.
-
-See [Managing PKS](managing.html) for information about checking cluster health and viewing cluster logs.
-
-##<a id='delete-cluster'></a> Delete a Cluster
-
-Follow the steps below to delete a cluster using the PKS CLI.
-
-1. On the command line, run `pks login -a PKS_API -u USERNAME -p PASSWORD` to log in. Replace the placeholder values in the command as follows:
-  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
-  * `USERNAME` is your PKS API username.
-  * `PASSWORD` is your PKS API password.
-
-1. Run `pks delete-cluster CLUSTER-NAME` to delete a cluster. Replace `CLUSTER-NAME` with the unique name for your cluster.
-For example:
-  <pre class="terminal">$ pks delete-cluster my-cluster</pre>
-
-##<a id='get-credentials'></a> Retrieve Cluster Credentials and Configuration
-
-Follow the steps below to retrieve the cluster credentials and configuration using the PKS CLI.
-
-1. On the command line, run the following command to log in:
-  <br>
-  ```
-  pks login -a PKS_API -u USERNAME -p PASSWORD
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
-  * `USERNAME` is your PKS API username.
-  * `PASSWORD` is your PKS API password.
-
-1. Run the following command to retrieve the cluster credentials and configuration:
-  <br>
-  ```
-  pks get-credentials CLUSTER-NAME
-  ```
-  <br>
-  Replace `CLUSTER-NAME` with the unique name for your cluster.
-  For example:
-  <pre class="terminal">$ pks get-credentials my-cluster</pre>
-
-You can use the `pks get-credentials` command to perform the following actions:
-
-  - Fetch the cluster's `kubeconfig`
-  - Add the cluster's `kubeconfig` to the existing `kubeconfig`
-  - Create a new `kubeconfig`, if none exists
-  - Switch the context to the `CLUSTER-NAME` provided
-
-The `kubeconfig` file path works the same way as `kubectl`.
-If you do not set the file path, the default path is `$HOME/.kube/config`.
-Use the `KUBECONFIG` environment variable to change the `kubeconfig` file path.
-
-You can use the credentials and the `kubeconfig` to deploy application workloads to your cluster with `kubectl`. For more information about accessing your cluster, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/).
-
-##<a id='view-cluster-list'></a> View Cluster List
-
-Follow the steps below to view the list of deployed Kubernetes cluster with the PKS CLI.
-
-1. On the command line, run the following command to log in:
-  <br>
-  ```
-  pks login -a PKS_API -u USERNAME -p PASSWORD
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
-  * `USERNAME` is your PKS API username.
-  * `PASSWORD` is your PKS API password.
-
-1. Run the following command to view the list of deployed clusters, including cluster names and status:
-  <br>
-  ```
-   pks clusters
-  ```
-
-##<a id='view-cluster'></a> View Cluster Details
-
-Follow the steps below to view the details of an individual cluster using the PKS CLI.
-
-1. On the command line, run the following command to log in:
-  <br>
-  ```
-  pks login -a PKS_API -u USERNAME -p PASSWORD
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
-  * `USERNAME` is your PKS API username.
-  * `PASSWORD` is your PKS API password.
-
-1. Run the following command to view the details of an individual cluster:
-  <br>
-  ```
-  pks cluster CLUSTER-NAME
-  ```
-  <br>
-  Replace `CLUSTER-NAME` with the unique name for your cluster.
-  For example:
-  <pre class="terminal">$ pks cluster my-cluster</pre>
-
-##<a id='view-cluster-plans'></a> View Cluster Plans
-
-Follow the steps below to view information about the available plans for deploying a cluster using the PKS CLI.
-
-1. On the command line, run the following command to log in:
-  <br>
-  ```
-  pks login -a PKS_API -u USERNAME -p PASSWORD
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
-  * `USERNAME` is your PKS API username.
-  * `PASSWORD` is your PKS API password.
-
-1. Run the following command to view information about the available plans for deploying a cluster:
-  <pre class="terminal">$ pks plans</pre>
-  The response lists details about the available plans, including plan names and descriptions:
-  <pre class="terminal">
-  Name     ID  Description
-  default      Default plan for K8s cluster
-  </pre>
-
-##<a id='logout'></a> Log Out of the PKS Environment
-
-On the command line, run `pks logout` to log out of your PKS environment.
-
-After logging out, you must run `pks login` before you can run any other `pks` commands.
-
-##<a id='dynamic-volumes'></a>Using Dynamic Persistent Volumes
-
-When using PKS, you can choose to pre-provision persistent storage or create on-demand persistent storage volumes.
-Refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) for more information about storage management.
-
-Perform the steps in this section to define a `PersistentVolumeClaim` that you can apply to newly-created pods.
-
-1. Download the `StorageClass` spec for your cloud provider.
-  * **GCP**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-gcp.yml</pre>
-  * **vSphere**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-vsphere.yml</pre>
-
-1. Apply the spec by running `kubectl create -f STORAGE-CLASS-SPEC.yml`.
-Replace `STORAGE-CLASS-SPEC` with the name of the file you downloaded in the previous step.
-For example:
-<pre class="terminal">$ kubectl create -f storage-class-gcp.yml</pre>
-
-1. Run the following command to download the example `PersistentVolumeClaim`:
-<pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/persistent-volume-claim.yml
-</pre>
-
-1. Run the following command to apply the `PersistentVolumeClaim`:
-<pre class="terminal">
-$ kubectl create -f persistent-volume-claim.yml
-</pre>
-  * To confirm you applied the `PersistentVolumeClaim`, run the following command:
-  <pre class="terminal">
-  $ kubectl get pvc -o wide
-  </pre>
-
-1. To use the dynamic persistent volume, create a pod that uses the `PersistentVolumeClaim`.
-See the [pv-guestbook.yml configuration file](https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/pv-guestbook.yml) as an example.
-
-##<a id='scale-clusters'></a> Scale Existing Clusters
-
-Follow the steps below to scale up an existing cluster using the PKS CLI.
-<p class="note"><strong>Note</strong>: You cannot scale the number of worker nodes down. You can only scale the number of worker nodes up.</p>
-
-1. On the command line, run the following command to log in:
-  <br>
-  ```
-  pks login -a PKS_API -u USERNAME -p PASSWORD
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `PKS_API` is your PKS API hostname. For example, `10.85.102.12`. The PKS CLI uses port 9021 by default.
-  * `USERNAME` is your PKS API username.
-  * `PASSWORD` is your PKS API password.
-1. Run the following command below to scale up your cluster. You cannot scale the number of worker nodes down.
-  <p class="note"><strong>Note</strong>: This command may roll additional VMs in the cluster, affecting workloads if the worker nodes are at capacity. This issue will be resolved in a future release of PKS.</p>
-  <br>
-  ```
-  pks resize CLUSTER-NAME --num-nodes WORKER-NODES
-  ```
-  <br>
-  Replace the placeholder values in the command as follows:
-  * `CLUSTER-NAME` is the name of your cluster.
-  * `WORKER-NODES` is the number of worker nodes for the cluster. The maximum number of worker nodes is 50.
-  For example:
-  <pre class="terminal">$ pks resize my-cluster --num-nodes 5</pre>
-
-
-##<a id='access-dashboard'></a> Access the Dashboard
-
-_Dashboard_ is a web-based Kubernetes user interface. You can use Dashboard to deploy containerized applications to a Kubernetes cluster, troubleshoot containerized applications, and manage the cluster and its resources. Dashboard also provides information about the state of Kubernetes resources in the cluster.
-
-You must have `kubectl` credentials to access Dashboard. This requirement prevents unauthorized admin access to the Kubernetes cluster through a browser.
-
-Follow the steps below to access the Dashboard for a Kubernetes cluster.
-
-1. As a PKS operator or developer, you may already have access to `kubectl` credentials.
-If you do not, follow the instructions in the [Retrieve Cluster Credentials and Configuration](#get-credentials) section of this topic to retrieve these credentials.
-
-1. After retrieving `kubectl` credentials, run `kubectl proxy` on a command line. Do not exit or close the terminal.
-
-1. In a web browser, browse to `http://localhost:8001/ui` to access the Dashboard.
-
-##<a id='deploy-access-workloads'></a> Deploy and Access Basic Workloads
-
-You can deploy and access workloads in a number of ways. This PKS release focuses on `routing_mode: external` and does not include a bundled load balancing component. Select an option based on your PKS deployment:
-
-* [No Load Balancer Abstraction Configured / vSphere without NSX-T](#without-lb)
-
-* [Load Balancer Abstraction Configured / GCP or vSphere with NSX-T](#with-lb)
-
-* [External Load Balancer](#external-lb)
-
-###<a id='without-lb'></a> No Load Balancer Abstraction Configured / vSphere without NSX-T
-
-If you use vSphere without NSX-T or configuring a load balancer abstraction, follow the steps below to deploy and access basic workloads.
-
-1. Expose the workload using a Service with `type: NodePort`.
-
-1. Download the spec for a basic NGINX app from the [pivotal-cf-experimental/kubo-ci](https://github.com/pivotal-cf-experimental/kubo-ci/blob/master/specs/nginx.yml) GitHub repository.
-
-1. Run `kubectl create -f nginx.yml` to deploy the basic NGINX app. This command creates three pods (replicas) that span three worker nodes.
-
-1. Retrieve the IP address for a worker node with a running NGINX pod.
-  <p class='note'><strong>Note</strong>: If you deployed more than four worker
-  nodes, some worker nodes may not contain a running NGINX pod. Select a worker
-  node that contains a running NGINX pod.</p>
-  <br>
-  You can retrieve the IP address for a worker node with a running NGINX pod in
-  one of the following ways:
-  * On the command line, run `kubectl get nodes`. Select a node name, then locate the node name in the vCenter or GCP Console to find the IP address.
-  * On the Ops Manager command line, run `bosh vms` to find the IP address.
-
-1. On the command line, run `kubectl get svc nginx`. Find the node port number in the `3XXXX` range.
-
-1. On the command line of a server with network connectivity and visibility to the IP address of the worker node, run `curl http://NODE-IP:NODE-PORT` to access the app. Replace `NODE-IP` with the IP address of the worker node, and `NODE-PORT` with the node port number.
-
-###<a id='with-lb'></a> Load Balancer Abstraction Configured / GCP or vSphere with NSX-T
-
-If you use GCP or vSphere with NSX-T, follow the steps below to deploy and access basic workloads.
-
-<p class='note'><strong>Note</strong>: This approach creates a dedicated load balancer for each workload. This may be an inefficient use of resources in clusters with many apps.</p>
-
-1. Expose the workload using a Service with `type: LoadBalancer`.
-
-1. Download the spec for a basic NGINX app from the [cloudfoundry-incubator/kubo-ci](https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml) GitHub repository.
-
-1. Run `kubectl create -f nginx.yml` to deploy the basic NGINX app. This command creates three pods (replicas) that span three worker nodes.
-
-1. Wait until the GCP CloudProvider interacts with GCP to create a dedicated load balancer and connects it the the worker nodes on a specific port.
-
-1. Run `kubectl get svc nginx` and retrieve the load balancer IP address and port number.
-
-1. On the command line of a server with network connectivity and visibility to the IP address of the worker node, run `curl http://EXTERNAL-IP:PORT` to access the app. Replace `EXTERNAL-IP:PORT` with the IP address of the load balancer, and `PORT` with the port number.
-
-###<a id='external-lb'></a> External Load Balancer
-
-All deployments can use an external load balancer.
-To use an external load balancer, follow the steps below to deploy and access basic workloads.
-<p class="note"><strong>Note</strong>: All external load balancers in your deployment must use TCP or HTTPS.
-Using an HTTP load balancer causes <code>kubectl</code> operations to fail.</p>
-
-1. Expose every workload and app using a Service with `type: NodePort`.
-
-1. Map each node port exposed in the worker nodes that you need to an external port in your external load balancer. The process to map these ports depends on your load balancer. See your external load balancer documentation for more information.
-
-1. For each app, run `curl http://LOAD-BALANCER-IP:EXTERNAL-PORT`. Replace `LOAD-BALANCER-IP` with the IP address of your external load balancer and `EXTERNAL-PORT` with the external port number.
+See the following sections:
+ 
+<ul>
+  <li>
+  <a href="/runtimes/pks/1-0/using-prerequisites.html">Prerequisites</a>
+  </li>
+  <li>
+  <a href="/runtimes/pks/1-0/create-cluster.html">Create a Cluster</a>
+  </li>
+  <li>
+  <a href="/runtimes/pks/1-0/cluster-credentials.html">Retrieve Cluster Credentials and Configuration</a>
+  </li>
+  <li>
+  <a href="/runtimes/pks/1-0/view-cluster-list.html">View Cluster List</a>
+  </li>
+  <li>
+  <a href="/runtimes/pks/1-0/view-cluster-details.html">View Cluster Details</a>
+  </li>
+  <li>
+  <a href="/runtimes/pks/1-0/view-cluster-plans.html">View Cluster Plans</a>
+  </li>         
+  <li>
+  <a href="/runtimes/pks/1-0/volumes.html">Using Dynamic Persistent Volumes</a>
+  </li>
+  <li>
+  <a href="/runtimes/pks/1-0/scale-clusters.html">Scale Existing Clusters</a>
+  </li>
+  <li>
+  <a href="/runtimes/pks/1-0/access-dashboard.html">Access the Dashboard</a>
+  </li>         
+  <li>
+  <a href="/runtimes/pks/1-0/deploy-workloads.html">Deploy and Access Basic Workloads</a>
+  </li>     
+  <li>
+  <a href="/runtimes/pks/1-0/delete-cluster.html">Delete a Cluster</a>
+  </li>  
+  <li>
+  <a href="/runtimes/pks/1-0/log-out.html">Log Out of the PKS Environment</a>
+  </li>    
+</ul>

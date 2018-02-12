@@ -3,10 +3,7 @@ title: Installing and Configuring PKS on GCP
 owner: PKS
 ---
 
-
 <strong><%= modified_date %></strong>
-
-<p class="note"><strong>Note</strong>: The PKS documentation is under development. This topic will continue to be updated and expanded to reflect the most current information.</p>
 
 This topic describes how to install and configure Pivotal Container Service (PKS) on Google Cloud Platform (GCP).
 
@@ -52,11 +49,6 @@ Perform the following steps:
 Perform the following steps:
 
 1. Click **PKS API**.
-
-    ![PKS API pane in Ops Manager](images/pks-api.png)
-
-1. Under **Default Cluster Authorization Mode**, select an authentication mode.
-Pivotal recommends selecting **RBAC**. For more information, see the [RBAC Support in Kubernetes](http://blog.kubernetes.io/2017/04/rbac-support-in-kubernetes.html) blog post.
 1. Under **Certificate**, provide your own certificate or have Ops Manager generate one.
 To generate a new certificate and key, enter a wildcard domain you own.
 For example, `*.pks.pcfgcp.mydomain.com`.
@@ -74,14 +66,15 @@ To activate a plan, perform the following steps:
 1. Under **Name**, provide a unique name for the plan.
 1. Under **Description**, edit the description as needed.
 The plan description appears in the Services Marketplace, which developers can access by using PKS CLI.
-1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters. For more information, see the [RBAC Support in Kubernetes](http://blog.kubernetes.io/2017/04/rbac-support-in-kubernetes.html) blog post.
 1. Under **AZ placement**, select an AZ for the Kubernetes clusters deployed by PKS.
+1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters. Pivotal recommends selecting **RBAC**. For more information, see the [RBAC Support in Kubernetes](http://blog.kubernetes.io/2017/04/rbac-support-in-kubernetes.html) blog post.
 1. Under **ETCD/Master VM Type**, select the type of VM to use for Kubernetes etcd and master nodes.
+1. Under **Master Persistent Disk Type**, select the size of the persistent disk for the Kubernetes master VM.
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker nodes.
 1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker nodes.
-1. Under **Worker Instances**, select the default number of Kubernetes worker nodes to provision for each cluster.
+1. Under **Worker Node Instances**, select the default number of Kubernetes worker nodes to provision for each cluster. For high availability, Pivotal recommends creating clusters with at least 3 worker nodes.
 1. Under **Errand VM Type**, select the size of the VM where the errand will run. The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
-1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to [add custom workloads](managing.html#custom-workloads) to each cluster in this plan. You can specify multiple files using `---` as a separator.
+1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to [add custom workloads](custom-workloads.html) to each cluster in this plan. You can specify multiple files using `---` as a separator.
 1. If you want users to be able to create [pods with privileged containers](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers), select the **Enable Privileged Containers - Use with caution** option.
 1. Click **Save**.
 
@@ -91,11 +84,11 @@ To deactivate a plan, perform the following steps:
 1. Select **Plan Inactive**.
 1. Click **Save**.
 
-###<a id='iaas'></a> IaaS
+###<a id='cloud-provider'></a> Kubernetes Cloud Provider
 
 Perform the following steps:
 
-1. Click **IaaS**.
+1. Click **Kubernetes Cloud Provider**.
 1. Under **Choose your IaaS**, select **GCP**.
 1. Perform the steps specific to GCP.
 	* Ensure the values match those in the **Google Config** section of the **Ops Manager** tile:
@@ -104,25 +97,22 @@ Perform the following steps:
 		1. Enter your **GCP Service Key**, which you created using [the instructions from the GCP prerequisites](gcp-requirements.html).
 1. Click **Save**.
 
-###<a id='uaa'></a> UAA
-
-Perform the following steps:
-
-1. Click **UAA**.
-1. Enter the URL you use to access UAA.
-<p class="note"><strong>Note</strong>: This must match the wildcard domain provided when generating the PKS API certificate in the [PKS API](installing-pks-gcp.html#pks-api) section, or in the SAN for the certificate if you provided your own.</p>
-1. Enter the time (in seconds) for the PKS CLI access token lifetime.
-1. Enter the time (in seconds) for the PKS CLI refresh token lifetime.
-
 ###<a id='networking'></a> Networking
 
 Perform the following steps:
 
 1. Click **Networking**.
-1. Under **Network**, select the Container Network Interface to use.
-	* For **Flannel**, no additional fields are required.
-	* For **NSX-T**, see [Installing and Configuring PKS with NSX-T Integration](installing-nsx-t.html).
+1. Under **Network**, select **Flannel**.
 1. Click **Save**.
+
+###<a id='uaa'></a> UAA
+
+Perform the following steps:
+
+1. Click **UAA**.
+1. For **UAA URL**, enter the hostname you use for accessing the PKS API service.
+1. Enter the time (in seconds) for the PKS CLI access token lifetime.
+1. Enter the time (in seconds) for the PKS CLI refresh token lifetime.
 
 ###<a id='syslog'></a> (Optional) Syslog
 
@@ -139,6 +129,14 @@ To specify the destination for PKS log messages, perform the following steps:
   1. Provide the accepted fingerprint (SHA1) or name of remote peer. For example, `*.YOUR-LOGGING-SYSTEM.com`.
   1. Provide a TLS certificate for the destination syslog endpoint.
   <p class="note"><strong>Note</strong>: You do not need to provide a new certificate if the TLS certificate for the destination syslog endpoint is signed by a Certificate Authority (CA) in your BOSH certificate store.</p>
+
+###<a id='errands'></a> Errands
+
+Errands are scripts that run at designated points during an installation. 
+
+To configure when post-deploy and pre-delete errands for PKS are run, make a selection in the dropdown next to the errand. For a typical PKS deployment, Pivotal recommends that you leave the default settings.
+
+For more information about errands and their configuration state, see [Managing Errands in Ops Manager](https://docs.pivotal.io/pivotalcf/customizing/managing_errands.html).
 
 ###<a id='resource-config'></a> (Optional) Resource Config
 
@@ -166,7 +164,7 @@ You must share the PKS API endpoint to allow your organization to use the API to
 When an operator creates a cluster, they provide an IP address for the Kubernetes master host, then point the load balancer to the newly created cluster.
 If you use a load balancer as a service (LBaaS) tool, your LBaaS may manage cluster creation and configuration.
 
-See [Using PKS](using.html#create-cluster) for more information.
+See [Using PKS](create-cluster.html) for more information.
 
 Perform the following steps to retrieve the PKS API endpoint:
 
