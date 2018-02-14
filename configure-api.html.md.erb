@@ -5,10 +5,63 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-To configure access to the PKS API, perform the following steps:
+This topic describes how to configure access to the Pivotal Container Service (PKS) API.
+
+PKS deploys a broker VM that contains the PKS API server, a UAA server, and the PKS broker.
+
+The PKS API server and the UAA server use different port numbers on the broker VM.
+For example, if your domain is `pks.example.com`, you can reach your PKS API and UAA servers at the following URLs:
+
+<table>
+  <tr>
+    <th>Server</th>
+    <th>URL</th>
+  </tr>
+  <tr>
+    <td>PKS API</td>
+    <td>https&#58;//pks.example.com:9021</td>
+  </tr>
+  <tr>
+    <td>UAA</td>
+    <td>https&#58;//pks.example.com:8443</td>
+  </tr>
+</table>
+
+##<a id='routing'></a> Configure Routing to the PKS API
+
+To configure routing to the PKS API, perform the following steps:
 
 1. Configure an external load balancer to forward traffic to the PKS API endpoint.
 For more information, see the Configure External Load Balancer section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#loadbalancer-pks-api) or [vSphere](installing-pks-vsphere.html#loadbalancer-pks-api)</em>.
   <p class="note"><strong>Note</strong>: If your PKS installation is integrated with NSX-T, map the external load balancer to the DNAT IP address assigned in the <a href="installing-nsx-t.html#apply-changes">Apply Changes and Retrieve the PKS Endpoint</a> section of <em>Installing and Configuring PKS with NSX-T Integration</em>.</p>
 
 1. Configure a DNS entry that points to the load balancer and uses the domain configured in the PKS API section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#pks-api) or [vSphere](installing-pks-vsphere.html#pks-api)</em>.
+
+##<a id='access'></a> Configure Access to the PKS API
+
+1. Locate your Ops Manager root CA certificate.
+See the [Retrieve the Root CA Certificate](https://docs.pivotal.io/pivotalcf/security/pcf-infrastructure/api-cert-rotation.html#certs) section of _Managing Non-Configurable TLS/SSL Certificates_ for more information.
+
+1. Locate the URL of your UAA server.
+You configured this URL in the UAA section of _Installing and Configuring PKS on [GCP](installing-pks-gcp.html#uaa) or [vSphere](installing-pks-vsphere.html#uaa)_.
+
+1. Run `uaac target UAA-URL --ca-cert ROOT-CA-FILENAME` to target the UAA server.
+Replace `UAA-URL` with the URL of your UAA server and `ROOT-CA-FILENAME` with the certificate file you downloaded in a previous step.
+For example:
+  <pre class="terminal">
+  $ uaac target https&#58;//pks.example.com:8443 --ca-cert my-cert.cert
+  </pre>
+
+1. Run `uaac token client get admin -s UAA-ADMIN-SECRET` to request a token from the UAA server.
+Replace `UAA-ADMIN-SECRET` with your UAA admin secret.
+Refer to **Ops Manager > Pivotal Container Service > Credentials > Uaa Admin Secret** to retrieve this value.
+
+1. Grant cluster access to new or existing users with UAA.
+See the [Grant Cluster Access](manage-users.html#uaa-scopes) section of _Managing Users in UAA_ for more information.
+
+1. Run `pks login -a UAA-URL -u USERNAME -p PASSWORD -k` to log in to the PKS CLI.
+Replace the `UAA-URL` with the URL of your UAA server, `USERNAME` with your username, and `PASSWORD` with your password.
+For example:
+  <pre class="terminal">
+  $ pks login -a https&#58;//pks.example.com:8443 -u alana -p my-password -k
+  </pre>
