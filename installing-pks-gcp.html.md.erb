@@ -181,13 +181,60 @@ To retrieve the PKS API endpoint, do the following:
 
 ##<a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
 
-Configure your external TCP or HTTPS load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration.
-Your external load balancer forwards traffic to the PKS API endpoint on port 9021 and the UAA endpoint on port 8443.
+Configure your external TCP load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration.
 
-The load balancer should be configured with:
+### <a id=‘create-lb’></a> Create Load Balancer for PKS API
 
-- The IP address from [Step 4: Retrieve PKS API Endpoint](installing-pks-gcp.html#retrieve-pks-api)
-- Ports 8443 and 9021
-- The HTTPS or TCP protocol
+1. Navigate to **Network Services > Load balancing** and click **Create load balancer**.
 
+1. Under **TCP Load Balancing**, click **Start configuration**.
 
+1. Select whether you want to load balance traffic from the Internet to your VMs or only between your VMs.
+
+1. Select whether you want to place the backends for your load balancer in a single region or across multiple regions.
+
+1. Give your load balancer a name.
+
+1. Configure your backend.
+   * Give your backend a name.
+   * Select a region.
+   * Select backends from either instance groups or VM instances in the target pool's region.
+   * (Optional) Select a backup pool.
+   * (Optional) Select whether you want to create a health check or go without one.
+   * Select a session affinity. **None** will enable successive requests from a particular client IP to go to any instance in the pool. **Client IP** will send requests from the client IP to the same instance. **Client IP and protocol** will send requests from the client IP with the same protocol to the same instance.
+
+1. Configure your frontend.
+   * Give your frontend a name.
+   * Select **Create IP address** to reserve the IP address from [Step 4: Retrieve PKS API Endpoint](installing-pks-gcp.html#retrieve-pks-api).
+   * Specify 8443 and 9021 as your ports. Your external load balancer forwards traffic to the UAA endpoint on port 8443 and the PKS API endpoint on port 9021.
+   * Click **Done**.
+
+1. Click **Create**.
+
+### <a id=‘firewall-rule’></a> Create Firewall Rule for Load Balancer
+
+1. Navigate to **VPC Network > Firewall rules** and click **Create firewall rule**.
+
+1.  Configure the following:
+   * Give your firewall rule a name.
+   * Select the network to which the firewall rule will apply.
+   * Specify the priority of this firewall rule.
+   * Select **Ingress** as the **Direction of traffic**.
+   * Select **Allow** as the **Action on match**.
+   * Select the load balancer you just created as your target.
+   <p class=‘note’><strong>Note:</strong> Make sure that the PKS VM hosting the PKS API and Broker has the `pks-api` network tag. If it does not have the `pks-api` tag, add it so the above firewall rule will apply to it.</p>
+   * Use `0.0.0.0/0` as your source IP range.
+   * Under **Protocols and ports**, select **Specified protocols and ports** and specify `tcp:8443,9021`.
+
+1. Click **Apply Changes**.
+
+### <a id=‘wildcard-dns-entry></a> Create Wildcard DNS Entry to Load Balancer
+
+1. Navigate to **Network Services > Cloud DNS**.
+
+1. If you do not already have a DNS zone, click **Create zone**.
+   * Give a zone name and a DNS name.
+   * Specify whether the **DNSSEC** state of the zone is Off, On, or Transfer.
+   * Click **Create**.
+
+1. Add a DNS record for your load balancer.
