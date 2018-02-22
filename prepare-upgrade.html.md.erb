@@ -3,15 +3,59 @@ title: Prepare Workloads for an Upgrade
 owner: PKS
 ---
 
-To prevent workload downtime during a PKS upgrade, define the following settings in the deployment manifest:
+This topic describes how to manage workloads during an upgrade in Pivotal Container Service (PKS).
 
-[//]: # (* Set `max_in_flight` to 1.)
-[//]: # (This value cannot be configured in the current PKS version.)
-* In order to avoid workload downtime, you must deploy the workload using a replica set.
-* Set the number of workload replicas by editing the `spec.replicas` value.
-* Configure the pod replicas to be scheduled on separate worker VMs by defining a `podAntiAffinity` rule.
+To prevent downtime during a PKS upgrade, configure the following settings in your deployment manifest:
 
-For example:
+* Set the number of [workload replicas](#replicas)
+* Define an [anti-affinity rule](#anti-affinity)
+
+##<a id='replicas'></a> Set Workload Replicas
+
+Upgrades run on a single VM at a time.
+To prevent downtime during an upgrade, Pivotal recommends running your workload on at least two worker VMs.
+While one worker VM runs an upgrade, additional worker VMs continue to run your workload.
+
+To run your workload on additional worker VMs, deploy the workload using a replica set.
+Edit the `spec.replicas` value in your deployment manifest:
+
+```yaml
+kind: Deployment
+metadata:
+  # ...
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: APP-NAME
+```
+
+See the following table for more information:
+
+<table>
+  <tr>
+    <th>Key-Value Pair</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><pre>spec:<br>  replicas: 3</pre></td>
+    <td> Set this value to at least 2 to have at least two instances of your workload running at any time.
+   </td>
+  </tr>
+  <tr>
+    <td><pre>app: APP-NAME</pre></td>
+    <td>Use this app name when you define the anti-affinity rule later in the spec.</td>
+  </tr>
+</table>
+
+##<a id='anti-affinity'></a> Define an Anti-Affinity Rule
+
+To distribute your workload across multiple worker VMs, you must use anti-affinity rules.
+See the [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) for more information about anti-affinity rules.
+
+To define an anti-affinity rule, add the `spec.template.spec.affinity` section to your deployment manifest:
+
 
 ```yaml
 kind: Deployment
@@ -41,21 +85,12 @@ spec:
               topologyKey: "kubernetes.io/hostname"
 ```
 
-See the following table for descriptions of the values you must edit in the deployment manifest:
+See the following table for more information:
 
 <table>
   <tr>
     <th>Key-Value Pair</th>
     <th>Description</th>
-  </tr>
-  <tr>
-    <td><pre>spec:<br>  replicas: 3</pre></td>
-    <td> Set this value to at least 2 to have at least two instances of your workload running at any time.
-   </td>
-  </tr>
-  <tr>
-    <td><pre>app: APP-NAME</pre></td>
-    <td>Use this app name when you define the anti-affinity rule later in the spec.</td>
   </tr>
   <tr>
     <td><pre>matchExpressions: <br>- key: "app"</pre></td>
