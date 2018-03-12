@@ -5,9 +5,37 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-If you do not already have UAAC installed, you can leverage the Ops Manager VM which has UAAC installed.
+This topic describes how to manage users with User Account and Authentication (UAA) in Pivotal Container Service (PKS).
 
-### <a id='ssh-gcp'></a>GCP
+## <a id='uaac'></a>How to Use UAAC
+
+Use the UAA Command Line Interface (UAAC) to interact with the UAA server.
+You can either run UAAC commands from the Ops Manager VM or install UAAC on your local workstation.
+
+To run UAAC commands from the Ops Manager VM, see the following SSH procedures for [vSphere](ssh-vsphere) or [GCP](#ssh-gcp).
+
+To install UAAC locally, see [Component: User Account and Authentication (UAA) Server](https://docs.pivotal.io/pivotalcf/2-0/concepts/architecture/uaa.html).
+
+### <a id='ssh-vsphere'></a>SSH into the Ops Manager VM on vSphere
+
+To SSH into the Ops Manager VM on vSphere, you need the credentials used to import the PCF .ova or .ovf file into your virtualization system.
+You set these credentials when you installed Ops Manager.
+
+<p class="note"><strong>Note</strong>: If you lose your credentials, you must shut down the Ops Manager VM in the vSphere UI and reset the password. See the <a href="https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.vm_admin.doc/GUID-E05E8AF9-C8F2-4482-B3F0-733C85C6DD97.html">vSphere documentation</a> for more information.</p>
+
+1. From a command line, run `ssh ubuntu@OPS-MANAGER-FQDN` to SSH into the Ops Manager VM.
+Replace `OPS-MANAGER-FQDN` with the fully qualified domain name of Ops Manager.
+
+1. When prompted, enter the password that you set during the .ova deployment
+into vCenter. For example:
+  <pre class="terminal">
+  $ ssh ubuntu&#64;my-opsmanager-fqdn.example.com
+  Password: ***********
+  </pre>
+
+1. Proceed to the [Retrieve UAA Admin Credentials](#uaa-admin) section to manage users with UAAC.
+
+### <a id='ssh-gcp'></a>SSH into the Ops Manager VM on GCP
 
 To SSH into the Ops Manager VM in GCP, follow these instructions:
 
@@ -28,26 +56,7 @@ To SSH into the Ops Manager VM in GCP, follow these instructions:
 
 1. Run `sudo su - ubuntu` to switch to the `ubuntu` user.
 
-### <a id='ssh-vsphere'></a>vSphere
-
-To SSH into the Ops Manager VM in vSphere, you need the credentials used to import the PCF .ova or .ovf file into your virtualization system.
-You set these credentials when you installed Ops Manager.
-
-<p class="note"><strong>Note</strong>: If you lose your credentials, you must shut down the Ops Manager VM in the vSphere UI and reset the password. See the <a href="https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.vm_admin.doc/GUID-E05E8AF9-C8F2-4482-B3F0-733C85C6DD97.html">vSphere documentation</a> for more information.</p>
-
-1. From a command line, run `ssh ubuntu@OPS-MANAGER-FQDN` to SSH into the Ops Manager VM. Replace `OPS-MANAGER-FQDN` with the fully qualified domain name of Ops Manager.
-
-1. When prompted, enter the password that you set during the .ova deployment
-into vCenter. For example:
-
-    <pre class='terminal'>
-    $ ssh ubuntu@my-opsmanager-fqdn.example.com
-    Password: ***********
-    </pre>
-
-
-
-Create and manage users in UAA with the [UAA Command Line Interface (UAAC)](https://docs.pivotal.io/pivotalcf/uaa/uaa-user-management.html).
+1. Proceed to the [Retrieve UAA Admin Credentials](#uaa-admin) section to manage users with UAAC.
 
 ##<a id='uaa-admin'></a> Retrieve UAA Admin Credentials
 
@@ -57,7 +66,7 @@ To retrieve the UAA admin client secret, do the following:
 1. Click **Credentials**.
 1. To view the UAA admin client password, click **Uaa Admin Secret**. The client username is `admin`.
 
-With this, you will be able to create a UAA user account.
+You can use these credentials to log in to UAAC and create UAA user accounts.
 
 ##<a id='uaa-scopes'></a> Grant Cluster Access to a User
 
@@ -71,10 +80,11 @@ For example:
 1. Authenticate with UAA using the secret you retrieved in the previous section.
 Run the following command, replacing `UAA-ADMIN-SECRET` with your UAA admin secret: <pre>uaac token client get admin -s UAA-ADMIN-SECRET</pre>
 
-1. Create a user by running `uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD`. For example:
+1. (Optional) Create a user by running `uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD`. For example:
   <pre class="terminal">$ uaac user add alana --emails alana&#64;example.com -p password</pre>
+  See [Creating and Managing Users with the UAA CLI (UAAC)](https://docs.pivotal.io/pivotalcf/uaa/uaa-user-management.html) for more information.
 
-1. Assign a scope to the user to allow them to access Kubernetes clusters.
+1. Assign a scope to a user to allow them to access Kubernetes clusters.
 Run `uaac member add UAA-SCOPE USERNAME`, replacing `UAA-SCOPE` with one of the following UAA scopes:
   * `pks.clusters.admin`: Users with this scope have full access to all clusters.
   * `pks.clusters.manage`: Users with this scope can only access clusters they create.
