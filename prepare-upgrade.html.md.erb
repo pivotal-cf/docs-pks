@@ -1,22 +1,35 @@
 ---
-title: Maintaining Workload Uptime during Upgrades of your PKS-deployed Kubernetes Cluster
+title: Maintaining Workload Uptime During Upgrades 
 owner: PKS
 ---
 
-This topic describes tips for maintaining workload uptime during an upgrade of kubernetes clusters deployed with Pivotal Container Service (PKS).
-Upgrades of the PKS tile contain an errand that will upgrade all kubernetes clusters. To prevent workload downtime during an upgrade of the cluster, Pivotal recommends running your workload on at least three worker VMs, using multiple replicas of your workloads spread across those VMs.
-Upgrades run on a single VM at a time. While one worker VM runs an upgrade, the workload on that VM goes down. The additional worker VMs continue to run replicas of your workload, maintaining the uptime of your workload. 
-Consider scaling up your cluster via `pks resize` or creating a cluster using a larger `plan` if you find that you're nearing capacity with the existing infrasture of your cluster, and an upgrade is imminent.
+This topic describes how you can maintain workload uptime during an upgrade of Kubernetes clusters deployed with Pivotal Container Service (PKS).
 
-To prevent downtime during a PKS upgrade, configure the following settings in your deployment manifest:
+To maintain workload uptime during a PKS upgrade, configure the following settings in your deployment manifest:
 
-* Set the number of [workload replicas](#replicas) to handle traffic during rolling upgrades
-* Define an [anti-affinity rule](#anti-affinity) to ensure workloads running in pods are evenly distributed throughout the cluster.
-* Look for best practices from the software vendor of the service you're trying to run. Often their documentation will include details of how to set up your service to minimize downtime.
+1. Configure [workload replicas](#replicas) to handle traffic during rolling upgrades.
+1. Define an [anti-affinity rule](#anti-affinity) to evenly distribute workloads across the cluster.
+
+To increase uptime, you can also refer to the documentation for the services you run on your clusters and configure your workload based on the best practices recommended by the software vendor.
+
+If your cluster is near capacity for your existing infrastructure, Pivotal recommends scaling your cluster before you need to upgrade.
+Scale up your cluster by running `pks resize` or create a cluster using a larger plan.
+
+##<a id='upgrades'></a> About Workload Upgrades
+
+The PKS tile contains an errand that upgrades all Kubernetes clusters.
+Upgrades run on a single VM at a time.
+While one worker VM runs an upgrade, the workload on that VM goes down.
+The additional worker VMs continue to run replicas of your workload, maintaining the uptime of your workload.
+
+To prevent workload downtime during a cluster upgrade, Pivotal recommends running your workload on at least three worker VMs, using multiple replicas of your workloads spread across those VMs.
+You must edit your manifest to define the replica set and configure an anti-affinity rule to ensure that the replicas run on separate worker nodes.
 
 ##<a id='replicas'></a> Set Workload Replicas
 
+Set the number of workload replicas to handle traffic during rolling upgrades.
 To replicate your workload on additional worker VMs, deploy the workload using a replica set.
+
 Edit the `spec.replicas` value in your deployment manifest:
 
 ```yaml
@@ -51,7 +64,8 @@ See the following table for more information about this section of the manifest:
 
 ##<a id='anti-affinity'></a> Define an Anti-Affinity Rule
 
-To distribute your workload across multiple worker VMs, you must use anti-affinity rules. Without this setting, the replicated pods may end up on the same worker node, defeating the purpose of replication.
+To distribute your workload across multiple worker VMs, you must use anti-affinity rules.
+If you do not define an anti-affinity rule, the replicated pods can be assigned to the same worker node.
 See the [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) for more information about anti-affinity rules.
 
 To define an anti-affinity rule, add the `spec.template.spec.affinity` section to your deployment manifest:
