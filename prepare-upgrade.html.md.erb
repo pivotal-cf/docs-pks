@@ -1,22 +1,35 @@
 ---
-title: Prepare Workloads for an Upgrade
+title: Maintaining Workload Uptime During Upgrades 
 owner: PKS
 ---
 
-This topic describes how to manage workloads during an upgrade in Pivotal Container Service (PKS).
+This topic describes how you can maintain workload uptime during an upgrade of Kubernetes clusters deployed with Pivotal Container Service (PKS).
 
-To prevent downtime during a PKS upgrade, configure the following settings in your deployment manifest:
+To maintain workload uptime during a PKS upgrade, configure the following settings in your deployment manifest:
 
-* Set the number of [workload replicas](#replicas)
-* Define an [anti-affinity rule](#anti-affinity)
+1. Configure [workload replicas](#replicas) to handle traffic during rolling upgrades.
+1. Define an [anti-affinity rule](#anti-affinity) to evenly distribute workloads across the cluster.
+
+To increase uptime, you can also refer to the documentation for the services you run on your clusters and configure your workload based on the best practices recommended by the software vendor.
+
+If your cluster is near capacity for your existing infrastructure, Pivotal recommends scaling your cluster before you need to upgrade.
+Scale up your cluster by running `pks resize` or create a cluster using a larger plan.
+
+##<a id='upgrades'></a> About Workload Upgrades
+
+The PKS tile contains an errand that upgrades all Kubernetes clusters.
+Upgrades run on a single VM at a time.
+While one worker VM runs an upgrade, the workload on that VM goes down.
+The additional worker VMs continue to run replicas of your workload, maintaining the uptime of your workload.
+
+To prevent workload downtime during a cluster upgrade, Pivotal recommends running your workload on at least three worker VMs, using multiple replicas of your workloads spread across those VMs.
+You must edit your manifest to define the replica set and configure an anti-affinity rule to ensure that the replicas run on separate worker nodes.
 
 ##<a id='replicas'></a> Set Workload Replicas
 
-Upgrades run on a single VM at a time.
-To prevent downtime during an upgrade, Pivotal recommends running your workload on at least two worker VMs.
-While one worker VM runs an upgrade, additional worker VMs continue to run your workload.
+Set the number of workload replicas to handle traffic during rolling upgrades.
+To replicate your workload on additional worker VMs, deploy the workload using a replica set.
 
-To run your workload on additional worker VMs, deploy the workload using a replica set.
 Edit the `spec.replicas` value in your deployment manifest:
 
 ```yaml
@@ -31,7 +44,7 @@ spec:
         app: APP-NAME
 ```
 
-See the following table for more information:
+See the following table for more information about this section of the manifest:
 
 <table>
   <tr>
@@ -40,7 +53,7 @@ See the following table for more information:
   </tr>
   <tr>
     <td><pre>spec:<br>  replicas: 3</pre></td>
-    <td> Set this value to at least 2 to have at least two instances of your workload running at any time.
+    <td> Set this value to at least 3 to have at least three instances of your workload running at any time.
    </td>
   </tr>
   <tr>
@@ -52,6 +65,7 @@ See the following table for more information:
 ##<a id='anti-affinity'></a> Define an Anti-Affinity Rule
 
 To distribute your workload across multiple worker VMs, you must use anti-affinity rules.
+If you do not define an anti-affinity rule, the replicated pods can be assigned to the same worker node.
 See the [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) for more information about anti-affinity rules.
 
 To define an anti-affinity rule, add the `spec.template.spec.affinity` section to your deployment manifest:
