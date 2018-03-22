@@ -8,80 +8,84 @@ owner: PKS
 This topic describes how to manage users in Pivotal Container Service (PKS) with User Account and Authentication (UAA).
 Create and manage users in UAA with the [UAA Command Line Interface (UAAC)](https://docs.pivotal.io/pivotalcf/uaa/uaa-user-management.html).
 
-##<a id='uaa-admin-login'></a> Login as an Admin
+##<a id='uaa-admin-login'></a> Log in as an Admin
 
 To retrieve the PKS UAA management admin client secret, do the following:
 
 1. In a web browser, navigate to the fully qualified domain name (FQDN) of Ops Manager and click the **Pivotal Container Service** tile.
 1. Click **Credentials**.
-1. To view the secret, click **Link to Credentials** next to **Pks Uaa Management Admin Client**. The client username is `admin`.
-
-To login as an UAA admin, do the following using UAAC:
-
-1. Target your UAA server using `uaac target https://UAA-URL:8443 --ca-cert ROOT-CA-FILENAME`.
-Replace `UAA-URL` with the URL of your UAA server and `ROOT-CA-FILENAME` with the certificate file you downloaded in the [previous step](configure-api.html#access).
-For example:
-  <pre class="terminal">
-  $ uaac target api.pks.example.com:8443 --ca-cert my-cert.cert
-  </pre>
-
-1. Authenticate with UAA using the secret you retrieved in the previous section.
+1. To view the secret, click **Link to Credential** next to **Pks Uaa Management Admin Client**. The client username is `admin`.
+1. On the command line, run the following command to target your UAA server:
+  <pre>`uaac target https://PKS-API:8443 --ca-cert ROOT-CA-FILENAME`</pre>
+  Replace `PKS-API` with the URL of your UAA server. You configured this URL in the UAA section of _Installing and Configuring PKS on [GCP](installing-pks-gcp.html#uaa) or [vSphere](installing-pks-vsphere.html#uaa)_. Replace `ROOT-CA-FILENAME` with the certificate file you downloaded in [Configure Access to the PKS API](configure-api.html#access).
+  For example:
+    <pre class="terminal">
+    $ uaac target api.pks.example.com:8443 --ca-cert my-cert.cert
+    </pre>
+1. Authenticate with UAA using the secret you retrieved in a previous step.
 Run the following command, replacing `ADMIN-CLIENT-SECRET` with your PKS UAA management admin client secret: <pre>uaac token client get admin -s ADMIN-CLIENT-SECRET</pre>
 
-##<a id='uaa-access'></a> Granting Cluster Access
+##<a id='cluster-access'></a> Grant Cluster Access
 
-###<a id='uaa-scopes'></a> About access scopes
-There's two scopes you can assign to users / External LDAP Groups / clients: 
-  * `pks.clusters.manage`: choose this scope to allow creation and access to their own clusters.
-  * `pks.clusters.admin`: choose this scope to allow creation and access to all clusters.
+You can assign the following UAA scopes to users, external LDAP groups, and clients:
 
-###<a id='uaa-user'></a> Grant cluster access to a User
+  * `pks.clusters.manage`: accounts with this scope can create and access their own clusters.
+  * `pks.clusters.admin`: accounts with this scope can create and access all clusters.
 
-To grant cluster access to an user, perform the following steps:
+###<a id='uaa-user'></a> Grant Cluster Access to a User
 
-1. If necessary, login as the UAA admin using the procedure [above](#uaa-admin-login).
+To create a new UAA user with cluster access, perform the following steps:
 
-1. Create a user by running `uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD`.
+1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
+
+1. To create a new user, run the following command:
+  <pre>uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD</pre>
 
     For example:
     <pre class="terminal">$ uaac user add alana --emails alana&#64;example.com -p password</pre>
 
 1. Assign a scope to the user to allow them to access Kubernetes clusters.
-Run `uaac member add UAA-SCOPE USERNAME`, replacing `UAA-SCOPE` with one of the UAA scopes defined above
-
-    For example:
+Run `uaac member add UAA-SCOPE USERNAME`, replacing `UAA-SCOPE` with one of the UAA scopes defined [above](#cluster-access).
+For example:
     <pre class="terminal">$ uaac member add pks.clusters.admin alana</pre>
 
-###<a id='external-group'></a> Grant cluster access to an External LDAP Group
+###<a id='external-group'></a> Grant Cluster Access to an External LDAP Group
 
-For information about configuring LDAP with PKS, see the _Configuring LDAP as an Identity Provider_ section of [Installing and Configuring PKS on GCP](installing-pks-gcp.html#configure-ldap) or [Installing and Configuring PKS on vSphere](installing-pks-vsphere.html#configure-ldap).
+For information about configuring LDAP with PKS, see the _Configuring LDAP as an Identity Provider_ section of _Installing and Configuring PKS on [GCP](installing-pks-gcp.html#configure-ldap) or [vSphere](installing-pks-vsphere.html#configure-ldap)_.
 
 To grant cluster access to an external LDAP group, perform the following steps:
 
-1. If necessary, login as the UAA admin using the procedure [above](#uaa-admin-login).
+1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
 
-1. To grant cluster access to all users in an LDAP group, run `uaac group map --name pks.clusters.manage "GROUP-DISTINGUISHED-NAME"`.
+1. To grant cluster access to all users in an LDAP group, run the following command:
+  <pre>uaac group map --name pks.clusters.manage "GROUP-DISTINGUISHED-NAME"</pre>
 Replace `GROUP-DISTINGUISHED-NAME` with the LDAP Distinguished Name (DN) for the group.
 For example:
     <pre class="terminal">
     $ uaac group map --name pks.clusters.manage "Operators"
     </pre>
 
-1. (Optional) To grant admin cluster access to all users in an LDAP group, run `uaac group map --name pks.clusters.admin "GROUP-DISTINGUISHED-NAME"`.
+1. (Optional) To grant admin cluster access to all users in an LDAP group, run the following command:
+  <pre>uaac group map --name pks.clusters.admin "GROUP-DISTINGUISHED-NAME"</pre>
 Replace `GROUP-DISTINGUISHED-NAME` with the LDAP DN for the group.
 For example:
     <pre class="terminal">
     $ uaac group map --name pks.clusters.admin "Administrators"
     </pre>
 
-###<a id='uaa-client'></a> Grant cluster access to a Client
+###<a id='uaa-client'></a> Grant Cluster Access to a Client
 
-To grant cluster access to a client, perform the following steps:
+To grant cluster access to an automated client for a script or service, perform the following steps:
 
-1. If necessary, login as the UAA admin using the procedure [above](#uaa-admin-login).
+1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
 
-1. Create a client with the desired scopes by running `uaac client add CLIENT-NAME -s CLIENT-SECRET --authorized_grant_types client_credentials --authorities SCOPES_COMMA_SEPARATED`.
-
-    For example:
-    <pre class="terminal">$ uaac client add automated-client -s randomly-generated-secret --authorized_grant_types client_credentials --authorities pks.clusters.admin,pks.clusters.manage</pre>
+1. Create a client with the desired scopes by running the following command:
+  <pre>uaac client add CLIENT-NAME -s CLIENT-SECRET \
+  --authorized&#95;grant&#95;types client&#95;credentials \
+  --authorities UAA-SCOPES</pre>
+  Replace `CLIENT-NAME` and `CLIENT-SECRET` with the client credentials. Replace `UAA-SCOPES` with one or more of the UAA scopes defined [above](#cluster-access), separated by a comma. For example:
+    <pre class="terminal">$ uaac client add automated-client \
+    -s randomly-generated-secret
+    --authorized&#95;grant&#95;types client&#95;credentials  \
+    --authorities pks.clusters.admin,pks.clusters.manage</pre>
 
