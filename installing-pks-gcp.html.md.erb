@@ -9,7 +9,58 @@ This topic describes how to install and configure Pivotal Container Service (PKS
 
 Before performing the procedures in this topic, consult the [GCP Prerequisites and Resource Requirements](gcp-requirements.html) topic.
 
-##<a id='install'></a> Step 1: Install PKS
+##<a id='loadbalancer-pks-api'></a>Step 1: Configure External Load Balancer
+
+Configure an external TCP load balancer to resolve to the domain name you use to access the PKS API.
+
+### <a id=‘create-lb’></a> Create a Load Balancer for the PKS API
+
+1. In a browser, navigate to the [GCP Console](https://console.cloud.google.com).
+
+1. Navigate to **Network Services > Load balancing** and click **Create load balancer**.
+
+1. Under **TCP Load Balancing**, click **Start configuration**.
+
+1. Select whether you want to load balance traffic from the Internet to your VMs or only between your VMs.
+
+1. Select whether you want to place the backends for your load balancer in a single region or across multiple regions.
+
+1. Give your load balancer a name.
+
+1. Configure your backend.
+   * Give your backend a name.
+   * Select a region.
+   * Select backends from either instance groups or VM instances in the target pool's region.
+   * (Optional) Select a backup pool.
+   * (Optional) Select whether you want to create a health check or go without one.
+   * Select a session affinity. **None** will enable successive requests from a particular client IP to go to any instance in the pool. **Client IP** will send requests from the client IP to the same instance. **Client IP and protocol** will send requests from the client IP with the same protocol to the same instance.
+
+1. Configure your frontend.
+   * Give your frontend a name.
+   * Select **Create IP address** to reserve an IP address for the PKS API endpoint.
+   * Specify 8443 and 9021 as your ports. Your external load balancer forwards traffic to the UAA endpoint on port 8443 and the PKS API endpoint on port 9021.
+   * Click **Done**.
+
+1. Click **Create**.
+
+### <a id=‘firewall-rule’></a> Create a Firewall Rule for the Load Balancer
+
+1. Navigate to **VPC Network > Firewall rules** and click **Create firewall rule**.
+
+1.  Configure the following:
+   * Give your firewall rule a name.
+   * Select the network to which the firewall rule will apply.
+   * Specify the priority of this firewall rule.
+   * Select **Ingress** as the **Direction of traffic**.
+   * Select **Allow** as the **Action on match**.
+   * Select the load balancer you just created as your target.
+   <p class=‘note’><strong>Note:</strong> Make sure that the PKS VM hosting the PKS API and Broker has the `pks-api` network tag. If it does not have the `pks-api` tag, add it so the above firewall rule will apply to it.</p>
+   * Use `0.0.0.0/0` as your source IP range.
+   * Under **Protocols and ports**, select **Specified protocols and ports** and specify `tcp:8443,9021`.
+
+1. Click **Apply Changes**.
+
+##<a id='install'></a> Step 2: Install PKS
 
 To install PKS, do the following:
 
@@ -22,7 +73,7 @@ To install PKS, do the following:
 1. Click **Import a Product** to upload the product file.
 1. Under **Pivotal Container Service** in the left column, click the plus sign to add this product to your staging area.
 
-##<a id='configure'></a> Step 2: Configure PKS
+##<a id='configure'></a> Step 3: Configure PKS
 
 Click the orange **Pivotal Container Service** tile to start the configuration process.
 
@@ -60,7 +111,20 @@ The certificate you enter here should cover the domain that routes to the PKS br
 For example, `api.pks.example.com`.
 1. Click **Save**.
 
-This is the wildcard domain you use when setting up your DNS entry for your load balancer in [Step 5](#wildcard-dns-entry).
+#### <a id='wildcard-dns-entry'></a> Create Wildcard DNS Entry for the Load Balancer
+
+To create a DNS entry for the wildcard domain and certificate you generated, do the following:
+
+1. In a browser, navigate to the [GCP Console](https://console.cloud.google.com).
+
+1. Navigate to **Network Services > Cloud DNS**.
+
+1. If you do not already have a DNS zone, click **Create zone**.
+   * Give a zone name and a DNS name.
+   * Specify whether the **DNSSEC** state of the zone is Off, On, or Transfer.
+   * Click **Create**.
+
+1. Add a DNS record for your load balancer.
 
 ###<a id='plans'></a> Plans
 
@@ -147,7 +211,9 @@ For more information about errands and their configuration state, see [Managing 
 
 To modify the resource usage of PKS, click **Resource Config** and edit the **PKS on-demand broker** job.
 
-If you created a PKS API load balancer, you should give it a name in the **Load Balancers** column. For more information, see [Step 5: Configure External Load Balancer](#loadbalancer-pks-api).
+If you created a PKS API load balancer, enter a name that begins with `tcp:` in the **Load Balancers** column.
+For example, `tcp:pks-api`.
+For more information, see [Step 1: Configure External Load Balancer](#loadbalancer-pks-api).
 
 ###<a id='stemcell'></a> (Optional) Stemcell
 
@@ -160,11 +226,11 @@ For more information on floating stemcells, see the
 
 <p class="note warning"><strong>WARNING</strong>: Because PKS uses floating stemcells, updating the PKS tile with a new stemcell triggers the rolling of every VM in each cluster. Also, updating other product tiles in your deployment with a new stemcell causes the PKS tile to roll VMs. This rolling is enabled by the <b>Upgrade all clusters errand</b>. Pivotal recommends that you keep this errand turned on because automatic rolling of VMs ensures that all deployed cluster VMs are patched. However, automatic rolling can cause downtime in your deployment.</p>
 
-##<a id='apply-changes'></a> Step 3: Apply Changes
+##<a id='apply-changes'></a> Step 4: Apply Changes
 
 After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
 
-##<a id='retrieve-pks-api'></a> Step 4: Retrieve PKS API Endpoint
+##<a id='retrieve-pks-api'></a> Step 5: Retrieve PKS API Endpoint
 
 You must share the PKS API endpoint to allow your organization to use the API to create, update, and delete clusters.
 
@@ -178,65 +244,3 @@ To retrieve the PKS API endpoint, do the following:
 1. Navigate to the Ops Manager Installation Dashboard. 
 1. Click the PKS tile.
 1. Click the **Status** tab and locate the IP address of the PKS API endpoint. This is the endpoint that developers use to create and manage clusters.
-
-##<a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
-
-Configure your external TCP load balancer to resolve to the domain name used in the certificate you provided during the [PKS API](#pks-api) section of the tile configuration.
-
-### <a id=‘create-lb’></a> Create Load Balancer for PKS API
-
-1. Navigate to **Network Services > Load balancing** and click **Create load balancer**.
-
-1. Under **TCP Load Balancing**, click **Start configuration**.
-
-1. Select whether you want to load balance traffic from the Internet to your VMs or only between your VMs.
-
-1. Select whether you want to place the backends for your load balancer in a single region or across multiple regions.
-
-1. Give your load balancer a name.
-
-1. Configure your backend.
-   * Give your backend a name.
-   * Select a region.
-   * Select backends from either instance groups or VM instances in the target pool's region.
-   * (Optional) Select a backup pool.
-   * (Optional) Select whether you want to create a health check or go without one.
-   * Select a session affinity. **None** will enable successive requests from a particular client IP to go to any instance in the pool. **Client IP** will send requests from the client IP to the same instance. **Client IP and protocol** will send requests from the client IP with the same protocol to the same instance.
-
-1. Configure your frontend.
-   * Give your frontend a name.
-   * Select **Create IP address** to reserve the IP address from [Step 4: Retrieve PKS API Endpoint](installing-pks-gcp.html#retrieve-pks-api).
-   * Specify 8443 and 9021 as your ports. Your external load balancer forwards traffic to the UAA endpoint on port 8443 and the PKS API endpoint on port 9021.
-   * Click **Done**.
-
-1. Click **Create**.
-
-### <a id=‘firewall-rule’></a> Create Firewall Rule for Load Balancer
-
-1. Navigate to **VPC Network > Firewall rules** and click **Create firewall rule**.
-
-1.  Configure the following:
-   * Give your firewall rule a name.
-   * Select the network to which the firewall rule will apply.
-   * Specify the priority of this firewall rule.
-   * Select **Ingress** as the **Direction of traffic**.
-   * Select **Allow** as the **Action on match**.
-   * Select the load balancer you just created as your target.
-   <p class=‘note’><strong>Note:</strong> Make sure that the PKS VM hosting the PKS API and Broker has the `pks-api` network tag. If it does not have the `pks-api` tag, add it so the above firewall rule will apply to it.</p>
-   * Use `0.0.0.0/0` as your source IP range.
-   * Under **Protocols and ports**, select **Specified protocols and ports** and specify `tcp:8443,9021`.
-
-1. Click **Apply Changes**.
-
-### <a id='wildcard-dns-entry'></a> Create Wildcard DNS Entry to Load Balancer
-
-To create a DNS entry for the wildcard domain and certificate you generated in [Step 3](#pks-api), do the following:
-
-1. Navigate to **Network Services > Cloud DNS**.
-
-1. If you do not already have a DNS zone, click **Create zone**.
-   * Give a zone name and a DNS name.
-   * Specify whether the **DNSSEC** state of the zone is Off, On, or Transfer.
-   * Click **Create**.
-
-1. Add a DNS record for your load balancer.
