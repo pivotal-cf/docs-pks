@@ -1,0 +1,203 @@
+---
+title: Backing Up the PKS Control Plane
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to use BOSH Backup and Restore (BBR) to back up a PKS deployment.
+
+To perform a restore, see [Restoring the PKS Control Plane](bbr-restore.html).
+
+## <a id='prereqs'></a> Prerequisite
+
+If you want to use the result of the backup to restore to a destination environment,
+verify that the current environment and the destination environment are compatible.
+For information, see [Compatibility of Restore](./bbr-restore.html#compatibility).
+
+## <a id='back-up-deployment'></a> Back Up a PKS Deployment
+
+Perform the following steps to check that your BOSH Director is reachable and has a deployment that can be backed up:
+
+1. SSH into your jumpbox.<br>
+   For general information about the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html).
+
+2. Run the BBR pre-backup check:
+
+    <code>BOSH&#95;CLIENT&#95;SECRET=BOSH-CLIENT-SECRET bbr deployment --target BOSH-TARGET --username BOSH-CLIENT --deployment DEPLOYMENT-NAME --ca-cert PATH-TO-BOSH-SERVER-CERT pre-backup-check</code>
+
+    <br>Where:<br><br>
+    <table>
+      <tr>
+        <th width="30%">Credential</th>
+        <th>Location</th>
+      </tr><tr>
+        <td><code>BOSH-CLIENT-SECRET</code></td>
+        <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_CLIENT_SECRET</code>.</td>
+      </tr><tr>
+        <td><code>BOSH-TARGET</code></td>
+        <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_ENVIRONMENT</code>.
+        You must be able to reach the target address from the workstation where you run <code>bbr</code> commands.</td>
+      </tr><tr>
+        <td><code>BOSH-CLIENT</code></td>
+        <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_CLIENT</code>.</td>
+      </tr><tr>
+        <td><code>PATH-TO-BOSH-CA-CERT</code></td>
+        <td>From the Ops Manager Installation Dashboard, navigate to <strong>Settings > Advanced</strong>. Click <strong>Download Root CA Cert</strong>.</td>
+      </tr><tr>
+        <td><code>DEPLOYMENT-NAME</code></td>
+        <td>Use the BOSH CLI to locate your PKS BOSH deployment name. The name begins with <code>pivotal-container-service</code>. See <a href="manage-deployments-bosh.html">Manage PKS Deployments with BOSH</a> for more information.</td>
+      </tr>
+    </table>
+
+    For example:
+
+    <pre class="terminal">
+    $ BOSH_CLIENT_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment cf-acceptance-0 \
+    --ca-cert bosh.ca.cert \
+    pre-backup-check</pre>
+
+3. If the pre-backup check command fails, do the following:
+   + Run the command again adding the `--debug` flag to enable debug logs.<br>
+     For more information, see [Exit Codes and Logging](bbr-logging.html).
+   + Make the fix suggested in the output and run the pre-backup check again.<br>
+     For example, the deployment you selected might not have the correct backup scripts,
+     or the connection to the BOSH Director failed.
+
+4. If the pre-backup check succeeds, run the BBR backup command from your jumpbox to back up your BOSH deployment:
+
+    <code>BOSH&#95;CLIENT&#95;SECRET=BOSH-CLIENT-SECRET nohup bbr deployment --target BOSH-DIRECTOR-IP --username BOSH-CLIENT --deployment DEPLOYMENT-NAME --ca-cert PATH-TO-BOSH-SERVER-CERT backup</code>
+
+    Replace the placeholder values with the same values as above.<br><br>
+
+    <p class="note"><strong>Note</strong>: If you want to include the manifest in the backup artifact,
+    add the  <code>--with-manifest</code> flag. 
+    However, be aware that the backup artifact then includes credentials that you need to keep secret.</p>
+
+    For example,
+
+    <pre class="terminal">
+    $ BOSH_CLIENT_SECRET=p455w0rd \
+        nohup bbr deployment \
+        --target bosh.example.com \
+        --username admin \
+        --deployment cf-acceptance-0 \
+        --ca-cert bosh.ca.cert \
+        backup</pre>
+
+    <p class="note"><strong>Note</strong>: The BBR backup command can take a long time to complete.
+       You can run it independently of the SSH session so that the process can continue running even
+       if your connection to the jumpbox fails.
+       The command above uses <code>nohup</code>, but you could also run the command in a <code>screen</code>
+       or <code>tmux</code> session.</p>
+
+5. If the command completes successfully,
+   follow the steps in [What To Do with Your Backup Artifact](#what-to-do-with-artifact) below.
+
+6. If the backup command fails, do the following:
+   + Run the command again adding the `--debug` flag to enable debug logs. 
+     For more information, see [Exit Codes and Logging](bbr-logging.html).
+   + Follow the steps in [Recovering from a Failing Command](#recovering-from-failing-command).
+
+
+## <a id="recovering-from-failing-command"></a>Recovering from a Failing Command
+
+If the backup fails, follow these steps: 
+
+1. Ensure all the parameters in the command are set.
+1. Ensure the BOSH Director credentials are valid.
+1. If you are backing up a deployment, ensure the deployment you specify in the BBR command exists.
+1. Ensure that the jumpbox can reach the BOSH Director.
+1. Consult [Exit Codes and Logging](bbr-logging.html).
+1. If you see the error message `Directory /var/vcap/store/bbr-backup already exists on instance`,
+   run the appropriate cleanup command. See [Clean Up after a Failed Backup](#manual-clean) below.
+1. If the backup artifact is corrupted discard the failing artifacts and rerun the backup.
+
+
+## <a id='cancel-backup'></a>Cancel a Backup
+
+Backups can take a long time.
+If you need to cancel a backup, for example if you realize that the backup is going to fail
+or that your developers need to push an app in a hurry, follow these steps:
+
+1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
+1. Because stopping a backup can leave the system in an unusable state and prevent additional backups,
+   follow the procedures in [Clean Up after a Failed Backup](#manual-clean) below.
+
+## <a id="manual-clean"></a>Clean Up after a Failed Backup
+
+If your backup process fails, it might leave the BBR backup folder on the instance,
+causing any subsequent attempts to backup to fail.
+In addition, BBR might not have run the post-backup scripts, leaving the instance in a locked state.
+
+Follow the steps below to use the BBR cleanup script to tidy up after a failed backup attempt.
+
+1. If the PKS deployment backup failed, run the following command:
+
+    <code>BOSH&#95;CLIENT&#95;SECRET=BOSH-CLIENT-SECRET bbr deployment --target BOSH-TARGET --username BOSH-CLIENT --deployment DEPLOYMENT-NAME --ca-cert PATH-TO-BOSH-CA-CERT backup-cleanup</code>
+
+    For example,
+
+    <pre class="terminal">
+    $ BOSH_CLIENT_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment cf-acceptance-0 \
+    --ca-cert bosh.ca.crt \
+    backup-cleanup
+    </pre>
+
+1. If the cleanup script fails, consult the following table to match the exit codes to an error message.
+
+    <table>
+      <tr>
+      <th>Value</th>
+      <th>Error</th>
+      </tr>
+      <tr>
+      <td>0</td>
+      <td>Success</td>
+      </tr>
+      <tr>
+      <td>1</td>
+      <td>General failure</td>
+      </tr>
+      <tr>
+      <td>8</td>
+      <td>The post-backup unlock failed. Your deployment might be in a bad state and require attention.</td>
+      </tr>
+      <tr>
+      <td>16</td>
+      <td>The cleanup failed.
+          This is a non-fatal error indicating that the utility has been unable to clean up
+          open BOSH SSH connections to the deployment VMs.
+          Manual cleanup might be required to clear any hanging BOSH users and connections.</td>
+      </tr>
+    </table>
+
+    <br>
+    For more information about how to interpret the exit code,
+    see [Exit Codes](bbr-logging.html#exit-codes).
+
+## <a id="good-practices"></a>Good Practices for Managing Your Backup Artifact
+
+Keep your backup artifact safe by following these steps:
+
+1. Move the backup artifact off the jumpbox to your storage space.
+
+    BBR stores each backup in a subdirectory named `DEPLOYMENT-TIMESTAMP` within the current working directory.
+    The backup created by BBR consists of a folder with the backup artifacts and metadata files.
+
+1. Compress and encrypt the backup artifacts when storing them.
+
+1. Make redundant copies of your backup and store them in multiple locations. 
+
+    This minimizes the risk of losing your backups in the event of a disaster.
+
+1. Each time you redeploy PKS, test your backup artifact 
+   by following the procedures in [Restoring the PKS Control Plane](bbr-restore.html).
