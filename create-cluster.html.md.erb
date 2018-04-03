@@ -3,16 +3,11 @@ title: Create a Cluster
 owner: PKS
 ---
 
-Follow the steps below to create a Kubernetes cluster using the PKS CLI.
+<strong><%= modified_date %></strong>
 
-1. Locate the external hostname for accessing the Kubernetes API.
-Use one of the following methods, depending on your PKS installation:
-  * If your PKS installation is **integrated with NSX-T**, use the NAT IP from the `ip-pool-vips` NSX IP pool.
-  For more information, see [Enable NAT Access](installing-nsx-t.html#nsxt-master-nat) in <em>Installing and Configuring PKS with NSX-T Integration</em>.
-  * If your PKS installation is **not integrated with NSX-T**, [create an external load balancer](deploy-workloads.html#external-lb) and record its IP address or hostname.
-  Each new cluster requires its own TCP or HTTPS load balancer to allow external access.
-  When you provide the external hostname later in this procedure, you can either use the load balancer IP address or a hostname from the domain you specified for the PKS API.
-  For more information, see the PKS API section of <em>Installing and Configuring PKS on [GCP](installing-pks-gcp.html#pks-api) or [vSphere](installing-pks-vsphere.html#pks-api)</em>.
+This topic describes how to create a Kubernetes cluster with Pivotal Container Service (PKS) using the PKS Command Line Interface (CLI).
+
+Perform the following steps:
 
 1. Grant cluster access to a new or existing user in UAA.
 See the [Grant Cluster Access to a User](manage-users.html#uaa-scopes) section of _Manage Users in UAA_ for more information.
@@ -21,30 +16,47 @@ See the [Grant Cluster Access to a User](manage-users.html#uaa-scopes) section o
 
 1. Run the following command to create a cluster:
   <pre>
-  pks create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME [--num-nodes WORKER-NODES]
+  pks create-cluster CLUSTER-NAME \
+  --external-hostname HOSTNAME \
+  --plan PLAN-NAME \
+  [--num-nodes WORKER-NODES]
   </pre>
   Replace the placeholder values in the command as follows:
-  * `CLUSTER-NAME` is a unique name for your cluster.
-  * `HOSTNAME` is the external hostname for accessing the Kubernetes API. Use the hostname you located earlier in this procedure.
-  * `PLAN-NAME` is the name of the plan you want to use to create the cluster.
-  * `WORKER-NODES` is the number of worker nodes for the cluster.  For high availability, Pivotal recommends creating clusters with at least 3 worker nodes. The maximum value is 50. This flag is optional.
-  <br><br>
-  For example:
-  <pre class="terminal">$ pks create-cluster my-cluster --external-hostname 10.0.0.1 --plan large --num-nodes 3</pre>
+  * `CLUSTER-NAME`: enter a unique name for your cluster.
+  * `HOSTNAME`: enter an external hostname for your cluster.
+  Providing the hostname in this command generates a certificate that allows the PKS API to access the cluster. You configure the hostname itself after cluster creation.
+  * `PLAN-NAME`: choose a plan for your cluster. Run `pks plans` to list your available plans.
+  * (Optional) `WORKER-NODES`: choose the number of worker nodes for the cluster.
+  If you do not specify a number of worker nodes, the default value is 3.
+  For high availability, Pivotal recommends creating clusters with at least 3 worker nodes.
+  The maximum value is 50.
+    <br><br>
+    For example:
+    <pre class="terminal">$ pks create-cluster my-cluster \
+    --external-hostname my-cluster.pks.example.com \
+    --plan large --num-nodes 3</pre>
 
 1. Track the cluster creation process by running `pks cluster CLUSTER-NAME`.
 Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
-  <pre class="terminal">$ pks cluster my-cluster</pre>
-  The cluster status appears in the **Last Action State** column.
-  If the last action state is `error`, troubleshoot cluster creation by logging in to the BOSH Director and running `bosh tasks`.
+  <pre class="terminal">$ pks cluster my-cluster
+  Name:                     my-cluster
+  Plan Name:                large
+  UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789
+  Last Action:              CREATE
+  Last Action State:        succeeded
+  Last Action Description:  Instance provisioning completed
+  Kubernetes Master Host:   my-cluster.pks.example.com
+  Kubernetes Master Port:   8443
+  Worker Instances:         3
+  Kubernetes Master IP(s):  192.168.20.7
+</pre>
+  If the value for **Last Action State** is `error`, troubleshoot cluster creation by logging in to the BOSH Director and running `bosh tasks`.
   See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
 
-1. When cluster creation is complete, configure the external hostname.
-  1. Run `pks cluster CLUSTER-NAME`to view cluster details. Replace `CLUSTER-NAME` with the unique name for your cluster.
-For example:
-  <pre class="terminal">$ pks cluster my-cluster</pre>
-  1. Locate the master IP address for the cluster in the `kubernetes_master_ips` row.
-  1. Configure your external TCP or HTTPS load balancer to point to the master IP address, including the UAA port number. For example, `https://192.168.20.1:8443`.
+1. To configure access to the the cluster, you can either create an external load balancer or configure a DNS record that points to your cluster's master IP address.
+Use the following information from the `pks cluster` command output when you configure the hostname:
+  * **Kubernetes Master Host** is the cluster hostname. For example, `my-cluster.pks.example.com`.
+  * **Kubernetes Master IP(s)** with the **Kubernetes Master Port** is the IP address. For example, `https://192.168.20.7:8443`.
 
 1. To access your cluster, run `pks get-credentials CLUSTER-NAME`.
 This command creates a local `kubeconfig` that allows you to manage the cluster.
