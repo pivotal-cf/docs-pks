@@ -5,10 +5,12 @@ owner: PKS
 
 **Release Date**: TBD
 
-* **[Bug Fix]** vSphere NSX-T integration now works with BOSH [stemcell v3468.25](#stemcell-incompatible) and later.
-* **[Bug Fix]** Added support for [special characters](#special) `#`, `&`, `;`, `"`, `'`, `^`, `\`, space (` `), and `%` in vCenter passwords in the Kubernetes Cloud Provider tile configuration page.
+<p class="note warning"><strong>WARNING</strong>: Do not upgrade the stemcell when you upgrade to PKS v1.0.2. See <a href="#stemcell">Volume Unmount Failure After Stemcell Upgrade</a> for more information.</p>
+
+* **[Bug Fix]** vSphere NSX-T integration now works with BOSH [stemcell v3468.25](1.0.0.html#stemcell-incompatible) and later.
+* **[Bug Fix]** Added support for [special characters](1.0.0.html#special) `#`, `&`, `;`, `"`, `'`, `^`, `\`, space (` `), and `%` in vCenter passwords in the Kubernetes Cloud Provider tile configuration page.
 * **[Bug Fix]** Worker nodes are drained before they stop in order to minimize workload downtime during a rolling upgrade.
-* **[Security Fix]** UAA credentials and vCenter passwords no longer appear in [BOSH logs](#syslog-security).
+* **[Security Fix]** UAA credentials and vCenter passwords no longer appear in [BOSH logs](1.0.0.html#syslog-security).
 * **[Bug Fix]** BOSH DNS no longer causes worker nodes to fail after a manual restart.
 * **[Bug Fix]** Addresses upgrade issues in constrained environments.
 * **[Bug Fix]** Removes additional whitespace in the Kubernetes Controller Manager certificate.
@@ -17,6 +19,8 @@ owner: PKS
 * **[Bug Fix]** Updates to unmount Docker overlay volumes that caused BOSH unmount failures.
 * Updates Kubernetes to v1.9.5.
 * Updates Golang to v1.9.4.
+
+## <a id='versions'></a>Component Versions
 
 PKS v1.0.2 includes or supports the following component versions:
 
@@ -87,23 +91,31 @@ PKS v1.0.2 includes or supports the following component versions:
   </tfoot>
 </table>
 
-## <a id="known1.0.2"></a>Known Issues
+## <a id='known-issues'></a>Known Issues
 
-### <a id="stemcell"></a>Stemcell should **NOT** be upgraded when upgrading to 1.0.2
+This section includes known issues with PKS v1.0.2 and known workarounds.
 
-During an upgrade to v1.0.2, occassionally BOSH will be unable to unmount `/var/vcap/store` volume on worker nodes.
+### <a id='stemcell'></a>Volume Unmount Failure After Stemcell Upgrade
 
-This is due to an issue with Docker Bosh Release, that is installed by the 1.0.0 tile, not correctly unmounting all overlays when stopping a node.
+During an upgrade to PKS v1.0.2, BOSH can fail to unmount the `/var/vcap/store` volume on worker nodes.
+This is due to an issue with the Docker BOSH release installed by the PKS v1.0.0 tile.
+In this version of the BOSH release, Docker occasionally fails to unmount all overlays when stopping a node.
 
-When upgrading from 1.0.0 to 1.0.2 do not upgrade the stemcell to avoid this issue occuring. This issue has been fixed in Docker bosh release included in 1.0.2. 
+When upgrading from PKS v1.0.0 to v1.0.2, you can avoid this issue by not upgrading the stemcell.
+This issue has been fixed in the Docker BOSH release included in PKS v1.0.2.
 
-If for some reason you were forced to upgrade the stemcell, you can use the following as a workaround for this issue.
+If you did upgrade the stemcell, use the following procedure as a workaround:
 
-1. Download the [docker_ctl](1.0.2/stemcell/docker_ctl) script locally
-1. Download the [docker_ctl_update.sh](1.0.2/stemcell/docker_ctl_update.sh) script locally
-1. From a terminal with BOSH access execute the `docker_ctl_update.sh` script
+1. Download the [docker_ctl](../1.0.2/stemcell/docker_ctl) script.
+1. Download the [docker\_ctl\_update.sh](../1.0.2/stemcell/docker_ctl_update.sh) script.
+1. From a terminal with BOSH access, execute the `docker_ctl_update.sh` script.
 
-The `docker_ctl_update.sh` script replaces the `docker_ctl` script on all worker nodes that have docker deployed. The script contains the fix to correcly unmount docker overlays. Once you have run the script you can perform the upgrade using 'Apply Changes' in Ops Manager.
+The `docker_ctl_update.sh` script replaces the `docker_ctl` script on all worker nodes that have Docker deployed.
+The script contains the fix to correctly unmount Docker overlays.
+
+After running the script, you can perform the PKS tile upgrade by clicking **Apply Changes** in Ops Manager.
+
+See [Upgrade PKS](../upgrade-pks.html) for more information about upgrading PKS.
 
 ### <a id="detach"></a>[Kubernetes Bug] Upgrading a Cluster Affects Persistent Workload Uptime on vSphere
 
