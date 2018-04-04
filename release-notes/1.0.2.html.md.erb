@@ -1,0 +1,137 @@
+---
+title: PKS Release Notes v1.0.2
+owner: PKS
+---
+
+**Release Date**: TBD
+
+* **[Bug Fix]** vSphere NSX-T integration now works with BOSH [stemcell v3468.25](#stemcell-incompatible) and later.
+* **[Bug Fix]** Added support for [special characters](#special) `#`, `&`, `;`, `"`, `'`, `^`, `\`, space (` `), and `%` in vCenter passwords in the Kubernetes Cloud Provider tile configuration page.
+* **[Bug Fix]** Worker nodes are drained before they stop in order to minimize workload downtime during a rolling upgrade.
+* **[Security Fix]** UAA credentials and vCenter passwords no longer appear in [BOSH logs](#syslog-security).
+* **[Bug Fix]** BOSH DNS no longer causes worker nodes to fail after a manual restart.
+* **[Bug Fix]** Addresses upgrade issues in constrained environments.
+* **[Bug Fix]** Removes additional whitespace in the Kubernetes Controller Manager certificate.
+* **[Bug Fix]** Drain user given additional permissions to remove replication controller-owned pods.
+* **[Bug Fix]** Drain script now deletes nodes to fix a vSphere issue where node names changed between 1.9.2 and 1.9.5.
+* **[Bug Fix]** Updates to unmount Docker overlay volumes that caused BOSH unmount failures.
+* Updates Kubernetes to v1.9.5.
+* Updates Golang to v1.9.4.
+
+PKS v1.0.2 includes or supports the following component versions:
+
+<table border="1" class="nice">
+  <tbody>
+    <tr>
+    <th>Product Component</th>
+    <th>Version Supported</th>
+    <th>Notes</th>
+   </tr>
+   <tr>
+   <td>vSphere</td>
+   <td>6.5 and 6.5 U1 - Editions
+    <ul><li>vSphere Enterprise Plus Edition</li></ul>
+    <ul><li>vSphere with Operations Management Enterprise Plus</li></ul></td>
+   <td>vSphere versions supported for Pivotal Container Service (PKS)</td>
+   </tr>
+   <tr>
+   <td>VMware Harbor Registry</td>
+   <td>1.4.1</td>
+   <td>Separate download available from Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>NSX-T</td>
+   <td>2.1 Advanced Edition</td>
+   <td>Available from VMware</td>
+   </tr>
+   <tr>
+   <td>Pivotal Cloud Foundry Operations Manager (Ops Manager)</td>
+   <td>2.0.X</td>
+   <td>Separate download available from Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>Stemcell</td>
+   <td>3468.21</td>
+   <td>Separate download available from Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>Kubernetes</td>
+   <td>1.9.5*</td>
+   <td>Packaged in the PKS Tile (CFCR)</td>
+   </tr>
+   <tr>
+   <td>CFCR (Kubo)</td>
+   <td>0.13</td>
+   <td>Packaged in the PKS Tile</td>
+   </tr>
+   <tr>
+   <td>NCP</td>
+   <td>2.1.0.1</td>
+   <td>Packaged in the PKS Tile</td>
+   </tr>
+   <tr>
+   <td>PKS CLI</td>
+   <td>1.0.2-build.4</td>
+   <td>Separate download available from the PKS section of Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>Kubernetes CLI</td>
+   <td>1.9.5</td>
+   <td>Separate download available from the PKS section of Pivotal Network</td>
+   </tr>
+   </tbody>
+   <tfoot>
+   <tr>
+    <td colspan="3"><em>* Components marked with an asterisk have been patched to resolve security vulnerabilities or fix component behavior.</em></td>
+   </tr>
+  </tfoot>
+</table>
+
+## <a id="known1.0.2"></a>Known Issues
+
+### <a id="stemcell"></a>Stemcell should **NOT** be upgraded when upgrading to 1.0.2
+
+During an upgrade to v1.0.2, occassionally BOSH will be unable to unmount `/var/vcap/store` volume on worker nodes.
+
+This is due to an issue with Docker Bosh Release, that is installed by the 1.0.0 tile, not correctly unmounting all overlays when stopping a node.
+
+When upgrading from 1.0.0 to 1.0.2 do not upgrade the stemcell to avoid this issue occuring. This issue has been fixed in Docker bosh release included in 1.0.2. 
+
+If for some reason you were forced to upgrade the stemcell, you can use the following as a workaround for this issue.
+
+1. Download the [docker_ctl](1.0.2/stemcell/docker_ctl) script locally
+1. Download the [docker_ctl_update.sh](1.0.2/stemcell/docker_ctl_update.sh) script locally
+1. From a terminal with BOSH access execute the `docker_ctl_update.sh` script
+
+The `docker_ctl_update.sh` script replaces the `docker_ctl` script on all worker nodes that have docker deployed. The script contains the fix to correcly unmount docker overlays. Once you have run the script you can perform the upgrade using 'Apply Changes' in Ops Manager.
+
+### <a id="detach"></a>[Kubernetes Bug] Upgrading a Cluster Affects Persistent Workload Uptime on vSphere
+
+During an upgrade to v1.0.2 on vSphere, persistent storage volumes do not reattach to pods until all worker nodes have been upgraded, which results in workload downtime until the entire cluster is upgraded.
+
+This issue occurs when you deploy a pod with persistent storage attached, drain the node, and then immediately delete the node VM.
+
+The expected behavior is for persistent disks to reattach to rolled VMs after the pod is restored.
+However, a Kubernetes bug prevents the disk from reattaching.
+PKS v1.0.2 works around this bug by attaching the volumes after all workers are upgraded.
+
+For more information, see the [Kubernetes issue on GitHub](https://github.com/kubernetes/kubernetes/issues/61707). 
+
+### <a id="special"></a>Special Characters
+In PKS v1.0.2, `!` cannot be used in vCenter passwords.
+
+### <a id="automatic-rolling"></a>Stemcell Updates Cause Automatic VM Rolling
+
+Enabling the **Upgrade all clusters** errand allows automatic rolling for VMs in your deployment.
+Pivotal recommends enabling this errand to ensure that all deployed cluster VMs are patched.
+
+When you enable the **Upgrade all clusters** errand, the following actions can cause downtime:
+
+* Updating the PKS tile with a new stemcell triggers the rolling of each VM in each cluster.
+* Updating other tiles in your deployment with new stemcells causes the rolling of the PKS tile.
+
+### <a id="upgrade-fail"></a>Upgrade Errand Fails with Failed Deployments
+The **Upgrade all clusters** errand fails if any deployments are in a failed state.
+
+To work around this issue, [delete the failed cluster](delete-cluster.html) using the PKS CLI or [redeploy the failed cluster](manage-deployments-bosh.html) with the BOSH CLI to ensure the cluster is in a successful state.
+
