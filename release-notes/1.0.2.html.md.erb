@@ -8,6 +8,7 @@ owner: PKS
 <p class="note warning"><strong>WARNING</strong>: See <a href="#stemcell">Volume Unmount Failure After Stemcell Upgrade</a> for important information about upgrading to PKS v1.0.2.</p>
 
 * **[Bug Fix]** vSphere NSX-T integration now works with BOSH [stemcell v3468.25](1.0.0.html#stemcell-incompatible) and later.
+* **[Bug Fix]** vSphere NSX-T integration: For [StatefulSets](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/), the pod logical switch port (LSP) gets updated when the VM that is hosting the pod is recreated
 * **[Bug Fix]** Added support for [special characters](1.0.0.html#special) `#`, `&`, `;`, `"`, `'`, `^`, `\`, space (` `), and `%` in vCenter passwords in the Kubernetes Cloud Provider tile configuration page.
 * **[Bug Fix]** Worker nodes are drained before they stop in order to minimize workload downtime during a rolling upgrade.
 * **[Security Fix]** UAA credentials and vCenter passwords no longer appear in [BOSH logs](1.0.0.html#syslog-security).
@@ -70,7 +71,7 @@ PKS v1.0.2 includes or supports the following component versions:
    </tr>
    <tr>
    <td>NCP</td>
-   <td>2.1.0.1</td>
+   <td>2.1.2</td>
    <td>Packaged in the PKS Tile</td>
    </tr>
    <tr>
@@ -114,6 +115,20 @@ The script contains the fix to correctly unmount Docker overlays.
 After running the script, you can perform the PKS tile upgrade by clicking **Apply Changes** in Ops Manager.
 
 See [Upgrade PKS](../upgrade-pks.html) for more information about upgrading PKS.
+
+### <a id='statefulset'></a>StatefulSets Pod Failure After a VM is Recreated
+
+When using vSphere with NSX-T integration, StatefulSets pods that were created *before* PKS v1.0.2 might get stuck in a `ContainerCreating` state if the node hosting the pod is recreated. The pod will emit a warning event with a `FailedCreatePodSandBox` reason.
+
+A fix for this bug is included in PKS v1.0.2, but the fix applies only to StatefulSets created using PKS v1.0.2 or later. Therefore, after upgrading PKS to v1.0.2, we recommend that you manually delete/recreate all pre-existing StatefulSets pods, even if they are in a running state.
+
+To get all StatefulSets pods, run the following command on every kubernetes cluster using the kubernetes `admin` user permissions:
+
+<pre class="terminal">$ kubectl get pods -l "statefulset.kubernetes.io/pod-name" -o wide --all-namespaces</pre>
+
+For each result, delete the pod by running the following command:
+
+<pre class="terminal">$ kubectl delete pod <pod name> -n <pod namespace></pre>
 
 ### <a id="detach"></a>[Kubernetes Bug] Upgrading a Cluster Affects Persistent Workload Uptime on vSphere
 
