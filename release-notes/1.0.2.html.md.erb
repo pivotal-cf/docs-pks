@@ -7,19 +7,26 @@ owner: PKS
 
 <p class="note warning"><strong>WARNING</strong>: See <a href="#stemcell">Volume Unmount Failure After Stemcell Upgrade</a> for important information about upgrading to PKS v1.0.2.</p>
 
-* **[Bug Fix]** vSphere NSX-T integration now works with BOSH [stemcell v3468.25](1.0.0.html#stemcell-incompatible) and later.
-* **[Bug Fix]** vSphere NSX-T integration: For [StatefulSets](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/), the pod logical switch port (LSP) gets updated when the VM that is hosting the pod is recreated
-* **[Bug Fix]** Added support for [special characters](1.0.0.html#special) `#`, `&`, `;`, `"`, `'`, `^`, `\`, space (` `), and `%` in vCenter passwords in the Kubernetes Cloud Provider tile configuration page.
+## <a id='bug-fixes'></a>Bug Fixes
+
+### <a id='general'></a>General
+
 * **[Bug Fix]** Worker nodes are drained before they stop in order to minimize workload downtime during a rolling upgrade.
 * **[Security Fix]** UAA credentials and vCenter passwords no longer appear in [BOSH logs](1.0.0.html#syslog-security).
 * **[Bug Fix]** BOSH DNS no longer causes worker nodes to fail after a manual restart.
 * **[Bug Fix]** Addresses upgrade issues in constrained environments.
 * **[Bug Fix]** Removes additional whitespace in the Kubernetes Controller Manager certificate.
 * **[Bug Fix]** Drain user given additional permissions to remove replication controller-owned pods.
-* **[Bug Fix]** Drain script now deletes nodes to fix a vSphere issue where node names changed between 1.9.2 and 1.9.5.
 * **[Bug Fix]** Updates to unmount Docker overlay volumes that caused BOSH unmount failures.
 * Updates Kubernetes to v1.9.5.
 * Updates Golang to v1.9.4.
+
+### <a id='vsphere-bug-fixes'></a>vSphere
+
+* **[Bug Fix]** vSphere NSX-T integration now works with BOSH [stemcell v3468.25](1.0.0.html#stemcell-incompatible) and later.
+* **[Bug Fix]** For vSphere with NSX-T, the pod logical switch port (LSP) is updated when you recreate the VM that hosts the pod. See [StatefulSets](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) in the Kubernetes documentation and the [known issue](#statefulset) section below for more information.
+* **[Bug Fix]** Added support for [special characters](1.0.0.html#special) `#`, `&`, `;`, `"`, `'`, `^`, `\`, space (` `), and `%` in vCenter passwords in the Kubernetes Cloud Provider tile configuration page.
+* **[Bug Fix]** Drain script now deletes nodes to fix a vSphere issue where node names changed between 1.9.2 and 1.9.5.
 
 ## <a id='versions'></a>Component Versions
 
@@ -116,13 +123,16 @@ After running the script, you can perform the PKS tile upgrade by clicking **App
 
 See [Upgrade PKS](../upgrade-pks.html) for more information about upgrading PKS.
 
-### <a id='statefulset'></a>StatefulSets Pod Failure After a VM is Recreated
+### <a id='statefulset'></a>StatefulSets Pod Failure After Recreating a VM
 
-When using vSphere with NSX-T integration, StatefulSets pods that were created *before* PKS v1.0.2 might get stuck in a `ContainerCreating` state if the node hosting the pod is recreated. The pod will emit a warning event with a `FailedCreatePodSandBox` reason.
+When using vSphere with NSX-T integration, if you recreate a node that hosts a StatefulSets pod, the pod can get stuck in a `ContainerCreating` state.
+The pod emits a warning event with a `FailedCreatePodSandBox` reason.
+This issue affects StatefulSets pods created before PKS v1.0.2.
 
-A fix for this bug is included in PKS v1.0.2, but the fix applies only to StatefulSets created using PKS v1.0.2 or later. Therefore, after upgrading PKS to v1.0.2, we recommend that you manually delete/recreate all pre-existing StatefulSets pods, even if they are in a running state.
+A fix for this bug is included in PKS v1.0.2, but the fix applies only to StatefulSets created using PKS v1.0.2 or later.
+After upgrading PKS to v1.0.2, manually deleting and recreating all preexisting StatefulSets pods is recommended, even if they are in a running state.
 
-To get all StatefulSets pods, run the following command on every kubernetes cluster using the kubernetes `admin` user permissions:
+To get all StatefulSets pods, run the following command on every Kubernetes cluster using the Kubernetes admin user permissions:
 
 <pre class="terminal">$ kubectl get pods -l "statefulset.kubernetes.io/pod-name" -o wide --all-namespaces</pre>
 
