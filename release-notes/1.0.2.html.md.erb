@@ -186,7 +186,17 @@ The expected behavior is for persistent disks to reattach to rolled VMs after th
 However, a Kubernetes bug prevents the disk from reattaching.
 PKS v1.0.2 works around this bug by attaching the volumes after all workers are upgraded.
 
-For more information, see the [Kubernetes issue on GitHub](https://github.com/kubernetes/kubernetes/issues/61707). 
+For more information, see the [Kubernetes issue on GitHub](https://github.com/kubernetes/kubernetes/issues/61707).
+
+In rare cases pods with persistent volume can stay in `ContainerCreating` state due to `FailedMount	Unable to mount volumes for pod ...`.
+If this occurs, perform the following steps.
+
+1. Find the problem node. `kubectl describe pod <podname>`
+2. Patch the node that runs the pod to prevent scheduling `kubectl patch node <nodname> -p '{"spec":{"unschedulable":true}}'`
+3. Delete pod `kubectl delete pod <podname>`
+4. Wait for pod to be rescheduled and have `Running` state. It might take several minutes. 
+5. Patch the node from step 2 to enable scheduling `kubectl patch node <nodename> -p '{"spec":{"unschedulable":false}}'`
+
 
 #### <a id="special"></a>Special Characters
 In PKS v1.0.2, `!` cannot be used in vCenter passwords.
