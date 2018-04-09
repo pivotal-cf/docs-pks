@@ -9,7 +9,7 @@ owner: PKS
 
 ## <a id='bug-fixes'></a>Bug Fixes
 
-### <a id='general'></a>General
+### <a id='general-bug-fixes'></a>General
 
 * **[Bug Fix]** Worker nodes are drained before they stop in order to minimize workload downtime during a rolling upgrade.
 * **[Security Fix]** UAA credentials and vCenter passwords no longer appear in [BOSH logs](1.0.0.html#syslog-security).
@@ -103,7 +103,7 @@ PKS v1.0.2 includes or supports the following component versions:
 
 This section includes known issues with PKS v1.0.2 and corresponding workarounds.
 
-### <a id='vsphere-bug-fixes'></a>General Known Issues
+### <a id='general-known-issues'></a>General
 
 #### <a id='stemcell'></a>Volume Unmount Failure After Stemcell Upgrade
 
@@ -140,7 +140,7 @@ The **Upgrade all clusters** errand fails if any deployments are in a failed sta
 
 To work around this issue, [delete the failed cluster](../delete-cluster.html) using the PKS CLI or [redeploy the failed cluster](../manage-deployments-bosh.html) with the BOSH CLI to ensure the cluster is in a successful state.
 
-### <a id='vsphere-known-issues'></a>vSphere Known Issues
+### <a id='vsphere-known-issues'></a>vSphere
 
 #### <a id='cold-migration'></a>Pods Lose Network Connectivity After VM Cold Migration
 
@@ -176,7 +176,7 @@ For each result, delete the pod by running the following command:
 You do not need to manually recreate the deleted pods.
 Kubernetes detects a StatefulSet with missing pods and automatically recreates the pods.
 
-#### <a id="detach"></a>[Kubernetes Bug] Upgrading a Cluster Affects Persistent Workload Uptime on vSphere
+#### <a id="detach"></a>[Kubernetes Bug] Upgrading a Cluster Affects Persistent Workload Uptime
 
 During an upgrade to v1.0.2 on vSphere, persistent storage volumes do not reattach to pods until all worker nodes have been upgraded, which results in workload downtime until the entire cluster is upgraded.
 
@@ -188,15 +188,14 @@ PKS v1.0.2 works around this bug by attaching the volumes after all workers are 
 
 For more information, see the [Kubernetes issue on GitHub](https://github.com/kubernetes/kubernetes/issues/61707).
 
-In rare cases pods with persistent volume can stay in `ContainerCreating` state due to `FailedMount	Unable to mount volumes for pod ...`.
-If this occurs, perform the following steps.
+In rare cases, pods with persistent volumes can stay in `ContainerCreating` state.
+If you see the error `FailedMount Unable to mount volumes for pod POD-NAME`, perform the following steps:
 
-1. Find the problem node. `kubectl describe pod <podname>`
-2. Patch the node that runs the pod to prevent scheduling `kubectl patch node <nodname> -p '{"spec":{"unschedulable":true}}'`
-3. Delete pod `kubectl delete pod <podname>`
-4. Wait for pod to be rescheduled and have `Running` state. It might take several minutes. 
-5. Patch the node from step 2 to enable scheduling `kubectl patch node <nodename> -p '{"spec":{"unschedulable":false}}'`
-
+1. Find the problem node by running `kubectl describe pod POD-NAME`.
+2. Prevent scheduling on the node that runs the pod by running `kubectl patch node NODE-NAME -p '{"spec":{"unschedulable":true}}'`.
+3. Delete pod by running `kubectl delete pod POD-NAME`.
+4. Wait for pod to be rescheduled and enter `Running` state. This may take several minutes.q
+5. Resume scheduling on the node that runs the pod by running `kubectl patch node NODE-NAME -p '{"spec":{"unschedulable":false}}'`.
 
 #### <a id="special"></a>Special Characters
 In PKS v1.0.2, `!` cannot be used in vCenter passwords.
