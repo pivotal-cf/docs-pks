@@ -1,0 +1,112 @@
+---
+title: Service Interruptions
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes events in the lifecycle of a Kubernetes cluster deployed by Pivotal Container Service (PKS) that can cause temporary service interruptions.
+
+## <a id='service-update'></a>Stemcell or Service Update
+
+An operator updates the stemcell version or PKS version.
+
+### Impact
+- **Workload**: If you run the recommended configuration, no workload downtime is expected since the VMs are upgraded one at a time.
+See [Maintain Workload Uptime](maintain-uptime.html) for more information.
+- **Kubernetes control plane**: The Kubernetes master VM is recreated during the upgrade, so `kubectl` and the Kubernetes control plane experience a short downtime.
+
+### Required Actions
+None. If the update deploys successfully, the Kubernetes control plane recovers automatically.
+
+## <a id='process-fail-master'></a>VM Process Failure on a Cluster Master
+
+A process, such as the scheduler or the Kubernetes API server, crashes on the cluster master VM.
+
+### Impact
+- **Workload**: If the scheduler crashes, workloads that are in the process of being rescheduled may experience up to 120 seconds of downtime.
+- **Kubernetes control plane**: Depending on the process and what it was doing when it crashed, the Kubernetes control plane may experience 60-120 seconds of downtime.
+Until the process resumes, the following can occur:
+  - Developers may be unable to deploy workloads
+  - Metrics or logging may stop
+  - Other features may be interrupted
+
+### Required Actions
+None. BOSH brings the process back automatically using `monit`.
+If the process resumes cleanly and without manual intervention, the Kubernetes control plane recovers automatically.
+
+## <a id='process-fail-worker'></a>VM Process Failure on a Cluster Worker
+
+A process, such as Docker or `kube-proxy`, crashes on a cluster worker VM.
+
+###Impact
+- **Workload**: If the cluster and workloads follow the recommended configuration for the number of workers, replica sets, and pod anti-affinity rules, workloads should not experience downtime.
+The Kubernetes scheduler reschedules the affected pods on other workers.
+See [Maintain Workload Uptime](maintain-uptime.html) for more information.
+
+### Required Actions
+None. BOSH brings the process back automatically using `monit`.
+If the process resumes cleanly and without manual intervention, the worker recovers automatically, and the scheduler resumes scheduling new pods on this worker.
+
+## <a id='process-fail-pks'></a>VM Process Failure on the Pivotal Container Service VM
+
+A process, such as the PKS API server, crashes on the pivotal-container-service VM.
+
+### Impact
+- **PKS control plane**: Depending on the process and what it was doing, the PKS control plane may experience 60-120 seconds of downtime.
+Until the process resumes, the following can occur:
+  - The PKS API or UAA may be inaccessible
+  - Use of the PKS CLI is interrupted
+  - Metrics or logging may stop
+  - Other features may be interrupted
+
+### Required Actions
+None. BOSH brings the process back automatically using `monit`.
+If the process resumes cleanly, the PKS control plane recovers automatically and the PKS CLI resumes working.
+
+## <a id='vm-fail'></a>VM Failure
+
+A PKS VM fails and goes offline due to either a virtualization problem or a host hardware problem.
+
+### Impact
+
+- **If the BOSH Resurrector is enabled**, BOSH detects the failure, recreates the VM, and reattaches the same persistent disk and IP address.
+Downtime depends on which VM goes offline, how quickly the BOSH Resurrector notices, and how long it takes the IaaS to create a replacement VM. The BOSH Resurrector usually notices an offline VM within one to two minutes.
+For more information about the BOSH Resurrector, see the [BOSH documentation](https://bosh.io/docs/resurrector.html).
+
+- **If the BOSH Resurrector is not enabled**, some cloud providers, such as vSphere, have similar resurrection or high availability (HA) features.
+Depending on the VM, the impact can be similar to a key process on that VM going down as described in the previous sections, but the recovery time is longer while the replacement VM is created.
+See the sections for process failures on the [cluster worker](#process-fail-worker), [cluster master](#process-fail-master), and [PKS VM](#process-fail-pks) sections for more information.
+
+### Required Actions
+When the VM comes back online, no further action is required for the developer to continue operations.
+
+## <a id='az-fail'></a>AZ Failure
+
+An availability zone (AZ) goes offline entirely or loses connectivity to other AZs (net split).
+
+### Impact
+The control plane and clusters are inaccessible.
+The extent of the downtime is unknown.
+
+### Required Actions
+When the AZ comes back online, the control plane recovers in one of the following ways:
+
+* **If BOSH is in a different AZ**, BOSH recreates the VMs with the last known persistent disks and IPs.
+If the persistent disks are gone, the disks can be restored from your last backup and reattached.
+Pivotal recommends manually checking the state of VMs and databases.
+
+* **If BOSH is in the same AZ**, follow the directions for [region failure](#region-fail).
+
+## <a id='region-fail'></a>Region Failure
+
+An entire region fails, bringing all PKS components offline.
+
+### Impact
+The entire PKS deployment and all services are unavailable.
+The extent of the downtime is unknown.
+
+### Required Actions
+The PKS control plane can be restored using
+[BOSH Backup and Restore](/runtimes/pks/edge/bbr-restore.html) (BBR).
+Each cluster may need to be restored manually from backups.
