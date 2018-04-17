@@ -1,0 +1,110 @@
+---
+title: Preparing to Deploy PKS on AWS
+owner: Ops Manager
+---
+
+<strong><%= modified_date %></strong>
+<html class="list-style-none"></html>
+
+This guide describes the preparation steps required to install Pivotal Container Service (PKS) on Amazon Web Services (AWS)
+
+In addition to fulfilling the prerequisites listed in the [AWS Prerequisites and Resource Requirements](aws-requirements.html) topic,
+you must create resources in AWS such policies and users for the master and worker VMs before deploying PKS.
+Follow these procedures to prepare your AWS environment.
+
+## <a id='users'></a>Step 1: Setup users accounts
+
+In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create users with sufficient permissions.
+
+1. Create the master VMs Policy and associate to a user
+1. From the AWS Console, select **IAM > Policies**.
+1. Click **Create policy**
+1. Click **JSON**
+1. Copy the following policy
+   ```
+   {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::kubernetes-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:Describe*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:AttachVolume",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:DetachVolume",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+    }
+    ```
+1. Click **Review policy**
+1. Give the policy a name e.g. `pks-master-policy'
+1. Click **Create policy**
+1. From the AWS Console, select **IAM > Users**.
+1. Click **Add user**
+1. Give the user a name e.g `pks-master`
+1. Select **Access type** - **Programmatic access**
+1. Click **Next: Permissions**
+1. Click **Attach existing policies directly**
+1. Select the previously created policy e.g. `pks-master-policy`
+1. Click **Next: Review**
+1. Click **Create user**
+1. Record the value of the **Access key ID** and **Secret access key**
+1. Repeat the above procedure for the worker user and policy but using the following JSON
+   ```
+   {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "ec2:Describe*",
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": "ec2:AttachVolume",
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": "ec2:DetachVolume",
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+    }
+    ```
+
+## <a id='next-steps'></a>Next Steps
+
+To install PKS on AWS, follow the procedures in [Deploying Ops Manager to AWS](aws-om-deploy.html).
