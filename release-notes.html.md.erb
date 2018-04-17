@@ -9,7 +9,20 @@ PKS (Pivotal Container Service) is used to create and manage on-demand Kubernete
 
 **Release Date**: April 12, 2018
 
-<p class="note warning"><strong>WARNING</strong>: When upgrading to PKS v1.0.2, you must upgrade the tile before you upgrade the stemcell. See <a href="#stemcell">Volume Unmount Failure After Stemcell Upgrade</a> for more information.</p>
+### <a id='v1.0.2-upgrade'></a>Upgrade Procedure
+
+To upgrade to PKS v1.0.2, perform the following steps:
+
+1. Download the [docker_ctl](./1.0.2/stemcell/docker_ctl) script.
+1. Download the [docker\_ctl\_update.sh](./1.0.2/stemcell/docker_ctl_update.sh) script.
+1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your PKS deployment. Replace `MY-ENVIRONMENT` with the BOSH alias for your PKS environment.
+See [Manage PKS Deployments with BOSH](manage-deployments-bosh.html) for more information.<br><br>
+  If you choose to log in from the Ops Manager VM, perform the following steps:
+  1. Run `sudo apt-get update`.
+  1. Run `sudo apt-get install jq`.
+1. Run `export BOSH_ENVIRONMENT=MY-ENVIRONMENT`. Replace `MY-ENVIRONMENT` with the BOSH alias for your PKS environment.
+1. Run the `docker_ctl_update.sh` script. This script contains the fix to correctly unmount Docker overlays. See the corresponding [known issue](#stemcell) for more information.
+1. Follow the procedures in [Upgrade PKS](upgrade-pks.html).
 
 ### <a id='v1.0.2-features'></a>Features
 
@@ -107,22 +120,12 @@ This section includes known issues with PKS v1.0.2 and corresponding workarounds
 
 During an upgrade to PKS v1.0.2, BOSH can fail to unmount the `/var/vcap/store` volume on worker nodes.
 This is due to an issue with the Docker BOSH release installed by the PKS v1.0.0 tile.
+
 In this version of the BOSH release, Docker occasionally fails to unmount all overlays when stopping a node.
+When you upgrade the stemcell for the PKS tile, BOSH recreates VMs and can fail to correctly unmount Docker overlays.
 
-This issue occurs because VMs are recreated when you upgrade the stemcell.
-To avoid this issue, Pivotal recommends performing the following steps when upgrading to PKS v1.0.2:
-
-1. Download the [docker_ctl](./1.0.2/stemcell/docker_ctl) script.
-1. Download the [docker\_ctl\_update.sh](./1.0.2/stemcell/docker_ctl_update.sh) script.
-1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your PKS deployment. If you choose to log in from the Ops Manager VM, perform the following steps:
-  1. Run `sudo apt-get update`.
-  1. Run `sudo apt-get install jq`.
-1. Run the `docker_ctl_update.sh` script.<br><br>
-    The `docker_ctl_update.sh` script replaces the `docker_ctl` script on all worker nodes that have Docker deployed.
-    The script contains the fix to correctly unmount Docker overlays.
-1. Click **Apply Changes** in Ops Manager to perform the tile upgrade.
-
-See [Upgrade PKS](upgrade-pks.html) for more information about upgrading PKS.
+To avoid this issue, follow the steps in the [Upgrade Procedure](#v1.0.2-upgrade) section when you upgrade the PKS tile.
+The `docker_ctl_update.sh` script correctly unmounts Docker overlays by replacing the `docker_ctl` script on all worker nodes that have Docker deployed.
 
 #### <a id="automatic-rolling"></a>Stemcell Updates Cause Automatic VM Upgrading
 
