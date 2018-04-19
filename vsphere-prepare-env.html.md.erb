@@ -1,0 +1,62 @@
+---
+title: Preparing to Deploy PKS on vSphere
+owner: Ops Manager
+---
+
+<strong><%= modified_date %></strong>
+<html class="list-style-none"></html>
+
+This guide describes the preparation steps required to install Pivotal Container Service (PKS) on vSphere without NSX-T integration.
+
+In addition to fulfilling the prerequisites listed in the [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html) topic,
+you must create a service account before deploying PKS.
+Follow these procedures to prepare your vSphere environment.
+
+## <a id="service-account"></a>Create a Service Account
+
+In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create a service account with sufficient permissions.
+
+<p class="note"><strong>Note</strong>: If your Kubernetes clusters span multiple vCenters, ensure that you set the service account privileges correctly in each vCenter.</p>
+
+The vSphere Cloud Provider service account requires the following:
+
+* Read access to the folder, host, datacenter of the cluster node VMs
+* Permission to create and delete VMs within the resource pool where PKS is deployed
+
+The tables below describe the minimum permissions required for the following use cases:
+
+* [Static Only Persistent Volume Provisioning](#static-only)
+* [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
+* [Dynamic Persistent Volume Provisioning (without Storage Policy-Based Volume Placement)](#dynamic-no-policy)
+
+### <a id="static-only"></a>Static Only Persistent Volume Provisioning
+
+| Roles         | Privileges    | Entities  | Propagate to Children |
+| ------------- |-------------  |-----------| ----------------------|
+| manage-k8s-node-vms | VirtualMachine.Config.AddExistingDisk, VirtualMachine.Config.AddNewDisk, VirtualMachine.Config.AddRemoveDevice, VirtualMachine.Config.RemoveDisk | VM Folder | Yes |
+| manage-k8s-volumes | Datastore.FileManagement (Low level file operations) | Datastore | No |
+| Read-only (pre-existing default role) | System.Anonymous, System.Read, System.View | vCenter, Datacenter, Datastore Cluster, Datastore Storage Folder | No |
+
+<p class="note"><strong>Note</strong>: Datastore.FileManagement is only required for the role <code>manage-k8s-volumes</code> if a Persistent Volume Claim (PVC) is created to bind with a statically provisioned Persistent Volume (PV), and the reclaim policy set to delete.
+  When the PVC is deleted, the statically provisioned PV is also deleted.
+
+### <a id="dynamic-policy"></a>Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)
+
+| Roles         | Privileges    | Entities  | Propagate to Children |
+| ------------- |-------------  |-----------| ----------------------|
+| manage-k8s-node-vms | Resource.AssignVMToPool, VirtualMachine.Config.AddExistingDisk, VirtualMachine.Config.AddNewDisk, VirtualMachine.Config.AddRemoveDevice,  VirtualMachine.Config.RemoveDisk, VirtualMachine.Inventory.Create, VirtualMachine.Inventory.Delete | Cluster, Hosts, VM Folder | Yes |
+| manage-k8s-volumes | Datastore.AllocateSpace, Datastore.FileManagement (Low level file operations) | Datastore | No |
+| k8s-system-read-and-spbm-profile-view | StorageProfile.View (Profile-driven storage view) | vCenter | No |
+| Read-only (pre-existing default role) | System.Anonymous, System.Read, System.View | Datacenter, Datastore Cluster, Datastore Storage Folder | No |
+
+### <a id="dynamic-no-policy"></a>Dynamic Volume Provisioning (without Storage Policy-Based Volume Placement)
+
+| Roles         | Privileges    | Entities  | Propagate to Children |
+| ------------- |-------------  |-----------| ----------------------|
+| manage-k8s-node-vms | VirtualMachine.Config.AddExistingDisk, VirtualMachine.Config.AddNewDisk,  VirtualMachine.Config.AddRemoveDevice, VirtualMachine.Config.RemoveDisk | VM Folder | Yes |
+| manage-k8s-volumes | Datastore.AllocateSpace, Datastore.FileManagement (Low level file operations) | Datastore | No |
+| Read-only (pre-existing default role) | System.Anonymous, System.Read, System.View | vCenter, Datacenter, Datastore Cluster, Datastore Storage Folder | No |
+
+## <a id="next-steps"></a>Next Steps
+
+To install PKS on GCP, follow the procedures in [Deploying Ops Manager to vSphere](vsphere-om-deploy.html).
