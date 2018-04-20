@@ -12,24 +12,34 @@ In addition to fulfilling the prerequisites listed in the [vSphere Prerequisites
 you must create a service account before deploying PKS.
 Follow these procedures to prepare your vSphere environment.
 
-## <a id="service-account"></a>Create a Service Account
+## <a id="permissions"></a>Create vSphere Cloud Provider Service Accounts
 
-In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create a service account with sufficient permissions.
+In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create service accounts with sufficient permissions.
 
 <p class="note"><strong>Note</strong>: If your Kubernetes clusters span multiple vCenters, ensure that you set the service account privileges correctly in each vCenter.</p>
 
-The vSphere Cloud Provider service account requires the following:
+vSphere Cloud Provider service accounts require the following:
 
-* Read access to the folder, host, datacenter of the cluster node VMs
+* Read access to the folder, host, and datacenter of the cluster node VMs
 * Permission to create and delete VMs within the resource pool where PKS is deployed
 
-The tables below describe the minimum permissions required for the following use cases:
+### <a id="create-master"></a>Step 1: Create the Master Node Service Account
 
-* [Static Only Persistent Volume Provisioning](#static-only)
-* [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
-* [Dynamic Persistent Volume Provisioning (without Storage Policy-Based Volume Placement)](#dynamic-no-policy)
+1. From the vCenter console, create a service account for Kubernetes cluster master VMs.
 
-### <a id="static-only"></a>Static Only Persistent Volume Provisioning
+1. Grant the following permissions to the service account:
+  * VirtualMachine.Configuration.Advanced
+  * VirtualMachine.Configuration.Settings
+
+1. Grant additional permissions to the service account based on your storage configuration. The tables below describe the minimum permissions required for the following storage configurations:
+  * [Static Only Persistent Volume Provisioning](#static-only)
+  * [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
+  * [Dynamic Persistent Volume Provisioning (without Storage Policy-Based Volume Placement)](#dynamic-no-policy)
+
+    See [vSphere Storage for Kubernetes](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/index.html) in the VMware documentation for more information.
+
+
+#### <a id="static-only"></a>Static Only Persistent Volume Provisioning
 
 | Roles         | Privileges    | Entities  | Propagate to Children |
 | ------------- |-------------  |-----------| ----------------------|
@@ -40,7 +50,7 @@ The tables below describe the minimum permissions required for the following use
 <p class="note"><strong>Note</strong>: Datastore.FileManagement is only required for the role <code>manage-k8s-volumes</code> if a Persistent Volume Claim (PVC) is created to bind with a statically provisioned Persistent Volume (PV), and the reclaim policy set to delete.
   When the PVC is deleted, the statically provisioned PV is also deleted.
 
-### <a id="dynamic-policy"></a>Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)
+#### <a id="dynamic-policy"></a>Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)
 
 | Roles         | Privileges    | Entities  | Propagate to Children |
 | ------------- |-------------  |-----------| ----------------------|
@@ -49,13 +59,28 @@ The tables below describe the minimum permissions required for the following use
 | k8s-system-read-and-spbm-profile-view | StorageProfile.View (Profile-driven storage view) | vCenter | No |
 | Read-only (pre-existing default role) | System.Anonymous, System.Read, System.View | Datacenter, Datastore Cluster, Datastore Storage Folder | No |
 
-### <a id="dynamic-no-policy"></a>Dynamic Volume Provisioning (without Storage Policy-Based Volume Placement)
+#### <a id="dynamic-no-policy"></a>Dynamic Volume Provisioning (without Storage Policy-Based Volume Placement)
 
 | Roles         | Privileges    | Entities  | Propagate to Children |
 | ------------- |-------------  |-----------| ----------------------|
 | manage-k8s-node-vms | VirtualMachine.Config.AddExistingDisk, VirtualMachine.Config.AddNewDisk,  VirtualMachine.Config.AddRemoveDevice, VirtualMachine.Config.RemoveDisk | VM Folder | Yes |
 | manage-k8s-volumes | Datastore.AllocateSpace, Datastore.FileManagement (Low level file operations) | Datastore | No |
 | Read-only (pre-existing default role) | System.Anonymous, System.Read, System.View | vCenter, Datacenter, Datastore Cluster, Datastore Storage Folder | No |
+
+### <a id="create-worker"></a>Step 2: Create the Worker Node Service Account
+
+1. From the vCenter console, create a service account for Kubernetes cluster worker VMs.
+
+1. Grant the following permissions to the service account:
+  * VirtualMachine.Configuration.Advanced
+  * VirtualMachine.Configuration.Settings
+
+1. Grant additional permissions to the service account based on your storage configuration. The tables above describe the minimum permissions required for the following storage configurations:
+  * [Static Only Persistent Volume Provisioning](#static-only)
+  * [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
+  * [Dynamic Persistent Volume Provisioning (without Storage Policy-Based Volume Placement)](#dynamic-no-policy)
+
+    See [vSphere Storage for Kubernetes](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/index.html) in the VMware documentation for more information.
 
 ## <a id="next-steps"></a>Next Steps
 
