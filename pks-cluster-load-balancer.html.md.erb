@@ -1,0 +1,61 @@
+---
+title: Configure a Load Balancer for PKS Clusters
+owner: PKS
+---
+
+A load balancer is a third party device that distributes network and application traffic across resources. You can use a load balancer to secure and facilitate access to Harbor from outside the network. 
+
+The example below explains how to create a load balancer for your cluster and use the CLI to create and manage clusters. To complete these procedures, you must have already configured an external Load Balancer to access the PKS API.
+
+<p class="note"><strong>Note</strong>: Make sure the version of the CLI you are using matches the version of the PKS tile you are installing.</p>
+
+<ol>
+	<li>Log into the PKS API and create a cluster. <br/><pre class="terminal">pks login -a api.pks.EXAMPLE-URL.co -u "EXAMPLE-USERNAME" -p "EXAMPLE-PASSWORD" -k</pre><br/>
+	For more information, see [Create a Cluster](create-cluster.html).</li>
+	<li>Create LB for your K8s cluster API.<br/>
+		<ul>
+			<li>TCP Load Balancer</li>
+			<li>Name: pks-cluster-api-1</li>
+		</ul>
+		<ol>
+			<li>Backend configuration.<br/>
+				<ul>
+					<li>You will need to edit this after the cluster is deployed</li>
+					<li>No health check needed</li>
+				</ul>
+			</li>
+			<li>Frontend configuration<br/>
+				<ul>
+					<li>Reserve IP. Example: 35.190.154.61</li>
+					<li>Name: pks-cluster-api</li>
+					<li>Ports: 8443</li>
+				</ul>
+			</li>
+		</ol>
+	</li>
+	<li>Create FW Rule for LB<br/>
+		<ul>
+			<li>Make sure to select the right network. Choose the value that matches with the VPC Network name you created earlier (not default)</li>
+			<li>Ingress - Allow</li>
+			<li>Target: pks-cluster-api-1</li>
+			<li>Source: 0.0.0.0/0</li>
+			<li>Ports: tcp:8443</li>
+		</ul>
+	</li>
+	<li>View plans to choose one by running `pks list-plans`</li>
+	<li>Create cluster example: pks create-cluster my-cluster --external-hostname 35.190.154.61 --plan small --num-nodes 3</li>
+	<li>Wait for the cluster to be created.<br/>
+		<ul>
+			<li>To check progress you can use Bosh CLI from the OpsManager instance: bosh -e pks task</li>
+			<li>Take into account that errand might run after the deployment so several bosh tasks might be run.</li>
+		</ul>
+	</li>
+	<li>Wire the K8s cluster API LB to the master instance of the cluster.<br/>
+		<ul>
+			<li>Search for the master VM id. Either via bosh running: bosh -e pks vms Or via the GCP Console, go to Compute Engine -> VM Instances, and filter by master</li>
+			<li>Example: vm-1229d352-3ec9-4e66-6496-d5c7b73f9e4a</li>
+			<li>Edit the pks-cluster-api-1 LB and add that instance in the Backend configuration</li>
+		</ul>
+	</li>
+	<li>Add network tag to master instance to allow traffic: pks-cluster-api-1</li>
+<
