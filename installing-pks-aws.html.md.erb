@@ -11,10 +11,69 @@ Before performing the procedures in this topic, consult the [AWS Prerequisites a
 
 ##<a id='loadbalancer-pks-api'></a>Step 1: Configure Load Balancer
 
-Configure an external TCP load balancer to access the PKS API from outside the network.
-Configure a firewall rule and wildcard DNS entry for the load balancer.
+To create a load balancer using AWS, perform the following steps:
 
-You can use any external TCP load balancer of your choice.
+1. In a browser, navigate to the [AWS Console](https://console.aws.amazon.com/console/home)
+1. Navigate to **EC2 > Load Balancers**
+1. Click 'Create Load Balancer'
+1. Choose TCP Network Load Balancer - Click 'Create'
+1. Give your load balancer a name. Pivotal recommends naming your load balancer `pks-api`
+1. Select 'Scheme' - 'Internet-facing'
+1. Under **Listeners** > Add TCP Listener for port `8443` and `9021`
+1. Under **Availablity Zones**
+  * Select VPC that Ops Manager was installed into.
+  * Select the public subnets within the availability zones
+1. Click 'Next: Configure Routing'
+1. Create a 'Target Group' for the PKS-API
+  * Name: pks-api
+  * Protocol: TCP
+  * Port: 9021
+  * Target type: instance
+  * Protocol: TCP
+1. Click 'Next: Register Targets'
+  * Under **Instances** select the instance with name `pivotal-container-service`
+  * Click 'Add to registered'
+1. Click 'Next: Review'
+1. Click 'Create'
+1. Click the link for the created load balancer
+1. Copy the DNS name
+  * This is the value that should be used for the FQDN in the PKS API tile configuration
+  * This value with a '*' replacing the first part is what should be used when generating the certificate
+1. Create a second 'Target Group' for the UAA
+1. Click **EC2 > Target Groups** - Click 'Create target group'
+  * Name: pks-uaa
+  * Protocol: TCP
+  * Port: 8443
+  * Target type: instance
+  * VPC: VPC that Ops Manager was installed into
+  * Health Check Protocol: TCP
+1. Click 'Create'
+1. Click the created `Target Group`
+  * Under **Targets** click `Edit`
+  * Under **Instances** select the instance with Name `pivotal-container-service`
+  * Click 'Add to registered'
+  * Click 'Save'
+1. Configure the Load Balancer to use the UAA target group
+1. Click **EC2 > Load Balancers**
+   * Click on the load balancer just created
+   * Under **Listeners** click on the Listener ID **TCP : 8443**
+   * Click 'Edit'
+   * Set **Default target group** to the UAA target group (`pks-uaa`)
+   * Click 'Save'
+1. Update a **Security Group** allowing inbound traffic on ports 9021 and 8443
+  * Identify a security group applied to the `pivotal-container-service` instance
+  * Under **Inbound** click **Edit**
+  * Click **Add rule**
+    * Type: Custom TCP
+    * Port Range: 8443
+    * Source: Custom 0.0.0.0/0
+    * Description: UAA
+  * Click **Add rule**
+    * Type: Custom TCP
+    * Port Range: 9021
+    * Source: Custom 0.0.0.0/0
+    * Description: PKS API
+  * Click 'Save'
 
 ##<a id='install'></a> Step 2: Install PKS
 
