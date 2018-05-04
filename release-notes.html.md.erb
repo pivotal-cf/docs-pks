@@ -5,6 +5,192 @@ owner: PKS
 
 PKS (Pivotal Container Service) is used to create and manage on-demand Kubernetes clusters via the PKS CLI.
 
+## <a id='v1.0.3'></a>v1.0.3
+
+**Release Date**: May 4, 2018
+
+### <a id='v1.0.3-upgrade'></a>Upgrade Procedure
+
+<p class="note"><strong>Note</strong>:The only supported upgrade path for PKS 1.0.3 is from PKS 1.0.2. Do not upgrade PKS 1.0.0 directly to 1.0.3. Instead, upgrade to 1.0.2, then 1.0.3. Alternatively, do a unique install of PKS 1.0.3.</p>
+
+To upgrade to PKS v1.0.3, perform the following steps:
+
+1. Download the [docker_ctl](./1.0.2/stemcell/docker_ctl) script.
+1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your PKS deployment. Replace `MY-ENVIRONMENT` with the BOSH alias for your PKS environment.
+See [Manage PKS Deployments with BOSH](manage-deployments-bosh.html) for more information.<br><br>
+  If you choose to log in from the Ops Manager VM, perform the following steps:
+  1. Run `sudo apt-get update`.
+  1. Run `sudo apt-get install jq`.
+1. Run `export BOSH_ENVIRONMENT=MY-ENVIRONMENT`. Replace `MY-ENVIRONMENT` with the BOSH alias for your PKS environment.
+1. Download the latest 3468.x stemcell from [Pivotal Network](https://network.pivotal.io/products/stemcells) and configure the PKS tile with the stemcell.
+1. Follow the procedures in [Upgrade PKS](upgrade-pks.html).
+
+### <a id='v1.0.3-features'></a>Features
+
+PKS 1.0.3 separates the master and worker node credentials.
+
+* Updates Kubernetes to v1.9.6.
+
+### <a id='v1.0.3-versions'></a>Component Versions
+
+PKS v1.0.3 includes or supports the following component versions:
+
+<table border="1" class="nice">
+  <tbody>
+    <tr>
+    <th>Product Component</th>
+    <th>Version Supported</th>
+    <th>Notes</th>
+   </tr>
+   <tr>
+   <td>Pivotal Cloud Foundry Operations Manager (Ops Manager)</td>
+   <td>2.0.X</td>
+   <td>Separate download available from Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>vSphere</td>
+   <td>6.5 and 6.5 U1 - Editions
+    <ul><li>vSphere Enterprise Plus Edition</li></ul>
+    <ul><li>vSphere with Operations Management Enterprise Plus</li></ul></td>
+   <td>vSphere versions supported for Pivotal Container Service (PKS)</td>
+   </tr>
+   <tr>
+   <td>VMware Harbor Registry</td>
+   <td>1.4.1</td>
+   <td>Separate download available from Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>NSX-T</td>
+   <td>2.1 Advanced Edition</td>
+   <td>Available from VMware</td>
+   </tr>
+   <tr>
+   <td>Stemcell</td>
+   <td>3468.X</td>
+   <td>Floating stemcell line available to download from Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>Kubernetes</td>
+   <td>1.9.6*</td>
+   <td>Packaged in the PKS Tile (CFCR)</td>
+   </tr>
+   <tr>
+   <td>CFCR (Kubo)</td>
+   <td>0.13</td>
+   <td>Packaged in the PKS Tile</td>
+   </tr>
+   <tr>
+   <td>Golang</td>
+   <td>1.9.4</td>
+   <td>Packaged in the PKS Tile</td>
+   </tr>
+   <tr>
+   <td>NCP</td>
+   <td>2.1.3*</td>
+   <td>Packaged in the PKS Tile</td>
+   </tr>
+   <tr>
+   <td>Kubernetes CLI</td>
+   <td>1.9.5</td>
+   <td>Separate download available from the PKS section of Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>PKS CLI</td>
+   <td>1.0.2-build.4</td>
+   <td>Separate download available from the PKS section of Pivotal Network</td>
+   </tr>
+   <tr>
+   <td>UAA</td>
+   <td>55</td>
+   <td> </td>
+   </tr>
+   </tbody>
+   <tfoot>
+   <tr>
+    <td colspan="3"><em>* Components marked with an asterisk have been patched to resolve security vulnerabilities or fix component behavior.</em></td>
+   </tr>
+  </tfoot>
+</table>
+
+### <a id='v1.0.3-known-issues'></a>Known Issues
+
+This section includes known issues with PKS v1.0.3 and corresponding workarounds.
+
+#### <a id="automatic-rolling"></a>Stemcell Updates Cause Automatic VM Upgrading
+
+Enabling the **Upgrade all clusters** errand allows automatic upgrading for VMs in your deployment.
+Pivotal recommends enabling this errand to ensure that all deployed cluster VMs are patched.
+
+When you enable the **Upgrade all clusters** errand, the following actions can cause downtime:
+
+* Updating the PKS tile with a new stemcell triggers updating each VM in each cluster.
+* Updating other tiles in your deployment with new stemcells causes the upgrading of the PKS tile.
+
+#### <a id="upgrade-fail"></a>Upgrade Errand Fails with Failed Deployments
+The **Upgrade all clusters** errand fails if any deployments are in a failed state.
+
+To work around this issue, [delete the failed cluster](delete-cluster.html) using the PKS CLI or [redeploy the failed cluster](manage-deployments-bosh.html) with the BOSH CLI to ensure the cluster is in a successful state.
+
+#### <a id='cold-migration'></a>Pods Lose Network Connectivity After VM Cold Migration
+
+When a Kubernetes cluster worker VM goes through cold migration in vSphere, newly provisioned pods lose network connectivity.
+
+This issue can occur under the following conditions:
+
+* When the VM is powered off and is subject to cold migration, and the VM moves to a different ESXi host
+* When the VM is powering on and is subject to Distributed Resource Scheduler (DRS) before the powerup completes
+* When the vNIC of the VM is detached and reattached
+
+To work around this issue, delete the worker VM.
+BOSH recreates the worker VM and restores network connectivity. 
+
+#### <a id='statefulset'></a>StatefulSets Pod Failure After Recreating a VM
+
+When using vSphere with NSX-T integration, if you recreate a node that hosts a StatefulSets pod, the pod can get stuck in a `ContainerCreating` state.
+The pod emits a warning event with a `FailedCreatePodSandBox` reason.
+This issue affects StatefulSets pods created before PKS v1.0.3.
+
+A fix for this bug is included in PKS v1.0.3, but the fix applies only to StatefulSets created using PKS v1.0.2 or later.
+After upgrading PKS to v1.0.3, manually deleting and recreating all preexisting StatefulSets pods is recommended, even if they are in a running state.
+
+To get all StatefulSets pods, run the following command on every Kubernetes cluster using the Kubernetes admin user permissions:
+
+<pre>$ kubectl get pods -l "statefulset.kubernetes.io/pod-name" \
+-o wide --all-namespaces</pre>
+
+For each result, delete the pod by running the following command:
+
+<pre>$ kubectl delete pod POD-NAME -n POD-NAMESPACE</pre>
+
+You do not need to manually recreate the deleted pods.
+Kubernetes detects a StatefulSet with missing pods and automatically recreates the pods.
+
+#### <a id="detach"></a>[Kubernetes Bug] Upgrading a Cluster Affects Persistent Workload Uptime
+
+During an upgrade to v1.0.3 on vSphere, persistent storage volumes do not reattach to pods until all worker nodes have been upgraded, which results in workload downtime until the entire cluster is upgraded.
+
+This issue occurs when you deploy a pod with persistent storage attached, drain the node, and then immediately delete the node VM.
+
+The expected behavior is for persistent disks to reattach to the upgraded VMs after the pod is restored.
+However, a Kubernetes bug prevents the disk from reattaching.
+PKS v1.0.3 works around this bug by attaching the volumes after all workers are upgraded.
+
+For more information, see the [Kubernetes issue on GitHub](https://github.com/kubernetes/kubernetes/issues/61707).
+
+In rare cases, pods with persistent volumes can stay in `ContainerCreating` state.
+If you see the error `FailedMount Unable to mount volumes for pod POD-NAME`, perform the following steps:
+
+1. Find the problem node by running `kubectl describe pod POD-NAME`.
+2. Prevent scheduling on the node that runs the pod by running `kubectl cordon NODE-NAME`.
+3. Delete pod by running `kubectl delete pod POD-NAME`.
+4. Wait for pod to be rescheduled and enter `Running` state. This may take several minutes.
+5. Resume scheduling on the node that runs the pod by running `kubectl uncordon NODE-NAME`.
+
+#### <a id="nsx-t-password"></a>Kubernetes Cluster Creation Fails if NSX-T Manager Password Begins with Certain Special Characters
+ 
+If you select NSX-T as a **Container Network Type** in PKS and your NSX-T Manager password begins with an `@`, `$`, `^`, `'`, or space character, Kubernetes cluster creation fails.
+To resolve this issue, reset your NSX-T Manager password so that it does not begin with any of these characters. After resetting your NSX-T Manager password, reconfigure your NSX-T Manager credentials in the PKS tile with the updated password.
+
 ## <a id='v1.0.2'></a>v1.0.2
 
 **Release Date**: April 12, 2018
