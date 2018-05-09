@@ -1,0 +1,53 @@
+---
+title: Configure a GCP Load Balancer for PKS Clusters
+owner: PKSA
+---
+
+A load balancer is a third party device that distributes network and application traffic across resources. You can use a load balancer to secure and facilitate access to Harbor from outside the network. 
+
+The example below explains how to create a Google Cloud Platform (GCP) load balancer for your cluster and use the CLI to create and manage clusters. To complete these procedures, you must have already configured an external load balancer to access the PKS API.
+
+<p class="note"><strong>Note</strong>: Make sure the version of the CLI you are using matches the version of the PKS tile you are installing.</p>
+
+##<a id="create"></a> Creating GCP Load Balancers for PKS Clusters
+
+1. Log into the PKS API and create a cluster. An example command follows:
+	<code>pks login -a api.pks.EXAMPLE-URL.co -u "EXAMPLE-USERNAME" -p "EXAMPLE-PASSWORD" -k</code><br/>
+	For more information, see [Create a Cluster](create-cluster.html).
+2. Navigate to [Google Cloud Platform](https://console.cloud.google.com/).
+3. In the sidebar menu, select **Network Services** > **Load balancing**.
+4. Click **Create Load Balancer**.
+5. In the *TCP Load Balancing* pane, click **Start configuration**.
+6. Select the configuration details that apply to your use case and click **Continue**. The *New TCP load balancer* menu opens.
+7. Enter a **Name** for your load balancer and click **Backend configuration**. The *Backend configuration* panel opens.
+<p class="note"><strong>Note</strong>: Configure a TCP Load Balancer with a human-readable name in lower case letters, such as <code>your-pks-cluster-api</code>.</p>
+8. Configure the load balancer backend.
+	1. Select an **Instance group**.
+	1. Specify any other configuration options you require and press **Done** to complete backend configuration. 
+	<p class="note"><strong>Note</strong>: When you configure the load balancer backend, health checks are not required.</p>
+9. Click **Frontend configuration**. The *Frontend Configuration* panel opens.
+10. Configure the load balancer frontend.
+	1. Optional: Enter a human-readable name in lower case letters, such as `pks-cluster-api`. 
+	1. Reserve an IP address by clicking into the **IP address** menu and selecting **Create IP address**. Give the IP address a human-readable name and click **Reserve**. 
+	1. In the **Port** field, specify `443` or `8443`.
+	1. Choose a **Certificate** from the list of certificates already associated with your installation.
+	1. Specify any other configuration options you require and press **Done** to complete frontend configuration. 
+11. Review your load balancer configuration and click **Create**.
+
+##<a id="firewall"></a> Creating Firewall Rules for Load Balancers
+
+Creating a firewall rule for the load balancer essentially whitelists the load balancer IP. This ensures that traffic attempting to move through the load balancer and into the cluster is permitted access.
+
+1. In the Google Cloud Platform sidebar menu, select **VPC Network** > **Firewall Rules**.
+1. Click **Create Firewall Rule**. The *Create a firewall rule* menu opens.
+1. Give your firewall rule a human-readable name in lower case letters. For ease of use, you may want to align this name with the name of the load balancer you created in [Creating Load Balancers for PKS Clusters](#create).
+1. In the **Network** menu, select the VPC network on which you have deployed the PKS tile.
+1. In the **Direction of traffic** field, select **Ingress**.
+1. In the **Action on match** field, select **Allow**.
+1. Confirm that the **Targets** menu is set to `Specified target tags` and enter a human-readable tag, such as `your-pks-cluster-api-tag` in the **Target tags** field.
+1. In the **Source IP ranges** field, enter `0.0.0.0/0`.
+1. In the **Protocols and ports** field, choose **Specified protocols and ports** and enter the port number you specified in [Creating Load Balancers for PKS Clusters](#create), prepended by `tcp:`. This field will likely read either `tcp:8443` or `tcp:443`.
+1. Specify any other configuration options you require and press **Done** to complete frontend configuration.
+1. Click **Create**.
+
+For this firewall rule to affect cluster API traffic, you must add the `your-pks-cluster-api-tag` network tag to the master instance of your cluster. You can only apply that tag after creating a new cluster with a GCP load balancer in [Create a Cluster](create-cluster.html). 
