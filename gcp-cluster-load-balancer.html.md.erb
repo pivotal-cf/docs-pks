@@ -32,6 +32,226 @@ The procedure below explains how to create a GCP load balancer for your cluster 
 	1. Specify any other configuration options you require and press **Done** to complete frontend configuration. 
 11. Review your load balancer configuration and click **Create**.
 
+
+##<a id="create-ingress"></a> Using an Ingress Controller on GCP
+
+In this topic we will describe how to get traffic into your PKS-deployed cluster on GCP via
+an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/). We will
+install this Ingres Controller via [Helm](./helm.html).
+An Ingress Controller gives us a couple of interesting features which we don't
+directly get when using a [Load Balancer](#create) as described above:
+
+- Ingress Controllers can be used to terminate TLS inside the cluster (as opposed to by the GCP Load Balancer)
+  - This has the effect that the certificates also can be managed inside the kubernetes cluster, there is no need to manage them in GCP.
+	  The certificates can be (semi-) automatically managed by something like [cert-manager](https://cert-manager.readthedocs.io/en/latest/).
+- Ingress Controllers can be used to do [Name Based Virtual Hosting](https://en.wikipedia.org/wiki/Virtual_hosting#Name-based)
+- Ingress Controllers can proxy different paths to different internal services
+
+In this example we will specifically use the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/) which is
+just one open source implementation of an Ingress Controller.
+
+###<a id="create-ingress-ip-dns"></a> Reserve an IP and setup DNS
+
+For this example we will use a reserved IP address and set up DNS to point to that IP.
+
+1. Navigate to [Google Cloud Platform](https://console.cloud.google.com/).
+1. In the sidebar menu, select **VPC network** > **External IP addresses**.
+1. Click **Reserve Static Address**.
+1. Fill the form according to your setup (Note: leave **Attach to** empty) and use a memorable **Name**, e.g. `pks-ingress-ip-example`.
+1. Click **Reserve**.
+1. In the sidebar menu, select **Network Services** > **Cloud DNS**.
+1. Click on the **Zone Name** that was setup for your Opsmanager.
+1. Click **Add record set**.
+1. Choose a **DNS Name**, e.g. `example.ingress.<Opsmananger domain>`
+1. Set the **Resource Record Type** to `A`, use the previously reserved IP as **IPv4 Address**, everything else can kept as is.
+1. Click **Create**
+
+
+<p class="note">
+<strong>Note</strong>: Instead of manually managing DNS records you can also
+look into <a href="https://github.com/kubernetes-incubator/external-dns/">external-dns</a>
+or similar tools which automatically manage DNS records for ingresses.
+</p>
+
+###<a id="create-ingress-deploy-controller"></a> Deploy the Ingress Controller
+
+Typically an Ingress Controller is deployed by a cluster administrator and used
+by cluster users via an [Ingress Resource](https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource).
+In this example we also deploy the Ingress Controller into a separate namespace `ingress`.
+In this section we assume that [Helm](./helm.html) and an IP is reserved and a DNS record is setup as described [above](#create-ingress-ip-dns).
+
+```sh
+$ helm install stable/nginx-ingress \
+	--name nginx \
+	--set rbac.create=true \
+	--namespace ingress \
+	--set controller.service.loadBalancerIP=<reserved-IP> \
+	--set controller.config.proxy-buffer-size=16k
+```
+
+This will:
+
+- Create a new Ingress Controller named `nginx` in the `ingress` namespace.
+- Create a TCP loadbalancer on GCP using the reserved IP address.
+- Sets custom configuration for the Ingress Controller.
+  - Internally, this Ingress Controller uses [nginx](http://nginx.org/) and you can configure
+    different nginx settings, in the example above we change
+		[`proxy_buffer_size`](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffer_size)
+		to 16k.
+
+A successfull deployment should eventually (it may take some time to setup the `service`) look something like this:
+
+```sh
+$ kubectl --namespace ingress get all
+NAME                                         DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deploy/nginx-nginx-ingress-controller        1         1         1            1           1d
+deploy/nginx-nginx-ingress-default-backend   1         1         1            1           1d
+
+NAME                                                DESIRED   CURRENT   READY     AGE
+rs/nginx-nginx-ingress-controller-8b548bd79         1         1         1         1d
+rs/nginx-nginx-ingress-default-backend-864c9484bf   1         1         1         1d
+
+NAME                                         AGE
+deploy/nginx-nginx-ingress-controller        1d
+deploy/nginx-nginx-ingress-default-backend   1d
+
+NAME                                                AGE
+rs/nginx-nginx-ingress-controller-8b548bd79         1d
+rs/nginx-nginx-ingress-default-backend-864c9484bf   1d
+
+NAME                                                      READY     STATUS    RESTARTS   AGE
+po/nginx-nginx-ingress-controller-8b548bd79-97lwp         1/1       Running   0          1d
+po/nginx-nginx-ingress-default-backend-864c9484bf-7tkqg   1/1       Running   0          1d
+
+NAME                                      TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)                      AGE
+svc/nginx-nginx-ingress-controller        LoadBalancer   10.100.200.205   <reserved-IP>   80:31445/TCP,443:31479/TCP   1d
+svc/nginx-nginx-ingress-default-backend   ClusterIP      10.100.200.88    <none>          80/TCP                       1d
+```
+
+By default this Ingress Controller create a Load Balaancer listening on the ports 80 and 443, make sure you have
+[configured your firewall](#firewall) to allow traffic to those ports.
+
+###<a id="create-ingress-deploy-app"></a> Deploy an example application and expose it via the Ingress Controller
+
+We want to serve a simple example application on https. We therefore need to setup certificates for the Ingress Controller to use.
+In this example we will just use a self signed certificate.
+
+<p class="note">
+<strong>Note</strong>: Instead of manually managing certifiactes you could look
+into <a href="https://cert-manager.readthedocs.io/en/latest/">cert-manager</a>
+or similar tools which automate the certificate creation and management for
+you.
+</p>
+
+#### Prepare the self signed certificate
+
+1. Create a self signed certificate:
+<pre class="highlight shell"><code>$ openssl req -x509 \
+    -nodes -newkey rsa:4096 \
+    -keyout key.pem \
+    -out cert.pem \
+    -days 365 \
+    -subj "/C=US/ST=Oregon/L=Portland/O=Company Name/OU=Org/CN=&lt;example.ingress.&lt;Opsmanager domain&gt;&gt;"
+</code></pre>
+1. Encode the certificate and key into base64 for later use in the ingress spec:
+<pre class="highlight shell"><code>$ base64 ./key.pem | tee ./key.pem.base64
+$ base64 ./cert.pem | tee ./cert.pem.base64
+</code></pre>
+
+#### Deploy an example application using the self signed cert and routing traffic via Ingress
+
+Use the follwing spec and apply it via `kubectl apply -f`
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: example-ingress
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: example-ingress
+    spec:
+      containers:
+      - name: example-ingress
+        image: paulbouwer/hello-kubernetes:1.4
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-ingress
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: example-ingress
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: example-ingress
+spec:
+  rules:
+  - host: example.ingress.<Opsmanager domain>
+    http:
+      paths:
+      - backend:
+          serviceName: example-ingress
+          servicePort: 8080
+  tls:
+  - hosts:
+    - example.ingress.<Opsmanager domain>
+    secretName: example-ingress-certs
+---
+kind: Secret
+metadata:
+  name: example-ingress-certs
+type: Opaque
+apiVersion: v1
+data:
+  tls.crt: <file content of cert.pem.base64>
+  tls.key: <file content of key.pem.base64>
+```
+
+`kubectl get all` should show something like this:
+
+```
+NAME                     DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deploy/example-ingress   2         2         2            2           25m
+
+NAME                            DESIRED   CURRENT   READY     AGE
+rs/example-ingress-85fff995df   2         2         2         25m
+
+NAME                     AGE
+deploy/example-ingress   25m
+
+NAME                            AGE
+rs/example-ingress-85fff995df   25m
+
+NAME                                  READY     STATUS    RESTARTS   AGE
+po/example-ingress-85fff995df-52gsf   1/1       Running   0          25m
+po/example-ingress-85fff995df-zvcb2   1/1       Running   0          25m
+
+NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+svc/example-ingress   ClusterIP   10.100.200.191   <none>        80/TCP    25m
+```
+
+You should now be able to point your browser to `https://example.ingress.<Opsmanager domain>` and see:
+
+- the self signed certificate being used
+- TLS being terminated at the NGINX Ingress Controller
+- the trafic going through the GCP load balancer, the NGINX Ingress Controller as defined by the ingress spec, the service, and finally hit the pods
+
+
 ##<a id="firewall"></a> Creating Firewall Rules for Load Balancers
 
 Creating a firewall rule for the load balancer essentially whitelists the load balancer IP. This ensures that traffic attempting to move through the load balancer and into the cluster is permitted access.
