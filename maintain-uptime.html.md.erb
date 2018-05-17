@@ -116,15 +116,17 @@ See the following table for more information:
 
 ##<a id='multi-az-worker'></a> Multi-AZ Worker
 
-If you would like your workers to be evenly distributed across availability zones (AZs), please configure this option in the PKS tile. Kubernetes will evenly spread pods in a replication controller over multiple zone, this is best-effort placement. For increased control over the placement `Anti-Affinity Rule` need to be added to the deployment spec.
+Kubernetes evenly spreads pods in a replication controller over multiple Availability Zones (AZs).
+For more granular control over pods, add an `Anti-Affinity Rule` to the deployment spec by replacing `"kubernetes.io/hostname"` with `"failure-domain.beta.kubernetes.io/zone"`.
 
-To ensure spreading of pods in the AZs you can replace `"kubernetes.io/hostname"` with `"failure-domain.beta.kubernetes.io/zone"` in the previously show spec snippet.
 
+##<a id='persistent-volumes'></a> Persistent Volumes
 
-### Persistent Volumes
+Persistent volumes cannot be attached across AZs. 
+Therefore, when persistent volumes are created, the `PersistentVolumeLabel` admission controller automatically adds AZ labels to them. 
+The scheduler then ensures that pods that claim a given volume are only placed into the same AZ as that volume.
 
-Persistent volumes cannot be attached across zones. Therefore, when persistent volumes are created, the PersistentVolumeLabel admission controller automatically adds zone labels to them. The scheduler will then ensure that pods that claim a given volume are only placed into the same zone as that volume.
+If an AZ goes down, the persistent volume and its data also goes down and cannot be automatically re-attached. To preserve your persistent volumes data in the event of a fallen AZ, your persistent workload needs to have a failover mechanism in place.
 
-If an AZ goes down, the persistent volume and its data also goes down and cannot be automatically re-attached. To sustain an AZ failure your persistent workload needs to have failover mechanism in place.
-
-To ensure uptime of persistent workload during cluster upgrade we recommend having at least 2 nodes per AZ. This way Kubernetes will reschedule pods in the other node of the same AZ while BOSH is performing the upgrade.
+For example, to ensure the uptime of your persistent volumes during a cluster upgrade, Pivotal recommends that you have at least 2 nodes per AZ. 
+By configuring your worload as suggested, Kubernetes reschedules pods in the other node of the same AZ while BOSH is performing the upgrade.
