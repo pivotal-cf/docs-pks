@@ -1,0 +1,78 @@
+---
+title: PKS Cluster Management
+owner: PKS
+---
+
+This topic describes how Pivotal Container Service (PKS) manages the deployment of Kubernetes clusters.
+
+##<a id="overview"></a>Overview
+
+Users interact with PKS and PKS-deployed Kubernetes clusters in two ways:
+
+* Deploying Kubernetes clusters with BOSH and managing their lifecycle.
+These tasks are performed using the PKS command line interface (CLI) and the PKS control plane.
+* Deploying and managing container-based workloads on Kubernetes clusters.
+These tasks are performed using the Kubernetes CLI, `kubectl`.
+
+##<a id="cluster-management"></a>Cluster Lifecycle Management
+
+The PKS control plane enables users to deploy and manage Kubernetes clusters.
+
+For communicating with the PKS control plane, PKS provides a command line interface, the PKS CLI.
+See [Installing the PKS CLI](installing-pks-cli.html) for installation instructions.
+
+###<a id="control-plane"></a>PKS Control Plane Overview
+
+The PKS control plane manages the lifecycle of Kubernetes clusters deployed using PKS.
+The control plane allows users to do the following through the PKS CLI:
+
+* View cluster plans
+* Create clusters
+* View information about clusters
+* Obtain credentials to deploy workloads to clusters
+* Scale clusters
+* Delete clusters
+
+In addition, the PKS control plane can upgrade all existing clusters using the **Upgrade all clusters** BOSH errand.
+For more information, see [Upgrade Kubernetes Clusters](upgrade-pks.html#upgrade-instances) in _Upgrade PKS_.
+
+###<a id="architecture"></a>PKS Control Plane Architecture
+
+The PKS control plane is deployed on a single VM that includes the following components:
+
+* The PKS API server
+* The PKS Broker
+* A User Account and Authentication (UAA) server
+
+For more information about how these components interact, see the following diagram:
+
+<%= image_tag('images/pks-overview.png') %>
+
+####<a id="uaa"></a>UAA
+
+When a user logs in to or logs out of the PKS API through the PKS CLI, the PKS CLI communicates with UAA to authenticate them.
+The PKS API permits only authenticated users to manage Kubernetes clusters.
+For more information about authenticating, see [PKS API Authentication](pks-api-auth.html).
+
+UAA must be configured with the appropriate users and user permissions.
+For more information, see [Manage Users in UAA](manage-users.html).
+
+####<a id="pks-api"></a>PKS API
+
+Through the PKS CLI, users instruct the PKS API server to deploy, scale up, and delete Kubernetes clusters as well as show cluster details and plans.
+The PKS API also can write Kubernetes cluster credentials to a local kubeconfig file, which enables users to connect to a cluster through `kubectl`.
+
+The PKS API sends all cluster management requests, except read-only requests, to the PKS Broker.
+
+####<a id="pks-broker"></a>PKS Broker
+
+When the PKS API receives a request to modify a Kubernetes cluster, it instructs the PKS Broker to make the requested change.
+
+The PKS Broker consists of an [On-Demand Service Broker](https://docs.pivotal.io/svc-sdk/odb/index.html) and a Service Adapter.
+The PKS Broker generates a BOSH manifest and instructs the BOSH Director to deploy or delete the Kubernetes cluster.
+
+##<a id="workload-management"></a>Cluster Workload Management
+
+PKS users manage their container-based workloads on Kubernetes clusters through `kubectl`.
+
+For more information about `kubectl`, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.
