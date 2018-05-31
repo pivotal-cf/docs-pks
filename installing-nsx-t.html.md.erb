@@ -11,9 +11,9 @@ This topic describes how to install and configure Pivotal Container Service (PKS
 
 There are three supported topologies in which to deploy NSX-T with PKS. Except where noted, the instructions in this topic describe how to set up all three options.
 
-### <a id='topology-no-nat-virtual-switch'></a> NO_NAT with Virtual Switch (VSS/VDS) Topology
+### <a id='topology-no-nat-virtual-switch'></a> NO-NAT with Virtual Switch (VSS/VDS) Topology
 
-The following figure shows a NO_NAT with Virtual Switch (VSS/VDS) deployment:
+The following figure shows a NO-NAT with Virtual Switch (VSS/VDS) deployment:
 
 ![NO-NAT Topology with Virtual Switch](images/vsphere/nsxt-topology-no-nat-virtual-switch.png)
  
@@ -21,13 +21,13 @@ Click [here](https://docs-pks.cfapps.io/pks/images/vsphere/nsxt-topology-no-nat-
 
 This topology has the following characteristics:
 
-* PKS Management plane (Ops Mgr / Bosh / PKS VM) components are using corporate routable IP addresses.
-* K8s cluster VMs (K8s master and worker nodes) are using corporate routable IP addresses.
+* PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are using corporate routable IP addresses.
+* Kubernetes cluster master and worker nodes are using corporate routable IP addresses.
 * The T0 router is deployed outside of NSX-T.
 
-### <a id='topology-no-nat-logical-switch'></a> NO_NAT with Logical Switch (NSX-T) Topology
+### <a id='topology-no-nat-logical-switch'></a> NO-NAT with Logical Switch (NSX-T) Topology
 
-The following figure shows a NO_NAT with Logical Switch (NSX-T) deployment:
+The following figure shows a NO-NAT with Logical Switch (NSX-T) deployment:
 
 ![NO-NAT Topology with Logical Switch](images/vsphere/nsxt-topology-no-nat-logical-switch.png)
 
@@ -35,8 +35,8 @@ Click [here](https://docs-pks.cfapps.io/pks/images/vsphere/nsxt-topology-no-nat-
 
 This topology has the following characteristics:
 
-* PKS Management plane (Ops Mgr / Bosh / PKS VM) components are using corporate routable IP addresses.
-* K8s cluster VMs (K8s master and worker nodes) are using corporate routable IP addresses.
+* PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are using corporate routable IP addresses.
+* Kubernetes cluster master and worker nodes are using corporate routable IP addresses.
 * The T0 router is deployed inside NSX-T.
 
 ### <a id='topology-nat'></a>NAT Topology
@@ -49,8 +49,8 @@ Click [here](https://docs-pks.cfapps.io/pks/images/vsphere/nsxt-topology-nat.png
 
 This topology has the following characteristics:
 
-* The BOSH Director, Ops Manager, and the PKS service instance are all located on a logical switch NAT'd behind a T1.
-* All Kubernetes cluster nodes are located on a logical switch NAT'd behind a T1. This will require NAT rules to allow access to Kubernetes APIs.
+* PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are all located on a logical switch NAT'd behind a T1.
+* Kubernetes cluster master and worker nodes are located on a logical switch NAT'd behind a T1. This requires NAT rules to allow access to Kubernetes APIs.
 
 ##<a id='before'></a>Before You Install
 
@@ -68,7 +68,7 @@ Before performing the procedures in this topic:
 Determine and pre-allocate the following network CIDRs in the IPv4 address space according to the instructions in the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html). Ensure that the CIDRs are routable in your environment.
 
 * **VTEP CIDR(s)**: One or more of these networks will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the network(s) to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` will provide 254 usable IPs. This will be used when creating the `ip-pool-vteps` in Step 3.
-* **PKS MANAGEMENT CIDR**: This small network will be used for NAT access to PKS management components such as Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs. For the [NO-NAT deployment topologies](#architecture), this will be a corporate routable subnet /28. For the [NAT deployment topology](#topology-nat), this will be a non-routable subnet /28, and NAT will be used to access the PKS management components
+* **PKS MANAGEMENT CIDR**: This small network will be used for NAT access to PKS management components such as Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs. For the [NO-NAT deployment topologies](#architecture), this will be a corporate routable subnet /28. For the [NAT deployment topology](#topology-nat), this will be a non-routable subnet /28, and NAT will be used to access the PKS management components.
 * **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. The network will also provide IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/25` will provide 126 usable IPs. This network will be used when creating the `ip-pool-vips` described in [Create NSX Network Objects](#create-objects-network-objects).
 
 Refer to the instructions in the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to ensure that your network topology enables the following communications:
@@ -120,7 +120,8 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
 
 1. Create the following NSX Logical Switches. For more information, see [Create a Logical Switch](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html). Configuration details for the Logical Switches follow:
   * One for T0 ingress/egress uplink port `ls-pks-uplink` 
-  * One for the PKS Management Network `ls-pks-mgmt`. Note: This is needed for the [NAT deployment topology](#topology-nat) and [NO-NAT with Logical Switch deployment topology](#topology-no-nat-logical-switch). Skip this step if you are deploying the [NO-NAT with Virtual Switch topology](#topology-no-nat-virtual-switch) For the NO-NAT with Virtual Switch topology, skip this step.
+  * One for the PKS Management Network `ls-pks-mgmt`
+    <p class="note"><strong>Note</strong>: This network required for the [NAT deployment topology](#topology-nat) and [NO-NAT with Logical Switch deployment topology](#topology-no-nat-logical-switch). If you are deploying the [NO-NAT with Virtual Switch topology](#topology-no-nat-virtual-switch), you can skip this step.</p>
   * One for the PKS Service Network `ls-pks-service`
 1. Attach your first NSX Logical Switch to the `tz-vlan` NSX Transport Zone.
 1. Attach your second and third NSX Logical Switches to the `tz-overlay` NSX Transport Zone.
@@ -230,7 +231,7 @@ nsx-edge-n&gt; get logical-router ROUTER-UUID high-availability status
    
 ####<a id='configure-nat-logical-router-pks-mgmt'></a> Configure NAT Rules for PKS Management VMs
 
-<p class="note"><strong>Note</strong>: This step applies only to the [NAT deployment topology](#topology-nat). Skip this step for [NO-NAT deployment topologies](#architecture).</p>
+<p class="note"><strong>Note</strong>: This step applies to the <a href="#topology-nat">NAT deployment topology</a> only. Skip this step for <a href="#architecture">NO-NAT deployment topologies</a>.</p>
 
 Create the following NAT rules for the Mgmt T1. For more information, see [Tier-1 NAT](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-34B34A98-F6E0-4425-BC58-3D94F185F4B9.html). Configuration details follow:
 
@@ -294,8 +295,8 @@ The [SNAT](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc
    
 ####<a id='configure-nat-logical-router-pks-service'></a> Configure NAT Rules for PKS Service VMs
 
-<p class="note"><strong>Note</strong>: This step applies only to the [NAT deployment topology](#topology-nat). Skip this step for [NO-NAT deployment topologies](#architecture).</p>
- 
+<p class="note"><strong>Note</strong>: This step applies to the <a href="#topology-nat">NAT deployment topology</a> only. Skip this step for <a href="#architecture">NO-NAT deployment topologies</a>.</p>
+
 Create the following NAT rules for the Service T1. For more information, see [Tier-1 NAT](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-34B34A98-F6E0-4425-BC58-3D94F185F4B9.html). Configuration details follow:
 
 <table>
@@ -348,7 +349,7 @@ Perform the following steps to configure Ops Manager for the NSX logical switche
 1. Complete the procedures in [Configuring Ops Manager on vSphere](vsphere-om-config.html).
   <p class="note"><strong>Note</strong>: If you have Pivotal Application Service (PAS) installed, Pivotal recommends installing PKS on a separate instance of Ops Manager v2.0.</p>
   * On the **vCenter Config** page, select **Standard vCenter Networking**. This configuration is utilized for PAS only. You configure NSX-T integration for PKS in a later step.
-  <p class="note"><strong>Note</strong>: If you are using the [NAT deployment topology](#topology-nat), you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions above in <a href="#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a>. You will use the DNAT IP address to access Ops Manager.</p>
+  <p class="note"><strong>Note</strong>: If you are using the <a href="#topology-nat">NAT deployment topology</a>, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions above in <a href="#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a>. You will use the DNAT IP address to access Ops Manager.</p>
   * On the **Create Networks** page, create the following networks:
     <table>
       <tr>
@@ -521,7 +522,8 @@ In the current version of PKS, NSX-T does not automatically configure a NAT for 
    <pre class="terminal">
    $ pks clusters
    </pre>
-1. For the [NAT deployment topology](#topology-nat) (skip this step for [NO-NAT deployment topologies](#architecture)), use the `nsx-cli` script to create a NAT rule to allow access to the Kubernetes API for the cluster. Execute the following command:
+1. For [NO-NAT deployment topologies](#architecture), continue to [Step 9: Clean NSX-T Objects After Deletion of a Cluster](#nsxt-cleanup).
+For the [NAT deployment topology](#topology-nat), use the `nsx-cli` script to create a NAT rule to allow access to the Kubernetes API for the cluster. Execute the following command:
    <pre class="terminal">
    $ ./nsx-cli.sh nat create-rule CLUSTER-UUID MASTER-IP NAT-IP
    </pre>
