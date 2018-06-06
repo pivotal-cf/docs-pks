@@ -1,0 +1,241 @@
+---
+title: Installing and Configuring PKS
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to install and configure Pivotal Container Service (PKS).
+
+##<a id='prerequisites'></a>Prerequisites
+
+Before performing the procedures in this topic, you must have deployed and configured Ops Manager.
+For more information, see the prerequisites for your cloud provider:
+
+* [GCP Prerequisites and Resource Requirements](gcp-requirements.html)
+* [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html)
+
+If you are using an instance of Ops Manager that you configured previously to install other runtimes, confirm the following settings before you install PKS:
+
+1. Navigate to Ops Manager.
+1. From the **Director Config** pane, do the following:
+  1. Clear the **Disable BOSH DNS server for troubleshooting purposes** checkbox.
+  1. Select the **Enable Post Deploy Scripts** checkbox.
+1. Click the **Installation Dashboard** link to return to the Installation Dashboard.
+1. Click **Apply Changes**.
+
+##<a id='install'></a> Step 1: Install PKS
+
+To install PKS, do the following:
+
+1. Download the product file from [Pivotal Network](https://network.pivotal.io).
+1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Click the **Google Cloud Platform** tile.
+1. Select the **Director Config** tab.
+1. Configure the following settings:
+  * Select **Enable Post Deploy Scripts**.
+  * Clear the **Disable BOSH DNS server for troubleshooting purposes** checkbox.
+1. Click **Apply Changes**.
+1. Click **Import a Product** to upload the product file.
+1. Under **Pivotal Container Service** in the left column, click the plus sign to add this product to your staging area.
+
+##<a id='configure'></a> Step 2: Configure PKS
+
+Click the orange **Pivotal Container Service** tile to start the configuration process.
+
+![Pivotal Container Service tile on the Ops Manager installation dashboard](images/pks-tile-orange.png)
+
+###<a id='azs-networks'></a> Assign AZs and Networks
+
+Perform the following steps:
+
+1. Click **Assign AZs and Networks**.
+
+1. Select the availability zone (AZ) where you want to deploy the PKS API VM as a singleton job.
+  <p class="note"><strong>Note</strong>: You must select an additional AZ for balancing other jobs before clicking <strong>Save</strong>, but this selection has no effect in the current version of PKS.</p>
+
+    ![Assign AZs and Networks pane in Ops Manager](images/azs-networks.png)
+
+1. Under **Network**, select the infrastructure subnet you created for the PKS API VM.
+1. Under **Service Network**, select the services subnet you created for Kubernetes cluster VMs.
+1. Click **Save**.
+
+###<a id='pks-api'></a> PKS API
+
+Perform the following steps:
+
+1. Click **PKS API**.
+1. Under **Certificate to secure the PKS API**, provide your own wildcard certificate and private key pair.
+The certificate you enter here should cover the domain that routes to the PKS broker VM with TLS termination on the ingress.<br><br>
+    (Optional) If you do not have a certificate and private key pair, you can have Ops Manager generate one for you. Perform the following steps:
+  1. Select the **Generate RSA Certificate** link.
+  1. Enter the wildcard domain for your API hostname.
+    For example, if your PKS API domain is `api.pks.example.com`, then enter `*.pks.example.com`.
+  1. Click **Generate**.
+1. Click **Save**.
+
+###<a id='plans'></a> Plans
+
+To activate a plan, do the following:
+
+1. Click the **Plan 1**, **Plan 2**, or **Plan 3** tab.
+  <p class="note"><strong>Note</strong>: A plan defines a set of resource types used for deploying clusters. You can configure up to three plans. Configuring **Plan 1** is required.
+  </p>
+1. Select **Active** to activate the plan and make it available to developers deploying clusters.
+1. Under **Name**, provide a unique name for the plan.
+1. Under **Description**, edit the description as needed.
+The plan description appears in the Services Marketplace, which developers can access by using PKS CLI.
+1. Under **AZ placement**, select an AZ for the Kubernetes clusters deployed by PKS.
+1. Under **Default Cluster Authorization Mode**, select an authentication mode for the Kubernetes clusters. Pivotal recommends selecting **RBAC**. For more information, see [Authorization Overview](https://kubernetes.io/docs/reference/access-authn-authz/authorization) in the Kubernetes documentation.
+1. Under **ETCD/Master VM Type**, select the type of VM to use for Kubernetes etcd and master nodes.
+1. Under **Master Persistent Disk Type**, select the size of the persistent disk for the Kubernetes master VM.
+1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker nodes.
+1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker nodes.
+1. Under **Worker Node Instances**, select the default number of Kubernetes worker nodes to provision for each cluster. For high availability, Pivotal recommends creating clusters with at least 3 worker nodes.
+1. Under **Errand VM Type**, select the size of the VM where the errand will run. The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
+1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to [add custom workloads](custom-workloads.html) to each cluster in this plan. You can specify multiple files using `---` as a separator.
+1. If you want users to be able to create pods with privileged containers, select the **Enable Privileged Containers - Use with caution** option. For more information, see [Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers) in the Kubernetes documentation.
+1. Click **Save**.
+
+To deactivate a plan, do the following:
+
+1. Click the **Plan 1**, **Plan 2**, or **Plan 3** tab.
+1. Select **Plan Inactive**.
+1. Click **Save**.
+
+###<a id='cloud-provider'></a> Kubernetes Cloud Provider
+
+To configure your Kubernetes cloud provider settings, follow the procedure for your cloud provider.
+
+1. Click **Kubernetes Cloud Provider**.
+1. Under **Choose your IaaS**, select either **vSphere** or **GCP**.
+1. Follow the procedures for your cloud provider below.
+
+####<a id='vsphere-cloud'></a> vSphere
+
+In the procedure below, you will use credentials for vCenter master and worker VMs. You must have provisioned the service account associated with each type of VM with the correct permissions. 
+For more information, see [Create the Master Node Service Account](vsphere-prepare-env.html#create-master) and [Create the Worker Node Service Account](vsphere-prepare-env.html#create-worker).
+
+Perform the following steps:
+
+1. Click **Kubernetes Cloud Provider**.
+1. Under **Choose your IaaS**, select vSphere.
+1. Perform the steps specific to vSphere. Ensure the values match those in the **vCenter Config** section of the **Ops Manager** tile:  
+  1. Enter your **vCenter Master Credentials**.
+  1. Enter your **vCenter Worker Credentials**.
+  1. Enter your **vCenter Host**. For example: `vcenter.CF-EXAMPLE.com`.
+  1. Enter your **Datacenter Name**. For example: `CF-EXAMPLE-dc`.
+  1. Enter your **Datastore Name**. For example: `CF-EXAMPLE-ds`.
+  1. Enter the **Stored VM Folder** so that the persistent stores know where to find the VMs. To retrieve the name of the folder, navigate to your Ops Manager Director tile, click **vCenter Config**, and locate the value for **VM Folder**. The default folder name is `pcf_vms`.
+1. Click **Save**.
+
+####<a id='gcp-cloud'></a> GCP
+
+Ensure the values in the following procedure match those in the **Google Config** section of the **Ops Manager** tile.
+
+1. Enter your **GCP Project Id**, which is the name of the deployment in your Ops Manager environment.
+1. Enter your **VPC Network**, which is the VPC network name for your Ops Manager environment.
+1. Enter your **GCP Master Service Account Key**. For information about configuring this key, see [Create the Master Node Service Account](gcp-prepare-env.html#create-master).
+1. Enter your **GCP Worker Service Account Key**. For information about configuring this key, see [Create the Worker Node Service Account](gcp-prepare-env.html#create-worker).
+1. Click **Save**.
+
+###<a id='networking'></a> Networking
+
+To configure networking, do the following:
+
+1. Click **Networking**.
+1. Under **Network**, select the Container Network Interface to use.
+  * For **Flannel**, no additional fields are required.
+  * For **NSX-T**, see [Installing and Configuring PKS with NSX-T Integration](installing-nsx-t.html).
+1. Click **Save**.
+
+###<a id='uaa'></a> UAA
+
+To configure the UAA server, do the following:
+
+1. Click **UAA**.
+1. Under **UAA URL**, enter a fully qualified domain name (FQDN) to access UAA on the PKS broker VM. This URL must belong to the domain you provided in the [PKS API](#pks-api) section.
+For example, if you provided a certificate for `*.pks.example.com`, enter `api.pks.example.com` for the UAA URL.
+1. Under **PKS CLI Access Token Lifetime**, enter a time in seconds for the PKS CLI access token lifetime.
+1. Under **PKS CLI Refresh Token Lifetime**, enter a time in seconds for the PKS CLI refresh token lifetime.
+1. Click **Save**.
+
+###<a id='syslog'></a> (Optional) Syslog
+
+You can designate an external syslog endpoint for PKS component and cluster log messages.
+
+To specify the destination for PKS log messages, do the following:
+
+1. Click **Syslog**.
+1. Select **Yes** to configure syslog forwarding.
+1. Enter the destination syslog endpoint.
+1. Enter the destination syslog port.
+1. Select a transport protocol for log forwarding.
+1. (Optional) Pivotal strongly recommends that you enable TLS encryption when forwarding logs as they may contain sensitive information. For example, these logs may contain cloud provider credentials. To enable TLS, perform the following steps.
+  1. Provide the accepted fingerprint (SHA1) or name of remote peer. For example, `*.YOUR-LOGGING-SYSTEM.com`.
+  1. Provide a TLS certificate for the destination syslog endpoint.
+  <p class="note"><strong>Note</strong>: You do not need to provide a new certificate if the TLS certificate for the destination syslog endpoint is signed by a Certificate Authority (CA) in your BOSH certificate store.</p>
+
+###<a id='errands'></a> Errands
+
+Errands are scripts that run at designated points during an installation. 
+
+To configure when post-deploy and pre-delete errands for PKS are run, make a selection in the dropdown next to the errand. For a typical PKS deployment, Pivotal recommends that you leave the default settings.
+
+For more information about errands and their configuration state, see [Managing Errands in Ops Manager](https://docs.pivotal.io/pivotalcf/customizing/managing_errands.html).
+
+###<a id='resource-config'></a> Resource Config
+
+To modify the resource usage of PKS, click **Resource Config** and edit the **Pivotal Container Service** job.
+<p class="note"><strong>Note</strong>: If you experience timeouts or slowness when interacting with the PKS API, select a <strong>VM Type</strong> with greater CPU and memory resources for the <strong>Pivotal Container Service</strong> job.</p>
+
+If you are using GCP, enter a name for your PKS API load balancer that begins with `tcp:` in the **Load Balancers** column.
+For example, `tcp:pks-api`.
+For more information, see [Configuring a GCP Load Balancer for the PKS API](gcp-api-load-balancer.html).
+
+###<a id='stemcell'></a> (Optional) Stemcell
+
+To edit the stemcell configuration, click **Stemcell**. Click **Import Stemcell** to import a new stemcell. 
+
+PKS uses floating stemcells. Floating stemcells allow upgrades to the minor versions of stemcells but not the major versions. 
+For example, a stemcell can float from `1234.56` to `1234.99` but not from `1234.991` to `1235.0`. 
+For more information on floating stemcells, see [Understanding Floating Stemcells](http://docs.pivotal.io/pivotalcf/customizing/understanding-stemcells.html).
+
+<p class="note warning"><strong>WARNING</strong>: Because PKS uses floating stemcells, updating the PKS tile with a new stemcell triggers the rolling of every VM in each cluster. Also, updating other product tiles in your deployment with a new stemcell causes the PKS tile to roll VMs. This rolling is enabled by the <b>Upgrade all clusters errand</b>. Pivotal recommends that you keep this errand turned on because automatic rolling of VMs ensures that all deployed cluster VMs are patched. However, automatic rolling can cause downtime in your deployment.</p>
+
+##<a id='apply-changes'></a> Step 3: Apply Changes
+
+After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
+
+##<a id='retrieve-pks-api'></a> Step 4: Retrieve PKS API Endpoint
+
+You must share the PKS API endpoint to allow your organization to use the API to create, update, and delete clusters.
+See [Create a Cluster](create-cluster.html) for more information.
+
+To retrieve the PKS API endpoint, do the following:
+
+1. Navigate to the Ops Manager Installation Dashboard. 
+1. Click the Pivotal Container Service tile.
+1. Click the **Status** tab and locate the **Pivotal Container Service** job. The IP address of the Pivotal Container Service job is the PKS API endpoint.
+
+##<a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
+
+If you are using GCP, continue to [Next Steps](#next-steps).
+
+If you are using vSphere, configure an external load balancer to access the PKS API from outside the network.
+You can use any external load balancer of your choice.
+
+Your external load balancer forwards traffic to the PKS API endpoint on ports 9021 and 8443.
+Configure the external load balancer to resolve to the domain name you set in the [PKS API](#pks-api) section of the tile configuration.
+
+The load balancer should be configured with:
+
+- The IP address from [Step 4: Retrieve PKS API Endpoint](#retrieve-pks-api)
+- Ports 8443 and 9021
+- The HTTPS or TCP protocol
+
+##<a id='next-steps'></a> Next Steps
+
+Follow the procedures in [Manage Users in UAA](manage-users.html) to configure authentication for PKS using User Account and Authentication (UAA).
+
+After configuring authentication, follow the procedures in [Configure PKS API Access](configure-api.html) to enable operators to create and manage clusters.
