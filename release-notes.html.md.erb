@@ -113,6 +113,32 @@ This section includes known issues with PKS v1.1.0 RC and corresponding workarou
 * The PKS v1.1.0 RC is not compliant with Kubernetes 1.10 on NSX-T.
 * The version of NSX-T multi-master support included in this release has a limit on 2 clusters.
 
+#### <a id="target-lb"></a>Reconfigure GCP Load Balancers After Master VM Recreation
+
+If Kubernetes master node VMs are recreated for any reason, you must reconfigure your cluster load balancers to point to the new master VMs.
+For example, after a stemcell upgrade, BOSH recreates the VMs in your deployment.
+
+To reconfigure your GCP cluster load balancer to use the new master VM, do the following:
+
+1. <%= partial 'login-pks-api' %>
+1. To locate your cluster ID, run `pks cluster CLUSTER-NAME`. Your cluster ID appears in the **UUID** row.
+1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI to log in to the BOSH Director from the Ops Manager VM.
+For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
+1. Identify the name of your cluster deployment. For example:
+  <pre class="terminal">$ bosh -e pks deployments</pre>
+  Your cluster deployment name begins with `service-instance` and includes the UUID you located in a previous step.
+1. Identify the master VM IDs by listing the VMs in your cluster. For example:
+   <pre class="terminal">$ bosh -e pks -d service-instance-aa1234567bc8de9f0a1c vms</pre>
+   Your master VM IDs appear in the **VM CID** column.
+1. Navigate to the [GCP console](https://console.cloud.google.com/).
+1. In the sidebar menu, select **Network Services > Load balancing**.
+1. Select your cluster load balancer and click **Edit**.
+1. Click **Backend configuration**.
+1. Click **Select existing instances**.
+1. Select the new master VM IDs from the dropdown.
+1. Click **Update**.
+
+For more information about cluster load balancers in GCP, see [Configuring a GCP Load Balancer for PKS Clusters](gcp-cluster-load-balancer.html).
 
 #### <a id="upgrading-abac"></a>Upgrading ABAC Clusters
 
