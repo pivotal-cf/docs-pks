@@ -11,7 +11,18 @@ This topic describes how to install and configure Pivotal Container Service (PKS
 
 There are three supported topologies in which to deploy NSX-T with PKS. Except where noted, the instructions in this topic describe how to set up all three options.
 
-### <a id='topology-no-nat-virtual-switch'></a> NO-NAT with Virtual Switch (VSS/VDS) Topology
+### <a id='topology-nat'></a>NAT Topology
+
+The following figure shows a Network Address Translation (NAT) deployment:
+
+![NAT Topology](images/vsphere/nsxt-topology-nat.png)
+
+Click [here](https://docs-pks.cfapps.io/pks/images/vsphere/nsxt-topology-nat.png) to view a larger version of this image.
+
+This topology has the following characteristics:
+
+* PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are all located on a logical switch NAT'd behind a T1.
+* Kubernetes cluster master and worker nodes are located on a logical switch NAT'd behind a T1. This requires DNAT rules to allow access to Kubernetes APIs.### <a id='topology-no-nat-virtual-switch'></a> NO-NAT with Virtual Switch (VSS/VDS) Topology
 
 The following figure shows a NO-NAT with Virtual Switch (VSS/VDS) deployment:
 
@@ -23,7 +34,7 @@ This topology has the following characteristics:
 
 * PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are using corporate routable IP addresses.
 * Kubernetes cluster master and worker nodes are using corporate routable IP addresses.
-* The T0 router is deployed outside of NSX-T.
+* The PKS control plane is deployed outside NSXT-T network while the Kubernetes clusters are deployed and managed within the NSX-T network. Since BOSH needs routable access to the Kubernetes Nodes to monitor and manage them, the Kubernetes Nodes need routable access.
 
 ### <a id='topology-no-nat-logical-switch'></a> NO-NAT with Logical Switch (NSX-T) Topology
 
@@ -37,20 +48,7 @@ This topology has the following characteristics:
 
 * PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are using corporate routable IP addresses.
 * Kubernetes cluster master and worker nodes are using corporate routable IP addresses.
-* The T0 router is deployed inside NSX-T.
-
-### <a id='topology-nat'></a>NAT Topology
-
-The following figure shows a Network Address Translation (NAT) deployment:
-
-![NAT Topology](images/vsphere/nsxt-topology-nat.png)
-
-Click [here](https://docs-pks.cfapps.io/pks/images/vsphere/nsxt-topology-nat.png) to view a larger version of this image.
-
-This topology has the following characteristics:
-
-* PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are all located on a logical switch NAT'd behind a T1.
-* Kubernetes cluster master and worker nodes are located on a logical switch NAT'd behind a T1. This requires NAT rules to allow access to Kubernetes APIs.
+* The PKS control plane is deployed inside the NSX-T network. Both the PKS control plane components (VMs) and the Kubernetes Nodes would be using corporate routable IP addresses.
 
 ##<a id='before'></a>Before You Install
 
@@ -68,7 +66,7 @@ Before performing the procedures in this topic:
 Determine and pre-allocate the following network CIDRs in the IPv4 address space according to the instructions in the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html). Ensure that the CIDRs are routable in your environment.
 
 * **VTEP CIDR(s)**: One or more of these networks will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the network(s) to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` will provide 254 usable IPs. This will be used when creating the `ip-pool-vteps` in Step 3.
-* **PKS MANAGEMENT CIDR**: This small network will be used for NAT access to PKS management components such as Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs. For the [NO-NAT deployment topologies](#architecture), this will be a corporate routable subnet /28. For the [NAT deployment topology](#topology-nat), this will be a non-routable subnet /28, and NAT will be used to access the PKS management components.
+* **PKS MANAGEMENT CIDR**: This small network will be used to access PKS management components such as Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs. For the [NO-NAT deployment topologies](#architecture), this will be a corporate routable subnet /28. For the [NAT deployment topology](#topology-nat), this will be a non-routable subnet /28, and DNAT needs to be configured in NSX-T to access the PKS management components.
 * **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. The network will also provide IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/25` will provide 126 usable IPs. This network will be used when creating the `ip-pool-vips` described in [Create NSX Network Objects](#create-objects-network-objects).
 
 Refer to the instructions in the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to ensure that your network topology enables the following communications:
@@ -139,6 +137,7 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
 ###<a id='create-objects-logical-routers'></a> 3.4: Create Logical Routers
 
 ####<a id='create-objects-logical-router-pks'></a> Create T0 Logical Router for PKS
+T0 routers are edge routers that help route data between your non-NSX-T (such as a Physical Network) and the NSX-T network. PKS currently supports only a single T0 router per instance.
 
 1. Create a Tier-0 (T0) logical router named `t0-pks`. See [Create a Tier-0 Logical Router](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html) for more information. Configuration details follow: 
   * Select `edge-cluster-pks` for the cluster.   
@@ -447,8 +446,10 @@ Perform the following steps:
 1. For **vSphere Cluster Name**, enter the name of the vSphere cluster you used when creating the PKS broker in [Assign AZs and Networks](#azs-networks).
   ![NSX-T Networking configuration pane in Ops Manager](images/networking-nsx-t-2.png)
 1. For **T0 Router ID**, enter the `t0-pks` T0 router UUID. This can be located in the NSX-T UI router overview.
-1. For **IP Block ID**, enter the `ip-block-pks-deployments` IP block UUID. This can also be located in the NSX-T UI.
-1. For **Floating IP pool ID**, enter the `ip-pool-vips` Floating IP pool ID that was created for load balancer VIPs.
+1. Depending on your deployment, enter one of the following:
+  1. **Node IP Block ID** - Allocates IP addresses for the Nodes when the Kubernetes Nodes are created. The Node Networks will be created on a separate IP address space from the Pod Networks. The current subnet size that is created is a /24, which means a maximum of 256 nodes can be created per cluster.
+  1. **Pod IP Block ID** - Allocates IP addresses for the Pods when these Pods are created in Kubernetes. Each time a namespace is created in Kubernetes, a subnet from this IP block is allocated. The current subnet size that is created is a /24, which means a maximum of 256 pods can be created per cluster.
+1. For **Floating IP pool ID**, enter the `ip-pool-vips` Floating IP pool ID that was created for load balancer VIPs. This Floating IP pool is used to allocate IP addresses to the load balancers created for each of the cluster. The load balancer is going to be used to balance the API requests to the master nodes as well as the data plane (for services deployed as pods).
 1. (Optional) To configure a global proxy for all outgoing HTTP/HTTPS traffic from your Kubernetes clusters, do the following:
   1. Under **HTTP/HTTPS proxy**, select **Enabled**.
     ![Networking pane configuration](images/networking-https-proxy.png)
@@ -491,60 +492,3 @@ To modify the resource usage or stemcell configuration of PKS, see the [Resource
   <p class="note"><strong>Note</strong>: Ensure that you have no overlapping NAT rules. If your NAT rules overlap, you cannot reach Ops Manager from VMs in the vCenter network.</p>
 
 Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using PKS](using.html).
-
-<p class="note warning"><strong>WARNING</strong>: The PKS CLI is under active development and commands may change. To ensure you have installed the latest version, we recommend that you re-install the PKS CLI before you use it. For more information, see <a href="installing-pks-cli.html">Installing the PKS CLI</a>.</p>
-
-##<a id='nsxt-master-nat'></a> Step 8: Deploy a Cluster and Enable NAT Access
-
-In the current version of PKS, NSX-T does not automatically configure a NAT for the master node of each Kubernetes cluster. As a result, you must perform the following procedure for each cluster to enable your developers to use kubectl:
-
-1. Download the NSX scripts:
-  <pre class="terminal">
-  $ wget https&#58;//storage.googleapis.com/pks-releases/nsx-helper-pkg.tar.gz
-  </pre>
-1. Untar the `nsx-helper-pkg.tar.gz` file:
-  <pre class="terminal">
-  $ tar -xvzf nsx-helper-pkg.tar.gz
-  </pre>
-1. Install required packages:
-  <pre class="terminal">
-  $ sudo apt-get install git
-  $ sudo apt-get install -y httpie
-  $ sudo apt-get install jq
-  </pre>
-1. One of the files from the tarball is `nsx-cli.sh`. Make the script executable:
-  <pre class="terminal">
-  $ chmod 755 nsx-cli.sh
-  </pre>
-1. Set your NSX Manager admin user, password, and IP address as environment variables named `NSX_MANAGER_USERNAME`, `NSX_MANAGER_PASSWORD`, and `NSX_MANAGER_IP`. For example:
-  <pre class="terminal">
-  $ export NSX&#95;MANAGER&#95;USERNAME="admin-user" 
-  $ export NSX&#95;MANAGER&#95;PASSWORD="admin-password"
-  $ export NSX&#95;MANAGER&#95;IP="192.0.2.1" 
-  </pre>
-1. Execute the `nsx-cli` script with the following command:
-  <pre class="terminal">
-  $ ./nsx-cli.sh ipam allocate
-  </pre>
-  Developers can use this IP address as the `--external-hostname` value to create a cluster via the PKS CLI. For more information, see [Using PKS](using.html).
-1. Collect the Cluster UUID after cluster has been successfully created. 
-   <pre class="terminal">
-   $ pks clusters
-   </pre>
-1. For [NO-NAT deployment topologies](#architecture), continue to [Step 9: Delete the Kubernetes Cluster](#nsxt-del-cluster).
-For the [NAT deployment topology](#topology-nat), use the `nsx-cli` script to create a NAT rule to allow access to the Kubernetes API for the cluster. Execute the following command:
-   <pre class="terminal">
-   $ ./nsx-cli.sh nat create-rule CLUSTER-UUID MASTER-IP NAT-IP
-   </pre>
-    <br>
-    Where:
-    <br>
-    * `CLUSTER-UUID` is the ID of the cluster retrieved in the previous step.
-    * `MASTER-IP` is the IP address that BOSH has assigned to the master node of the cluster. To retrieve this value, use BOSH CLI v2+ to log in to your BOSH Director and list all instances with `bosh -e YOUR-ENV instances`. For more information, see [Commands](https://bosh.io/docs/cli-v2.html) in the BOSH documentation. 
-    * `NAT-IP` is the NAT IP from the `ip-pool-vips` NSX IP pool retrieved above.
-
-##<a id='nsxt-del-cluster'></a> Step 9: Delete the Kubernetes Cluster
-
-In the current version of PKS, NSX-T automatically deletes NSX-T objects created during the life of the product.
-
-Delete the Kubernetes Cluster using the PKS CLI. For more information, see [Delete a Cluster](delete-cluster.html). 
