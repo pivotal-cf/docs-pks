@@ -175,3 +175,19 @@ A persistent volume fails to connect to the Kubernetes cluster worker VM.
 * From the Kubernetes cluster master node, check the controller manager logs for errors attaching persistent volumes.
 * From the Kubernetes cluster worker node, check kubelet for errors attaching persistent volumes.
 
+##<a id='vsphere-ha-host'></a> VMs alternate between running and failing in vSphere HA
+
+**Symptoms**
+
+Output from running the `bosh vms` command alternates between showing that the VMs are `failing` and that the VMs are `running`. The operator must run the `bosh vms` command multiple times to see this cycle.
+
+**Explanation**
+In vSphere HA, if a VM dies, the BOSH resurrector fails to recreate the VM if the BOSH resurrector was set to `off`.
+For more information on VM resurrection see, [Resurrection](https://bosh.io/docs/sysadmin-commands/#vm-resurrection) in the Cloud Foundry BOSH documentation.
+
+**Solution**
+Run the following command on all of your master and worker VMs:
+
+`bosh -environment BOSH-DIRECTOR-NAME -deployment DEPLOYMENT-NAME ssh master -c "sudo /var/vcap/jobs/kube-controller-manager/bin/pre-start; sudo /var/vcap/jobs/kube-apiserver/bin/post-start"`
+
+The above command, when applied to each VM, gives the VMs the correct permissions. Recreation of the failed VM can then take place.
