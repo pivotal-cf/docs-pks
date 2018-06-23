@@ -70,7 +70,7 @@ Plan for the following network CIDRs in the IPv4 address space according to the 
 
 * **VTEP CIDR(s)**: One or more of these networks will host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the networks to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` will provide 254 usable IPs. This will be used when creating the `ip-pool-vteps` in Step 3.
 * **PKS MANAGEMENT CIDR**: This small network will be used to access PKS management components such as Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` will provide 14 usable IPs. For the [NO-NAT deployment topologies](#architecture), this will be a corporate routable subnet /28. For the [NAT deployment topology](#topology-nat), this will be a non-routable subnet /28, and DNAT needs to be configured in NSX-T to access the PKS management components.
-* **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. The network will also provide IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/24` will provide 256 usable IPs. This network will be used when creating the `ip-pool-vips` (and configured in the **Floating IP Pool ID** field on the Networking tab in the PKS Tile) described in [Create NSX Network Objects](#create-objects-network-objects), or when the services are deployed.
+* **PKS LB CIDR**: This network will provide your load balancing address space for each Kubernetes cluster created by PKS. The network will also provide IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/24` will provide 256 usable IPs. This network will be used when creating the `ip-pool-vips` described in [Create NSX Network Objects](#create-objects-network-objects), or when the services are deployed. You will enter this network in the **Floating IP Pool ID** field in the **Networking** pane of the PKS tile.
 
 Refer to the instructions in the VMware [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to ensure that your network topology enables the following communications:
 
@@ -79,19 +79,16 @@ Refer to the instructions in the VMware [NSX-T documentation](https://docs.vmwar
 * The Ops Manager Director VM must be able to communicate with all nodes in all Kubernetes clusters.
 * Each Kubernetes cluster deployed by PKS will deploy a NCP pod that must be able to communicate with the NSX Manager.
 
-In addition, you need to plan IP Blocks for pods and nodes that will be created when PKS creates the Kubernetes cluster. You will configure the Pods IP Block ID and Nodes IP Block ID in the Networking tab of the PKS tile. 
+In addition, you need to plan IP blocks for pods and nodes that will be created when PKS creates the Kubernetes cluster. You will configure the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the PKS tile.
 
 <p class="note"><strong>Note</strong>: Do not use the following for PKS Node IP block because Harbor is using them for its internal bridges. If you create Kubernetes clusters with any of these blocks, the Kubernetes worker nodes will not be able to reach Harbor for the image pull.</p>
 
-```
-harbor-app/8720af51-4dd2-4c5f-8a72-5d21c3c5cfb8:~# ip add | grep 172
-    inet 172.17.0.1/16 scope global docker0
-    inet 172.18.0.1/16 scope global br-c319305519ee
-    inet 172.19.0.1/16 scope global br-0b6fd7657749
-    inet 172.20.0.1/16 scope global br-1bd20afb3f77
-    inet 172.21.0.1/16 scope global br-e5f701f63210
-    inet 172.22.0.1/16 scope global br-80d5a8fb5294
-```
+  * 172.17.0.1/16
+  * 172.18.0.1/16
+  * 172.19.0.1/16
+  * 172.20.0.1/16
+  * 172.21.0.1/16
+  * 172.22.0.1/16
 
 ##<a id='deploy-nsx-t'></a> Step 2: Deploy NSX-T
 
@@ -104,7 +101,7 @@ Deploy NSX-T according to the instructions in the VMware [NSX-T documentation](h
 1. Join the NSX Controllers to the NSX Manager. For more information, see [Join NSX Controllers with the NSX Manager](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-05434745-7D74-4DA8-A68E-9FE17093DA7B.html) in the VMware NSX-T documentation. 
 1. Initialize the Control Cluster. For more information, see [Initialize the Control Cluster to Create a Control Cluster Master](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-273F6344-7212-4105-9FBA-A872CD75803F.html) in the VMware NSX-T documentation.
 1. Add your ESXi hosts to the NSX-T Fabric. For more information, see [Add a Hypervisor Host to the NSX-T Fabric](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-8C0EEC08-3A63-4918-A5E2-7A94AD50B0E6.html) in the VMware NSX-T documentation. Each host must have at least one **free nic/vmnic** not already used by other vSwitches on the ESXi host for use with NSX Host Transport Nodes.
-1. Deploy NSX Edge VMs. We recommend at least two VMs. For more information, see [NSX Edge Installation](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) in the VMware NSX-T documentation. Each deployed NSX Edge VM requires free resources in your vSphere Environment to provide 8 vCPU, 16 GB of RAM, and 120 GB of storage. When deploying, you must connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment by completing the following steps:
+1. Deploy NSX Edge VMs. We recommend at least two VMs. For more information, see [NSX Edge Installation](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) in the VMware NSX-T documentation. Each deployed NSX Edge VM requires free resources in your vSphere environment to provide 8 vCPU, 16 GB of RAM, and 120 GB of storage. When deploying, you must connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment by completing the following steps:
   1. Connect the first Edge interface to your environment's PortGroup/VLAN where your Edge Management IP can route and communicate with the NSX Manager.
   1. Connect the second Edge interface to your environment's PortGroup/VLAN where your GENEVE VTEPs can route and communicate with each other. Your **VTEP CIDR** should be routable to this PortGroup.
   1. Connect the third Edge interface to your environment's PortGroup/VLAN where your T0 uplink interface will be located.  
@@ -127,7 +124,9 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
   * For each host in the NSX-T Fabric, create a node named `tnode-host-NUMBER`. For example, if you have three hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`.
   * Add the `tz-overlay` NSX Transport Zone to each NSX Host Transport Node.
   <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>ip-pool-vteps</code> IP pool that allows them to route and communicate with each other, as well as other Edge Transport Nodes, to build GENEVE tunnels.</p>
-1. We recommend that you use two separate NSX IP Blocks, one for the Node Networks and another for the Pod Networks. Create an NSX IP Block named `node-network-ip-block` and a separate one named node-network-ip-block. For more information, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. PKS will use the node-network-ip-block to assign address space to Kubernetes nodes (Masters, Workers) when new clusters are deployed and/or a cluster increases its scale. The NSX-T Container Plug-in (NCP) will use the pod-network-ip-block to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
+1. Create NSX IP Blocks. We recommend that you use separate NSX IP Blocks for the node networks and the pod networks. For more information, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. Configuration details:
+  * One NSX IP Block named `node-network-ip-block`. PKS will use this block to assign address space to Kubernetes master and worker nodes when new clusters are deployed or a cluster increases its scale.
+  * One NSX IP Block named `pod-network-ip-block`. The NSX-T Container Plug-in (NCP) will use this block to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
 
 ###<a id='create-objects-logical-switches'></a> 3.2: Create Logical Switches
 
@@ -373,7 +372,7 @@ Perform the procedures in the [Logging](installing-pks.html#syslog) section of <
 Perform the following steps:
 
 1. Click **Networking**.
-1. Under **Network**, select **NSX-T** as the **Container Networking Interface**.
+1. Under **Container Networking Interface**, select **NSX-T**.
   ![NSX-T Networking configuration pane in Ops Manager](images/networking-nsx-t.png)
 1. For **NSX Manager hostname**, enter the hostname or IP address of your NSX Manager.
 1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Step 6: Generate and Register Certificates](#certificates). 
@@ -390,7 +389,6 @@ Perform the following steps:
 1. For **vSphere Cluster Names**, enter the names of the vSphere clusters you used when creating the PKS API VM in [Assign AZs and Networks](#azs-networks).
 1. (Optional) To configure a global proxy for all outgoing HTTP/HTTPS traffic from your Kubernetes clusters, do the following:
   1. Under **HTTP/HTTPS proxy**, select **Enabled**.
-    ![Networking pane configuration](images/networking-https-proxy.png)
   1. Under **HTTP Proxy URL**, enter the URL of your HTTP/HTTPS proxy endpoint. For example, `http://myproxy.com:1234`.
   1. (Optional) If your proxy uses basic authentication, enter the username and password in either **HTTP Proxy Credentials** or **HTTPS Proxy Credentials**.
   1. Under **No Proxy**, enter the service network CIDR where your PKS cluster is deployed. List any additional IP addresses that should bypass the proxy.

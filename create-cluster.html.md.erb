@@ -9,16 +9,21 @@ This topic describes how to create a Kubernetes cluster with Pivotal Container S
 
 ## <a id='cluster-access'></a>Configure Cluster Access
 
-When you create a cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
-Create the load balancer before you create the cluster, then point the load balancer to the IP address of the master virtual machine (VM) after cluster creation.
+When you create a Kubernetes cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
+This load balancer allows you to run PKS CLI commands on the cluster from your local workstation.
 
 You can configure any load balancer of your choice.
 If you use vSphere with NSX-T or GCP, you can create a load balancer using your cloud provider console. For information about configuring a GCP load balancer for PKS clusters, see [Configuring a GCP Load Balancer for PKS Clusters](gcp-cluster-load-balancer.html).
 
 <p class="note"><strong>Note</strong>: You can only configure GCP load balancers for PKS clusters deployed on GCP.</p>
 
+Create the load balancer before you create the cluster, then point the load balancer to the IP address of the master virtual machine (VM) after cluster creation.
+If the cluster has multiple master nodes, you must configure the load balancer to point to all master VMs for the cluster.
+
 If you are creating a cluster in a non-production environment, you can choose to create a cluster without a load balancer.
-Create a DNS entry that points to the cluster's master VM after cluster creation.
+Create a DNS entry that points to the IP address of the cluster's master VM after cluster creation.
+
+To locate the IP addresses and VM IDs of the master VMs, see [Identify the Kubernetes Cluster Master VM](#master-id) below.
 
 ## <a id='create'></a>Create a Kubernetes Cluster
 
@@ -68,13 +73,35 @@ Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
   If the value for **Last Action State** is `error`, troubleshoot cluster creation by logging in to the BOSH Director and running `bosh tasks`.
   See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
 
-1. Configure external access to the cluster's master node using either a DNS record or an external load balancer.
-Use the output from the `pks cluster` command to locate the master node IP address and port.
+1. Configure external access to the cluster's master nodes using either DNS records or an external load balancer.
+Use the output from the `pks cluster` command to locate the master node IP addresses and ports.
 
 1. To access your cluster, run `pks get-credentials CLUSTER-NAME`.
 This command creates a local `kubeconfig` that allows you to manage the cluster.
-See [Retrieve Cluster Credentials and Configuration](cluster-credentials.html) for more information.
+For more information about the `pks get-credentials` command, see [Retrieve Cluster Credentials and Configuration](cluster-credentials.html).
 
 1. Run `kubectl cluster-info` to confirm you can access your cluster using the Kubernetes CLI.
 
 See [Managing PKS](managing.html) for information about checking cluster health and viewing cluster logs.
+
+## <a id="master-id"></a>Identify Kubernetes Cluster Master VMs
+
+To reconfigure the load balancer or DNS record for an existing cluster, you may need to locate VM ID and IP address information for the cluster's master VMs.
+Use the information you locate in this procedure when configuring your load balancer backend.
+
+To locate the IP addresses and VM IDs for the master VMs of an existing cluster, do the following:
+
+1. <%= partial 'login-pks-api' %>
+1. To locate the cluster ID and master node IP addresses, run `pks cluster CLUSTER-NAME`. From the output of this command, record the following items:
+  * **UUID**: This value is your cluster ID.
+  * **Kubernetes Master IP(s)**: This value lists the IP addresses of all master nodes in the cluster.
+1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI to log in to the BOSH Director from the Ops Manager VM.
+For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
+1. Identify the name of your cluster deployment. For example:
+  <pre class="terminal">$ bosh -e pks deployments</pre>
+  Your cluster deployment name begins with `service-instance` and includes the UUID you located in a previous step.
+1. Identify the master VM IDs by listing the VMs in your cluster. For example:
+   <pre class="terminal">$ bosh -e pks -d service-instance-aa1234567bc8de9f0a1c vms</pre>
+   Your master VM IDs appear in the **VM CID** column.
+1. Use the information you gathered in this procedure to configure your load balancer backend.
+For example, if you use GCP, use the master VM IDs from the previous step in [Reconfiguring a GCP Load Balancer](gcp-cluster-load-balancer.html#reconfigure).
