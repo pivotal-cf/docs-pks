@@ -9,13 +9,21 @@ This topic describes how to create a Kubernetes cluster with Pivotal Container S
 
 ## <a id='cluster-access'></a>Configure Cluster Access
 
+Cluster access configuration differs by the type of PKS deployment.
+
+### <a id='cluster-access-nsx-t'></a>vSphere with NSX-T
+
+PKS deploys a load balancer automatically when clusters are created. The load balancer is configured automatically when workloads are being deployed on these Kubernetes clusters.
+For more information, see [Load Balancers in PKS Deployments with NSX-T](about-lb.html#with-nsx-t).
+
+### <a id='cluster-access-general'></a>vSphere without NSX-T or GCP
+
 When you create a Kubernetes cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
-This load balancer allows you to run PKS CLI commands on the cluster from your local workstation.
+This load balancer allows you to run PKS CLI commands on the cluster from your local workstation. For more information, see [Load Balancers in PKS Deployments without NSX-T](about-lb.html#without-nsx-t).
 
-You can configure any load balancer of your choice.
-If you use vSphere with NSX-T or GCP, you can create a load balancer using your cloud provider console. For information about configuring a GCP load balancer for PKS clusters, see [Configuring a GCP Load Balancer for PKS Clusters](gcp-cluster-load-balancer.html).
+You can configure any load balancer of your choice. If you use GCP or vSphere without NSX-T, you can create a load balancer using your cloud provider console. For information about configuring a GCP load balancer for PKS clusters, see [Configuring a GCP Load Balancer for PKS Clusters](gcp-cluster-load-balancer.html).
 
-<p class="note"><strong>Note</strong>: You can only configure GCP load balancers for PKS clusters deployed on GCP.</p>
+<p class="note"><strong>Note</strong>: You can configure GCP load balancers only for PKS clusters that are deployed on GCP.</p>
 
 Create the load balancer before you create the cluster, then point the load balancer to the IP address of the master virtual machine (VM) after cluster creation.
 If the cluster has multiple master nodes, you must configure the load balancer to point to all master VMs for the cluster.
@@ -73,9 +81,13 @@ Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
   If the value for **Last Action State** is `error`, troubleshoot cluster creation by logging in to the BOSH Director and running `bosh tasks`.
   See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
 
-1. Configure external access to the cluster's master nodes using either DNS records or an external load balancer.
-Use the output from the `pks cluster` command to locate the master node IP addresses and ports.
+1. Depending on your deployment:
+  * For GCP and vSphere without NSX-T, configure external access to the cluster's master nodes using either DNS records or an external load balancer. Use the output from the `pks cluster` command to locate the master node IP addresses and ports.
   <p class="note"><strong>Note</strong>: For clusters with multiple master node VMs, health checks on port 8443 are recommended.</p>
+  * For vSphere with NSX-T, choose one of the following:
+      * Specify the hostname or FQDN and register the FQDN with the IP provided by PKS after cluster deployment. You can do this using `resolv.conf` or via DNS registration.
+      * Specify a temporary placeholder value for FQDN, then replace the FQDN in the `kubeconfig` with the IP address assigned to the load balancer dedicated to the cluster.<br><br>
+  To retrieve the IP address to access the Kubernetes API and UI services, use the `pks cluster CLUSTER-NAME` command.
 
 1. To access your cluster, run `pks get-credentials CLUSTER-NAME`.
 This command creates a local `kubeconfig` that allows you to manage the cluster.
@@ -86,6 +98,9 @@ For more information about the `pks get-credentials` command, see [Retrieve Clus
 See [Managing PKS](managing.html) for information about checking cluster health and viewing cluster logs.
 
 ## <a id="master-id"></a>Identify Kubernetes Cluster Master VMs
+
+<p class="note"><strong>Note</strong>: This section applies only to PKS deployments on GCP or on vSphere without NSX-T. Skip this section if your PKS deployment is on vSphere with NSX-T. For more information, see <a href="about-lb.html">Load Balancers in PKS</a>.
+</p>
 
 To reconfigure the load balancer or DNS record for an existing cluster, you may need to locate VM ID and IP address information for the cluster's master VMs.
 Use the information you locate in this procedure when configuring your load balancer backend.
