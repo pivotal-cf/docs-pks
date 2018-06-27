@@ -338,22 +338,18 @@ Before you install PKS on NSX-T, you need to create two certificates that you wi
 
 ###<a id='certificates-super-user'></a> 6.1: Generate the NSX Manager Super User Principal Identity Certificate
 
-This certificate represents a principal identity with superuser permissions that the PKS VM will use to communicate with NSX-T to manage (create, delete, and modify) node networking resources. During PKS installation on NSX-T, you will need to provide this in the NSX Manager Super User Principal Identity Certificate field on the Networking Tab in the PKS Tile.
-You can complete the following steps from the Ops Manager VM or from any other Linux VM (this does not work on a Mac).
+This certificate represents a principal identity with superuser permissions that the PKS VM will use to communicate with NSX-T to manage (create, delete, and modify) node networking resources. During PKS installation on NSX-T, you will need to provide this in the NSX Manager Super User Principal Identity Certificate field on the **Networking** pane in the PKS tile.
+You can complete the following steps from the Ops Manager VM or from any other Linux VM.
+This procedure does not work on Mac OS.
 
 ####Before You Begin
 
-You will need the following information to complete the steps below:
+Export the following environment variables to complete the steps below:
 
-```
-#Inputs
- 
+``` 
 NSX_MANAGER="<NSX_MANAGER_IP>"
 NSX_USER="<NSX_MANAGER_USERNAME>"
 NSX_PASSWORD='<NSX_MANAGER_PASSWORD>'
- 
-#Global variables
- 
 PI_NAME="pks-nsx-t-superuser" 
 NSX_SUPERUSER_CERT_FILE="pks-nsx-t-superuser.crt"
 NSX_SUPERUSER_KEY_FILE="pks-nsx-t-superuser.key"
@@ -362,10 +358,10 @@ NODE_ID=$(cat /proc/sys/kernel/random/uuid)
 
 ####Step 6.1.1: Create the Certificate
 
-To create the certificate, complete the following step: 
+To create the certificate, run the following command: 
 
-```
-openssl req \
+<pre class="terminal">
+$ openssl req \
 -newkey rsa:2048 \
 -x509 \
 -nodes \
@@ -380,33 +376,38 @@ cat /etc/ssl/openssl.cnf \
 ) \
 -sha256 \
 -days 730
-```
+</pre>
 
 ####Step 6.1.2: Register the Certificate
 
-To register the certificate with NSX Manager, complete the following steps:
+To register the certificate with NSX Manager, run the following commands:
 
-```cert_request=$(cat <<END
+<pre class="terminal">
+cert_request=$(cat &lt;&lt;END
   {
     "display_name": "$PI_NAME",
     "pem_encoded": "$(awk '{printf "%s\\n", $0}' $NSX_SUPERUSER_CERT_FILE)"
   }
 END
 )
- 
+</pre>
+
+<pre class="terminal">
 curl -k -X POST \
 "https://${NSX_MANAGER}/api/v1/trust-management/certificates?action=import" \
 -u "$NSX_USER:$NSX_PASSWORD" \
 -H 'content-type: application/json' \
 -d "$cert_request"
- 
-CERTIFICATE_ID="<GET ID FROM ABOVE CURL RESPONSE>"  
-```
+</pre>
 
+The response includes the `CERTIFICATE_ID` value.
+ 
 ####Step 6.1.3: Register the Principal Identity
 
-To register the principal identity with NSX Manager, complete the following steps:
-```pi_request=$(cat <<END
+To register the principal identity with NSX Manager, run the following commands:
+
+<pre class="terminal">
+pi_request=$(cat &lt;&lt;END
   {
     "display_name": "$PI_NAME",
     "name": "$PI_NAME",
@@ -416,24 +417,28 @@ To register the principal identity with NSX Manager, complete the following step
   }
 END
 )
- 
+</pre>
+
+<pre class="terminal">
 curl -k -X POST \
   "https://${NSX_MANAGER}/api/v1/trust-management/principal-identities" \
   -u "$NSX_USER:$NSX_PASSWORD" \
   -H 'content-type: application/json' \
   -d "$pi_request"
-```
+</pre>
 
 ####Step 6.1.4: Verify the Certificate and Key
 
-To verify that the certificate and key can be used with NSX-T, complete the following steps: 
-```curl -k -X GET \
+To verify that the certificate and key can be used with NSX-T, complete the following steps:
+
+<pre class="terminal">
+curl -k -X GET \
 "https://${NSX_MANAGER}/api/v1/trust-management/principal-identities" \
 --cert $(pwd)/"$NSX_SUPERUSER_CERT_FILE" \
 --key $(pwd)/"$NSX_SUPERUSER_KEY_FILE"
-```
+</pre>
 
-Later, when you install PKS on NSX-T, you will copy and paste the contents of the pks-nsx-t-superuser.crt and  pks-nsx-t-superuser.key into the NSX Manager Super User Principal Identity Certificate field on the Networking tab in the PKS Tile.
+Later, when you install PKS on NSX-T, you will copy and paste the contents of the `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` into the NSX Manager Super User Principal Identity Certificate field on the **Networking** pane in the PKS tile.
 
 ###<a id='certificates-nsx-manager'></a> 6.2: Generate the NSX Manager CA Certificate
 
@@ -443,39 +448,62 @@ This certificate is used to authenticate with the NSX Manager. You create an IP-
 
 <p class="note"><strong>Note</strong>: If you already have a CA-signed certificate, skip this section and go to 6.2.2.</p>
 
-1. Create a file with the certificate request parameters:
-```~$ cat nsx-cert.cnf
-[ req ]
-default_bits = 2048
-distinguished_name = req_distinguished_name
-req_extensions = req_ext
-prompt = no
-[ req_distinguished_name ]
-countryName = US
-stateOrProvinceName = California
-localityName = CA
-organizationName = NSX
-commonName = <NSX-Manager-IP-Address>
-[ req_ext ]
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = <NSX-Manager-IP-Address>
-```
-1. Generate the certificate using openssl.
-```openssl req -newkey rsa:2048 -x509 -nodes -keyout nsx.key -new -out nsx.crt -subj /CN=<NSX-Manager-IP-Address> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf <(printf '[SAN]\nsubjectAltName=IP:<NSX-Manager-IP-Address>')) -sha256 -days 365```
-1. Verify that the certificate looks correct and that the NSX manager IP is in the Subject Alternative Name (SAN):
-```openssl x509 -in nsx.crt -text -noout```
+1. Create a file with the certificate request parameters, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager:
+
+    ```
+    $ cat nsx-cert.cnf
+    [ req ]
+    default_bits = 2048
+    distinguished_name = req_distinguished_name
+    req_extensions = req_ext
+    prompt = no
+    [ req_distinguished_name ]
+    countryName = US
+    stateOrProvinceName = California
+    localityName = CA
+    organizationName = NSX
+    commonName = NSX-MANAGER-IP-ADDRESS
+    [ req_ext ]
+    subjectAltName = @alt_names
+    [alt_names]
+    DNS.1 = NSX-MANAGER-IP-ADDRESS
+    ```
+
+1. Generate the certificate using openssl. Run the following command, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager:
+
+    ```
+    openssl req -newkey rsa:2048 -x509 -nodes \
+    -keyout nsx.key -new -out nsx.crt -subj /CN=NSX-MANAGER-IP-ADDRESS \
+    -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
+     <(printf '[SAN]\nsubjectAltName=IP:NSX-MANAGER-IP-ADDRESS')) -sha256 -days 365
+    ```
+
+1. Verify that the certificate looks correct and that the NSX manager IP is in the Subject Alternative Name (SAN) by running the following command:
+
+    <pre class="terminal">
+    $ openssl x509 -in nsx.crt -text -noout
+    </pre>
 
 ####Step 6.2.2: Register the Certificate with NSX Manager
 
 1. Log into the NSX Manager UI.
-1. Import the certificate (copying `nsx.crt` and `nsx.key`). For instructions, see [Import a CA Certificate](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-4135E962-E3EE-4285-8A66-E54E43937AE9.html) in the NSX-T documentation. 
-1. Get the ID of the certificate:
-```curl --insecure -u admin:'admin_pw' -X GET https://NSX-Manager-IP-Address/api/v1/trust-management/certificates | jq '-r .results[] | select(.display_name==<certificate-name>) | .id'```
-1. Register the certificate with NSX Manager:
-```curl --insecure -u admin:'admin_pw' -X POST 'https://NSX-Manager-IP-Address/api/v1/node/services/http?action=apply_certificate&certificate_id=<certificate-id>'```
+1. Import the certificate by copying `nsx.crt` and `nsx.key`. For instructions, see [Import a CA Certificate](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-4135E962-E3EE-4285-8A66-E54E43937AE9.html) in the NSX-T documentation. 
+1. Get the ID of the certificate. Run the following command, replacing `CERTIFICATE-NAME` with the certificate name:
 
-Later, when you install PKS on NSX-T, you will copy and paste the contents of the `nsx.crt` certificate into the **NSX Manager CA Cert** field on the Networking tab in the PKS Tile.
+    ```
+    curl --insecure -u admin:'admin_pw' -X \
+    GET https://NSX-Manager-IP-Address/api/v1/trust-management/certificates \
+    | jq '-r .results[] | select(.display_name==CERTIFICATE-NAME) | .id'
+    ```
+
+1. Register the certificate with NSX Manager, replacing `CERTIFICATE-ID` with the certificate ID:
+
+    ```
+    curl --insecure -u admin:'admin_pw' -X \
+    POST 'https://NSX-Manager-IP-Address/api/v1/node/services/http?action=apply_certificate&certificate_id=CERTIFICATE-ID'
+    ```
+
+Later, when you install PKS on NSX-T, you will copy and paste the contents of the `nsx.crt` certificate into the **NSX Manager CA Cert** field on the **Networking** pane in the PKS tile.
 
 ##<a id='install'></a> Step 7: Install and Configure PKS
 
@@ -495,7 +523,7 @@ Perform the following steps:
 1. Select the availability zone (AZ) where you want to deploy the PKS API VM as a singleton job.
   <p class="note"><strong>Note</strong>: You must select an additional AZ for balancing other jobs before clicking <strong>Save</strong>, but this selection has no effect in the current version of PKS.</p>
 1. Under **Network**, select the PKS Management Network linked to the `ls-pks-mgmt` NSX logical switch you created in [Step 5: Configure Ops Manager](#config-ops-man). This will provide network placement for the PKS API VM.
-1. Under **Service Network**, select any network that has been configured in the OpsManager Network configuration.
+1. Under **Service Network**, select any network that has been configured in the Ops Manager network configuration.
 1. Click **Save**.
 
 ###<a id='pks-api'></a> PKS API
