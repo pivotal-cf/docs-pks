@@ -11,7 +11,7 @@ This topic describes how to install and configure Pivotal Container Service (PKS
 
 There are three supported topologies in which to deploy NSX-T with PKS. Except where noted, the instructions in this topic describe how to set up all three options.
 
-### <a id='topology-nat'></a> NAT Topology
+###<a id='topology-nat'></a> NAT Topology
 
 The following figure shows a Network Address Translation (NAT) deployment:
 
@@ -25,7 +25,7 @@ This topology has the following characteristics:
 * Kubernetes cluster master and worker nodes are located on a logical switch 
 that has undergone Network Address Translation on a T0. This requires DNAT rules to allow access to Kubernetes APIs.
 
-### <a id='topology-no-nat-virtual-switch'></a> NO-NAT with Virtual Switch (VSS/VDS) Topology
+###<a id='topology-no-nat-virtual-switch'></a> NO-NAT with Virtual Switch (VSS/VDS) Topology
 
 The following figure shows a NO-NAT with Virtual Switch (VSS/VDS) deployment:
 
@@ -39,7 +39,7 @@ This topology has the following characteristics:
 * Kubernetes cluster master and worker nodes are using corporate routable IP addresses.
 * The PKS control plane is deployed outside of the NSX-T network and the Kubernetes clusters are deployed and managed within the NSX-T network. Since BOSH needs routable access to the Kubernetes Nodes to monitor and manage them, the Kubernetes Nodes need routable access.
 
-### <a id='topology-no-nat-logical-switch'></a> NO-NAT with Logical Switch (NSX-T) Topology
+###<a id='topology-no-nat-logical-switch'></a> NO-NAT with Logical Switch (NSX-T) Topology
 
 The following figure shows a NO-NAT with Logical Switch (NSX-T) deployment:
 
@@ -308,7 +308,7 @@ Perform the following steps to configure Ops Manager for the NSX logical switche
 
 1. Complete the procedures in [Configuring Ops Manager on vSphere](vsphere-om-config.html).
   <p class="note"><strong>Note</strong>: If you have Pivotal Application Service (PAS) installed, we recommend installing PKS on a separate instance of Ops Manager v2.0.</p>
-  * On the **vCenter Config** page, select **NSX Networking - NSX-T**. This configuration is used for PAS and PKS.
+  * On the **vCenter Config** page, select **NSX Networking - NSX-T**. This configuration is used for PAS and PKS. For more information, see [Enable NSX-T Mode in the BOSH Director in Deploying PAS with NSX-T Networking](https://docs.pivotal.io/pivotalcf/2-1/customizing/vsphere-nsx-t.html#nsx-t-mode) in the PCF documentation.
   <p class="note"><strong>Note</strong>: If you are using the <a href="#topology-nat">NAT deployment topology</a>, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions above in <a href="#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a>. You will use the DNAT IP address to access Ops Manager.</p>
   * On the **Create Networks** page, create the following infrastructure network:
     <table>
@@ -332,6 +332,149 @@ Perform the following steps to configure Ops Manager for the NSX logical switche
 
 ##<a id='certificates'></a> Step 6: Generate and Register Certificates
 
+Before you install PKS on NSX-T, you need to create two certificates that you will provide on the Networking tab in the PKS Tile. 
+
+###<a id='certificates-super-user'></a> 6.1: Generate the NSX Manager Super User Principal Identity Certificate
+
+This certificate represents a principal identity with superuser permissions that the PKS VM will use to communicate with NSX-T to manage (create, delete, and modify) node networking resources. During PKS installation on NSX-T, you will need to provide this in the NSX Manager Super User Principal Identity Certificate field on the Networking Tab in the PKS Tile.
+You can complete the following steps from the Ops Manager VM or from any other Linux VM (this does not work on a Mac).
+
+####Before You Begin
+
+You will need the following information to complete the steps below:
+
+```
+#Inputs
+ 
+NSX_MANAGER="<NSX_MANAGER_IP>"
+NSX_USER="<NSX_MANAGER_USERNAME>"
+NSX_PASSWORD='<NSX_MANAGER_PASSWORD>'
+ 
+#Global variables
+ 
+PI_NAME="pks-nsx-t-superuser" 
+NSX_SUPERUSER_CERT_FILE="pks-nsx-t-superuser.crt"
+NSX_SUPERUSER_KEY_FILE="pks-nsx-t-superuser.key"
+NODE_ID=$(cat /proc/sys/kernel/random/uuid)
+```
+
+####Step 6.1.1: Create the Certificate
+
+To create the certificate, complete the following step: 
+
+```
+openssl req \
+-newkey rsa:2048 \
+-x509 \
+-nodes \
+-keyout "$NSX_SUPERUSER_KEY_FILE" \
+-new \
+-out "$NSX_SUPERUSER_CERT_FILE" \
+-subj /CN=pks-nsx-t-superuser \
+-extensions client_server_ssl \
+-config <(
+cat /etc/ssl/openssl.cnf \
+<(printf '[client_server_ssl]\nextendedKeyUsage = clientAuth\n')
+) \
+-sha256 \
+-days 730
+```
+
+####Step 6.1.2: Register the Certificate
+
+To register the certificate with NSX Manager, complete the following steps:
+
+```cert_request=$(cat <<END
+  {
+    "display_name": "$PI_NAME",
+    "pem_encoded": "$(awk '{printf "%s\\n", $0}' $NSX_SUPERUSER_CERT_FILE)"
+  }
+END
+)
+ 
+curl -k -X POST \
+"https://${NSX_MANAGER}/api/v1/trust-management/certificates?action=import" \
+-u "$NSX_USER:$NSX_PASSWORD" \
+-H 'content-type: application/json' \
+-d "$cert_request"
+ 
+CERTIFICATE_ID="<GET ID FROM ABOVE CURL RESPONSE>"  
+```
+
+####Step 6.1.3: Register the Principal Identity
+
+To register the principal identity with NSX Manager, complete the following steps:
+```pi_request=$(cat <<END
+  {
+    "display_name": "$PI_NAME",
+    "name": "$PI_NAME",
+    "permission_group": "superusers",
+    "certificate_id": "$CERTIFICATE_ID",
+    "node_id": "$NODE_ID"
+  }
+END
+)
+ 
+curl -k -X POST \
+  "https://${NSX_MANAGER}/api/v1/trust-management/principal-identities" \
+  -u "$NSX_USER:$NSX_PASSWORD" \
+  -H 'content-type: application/json' \
+  -d "$pi_request"
+```
+
+####Step 6.1.4: Verify the Certificate and Key
+
+To verify that the certificate and key can be used with NSX-T, complete the following steps: 
+```curl -k -X GET \
+"https://${NSX_MANAGER}/api/v1/trust-management/principal-identities" \
+--cert $(pwd)/"$NSX_SUPERUSER_CERT_FILE" \
+--key $(pwd)/"$NSX_SUPERUSER_KEY_FILE"
+```
+
+Later, when you install PKS on NSX-T, you will copy and paste the contents of the pks-nsx-t-superuser.crt and  pks-nsx-t-superuser.key into the NSX Manager Super User Principal Identity Certificate field on the Networking tab in the PKS Tile.
+
+###<a id='certificates-nsx-manager'></a> 6.2: Generate the NSX Manager CA Certificate
+
+This certificate is used to authenticate with the NSX Manager. You create an IP-based, self-signed certificate and register it with NSX Manager. During PKS installation on NSX-T, you will need to provide this certificate in the **NSX Manager CA Cert** field on the Networking Tab in the PKS Tile.
+
+####Step 6.2.1: Generate a Self-signed Certificate
+
+<p class="note"><strong>Note</strong>: If you already have a CA-signed certificate, skip this section and go to 6.2.2.</p>
+
+1. Create a file with the certificate request parameters:
+```~$ cat nsx-cert.cnf
+[ req ]
+default_bits = 2048
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+prompt = no
+[ req_distinguished_name ]
+countryName = US
+stateOrProvinceName = California
+localityName = CA
+organizationName = NSX
+commonName = <NSX-Manager-IP-Address>
+[ req_ext ]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = <NSX-Manager-IP-Address>
+```
+1. Generate the certificate using openssl.
+```openssl req -newkey rsa:2048 -x509 -nodes -keyout nsx.key -new -out nsx.crt -subj /CN=<NSX-Manager-IP-Address> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf <(printf '[SAN]\nsubjectAltName=IP:<NSX-Manager-IP-Address>')) -sha256 -days 365```
+1. Verify that the certificate looks correct and that the NSX manager IP is in the Subject Alternative Name (SAN):
+```openssl x509 -in nsx.crt -text -noout```
+
+####Step 6.2.2: Register the Certificate with NSX Manager
+
+1. Log into the NSX Manager UI.
+1. Import the certificate (copying `nsx.crt` and `nsx.key`). For instructions, see [Import a CA Certificate](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-4135E962-E3EE-4285-8A66-E54E43937AE9.html) in the NSX-T documentation. 
+1. Get the ID of the certificate:
+```curl --insecure -u admin:'admin_pw' -X GET https://NSX-Manager-IP-Address/api/v1/trust-management/certificates | jq '-r .results[] | select(.display_name==<certificate-name>) | .id'```
+1. Register the certificate with NSX Manager:
+```curl --insecure -u admin:'admin_pw' -X POST 'https://NSX-Manager-IP-Address/api/v1/node/services/http?action=apply_certificate&certificate_id=<certificate-id>'```
+
+Later, when you install PKS on NSX-T, you will copy and paste the contents of the `nsx.crt` certificate into the **NSX Manager CA Cert** field on the Networking tab in the PKS Tile.
+
 ##<a id='install'></a> Step 7: Install and Configure PKS
 
 Perform the following steps to install and configure PKS:
@@ -350,7 +493,7 @@ Perform the following steps:
 1. Select the availability zone (AZ) where you want to deploy the PKS API VM as a singleton job.
   <p class="note"><strong>Note</strong>: You must select an additional AZ for balancing other jobs before clicking <strong>Save</strong>, but this selection has no effect in the current version of PKS.</p>
 1. Under **Network**, select the PKS Management Network linked to the `ls-pks-mgmt` NSX logical switch you created in [Step 5: Configure Ops Manager](#config-ops-man). This will provide network placement for the PKS API VM.
-1. Under **Service Network**, select the PKS Service Network linked to the `ls-pks-service` NSX logical switch you created in [Step 5: Configure Ops Manager](#config-ops-man). This will provide network placement for the on-demand Kubernetes cluster service instances created by the PKS broker.
+1. Under **Service Network**, select any network that has been configured in the OpsManager Network configuration.
 1. Click **Save**.
 
 ###<a id='pks-api'></a> PKS API
@@ -377,8 +520,8 @@ Perform the following steps:
 1. Under **Container Networking Interface**, select **NSX-T**.
   ![NSX-T Networking configuration pane in Ops Manager](images/networking-nsx-t.png)
 1. For **NSX Manager hostname**, enter the hostname or IP address of your NSX Manager.
-1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Step 6: Generate and Register Certificates](#certificates). You can also click **Generate RSA Certificate** to generate the certificate here. 
-1. (Optional) For **NSX Manager CA Cert**, enter the custom CA certificate to be used to connect to the NSX Manager.
+1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Step 6: Generate and Register Certificates](#certificates).
+1. (Optional) For **NSX Manager CA Cert**, copy and paste the contents of the NSX Manager CA certificate you created in [Step 6: Generate and Register Certificates](#certificates). This will be used to connect to the NSX Manager.
 1. The **Disable SSL certificate verification** checkbox is **not** selected by default. In order to disable TLS verification, select the checkbox. You may want to disable TLS verification if you did not enter a CA certificate, or if your CA certificate is self-signed.
 1. If you are using a NAT deployment topology, leave the **NAT mode** checkbox selected. If you are using a NO-NAT topology, clear this checkbox. For more information, see the [Deployment Topologies](#architecture) section above. 
 1. Enter the following IP Block settings:
