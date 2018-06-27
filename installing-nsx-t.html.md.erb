@@ -37,7 +37,7 @@ This topology has the following characteristics:
 
 * PKS control plane (Ops Manager, BOSH Director, and PKS VM) components are using corporate routable IP addresses.
 * Kubernetes cluster master and worker nodes are using corporate routable IP addresses.
-* The PKS control plane is deployed outside of the NSXT-T network and the Kubernetes clusters are deployed and managed within the NSX-T network. Since BOSH needs routable access to the Kubernetes Nodes to monitor and manage them, the Kubernetes Nodes need routable access.
+* The PKS control plane is deployed outside of the NSX-T network and the Kubernetes clusters are deployed and managed within the NSX-T network. Since BOSH needs routable access to the Kubernetes Nodes to monitor and manage them, the Kubernetes Nodes need routable access.
 
 ### <a id='topology-no-nat-logical-switch'></a> NO-NAT with Logical Switch (NSX-T) Topology
 
@@ -64,7 +64,11 @@ Follow these steps before performing the procedures in this topic:
 
 <p class="note"><strong>Note</strong>: When using NSX-T 2.1, creating namespaces with names longer than 40 characters may result in a truncated or hashed name in the NSX-T Manager UI.</p>
 
-##<a id='plan'></a> Step 1: Plan for Network Subnets
+##<a id='plan'></a> Step 1: Plan for Network Subnets and IP Blocks
+
+Before you install PKS on NSX-T, you should plan for the CIDRs and IP blocks that you will use in your deployment.
+
+###<a id='plan-cidrs'></a>Plan Network CIDRs
 
 Plan for the following network CIDRs in the IPv4 address space according to the instructions in the VMware [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html).
 
@@ -79,9 +83,11 @@ Refer to the instructions in the VMware [NSX-T documentation](https://docs.vmwar
 * The Ops Manager Director VM must be able to communicate with all nodes in all Kubernetes clusters.
 * Each Kubernetes cluster deployed by PKS will deploy a NCP pod that must be able to communicate with the NSX Manager.
 
-In addition, you need to plan IP blocks for pods and nodes that will be created when PKS creates the Kubernetes cluster. You will configure the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the PKS tile.
+###<a id='plan-ip-blocks'></a>Plan IP Blocks
 
-Harbor uses the following IP blocks for its internal bridges:
+In addition, you need to plan IP blocks for pods and nodes that will be created when PKS creates the Kubernetes cluster. IP Block sizes must be a multiple of 256 (/24). You must make sure that an IP block already has any subnets allocated, and that the subnet size is 256 (/24). You will configure the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the PKS tile.
+
+<p class="note"><strong>Note</strong>: Do not use the following for PKS Node IP block because Harbor is using them for its internal bridges. If you create Kubernetes clusters with any of these blocks, the Kubernetes worker nodes will not be able to reach Harbor for the image pull.</p>
 
   * 172.17.0.1/16
   * 172.18.0.1/16
@@ -89,8 +95,6 @@ Harbor uses the following IP blocks for its internal bridges:
   * 172.20.0.1/16
   * 172.21.0.1/16
   * 172.22.0.1/16
-
-<p class="note"><strong>Note</strong>: Do not use any of the IP blocks listed above for pods or nodes. If you create Kubernetes clusters with any of the blocks listed above, the Kubernetes worker nodes cannot reach Harbor for the image pull.</p>
 
 ##<a id='deploy-nsx-t'></a> Step 2: Deploy NSX-T
 
@@ -126,9 +130,9 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
   * For each host in the NSX-T Fabric, create a node named `tnode-host-NUMBER`. For example, if you have three hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`.
   * Add the `tz-overlay` NSX Transport Zone to each NSX Host Transport Node.
   <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>ip-pool-vteps</code> IP pool that allows them to route and communicate with each other, as well as other Edge Transport Nodes, to build GENEVE tunnels.</p>
-1. Create NSX IP Blocks. We recommend that you use separate NSX IP Blocks for the node networks and the pod networks. For more information, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. Configuration details:
-  * One NSX IP Block named `node-network-ip-block`. PKS will use the `node-network-ip-block` to assign address space to Kubernetes master and worker nodes when new clusters are deployed or a cluster increases its scale.
-  * One NSX IP Block named `pod-network-ip-block`. The NSX-T Container Plug-in (NCP) will use the `pod-network-ip-block` to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
+1. Create NSX IP Blocks. We recommend that you use separate NSX IP Blocks for the node networks and the pod networks. The subnets (both nodes and pods) should have a size of 256 (/24). For more information, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. Configuration details:
+  * One NSX IP Block named `node-network-ip-block`. PKS will use this block to assign address space to Kubernetes master and worker nodes when new clusters are deployed or a cluster increases its scale.
+  * One NSX IP Block named `pod-network-ip-block`. The NSX-T Container Plug-in (NCP) will use this block to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
 
 ###<a id='create-objects-logical-switches'></a> 3.2: Create Logical Switches
 
@@ -303,10 +307,10 @@ Complete the procedures in [Deploying Ops Manager to vSphere](vsphere-om-deploy.
 Perform the following steps to configure Ops Manager for the NSX logical switches:
 
 1. Complete the procedures in [Configuring Ops Manager on vSphere](vsphere-om-config.html).
-  <p class="note"><strong>Note</strong>: If you have Pivotal Application Service (PAS) installed, we recommend installing PKS on a separate instance of Ops Manager.</p>
-  * On the **vCenter Config** page, select **NSX Networking - NSX-T**.
+  <p class="note"><strong>Note</strong>: If you have Pivotal Application Service (PAS) installed, we recommend installing PKS on a separate instance of Ops Manager v2.0.</p>
+  * On the **vCenter Config** page, select **NSX Networking - NSX-T**. This configuration is used for PAS and PKS.
   <p class="note"><strong>Note</strong>: If you are using the <a href="#topology-nat">NAT deployment topology</a>, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions above in <a href="#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a>. You will use the DNAT IP address to access Ops Manager.</p>
-  * On the **Create Networks** pane, create the following network:
+  * On the **Create Networks** page, create the following infrastructure network:
     <table>
       <tr>
         <th>Field</th>
@@ -315,10 +319,6 @@ Perform the following steps to configure Ops Manager for the NSX logical switche
       <tr>
         <td>Name</td>
         <td><code>pks-infrastructure</code></td>
-      </tr>
-      <tr>
-        <td>Service Network</td>
-        <td>Leave <strong>Service Network</strong> unchecked.</td>
       </tr>
       <tr>
         <td>vSphere Network Name</td>
@@ -377,16 +377,17 @@ Perform the following steps:
 1. Under **Container Networking Interface**, select **NSX-T**.
   ![NSX-T Networking configuration pane in Ops Manager](images/networking-nsx-t.png)
 1. For **NSX Manager hostname**, enter the hostname or IP address of your NSX Manager.
-1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Step 6: Generate and Register Certificates](#certificates). 
+1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Step 6: Generate and Register Certificates](#certificates). You can also click **Generate RSA Certificate** to generate the certificate here. 
 1. (Optional) For **NSX Manager CA Cert**, enter the custom CA certificate to be used to connect to the NSX Manager.
 1. The **Disable SSL certificate verification** checkbox is **not** selected by default. In order to disable TLS verification, select the checkbox. You may want to disable TLS verification if you did not enter a CA certificate, or if your CA certificate is self-signed.
 1. If you are using a NAT deployment topology, leave the **NAT mode** checkbox selected. If you are using a NO-NAT topology, clear this checkbox. For more information, see the [Deployment Topologies](#architecture) section above. 
-1. Depending on your deployment, enter one of the following IP Block settings:
+1. Enter the following IP Block settings:
   ![NSX-T Networking configuration pane in Ops Manager](images/networking-nsx-t-2.png)
   * **Pods IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes pods. PKS allocates IP addresses for the pods when they are created in Kubernetes. Each time a namespace is created in Kubernetes, a subnet from this IP block is allocated. The current subnet size that is created is /24, which means a maximum of 256 pods can be created per namespace.
-  * **Nodes IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes pods. PKS allocates IP addresses for the nodes when they are created in Kubernetes. The node networks will be created on a separate IP address space from the pod networks. The current subnet size that is created is /24, which means a maximum of 256 nodes can be created per cluster.
+  * **Nodes IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes nodes. PKS allocates IP addresses for the nodes when they are created in Kubernetes. The node networks will be created on a separate IP address space from the pod networks. The current subnet size that is created is /24, which means a maximum of 256 nodes can be created per cluster.
+  For more information, including sizes and the IP blocks to avoid using, see <a href="#plan-ip-blocks">Plan IP Blocks</a>.
 1. For **T0 Router ID**, enter the `t0-pks` T0 router UUID. Locate this value in the NSX-T UI router overview.
-1. For **Floating IP Pool ID**, enter the `ip-pool-vips` ID that you created for load balancer VIPs in <a href="#plan">Step 1: Plan for Network Subnets</a>. PKS uses the floating IP pool to allocate IP addresses to the load balancers created for each of the clusters. The load balancer routes the API requests to the master nodes and the data plane.
+1. For **Floating IP Pool ID**, enter the `ip-pool-vips` ID that you created for load balancer VIPs (see <a href="#plan-cidrs">Plan IP Blocks</a>). PKS uses the floating IP pool to allocate IP addresses to the load balancers created for each of the clusters. The load balancer routes the API requests to the master nodes and the data plane.
 1. For **Nodes DNS**, enter one or more Domain Name Servers used by the Kubernetes nodes.
 1. For **vSphere Cluster Names**, enter the names of the vSphere clusters you used when creating the PKS API VM in [Assign AZs and Networks](#azs-networks).
 1. (Optional) To configure a global proxy for all outgoing HTTP/HTTPS traffic from your Kubernetes clusters, do the following:
@@ -419,9 +420,12 @@ Perform the following steps:
 
 To modify the resource usage or stemcell configuration of PKS, see the [Resource Config](installing-pks.html#resource-config) and [Stemcell](installing-pks.html#stemcell) sections in <em>Installing and Configuring PKS</em>.
 
-##<a id='apply-changes'></a> Step 8: Apply Changes and Retrieve the PKS Endpoint
+##<a id='apply-changes'></a> Step 8: Apply Changes to Deploy the PKS Tile
 
-1. After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the PKS tile.
+After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the PKS tile.
+
+##<a id='retrieve-endpoint'></a> Step 9: Retrieve the PKS Endpoint
+
 1. When the installation is completed, retrieve the PKS endpoint by performing the following steps:
   1. From the Ops Manager Installation Dashboard, click the **Pivotal Container Service** tile.
   1. Click the **Status** tab and record the IP address assigned to the `Pivotal Container Service` job.
