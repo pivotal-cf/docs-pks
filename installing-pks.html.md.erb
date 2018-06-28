@@ -116,7 +116,7 @@ The plan description appears in the Services Marketplace, which developers can a
 1. Under **Master/ETCD VM Type**, select the type of VM to use for Kubernetes master/etcd nodes.
 1. Under **Master Persistent Disk Type**, select the size of the persistent disk for the Kubernetes master node VM.
 1. Under **Master/ETCD Availability Zones**, select one or more AZs for the Kubernetes clusters deployed by PKS. If you select more than one AZ, PKS deploys the master VM in the first AZ and the worker VMs across the remaining AZs.
-1. Under **Worker Node Instances**, select the default number of Kubernetes worker nodes to provision for each cluster. For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use persistent volumes. For example, if you deploy across three AZs, you should have six worker nodes. For more information about persistent volumes, see [Persistent Volumes](maintain-uptime.html#persistent-volumes) in _Maintain Workload Uptime_.  Provisioning this amount of worker nodes is also recommended for stateless workloads.
+1. Under **Worker Node Instances**, select the default number of Kubernetes worker nodes to provision for each cluster. For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use persistent volumes. For example, if you deploy across three AZs, you should have six worker nodes. For more information about persistent volumes, see [Persistent Volumes](maintain-uptime.html#persistent-volumes) in _Maintain Workload Uptime_.  Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
   ![Plan pane configuration](images/plan2.png)
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker node VMs.
 1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker node VMs.
@@ -150,8 +150,9 @@ For more information, see [Create the Master Node Service Account](vsphere-prepa
 
 Ensure the values in the following procedure match those in the **vCenter Config** section of the **Ops Manager** tile.
 
+![vSphere pane configuration](images/cloud-vsphere.png)
+
 1. Enter your **vCenter Master Credentials**. See [Preparing to Deploy PKS on vSphere](vsphere-prepare-env.html#create-master) for more information.
-  ![vSphere pane configuration](images/cloud-vsphere.png)
 1. Enter your **vCenter Host**. For example: `vcenter.CF-EXAMPLE.com`.
 1. Enter your **Datacenter Name**. For example: `CF-EXAMPLE-dc`.
 1. Enter your **Datastore Name**. For example: `CF-EXAMPLE-ds`.
@@ -161,6 +162,8 @@ Ensure the values in the following procedure match those in the **vCenter Config
 ####<a id='gcp-cloud'></a> GCP
 
 Ensure the values in the following procedure match those in the **Google Config** section of the **Ops Manager** tile.
+
+![GCP pane configuration](images/cloud-gcp.png)
 
 1. Enter your **GCP Project Id**, which is the name of the deployment in your Ops Manager environment.
 1. Enter your **VPC Network**, which is the VPC network name for your Ops Manager environment.
@@ -196,13 +199,15 @@ To specify the destination for PKS log messages, do the following:
       ![Enable VMware vRealize Log Insight Integration](images/logging-vrli.png)
       1. Under **Host**, enter the IP address or FQDN of the vRLI host.
       1. (Optional) Select the **Enable SSL?** checkbox to encrypt the logs being sent to vRLI using SSL. 
-      1. (Optional) To skip certificate validation for the vRLI host, select the **Disable SSL certificate validation** checkbox. Disable this if you are using a self-signed certificate in order to simplify setup for a development or test environment.
-      <p class="note"><strong>Note</strong>: Disabling certificate validation is not recommended for production environments.
-      </p>
-      1. If you are not disabling SSL verification _and_ the vRLI cert is signed by a Certificate Authority that has _not_ been configured as a trusted CA root or other well known certificate, then specify it here. Locate the PEM of the CA used to sign the vRLI certificate, copy the contents of the certificate file and then paste them into the **CA certificate** field. Certificates must be in PEM-encoded format.
-      1. Under **Rate limiting**, enter the minimum time (in milliseconds) to change the rate at which logs are sent to the vRLI host. The default value (0) means the rate is not limited, which suffices for many deployments. You might want to increase this if your deployment is generating a high volume of logs and you want to limit network traffic. This specifies the minimum time between messages before the fluentd agent begins to drop messages, so consider starting with a lower number (say 10) and tuning to optimize for your deployment. A large number might result in dropping too many log entries.   
-      1. Click **Save**. This configuration applies to any clusters created _after_ you have saved these configuration settings and applied changes.
-      <p class="note"><strong>Note</strong>: The PKS Tile does not validate your vRLI configuration settings. To verify your setup, look for log entries in vRLi.
+      1. Choose one of the following SSL certificate validation options:
+          * To skip certificate validation for the vRLI host, select the **Disable SSL certificate validation** checkbox. Select this option if you are using a self-signed certificate in order to simplify setup for a development or test environment.
+          <p class="note"><strong>Note</strong>: Disabling certificate validation is not recommended for production environments.</p>
+          * To enable certificate validation for the vRLI host, clear the **Disable SSL certificate validation** checkbox.
+              * (Optional) If your vRLI certificate is not signed by a trusted CA root or other well known certificate, enter the certificate in the **CA certificate** field. Locate the PEM of the CA used to sign the vRLI certificate, copy the contents of the certificate file, and paste them into the field. Certificates must be in PEM-encoded format.
+      1. Under **Rate limiting**, enter a time in milliseconds to change the rate at which logs are sent to the vRLI host. The rate limit specifies the minimum time between messages before the fluentd agent begins to drop messages. The default value (0) means the rate is not limited, which suffices for many deployments.
+      <p class="note"><strong>Note</strong>: If your deployment is generating a high volume of logs, you can increase this value to limit network traffic. Consider starting with a lower number, such as 10, and tuning to optimize for your deployment. A large number might result in dropping too many log entries.</p>
+      1. Click **Save**. This configuration applies to any clusters created after you have saved these configuration settings and clicked **Apply Changes**.
+      <p class="note"><strong>Note</strong>: The PKS tile does not validate your vRLI configuration settings. To verify your setup, look for log entries in vRLI.
       </p>
 
 ###<a id='networking'></a> Networking
@@ -223,7 +228,7 @@ If your environment includes HTTP or HTTPS proxies, configuring PKS to use these
   1. (Optional) If your proxy uses basic authentication, enter the username and password under **HTTP Proxy Credentials**.
   1. Under **No Proxy**, enter the service network CIDR where your PKS cluster is deployed. List any additional IP addresses that should bypass the proxy.
     <p class="note"><strong>Note</strong>: By default, the <code>.internal</code>, <code>10.100.0.0/8</code>, and <code>10.200.0.0/8</code> IP address ranges are not proxied. This allows internal PKS communication.</p>
-1. (Optional) For GCP, if you do not use a NAT instance, enable **Allow outbound internet access from Kubernetes cluster vms (IaaS-dependent)**. Enabling this functionality assigns external IP addresses to VMs in clusters. This setting is ignored in vSphere deployments.
+1. (Optional) If you use GCP and do not use a NAT instance, select **Allow outbound internet access from Kubernetes cluster vms (IaaS-dependent)**. Enabling this functionality assigns external IP addresses to VMs in clusters. This setting is ignored in vSphere deployments.
 1. Click **Save**.
 
 ###<a id='uaa'></a> UAA
@@ -342,13 +347,16 @@ If you upgrade PKS from 1.0.x to 1.1, you must enable the <strong>Upgrade All Cl
 ###<a id='resource-config'></a> Resource Config
 
 To modify the resource usage of PKS, click **Resource Config** and edit the **Pivotal Container Service** job.
+
+![Resource pane configuration](images/resources.png)
+
 <p class="note"><strong>Note</strong>: If you experience timeouts or slowness when interacting with the PKS API, select a <strong>VM Type</strong> with greater CPU and memory resources for the <strong>Pivotal Container Service</strong> job.</p>
 
 If you are using GCP, enter a name for your PKS API load balancer that begins with `tcp:` in the **Load Balancers** column.
 For example, `tcp:pks-api`, where `pks-api` is the name that you configured in Step 6 of [Configuring a GCP Load Balancer](gcp-api-load-balancer.html#create-lb).
 For more information, see [Configuring a GCP Load Balancer for the PKS API](gcp-api-load-balancer.html).
 
-##<a id='apply-changes'></a> Step 3: Apply Changes
+## <a id='apply-changes'></a> Step 3: Apply Changes
 
 After configuring the tile, return to the Ops Manager Installation Dashboard and click **Apply Changes** to deploy the tile.
 
@@ -363,7 +371,9 @@ To retrieve the PKS API endpoint, do the following:
 1. Click the Pivotal Container Service tile.
 1. Click the **Status** tab and locate the **Pivotal Container Service** job. The IP address of the Pivotal Container Service job is the PKS API endpoint.
 
-##<a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
+## <a id='loadbalancer-pks-api'></a> Step 5: Configure External Load Balancer
+
+<p class="note"><strong>Note</strong>: This section applies only to PKS deployments on GCP or on vSphere without NSX-T.</p>
 
 If you are using GCP, continue to [Next Steps](#next-steps).
 
