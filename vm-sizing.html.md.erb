@@ -1,0 +1,67 @@
+---
+title: VM Sizing for PKS Clusters
+owner: PKS
+---
+
+This topic describes how Pivotal Container Service (PKS) recommends you approach the sizing of VMs for cluster components.
+
+##<a id="overview"></a>Overview
+
+While configuring [PKS Plans](installing-pks.html#plan) you will be asked to provide VM sizes for the Master and Worker nodes.
+
+<p class="note warning"><strong>WARNING</strong>: The sizing of VMs is highly dependant on workload characteristics. The below are guidelines and should be verified based on your own particular workloads
+</p>
+
+##<a id="master-sizing"></a> Master Sizing
+
+The sizing of masters is linked to the number of worker nodes. The sizing is per master node, it does not change depending on number of master nodes.
+
+<table border="1" class="nice">
+  <thead>
+    <tr>
+    <th>Number of Workers</th>
+    <th>CPU</th>
+    <th>RAM (GB)</th>
+    </tr>
+  </thead>
+  </tbody>
+    <tr><td>1-5</td><td>1</td><td>3.75</td></tr>
+    <tr><td>6-10</td><td>2</td><td>7.5</td></tr>
+    <tr><td>11-100</td><td>4</td><td>15</td></tr>
+    <tr><td>101-250</td><td>8</td><td>30</td></tr>
+    <tr><td>251-500</td><td>16</td><td>60</td></tr>
+    <tr><td>500+</td><td>32</td><td>120</td></tr>
+  </tbody>
+</table>
+
+##<a id="worker-sizing"></a> Number of Workers and Sizing
+
+There is maximum pod constraint of 110 pods per worker node. The actual number of pods that each worker can run depends on the workload type and the CPU and memory requirements that workload have. When considering sizing and number of worker VMs you need to consider the following:
+
+* Maximum number of pods [p] you expect to run:
+* Memory requirements per pod [m]
+* CPU requirements per pod [c]
+
+Then using these values, you can calulate
+
+* Minimum number of workers = p / 110
+* Minimum RAM per worker = m * p/W
+* Minimum number of CPUs per worker = c * p/W
+
+While this calculation would give you a minimum number of worker nodes. It is suggested that you give a tolerance for failure and upgrades. For upgrades at least 1 extra node is required. For failures you can add as many additional nodes to fit your failure tolerance criteria.
+
+### Worked Example
+
+We have a simple application that requires 1GB per pod and 0.10 CPU and 1000 pods. So,
+
+* m = 1 GB
+* c = 0.10
+* p = 1000
+
+So,
+
+* minimum number of workers = 1000/110 = 9.09 ~= 10 workers
+* minimum RAM per worker = 1 * 1000/10 = 100 GB
+* minimum number of CPUs per worker = 0.10 * 1000/10 = 10 CPUs
+
+For upgrades 1 more worker is needed. And for failure tolerance let's say 2 workers. So, in total 13 workers each with 10 CPUs and 100 GB of RAM would be required.
