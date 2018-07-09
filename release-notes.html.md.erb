@@ -19,18 +19,48 @@ To upgrade to PKS v1.1.0, follow the procedures in [Upgrade PKS](upgrade-pks.htm
 
 ### <a id="v1.1.0-features"></a>Features
 
-* Adds support for backing up and restoring PKS using BOSH Backup and Restore (BBR). See [Backing Up and Restoring PKS](backup-and-restore.html) for more information.
-* Adds support for granting PKS control plane access to clients and external LDAP groups. See the [Grant Cluster Access](manage-users.html#cluster-access) section of _Manage Users in UAA_ for more information.
+This section describes new features introduced in PKS v1.1.0.
+
+#### General Features
+
 * Adds support for Kubernetes 1.10.3.
-* Adds support for node network access via HTTP proxy for vSphere deployments. For more information, see [Networking](installing-pks.html#networking). 
-* Adds support for PKS integration with [VMware Wavefront](https://www.wavefront.com) to capture metrics for clusters and pods. For more information, see [(Optional) Logging](installing-pks.html#syslog). 
-* Adds support for PKS integration with [VMware vRealize Log Insight (vRLi)](https://www.vmware.com/products/vrealize-log-insight.html) for tagged logging of the control plane, clusters, and pods. For more information, see [(Optional) Monitoring](installing-pks.html#monitoring).
-* Adds support for [Harbor Registry]( https://vmware.github.io/harbor/) integration enhancements: updated Harbor tile, ability to use NFS and Google Buckets as an image store, and HTTP/HTTPS proxy servers for Clair.
+* Adds support for backing up and restoring PKS using BOSH Backup and Restore (BBR). For more information, see [Backing Up and Restoring PKS](backup-and-restore.html).
+* Adds support for granting PKS control plane access to clients and external LDAP groups. For more information, see the [Grant Cluster Access](manage-users.html#cluster-access) section of _Manage Users in UAA_.
 * Adds support for allowing workers to be deployed across Availability Zones (AZs).
 * Adds support for network automation and node network isolation.
-* Adds support for NO-NAT deployment topologies for PKS installations on NSX-T. See [Installing and Configuring PKS with NSX-T Integration](installing-nsx-t.html) for more information.
+* Adds support for NFS by enabling rpcbind on worker nodes.
+* Adds support for kube-controller-manager to issue certificates.
+* Adds support for configuring HTTP/HTTPS proxy to be used by the Kubernetes control plane.
+* Adds support for configuring the SecurityContextDeny admission controller. For more information, see [Using Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) in the Kubernetes documentation.
+* Enables the MutatingAdmissionWebhook admission controller. For more information, see [Using Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) in the Kubernetes documentation.
+* Enables audit logging for the API server.
+* Creates logs for delete-all-cluster errands in the /var/vcap/sys/log/delete-all-clusters folder on the PKS control plane VM.
+* Adds BOSH instance IDs to worker node labels.
+* Hardens security by removing the ABAC authorization option for clusters.
+* Hardens security by using service account IDs instead of service account keys for GCP deployments.
+* Hardens security for Kubernetes system components. For example, kube-dns now uses its own configuration instead of the kubelet configuration.
+
+#### vSphere Features
+
+* Adds support for NO-NAT deployment topologies for PKS installations on NSX-T. For more information, see [Installing and Configuring PKS with NSX-T Integration](installing-nsx-t.html).
+* Adds support for PKS integration with [VMware Wavefront](https://www.wavefront.com) to capture metrics for clusters and pods. For more information, see the [(Optional) Logging](installing-pks.html#syslog) section of _Installing and Configuring PKS_.
+* Adds support for node network access via HTTP proxy for vSphere deployments. For more information, see the [Networking](installing-pks.html#networking) section of _Installing and Configuring PKS_.
+* Adds support for PKS integration with [VMware vRealize Log Insight (vRLI)](https://www.vmware.com/products/vrealize-log-insight.html) for tagged logging of the control plane, clusters, and pods. For more information, see the [(Optional) Monitoring](installing-pks.html#monitoring) section of _Installing and Configuring PKS_.
 * Adds support for integration with [VMware Analytics Cloud (VAC)](https://codepen.io/didkobravo/project/live/AYdRpX) to capture telemetry information.
-* Improves security by removing ABAC authorization option for clusters.
+* Hardens security by removing VM change permissions from worker nodes for vSphere deployments.
+* Hardens security by removing vCenter user credentials from worker nodes for vSphere deployments.
+* Adds support for [Harbor Registry]( https://vmware.github.io/harbor/) integration enhancements: updated Harbor tile, ability to use NFS and Google Buckets as an image store, and HTTP/HTTPS proxy servers for Clair.
+
+### <a id="v1.1.0-features"></a>Bug Fixes
+
+* Prevents unnecessary route creation in the kube-controller-manager.
+* Retains the original source IP when using Flannel.
+* Disables the read-only port in the kubelet configuration.
+* Disables cAdvisor in the kubelet configuration.
+* For added security, the Kubernetes API server no longer tries to fix malformed requests.
+* The Kubernetes API server now cleans up terminated pods more often to avoid running out of disk space.
+* The Kubernetes API server now unmounts volumes of terminated pods for security reasons.
+* Operators no longer have to manually delete NSX-T objects created during the life of the product. In PKS v1.1, running the `pks delete-cluster` command deletes all NSX objects.
 
 ### <a id="v1.1.0-beta"></a>Beta Components
 
@@ -38,12 +68,11 @@ To upgrade to PKS v1.1.0, follow the procedures in [Upgrade PKS](upgrade-pks.htm
   <%= partial 'beta-component' %>
     <p class="note warning"><strong>WARNING</strong>: You cannot change the number of master nodes for existing clusters. To use the multi-master feature, you must create a new plan that uses multiple master/etcd nodes and deploy a new cluster. If you are already using all three plan configurations in the PKS tile, you must delete a plan and all clusters you deployed using that plan before you can deploy a multi-master cluster.</p>
 
-### <a id="v1.1.0-fixed"></a>Fixed Issues
-* Operators no longer have to manually delete NSX-T objects created during the life of the product. In PKS v1.1, running the `pks delete-cluster` command deletes all NSX objects.
-
 ### <a id="v1.1.0-versions"></a>Component Versions
 
 PKS v1.1.0 includes or supports the following component versions:
+
+<p class="note warning"><strong>WARNING</strong>: PKS v1.1.0 does not support Ops Manager v2.1.7 and later.</p>
 
 <table border="1" class="nice">
   <tbody>
@@ -54,7 +83,7 @@ PKS v1.1.0 includes or supports the following component versions:
    </tr>
    <tr>
    <td>Pivotal Cloud Foundry Operations Manager (Ops Manager)</td>
-   <td>2.1</td>
+   <td>2.1.0-2.1.6</td>
    <td>Separate download available from Pivotal Network</td>
    </tr>
    <tr>
@@ -128,6 +157,7 @@ PKS v1.1.0 includes or supports the following component versions:
 
 This section includes known issues with PKS v1.1.0 and corresponding workarounds.
 
+* PKS v1.1.0 does not support Ops Manager v2.1.7 and later.
 * If you use PKS CLI v1.0.x with PKS tile v1.1.x, you must log in every 600 
 seconds to manually refresh the CLI token.
 Pivotal recommends upgrading to PKS CLI v1.1.x to solve this issue.

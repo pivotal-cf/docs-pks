@@ -201,3 +201,31 @@ Where:
 + `INSTANCE-GROUP-NAME` is the name of the BOSH instance group you are referencing.
 
 The above command, when applied to each VM, gives your VMs the correct permissions.
+
+##<a id='upgrade-drain-hangs'></a> Worker Node Hangs Indefinitely
+
+**Symptoms**
+
+After making your selection in the **Upgrade all clusters errand** section, the worker node might hang indefinitely.
+For more information on monitoring the **Upgrade all clusters errand** using the BOSH CLI, see [Upgrade the PKS Tile
+](upgrade-pks.html#upgrade-tile).
+
+**Explanation**
+
+During the PKS tile upgrade process, worker nodes are cordoned and drained. This drain is dependent on Kubernetes being able to unschedule all pods. If Kubernetes is unable to unschedule a pod, then the drain hangs indefinitely.
+One reason why Kubernetes may be unable to unschedule the node is if the `PodDisruptionBudget` object has been configured in a way that allows 0 disruptions and only a single instance of the pod has been scheduled.
+
+In your spec file, the `.spec.replicas` configuration sets the total amount of replicas that are available in your application.
+`PodDisruptionBudget` objects can specifies the amount of replicas, proportional to that total, that must be available in your application, regardless of downtime. Operators can configure `PodDisruptionBudget` objects for each application using their spec file. 
+
+Some apps deployed using Helm-Charts may have a default `PodDisruptionBudget` set.
+For more information on configuring `PodDisruptionBudget` objects using a spec file, see [Specifying a PodDisruptionBudget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) in the Kubernetes documentation. 
+
+**Solution**
+
+Configure `.spec.replicas` to be greater than the `PodDisruptionBudget` object.
+
+When the number of replicas configured in `.spec.replicas` is greater than the number of replicas set in the `PodDisruptionBudget` object, disruptions can occur.  
+
+For more information, see [How Disruption Budgets Work](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work) in the Kubernetes documentation. 
+For more information on workload capacity and uptime requirements in PKS, see [Prepare to Upgrade](upgrade-pks.html#prepare).
