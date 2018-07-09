@@ -10,23 +10,29 @@ Before you install Pivotal Container Service (PKS) on vSphere **without** NSX-T
 integration, you must prepare your vSphere environment. In addition to 
 fulfilling the prerequisites specified in 
 [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html),
-you must create the following two service accounts:
+you must create the following two service accounts in vSphere:
 
 * **Master Node Service Account**: You must create a service account for 
-Kubernetes cluster master VMs and grant it sufficient storage permissions to 
-create load balancers and attach persistent disks to pods.
+Kubernetes cluster master VMs.
 
 * **BOSH/Ops Manager Service Account**: You must create a service account for 
 BOSH and Ops Manager.
 
+After you create the service accounts listed above, you must grant them privileges in vSphere.
+
+For the master node service account, you can create a custom role in vSphere based on your storage configuration.
+Kubernetes master node VMs require storage permissions to create load balancers and attach persistent disks to pods.
+Creating a custom role allows vSphere to apply the same privileges to all Kubernetes master node VMs in your PKS installation.
+
+When you configure the **Kubernetes Cloud Provider** pane of the PKS tile, you enter the master node service account credentials in the **vSphere Master Credentials** fields.
+For more information, see the [Kubernetes Cloud Provider](installing-pks.html#vsphere-cloud) section of _Installing and Configuring PKS_.
+
+For the BOSH/Ops Manager service account, you can apply privileges directly to the service account without creating a role.
+You can also apply the default [VMware Administrator System Role](http://pubs.vmware.com/vsphere-51/index.jsp#com.vmware.wssdk.pg.doc/PG_Authenticate_Authorize.8.6.html#1110514) to the service account to achieve the appropriate permission level.
+
 <p class="note"><strong>Note</strong>: If your Kubernetes clusters span 
 multiple vCenters, you must set the service account privileges correctly in 
 each vCenter.</p>
-
-vSphere Cloud Provider service accounts require the following:
-
-* Read access to the folder, host, and datacenter of the cluster node VMs
-* Permission to create and delete VMs within the resource pool where PKS is deployed
 
 ## <a id="create-master"></a>Step 1: Create the Master Node Service Account
 
@@ -41,10 +47,12 @@ vSphere Cloud Provider service accounts require the following:
 
 ## <a id="addl-permissions"></a>Step 2: Grant Additional Storage Permissions
 
-Grant additional permissions to the master node service account based on your storage configuration.
+Kubernetes master node VM service accounts require the following:
 
-The tables in [Storage Permissions for Service Accounts](#storage-permissions) 
-describe the following:
+* Read access to the folder, host, and datacenter of the cluster node VMs
+* Permission to create and delete VMs within the resource pool where PKS is deployed
+
+Grant these permissions to the master node service account based on your storage configuration using one of the procedures below:
 
 * [Static Only Persistent Volume Provisioning](#static-only)
 * [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
@@ -240,6 +248,7 @@ statically provisioned PV is also deleted.</p>
 1. From the vCenter console, create a service account for BOSH and Ops Manager.
 
 2. Grant the permissions below to the BOSH and Ops Manager service account.
+<p class="note"><strong>Note</strong>: The privileges listed in this section describe the minimum required permissions to deploy BOSH. You can also apply the default <a href="http://pubs.vmware.com/vsphere-51/index.jsp#com.vmware.wssdk.pg.doc/PG_Authenticate_Authorize.8.6.html#1110514">VMware Administrator System Role</a> to the service account to achieve the appropriate permission level, but the default role includes more privileges than those listed below.</p>
 
 ### <a id="root"></a>vCenter Root Privileges
 
