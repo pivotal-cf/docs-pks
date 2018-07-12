@@ -96,6 +96,10 @@ Harbor uses the following IP blocks for its internal bridges:
   * 172.21.0.1/16
   * 172.22.0.1/16
 
+Each cluster uses the following IP block for Kubernetes services:
+
+  * 10.100.200.0/24
+
 <p class="note"><strong>Note</strong>: Do not use any of the IP blocks listed above for pods or nodes. If you create Kubernetes clusters with any of the blocks listed above, the Kubernetes worker nodes cannot reach Harbor for the image pull.</p>
 
 ##<a id='deploy-nsx-t'></a> Step 2: Deploy NSX-T
@@ -461,7 +465,7 @@ This certificate is used to authenticate with the NSX Manager. You create an IP-
 
 <p class="note"><strong>Note</strong>: If you already have a CA-signed certificate, skip this section and go to 6.2.2.</p>
 
-1. Create a file with the certificate request parameters, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager:
+1. Create a file with the certificate request parameters, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager, and `NSX-MANAGER-COMMONNAME` with the FQDN of the NSX Manager host:
 
     ```
     $ cat nsx-cert.cnf
@@ -479,16 +483,39 @@ This certificate is used to authenticate with the NSX Manager. You create an IP-
     [ req_ext ]
     subjectAltName = @alt_names
     [alt_names]
-    DNS.1 = NSX-MANAGER-IP-ADDRESS
+    DNS.1 = NSX-MANAGER-COMMONNAME,NSX-MANAGER-IP-ADDRESS
     ```
 
-1. Generate the certificate using openssl. Run the following command, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager:
+    For example:
+
+    ```
+    [ req ]
+    default_bits = 2048
+    distinguished_name = req_distinguished_name
+    req_extensions = req_ext
+    prompt = no
+    [ req_distinguished_name ]
+    countryName = US
+    stateOrProvinceName = California
+    localityName = Palo-Alto
+    organizationName = NSX
+    commonName = nsxmgr-01a.example.com
+    [ req_ext ]
+    subjectAltName=DNS:nsxmgr-01a.example.com,IP:192.0.2.40
+    ```
+
+1. Generate the certificate using openssl. Run the following command, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager, and `NSX-MANAGER-COMMONNAME` with the FQDN of the NSX Manager host:
+
+    ```
+    export NSX_MANAGER_IP_ADDRESS=192.0.2.40
+    export NSX_MANAGER_COMMONNAME=nsxmgr-01a.example.com
+    ```
 
     ```
     openssl req -newkey rsa:2048 -x509 -nodes \
-    -keyout nsx.key -new -out nsx.crt -subj /CN=NSX-MANAGER-IP-ADDRESS \
+    -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX-MANAGER-COMMONNAME \
     -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
-     <(printf '[SAN]\nsubjectAltName=IP:NSX-MANAGER-IP-ADDRESS')) -sha256 -days 365
+     <(printf '[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX-MANAGER-IP-ADDRESS')) -sha256 -days 365
     ```
 
 1. Verify that the certificate looks correct and that the NSX manager IP is in the Subject Alternative Name (SAN) by running the following command:
@@ -574,7 +601,7 @@ Perform the following steps:
 1. If you are using a NAT deployment topology, leave the **NAT mode** checkbox selected. If you are using a NO-NAT topology, clear this checkbox. For more information, see the [Deployment Topologies](#architecture) section above. 
 1. Enter the following IP Block settings:
 
-    ![NSX-T Networking configuration pane in Ops Manager](images/networking-nsx-t-2.png)
+    <img src="images/networking-nsx-t-2.png" alt="NSX-T Networking configuration pane in Ops Manager" width="375">
   * **Pods IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes pods. PKS allocates IP addresses for the pods when they are created in Kubernetes. Each time a namespace is created in Kubernetes, a subnet from this IP block is allocated. The current subnet size that is created is /24, which means a maximum of 256 pods can be created per namespace.
   * **Nodes IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes nodes. PKS allocates IP addresses for the nodes when they are created in Kubernetes. The node networks are created on a separate IP address space from the pod networks. The current subnet size that is created is /24, which means a maximum of 256 nodes can be created per cluster.
   For more information, including sizes and the IP blocks to avoid using, see <a href="#plan-ip-blocks">Plan IP Blocks</a>.
@@ -589,7 +616,7 @@ Production environments can deny direct access to public Internet services and b
 If your environment includes HTTP or HTTPS proxies, configuring PKS to use these proxies allows PKS-deployed Kubernetes nodes to access public Internet services and other internal services. Follow the steps below to configure a global proxy for all outgoing HTTP/HTTPS traffic from your Kubernetes clusters:
   1. Under **HTTP/HTTPS proxy**, select **Enabled**.
 
-        ![Networking pane configuration](images/networking-https-proxy.png)
+        <img src="images/networking-https-proxy.png" alt="Networking pane configuration" width="275">
   1. Under **HTTP Proxy URL**, enter the URL of your HTTP/HTTPS proxy endpoint. For example, `http://myproxy.com:1234`.
   1. (Optional) If your proxy uses basic authentication, enter the username and password in either **HTTP Proxy Credentials** or **HTTPS Proxy Credentials**.
   1. Under **No Proxy**, enter the service network CIDR where your PKS cluster is deployed. List any additional IP addresses that should bypass the proxy.
