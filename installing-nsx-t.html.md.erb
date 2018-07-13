@@ -465,10 +465,11 @@ This certificate is used to authenticate with the NSX Manager. You create an IP-
 
 <p class="note"><strong>Note</strong>: If you already have a CA-signed certificate, skip this section and go to 6.2.2.</p>
 
-1. Create a file with the certificate request parameters, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager, and `NSX-MANAGER-COMMONNAME` with the FQDN of the NSX Manager host:
+1. Create a file with the certificate request parameters named `nsx-cert.cnf`.
+
+1. Copy the following parameters and paste them into the file, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager, and `NSX-MANAGER-COMMONNAME` with the FQDN of the NSX Manager host:
 
     ```
-    $ cat nsx-cert.cnf
     [ req ]
     default_bits = 2048
     distinguished_name = req_distinguished_name
@@ -488,7 +489,7 @@ This certificate is used to authenticate with the NSX Manager. You create an IP-
 
     For example:
 
-    ```
+    <pre class="terminal">
     [ req ]
     default_bits = 2048
     distinguished_name = req_distinguished_name
@@ -502,21 +503,22 @@ This certificate is used to authenticate with the NSX Manager. You create an IP-
     commonName = nsxmgr-01a.example.com
     [ req_ext ]
     subjectAltName=DNS:nsxmgr-01a.example.com,IP:192.0.2.40
-    ```
+    </pre>
 
-1. Generate the certificate using openssl. Run the following command, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager, and `NSX-MANAGER-COMMONNAME` with the FQDN of the NSX Manager host:
+1. Export the `NSX_MANAGER_IP_ADDRESS` and `NSX_MANAGER_COMMONNAME` environment variables using the IP address of your NSX Manager and the FQDN of the NSX Manager host.<br><br>
+For example:
+  <pre class="terminal">
+  $ export NSX\_MANAGER\_IP\_ADDRESS=192.0.2.40
+  $ export NSX\_MANAGER\_COMMONNAME=nsxmgr-01a.example.com
+  </pre>
 
-    ```
-    export NSX_MANAGER_IP_ADDRESS=192.0.2.40
-    export NSX_MANAGER_COMMONNAME=nsxmgr-01a.example.com
-    ```
-
-    ```
-    openssl req -newkey rsa:2048 -x509 -nodes \
-    -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX-MANAGER-COMMONNAME \
+1. Generate the certificate using openssl. Run the following command:
+    <pre class="terminal">
+    $ openssl req -newkey rsa:2048 -x509 -nodes \
+    -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX\_MANAGER\_COMMONNAME \
     -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
-     <(printf '[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX-MANAGER-IP-ADDRESS')) -sha256 -days 365
-    ```
+     <(printf '[SAN]\nsubjectAltName=DNS:$NSX\_MANAGER\_COMMONNAME,IP:$NSX\_MANAGER\_IP\_ADDRESS')) -sha256 -days 365
+    </pre>
 
 1. Verify that the certificate looks correct and that the NSX manager IP is in the Subject Alternative Name (SAN) by running the following command:
 
