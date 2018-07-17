@@ -87,6 +87,8 @@ Refer to the instructions in the VMware [NSX-T documentation](https://docs.vmwar
 
 In addition, you need to plan IP blocks for pods and nodes that are created when PKS creates the Kubernetes cluster. IP Block sizes must be a multiple of 256 (/24). You must make sure that an IP block already has any subnets allocated, and that the subnet size is 256 (/24). You configure the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the PKS tile.
 
+Each Kubernetes cluster will own the /24 subnet. Thus, if you want to deploy multiple Kubernetes clusters, the nodes block size (Nodes IP Block ID in the Networking pane of the PKS tile) must be set to larger than /24.  The generally recommended size is /16. However, for no-NAT environments where you may have a limited number of routable subnets, a smaller nodes block size can be used. For example, /20 would allow up to 16 Kubernetes clusters to be created.
+
 Harbor uses the following IP blocks for its internal bridges:
 
   * 172.17.0.1/16
@@ -136,7 +138,7 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
   * For each host in the NSX-T Fabric, create a node named `tnode-host-NUMBER`. For example, if you have three hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`.
   * Add the `tz-overlay` NSX Transport Zone to each NSX Host Transport Node.
   <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>ip-pool-vteps</code> IP pool that allows them to route and communicate with each other, as well as other Edge Transport Nodes, to build GENEVE tunnels.</p>
-1. Create NSX IP Blocks. We recommend that you use separate NSX IP Blocks for the node networks and the pod networks. The subnets (both nodes and pods) should have a size of 256 (/24). For more information, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. Configuration details:
+1. Create NSX IP Blocks. We recommend that you use separate NSX IP Blocks for the node networks and the pod networks. The subnets (both nodes and pods) should have a size of 256 (/24). However, if you are planning to deploy multiple Kubernentes clusters, the nodes size should be /16. See [Plan IP Blocks](#plan-ip-blocks). For more information, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. Configuration details:
   * One NSX IP Block named `node-network-ip-block`. PKS uses this block to assign address space to Kubernetes master and worker nodes when new clusters are deployed or a cluster increases its scale.
   * One NSX IP Block named `pod-network-ip-block`. The NSX-T Container Plug-in (NCP) uses this block to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
 
