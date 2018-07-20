@@ -41,7 +41,7 @@ To enable these APIs, perform the following steps:
 
 In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create service accounts with sufficient permissions.
 
-Create separate service accounts for Kubernetes cluster master and worker node VMs.
+You need separate service accounts for Kubernetes cluster master and worker node VMs, and a third account for BOSH and Ops Manager.
 
 ### <a id='create-master'></a>Create the Master Node Service Account
 
@@ -53,18 +53,32 @@ Create separate service accounts for Kubernetes cluster master and worker node V
       * **Network Admin**
       * **Security Admin**
       * **Instance Admin (v1)**
+      * **Compute Viewer**
   * **IAM**
       * **Service Account User**
-1. Select **Furnish a new private key** and select **JSON**.
 1. Click **Create**.
-Your browser automatically downloads a JSON file with a private key for this account.
-Save this file in a secure location.
 
 ### <a id='create-worker'></a>Create the Worker Node Service Account
 
 1. From the GCP Console, select **IAM & admin > Service accounts**.
 1. Click **Create Service Account**.
-1. Enter a name for the service account, and add the **Compute Engine > Viewer** role.
+1. Enter a name for the service account, and add the **Compute Engine > Compute Viewer** role.
+1. Click **Create**.
+
+### <a id='create-bosh-ops-man'></a> Create the BOSH/Ops Manager Service Account
+
+1. From the GCP Console, select **IAM & admin > Service accounts**.
+1. Click **Create Service Account**.
+1. Enter a name for the service account, and add the following roles:
+  * **Service Accounts**
+      * **Service Account User**
+      * **Service Account Token Creator**
+  * **Compute Engine**
+      * **Compute Instance Admin (v1)**
+      * **Compute Network Admin**
+      * **Compute Storage Admin**
+  * **Storage**
+      * **Storage Admin**
 1. Select **Furnish a new private key** and select **JSON**.
 1. Click **Create**.
 Your browser automatically downloads a JSON file with a private key for this account.
@@ -76,10 +90,10 @@ Save this file in a secure location.
  
 1. Navigate to the GCP project where you want to install PKS.
 1. Select **VPC network**, then **CREATE VPC NETWORK**.
-1. In the **Name** field, enter `MY-PKS-virt-net`.
-`MY-PKS` is a prefix to help you identify resources for this PKS deployment in the GCP console. Use the values from the following tables as a guide when you create each network, replacing the IP addresses with ranges that are available in your GCP environment.
+1. In the **Name** field, enter `your-pks-virt-net`.
+`your-pks` is a lower-case prefix to help you identify resources for this PKS deployment in the GCP console. Network names must be lower-case. Use the values from the following tables as a guide when you create each network, replacing the IP addresses with ranges that are available in your GCP environment.
 <p class="note"><strong>Note</strong>: Pivotal recommends using all three networks in production environments.
-You can choose to combine <code>pks-infrastructure</code> and <code>pks-main</code> into a single network in non-production environments.
+You can combine <code>pks-infrastructure</code> and <code>pks-main</code> into a single network in non-production environments.
 <code>pks-services</code> always requires its own network.</p>
   1. Under **Subnets**, complete the form as follows to create an infrastructure subnet for Ops Manager, the BOSH Director, and NAT instances:
       <table>
@@ -90,7 +104,7 @@ You can choose to combine <code>pks-infrastructure</code> and <code>pks-main</co
         <tr>
           <th>Region</th>
           <td>A region that supports three availability zones (AZs).
-          For help selecting the correct region for your deployment, see the [Google documentation on regions and zones](https://cloud.google.com/compute/docs/regions-zones/regions-zones).</td>
+          For help selecting the correct region for your deployment, see [Regions and Zones](https://cloud.google.com/compute/docs/regions-zones/regions-zones) in the Google documentation.</td>
         </tr>
         <tr>
         <th>IP address range</th>
@@ -139,8 +153,8 @@ You can choose to combine <code>pks-infrastructure</code> and <code>pks-main</co
 
 Use NAT instances when you want to expose only a minimal number of public IP addresses. 
 
-Creating NAT instances permits Internet access from cluster VMs. 
-You might, for example, need this Internet access for pulling Docker images or enabling Internet access for your workloads. 
+Creating NAT instances permits Internet access from cluster VMs.
+You might, for example, need this Internet access for pulling Docker images or enabling Internet access for your workloads.
 
 1. In the console, navigate to **Compute Engine** > **VM instances**. 
 1. Click **CREATE INSTANCE**. 

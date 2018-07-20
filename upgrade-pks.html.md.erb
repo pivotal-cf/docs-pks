@@ -8,30 +8,40 @@ owner: PKS
 This topic explains how to upgrade the Pivotal Container Service (PKS) tile and existing Kubernetes clusters. 
 It also explains the service interruptions that can result from service changes and upgrades and from failures at the process, VM, and IaaS level.
 
-<p class="note warning"><strong>WARNING</strong>: Do not manually upgrade your Kubernetes version. The PKS tile includes the compatible Kubernetes version.</p>
+<p class="note breaking"><strong>Breaking Change</strong>: PKS v1.1 does not support ABAC. Delete any ABAC clusters before upgrading to v1.1.
+For more information, see <a href="./release-notes.html#abac-clusters">Existing ABAC Clusters</a> in the <em>PKS v1.1 Release Notes</em>.</p>
+
+<p class="note warning"><strong>WARNING</strong>: Do not manually upgrade your Kubernetes version. The PKS service includes the compatible Kubernetes version.</p>
 
 ## <a id="prepare"></a>Prepare to Upgrade
 
 Before you begin upgrading the PKS tile, consider your workload capacity and uptime requirements.
 If workers are operating too close to their capacity, the PKS upgrade can fail.
 View your workload resource usage in Dashboard.
+For more information, see [Access the Dashboard](access-dashboard.html).
 
-See [Access the Dashboard](access-dashboard.html) for more information.
-
-If your cluster is near capacity for your existing infrastructure, Pivotal recommends scaling your cluster before you upgrade.
-
+If your clusters are near capacity for your existing infrastructure, Pivotal recommends scaling up your clusters before you upgrade.
 Scale up your cluster by running `pks-resize` or create a cluster using a larger plan. For more information, see [Scale Existing Clusters](scale-clusters.html).
 
 To prevent workload downtime during a cluster upgrade, Pivotal recommends running your workload on at least three worker VMs, using multiple replicas of your workloads spread across those VMs. For more information, see [Maintain Workload Uptime](maintain-uptime.html).
 
-## <a id="upgrade-tile"></a>Upgrade the PKS Tile
+## <a id="upgrade-opsman"></a> Step 1: Upgrade Ops Manager
 
-To upgrade PKS, you follow the same Ops Manager process that you use to install the service for the first time. 
+PKS v1.1 requires Ops Manager v2.1. 
+
+1. To upgrade to the required Ops Manager version, follow the procedure detailed in:
+[Upgrade Ops Manager and Installed Products to v2.1](https://docs.pivotal.io/pivotalcf/2-1/customizing/upgrading-pcf.html#upgrade_ops).
+
+1. <%= partial 'add-clusters-workloads' %>
+
+## <a id="upgrade-tile"></a> Step 2: Upgrade the PKS Tile
+
+To upgrade PKS, you follow the same Ops Manager process that you use to install the tile for the first time. 
 Your configuration settings migrate to the new version automatically. To perform an upgrade:
 
 1. Review the [Release Notes](release-notes.html) for the version you are upgrading to.
 
-1. Download the desired version of the product from [Pivotal Network](https://network.pivotal.io/products/p-mysql).
+1. Download the desired version of the product from [Pivotal Network](https://network.pivotal.io/products/pivotal-container-service/).
 
 1. Navigate to the Ops Manager Installation Dashboard and click **Import a Product** to upload the product file.
 
@@ -41,7 +51,13 @@ Your configuration settings migrate to the new version automatically. To perform
 
 1. Optional: To upgrade all PKS-deployed Kubernetes clusters when you upgrade the PKS tile, follow the next steps:
   1. Click **Errands**.
-  1. Under **Post-Deploy Errands**, set the **Upgrade all clusters errand** to **Default (On)**. Upgrading PKS Kubernetes clusters can temporarily interrupt the service, as described [below](#interruptions).
+  1. Under **Post-Deploy Errands**, set the **Upgrade all clusters errand** to **Default (On)**. The errand upgrades a single Kubernetes cluster at a time. Upgrading PKS Kubernetes clusters can temporarily interrupt the service, as described [below](#interruptions).
+  <p class="note warning"><strong>Note</strong>: If you upgrade PKS from 1.0.x to 1.1, you must enable the <strong>Upgrade All Cluster</strong> errand. This ensures existing clusters can perform resize or delete actions after the upgrade.</p>
+  (Optional) To monitor the **Upgrade all clusters errand** using the BOSH CLI, do the following:
+      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your PKS deployment. For more information, see [Manage PKS Deployments with BOSH](manage-deployments-bosh.html).
+      1. Run `bosh -e MY-ENVIRONMENT tasks`.
+      1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
+      1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
   1. Click **Save**.
     <p class="note warning"><strong>WARNING</strong>: If you set the <strong>Upgrade all clusters errand</strong> to <strong>Off</strong>, your Kubernetes cluster version will fall behind the PKS tile version. If your clusters fall more than one version behind the tile, you can no longer upgrade the clusters. You must upgrade your clusters to match the PKS tile version before the next tile upgrade.</p>
 
@@ -55,11 +71,47 @@ If you changed **Post-Deploy Errands**, confirm that the **Post-Deploy Errands**
 
 1. Click **Apply Changes**.
 
+1. <%= partial 'add-clusters-workloads' %>
+
+## <a id="upgrade-nsxt"></a>Step 3: Upgrade NSX-T (Optional)
+
+If you are deploying PKS on vSphere with NSX-T integration, NSX-T v2.1 is required.
+
+To upgrade PKS with NSX-T, make the following configuration changes to adapt your deployment to new features that have been added in PKS 1.1.0.
+
+1. Create the **NSX Manager Super User Principal Identity Certificate** by following the procedure in [Step 6: Generate and Register Certificates](installing-nsx-t.html#certificates) in _Installing and Configuring PKS with NSX-T Integration_.
+
+1. Select the NAT option if Network Address Translation needs to be enforced for the Kubernetes nodes. Clearing this option would allow the nodes to have globally routable IP addresses. For more information, see [NAT Topology](installing-nsx-t.html#topology-nat).
+
+1. PKS 1.1 allows you to specify dedicated IP blocks for node and pod networking.
+Create these IP blocks according to the instructions in [Plan IP Blocks](installing-nsx-t.html#plan-ip-blocks).
+Enter one or more domain servers used by Kubernetes nodes.
+These domain servers will be used by the nodes that are created on the Node Networks that are dynamically generated at the time of cluster creation.
+<p class="note"><strong>Note</strong>: When upgrading NSX-T for PKS, you must use a different CIDR range for the node IP block than the one you used for the service network.</p>
+
+1. (Optional) To configure a global proxy for all outgoing HTTP/HTTPS traffic from your Kubernetes clusters, do the following:
+    * Under **HTTP/HTTPS proxy**, select **Enabled**.
+    * Under **HTTP Proxy URL**, enter the URL of your HTTP/HTTPS proxy endpoint. For example, `http://myproxy.com:1234`.
+    * (Optional) If your proxy uses basic authentication, enter the username and password in either **HTTP Proxy Credentials** or **HTTPS Proxy Credentials**.
+    * Under **No Proxy**, enter the service network CIDR where your PKS cluster is deployed. List any additional IP addresses that should bypass the proxy.
+
+1. Make sure that the **Enable outbound internet access** checkbox is not selected. This setting is not applicable to vSphere without NSX-T integrations.
+
+## <a id="upgrade-vcenter"></a>Step 4: Upgrade vCenter (Optional)
+
+1. If you are deploying PKS on vSphere, consult [vSphere Version Requirements
+](vsphere-requirements.html#pks-with-vsphere) and upgrade vSphere if necessary.  
+
+1. <%= partial 'add-clusters-workloads' %>
+
+
 ## <a id="upgrade-instances"></a>Upgrade Kubernetes Clusters
 
 If you set the **Upgrade all clusters errand** to **Default (On)**, your PKS-deployed Kubernetes clusters are upgraded automatically when the PKS tile upgrade runs.
 
 If you set the **Upgrade all clusters errand** to **Off**, you can upgrade all PKS-deployed Kubernetes clusters by setting the **Upgrade all clusters errand** to **On** and clicking **Apply Changes**.
+
+<p class="note warning"><strong>Note</strong>: If you upgrade PKS from 1.0.x to 1.1, you must enable the <strong>Upgrade All Cluster</strong> errand. This ensures existing clusters can perform resize or delete actions after the upgrade.</p>
  
 ## <a id="interruptions"></a>Service Interruptions
 

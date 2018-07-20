@@ -1,0 +1,91 @@
+---
+title: VM Sizing for PKS Clusters
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how Pivotal Container Service (PKS) recommends you approach the sizing of VMs for cluster components.
+
+##<a id="overview"></a>Overview
+
+When you configure plans in the PKS tile, you provide VM sizes for the master and worker node VMs.
+For more information about configuring plans, see the [Plans](installing-pks.html#plan) section of _Installing and Configuring PKS_.
+
+PKS determines the size of the master node VMs automatically based on the number of worker node VMs.
+You select the number of master nodes when you configure the plan.
+
+For worker node VMs, you select the number and size based on the needs of your workload.
+The sizing of master and worker node VMs is highly dependent on the characteristics of the workload. Adapt the recommendations in this topic based on your own workload requirements.</p>
+
+##<a id="master-sizing"></a> Master Node VM Size
+
+The master node VM size is linked to the number of worker nodes.
+The VM sizing shown in the following table is per master node:
+
+<p class="note"><strong>Note</strong>: If there are multiple master nodes, all master node VMs are the same size. To configure the number of master nodes, see the <a href="installing-pks.html#plan">Plans</a> section of <em>Installing and Configuring PKS</em>.</p>
+
+<table border="1" class="nice">
+  <thead>
+    <tr>
+    <th>Number of Workers</th>
+    <th>CPU</th>
+    <th>RAM (GB)</th>
+    </tr>
+  </thead>
+  </tbody>
+    <tr><td>1-5</td><td>1</td><td>3.75</td></tr>
+    <tr><td>6-10</td><td>2</td><td>7.5</td></tr>
+    <tr><td>11-100</td><td>4</td><td>15</td></tr>
+    <tr><td>101-250</td><td>8</td><td>30</td></tr>
+    <tr><td>251-500</td><td>16</td><td>60</td></tr>
+    <tr><td>500+</td><td>32</td><td>120</td></tr>
+  </tbody>
+</table>
+
+##<a id="worker-sizing"></a> Worker Node VM Number and Size
+
+A maximum of 110 pods can run on a single worker node.
+The actual number of pods that each worker node runs depends on the workload type as well as the CPU and memory requirements of the workload.
+
+To calculate the number and size of worker VMs you require, determine the following for your workload:
+
+* Maximum number of pods you expect to run [`p`]
+* Memory requirements per pod [`m`]
+* CPU requirements per pod [`c`]
+
+Using the values above, you can calculate the following:
+
+* Minimum number of workers [`W`] = `p / 110`
+* Minimum RAM per worker = `m * p/W`
+* Minimum number of CPUs per worker = `c * p/W`
+
+This calculation gives you the minimum number of worker nodes your workload requires.
+We recommend that you increase this value to account for failures and upgrades.
+
+For example, increase the number of worker nodes by at least one to maintain workload uptime during an upgrade.
+Additionally, increase the number of worker nodes to fit your own failure tolerance criteria.
+
+###<a id="worker-example"></a> Example Worker Node Requirement Calculation
+
+An example app has the following minimum requirements:
+
+* Number of pods [`p`] = 1000
+* RAM per pod [`m`] = 1&nbsp;GB
+* CPU per pod [`c`] = 0.10
+
+To determine how many worker node VMs the app requires, do the following:
+
+1. Calculate the number of workers using `p / 110`:
+  <pre>1000/110 = 9.09 ~= 10 workers</pre>
+1. Calculate the minimum RAM per worker using `m * p/W`:
+  <pre>1 * 1000/10 = 100 GB</pre>
+1. Calculate the minimum number of CPUs per worker using `c * p/W`:
+  <pre>0.10 * 1000/10 = 10 CPUs</pre>
+1. For upgrades, increase the number of workers by one:
+  <pre>10 workers + 1 worker = 11 workers</pre>
+1. For failure tolerance, increase the number of workers by two:
+  <pre>11 workers + 2 workers = 13 workers</pre>
+
+In total, this app workload requires 13 workers with 10 CPUs and 100&nbsp;GB RAM.
+

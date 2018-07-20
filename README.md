@@ -16,15 +16,12 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.0-publish` | PKS 1.0 released content | https://docs.pivotal.io/runtimes/pks/1-0/index.html |
-| `1.0-dev` | PKS 1.0.x content in development | internal staging site |
-| `master` | PKS 1.1.x content in development | internal staging site |
+| `1.0-publish` | PKS 1.0.x released content | https://docs.pivotal.io/runtimes/pks/1-0/index.html |
+| `master` | PKS 1.1.x released content | https://docs.pivotal.io/runtimes/pks/1-1/index.html |
 
-The `1.0-publish` branch is used to publish the live version of the site. Create pull requests on `1.0-publish` to contribute bug fixes or correct technical inaccuracies.
+The `1.0-publish` branch is used to publish the live v1.0 version of the site. Create pull requests on `1.0-publish` to contribute bug fixes or correct technical inaccuracies in the v1.0 documentation.
 
-The `1.0-dev` branch contains content for the next PKS 1.0 patch release. Create pull requests on `1.0-dev` when documenting features for an upcoming patch release. When the next PKS patch releases, the docs team merges `1.0-dev` into `1.0-publish` and cuts a new `1.0-dev` branch.
-
-The `master` branch contains content for the next major PKS release. Create pull requests on `master` when documenting features for the next major release. When the next major version of PKS releases, the docs team cuts new `publish` and `dev` branches.
+The `master` branch is used to publish the live v1.1 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.1 documentation.
 
 ## How To Use Bookbinder To View Your Docs
 
