@@ -5,32 +5,36 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-This topic describes the types of load balancers that are used in Pivotal Container Service (PKS) deployments. Load balancers differ by the type of deployment.
+This topic describes the types of load balancers that are used in Pivotal Container Service (PKS).
 
-## <a id='without-nsx-t'></a>Load Balancers in PKS Deployments without NSX&#8209;T
-
-For PKS deployments on GCP or vSphere without NSX-T, you can configure load balancers for the following:
+You can configure load balancers for the following:
 
 * **PKS API**: Configuring this load balancer allows you to run PKS Command Line Interface (CLI) commands from your local workstation.
 * **Kubernetes Clusters**: Configuring a load balancer for each new cluster allows you to run Kubernetes CLI (kubectl) commands on the cluster.
 * **Workloads**: Configuring a load balancer for your application workloads allows external access to the services that run on your cluster.
 
-The following diagram shows where each of the above load balancers can be used within your PKS deployment on GCP or on vSphere without NSX-T:
+The following diagram shows where each of the above load balancers can be used within your PKS deployment:
 
-<%= image_tag("pks-diagram-lb.png", :alt => "PKS diagram including all load balancer options for PKS deployments without NSX-T") %>
+<%= image_tag("pks-diagram-lb.png", :alt => "PKS diagram including all load balancer options") %>
 
-If you use either vSphere without NSX-T or GCP, you are expected to create your own load balancers within your cloud provider console. If your cloud provider does not offer load balancing, you can use any external TCP or HTTPS load balancer of your choice.
+If you use either vSphere with NSX-T or GCP, you can create load balancers within your cloud provider console.
 
-### <a id='pks-api'></a>About the PKS API Load Balancer
+If your cloud provider does not offer load balancing, you can use any external TCP or HTTPS load balancer of your choice.
 
-For PKS deployments on GCP and on vSphere without NSX-T, the load balancer for the PKS API allows you to access the PKS API from outside the network.
+## <a id='pks-api'></a>About the PKS API Load Balancer
+
+The load balancer for the PKS API allows you to access the PKS API from outside the network.
 For example, configuring a load balancer for the PKS API allows you to run PKS CLI commands from your local workstation.
 
-For information about configuring the PKS API load balancer, see the [Configure External Load Balancer](installing-pks.html#loadbalancer-pks-api) section of <em>Installing and Configuring PKS</em>.
+For information about configuring the PKS API load balancer, see the _Configure External Load Balancer_ section of the installation topic for your cloud provider:
 
-### <a id='cluster'></a>About Kubernetes Cluster Load Balancers
+* [Installing and Configuring PKS on vSphere](installing-pks-vsphere.html#loadbalancer-pks-api)
+* [Installing and Configuring PKS on GCP](installing-pks-gcp.html#loadbalancer-pks-api)
+* [Installing and Configuring PKS on AWS](installing-pks-aws.html#loadbalancer-pks-api)
 
-For PKS deployments on GCP and on vSphere without NSX-T, when you create a cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
+## <a id='cluster'></a>About Kubernetes Cluster Load Balancers
+
+When you create a cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
 The load balancer allows the Kubernetes CLI to communicate with the cluster.
 
 If you create a cluster in a non-production environment, you can choose not to use a load balancer.
@@ -41,29 +45,13 @@ To allow kubectl to access the cluster without a load balancer, you can do one o
 
 For information about configuring a cluster load balancer, see [Create a Cluster](create-cluster.html).
 
-### <a id='workload'></a>About Workload Load Balancers
+## <a id='workload'></a>About Workload Load Balancers
 
-For PKS deployments on GCP and on vSphere without NSX-T, to allow external access to your app, you can either create a load balancer or expose a static port on your workload.
+To allow external access to your app, you can either create a load balancer or expose a static port on your workload.
 
 For information about configuring a load balancer for your app workload, see [Deploy and Access Basic Workloads](deploy-workloads.html).
 
-## <a id='with-nsx-t'></a>Load Balancers in PKS Deployments on vSphere with NSX&#8209;T
+If you use AWS, you must configure routing in the AWS console before you can create a load balancer for your workload.
+You must create a public subnet in each availability zone (AZ) where you are deploying the workload and tag the public subnet with your cluster's unique identifier.
 
-PKS deployments on vSphere with NSX-T do not require a load balancer configured to access the PKS API.
-They require only a DNAT rule configured so that the PKS API host is accessible. 
-For more information, see [Step 9: Retrieve the PKS Endpoint](installing-nsx-t.html#retrieve-endpoint) in _Installing and Configuring PKS with NSX-T Integration_.
-
-NSX-T handles load balancer creation, configuration, and deletion automatically as part of the Kubernetes cluster create, update, and delete process.
-When a new Kubernetes cluster is created, NSX-T creates and configures a dedicated load balancer tied to it. The load balancer is a shared resource designed to provide efficient traffic distribution to master nodes as well as services deployed on worker nodes. 
-Each application service is mapped to a virtual server instance, carved out from the same load balancer.
-For more information, see [Logical Load Balancer](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46567C8D-A5C5-4793-8CDF-858E58FDE3C4.html) in the NSX-T documentation.
-
-Virtual server instances are created on the load balancer to provide access to the following:
-
-* **Kubernetes API and UI services on a Kubernetes cluster**. This allows requests to be load balanced across multiple master nodes.
-* **Ingress controller**. This allows the virtual server instance to dispatch HTTP and HTTPS requests to services associated with Ingress rules.
-* `type:loadbalancer` **services**. This allows the server to handle TCP connections or UDP flows toward exposed services.
-
-Load balancers are deployed in high-availability mode so that they are resilient to potential failures and able to recover quickly from critical conditions.
-
-<p class="note"><strong>Note</strong>: The <code>NodePort</code> Service type is not supported for PKS deployments on vSphere with NSX-T. Only <code>type:LoadBalancer</code>Services and Services associated with Ingress rules are supported on vSphere with NSX-T.</p>
+See the [AWS Prerequisites](deploy-workloads.html#aws) section of the _Deploy and Access Basic Workloads_ topic before you create a workload load balancer.
