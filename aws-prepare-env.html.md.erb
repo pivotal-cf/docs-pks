@@ -134,6 +134,90 @@ To set up accounts with the correct permissions, create master and worker VM pol
 1. Click **Create user**.
 1. Record the value of the **Access key ID** and **Secret access key**.
 
+## <a id='loadbalancer-pks-api'></a>Configure External Load Balancer
+
+Configure an external TCP load balancer to access the PKS API from outside the network. You can use any external TCP load balancer of your choice.
+
+Refer to the procedures in this section to create a load balancer using AWS. If you choose to use a different load balancer, use the configuration in this section as a guide.
+
+### <a id='create-lb'></a>Step 1: Create a PKS API Load Balancer Using AWS
+
+To create a load balancer using AWS, perform the following steps:
+
+1. In a browser, navigate to the [AWS Console](https://console.aws.amazon.com/console/home).
+1. Navigate to **EC2 > Load Balancers**.
+1. Click **Create Load Balancer**.
+1. Under **Network Load Balancer**, click **Create**.
+1. Complete the **Basic Configuration** section as follows:
+  1. Give your load balancer a name. Pivotal recommends naming your load balancer `pks-api`.
+  1. Select **internet-facing**.
+1. Complete the **Listeners** section as follows:
+  1. Select **Add listener**.
+      * Under **Load Balancer Protocol**, leave **TCP** selected.
+      * Under **Load Balancer Port**, enter 8443.
+  1. Select **Add listener**.
+      * Under **Load Balancer Protocol**, leave **TCP** selected.
+      * Under **Load Balancer Port**, enter 9021.
+1. Complete the **Availablity Zones** section as follows:
+  1. Select the VPC where you installed Ops Manager.
+  1. Select an availability zone.
+  1. Select the public subnet within the availability zone.
+1. Click **Next: Configure Routing**.
+1. Complete the **Target group** section as follows:
+  * **Target group**: Select **New target group**.
+  * **Name**: Enter `pks-api`.
+  * **Protocol**: Select **TCP**.
+  * **Port**: Enter `9021`.
+  * **Target type**: Select **instance**.
+1. Under **Health checks > Protocol**, leave **TCP** selected.
+1. Click **Next: Register Targets**.
+1. Under **Instances**, select the instance named `pivotal-container-service`.
+  * Click **Add to registered**.
+1. Click **Next: Review**.
+1. Click **Create**.
+1. Click the link for the load balancer.
+1. Record the fully qualified domain name (FQDN) for the load balancer. When you configure the PKS tile, refer to this FQDN for the following:
+  * Enter the FQDN in the **API Hostname (FQDN)** field. See the [PKS API](#pks-api) section for more information.
+  * Enter the wildcard domain when you generate the PKS API certificate. Replace `pks-api` in the FQDN with `*`. See the [PKS API](#pks-api) section for more information.
+1. Click **EC2 > Target Groups**.
+1. Click **Create target group**.
+1. Complete the target group configuration as follows:
+  * **Target group name**: Enter `pks-uaa`.
+  * **Protocol**: Select **TCP**.
+  * **Port**: Enter `8443`.
+  * **Target type**: Select **instance**.
+  * **VPC**: Select the VPC where you installed Ops Manager.
+1. Under **Health check settings > Protocol**, leave **TCP** selected.
+1. Click **Create**.
+1. Select the target group.
+  * In the **Targets** tab, select **Edit**.
+  * Under **Instances**, select the instance named `pivotal-container-service`.
+  * Click **Add to registered**.
+  * Click **Save**.
+1. Click **EC2 > Load Balancers**.
+   * Select the load balancer you created.
+   * Under **Listeners**, select the **TCP : 8443** listener.
+   * Click **Edit**.
+   * Set the **Default target group** to `pks-uaa`.
+   * Click **Save**.
+
+### <a id='firewall-rule'></a>Step 2: Create a Firewall Rule for the Load Balancer
+
+1. Click **Security Groups**.
+1. Select the security group that is applied to the `pivotal-container-service` instance.
+1. In the **Inbound** tab, click **Edit**.
+1. Click **Add Rule** and complete the following fields:
+  * **Type**: Select **Custom TCP**.
+  * **Port Range**: Enter `8443`.
+  * **Source**: Select **Custom** and enter `0.0.0.0/0`.
+  * **Description**: Enter `UAA`.
+1. Click **Add Rule** and complete the following fields:
+  * **Type**: Select **Custom TCP**.
+  * **Port Range**: Enter `9021`.
+  * **Source**: Select **Custom** and enter `0.0.0.0/0`.
+  * **Description**: Enter `PKS API`.
+1. Click **Save**.
+
 ## <a id='next-steps'></a>Next Steps
 
 Follow the procedures in [Deploying Ops Manager to AWS](aws-om-deploy.html).
