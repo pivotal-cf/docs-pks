@@ -16,12 +16,16 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
+| `master` | PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
+| `1.1` | PKS 1.1.x released content | https://docs.pivotal.io/runtimes/pks/1-1/index.html |
 | `1.0-publish` | PKS 1.0.x released content | https://docs.pivotal.io/runtimes/pks/1-0/index.html |
-| `master` | PKS 1.1.x released content | https://docs.pivotal.io/runtimes/pks/1-1/index.html |
+
+The `master` branch is used to publish the live v1.2 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
+
+The `1.1` branch is used to publish the live v1.1 version of the site. Create pull requests on `1.1` to contribute bug fixes or correct technical inaccuracies in the v1.1 documentation.
 
 The `1.0-publish` branch is used to publish the live v1.0 version of the site. Create pull requests on `1.0-publish` to contribute bug fixes or correct technical inaccuracies in the v1.0 documentation.
 
-The `master` branch is used to publish the live v1.1 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.1 documentation.
 
 ## How To Use Bookbinder To View Your Docs
 
