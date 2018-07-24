@@ -25,11 +25,11 @@ This topology has the following characteristics:
 * Kubernetes cluster master and worker nodes are located on a logical switch 
 that has undergone Network Address Translation on a T0. This requires DNAT rules to allow access to Kubernetes APIs.
 
-###<a id='topology-no-nat-virtual-switch'></a> NO-NAT with Virtual Switch (VSS/VDS) Topology
+###<a id='topology-no-nat-virtual-switch'></a> No-NAT with Virtual Switch (VSS/VDS) Topology
 
-The following figure shows a NO-NAT with Virtual Switch (VSS/VDS) deployment:
+The following figure shows a No-NAT with Virtual Switch (VSS/VDS) deployment:
 
-![NO-NAT Topology with Virtual Switch](images/vsphere/nsxt-topology-no-nat-virtual-switch.png)
+![No-NAT Topology with Virtual Switch](images/vsphere/nsxt-topology-no-nat-virtual-switch.png)
  
 [View a larger version of this image.](images/vsphere/nsxt-topology-no-nat-virtual-switch.png)
 
@@ -39,11 +39,11 @@ This topology has the following characteristics:
 * Kubernetes cluster master and worker nodes are using corporate routable IP addresses.
 * The PKS control plane is deployed outside of the NSX-T network and the Kubernetes clusters are deployed and managed within the NSX-T network. Since BOSH needs routable access to the Kubernetes Nodes to monitor and manage them, the Kubernetes Nodes need routable access.
 
-###<a id='topology-no-nat-logical-switch'></a> NO-NAT with Logical Switch (NSX-T) Topology
+###<a id='topology-no-nat-logical-switch'></a> No-NAT with Logical Switch (NSX-T) Topology
 
-The following figure shows a NO-NAT with Logical Switch (NSX-T) deployment:
+The following figure shows a No-NAT with Logical Switch (NSX-T) deployment:
 
-![NO-NAT Topology with Logical Switch](images/vsphere/nsxt-topology-no-nat-logical-switch.png)
+![No-NAT Topology with Logical Switch](images/vsphere/nsxt-topology-no-nat-logical-switch.png)
 
 [View a larger version of this image.](images/vsphere/nsxt-topology-no-nat-logical-switch.png)
 
@@ -73,7 +73,7 @@ Before you install PKS on NSX-T, you should plan for the CIDRs and IP blocks tha
 Plan for the following network CIDRs in the IPv4 address space according to the instructions in the VMware [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html).
 
 * **VTEP CIDR(s)**: One or more of these networks host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the networks to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of `192.168.1.0/24` provides 254 usable IPs. This is used when creating the `ip-pool-vteps` in Step 3.
-* **PKS MANAGEMENT CIDR**: This small network is used to access PKS management components such as Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` provides 14 usable IPs. For the [NO-NAT deployment topologies](#architecture), this is a corporate routable subnet /28. For the [NAT deployment topology](#topology-nat), this is a non-routable subnet /28, and DNAT needs to be configured in NSX-T to access the PKS management components.
+* **PKS MANAGEMENT CIDR**: This small network is used to access PKS management components such as Ops Manager and the PKS Service VM. For example, a CIDR of `10.172.1.0/28` provides 14 usable IPs. For the [No-NAT deployment topologies](#architecture), this is a corporate routable subnet /28. For the [NAT deployment topology](#topology-nat), this is a non-routable subnet /28, and DNAT needs to be configured in NSX-T to access the PKS management components.
 * **PKS LB CIDR**: This network provides your load balancing address space for each Kubernetes cluster created by PKS. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/24` provides 256 usable IPs. This network is used when creating the `ip-pool-vips` described in [Create NSX Network Objects](#create-objects-network-objects), or when the services are deployed. You enter this network in the **Floating IP Pool ID** field in the **Networking** pane of the PKS tile.
 
 Refer to the instructions in the VMware [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) to ensure that your network topology enables the following communications:
@@ -85,9 +85,26 @@ Refer to the instructions in the VMware [NSX-T documentation](https://docs.vmwar
 
 ###<a id='plan-ip-blocks'></a>Plan IP Blocks
 
-In addition, you need to plan IP blocks for pods and nodes that are created when PKS creates the Kubernetes cluster. IP Block sizes must be a multiple of 256 (/24). You must make sure that an IP block already has any subnets allocated, and that the subnet size is 256 (/24). You configure the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the PKS tile.
+You must plan IP blocks for the pods and nodes that are created when PKS creates the Kubernetes cluster.
+IP block sizes must be a multiple of 256.
+For example, /24.
+You must allocate subnets for the IP blocks before configuring the PKS tile.
+For more information, see [Step 3.1: Create NSX Network Objects](#create-objects-network-objects) below.
 
-Each Kubernetes cluster will own the /24 subnet. Thus, if you want to deploy multiple Kubernetes clusters, the nodes block size (Nodes IP Block ID in the Networking pane of the PKS tile) must be set to larger than /24.  The generally recommended size is /16. However, for no-NAT environments where you may have a limited number of routable subnets, a smaller nodes block size can be used. For example, /20 would allow up to 16 Kubernetes clusters to be created.
+Each Kubernetes cluster owns the /24 subnet.
+To deploy multiple Kubernetes clusters, set the **Nodes IP Block ID** in the **Networking** pane of the PKS tile to larger than /24.
+The recommended size is /16.
+
+<p class="note"><strong>Note</strong>: You can use a smaller nodes block size for no-NAT environments with a limited number of routable subnets.
+For example, /20 allows up to 16 Kubernetes clusters to be created.</p>
+
+You configure the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the PKS tile.
+For more information, see [Networking](#networking) in _Step 7: Install and Configure PKS_ below.
+
+####<a id='reserved-ip-blocks'></a>Reserved IP Blocks
+
+Do not use any of the IP blocks listed in this section for pods or nodes.
+If you create Kubernetes clusters with any of the blocks listed below, the Kubernetes worker nodes cannot reach Harbor or internal Kubernetes services.
 
 Harbor uses the following IP blocks for its internal bridges:
 
@@ -101,8 +118,6 @@ Harbor uses the following IP blocks for its internal bridges:
 Each cluster uses the following IP block for Kubernetes services:
 
   * 10.100.200.0/24
-
-<p class="note"><strong>Note</strong>: Do not use any of the IP blocks listed above for pods or nodes. If you create Kubernetes clusters with any of the blocks listed above, the Kubernetes worker nodes cannot reach Harbor for the image pull.</p>
 
 ##<a id='deploy-nsx-t'></a> Step 2: Deploy NSX-T
 
@@ -138,7 +153,7 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
   * For each host in the NSX-T Fabric, create a node named `tnode-host-NUMBER`. For example, if you have three hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`.
   * Add the `tz-overlay` NSX Transport Zone to each NSX Host Transport Node.
   <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>ip-pool-vteps</code> IP pool that allows them to route and communicate with each other, as well as other Edge Transport Nodes, to build GENEVE tunnels.</p>
-1. Create NSX IP Blocks. We recommend that you use separate NSX IP Blocks for the node networks and the pod networks. The subnets (both nodes and pods) should have a size of 256 (/24). However, if you are planning to deploy multiple Kubernentes clusters, the nodes size should be /16. See [Plan IP Blocks](#plan-ip-blocks). For more information, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. Configuration details:
+1. Create NSX IP blocks. We recommend that you use separate NSX IP blocks for the node networks and the pod networks. The subnets for both nodes and pods should have a size of 256 (/24). However, if you are planning to deploy multiple Kubernetes clusters, the nodes subnet size should be /16. For more information about planning IP blocks, see the [Plan IP Blocks](#plan-ip-blocks) section above. For more information about creating NSX IP blocks in NSX Manager, see [Manage IP Blocks](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-46C7B20D-4BE4-400E-AF39-1ADFE945DE38.html) in the VMware NSX-T documentation. Configuration details:
   * One NSX IP Block named `node-network-ip-block`. PKS uses this block to assign address space to Kubernetes master and worker nodes when new clusters are deployed or a cluster increases its scale.
   * One NSX IP Block named `pod-network-ip-block`. The NSX-T Container Plug-in (NCP) uses this block to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
 
@@ -147,7 +162,7 @@ Create the NSX-T objects (network objects, logical switches, NSX Edge, and logic
 1. Create the following NSX Logical Switches. For more information, see [Create a Logical Switch](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html) in the VMware NSX-T documentation. Configuration details for the Logical Switches:
   * One for T0 ingress/egress uplink port `ls-pks-uplink` 
   * One for the PKS Management Network `ls-pks-mgmt`
-    <p class="note"><strong>Note</strong>: This network is required for the <a href="#topology-nat">NAT deployment topology</a> and <a href="#topology-no-nat-logical-switch">NO-NAT with Logical Switch deployment topology</a>. If you are deploying the <a href="#topology-no-nat-virtual-switch">NO-NAT with Virtual Switch topology</a>, you can skip this step.</p>
+    <p class="note"><strong>Note</strong>: This network is required for the <a href="#topology-nat">NAT deployment topology</a> and <a href="#topology-no-nat-logical-switch">No-NAT with Logical Switch deployment topology</a>. If you are deploying the <a href="#topology-no-nat-virtual-switch">No-NAT with Virtual Switch topology</a>, you can skip this step.</p>
   * One for the PKS Service Network `ls-pks-service`
 1. Attach your first NSX Logical Switch to the `tz-vlan` NSX Transport Zone.
 1. Attach your second and third NSX Logical Switches to the `tz-overlay` NSX Transport Zone.
@@ -249,7 +264,7 @@ nsx-edge-n&gt; get logical-router ROUTER-UUID high-availability status
 1. Create a Tier-1 (T1) logical router for PKS management VMs named `t1-pks-mgmt`. For more information, see [Create a Tier-1 Logical Router](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A6042263-374F-4292-892E-BC86876325A4.html) in the VMware NSX-T documentation. Configuration details:
   * Link to the `t0-pks` logical router you created in a previous step.
   * Select `edge-cluster-pks` for the cluster. <br/>
-  <p class="note"><strong>Note</strong>: Skip this step if you are deploying the NO-NAT with Virtual Switch topology. This Logical Router is required for the <a href="#topology-nat">NAT deployment topology</a> and NO-NAT with Logical Switch deployment topology. .
+  <p class="note"><strong>Note</strong>: Skip this step if you are deploying the No-NAT with Virtual Switch topology. This Logical Router is required for the <a href="#topology-nat">NAT deployment topology</a> and No-NAT with Logical Switch deployment topology. .
 1. Create a logical router port for `ls-pks-mgmt` and assign the following CIDR block: `10.172.1.0/28`. For more information, see [Connect a Tier-0 Logical Router to a VLAN Logical Switch](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-D641380B-4C8E-4C8A-AF64-4261A266ACA4.html) in the VMware NSX-T documentation.
 1. Configure route advertisement on the T1 as follows. For more information, see [Configure Route Advertisement on a Tier-1 Logical Router](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-B6AF9E08-1334-4D3A-B8ED-D0CAB3B563FB.html) in the VMware NSX-T documentation. Configuration details:
    * Enable **Status**.
@@ -259,7 +274,7 @@ nsx-edge-n&gt; get logical-router ROUTER-UUID high-availability status
    
 ####<a id='configure-nat-logical-router-pks-mgmt'></a> Configure NAT Rules for PKS Management VMs
 
-<p class="note"><strong>Note</strong>: This step applies to the <a href="#topology-nat">NAT deployment topology</a> only. Skip this step for <a href="#architecture">NO-NAT deployment topologies</a>.</p>
+<p class="note"><strong>Note</strong>: This step applies to the <a href="#topology-nat">NAT deployment topology</a> only. Skip this step for <a href="#architecture">No-NAT deployment topologies</a>.</p>
 
 Create the following NAT rules for the Mgmt T0. For more information, see [Tier-0 NAT](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-C24C751C-74CE-47BE-93B6-E5B7C646C343.html) in the VMware NSX-T documentation. Configuration details:
 
@@ -602,7 +617,7 @@ Perform the following steps:
   For more information, including instructions for completing the additional, required registration and verification steps, see [Step 6.1: Generate the NSX Manager Super User Principal Identity Certificate](#certificates-super-user).
 1. (Optional) For **NSX Manager CA Cert**, copy and paste the contents of the NSX Manager CA certificate you created in [Step 6: Generate and Register Certificates](#certificates). This will be used to connect to the NSX Manager.
 1. The **Disable SSL certificate verification** checkbox is **not** selected by default. In order to disable TLS verification, select the checkbox. You may want to disable TLS verification if you did not enter a CA certificate, or if your CA certificate is self-signed.
-1. If you are using a NAT deployment topology, leave the **NAT mode** checkbox selected. If you are using a NO-NAT topology, clear this checkbox. For more information, see the [Deployment Topologies](#architecture) section above. 
+1. If you are using a NAT deployment topology, leave the **NAT mode** checkbox selected. If you are using a No-NAT topology, clear this checkbox. For more information, see the [Deployment Topologies](#architecture) section above.
 1. Enter the following IP Block settings:
 
     <img src="images/networking-nsx-t-2.png" alt="NSX-T Networking configuration pane in Ops Manager" width="375">
