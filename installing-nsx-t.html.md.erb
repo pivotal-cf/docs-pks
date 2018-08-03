@@ -13,23 +13,11 @@ This topic describes how to install and configure Pivotal Container Service (PKS
 Before performing the procedures in this topic, you must have deployed and configured Ops Manager.
 For more information, see [vSphere with NSX-T Prerequisites and Resource Requirements](vsphere-nsxt-requirements.html).
 
-If you use an instance of Ops Manager that you configured previously to install other runtimes, confirm the following settings before you install PKS:
-
-1. Navigate to Ops Manager.
-1. Open the **Director Config** pane.
-1. Select the **Enable Post Deploy Scripts** checkbox.
-1. Clear the **Disable BOSH DNS server for troubleshooting purposes** checkbox.
-1. Click the **Installation Dashboard** link to return to the Installation Dashboard.
-1. Click **Apply Changes**.
+<%= partial 'prerequisites' %>
 
 ##<a id='install'></a> Step 1: Install PKS
 
-To install PKS, do the following:
-
-1. Download the product file from [Pivotal Network](https://network.pivotal.io).
-1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
-1. Click **Import a Product** to upload the product file.
-1. Under **Pivotal Container Service** in the left column, click the plus sign to add this product to your staging area.
+<%= partial 'install-pks' %>
 
 ##<a id='configure'></a> Step 2: Configure PKS
 
@@ -58,79 +46,15 @@ Perform the following steps:
 
 ###<a id='pks-api'></a> PKS API
 
-Perform the following steps:
-
-1. Click **PKS API**.
-1. Under **Certificate to secure the PKS API**, provide your own certificate and private key pair.
-  ![PKS API pane configuration](images/pks-api.png)
-The certificate you enter here should cover the domain that routes to the PKS API VM with TLS termination on the ingress.<br><br>
-    (Optional) If you do not have a certificate and private key pair, you can have Ops Manager generate one for you. Perform the following steps:
-  1. Select the **Generate RSA Certificate** link.
-  1. Enter the wildcard domain for your API hostname.
-    For example, if your PKS API domain is `api.pks.example.com`, then enter `*.pks.example.com`.
-  1. Click **Generate**.
-1. Under **API Hostname (FQDN)**, enter a fully qualified domain name (FQDN) to access the PKS API.
-For example, `api.pks.example.com`.
-1. Click **Save**.
+<%= partial 'pks-api' %>
 
 ###<a id='plans'></a> Plans
 
-To activate a plan, perform the following steps:
-
-1. Click the **Plan 1**, **Plan 2**, or **Plan 3** tab.
-  <p class="note"><strong>Note</strong>: A plan defines a set of resource types used for deploying clusters. You can configure up to three plans. You must configure <strong>Plan 1</strong>.</p>
-1. Select **Active** to activate the plan and make it available to developers deploying clusters.
-  ![Plan pane configuration](images/plan1.png)
-1. Under **Name**, provide a unique name for the plan.
-1. Under **Description**, edit the description as needed.
-The plan description appears in the Services Marketplace, which developers can access by using PKS CLI.
-1. Under **Master/ETCD Node Instances**, select the default number of Kubernetes master/etcd nodes to provision for each cluster. You can enter either <code>1</code> or <code>3</code>. For increased master node availability, set this value to <code>3</code>.
-  <p class="note warning"><strong>WARNING</strong>: To change the number of master/etcd nodes for a plan, you must ensure that no existing clusters use the plan. PKS does not support changing the number of master/etcd nodes for plans with existing clusters.
-  </p>
-<%= partial 'beta-component' %>
-1. Under **Master/ETCD VM Type**, select the type of VM to use for Kubernetes master/etcd nodes. For more information, see the [Master Node VM Size](vm-sizing.html#master-sizing) section of _VM Sizing for PKS Clusters_.
-1. Under **Master Persistent Disk Type**, select the size of the persistent disk for the Kubernetes master node VM.
-1. Under **Master/ETCD Availability Zones**, select one or more AZs for the Kubernetes clusters deployed by PKS. If you select more than one AZ, PKS deploys the master VM in the first AZ and the worker VMs across the remaining AZs.
-1. Under **Worker Node Instances**, select the default number of Kubernetes worker nodes to provision for each cluster. For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use persistent volumes. For example, if you deploy across three AZs, you should have six worker nodes. For more information about persistent volumes, see [Persistent Volumes](maintain-uptime.html#persistent-volumes) in _Maintain Workload Uptime_.  Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
-
-    <img src="images/plan2.png" alt="Plan pane configuration, part two" width="375">
-1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker node VMs. For more information, see the [Worker Node VM Number and Size](vm-sizing.html#worker-sizing) section of _VM Sizing for PKS Clusters_.
-1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker node VMs.
-1. Under **Worker Availability Zones**, select one or more AZs for the Kubernetes worker nodes. PKS deploys worker nodes equally across the AZs you select.
-1. Under **Errand VM Type**, select the size of the VM that contains the errand. The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
-1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to add custom workloads to each cluster in this plan. You can specify multiple files using `---` as a separator. For more information, see [Add Custom Workloads](custom-workloads.html).
-  ![Plan pane configuration](images/plan3.png)
-1. (Optional) To allow users to create pods with privileged containers, select the **Enable Privileged Containers - Use with caution** option. For more information, see [Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers) in the Kubernetes documentation.
-1. (Optional) To disable the admission controller, select the **Disable DenyEscalatingExec** checkbox. If you select this option, clusters in this plan can create security vulnerabilities that may impact other tiles. Use this feature with caution.
-1. Click **Save**.
-
-To deactivate a plan, perform the following steps:
-
-1. Click the **Plan 1**, **Plan 2**, or **Plan 3** tab.
-1. Select **Plan Inactive**.
-1. Click **Save**.
+<%= partial 'plans' %>
 
 ###<a id='cloud-provider'></a> Kubernetes Cloud Provider
 
-In the procedure below, you use credentials for vCenter master VMs.
-You must have provisioned the service account with the correct permissions.
-For more information, see [Create the Master Node Service Account](vsphere-prepare-env.html#create-master).
-
-To configure your Kubernetes cloud provider settings, follow the procedure below:
-
-1. Click **Kubernetes Cloud Provider**.
-1. Under **Choose your IaaS**, select **vSphere**.
-1. Ensure the values in the following procedure match those in the **vCenter Config** section of the **Ops Manager** tile.
-
-    <img src="images/cloud-vsphere.png" alt="vSphere pane configuration" width="325">
-
-    1. Enter your **vCenter Master Credentials**. Enter the username using the format `user@CF-EXAMPLE.com`. For more information about the master node service account, see [Preparing to Deploy PKS on vSphere](vsphere-prepare-env.html).
-    1. Enter your **vCenter Host**. For example, `vcenter.CF-EXAMPLE.com`.
-    1. Enter your **Datacenter Name**. For example, `CF-EXAMPLE-dc`.
-    1. Enter your **Datastore Name**. For example, `CF-EXAMPLE-ds`.
-    1. Enter the **Stored VM Folder** so that the persistent stores know where to find the VMs. To retrieve the name of the folder, navigate to your BOSH Director tile, click **vCenter Config**, and locate the value for **VM Folder**. The default folder name is `pcf_vms`.
-  <p class="note"><strong>Note</strong>: We recommend using a shared datastore for multi-AZ and multi-cluster environments.</p>
-1. Click **Save**.
+<%= partial 'cloud-provider' %>
 
 ###<a id='syslog'></a> (Optional) Logging
 
@@ -224,11 +148,7 @@ After installing PKS on vSphere, you may want to do one or more of the following
 
 ### <a name='clis'></a> Install the PKS and Kubernetes CLIs
 
-The PKS and Kubernetes CLIs help you interact with your PKS-provisioned Kubernetes clusters and Kubernetes workloads. To install the CLIs, follow the instructions below:
-
-* [Installing the PKS CLI](installing-pks-cli.html)
-
-* [Installing the Kubernetes CLI](installing-kubectl-cli.html)
+<%= partial 'install-cli' %>
 
 ###<a name='retrieve-endpoint'></a> Share the PKS API Endpoint
 
@@ -245,12 +165,8 @@ Developers should use the DNAT IP address when logging in with the PKS CLI. For 
 
 ### <a name='auth'></a> Configure Authentication for PKS
 
-To configure authentication for PKS, do the following:
-
-1. Configure authentication for PKS using either User Account and Authentication (UAA) or enterprise single sign-on (SSO). To create and manage users using UAA, see [Manage Users in UAA](manage-users.html).
-
-1. After configuring authentication, follow the procedures in [Configure PKS API Access](configure-api.html) to enable operators to create and manage clusters.
+<%= partial 'configure-auth' %>
 
 ### <a name='harbor'></a> Integrate VMware Harbor with PKS
 
-To integrate VMware Harbor Registry with PKS to store and manage container images, see [Integrating VMware Harbor Registry with PKS](https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html).
+<%= partial 'harbor' %>
