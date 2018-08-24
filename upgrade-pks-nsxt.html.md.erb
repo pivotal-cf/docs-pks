@@ -1,0 +1,71 @@
+---
+title: Upgrade PKS with NSX-T
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic explains how to upgrade the Pivotal Container Service (PKS) for environments using vSphere with NSX-T.
+
+## <a id="about-nsxt-support">About NSX-T Support
+
+PKS version 1.1.5 supports NSX-T 2.2 and vSphere 6.5 U2. Refer to the [interoperability matrix](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php) for PKS for details.
+
+If you are using PKS with NSX-T, you are encouraged to upgrade to PKS 1.1.5 and NSX-T 2.2 to take advantage of key features and important architectural changes described here.
+
+## <a id="about-ncp">Upgrade Procedure
+
+The PKS 1.1.5 upgrade procedure is as follows:
+
+1.	Upgrade to PKS 1.1.4 if you are not already on this release. You must be on PKS 1.1.4 to upgrade to PKS 1.1.5. Refer to [Upgrade PKS](#upgrade-pks) for instructions.
+2.	Upgrade from PKS 1.1.4 to PKS 1.1.5. Refer to [Upgrade PKS](#upgrade-pks) for instructions.
+3.	Upgrade from NSX-T 2.1 to NSX-T 2.2. The NSX-T Uprage wizard walks you through the process. For additional guidance, see [Upgrading NSX-T](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.upgrade.doc/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html).
+4.	Upgrade vSphere from version 6.5 or 6.5 U1 to 6.5 U2. See [Upgrading vSphere in an NSX Environment](https://docs.vmware.com/en/VMware-NSX-for-vSphere/6.4/com.vmware.nsx.upgrade.doc/GUID-ED005943-AB33-4D8D-A642-97774276C539.html) for details.
+
+<p class="note"><strong>Note</strong>: When upgrading NSX-T for PKS, while the Edge Nodes are being upgraded, workloads in your Kubernetes cluster will not be available. This means that unless you have configured Active/Standby, expect some downtime. Refer to the What Happens When You Upgrade PKS for more information.
+
+## <a id="pks-architectural-changes">PKS with NSX-T Architectural Changes
+
+PKS 1.1.5 includes architectural changes related to integration with NSX-T, including the NSX-T Container Plugin (NCP) which is used by PKS to integrate with NSX-T. See [Overview of NSX-T Container Plug-in](#https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.ncp_kubernetes.doc/GUID-52A92986-0FDF-43A5-A7BB-C037889F7559.html) for more information about NCP.
+
+<p class="note"><strong>Note</strong>: This is informational only to understand architectural changes. You do not need to install or configure NCP. It is done automatically when you deploy PKS in a NSX-T environment.
+
+### NSX-T Node Agent and Kube Proxy
+
+In PKS 1.1.4 and earlier versions, the NSX-T Node Agent and NSX-T Kube Proxy run as a daemon set on each worker node. With PKS 1.1.5, both the NSX-T Node Agent and the Kube Proxy run as BOSH-manged processes on each worker node. 
+
+### NSX-T Container Plugin (NCP)
+
+In PKS 1.1.4 and earilers versions, NCP runs as a Kubernetes Pod on a single worker node. With PKS 1.1.5, NCP runs as a BOSH-managed process on the Kubernetes master node. 
+
+With PKS 1.1.5, in the case of a multi-master PKS deployment, the NCP process will run on all master nodes but will only be active on a single master. If the NCP process on an active master is unresponsive, BOSH will activate another NCP process.
+
+## PKS Logs for NSX-T and NCP
+
+In PKS 1.1.4 and earlier versions, NSX-T and NCP logs are accessed via Kubectl commands. In PKS 1.1.5 where NSX-T and NCP are BOSH-manged processes, the logs for these components are accessed via BOSH. See below for a list of BOSH jobs where NSX-T and NCP logs are stored.
+
+On upgrade to PKS 1.1.5, the existing logs for NSX-T and NCP will be deleted. Before upgrade you may want to back these logs up. For example, you may need to analyze these logs if there are problems related to a failed upgrade or problems you experience with your PKS deployment before upgrade. 
+
+Here are the BOSH jobs related to NSX-T integration with NCP as as a BOSH process:
+
+In the master node:
+
+```
+/var/vcap/sys/log/ncp           
+/var/vcap/sys/log/pks-nsx-t-prepare-master-vm 
+/var/vcap/sys/log/pks-nsx-t-ncp 
+```
+
+In the worker nodes:
+
+```
+/var/vcap/sys/log/nsx-kube-proxy  
+/var/vcap/sys/log/openvswitch      
+/var/vcap/sys/log/nsx-cni  
+/var/vcap/sys/log/nsx-node-agent 
+```
+
+These logs can be collected using the BOSH command `bosh –d <deployment id> logs`.
+
+
+
