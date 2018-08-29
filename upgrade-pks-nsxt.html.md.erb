@@ -11,23 +11,32 @@ This topic explains how to upgrade the Pivotal Container Service (PKS) for envir
 
 PKS version 1.1.5 supports NSX-T 2.2 and vSphere 6.5 U2. Refer to the [interoperability matrix](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php) for PKS for details.
 
-If you are using PKS with NSX-T, you are encouraged to upgrade to PKS 1.1.5 and NSX-T 2.2 to take advantage of key features and important architectural changes described here.
+If you are using PKS with NSX-T, you are encouraged to upgrade to PKS 1.1.5 and NSX-T 2.2 to take advantage of key features and important architectural changes.
 
 ## <a id="about-ncp">Upgrade Procedure
 
 The PKS 1.1.5 upgrade procedure is as follows:
 
-1.	Upgrade to PKS 1.1.4 if you are not already on this release. You must be on PKS 1.1.4 to upgrade to PKS 1.1.5. Refer to [Upgrade PKS](#upgrade-pks) for instructions.
-2.	Upgrade from PKS 1.1.4 to PKS 1.1.5. Refer to [Upgrade PKS](#upgrade-pks) for instructions.
-3.	Upgrade from NSX-T 2.1 to NSX-T 2.2. The NSX-T Uprage wizard walks you through the process. 
-	To do this, log in to the NSX Manager UI and naviage to **System > Utilities > Upgrade**.
+1.	Upgrade to PKS 1.1.4 if you are not already on this release.
+	You must be on PKS 1.1.4 to upgrade to PKS 1.1.5. Refer to [Upgrade PKS](upgrade-pks.html) for instructions.
+2.	If desired, back up the NSX-T and NCP logs. (See [architectural changes](pks-nsxt-architectural-changes) for details.) 
+2.	Before upgrading to PKS 1.1.5, in the PKS Tile set the **Worker VM Type** form field to use a disk with minimum size of 16 GB.
+3.	Upgrade from PKS 1.1.4 to PKS 1.1.5. Refer to [Upgrade PKS](upgrade-pks.html) for instructions.
+4.	Upgrade from NSX-T 2.1 to NSX-T 2.2. The NSX-T Uprade wizard walks you through the process. 
+	To access the Upgrade wizard, log in to the NSX Manager UI and navigate to **System > Utilities > Upgrade**.
 	Select **Proceed to Upgrade** and follow the instructions.
+	<img src="images/upgrade-nsxt.png" alt="NSX-T Upgrade Wizard" width="425">
 	For additional guidance, see [Upgrading NSX-T](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.upgrade.doc/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html).
-4.	If desired, upgrade vSphere from version 6.5 or 6.5 U1 to 6.5 U2. See [Upgrading vSphere in an NSX Environment](https://docs.vmware.com/en/VMware-NSX-for-vSphere/6.4/com.vmware.nsx.upgrade.doc/GUID-ED005943-AB33-4D8D-A642-97774276C539.html) for details.
+5.	If desired, upgrade vSphere from version 6.5 or 6.5 U1 to 6.5 U2.
+	See [Upgrading vSphere in an NSX Environment](https://docs.vmware.com/en/VMware-NSX-for-vSphere/6.4/com.vmware.nsx.upgrade.doc/GUID-ED005943-AB33-4D8D-A642-97774276C539.html).
 
-<p class="note"><strong>Note</strong>: When upgrading NSX-T for PKS, while the Edge Nodes are being upgraded, workloads in your Kubernetes cluster will not be available. This means that unless you have configured Active/Standby, expect some downtime. Refer to the What Happens When You Upgrade PKS for more information.
+**Upgrade Notes**
 
-## <a id="pks-architectural-changes">PKS with NSX-T Architectural Changes
+<p class="note"><strong>Note</strong>: When upgrading PKS with NSX-T, while the Edge Nodes are being upgraded, workloads in your Kubernetes cluster will not be available. This means that unless you have configured Active/Standby, expect some downtime. See [What Happens During PKS Upgrades](understanding-upgrades.html) for more information.
+
+<p class="note"><strong>Note</strong>: Because of the PKS with NSX-T [architectural changes](pks-nsxt-architectural-changes), you must set the **Worker VM Type** to have a disk with minimum size of 16 GB before upgrading. If you do not make this change, updgrade to PKS 1.1.5 may fail due to the Kubernetes "worker" VM running out of ephemeral disk. The default value for the "worker" is "medium" which is not sufficient for PKS 1.1.5 or later in NSX-T environments. For clarification, this change must be made to the **Worker VM Type** form field, not the **Worker Persistent Disk Type** field. This is also the recommendation for new installs of PKS 1.1.5. 
+
+## <a id="pks-nsxt-architectural-changes">PKS with NSX-T Architectural Changes
 
 PKS 1.1.5 includes architectural changes related to integration with NSX-T, including the NSX-T Container Plugin (NCP) which is used by PKS to integrate with NSX-T. See [Overview of NSX-T Container Plug-in](#https://docs.vmware.com/en/VMware-NSX-T/2.0/com.vmware.nsxt.ncp_kubernetes.doc/GUID-52A92986-0FDF-43A5-A7BB-C037889F7559.html) for more information about NCP.
 
@@ -43,7 +52,7 @@ In PKS 1.1.4 and earilers versions, NCP runs as a Kubernetes Pod on a single wor
 
 With PKS 1.1.5, in the case of a multi-master PKS deployment, the NCP process will run on all master nodes but will only be active on a single master. If the NCP process on an active master is unresponsive, BOSH will activate another NCP process.
 
-## PKS Logs for NSX-T and NCP
+### PKS Logs for NSX-T and NCP
 
 In PKS 1.1.4 and earlier versions, NSX-T and NCP logs are accessed via Kubectl commands. In PKS 1.1.5 where NSX-T and NCP are BOSH-manged processes, the logs for these components are accessed via BOSH. See below for a list of BOSH jobs where NSX-T and NCP logs are stored.
 
@@ -69,6 +78,7 @@ In the worker nodes:
 ```
 
 These logs can be collected using the BOSH command `bosh –d <deployment id> logs`.
+
 
 
 
