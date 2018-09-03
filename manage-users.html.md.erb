@@ -152,3 +152,98 @@ To grant cluster access to an automated client for a script or service, perform 
     --authorized&#95;grant&#95;types client&#95;credentials  \
     --authorities pks.clusters.admin,pks.clusters.manage</pre>
 
+###<a id='access-other-users'></a> Granting Cluster Access to Other Users
+
+This process enables users to use kubectl to connect to clusters that have been created previously by admins. 
+
+In this process, admins can grant cluster access to users. Users are given cluster access through cluster rolebinding. For more information on cluster role bindings, see [RoleBinding and ClusterRoleBinding
+](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation. 
+
+<p class='note'><strong>Note</strong>: To grant this kind of cluster access, ensure that you have selected **Enable UAA as OIDC provider** in the UAA section of the PKS tile. 
+</p>
+
+1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
+
+1. Using the PKS CLI, run the `get-credentials` command to ensure that you can successfully access the cluster as an admin. As a result of running `get-credentials`, PKS automatically creates a cluster rolebinding for the UAA admin with the `pks.clusters.admin` and `pks.clusters.manage` scopes.
+<!-- ^^ creates a cluster rolebinding for the admin but the point of this is for the admin to create a cluster rolebinding for the user -->
+1. Create a spec YML file containing a clusterrole binding with the appropriate `roleRef` for the user. For additional information on the types of RoleRefs you can have in your spec file, consult RoleBinding and [ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation. 
+For example:
+
+<pre>
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: NAME-OF-CLUSTER-ROLEBINDING
+subjects:
+- kind: User
+  name: NAME-OF-USER # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: ROLE-REF
+  apiGroup: rbac.authorization.k8s.io
+</pre>
+
+
+1. Run the following command to create the above defined clusterrole binding in the cluster:
+<pre class="terminal">kubectl apply -f spec.yml</pre>
+
+1. The admin creates a partially completed kubeconfig, detailing: 
++ `clusters.cluster.certificate-authority-data`
++ `clusters.cluster.server`
++ `cluster.name`
++ `contexts.context.cluster`
++ `contexts.context.name`
++ `current-context`
++ `users.user.auth-provider.config.idp-issuer-url`
+
+1. The following parameters are entered by the user:
++ `contexts.context.user`
++ `users.name`
++ `users.user.auth-provider.config.id-token`
++ `users.user.auth-provider.config.refresh-token`
+
+1. To obtain  `users.user.auth-provider.config.id-token` and `users.user.auth-provider.config.refresh-token` run the following command:
+<pre class="terminal">
+curl 'https://<pks-domain-name>:8443/oauth/token' -k -XPOST -H 'Accept: application/json' -d "client_id=pks_cluster_client&client_secret=""&grant_type=password&username=UAA_USERNAME&password=UAA_PASSWORD&response_type=id_token"
+</pre>
+Where:
++ `UAA_USERNAME` is the user's UAA username.
++ `UAA_PASSWORD` is the user's UAA password. 
+<!--- ^^ this is the user's uaa creds not the admins-->
+1. From the output of the above command, take note of id_token and refresh_token values for the kubeconfig.
+1. User saves kubeconfig to `$HOME/.kube/config` directory.
+
+
+Review example kubeconfig file below:
+<pre>
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: PROVIDED-BY-ADMIN
+    server: PROVIDED-BY-ADMIN
+  name: PROVIDED-BY-ADMIN
+contexts:
+- context:
+    cluster: PROVIDED-BY-ADMIN
+    user: PROVIDED-BY-USER
+  name:  PROVIDED-BY-ADMIN
+current-context: PROVIDED-BY-ADMIN
+kind: Config
+preferences: {}
+users:
+- name:  PROVIDED-BY-USER
+  user: 
+    auth-provider:
+      config:
+        client-id: pks_cluster_client
+        cluster_client_secret: ""
+        id-token: PROVIDED-BY-USER
+        idp-issuer-url: < https://PROVIDED-BY-ADMIN:8443/oauth/token>
+        refresh-token:  PROVIDED-BY-USER
+      name: oidc
+</pre>
+
+For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
+
+Once the kubeconfig is constructed and saved to $HOME/.kube/config file, user should be able to connect to the cluster using `kubectl`. 
