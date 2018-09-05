@@ -155,68 +155,80 @@ To grant cluster access to an automated client for a script or service, perform 
 
 ###<a id='access-other-users'></a> Granting Cluster Access to Other Users
 
-This process enables users to use kubectl to connect to clusters that have been created previously by admins. 
+Admin Users with the `pks.clusters.admin` or `pks.clusters.manage` scope can grant cluster-wide access to other users who do not have either the `pks.clusters.admin` or `pks.clusters.manage` scopes. 
 
-In this process, admins can grant cluster access to users. Users are given cluster access through cluster rolebinding. For more information on cluster role bindings, see [RoleBinding and ClusterRoleBinding
-](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation. 
+To do this, the Admin User creates a `clusterRoleBinding` for those other users. For more information on cluster role bindings, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation.
 
-<p class='note'><strong>Note</strong>: To grant this kind of cluster access, ensure that you have selected **Enable UAA as OIDC provider** in the UAA section of the PKS tile. 
+At the end of this process, the non-Admin user is able to use the Kubernetes Command Line Interface (kubectl) to connect to the cluster and deploy their workloads. The non-admin users cannot resize or delete clusters. 
+
+<p class='note'><strong>Note</strong>: In order for Admin Users to grant cluster-wide access to non-Admin users, Admin users must ensure that they have selected <b>Enable UAA as OIDC provider</b> in the UAA section of the PKS tile.
 </p>
 
-1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
+To give cluster-wide access, the Admin User must perform the following actions:
 
-1. Using the PKS CLI, run the `get-credentials` command to ensure that you can successfully access the cluster as an admin. As a result of running `get-credentials`, PKS automatically creates a cluster rolebinding for the UAA admin with the `pks.clusters.admin` and `pks.clusters.manage` scopes.
-<!-- ^^ creates a cluster rolebinding for the admin but the point of this is for the admin to create a cluster rolebinding for the user -->
-1. Create a spec YML file containing a clusterrole binding with the appropriate `roleRef` for the user. For additional information on the types of RoleRefs you can have in your spec file, consult RoleBinding and [ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation. 
-For example:
+1. Log in as a UAA Admin User using the procedure [above](#uaa-admin-login).
 
-<pre>
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: NAME-OF-CLUSTER-ROLEBINDING
-subjects:
-- kind: User
-  name: NAME-OF-USER # Name is case sensitive
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: ClusterRole
-  name: ROLE-REF
-  apiGroup: rbac.authorization.k8s.io
-</pre>
+1. Run the following command to confirm that you can successfully connect to a cluster and use kubectl as an Admin User:
+<pre class="terminal">$ pks get-credentials CLUSTER-NAME</pre>
+This step also creates a `clusterRoleBinding` for the UAA admin with the `pks.clusters.admin` and `pks.clusters.manage` scopes. [comment:The above creates a cluster rolebinding for the admin but the point of this is for the admin to create a cluster rolebinding for the user]
 
+1. Create a spec YML file containing a `clusteRroleBinding` with the appropriate `roleRef` for the non-Admin user. For reference, review the example spec file below:
+  Where:
+  <ul>
+    <li> `NAME-OF-CLUSTER-ROLEBINDING` is the name of your `clusterRoleBinding`.
+    <li> `NAME-OF-USER` is the user's UAA username.
+    <li> `ROLE-REF` is your selected `roleRef`.
+  </ul>
 
-1. Run the following command to create the above defined clusterrole binding in the cluster:
-<pre class="terminal">kubectl apply -f spec.yml</pre>
+  <pre>
+  kind: ClusterRoleBinding
+  apiVersion: rbac.authorization.k8s.io/v1
+  metadata:
+    name: NAME-OF-CLUSTER-ROLEBINDING
+  subjects:
+  - kind: User
+    name: NAME-OF-USER # Name is case sensitive
+    apiGroup: rbac.authorization.k8s.io
+  roleRef:
+    kind: ClusterRole
+    name: ROLE-REF
+    apiGroup: rbac.authorization.k8s.io
+  </pre>
 
-1. The admin creates a partially completed kubeconfig, detailing: 
-+ `clusters.cluster.certificate-authority-data`
-+ `clusters.cluster.server`
-+ `cluster.name`
-+ `contexts.context.cluster`
-+ `contexts.context.name`
-+ `current-context`
-+ `users.user.auth-provider.config.idp-issuer-url`
+1. Run the following command to create the above defined `clusterRoleBinding` in the cluster:
+<pre class="terminal">$ kubectl apply -f spec.yml</pre>
 
-1. The following parameters are entered by the user:
-+ `contexts.context.user`
-+ `users.name`
-+ `users.user.auth-provider.config.id-token`
-+ `users.user.auth-provider.config.refresh-token`
+1. The Admin User creates a partially completed `kubeconfig` detailing the following: 
+  + `clusters.cluster.certificate-authority-data`
+  + `clusters.cluster.server`
+  + `cluster.name`
+  + `contexts.context.cluster`
+  + `contexts.context.name`
+  + `current-context`
+  + `users.user.auth-provider.config.idp-issuer-url`
 
-1. To obtain  `users.user.auth-provider.config.id-token` and `users.user.auth-provider.config.refresh-token` run the following command:
+To finish the process, the non-Admin user must perform the following tasks:
+
+1. After receiving the `kubeconfig` from the Admin User, the following parameters are entered by the non-Admin user:
+  + `contexts.context.user`
+  + `users.name`
+  + `users.user.auth-provider.config.id-token`
+  + `users.user.auth-provider.config.refresh-token`
+
+1. To obtain `users.user.auth-provider.config.id-token` and `users.user.auth-provider.config.refresh-token` the non-Admin user runs following command:
 <pre class="terminal">
-curl 'https://<pks-domain-name>:8443/oauth/token' -k -XPOST -H 'Accept: application/json' -d "client_id=pks_cluster_client&client_secret=""&grant_type=password&username=UAA_USERNAME&password=UAA_PASSWORD&response_type=id_token"
+$ curl '<span>https:</span>//PKS-API>:8443/oauth/token' -k -XPOST -H 'Accept: application/json' -d "client_id=pks_cluster_client&client_secret=""&grant_type=password&username=UAA-USERNAME&password=UAA-PASSWORD&response_type=id_token"
 </pre>
 Where:
-+ `UAA_USERNAME` is the user's UAA username.
-+ `UAA_PASSWORD` is the user's UAA password. 
-<!--- ^^ this is the user's uaa creds not the admins-->
-1. From the output of the above command, take note of id_token and refresh_token values for the kubeconfig.
-1. User saves kubeconfig to `$HOME/.kube/config` directory.
+<ul>
+  <li>`PKS-API` is the fully qualified domain name (FQDN) you use to access the PKS API.
+  <li>`UAA-USERNAME` is the non-Admin user's UAA username.
+  <li>`UAA-PASSWORD` is the non-Admin user's UAA password. 
+</ul>
+1. From the output of the above command, add the `id_token` and `refresh_token` values to the kubeconfig.
+1. Save kubeconfig to `$HOME/.kube/config` directory. After doing so, the non-Admin User can connect to the cluster using `kubectl`. 
 
-
-Review example kubeconfig file below:
+For reference, review example kubeconfig file below. For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
 <pre>
 apiVersion: v1
 clusters:
@@ -240,11 +252,7 @@ users:
         client-id: pks_cluster_client
         cluster_client_secret: ""
         id-token: PROVIDED-BY-USER
-        idp-issuer-url: < https://PROVIDED-BY-ADMIN:8443/oauth/token>
+        idp-issuer-url: <span>https:</span>//PROVIDED-BY-ADMIN:8443/oauth/token
         refresh-token:  PROVIDED-BY-USER
       name: oidc
 </pre>
-
-For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
-
-Once the kubeconfig is constructed and saved to $HOME/.kube/config file, user should be able to connect to the cluster using `kubectl`. 
