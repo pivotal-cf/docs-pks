@@ -79,16 +79,17 @@ To retrieve the PKS UAA management admin client secret, do the following:
 1. Authenticate with UAA using the secret you retrieved in a previous step.
 Run the following command, replacing `ADMIN-CLIENT-SECRET` with your PKS UAA management admin client secret: <pre>uaac token client get admin -s ADMIN-CLIENT-SECRET</pre>
 
-##<a id='cluster-access'></a> Grant Cluster Access
+##<a id='pks-access'></a> Grant PKS Access
 
-You can assign the following UAA scopes to users, external LDAP groups, and clients:
+PKS Access gives users the ability to deploy and manage Kubernetes clusters.
+As an Admin user, you can assign the following UAA scopes to users, external LDAP groups, and clients:
 
   * `pks.clusters.manage`: accounts with this scope can create and access their own clusters.
   * `pks.clusters.admin`: accounts with this scope can create and access all clusters.
 
-###<a id='uaa-user'></a> Grant Cluster Access to a User
+###<a id='uaa-user'></a> Grant PKS Access to a User
 
-To create a new UAA user with cluster access, perform the following steps:
+You can create a new UAA user with PKS access, by performing the following steps:
 
 1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
 
@@ -99,11 +100,11 @@ To create a new UAA user with cluster access, perform the following steps:
     <pre class="terminal">$ uaac user add alana --emails alana&#64;example.com -p password</pre>
 
 1. Assign a scope to the user to allow them to access Kubernetes clusters.
-Run `uaac member add UAA-SCOPE USERNAME`, replacing `UAA-SCOPE` with one of the UAA scopes defined [above](#cluster-access).
+Run `uaac member add UAA-SCOPE USERNAME`, replacing `UAA-SCOPE` with one of the UAA scopes defined [above](#pks-access).
 For example:
     <pre class="terminal">$ uaac member add pks.clusters.admin alana</pre>
 
-###<a id='external-group'></a> Grant Control Plane Access to an External LDAP Group
+###<a id='external-group'></a> Grant PKS Access to an External LDAP Group
 
 Connecting PKS to a LDAP external user store allows the User Account and Authentication (UAA) server to delegate authentication to existing enterprise user stores.
 
@@ -114,9 +115,7 @@ For more information, see <a href="https://github.com/cloudfoundry/uaa/blob/mast
 
 For more information about the process used by the UAA Server when it attempts to authenticate a user through LDAP, see the [Configuring LDAP Integration with Pivotal Cloud Foundry](https://discuss.zendesk.com/hc/en-us/articles/204140418-Configuring-LDAP-Integration-with-Pivotal-Cloud-Foundry-) Knowledge Base article.
 
-The PKS control plane enables users to deploy and manage Kubernetes clusters.
-
-To grant control plane access to an external LDAP group, perform the following steps:
+To grant PKS access to an external LDAP group, perform the following steps:
 
 1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
 
@@ -137,9 +136,9 @@ For example:
     $ uaac group map --name pks.clusters.admin cn=operators,ou=groups,dc=example,dc=com
     </pre>
 
-###<a id='uaa-client'></a> Grant Cluster Access to a Client
+###<a id='uaa-client'></a> Grant PKS Access to a Client
 
-To grant cluster access to an automated client for a script or service, perform the following steps:
+To grant PKS access to an automated client for a script or service, perform the following steps:
 
 1. Log in as the UAA admin using the procedure [above](#uaa-admin-login).
 
@@ -147,9 +146,149 @@ To grant cluster access to an automated client for a script or service, perform 
   <pre>uaac client add CLIENT-NAME -s CLIENT-SECRET \
   --authorized&#95;grant&#95;types client&#95;credentials \
   --authorities UAA-SCOPES</pre>
-  Replace `CLIENT-NAME` and `CLIENT-SECRET` with the client credentials. Replace `UAA-SCOPES` with one or more of the UAA scopes defined [above](#cluster-access), separated by a comma. For example:
+  Replace `CLIENT-NAME` and `CLIENT-SECRET` with the client credentials. Replace `UAA-SCOPES` with one or more of the UAA scopes defined [above](#pks-access), separated by a comma. For example:
     <pre class="terminal">$ uaac client add automated-client \
     -s randomly-generated-secret
     --authorized&#95;grant&#95;types client&#95;credentials  \
     --authorities pks.clusters.admin,pks.clusters.manage</pre>
 
+##<a id='cluster-access'></a> Granting Cluster Access
+
+Admin users can grant cluster-wide access to Kubernetes end users and LDAP groups.
+
+###<a id='cluster-access-user'></a> Granting Cluster Access to a User
+
+To grant cluster-wide access to Kubernetes end users, the Admin user must create a `clusterRoleBinding` for Kubernetes end users. For more information on cluster role bindings, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation.
+
+After being granted cluster access, the Kubernetes end user is able to use the Kubernetes Command Line Interface (kubectl) to connect to the cluster and perform actions as configured by their Admin. However, Kubernetes end users cannot create, resize, or delete clusters. 
+
+<p class='note'><strong>Note</strong>: In order for Admin users to grant cluster-wide access to Kubernetes end users, Admin users must ensure that they have selected <b>Enable UAA as OIDC provider</b> in the UAA section of the PKS tile. 
+</p>
+
+To grant cluster-wide access to other users, the Admin user must perform the following actions:
+
+1. Log in as a UAA Admin user using the procedure [above](#uaa-admin-login).
+
+1. Run the following command to confirm that you can successfully connect to a cluster and use kubectl as an Admin User:
+  <pre class="terminal">$ pks get-credentials CLUSTER-NAME</pre>
+This step creates a `clusterRoleBinding` for the UAA Admin user.
+
+1. Create a spec YML file containing a `clusterRoleBinding` with the appropriate `roleRef` for the Kubernetes end user.
+  </br>
+  Where:
+  <ul>
+    <li> `NAME-OF-CLUSTER-ROLEBINDING` is the name of your `clusterRoleBinding`.
+    <li> `NAME-OF-USER` is the user's UAA username.
+    <li> `ROLE-REF` is your selected `roleRef`.
+  </ul>
+For reference, review the example spec file below:
+  <pre>
+  kind: ClusterRoleBinding
+  apiVersion: rbac.authorization.k8s.io/v1
+  metadata:
+    name: NAME-OF-CLUSTER-ROLEBINDING
+  subjects:
+  &#8209; kind: User
+    name: NAME-OF-USER # Name is case sensitive
+    apiGroup: rbac.authorization.k8s.io
+  roleRef:
+    kind: ClusterRole
+    name: ROLE-REF
+    apiGroup: rbac.authorization.k8s.io
+  </pre>
+
+1. Run the following command to create the above defined `clusterRoleBinding` in the cluster:
+  <pre class="terminal">$ kubectl apply -f spec.yml</pre>
+
+1. The Admin user partially completes the `kubeconfig` by detailing the following: 
+  + `clusters.cluster.certificate-authority-data`
+  + `clusters.cluster.server`
+  + `cluster.name`
+  + `contexts.context.cluster`
+  + `contexts.context.name`
+  + `current-context`
+  + `users.user.auth-provider.config.idp-issuer-url`
+
+1. The Admin user sends the partially completed `kubeconfig` to their Kubernetes end user.
+
+For reference, review the example kubeconfig file below. For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
+<pre>
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: PROVIDED-BY-ADMIN
+    server: PROVIDED-BY-ADMIN
+  name: PROVIDED-BY-ADMIN
+contexts:
+- context:
+    cluster: PROVIDED-BY-ADMIN
+    user: PROVIDED-BY-USER
+  name:  PROVIDED-BY-ADMIN
+current-context: PROVIDED-BY-ADMIN
+kind: Config
+preferences: {}
+users:
+- name:  PROVIDED-BY-USER
+  user: 
+    auth-provider:
+      config:
+        client-id: pks_cluster_client
+        cluster_client_secret: ""
+        id-token: PROVIDED-BY-USER
+        idp-issuer-url: <span>https:</span>//PROVIDED-BY-ADMIN:8443/oauth/token
+        refresh-token:  PROVIDED-BY-USER
+      name: oidc
+</pre>
+
+To finish this process, the Kubernetes end user must receive the partially completed `kubeconfig` and perform the following actions:
+
+1. Run the following command to obtain the `users.user.auth-provider.config.id-token` and `users.user.auth-provider.config.refresh-token`:
+<pre class="terminal">
+$ curl '<span>https:</span>//PKS-API>:8443/oauth/token' -k -XPOST -H 'Accept: application/json' -d "client_id=pks_cluster_client&client_secret=""&grant_type=password&username=UAA-USERNAME&password=UAA-PASSWORD&response_type=id_token"
+</pre>
+Where:
+<ul>
+  <li>`PKS-API` is the fully qualified domain name (FQDN) you use to access the PKS API.
+  <li>`UAA-USERNAME` is the Kubernetes end user's UAA username.
+  <li>`UAA-PASSWORD` is the Kubernetes end user's UAA password. 
+</ul>
+
+1. Edit the `kubeconfig` by providing the following:
+  + `contexts.context.user`
+  + `users.name`
+  + `users.user.auth-provider.config.id-token`
+  + `users.user.auth-provider.config.refresh-token`
+
+1. Save the `kubeconfig` to the `$HOME/.kube/config` directory. After doing so, the Kubernetes end user can connect to the cluster using `kubectl`. 
+
+###<a id='cluster-access-group'></a> Granting Cluster Access to a Group
+
+Admin users can also grant cluster-wide access to an LDAP Group by creating a `clusterRoleBinding` for that LDAP group. This feature is only available if LDAP is used as your identity provider for UAA.
+
+<p class='note'><strong>Note</strong>: You must confirm that the group you are referencing in your <code>clusterRoleBinding</code> has been whitelisted in the PKS tile. To do so, review the <b>External Groups Whitelist</b> field in the UAA section of the PKS tile.
+</p>
+
+The process for granting cluster access to an LDAP is similar to the process described in [Granting Cluster Access to a User](#cluster-access-user).
+
+The only difference is that when the Admin user is creating the spec file containing the `clusterRoleBinding` for a group, the Admin user must edit that spec file in the following way:
+
+<pre>
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: NAME-OF-GROUP-CLUSTER-ROLEBINDING
+subjects:
+&#8209; kind: Group
+  name: NAME-OF-GROUP # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: ROLE-REF
+  apiGroup: rbac.authorization.k8s.io
+</pre>
+
+<ul>
+  <li> `NAME-OF-CLUSTER-ROLEBINDING` is the name of your `clusterRoleBinding`.
+  <li> `NAME-OF-GROUP` is the LDAP group name. 
+  <li> `ROLE-REF` is your selected `roleRef`.
+</ul>
