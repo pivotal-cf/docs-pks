@@ -82,7 +82,7 @@ Run the following command, replacing `ADMIN-CLIENT-SECRET` with your PKS UAA man
 ##<a id='pks-access'></a> Grant PKS Access
 
 PKS Access gives users the ability to deploy and manage Kubernetes clusters.
-As an Admin User, you can assign the following UAA scopes to users, external LDAP groups, and clients:
+As an Admin user, you can assign the following UAA scopes to users, external LDAP groups, and clients:
 
   * `pks.clusters.manage`: accounts with this scope can create and access their own clusters.
   * `pks.clusters.admin`: accounts with this scope can create and access all clusters.
@@ -152,40 +152,43 @@ To grant PKS access to an automated client for a script or service, perform the 
     --authorized&#95;grant&#95;types client&#95;credentials  \
     --authorities pks.clusters.admin,pks.clusters.manage</pre>
 
-###<a id='access-other-users'></a> Granting Cluster Access to Other Users
+##<a id='cluster-access'></a> Granting Cluster Access
 
-Admin Users can grant cluster-wide access to Kubernetes end users. 
+Admin users can grant cluster-wide access to Kubernetes end users and LDAP groups.
 
-To do this, the Admin User creates a `clusterRoleBinding` for these Kubernetes end users. For more information on cluster role bindings, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation.
+###<a id='cluster-access-users'></a> Granting Cluster Access to Users
 
-At the end of this process, the Kubernetes end user is able to use the Kubernetes Command Line Interface (kubectl) to connect to the cluster and perform actions as configured by your Admin. The Kubernetes end users cannot create, resize, or delete clusters. 
+To grant cluster-wide access to Kubernetes end users, the Admin user must create a `clusterRoleBinding` for Kubernetes end users. For more information on cluster role bindings, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation.
 
-<p class='note'><strong>Note</strong>: In order for Admin Users to grant cluster-wide access to Kubernetes end users, Admin users must ensure that they have selected <b>Enable UAA as OIDC provider</b> in the UAA section of the PKS tile.
+After being granted cluster access, the Kubernetes end user is able to use the Kubernetes Command Line Interface (kubectl) to connect to the cluster and perform actions as configured by their Admin. However, Kubernetes end users cannot create, resize, or delete clusters. 
+
+<p class='note'><strong>Note</strong>: In order for Admin users to grant cluster-wide access to Kubernetes end users, Admin users must ensure that they have selected <b>Enable UAA as OIDC provider</b> in the UAA section of the PKS tile. 
 </p>
 
-To give cluster-wide access, the Admin User must perform the following actions:
+To grant cluster-wide access to other users, the Admin user must perform the following actions:
 
-1. Log in as a UAA Admin User using the procedure [above](#uaa-admin-login).
+1. Log in as a UAA Admin user using the procedure [above](#uaa-admin-login).
 
 1. Run the following command to confirm that you can successfully connect to a cluster and use kubectl as an Admin User:
-<pre class="terminal">$ pks get-credentials CLUSTER-NAME</pre>
-This step also creates a `clusterRoleBinding` for the UAA Admin User. [comment:The above creates a cluster rolebinding for the admin but the point of this is for the admin to create a cluster rolebinding for the user]
+  <pre class="terminal">$ pks get-credentials CLUSTER-NAME</pre>
+This step also creates a `clusterRoleBinding` for the UAA Admin user.
 
-1. Create a spec YML file containing a `clusterRoleBinding` with the appropriate `roleRef` for the Kubernetes end user. For reference, review the example spec file below:
+1. Create a spec YML file containing a `clusterRoleBinding` with the appropriate `roleRef` for the Kubernetes end user.
+  </br>
   Where:
   <ul>
     <li> `NAME-OF-CLUSTER-ROLEBINDING` is the name of your `clusterRoleBinding`.
     <li> `NAME-OF-USER` is the user's UAA username.
     <li> `ROLE-REF` is your selected `roleRef`.
   </ul>
-
+For reference, review the example spec file below:
   <pre>
   kind: ClusterRoleBinding
   apiVersion: rbac.authorization.k8s.io/v1
   metadata:
     name: NAME-OF-CLUSTER-ROLEBINDING
   subjects:
-  - kind: User
+  &#8209; kind: User
     name: NAME-OF-USER # Name is case sensitive
     apiGroup: rbac.authorization.k8s.io
   roleRef:
@@ -195,9 +198,9 @@ This step also creates a `clusterRoleBinding` for the UAA Admin User. [comment:T
   </pre>
 
 1. Run the following command to create the above defined `clusterRoleBinding` in the cluster:
-<pre class="terminal">$ kubectl apply -f spec.yml</pre>
+  <pre class="terminal">$ kubectl apply -f spec.yml</pre>
 
-1. The Admin User creates a partially completed `kubeconfig` detailing the following: 
+1. The Admin user partially completes the `kubeconfig` by detailing the following: 
   + `clusters.cluster.certificate-authority-data`
   + `clusters.cluster.server`
   + `cluster.name`
@@ -206,28 +209,9 @@ This step also creates a `clusterRoleBinding` for the UAA Admin User. [comment:T
   + `current-context`
   + `users.user.auth-provider.config.idp-issuer-url`
 
-To finish the process, the Kubernetes end user must perform the following tasks:
+1. The Admin user sends the partially completed `kubeconfig` to their Kubernetes end user.
 
-1. After receiving the `kubeconfig` from the Admin User, the following parameters are entered by the Kubernetes end user:
-  + `contexts.context.user`
-  + `users.name`
-  + `users.user.auth-provider.config.id-token`
-  + `users.user.auth-provider.config.refresh-token`
-
-1. To obtain `users.user.auth-provider.config.id-token` and `users.user.auth-provider.config.refresh-token` the Kubernetes end user runs following command:
-<pre class="terminal">
-$ curl '<span>https:</span>//PKS-API>:8443/oauth/token' -k -XPOST -H 'Accept: application/json' -d "client_id=pks_cluster_client&client_secret=""&grant_type=password&username=UAA-USERNAME&password=UAA-PASSWORD&response_type=id_token"
-</pre>
-Where:
-<ul>
-  <li>`PKS-API` is the fully qualified domain name (FQDN) you use to access the PKS API.
-  <li>`UAA-USERNAME` is the Kubernetes end user's UAA username.
-  <li>`UAA-PASSWORD` is the Kubernetes end user's UAA password. 
-</ul>
-1. From the output of the above command, add the `id_token` and `refresh_token` values to the kubeconfig.
-1. Save kubeconfig to `$HOME/.kube/config` directory. After doing so, the Kubernetes end user can connect to the cluster using `kubectl`. 
-
-For reference, review example kubeconfig file below. For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
+For reference, review the example kubeconfig file below. For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
 <pre>
 apiVersion: v1
 clusters:
@@ -256,9 +240,30 @@ users:
       name: oidc
 </pre>
 
-###<a id='cluster-access-users'></a> Granting Cluster Access to Groups
+To finish this process, the Kubernetes end user must receive the partially completed `kubeconfig` and perform the following actions:
 
-Admin Users can grant cluster-wide access to LDAP Groups. 
+1. Run the following command to obtain the `users.user.auth-provider.config.id-token` and `users.user.auth-provider.config.refresh-token`:
+<pre class="terminal">
+$ curl '<span>https:</span>//PKS-API>:8443/oauth/token' -k -XPOST -H 'Accept: application/json' -d "client_id=pks_cluster_client&client_secret=""&grant_type=password&username=UAA-USERNAME&password=UAA-PASSWORD&response_type=id_token"
+</pre>
+Where:
+<ul>
+  <li>`PKS-API` is the fully qualified domain name (FQDN) you use to access the PKS API.
+  <li>`UAA-USERNAME` is the Kubernetes end user's UAA username.
+  <li>`UAA-PASSWORD` is the Kubernetes end user's UAA password. 
+</ul>
+
+1. Edit the `kubeconfig` by providing the following:
+  + `contexts.context.user`
+  + `users.name`
+  + `users.user.auth-provider.config.id-token`
+  + `users.user.auth-provider.config.refresh-token`
+
+1. Save the `kubeconfig` to the `$HOME/.kube/config` directory. After doing so, the Kubernetes end user can connect to the cluster using `kubectl`. 
+
+###<a id='cluster-access-groups'></a> Granting Cluster Access to Groups
+
+Admin users can also grant cluster-wide access to LDAP Groups. This feature is only available if LDAP is used as your identity provider for UAA.
 
 <p class='note'><strong>Note</strong>: You must confirm that the group you are referencing in your <code>clusterRoleBinding</code> has been whitelisted in the PKS tile. To do so, review the <b>External Groups Whitelist</b> field in the UAA section of the PKS tile.
 </p>
@@ -269,7 +274,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: NAME-OF-GROUP-CLUSTER-ROLEBINDING
 subjects:
-- kind: Group
+&#8209; kind: Group
   name: NAME-OF-GROUP # Name is case sensitive
   apiGroup: rbac.authorization.k8s.io
 roleRef:
@@ -278,7 +283,6 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 </pre>
 
-It is also possible to create `clusterRoleBinding` for groups of users. This is only available if LDAP is used as Identity Provider for UAA.
 <ul>
   <li> `NAME-OF-CLUSTER-ROLEBINDING` is the name of your `clusterRoleBinding`.
   <li> `NAME-OF-GROUP` is the LDAP group name. 
