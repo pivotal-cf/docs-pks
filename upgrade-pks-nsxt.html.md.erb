@@ -5,25 +5,68 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-This topic explains how to upgrade the Pivotal Container Service (PKS) tile for
-environments using vSphere with NSX-T.
+This topic explains how to upgrade the Pivotal Container Service (PKS) tile for environments using vSphere with NSX-T.
 
-PKS v1.1.5 supports NSX-T 2.2 and vSphere 6.5 U2. For details, see the [VMware Product Interoperability Matrix](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php)
-for PKS in the VMware documentation.
+PKS v1.1.5 supports NSX-T 2.2 and vSphere 6.5 U2. For details, see the [VMware Product Interoperability Matrix](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php) for PKS in the VMware documentation.
 
-If you use PKS with NSX-T, we recommend that you upgrade to PKS v1.1.5 and
-NSX-T 2.2 to take advantage of key features and important architectural changes.
-
-## <a id="upgrade"></a>Upgrade PKS
-
-Follow the steps below to upgrade to PKS v1.1.5.
+If you use PKS with NSX-T, we recommend that you upgrade to PKS v1.1.5 and NSX-T 2.2 to take advantage of key features and important architectural changes.
 
 <p class="note"><strong>Note</strong>: When upgrading PKS with NSX-T, workloads in your Kubernetes cluster are not available while the Edge Nodes are being upgraded. If you have not configured Active/Standby, expect some downtime. For more information, see <a href="./understanding-upgrades.html">What Happens During PKS Upgrades</a>.</p>
 
-1. Upgrade to PKS v1.1.4. You can only upgrade to PKS v1.1.5 from PKS v1.1.4.
-For instructions, see [Upgrade PKS](upgrade-pks.html).
+## Pre-Upgrade Tasks
 
-1. (Optional) Back up the NSX-T and NCP logs. For more information, see [PKS Logs for NSX-T and NCP](#logs) below.
+- Check the Release Notes
+- Verify the health of the current environment:
+	Run `kubectl get nodes` for all Kubernetes context and verify that all all nodes are in a ready state.
+    Run `kubectl get pods --all-namespaces` for all Kubernetes context and verify that all pods are running.
+    Run `bosh -d service-instance <UUID> instances --ps` for each BOSH Kubernetes deployment and verify that all the processes are in a running state.
+    Make sure there are no issues with vSphere: verify that datastores have enough space, hosts have enough memory, there are no alarms, hosts are in a good state, etc.
+- Backup the environment (best practice):
+    <a href="https://docs.vmware.com/en/VMware-Pivotal-Container-Service/1.1/vmware-pks-11/GUID-PKS11-backup-and-restore.html">Backup PKS</a>
+    <a href="https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A0B3667C-FB7D-413F-816D-019BFAD81AC5.html">Backup NSX-T</a>
+    <a href="https://kb.vmware.com/s/article/2149237">Backup vCenter</a>
+
+<p class="note"><strong>Note</strong>: At a minimum you should back up the NSX-T and NCP logs. For more information, see [PKS Logs for NSX-T and NCP](#logs) below.</a>.</p>
+
+## <a id="upgrade"></a>Upgrade PKS Tile and Stemcell
+
+1. Log in to the Pivotal Network and download the latest PKS software bundle.
+
+1. In Ops Manager, select **Import a Product**.
+
+1. Browse to the PKS file you want to upgrade to and select it. It will take a several minutes to upload the PKS software bundle. You can check the progress in the status bar (if using Chrome).
+
+<img src="images/upgrade-nsxt-2.png" alt="Upload PKS Software to Ops Manager">
+
+1. Once the upload is finished select the plus sign (+) to add the product:
+
+<img src="images/upgrade-nsxt-3.png" alt="Import the PKS Product">
+
+1. Once the new version of PKS is added, Ops Manager indicates it is ready for configuration and deployment (orange).
+
+<img src="images/upgrade-nsxt-4.png" alt="Verify Successful Import of PKS">
+
+1. If the Stemcell is not surrent, click the "Missing stemcell" link in the PKS Tile.
+
+1. At the Stemcell Library screen, click **Import Stemcell."
+
+<img src="images/upgrade-nsxt-5.png" alt="Import Stecell">
+
+1. Select the PKS product and click **Apply Stemcell to Products**.
+
+<img src="images/upgrade-nsxt-6.png" alt="Apply Stemcell to PKS">
+
+1. Verify that the stemcell is successfully saved.
+
+<img src="images/upgrade-nsxt-7.png" alt="Verify Stemcell Assignment">
+
+1. Select the **Installation Dashboard** link and verify that everything is green.
+
+<img src="images/upgrade-nsxt-8.png" alt="Verify Status is Green">
+
+## Upgrade Kubernetes Worker Node Size
+
+<p class="note"><strong>Note</strong>: Architectural changes to PKS with NSX-T require that you set the <strong>Worker VM Type</strong> to a disk with a minimum size of 16&nbsp;GB before upgrading. If you do not make this change, the Kubernetes worker VM may run out of ephemeral disk space and cause the upgrade to fail. The default <strong>Worker VM Type</strong> provides insufficient disk space for PKS v1.1.5 with NSX-T or later environments.</p>
 
 1. Navigate to the Ops Manager Installation Dashboard.
 
@@ -31,23 +74,61 @@ For instructions, see [Upgrade PKS](upgrade-pks.html).
 
 1. Click **Plan 1**.
 
-1. Under **Worker VM Type**, select a K8 worker VM type with a minimum disk
-size of 16&nbsp;GB.
+1. Under **Worker VM Type**, select a Kubernetes worker VM type with a minimum disk size of 16GB.
 
-    <p class="note"><strong>Note</strong>: Architectural changes to PKS with NSX-T require that you set the <strong>Worker VM Type</strong> to a disk with a minimum size of 16&nbsp;GB before upgrading. If you do not make this change, the Kubernetes worker VM may run out of ephemeral disk space and cause the upgrade to fail. The default <strong>Worker VM Type</strong> provides insufficient disk space for PKS v1.1.5 with NSX-T or later environments.</p>
+## Verify NSX-T Manager CA Cert Settings
 
-1. Follow the instructions in [Upgrade PKS](upgrade-pks.html) to upgrade from
-PKS v1.1.4 to PKS v1.1.5.
+<p class="note"><strong>Note</strong>: If you provide a NSX Manager CA certificate and also disable SSL cert verification, the deployment of PKS will fail. Choose one or the other.</p>
+
+1. Navigate to the Ops Manager Installation Dashboard.
+
+1. Click the Pivotal Container Service tile.
+
+1. Click Networking
+
+1. Under **NSX Manager CA Cert**, make sure you have either a valid NSX-T manager cert or check **Disable SSL certificate verification**, but not both.
+
+## Upgrade PKS
+
+1. In the upper-right of Ops Manager you should see the pending changes, which include updating PKS.
+
+1. Select **Apply Changes** to upgrade the PKS environment.
+
+<img src="images/upgrade-nsxt-9.png" alt="Apply Changes and Upgrade">
+
+## Post Upgrade Tasks
+
+1. Verify the health of the Kubernetes environment:
+    Run `kubectl get nodes` for all Kubernetes context and verify that all all nodes are in a ready state.
+    Run `kubectl get pods --all-namespaces` for all Kubernetes context and verify that all pods are running.
+    Run `bosh -d service-instance <UUID> instances --ps` for each BOSH Kubernetes deployment and verify that all the processes are in a running state.
+
+1. Verify NCP changes.
+	
+	<p class="note"><strong>Note</strong>: Beginning with PKS 1.1.5, NCP run as a BOSH host process (see [Architectural Changes](#architectural-changes)). Each Kubernetes master VM will have one NCP process running. If you are running multi-master, one NCP process will be active and the others will be standby.</p>
+
+	Use BOSH to ssh into the master node and run `monit summary`. Verify that you see `Process: 'ncp'` is `running`, which is the BOSH-managed NCP process.
+
+	To check if the NCP process in this master is active or standby, run `/var/vcap/jobs/ncp/bin/nsxcli -c get ncp-master status`.
+
+	To restart the NCP process, run `monit restart ncp` followed by `monit summary`.
+
+## Upgrade NSX-T (Optional)
+
+<p class="note"><strong>Note</strong>: Technically upgrading from NSX-T 2.1 to NSX-T is optional since PKS 1.1.5 supports NSX-T 2.1. However, upgrading to NSX-T 2.2 is strongly recommended to take advantage of new features and bug fixes. In addition, support for NSX-T 2.1 will be deprecated in a future PKS release.</p>
 
 1. Log in to the NSX Manager UI and navigate to **System > Utilities > Upgrade**.
 
 1. Click **Proceed to Upgrade** and follow the instructions. The NSX-T Upgrade
 wizard walks you through the process of upgrading from NSX-T 2.1 to NSX-T 2.2.
 
-	 <img src="images/upgrade-nsxt.png" alt="NSX-T Upgrade Wizard">
-    For more information, see [Upgrading NSX-T](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.upgrade.doc/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) in the VMware documentation.
+<img src="images/upgrade-nsxt.png" alt="NSX-T Upgrade Wizard">
 
-1. (Optional) Upgrade vSphere from version 6.5 or 6.5 U1 to 6.5 U2. For more
+<p class="note"><strong>Note</strong>: For more information, see [Upgrading NSX-T](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.upgrade.doc/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) in the VMware documentation.</p>
+
+## Upgrade vSphere (Optional)
+
+1. Upgrade vSphere from version 6.5 or 6.5 U1 to 6.5 U2. For more
 information, see [Upgrading vSphere in an NSX Environment](https://docs.vmware.com/en/VMware-NSX-for-vSphere/6.4/com.vmware.nsx.upgrade.doc/GUID-ED005943-AB33-4D8D-A642-97774276C539.html) in the VMware 
 documentation.
 
