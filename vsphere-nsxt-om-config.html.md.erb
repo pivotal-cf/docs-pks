@@ -17,12 +17,13 @@ Before you begin this procedure, ensure that you have successfully completed all
 <p class="note"><strong>Note</strong>: If you have Pivotal Application Service (PAS) installed, we recommend installing PKS on a separate instance of Ops Manager.</p>
 
 1. Navigate to the fully qualified domain of your Ops Manager in a web browser.
+  <p class="note"><strong>Note</strong>: If you are using the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a>, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions in <a href="nsxt-prepare-env.html#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a> in <em>Preparing NSX-T Before Deploying PKS</em>. Use the DNAT IP address to access Ops Manager.</p>
 
 1. The first time you start Ops Manager, you must choose one of the following:
     * <strong>[Use an Identity Provider](#idp)</strong>: If you use an Identity Provider (IdP), an external identity server maintains your user database.
     * <strong>[Internal Authentication](#internal)</strong>: If you use Internal Authentication, PCF maintains your user database.
 
-<%= image_tag("select-authentication.png") %>
+    <%= image_tag("select-authentication.png") %>
 
 ### <a id='idp'></a>Use an Identity Provider
 
@@ -61,13 +62,17 @@ If your IdP does not support importing, provide the values below.
 
 ### <a id='internal'></a>Internal Authentication ###
 
-1. When redirected to the **Internal Authentication** page, you must complete the following steps:
-    * Enter a **Username**, **Password**, and **Password confirmation** to create an Admin user.
-    * Enter a **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the Ops Manager datastore, and is not recoverable.
-    * If you are using an **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://docs.pivotal.io/pivotalcf/customizing/pcf-director-proxy-settings.html).
-    * Read the **End User License Agreement**, and select the checkbox to accept the terms.
+On the **Internal Authentication** page, complete the following steps:
 
-<%= image_tag("om-login.png") %>
+1. Enter a **Username**, **Password**, and **Password confirmation** to create an Admin user.
+
+1. Enter a **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the Ops Manager datastore, and is not recoverable.
+
+1. If you use an **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://docs.pivotal.io/pivotalcf/customizing/pcf-director-proxy-settings.html) in the Pivotal Cloud Foundry documentation.
+
+1. Read the **End User License Agreement**, and select the checkbox to accept the terms.
+
+    <%= image_tag("om-login.png") %>
 
 ## <a id='vcenter-config'></a>Step 2: vCenter Config Page
 
@@ -75,9 +80,9 @@ If your IdP does not support importing, provide the values below.
 
     <%= image_tag("cf-login.png") %>
 
-1. Click the **Ops Manager Director** tile.
+1. Click the **BOSH Director for vSphere** tile.
 
-    <%= image_tag("director-tile-vmware.png") %>
+    <%= image_tag("bosh-director-tile.png") %>
 
 1. Select **vCenter Config**.
 
@@ -91,16 +96,26 @@ If your IdP does not support importing, provide the values below.
     * **Virtual Disk Type**: The Virtual Disk Type to provision for all VMs. For guidance on selecting a virtual disk type, see [Provisioning a Virtual Disk in vSphere](https://docs.pivotal.io/pivotalcf/customizing/disk-format.html).
     * **Ephemeral Datastore Names (comma delimited)**: The names of the datastores that store ephemeral VM disks deployed by Ops Manager.
     * **Persistent Datastore Names (comma delimited)**: The names of the datastores that store persistent VM disks deployed by Ops Manager.
-    * **VM Folder**: The vSphere datacenter folder (default: `pcf_vms`) where Ops Manager places VMs.
-    * **Template Folder**: The vSphere datacenter folder (default: `pcf_templates`) where Ops Manager places VMs.
-    * **Disk path Folder**: The vSphere datastore folder (default: `pcf_disk`) where Ops Manager creates attached disk images. You must not nest this folder.
 
-1. Select **NSX Networking - NSX-T**. This configuration is used for PAS and PKS. For more information, see the [Enable NSX-T Mode in the BOSH Director](https://docs.pivotal.io/pivotalcf/2-1/customizing/vsphere-nsx-t.html#nsx-t-mode) section of <em>Deploying PAS with NSX-T Networking</em> in the PCF documentation.
-<p class="note"><strong>Note</strong>: If you are using the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a>, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions in <a href="nsxt-prepare-env.html#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a>. You will use the DNAT IP address to access Ops Manager.</p>
+1. Select **NSX Networking**, then select **NSX-T**.
+
+    <%= image_tag("vcenter-config-nsx.png") %>
+
+1. Configure NSX-T networking as follows:
+    * **NSX Address**: Enter the IP address of the NSX Manager host.
+    * **NSX Username** and **NSX Password**: Enter the NSX Manager username and password.
+    * (Optional) **NSX CA Cert**: Provide a CA certificate in PEM format that authenticates to the NSX server. If the NSX Manager generated a self-signed certificate, you can retrieve the CA certificate using OpenSSL with the command `openssl s_client -host NSX-ADDRESS -port 443 -prexit -showcerts`.
+
+1. Configure the following folder names:
+
+    <%= image_tag("vcenter-config-folders.png") %>
+    * **VM Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_vms`.
+    * **Template Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_templates`.
+    * **Disk path Folder**: The vSphere datastore folder where Ops Manager creates attached disk images. You must not nest this folder. Enter `pks_disk`.
+
+    <p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the VM Folder, Template Folder, and Disk path Folder names.</p>
 
 1. Click **Save**.
-
-<p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the VM Folder, Template Folder, and Disk path Folder names.</p>
 
 ## <a id='dir-config'></a>Step 3: Director Config Page
 
