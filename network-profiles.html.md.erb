@@ -1,0 +1,87 @@
+---
+title: Create and Use Network Profiles
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes the network profiles feature, as well as how to create and use network profiles.
+
+<p class="note"><strong>Note</strong>: Network profiles are only available with NSX-T.</p>
+
+## <a id='about-network-profiles'></a>About Network Profiles
+
+Network profiles let you specify NSX-T configuration paramaters at cluster creation. For the initial release of network profiles you can customize the size the of the load balancer that is deployed when a Kubernetes cluster is created. Future releases of network profiles will allow for additional NSX-T customizations at cluster creation time.
+
+## <a id='about-network-profiles'></a>Network Profiles Workflow
+
+The PKS administrator defines a network profile using a JSON configuration file and the PKS CLI command `create-network-profile`. Once the network profile is created the cluster administrator can reference the profile when deploying a Kubernetes clusters.
+
+## <a id="master-id"></a>Configuration File Format
+
+You use JSON to define the network profile configuration. The configuration format requires the following fields:
+
+Parameter 		| Value   					| Description
+----------------|---------------------------|------------
+`name`	  		| String  					| User-defined name for the network profile.
+`description`   | DESC    					| User-defined description for the network profile.
+`parameters`    | `nsx_load_balancer_size` 	| Only supported type of network profile for the initial release.
+
+Valid load balancer sizes include the following:
+
+Parameter 		| Description
+----------------|------------
+`small`	  		| Small-size load balancer (default size).
+`medium`   		| Medium-size load balancer.
+`large`    		| Large-size load balancer.
+
+## <a id="master-id"></a>Network Profile JSON Example
+
+Here is the JSON syntax for defining a network profile for load-balancer size selection:
+
+```
+{
+	"name": "name",
+	"description": "a description",
+	"parameters": {
+		"nsx_load_balancer_size":"<valid nsx load balancer size>"
+	}
+}
+```
+
+For example:
+
+{
+	"name": "lb-",
+	"description": "a description",
+	"parameters": {
+		"nsx_load_balancer_size":"<valid nsx load balancer size>"
+	}
+}
+
+
+
+## <a id="master-id"></a>Identify Kubernetes Cluster Master VMs
+
+<p class="note"><strong>Note</strong>: This section applies only to PKS deployments on GCP or on vSphere without NSX-T. Skip this section if your PKS deployment is on vSphere with NSX-T. For more information, see <a href="about-lb.html">Load Balancers in PKS</a>.
+</p>
+
+To reconfigure the load balancer or DNS record for an existing cluster, you may need to locate VM ID and IP address information for the cluster's master VMs.
+Use the information you locate in this procedure when configuring your load balancer backend.
+
+To locate the IP addresses and VM IDs for the master VMs of an existing cluster, do the following:
+
+1. <%= partial 'login-pks-api' %>
+1. To locate the cluster ID and master node IP addresses, run `pks cluster CLUSTER-NAME`. From the output of this command, record the following items:
+  * **UUID**: This value is your cluster ID.
+  * **Kubernetes Master IP(s)**: This value lists the IP addresses of all master nodes in the cluster.
+1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI to log in to the BOSH Director from the Ops Manager VM.
+For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
+1. Identify the name of your cluster deployment. For example:
+  <pre class="terminal">$ bosh -e pks deployments</pre>
+  Your cluster deployment name begins with `service-instance` and includes the UUID you located in a previous step.
+1. Identify the master VM IDs by listing the VMs in your cluster. For example:
+   <pre class="terminal">$ bosh -e pks -d service-instance-aa1234567bc8de9f0a1c vms</pre>
+   Your master VM IDs appear in the **VM CID** column.
+1. Use the information you gathered in this procedure to configure your load balancer backend.
+For example, if you use GCP, use the master VM IDs from the previous step in [Reconfiguring a GCP Load Balancer](gcp-cluster-load-balancer.html#reconfigure).
