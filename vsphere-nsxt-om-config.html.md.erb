@@ -17,12 +17,13 @@ Before you begin this procedure, ensure that you have successfully completed all
 <p class="note"><strong>Note</strong>: If you have Pivotal Application Service (PAS) installed, we recommend installing PKS on a separate instance of Ops Manager.</p>
 
 1. Navigate to the fully qualified domain of your Ops Manager in a web browser.
+  <p class="note"><strong>Note</strong>: If you are using the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a>, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions in <a href="nsxt-prepare-env.html#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a> in <em>Preparing NSX-T Before Deploying PKS</em>. Use the DNAT IP address to access Ops Manager.</p>
 
 1. The first time you start Ops Manager, you must choose one of the following:
     * <strong>[Use an Identity Provider](#idp)</strong>: If you use an Identity Provider (IdP), an external identity server maintains your user database.
     * <strong>[Internal Authentication](#internal)</strong>: If you use Internal Authentication, PCF maintains your user database.
 
-<%= image_tag("select-authentication.png") %>
+    <%= image_tag("select-authentication.png") %>
 
 ### <a id='idp'></a>Use an Identity Provider
 
@@ -39,7 +40,7 @@ Before you begin this procedure, ensure that you have successfully completed all
 1. Your Ops Manager log in page appears. Enter your username and password. Click **Login**.
 
 1. Download your SAML Service Provider metadata (SAML Relying Party metadata) by navigating to the following URLs:
-    * <strong>5a.</strong> Ops Manager SAML service provider metadata: `https://OPS-MAN-FQDN:443/uaa/saml/metadata` 
+    * <strong>5a.</strong> Ops Manager SAML service provider metadata: `https://OPS-MAN-FQDN:443/uaa/saml/metadata`
     * <strong>5b.</strong> BOSH Director SAML service provider metadata: `https://BOSH-IP-ADDRESS:8443/saml/metadata`
 
     <p class="note"><strong>Note</strong>: To retrieve your <code>BOSH-IP-ADDRESS</code>, navigate to the <strong>Ops Manager Director</strong> tile > <strong>Status</strong> tab. Record the <strong>Ops Manager Director</strong> IP address.</p>
@@ -49,25 +50,29 @@ If your IdP does not support importing, provide the values below.
     * **Single sign on** URL: `https://OPS-MAN-FQDN:443/uaa/saml/SSO/alias/OPS-MAN-FQDN`
     * **Audience URI** (SP Entity ID): `https://OP-MAN-FQDN:443/uaa`
     * **Name ID**: Email Address
-    * SAML authentication requests are always signed 
+    * SAML authentication requests are always signed
 
-1. Import the BOSH Director SAML provider metadata from Step 5b to your IdP. If the IdP does not support an import, provide the values below. 
+1. Import the BOSH Director SAML provider metadata from Step 5b to your IdP. If the IdP does not support an import, provide the values below.
     * **Single sign on** URL: `https://BOSH-IP:8443/saml/SSO/alias/BOSH-IP`
     * **Audience URI** (SP Entity ID): `https://BOSH-IP:8443`
-    * **Name ID**: Email Address 
-    * SAML authentication requests are always signed 
+    * **Name ID**: Email Address
+    * SAML authentication requests are always signed
 
-1. Return to the **Ops Manager Director** tile, and continue with the configuration steps below. 
+1. Return to the **Ops Manager Director** tile, and continue with the configuration steps below.
 
 ### <a id='internal'></a>Internal Authentication ###
 
-1. When redirected to the **Internal Authentication** page, you must complete the following steps:
-    * Enter a **Username**, **Password**, and **Password confirmation** to create an Admin user.
-    * Enter a **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the Ops Manager datastore, and is not recoverable.
-    * If you are using an **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://docs.pivotal.io/pivotalcf/customizing/pcf-director-proxy-settings.html).
-    * Read the **End User License Agreement**, and select the checkbox to accept the terms.
+On the **Internal Authentication** page, complete the following steps:
 
-<%= image_tag("om-login.png") %>
+1. Enter a **Username**, **Password**, and **Password confirmation** to create an Admin user.
+
+1. Enter a **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the Ops Manager datastore, and is not recoverable.
+
+1. If you use an **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://docs.pivotal.io/pivotalcf/customizing/pcf-director-proxy-settings.html) in the Pivotal Cloud Foundry documentation.
+
+1. Read the **End User License Agreement**, and select the checkbox to accept the terms.
+
+    <%= image_tag("om-login.png") %>
 
 ## <a id='vcenter-config'></a>Step 2: vCenter Config Page
 
@@ -75,15 +80,13 @@ If your IdP does not support importing, provide the values below.
 
     <%= image_tag("cf-login.png") %>
 
-1. Import the **BOSH Director** tile.
-
-1. Click the **BOSH Director** tile.
+1. Click the **BOSH Director for vSphere** tile.
 
     <%= image_tag("bosh-director-tile.png") %>
 
 1. Select **vCenter Config**.
 
-    <%= image_tag("vcenter-config-2.png") %>
+    <%= image_tag("vcenter-config.png") %>
 
 1. Enter the following information:
     * **vCenter Host**: The hostname of the vCenter that manages ESXi/vSphere.
@@ -94,26 +97,23 @@ If your IdP does not support importing, provide the values below.
     * **Ephemeral Datastore Names (comma delimited)**: The names of the datastores that store ephemeral VM disks deployed by Ops Manager.
     * **Persistent Datastore Names (comma delimited)**: The names of the datastores that store persistent VM disks deployed by Ops Manager.
 
-1. Select **NSX Networking - NSX-T**.
+1. Select **NSX Networking**, then select **NSX-T**.
 
-    <%= image_tag("vcenter-config-3.png") %>
+    <%= image_tag("vcenter-config-nsx.png") %>
 
 1. Configure NSX-T networking as follows:
     * **NSX Address**: Enter the IP address of the NSX Manager host.
-    * **NSX Username** and **NSX Password**: Enter the user name and password to connect to the NSX Manager.
-    * **NSX CA Cert** (optional): Provide a CA certificate in PEM format that authenticates to the NSX server. See <a href="https://docs.pivotal.io/pivotalcf/2-1/customizing/vsphere-nsx-t.html#nsx-t-mode">Enable NSX-T Mode in the BOSH Director</a> for help obtaining the NSX CA certificate.  
-
-<p class="note"><strong>Note</strong>: If you are using the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a>, you must have already deployed Ops Manager to the <code>ls-pks-mgmt</code> NSX logical switch by following the instructions in <a href="nsxt-prepare-env.html#create-objects-logical-router-t1-pks">Create T1 Logical Router for PKS Management VMs</a>. You will use the DNAT IP address to access Ops Manager.</p>
+    * **NSX Username** and **NSX Password**: Enter the NSX Manager username and password.
+    * (Optional) **NSX CA Cert**: Provide a CA certificate in PEM format that authenticates to the NSX server. If the NSX Manager generated a self-signed certificate, you can retrieve the CA certificate using OpenSSL with the command `openssl s_client -host NSX-ADDRESS -port 443 -prexit -showcerts`.
 
 1. Configure the following folder names:
 
-    <%= image_tag("vcenter-config-4.png") %>
+    <%= image_tag("vcenter-config-folders.png") %>
+    * **VM Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_vms`.
+    * **Template Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_templates`.
+    * **Disk path Folder**: The vSphere datastore folder where Ops Manager creates attached disk images. You must not nest this folder. Enter `pks_disk`.
 
- 	* **VM Folder**: The vSphere datacenter folder (default: `pcf_vms`) where Ops Manager places VMs. Enter `pks_vms`.
-    * **Template Folder**: The vSphere datacenter folder (default: `pcf_templates`) where Ops Manager places VMs. Enter `pks_templates`.
-    * **Disk path Folder**: The vSphere datastore folder (default: `pcf_disk`) where Ops Manager creates attached disk images. You must not nest this folder. Enter `pks_disk`.
-
-<p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the VM Folder, Template Folder, and Disk path Folder names.</p>
+    <p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the VM Folder, Template Folder, and Disk path Folder names.</p>
 
 1. Click **Save**.
 
@@ -136,7 +136,7 @@ If your IdP does not support importing, provide the values below.
 1. Select **Recreate all VMs** to force BOSH to recreate all VMs on the next deploy. This process does not destroy any persistent disk data.
 1. Select **Enable bosh deploy retries** if you want Ops Manager to retry failed BOSH operations up to five times.
 <p class="note"><strong>Note</strong>: If you use Ops Manager v2.2, Pivotal recommends disabling <b>Allow Legacy Agents</b>. Disabling the field allows Ops Manager to implement TLS secure communications.</p>
-1. Select **Keep Unreachable Director VMs** if you want to preserve Ops Manager Director VMs after a failed deployment for troubleshooting purposes. 
+1. Select **Keep Unreachable Director VMs** if you want to preserve Ops Manager Director VMs after a failed deployment for troubleshooting purposes.
 1. Select **HM Pager Duty Plugin** to enable Health Monitor integration with PagerDuty.
 
     <%= image_tag("images/director-hm-pager.png") %>
@@ -166,7 +166,7 @@ If your IdP does not support importing, provide the values below.
         1. **Bucket Name**: Enter the name of your GCS bucket.
         1. **Storage Class**: Select the storage class for your GCS bucket. For more information, see [Storage Classes](https://cloud.google.com/storage/docs/storage-classes) in the GCP documentation.
         1. **Service Account Key**: Follow the steps in the [Create Service Accounts](gcp-prepare-env.html#service-account) section to download a JSON file with a private key, and then enter the contents of the JSON file into the field.
-        
+
         <%= image_tag("gcp/blobstore.png") %>
 
 1. By default, PCF deploys and manages an **Internal** database for you. If you choose to use an **External MySQL Database**, complete the associated fields with information obtained from your external MySQL Database provider: **Host**, **Port**, **Username**, **Password**, and **Database**.
@@ -188,7 +188,7 @@ If your IdP does not support importing, provide the values below.
 Ops Manager Availability Zones correspond to your vCenter clusters and resource pools. Multiple Availability Zones allow you to provide high-availability and load balancing to your applications. When you run more than one instance of an application, Ops Manager balances those instances across all of the Availability Zones assigned to the application. At least three availability zones are recommended for a highly available installation of your chosen runtime.
 
 1. Select **Create Availability Zones**.
-    
+
     <%= image_tag("create-az.png") %>
 
 1. Use the following steps to create one or more Availability Zones for your applications to use:
@@ -316,7 +316,7 @@ Ops Manager Availability Zones correspond to your vCenter clusters and resource 
 
     <%= image_tag("assign-az.png") %>
 
-1. Use the drop-down menu to select a **Singleton Availability Zone**. The Ops Manager Director installs in this Availability Zone. 
+1. Use the drop-down menu to select a **Singleton Availability Zone**. The Ops Manager Director installs in this Availability Zone.
 1. Use the drop-down menu to select a **Network** for your Ops Manager Director.
 1. Click **Save**.
 
