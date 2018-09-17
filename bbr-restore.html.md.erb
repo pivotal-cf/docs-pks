@@ -47,7 +47,7 @@ If it is encrypted, decrypt it.
 <p class="note"><strong>Note</strong>: The BBR restore command can take a long time to complete. You can run it independently of the SSH session so that the process can continue running even if your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you could also run the command in a <code>screen</code> or <code>tmux</code> session.</p>
 
    Use the optional `--debug` flag to enable debug logs.
-   See the [Exit Codes and Logging](bbr-logging.html) topic for more information.
+   See the [BBR Logging](bbr-logging.html) topic for more information.
 
 Perform the following steps to restore the PKS control plane:
 
@@ -111,7 +111,7 @@ If the command fails, try the steps in [Recovering from a Failing Command](#reco
 1. Ensure that the jumpbox can reach the BOSH Director.
 1. Ensure the source BOSH deployment is compatible with the target BOSH deployment.
 1. If you see the error message `Directory /var/vcap/store/bbr-backup already exists on instance`, run the relevant commands from the [Clean Up After Failed Restore](#manual-clean) section of this topic.
-1. See the [Exit Codes and Logging](bbr-logging.html) topic.
+1. See the [BBR Logging](bbr-logging.html) topic.
 
 ## <a id='cancel-restore'></a>Cancel a Restore
 
@@ -124,43 +124,20 @@ If you need to cancel a restore, perform the following steps:
 
 If your restore process fails, then the process may leave the BBR restore folder on the instance. As a result, any subsequent restore attempts may also fail. In addition, BBR may not have run the post-restore scripts, which can leave the instance in a locked state.
 
-In order to resolve these issues, run the BBR cleanup script.
+In order to resolve these issues, run the BBR cleanup script with the following command:
 
-To clean up after a failed restore, run the following command:
+```
+BOSH&#95;CLIENT&#95;SECRET=BOSH-CLIENT-SECRET bbr deployment --target BOSH-TARGET --username BOSH-CLIENT --deployment DEPLOYMENT-NAME --ca-cert PATH-TO-BOSH-CA-CERT restore-cleanup
+```
+
+For example,
 
 <pre class="terminal">
-$ BOSH_CLIENT_SECRET=BOSH_CLIENT_SECRET \
-    bbr deployment \
-    --target BOSH_TARGET \
-    --username BOSH_CLIENT \
-    --deployment DEPLOYMENT_NAME \
-    --ca-cert PATH_TO_BOSH_CA_CERT \
-    restore-cleanup
+$ BOSH_CLIENT_SECRET=p455w0rd \
+bbr deployment \
+--target bosh.example.com \
+--username admin \
+--deployment cf-acceptance-0 \
+--ca-cert bosh.ca.crt \
+restore-cleanup
 </pre>
-
-If the cleanup script fails, consult the following table to match the exit codes to an error message.
-
-<table>
-<tr>
-<th>Value</th>
-<th>Error</th>
-</tr>
-<tr>
-<td>0</td>
-<td>Success</td>
-</tr>
-<tr>
-<td>1</td>
-<td>General failure</td>
-</tr>
-<tr>
-<td>8</td>
-<td>The post-restore unlock failed. Your deployment may be in a bad state and require attention.</td>
-</tr>
-<tr>
-<td>16</td>
-<td>The cleanup failed. This is a non-fatal error indicating that the utility has been unable to clean up open BOSH SSH connections to the deployment VMs. Manual cleanup may be required to clear any hanging BOSH users and connections.</td>
-</tr>
-</table>
-
-For more information about how to interpret the exit code, see the [Exit Codes](bbr-logging.html#exit-codes) section of _BBR Exit Codes and Logging_.
