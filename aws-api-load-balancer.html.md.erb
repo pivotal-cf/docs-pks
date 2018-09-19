@@ -25,49 +25,53 @@ Perform the following steps:
 1. Under **Compute**, click **EC2**.
 1. In the **EC2 Dashboard**, under **Load Balancing**, click **Load Balancers**.
 1. Click **Create Load Balancer**.
-1. Under **Network Load Balancer**, click **Create**.
-1. On the **Configure Load Balancer** page, complete the **Basic Configuration** section as follows:
-  1. **Name**: Name the load balancer. Pivotal recommends that you name your load balancer `pks-api`.
-  1. **Scheme**: Select **internet-facing**.
-1. Complete the **Listeners** section as follows:
+1. Under **Classic Load Balancer**, click **Create**.
+1. On the **Define Load Balancer** page, complete the **Basic Configuration** section as follows:
+  1. **Load Balancer name**: Name the load balancer. Pivotal recommends that you name your load balancer `pks-api`.
+  1. **Create LB inside**: Select the VPC where you installed Ops Manager.
+  1. **Create an internal load balancer**: Do **not** check this box, as we need to create an internet-facing LB.
+1. Complete the **Listeners Configuration** section as follows:
   1. Configure the first listener as follows.
       * Under **Load Balancer Protocol**, select **TCP**.
       * Under **Load Balancer Port**, enter `8443`.
-  1. Click **Add listener**.
+      * Under **Instance Protocol**, select **TCP**.
+      * Under **Instance Port**, enter `8443`.
+  1. Click **Add**.
       * Under **Load Balancer Protocol**, select **TCP**.
       * Under **Load Balancer Port**, enter `9021`.
-1. Complete the **Availability Zones** section as follows:
-  1. Select the VPC where you installed Ops Manager.
-  1. Select an availability zone.
-  1. Within the availability zone section, select the public subnet.
-1. Click **Next: Configure Routing**.
+      * Under **Instance Protocol**, select **TCP**.
+      * Under **Instance Port**, enter `9021`.
+1. Under "Select Subnets" select the public subnets for your Load Balancer in the availability zones where you want the LB to be created.
+1. Click "Next: Assign Security Groups".
+1. Under "Assign Security Groups" select or create a security group that includes **Protocol** TCP and **Ports** 8443 and 9021. The default security group has this configuration and should be sufficient.
+1. Under "Configure Security Settings" you can ignore the warning, as SSL termination is done on the PKS API server.
+1. Under "Configure Health Check", **Ping Protocol** should be **TCP** and **Ping Port** should be 9021. The rest of the configuration can remain default.
+1. Under **Add EC2 Instances** select the EC2 instance starting with *pivotal-container-service-...* which is the instance running PKS running.
+1. **Add Tags** is optional.
+1. Click **Review and Create**, review all the selected options and click on **Create**
 
-## <a id='configure-routing'></a>Step 2: Configure Routing
+Depending on how the DNS are managed we present 2 different options for how to register the PKS API FQDN.
 
-Follow the steps below to configure routing. The load balancer routes requests
-to the targets in the target group you create using the protocol and port that
-you specify.
+## <a id='record-fqdn'></a>Step 2, option 1: Record Load Balancer FQDN
 
-1. Complete the **Target group** section as follows:
-  * **Target group**: Select **New target group**.
-  * **Name**: Enter `pks-api`.
-  * **Protocol**: Select **TCP**.
-  * **Port**: Enter `9021`.
-  * **Target type**: Select **instance**.
-1. Under **Health checks > Protocol**, select **TCP**.
-1. Click **Next: Register Targets**. You must resister targets after you install PKS. See [Completing AWS Load Balancer Configuration](aws-lb-config.html).
-1. Click **Next: Review**
-1. Review the load balancer details.
-1. Click **Create**.
-1. After AWS creates the load balancer, click **Close**.
-
-## <a id='record-fqdn'></a>Step 3: Record Load Balancer FQDN
-
-When you install and configure the PKS tile, you must supply the fully qualified domain name (FQDN) of the load balancer to secure the PKS API. To view the FQDN of the load balancer, perform the following steps:
+When you install and configure the PKS tile, you must supply the fully qualified domain name (FQDN) of the load balancer to secure the PKS API.
+To view the FQDN of the load balancer, perform the following steps:
 
 1. In the **EC2 Dashboard**, under **Load Balancing**, click **Load Balancers**.
 1. Select the load balancer you created above.
 1. In the **Description** tab, view and record the FQDN of the load balancer.
+1. Point the PKS API FQDN to the Load Balancer FQDN
+
+## <a id='record-fqdn-route-53'></a>Step 2, option 2: Record Load Balancer FQDN with Route 53
+
+You can create the DNS entry to point the FQDN in the DNS management system of your choice. Below are the instructions to do it in **Route 53**.
+
+1. Navigate to the [Route 53](https://console.aws.amazon.com/route53/home).
+1. Select the **Hosted Zone** which **Domain Name** match the selected PKS API FQDN.
+1. Click **Create Record Set**
+1. Complete the missing part of the PKS API FQDN in the **Name** field.
+1. Choose **Alias** Yes and as target select the previously created Load Balancer.
+1. Click on **Create**
 
 ## <a id='next-steps'></a>Next Steps
 
