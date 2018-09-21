@@ -1,40 +1,48 @@
 ---
-title: Create and Use Network Profiles (NSX-T Only)
+title: Using Network Profiles (NSX-T Only)
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes what network profiles are, how to create them, and how to use when deploying a Kubernetes cluster using PKS.
+This topic describes how to create and use network profiles when deploying a Kubernetes cluster with PKS.
 
-<p class="note"><strong>Note</strong>: Network profiles are only available with NSX-T.</p>
+<p class="note"><strong>Note</strong>: Network profiles are supported only for PKS deployments with NSX-T.</p>
 
-## <a id='about-network-profiles'></a>About Network Profiles
+## <a id='about'></a> About Network Profiles
 
-Network profiles let you specify NSX-T configuration paramaters at cluster creation. 
+Network profiles let you specify NSX-T configuration parameters at the time of cluster creation.
 
-For the initial release of network profiles you can customize the size the of the load balancer that is deployed when a Kubernetes cluster is created. Future releases of network profiles will provide additional NSX-T customizations at cluster creation time.
- 
+For example, you can customize the size of the load balancer
+that is deployed when a Kubernetes cluster is created using PKS.
 See [Load Balancers in PKS Deployments on vSphere with NSX‑T](about-lb.html#with-nsx-t) for more information.
 
-## <a id='about-network-profiles'></a>Network Profiles Permissions
+## <a id='permissions'></a> Required Permissions
 
-The PKS administrator defines a network profile using a JSON configuration file and the PKS CLI command `create-network-profile`. The PKS administrator can also delete network profiles using the `pks delete-network-profile` command.  
+Only PKS administrators can create and delete network profiles. For more information, see:
 
-The Kubernetes cluster administrator can list the available network profiles using the `pks network-profiles` command and make use of a network profile when creating a cluster using the `--network-profile` flag with the `pks create-cluster` command. 
+* [Define a Network Profile](#define-profile)
+* [Create a Network Profile](#create-profile)
+* [Delete a Network Profile](#delete-profile)
 
-<p class="note"><strong>Note</strong>: You cannot delete a network profile that is in use.
+Kubernetes managers can list network profiles, assign existing network profiles to clusters, and view cluster details.
+For more information, see:
 
-## <a id="master-id"></a>Configuration File Format
+* [List Network Profiles](#list-profiles)
+* [Create a Cluster With a Network Profile](#create-cluster)
+* [View Cluster Details](#view-details)
 
-You use JSON to define the network profile configuration. The configuration format requires the following three fields:
+## <a id="define-profile"></a> Define a Network Profile
+
+Before you can create a network profile,
+you must define your network profile configuration in the following JSON format:
 
 Parameter 		| Value   					 | Description
 ----------------|----------------------------|------------
-`name`	  		| String  					 | User-defined name for the network profile.
-`description`   | String    				 | User-defined description for the network profile.
+`name`	  		| String  					 | User-defined name for the network<br> profile.
+`description`   | String    				 | User-defined description for the network<br> profile.
 `parameters`    | Array 					 | One or more name-value pairs.
-`lb_size`	  	| `small`, `medium`, `large` | Customize the size of the load balancer deployed with the Kubernetes cluster.
+`lb_size`	  	| `small`, `medium`, `large` | Customize the size of the load balancer<br> deployed with the Kubernetes cluster.
 
 For example:
 
@@ -48,73 +56,91 @@ For example:
 }
 ```
 
-## <a id="master-id"></a>Network Profile Commands
+To create a network profile, follow the instructions in [Create a Network Profile](#create-profile).
 
-This section lists the commands available for creating, deleting, listing, and using network profiles.
+## <a id="cli-commands"></a> Create and Use Network Profiles
 
-### Create network profile
+You can create and use network profiles through the PKS CLI.
+The PKS CLI supports the following operations for network profiles:
 
-To create a network profile:
+* [Create a network profile](#create-profile)
+* [Delete a network profile](#delete-profile)
+* [List network profiles](#list-profiles)
+* [Create a Cluster with a Network Profile](#create-cluster)
+* [View Cluster Details](#view-details)
+
+### <a id="create-profile"></a> Create a Network Profile
+
+To create a network profile, run the following command:
 
 ```
-pks create-network-profile /path/to/network-profile.json
+pks create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
 ``` 
+Where `PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION` is the path to the JSON file you created in
+[Define a Network Profile](#define-profile).
 
-Success: `Network profile <name> successfully created`.
-
-Error:
-- `Can't open input file: failed to read input file <json configuration>`
-- `Input file format error: failed to parse network profile JSON input: <error data>`
-- `Network Profile parameter format error: failed to serialize network profile parameters: <error data>`
-- `Not logged in: you must login first: <error data>`
-- `You do not have enough privileges to perform this action. Please contact the PKS administrator.`
-
-The last error occurs if a cluster manager (`pks.clusters.manage` privilege) is attempting to create a network-profile. Only a cluster administrator (`pks.clusters.admin` privilege) can create network-profiles.
-
-### Delete network profile
-
-To delete network profile:
+Only a cluster administrator, `pks.clusters.admin`, can create network profiles.
+If a cluster manager, `pks.clusters.manage`, is attempting to create a network profile,
+the following error occurs:
 
 ```
-pks delete-network-profile <name>`
+You do not have enough privileges to perform this action. Please contact the PKS administrator.
 ```
 
-Prompt: `Are you sure you want to delete the network profile <name>? (y/n):`
-Success: `Deletion of <name> completed`
+### <a id="delete-profile"></a> Delete a Network Profile
 
-Error: 
-- `Not logged in: you must login first: <error data>`
-- `Profile is in use: The network profile <profile name> is still used by clusters.`
-- `You do not have enough privileges to perform this action. Please contact the PKS administrator.`
+To delete a network profile, run the following command:
 
-The last error occurs if a cluster manager (`pks.clusters.manage` privilege) is attempting to delete a network-profile. Only a cluster administrator (`pks.clusters.admin` privilege) can delete network-profiles.
+```
+pks delete-network-profile NETWORK-PROFILE-NAME
+```
 
-### List network profiles
+Where `NETWORK-PROFILE-NAME` is the name of the network profile you want to delete.
 
-To list network profiles that have been created:
+<p class="note"><strong>Note</strong>: You cannot delete a network profile that is in use.</p>
+
+Only a cluster administrator, `pks.clusters.admin`, can delete network profiles.
+If a cluster manager, `pks.clusters.manage`, is attempting to delete a network profile,
+the following error occurs:
+
+```
+You do not have enough privileges to perform this action. Please contact the PKS administrator.
+```
+
+### <a id="list-profiles"></a> List Network Profiles
+
+To list your network profiles, run the following command:
 
 ```
 pks network-profiles
 ```
 
-Success: 	`Name` `Description`
-			`Name` `Description`
+### <a id="create-cluster"></a> Create a Cluster with a Network Profile
 
-Error: `Not logged in: you must login first: <error data>`
-
-### Create Kubenetes Cluster with Network Profile
-
-To create a Kubernetes cluster with a network profile:
+To create a PKS-provisioned Kubernetes cluster with a network profile, run the following command:
 
 ```
-pks create-cluster <cluster name> --external-hostname <hostname> --plan <plan name> --network-profile <network profile name>
+pks create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --network-profile NETWORK-PROFILE-NAME
 ```
 
-<p class="note"><strong>Note</strong>: The network profile must exist.
+Where:
 
-### Get cluster created with Network Profile
+* `CLUSTER-NAME` is your cluster name.
+* `HOSTNAME` is an external hostname for your cluster.
+* `PLAN-NAME` is your plan name.
+* `NETWORK-PROFILE-NAME` is your network profile name.
 
-The `pks cluster <cluster name>` command indicates if a cluster is created using a network profile:
+<p class="note"><strong>Note</strong>: The network profile must exist.</p>
+
+### <a id="view-details"></a> View Cluster Details
+
+To view detailed information about your cluster, run the following command:
+
+```
+pks cluster CLUSTER-NAME
+```
+
+Where the `CLUSTER-NAME` is the name of your cluster. See the example output of this command below:
 
 ```
 Name:						k8s1
