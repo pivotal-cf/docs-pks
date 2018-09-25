@@ -9,15 +9,32 @@ This topic explains how to upgrade the Pivotal Container Service (PKS) tile for 
 
 PKS v1.1.5 supports NSX-T v2.2 and vSphere 6.5 U2. For details, see the [VMware Product Interoperability Matrix](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php) for PKS in the VMware documentation.
 
-If you use PKS with NSX-T, we recommend that you upgrade to PKS v1.1.5 and NSX-T v2.2 to take advantage of key features and important architectural changes.
-
 <p class="note"><strong>Note</strong>: When you upgrade PKS on vSphere with NSX-T, workloads in your Kubernetes cluster are unavailable while the NSX Edge nodes run the upgrade. Configure NSX Edge for high availability using Active/Standby mode to avoid workload downtime. For more information, see the <a href="./nsxt-prepare-env.html#nsx-edge-ha">Configure NSX Edge for High Availability (HA)</a> section of <em>Preparing NSX-T Before Deploying PKS</em>.</p>
 
-## <a id="prerequisites"></a>Prerequisites
+## <a id="prepare"></a>Prepare to Upgrade
 
-PKS v1.2 requires Ops Manager v2.2.2+ or v2.3.1+. If you use Ops Manager v2.1, you must upgrade Ops Manager to v2.2.2+ or v2.3.1+ before upgrading PKS to v1.2.
+Before you begin upgrading the PKS tile, follow the steps below:
 
-The supported upgrade paths to PKS v1.2 are from PKS v1.1.5 and later. If you use PKS v1.1.4 or earlier, you must upgrade PKS to v1.1.5 or later before upgrading PKS to v1.2.
+1. Review the [Release Notes](release-notes.html) for the version you are upgrading to.
+1. Verify the health of your Kubernetes environment by following the steps below:
+	1. To verify that all nodes are in a ready state, run `kubectl get nodes` for all Kubernetes contexts.
+  1. To verify that all pods are running, run `kubectl get pods --all-namespaces` for all Kubernetes contexts.
+  1. To verify that all the processes are in a running state, run `bosh -d MY-DEPLOYMENT instances --ps` for each deployment, replacing `MY-DEPLOYMENT` with the deployment name. Your PKS deployment name begins with `pivotal-container-service` and includes a BOSH-generated hash.
+1. Make sure there are no issues with vSphere by following the steps below:
+  1. Verify that datastores have enough space.
+  1. Verify that hosts have enough memory.
+  1. Verify that there are no alarms.
+  1. Verify that hosts are in a good state.
+1. (Optional) Back up the environment using the procedures in the following topics:
+  - <a href="https://docs.vmware.com/en/VMware-Pivotal-Container-Service/1.1/vmware-pks-11/GUID-PKS11-backup-and-restore.html">Backup PKS</a>
+  - <a href="https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A0B3667C-FB7D-413F-816D-019BFAD81AC5.html">Backup NSX-T</a>
+  - <a href="https://kb.vmware.com/s/article/2149237">Backup vCenter</a>
+<p class="note"><strong>Note</strong>: If you choose not to back up PKS, NSX-T, or vCenter, we recommend backing up the NSX-T and NSX-T Container Plugin (NCP) logs. For more information, see <a href="#logs">PKS Logs for NSX-T and NCP</a> below.</p>
+
+## <a id="upgrade-opsman"></a>Upgrade to Ops Manager v2.2.2+ or v2.3.1+ and PKS v1.1.5
+
+Before you upgrade to PKS v1.2, you must upgrade PKS to v1.1.5+ and upgrade Ops
+Manager to v2.2.2+ or v2.3.1+.
 
 For more information, refer to the compatibility chart below:
 
@@ -32,6 +49,10 @@ For more information, refer to the compatibility chart below:
     <td>2.2</td>
     <td>2.2.2+, 2.3.1+</td>
   </tr>
+  <tr>
+    <td>1.1.6</td>
+    <td>2.1, 2.2</td>
+    <td>2.1.x, 2.2.x</td>
   <tr>
     <td>1.1.5</td>
     <td>2.1, 2.2</td>
@@ -59,25 +80,25 @@ For more information, refer to the compatibility chart below:
   </tr>
 </table>
 
-## <a id="prepare"></a>Prepare to Upgrade
+### <a id="v1.1.5"></a>Upgrade Ops Manager on PKS v1.1.5 and Later
 
-Before you begin upgrading the PKS tile, follow the steps below:
+If you already use PKS v1.1.5, perform the steps below to upgrade Ops Manager:
 
-1. Review the [Release Notes](release-notes.html) for the version you are upgrading to.
-1. Verify the health of your Kubernetes environment by following the steps below:
-	1. To verify that all nodes are in a ready state, run `kubectl get nodes` for all Kubernetes contexts.
-  1. To verify that all pods are running, run `kubectl get pods --all-namespaces` for all Kubernetes contexts.
-  1. To verify that all the processes are in a running state, run `bosh -d MY-DEPLOYMENT instances --ps` for each deployment, replacing `MY-DEPLOYMENT` with the deployment name. Your PKS deployment name begins with `pivotal-container-service` and includes a BOSH-generated hash.
-1. Make sure there are no issues with vSphere by following the steps below:
-  1. Verify that datastores have enough space.
-  1. Verify that hosts have enough memory.
-  1. Verify that there are no alarms.
-  1. Verify that hosts are in a good state.
-1. (Optional) Back up the environment using the procedures in the following topics:
-  - <a href="https://docs.vmware.com/en/VMware-Pivotal-Container-Service/1.1/vmware-pks-11/GUID-PKS11-backup-and-restore.html">Backup PKS</a>
-  - <a href="https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A0B3667C-FB7D-413F-816D-019BFAD81AC5.html">Backup NSX-T</a>
-  - <a href="https://kb.vmware.com/s/article/2149237">Backup vCenter</a>
-<p class="note"><strong>Note</strong>: If you choose not to back up PKS, NSX-T, or vCenter, we recommend backing up the NSX-T and NSX-T Container Plugin (NCP) logs. For more information, see <a href="#logs">PKS Logs for NSX-T and NCP</a> below.</p>
+1. To upgrade to Ops Manager v2.2.2+ or v2.3.1+, follow the procedures
+detailed in [Upgrade Ops Manager and Installed Products to v2.2](https://docs.pivotal.io/pivotalcf/2-2/customizing/upgrading-pcf.html#upgrade_ops) or [Upgrade Ops Manager and Installed Products to v2.3](https://docs.pivotal.io/pivotalcf/2-3/customizing/upgrading-pcf.html#upgrade_ops).
+
+1. <%= partial 'add-clusters-workloads' %>
+
+### <a id="v1.1.4"></a>Upgrade Ops Manager on PKS v1.1.4 and Earlier
+
+If you use PKS v1.1.4 or earlier, perform the steps below to upgrade PKS and Ops Manager:
+
+1. To upgrade PKS v1.1.4 or earlier, follow the procedures detailed in [Upgrade PKS](https://docs.pivotal.io/runtimes/pks/1-1/upgrade-pks.html#upgrade-tile) in the PKS v1.1 documentation.
+
+1. To upgrade to Ops Manager v2.2.2+ or v2.3.1+, follow the procedures
+detailed in [Upgrade Ops Manager and Installed Products to v2.2](https://docs.pivotal.io/pivotalcf/2-2/customizing/upgrading-pcf.html#upgrade_ops) or [Upgrade Ops Manager and Installed Products to v2.3](https://docs.pivotal.io/pivotalcf/2-3/customizing/upgrading-pcf.html#upgrade_ops).
+
+1. <%= partial 'add-clusters-workloads' %>
 
 ## <a id="upgrade"></a>Upgrade the PKS Tile
 
