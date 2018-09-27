@@ -1,0 +1,113 @@
+---
+title: Configuring a AWS Load Balancer for PKS Clusters
+owner: PKSA
+---
+
+A load balancer is a third party device that distributes network and application traffic across resources. You can use a load balancer to secure and facilitate access to a PKS cluster from outside the network. Using a load balancer can also prevent individual network components from being overloaded by high traffic.
+
+The procedure below explains how to create a Amazon Web Services (AWS) load balancer for your PKS cluster. Using an AWS load balancer is optional, but adding one to your Kubernetes cluster can make it easier to manage the cluster using the PKS API and `kubectl`.
+
+##<a id="overview"></a> Overview
+
+To configure a AWS load balancer with a PKS cluster, you must connect a load balancer to the cluster, funnel inbound traffic to the load balancer, and set a firewall rule to allow traffic into the cluster itself. 
+
+The steps of this procedure are summarized below:
+
+First, use the AWS Console to [create a load balancer](#create) for the new cluster. Configure the frontend and backend of the load balancer; the backend configuration connects the load balancer to the PKS cluster, and the frontend configuration tells inbound traffic how to contact the load balancer successfully.
+
+Next, [create a network tag](#tag) for the master VMs in your PKS cluster. This lets you associate a firewall rule with the master VMs, ensuring that traffic accessing the cluster via the load balancer is subject to the firewall rule.
+
+Finally, [configure a firewall rule](#firewall) with permission information about which types of traffic can access your cluster.
+
+###<a id="prereqs"></a> Prerequisites
+
+* To complete these procedures, you must have already configured a separate external load balancer to access the PKS API.
+* The version of the PKS CLI you are using must match the version of the PKS tile you are installing.
+
+<p class="note"><strong>Note</strong>: This procedure uses example commands which you should modify to represent the details of your PKS installation.</p>
+
+##<a id="create"></a> Creating AWS Load Balancers for clusters
+
+## <a id='define-lb'></a>Step 1: Define Load Balancer
+
+To define your load balancer using AWS, you must provide a name, select a VPC, specify listeners, and select subnets where you want to create the load balancer. Perform the following steps:
+
+1. In a browser, navigate to the [AWS Management Console](https://console.aws.amazon.com/console/home).
+1. Under **Compute**, click **EC2**.
+1. In the **EC2 Dashboard**, under **Load Balancing**, click **Load Balancers**.
+1. Click **Create Load Balancer**.
+1. Under **Classic Load Balancer**, click **Create**.
+1. On the **Define Load Balancer** page, complete the **Basic Configuration** section as follows:
+1. **Load Balancer name**: Name the load balancer. Pivotal recommends that you name your load balancer `k8s-master-<uuid>`.
+  1. **Create LB inside**: Select the VPC where you installed Ops Manager.
+  1. **Create an internal load balancer**: Do not enable this checkbox. The cluster load balancer must be internet-facing.
+1. Complete the **Listeners Configuration** section as follows:
+  1. Configure the first listener as follows.
+      * Under **Load Balancer Protocol**, select **TCP**.
+      * Under **Load Balancer Port**, enter `8443`.
+      * Under **Instance Protocol**, select **TCP**.
+      * Under **Instance Port**, enter `8443`.
+1. Under **Select Subnets**, select the public subnets for your load balancer in the availability zones where you want to create the load balancer.
+1. Click **Next: Assign Security Groups**.
+
+## <a id='assign-security-groups'></a>Step 2: Assign Security Groups
+
+1. On the **Assign Security Groups** page, select one of the following:
+  * **Create a new security group**: Complete the security group
+  configuration as follows:
+      1. **Security group name**: Name your security group.
+      1. Confirm that your security group includes **Protocol** `TCP` with
+      **Ports** `8443`.
+  * **Select an existing security group**: Select the default security group.
+  The default security group includes includes **Protocol** `TCP` with
+  **Ports** `8443`.
+
+1. Click **Next: Configure Security Settings**.
+
+## <a id='configure-security-settings'></a>Step 3: Configure Security Settings
+
+On the **Configure Security Settings** page, ignore the warning. SSL termination is done on the Kubernetes API.
+
+## <a id='configure-health-check'></a>Step 4: Configure Health Check
+
+1. On the **Configure Health Check** page, set the **Ping Protocol** to `TCP`.
+
+1. For **Ping Port**, enter `8443`.
+
+1. Click **Next: Add EC2 Instances**.
+
+## <a id='add-ec2-instances'></a>Step 5: Add EC2 Instances
+
+1. On the **Add EC2 Instances** page, select all master VMs for your cluster. For information about locating the VM IDs, see [Identify Kubernetes Cluster Master VMs](create-cluster.html#master-id) in _Creating Clusters_.
+
+1. Click **Add Tags**.
+
+## <a id='add-ec2-instances'></a>Step 6: (Optional) Add Tags
+
+1. (Optional) Add tags to your resources to help organize and identify them. Each tag consists of a case-sensitive key-value pair.
+
+1. Click **Review and Create**.
+
+## <a id='review-create'></a>Step 7: Review and Create
+
+1. On the **Review** page, review your load balancer details and edit any as necessary.
+
+1. Click **Create**.
+
+## <a id='review-create'></a>Step 8: Point your cluster address to the load balancer
+
+1. Point the address provided when creating the cluster (`--external-hostname`) to the load balancer. This step is required because the certificate provided in the kubeconfig is valid for the cluster external hostname.	
+
+## <a id="reconfigure"></a>Reconfiguring a AWS Load Balancer
+
+If Kubernetes master node VMs are recreated for any reason, you must reconfigure your cluster load balancers to point to the new master VMs.
+For example, after a stemcell upgrade, BOSH recreates the VMs in your deployment.
+
+To reconfigure your AWS cluster load balancer to use the new master VMs, do the following:
+
+1. Locate the VM IDs of the new master node VMs for the cluster. For information about locating the VM IDs, see [Identify Kubernetes Cluster Master VMs](create-cluster.html#master-id) in _Creating Clusters_.
+1. Navigate to the [AWS console](https://console.aws.amazon.com/console/home).
+1. Under EC2, select **Load balancers**.
+1. Select the load balancer and click **Edit instances**.
+1. Select the new master nodes in the list of VMs.
+1. Click **Save**.
