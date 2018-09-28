@@ -1,0 +1,392 @@
+---
+title: vSphere Persistent Storage Options
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes options for configuring PKS on vSphere to support stateful containerized applications using persistent volumes (PV).
+
+<p class="note"><strong>Note</strong>: This topic addresses single locality vSphere environments. It does not apply to multi-site or stretched cluster configurations.
+</p>
+
+##<a id='vsphere-pv-scenarios'></a> Persistent Volume Provisioning Scenarios
+
+Containers by default are stateless or ephemeral. Whan a container is stopped, its data is deleted. For stateful containerized applications, Kubernetes provides developers with the ability to make persisten volume claims on a persistent data store.
+
+PKS on vSphere supports various mechanims for enabling persisten volume claims. Typical PV provisioning scenarios include:
+
+- Static provisioning: Kubernetes administrator creates Virtual Machine Disk (VMDK) and persisten volumes (PVs). Developers issue PV Claims on pre-existing PVs.
+- Dynamic provisioning: Developers issue PV Claims against a storage class. The vSphere Cloud Provider (VCP) automatically provisions VMDK & PVs.
+
+##<a id='vsphere-pv-support'></a> vSphere Support for Static and Dynamic PVs
+
+In PKS an availability zone (AZ) corresponds to a vSphere cluster or resource pool. A resource pool (RP) is a software construct that is not linked to particular ESXi host. A vSAN datastore boundary is delimited by the vSphere cluster. All ESXi hosts in the same vSphere Cluster belong to same vSAN datastore. ESXi hosts in a different vSphere Cluster belong to a different vSAN datastore. Each vSphere cluster has its own vSAN datastore(s).
+
+PKS on vSphere supports the following persistent volume storage options:
+
+<table>
+  <tr>
+    <th>Storage Topology</th>
+    <th>vSAN datastores</th>
+    <th>VMFS over NFS/iSCSI/FC datastores</th>
+  </tr>
+  <tr>
+    <td>(A) Single vSphere compute cluster (Single AZ or multiple AZs if using RPs) with local datastore</td>
+    <td>Both static and dynamic PV provisioning are suppported.</td>
+    <td>Both static and dynamic PV provisioning are suppported.</td>
+  </tr>
+  <tr>
+    <td>(B) Multi vSphere compute clusters (Multiple AZs) with local datastore</td>
+    <td>Neither static nor dynamic PV provisioning are suppported.</td>
+    <td>Neither static nor dynamic PV provisioning are suppported.</td>
+  </tr>
+  <tr>
+    <td>(C) Multi vSphere compute clusters (Multiple AZs) with shared datastore</td>
+    <td>vSAN does not support shared datastore across vSphere Clusters.</td>
+    <td>Both static and dynamic PV provisioning are suppported.</td>
+  </tr>  
+</table>
+
+##<a id='vsphere-pv-a'></a> Single vSphere compute cluster with local datastore
+
+### vSAN Datastore
+ 
+For a vSphere environment with a single compute cluster (single AZ or multiple AZs using resource pools) and a datastore local to single vSphere compute cluster, only 1 vSphere compute cluster is used to host all Kubenetes clusters. In this topology, vSAN is enabled on the compute cluster and it exposes 1 unique vSAN datastore (“vSAN datastore1” in the diagram).
+
+One or multiple AZs can be instantiated on top of the compute cluster. In this toplogy, an AZ is mapped to a vSphere resource pool. As such, the AZ is not bound to a failure domain because the resource pool is not linked to particular ESXi host.
+
+You can create multiple vSAN datastores (on top of same compute cluster) by using different disk groups on each ESXi host. PVs (backed by respective VMDK files) can then be dispatched across those datastores in order to mitigate the impact of a datastore failure. For statefulsets, all PVs used by different instances of replica will land in the same datastore.
+
+With this toplogy, PKS with vSphere supports both static and dynamic PV provisioning. The latter is recommended. 
+
+Failure scenarios:
+- Disk(s) on ESXi host(s) down (within the limit of vSAN failure to tolerate value): no impact on PV.
+- ESXi host(s) down (within the limit of vSAN failure to tolerate value): no impact on PV.
+- 1 vSAN datastore down: PVs on this datastore are unreachable.
+
+  <img src="images/vsphere/vsphere-pv-a1.png" alt="Single vSphere compute cluster with local datastore">
+
+### VMFS over NFS/iSCSI/FC datastores
+ 
+In this topology, one vSphere compute cluster is used to host all Kubernetes clusters. A shared datastore--such as NFS, iSCSI (Internet Small Computer Systems Interface), or fiber channel (FC) is used in this compute cluster ("Shared Datastore1" in the diagram). 
+
+One or multiple AZs can be instantiated on top of the compute cluster. The AZ is mapped to a vSphere resource pool, and as such the AZ is not bound to a failure domain because resource pool is a software construct that is not linked to particular ESXi host.
+
+With this toplogy, PKS with vSphere supports both static and dynamic PV provisioning. The latter is recommended. 
+
+With this toplogy you can have multiple shared datastores connected to the same compute cluster. PVs (backed by respective VMDK files) can then be dispatched across those datastores in order to mitigate the impact of 1 datastore failure. For statefulsets, all PVs used by different instances of replica will land in the same datastore.
+
+Failover scenario:
+- ESXi host(s) down: No impact on PV.
+- 1 Shared datastore down: PVs on this datastore are unreachable.
+
+  <img src="images/vsphere/vsphere-pv-a2.png" alt="Single vSphere compute cluster with local datastore">
+
+### Static PV provisioning workflow
+
+In the case of static PV provisioning, there is no need to specify a Storage Class (SC). Consequently, the PVC does not need to reference any SC.
+
+The procedure is to manually create a VMDK file that will be used as a backend for the PV. When the PV is created, Kubernetes knows which volume instance (with associated capacity) is ready for use. When a PVC or VolumeClaimTemplate (for StatefulSets) is requested, Kubernetes will choose an available PV in the system and allocate it to the POD or StatefulSets.
+ 
+**Deployment (POD)***
+
+1. Create VMDK files:
+
+```
+[root@ESXi-1:~] cd /vmfs
+[root@ESXi-1:/vmfs] cd volumes/
+[root@ESXi-1:/vmfs/volumes] cd <datastore>/
+[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed] cd kubevols/
+[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 2G redis-master.vmdk
+```
+
+1. Define Persistent Volumes (PV) using YAML manifest file (and containing reference to VMDK file) `redis-master-pv.yaml`:
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-master-pv
+spec:
+  capacity:
+	storage: 2Gi
+  accessModes:
+	- ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  vsphereVolume:
+	volumePath: "[NFS-LAB-DATASTORE] kubevols/redis-master"
+	fsType: ext4
+```
+
+1. Define Persistent Volume Claim (PVC) using YAML manifest file `redis-master-claim.yaml`:
+
+```
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-master-claim
+spec:
+  accessModes:
+	- ReadWriteOnce
+  resources:
+	requests:
+  	storage: 2Gi
+```
+
+1. Define a deployment using YAML manifest file (and referencing above PVC) `redis-master.yaml`:
+
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis-master
+…
+spec:
+ template:
+   spec:
+     volumes:
+  	- name: redis-master-data
+    	persistentVolumeClaim:
+      	claimName: redis-master-claim
+```
+
+**StatefulSets (with 3 replicas)**
+
+1. Create VMDK files:
+
+```
+[root@ESXi-1:~] cd /vmfs
+[root@ESXi-1:/vmfs] cd volumes/
+[root@ESXi-1:/vmfs/volumes] cd <datastore>/
+[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed] cd kubevols/
+[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-1.vmdk
+[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-2.vmdk
+[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-3.vmdk
+```
+
+1. Define Persistent Volumes (PV) using YAML manifest file (and containing reference to VMDK file) `mysql-pv-1.yaml`:
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-1
+spec:
+  capacity:
+	storage: 10Gi
+  accessModes:
+	- ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  vsphereVolume:
+    volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-1"
+	fsType: ext4
+
+1. Define Persistent Volumes (PV) using YAML manifest file (and containing reference to VMDK file) `mysql-pv-2.yaml`:
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-2
+spec:
+  capacity:
+	storage: 10Gi
+  accessModes:
+	- ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  vsphereVolume:
+    volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-2"
+	fsType: ext4
+```
+
+1. Define Persistent Volumes (PV) using YAML manifest file (and containing reference to VMDK file) `mysql-pv-3.yaml`:
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv-3
+spec:
+  capacity:
+	storage: 10Gi
+  accessModes:
+	- ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  vsphereVolume:
+    volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-3"
+	fsType: ext4
+```
+
+1. Define a StatefultSets using YAML manifest file `mysql-statefulsets.yaml`:
+
+```
+piVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+...
+volumeClaimTemplates:
+  - metadata:
+  	name: data
+	spec:
+  	accessModes: ["ReadWriteOnce"]
+  	resources:
+    	requests:
+      	storage: 10Gi
+```
+
+<p class="note"><strong>Note</strong>: In the volumeClaimTemplates, specify the required storage size for each replica; do not refer to any storage class.
+
+### Dynamic PV provisioning workflow
+
+In the case of Dynamic PV provisioning, you need to specify a Storage Class (SC) and define the PVC using a reference to that SC. 
+
+The procedure is to define and create a PVC which will automatically trigger the creation of PV (and its associated backend VMDK file). When the PV is created, K8s knows which volume instance (with associated capacity) is ready for use. When a PVC or VolumeClaimTemplate (for StatefulSets) is requested, K8s will simply choose an available PV in the system and allocate it to the POD or StatefulSets.
+  
+**Deployment (POD)**
+
+1. Define Storage Class (SC) using YAML manifest file `redis-sc.yaml`:
+
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: thin-disk
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+	datastore: Datastore-NFS-VM
+	diskformat: thin
+	fstype: ext3
+```
+
+1. Define Persistent Volume Claim (PVC) using YAML manifest files (the PVC must reference the SC) `redis-master-claim.yaml`:
+
+```
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-master-claim
+  annotations:
+	volume.beta.kubernetes.io/storage-class: thin-disk
+spec:
+  accessModes:
+	- ReadWriteOnce
+  resources:
+	requests:
+  	storage: 2Gi
+```
+
+<p class="note"><strong>Note</strong>: When the PVC is deployed, the PV (and associated VMDK file) is automatically created by the vSphere Cloud Provider plugin.
+
+1. Define a deployment using YAML manifest file (and referencing above PVC) `redis-master.yaml`:
+
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis-master
+…
+spec:
+ template:
+   spec:
+     volumes:
+  	- name: redis-master-data
+    	persistentVolumeClaim:
+      	claimName: redis-master-claim
+```
+
+**StatefulSets (with 3 replicas)**
+
+1. Define Storage Class (SC) using YAML manifest file `mysql-sc.yaml`:
+
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: my-storage-class
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+	datastore: Datastore-NFS-VM
+	diskformat: thin
+	fstype: ext3
+```
+
+1. Define a StatefultSets using YAML manifest file `mysql-statefulsets.yaml`:
+
+```
+piVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+...
+volumeClaimTemplates:
+  - metadata:
+  	name: data
+	spec:
+  	accessModes: ["ReadWriteOnce"]
+      storageClassName: "my-storage-class"
+  	resources:
+    	requests:
+      	storage: 10Gi
+```
+
+<p class="note"><strong>Note</strong>: In the volumeClaimTemplates, specify the required storage size for each replica; in this case you must refer to the desired Storage Class.
+
+##<a id='vsphere-pv-b'></a> Multi vSphere compute clusters (Multi AZs) with local datastore(s)
+
+This section describes PKS support for PVs in an environment with multi-vSphere compute clusters (Multi AZs) with datastore(s) local to each vSphere Compute Cluster.
+
+### vSAN Datastores
+
+In a multi-vSphere compute clusters (Multi AZs) w/ Datastore(s) local to each vSphere Compute Cluster topology, multiple vSphere compute clusters are used to host all Kubernetes clusters. vSAN is enabled on each compute cluster and it exposes one local vSAN datastore per compute cluster (“vSAN datastore1” for compute cluster 1, “vSAN datastore2” for compute cluster 2 and so on). One or multiple AZ can be instantiated. AZ is mapped to a vSphere compute cluster, as such, the AZ is bound to a failure domain which is typically the physical rack where the compute cluster is hosted.
+
+This topology is not officially supported with the current PKS release. 
+
+  <img src="images/vsphere/vsphere-pv-b1.png" alt="Multi vSphere compute clusters (Multi AZs) with local datastore">
+
+### VMFS over NFS/iSCSI/FC datastores
+
+In this topology, multiple vSphere compute clusters are used to host all Kubernetes clusters. A unique shared datastore (NFS/iSCSI/FC) is used per vSphere compute cluster (in the diagram, Shared Datastore1 is connected to compute cluster 1, Shared Datastore2 is connected to compute cluster 2, and so on). One or multiple AZs can be instantiated. AZ is mapped to a vSphere compute cluster, and, as such, the AZ is bound to a failure domain which is typically the physical rack where the compute cluster is hosted.
+
+This topology is not officially supported with the current PKS release. 
+
+  <img src="images/vsphere/vsphere-pv-b2.png" alt="Multi vSphere compute clusters (Multi AZs) with local datastore">
+
+##<a id='vsphere-pv-c'></a> Multi vSphere compute clusters (Multi AZs) with Datastore(s) shared across all vSphere Compute Cluster(s)
+
+This section describes PKS support for environments with multiple vSphere compute clusters (Multi AZs) with Datastore(s) shared across all vSphere Compute Cluster(s).
+
+### vSAN Datastores
+
+vSAN datastore is only visible per vSphere Compute Cluster. Consequently, it is not possible to have a vSAN datastore shared across all vSphere Clusters.
+
+However, if a shared datastore (like NFS or iSCSI) is inserted across all vSAN-based vSphere Compute Clusters, the topology is supported for both static and dynamic PV provisioning.
+
+  <img src="images/vsphere/vsphere-pv-c1.png" alt="Multi vSphere compute clusters (Multi AZs) with local datastore">
+
+
+### VMFS over NFS/iSCSI/FC datastores
+
+In this topology, multiple vSphere compute clusters are used to host all Kubernetes clusters. A unique shared datastore (NFS/iSCSI/FC) is used across all compute clusters ("Shared Datastore1" in the diagram). 1 or multiple AZ can be instantiated. AZ is mapped to a compute cluster, and, as such the AZ is bound to a failure domain which is typically the physical rack where the compute cluster is hosted.
+
+Note: you can have multiple shared datastores connected across all the compute clusters. PVs (backed by respective VMDK files) can then be dispatched across those datastores in order to mitigate the impact of 1 datastore failure. For statefulsets, all PVs used by different instances of replica will land in the same datastore.
+
+For this toplogy, PKS supports both static and dynamic PV provisioning. The latter is recommended.
+
+Failover scenario:
+- ESXi host(s) down: No impact on PV.
+- 1 Shared datastore down:  PV on this datastore are unreachable.
+
+  <img src="images/vsphere/vsphere-pv-c2.png" alt="Multi vSphere compute clusters (Multi AZs) with local datastore">
+
+#### Static PV provisioning workflow
+
+Same as described in "Single (or multi) AZ PKS K8s cluster w/ Datastore local to Single vSphere Compute Cluster".
+
+#### Dynamic PV provisioning workflow
+
+Same as described in "Single (or multi) AZ PKS K8s cluster w/ Datastore local to Single vSphere Compute Cluster". 
+
