@@ -1,0 +1,125 @@
+---
+title: Generating and Registering the NSX Manager Certificate
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+##<a id='certificates-nsx-mgr'></a> About the NSX Manager CA Certificate
+
+The NSX Manager CA Certificate is used to authenticate with the NSX Manager. You create an IP-based, self-signed certificate and register it with NSX Manager. During PKS installation on NSX-T, you will need to provide this certificate in the **NSX Manager CA Cert** field on the Networking Tab in the PKS tile.
+
+	<img src="images/nsxt/nsx-ca-cert.png" alt="NSX Manager CA Certificate" width="375">
+
+By default NSX-Manager comes with an API certificate that only has its hostname as the subject and issuer of the self-signed certificate. Ops Manager requires strict certificate validation, and expects either the NSX-Manager IP Address or the FQDN of NSX Manager in the subject and issuer of the self-signed certificate. As a result, you need to regenerate the self-signed certificate using the FQDN in the subject and issuer field and then register the certificate with NSX Manager using the NSX API.
+
+The **Disable SSL certificate verification** option lets you disable validation of the NSX Manager CA cert. This option should only be selected for testing purposes. 
+
+<p class="note"><strong>Note</strong>: If you elect to disable SSL certificate verification, do not populate the CA cert field. If you do, the PKS installation will fail. If you populate the CA cert field and later decide to disable SSL certificate verification, you must remove the certificate.</p>
+
+##<a id='generate-self-signed-certificate'></a> Step 1: Generate a Self-Signed CA Certificate for NSX Manager
+
+Complete the following steps to generate a self0sgned CA certficate for the NSX Manager. Later, when you install PKS on NSX-T, copy and paste the contents of the `nsx.crt` certificate into the **NSX Manager CA Cert** field on the **Networking** pane in the PKS tile.
+
+1. Create a file for the certificate request parameters named `nsx-cert.cnf`.
+
+1. Copy the following parameters and paste them into the file, replacing `NSX-MANAGER-IP-ADDRESS` with the IP address of your NSX Manager, and `NSX-MANAGER-COMMONNAME` with the FQDN of the NSX Manager host:
+
+    ```
+    [ req ]
+    default_bits = 2048
+    distinguished_name = req_distinguished_name
+    req_extensions = req_ext
+    prompt = no
+    [ req_distinguished_name ]
+    countryName = US
+    stateOrProvinceName = California
+    localityName = CA
+    organizationName = NSX
+    commonName = NSX-MANAGER-COMMONNAME
+    [ req_ext ]
+    subjectAltName = @alt_names
+    [alt_names]
+    DNS.1 = NSX-MANAGER-COMMONNAME,NSX-MANAGER-IP-ADDRESS
+    ```
+
+    For example:
+
+    <pre class="terminal">
+    [ req ]
+    default_bits = 2048
+    distinguished_name = req_distinguished_name
+    req_extensions = req_ext
+    prompt = no
+    [ req_distinguished_name ]
+    countryName = US
+    stateOrProvinceName = California
+    localityName = Palo-Alto
+    organizationName = NSX
+    commonName = nsxmgr-01a.example.com
+    [ req_ext ]
+    subjectAltName=DNS:nsxmgr-01a.example.com,IP:192.0.2.40
+    </pre>
+
+1. Export the `NSX_MANAGER_IP_ADDRESS` and `NSX_MANAGER_COMMONNAME` environment variables using the IP address of your NSX Manager and the FQDN of the NSX Manager host.<br><br>
+For example:
+  <pre class="terminal">
+  $ export NSX\_MANAGER\_IP\_ADDRESS=192.0.2.40
+  $ export NSX\_MANAGER\_COMMONNAME=nsxmgr-01a.example.com
+  </pre>
+
+1. Generate the certificate using openssl. Run the following command:
+    <pre class="terminal">
+    $ openssl req -newkey rsa:2048 -x509 -nodes \
+    -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX\_MANAGER\_COMMONNAME \
+    -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
+     <(printf "[SAN]\nsubjectAltName=DNS:$NSX\_MANAGER\_COMMONNAME,IP:$NSX\_MANAGER\_IP\_ADDRESS")) -sha256 -days 365
+    </pre>
+
+1. Verify that the certificate looks correct and that the NSX manager IP is in the Subject Alternative Name (SAN) by running the following command:
+
+    <pre class="terminal">
+    $ openssl x509 -in nsx.crt -text -noout
+    </pre>
+
+##<a id='import-certificate'></a> Step 2: Import the Certificate to NSX Manager
+
+In this section you import the self-sgined CA certificate you generated in the previous to the NSX Manager. For additional guidance, see [Import a CA Certificate](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-4135E962-E3EE-4285-8A66-E54E43937AE9.html) in the NSX-T documentation.
+
+1. Log into the NSX Manager UI.
+
+1. Navigate to System > Trust > Certificates.
+
+1. Click Import > Import CA Certficate.
+
+	<img src="images/nsxt/import-cert.png" alt="NSX Manager CA Certificate" width="575">
+
+1. Give the certificate a unique name, such as `NSX-API-CERT-NEW`.
+
+<p class="note"><strong>Note</strong>: Because the NSX Manager ships with a default CA certificate (typically named `NSX-API-CERT`), make sure you use a unique name for the new CA certificate you are importing.</p>
+
+1. Browse to and select the CA certificate you generated in the previous step.
+
+1. Click Save.
+
+	<img src="images/nsxt/import-cert-2.png" alt="NSX Manager CA Certificate" width="475">
+
+##<a id='register-certificate'></a> Step 3: Register the Certificate with NSX Manager
+
+The last step is to exchange the default CA certificate with the new CA certficate you have generated here. This must be done using the NSX API.
+
+1. Get the ID of the certificate. Run the following command, replacing `CERTIFICATE-NAME` with the certificate name:
+
+    ```
+    curl --insecure -u admin:'admin_pw' -X \
+    GET https://NSX-Manager-IP-Address/api/v1/trust-management/certificates \
+    | jq -r '.results[] | select(.display_name==CERTIFICATE-NAME) | .id'
+    ```
+
+1. Register the certificate with NSX Manager, replacing `CERTIFICATE-ID` with the certificate ID:
+
+    ```
+    curl --insecure -u admin:'admin_pw' -X \
+    POST 'https://NSX-Manager-IP-Address/api/v1/node/services/http?action=apply_certificate&certificate_id=CERTIFICATE-ID'
+    ```
+
