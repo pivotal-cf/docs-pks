@@ -1,270 +1,266 @@
 ---
-title: Configuring PersistentVolume Storage for vSphere
+title: Configuring PersistentVolume Storage
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to configure Pivotal Container Service (PKS) on vSphere to support stateful apps using PersistentVolumes (PVs).
+This topic describes how to provision static and dynamic PersistentVolumes (PVs) for Pivotal Container Service (PKS) on vSphere to run stateful apps.
 
-## <a id='pv-workflows'></a>PV Provioning Workflows for Supported Topologies
+For more information about the supported topologies for PV storage, see [vSphere PersistentVolume Storage Options](vsphere-persistent-storage.html).
 
-This section describes how to provision both static and dynamic PVs for supported toplogies.
+For static PV provisioning, you do not need to specify a StorageClass. The PersistentVolumeClaim (PVC) does not need to reference a StorageClass. For dynamic PV provisioning, you must specify a StorageClass and define the PVC using a reference to that StorageClass.
 
-For static PV provisioning, there is no need to specify a StorageClass. The PersistentVolumeClaim (PVC) does not need to reference a StorageClass. For dynamic PV provisioning, you must specify a StorageClass and define the PVC using a reference to that StorageClass.
+## <a id='static-pv'></a>Provision a Static PV
 
-### <a id='static-pv'></a>Static PV Provisioning Workflow
+To provision a static PV, you manually create a Virtual Machine Disk (VMDK) file to use as a storage backend for the PV. When the PV is created, Kubernetes knows which volume instance is ready for use. When a PVC or volumeClaimTemplate is requested, Kubernetes chooses an available PV in the system and allocates it to the Deployment or StatefulSets workload.
 
-For static PV provisioning, the procedure is to manually create a VMDK file to use as a storage backend for the PV. When the PV is created, Kubernetes knows which volume instance has capacity and is ready for use. When a PVC or VolumeClaimTemplate is requested, Kubernetes chooses an available PV in the system and allocates it to the Pod or StatefulSets.
+### <a id='static-pv-deployment'></a>Provision a Static PV for a Deployment Workload
 
-#### <a id='static-pv-deployment'></a>Static PV Provisioning for Deployment Workloads
+To provision a static PV for a Deployment workload, the procedure is as follows:
 
-For the **Deployment** (Pod) workload with static PV provisioning, the procedure is as follows:
+1. Create VMDK files, replacing `DATASTORE` with your datastore directory name:
 
-1. Create VMDK files:
+    ```
+    [root@ESXi-1:~] cd /vmfs
+    [root@ESXi-1:/vmfs] cd volumes/
+    [root@ESXi-1:/vmfs/volumes] cd DATASTORE/
+    [root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed] cd kubevols/
+    [root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 2G redis-master.vmdk
+    ```
 
-```
-[root@ESXi-1:~] cd /vmfs
-[root@ESXi-1:/vmfs] cd volumes/
-[root@ESXi-1:/vmfs/volumes] cd <datastore>/
-[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed] cd kubevols/
-[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 2G redis-master.vmdk
-```
+1. Define a PV using a YAML manifest file that contains a reference to the VMDK file. For example, create a file named `redis-master-pv.yaml` with the following contents:
 
-1. Define PV using a YAML manifest file (for example, `redis-master-pv.yaml`) containing a reference to the VMDK file:
+    ```yaml
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: redis-master-pv
+    spec:
+      capacity:
+    	storage: 2Gi
+      accessModes:
+    	- ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      vsphereVolume:
+    	volumePath: "[NFS-LAB-DATASTORE] kubevols/redis-master"
+    	fsType: ext4
+    ```
 
-```
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: redis-master-pv
-spec:
-  capacity:
-	storage: 2Gi
-  accessModes:
-	- ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  vsphereVolume:
-	volumePath: "[NFS-LAB-DATASTORE] kubevols/redis-master"
-	fsType: ext4
-```
+1. Define a PVC using a YAML manifest file. For example, create a file named `redis-master-claim.yaml` with the following contents:
 
-1. Define PVC using a YAML manifest file (for example, `redis-master-claim.yaml`):
-
-```
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: redis-master-claim
-spec:
-  accessModes:
-	- ReadWriteOnce
-  resources:
-	requests:
-  	storage: 2Gi
-```
-
-1. Define a deployment using a YAML manifest file (for example, `redis-master.yaml`) that references the PVC:
-
-```
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: redis-master
-…
-spec:
- template:
-   spec:
-     volumes:
-  	- name: redis-master-data
-    	persistentVolumeClaim:
-      	claimName: redis-master-claim
-```
-
-#### Static PV Provisioning for StatefulSets Workloads
-
-For the **StatefulSets** (with 3 replicas) workload with static PV provisioning, the procedure is as follows:
-
-1. Create VMDK files, for example:
-
-```
-[root@ESXi-1:~] cd /vmfs
-[root@ESXi-1:/vmfs] cd volumes/
-[root@ESXi-1:/vmfs/volumes] cd <datastore>/
-[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed] cd kubevols/
-[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-1.vmdk
-[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-2.vmdk
-[root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-3.vmdk
-```
-
-1. Define PV using a YAML manifest file (for example, `mysql-pv-1.yaml`) containing a reference to the VMDK file:
-
-```
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mysql-pv-1
-spec:
-  capacity:
-	storage: 10Gi
-  accessModes:
-	- ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  vsphereVolume:
-    volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-1"
-	fsType: ext4
-
-1. Define PV using a YAML manifest file (for example, `mysql-pv-2.yaml`) containing a reference to the VMDK file:
-
-```
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mysql-pv-2
-spec:
-  capacity:
-	storage: 10Gi
-  accessModes:
-	- ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  vsphereVolume:
-    volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-2"
-	fsType: ext4
-```
-
-1. Define PV using a YAML manifest file (for example, `mysql-pv-3.yaml`) containing a reference to the VMDK file:
-
-```
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mysql-pv-3
-spec:
-  capacity:
-	storage: 10Gi
-  accessModes:
-	- ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  vsphereVolume:
-    volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-3"
-	fsType: ext4
-```
-
-1. Define a StatefultSets object using a YAML manifest file (for example, `mysql-statefulsets.yaml`):
-
-```
-piVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: mysql
-spec:
-...
-volumeClaimTemplates:
-  - metadata:
-  	name: data
-	spec:
-  	accessModes: ["ReadWriteOnce"]
-  	resources:
+    ```yaml
+    kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: redis-master-claim
+    spec:
+      accessModes:
+    	- ReadWriteOnce
+      resources:
     	requests:
-      	storage: 10Gi
-```
+      	storage: 2Gi
+    ```
 
-<p class="note"><strong>Note</strong>: In the VolumeClaimTemplates, you must specify the required storage size for each replica. Do not to refer to any storage class.</p>
+1. Define a deployment using a YAML manifest file that references the PVC. For example, create a file named `redis-master.yaml` with the following contents:
 
-### Dynamic PV Provisioning Workflow
+    ```yaml
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: redis-master
+    …
+    spec:
+      template:
+        spec:
+          volumes:
+      	  - name: redis-master-data
+          persistentVolumeClaim:
+            claimName: redis-master-claim
+    ```
 
-For dynamic PV provisioning, the procedure is to define and create a PVC that will automatically (dynamically) trigger the creation of the PV and its backend VMDK file. When the PV is created, Kubernetes knows which volume instance (with associated capacity) is available for use. When a PVC or VolumeClaimTemplate (for StatefulSets) is requested, Kubernetes will choose an available PV and allocate it to the Pod deployment or StatefulSets workload.
+### <a id='static-pv-statefulsets'></a>Provision a Static PV for a StatefulSets Workload
 
-#### Dynamic PV Provisioning for Deployment Workloads
+To provision a static PV for a StatefulSets workload with three replicas, the procedure is as follows:
 
-For the **Deployment** (Pod) workload with dynamic PV provisioning, the procedure is as follows:
+1. Create VMDK files, replacing `DATASTORE` with your datastore directory name:
 
-1. Define StorageClass using a YAML manifest file (for example, `redis-sc.yaml`):
+    ```
+    [root@ESXi-1:~] cd /vmfs
+    [root@ESXi-1:/vmfs] cd volumes/
+    [root@ESXi-1:/vmfs/volumes] cd DATASTORE/
+    [root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed] cd kubevols/
+    [root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-1.vmdk
+    [root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-2.vmdk
+    [root@ESXi-1:/vmfs/volumes/7e6c0ca3-8c4873ed/kubevols] vmkfstools -c 10G mysql-pv-3.vmdk
+    ```
 
-```
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: thin-disk
-provisioner: kubernetes.io/vsphere-volume
-parameters:
-	datastore: Datastore-NFS-VM
-	diskformat: thin
-	fstype: ext3
-```
+1. Define a PV for the first replica using a YAML manifest file that contains a reference to the VMDK file. For example, create a file named `mysql-pv-1.yaml` with the following contents:
 
-1. Define PVC using a YAML manifest file (for example, `redis-master-claim.yaml`) where the PVC references the SC:
+    ```yaml
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: mysql-pv-1
+    spec:
+      capacity:
+    	storage: 10Gi
+      accessModes:
+    	- ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      vsphereVolume:
+        volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-1"
+    	fsType: ext4
+    ```
 
-```
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: redis-master-claim
-  annotations:
-	volume.beta.kubernetes.io/storage-class: thin-disk
-spec:
-  accessModes:
-	- ReadWriteOnce
-  resources:
-	requests:
-  	storage: 2Gi
-```
+1. Define a PV for the second replica using a YAML manifest file that contains a reference to the VMDK file. For example, create a file named `mysql-pv-2.yaml` with the following contents:
 
-<p class="note"><strong>Note</strong>: When the PVC is deployed, the PV (and associated VMDK file) is automatically created by the vSphere Cloud Provider plugin.
+    ```yaml
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: mysql-pv-2
+    spec:
+      capacity:
+    	storage: 10Gi
+      accessModes:
+    	- ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      vsphereVolume:
+        volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-2"
+    	fsType: ext4
+    ```
 
-1. Define a Pod deployment using YAML manifest file (for example, `redis-master.yaml`) that references the PVC:
+1. Define a PV for the third replica using a YAML manifest file that contains a reference to the VMDK file. For example, create a file named `mysql-pv-3.yaml` with the following contents:
 
-```
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: redis-master
-…
-spec:
- template:
-   spec:
-     volumes:
-  	- name: redis-master-data
-    	persistentVolumeClaim:
-      	claimName: redis-master-claim
-```
+    ```yaml
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: mysql-pv-3
+    spec:
+      capacity:
+    	storage: 10Gi
+      accessModes:
+    	- ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      vsphereVolume:
+        volumePath: "[NFS-LAB-DATASTORE] kubevols/mysql-pv-3"
+    	fsType: ext4
+    ```
 
-#### Dynamic PV Provisioning for StatefulSets Workloads
+1. Define a StatefultSets object using a YAML manifest file. For example, create a file named `mysql-statefulsets.yaml` with the following contents:
 
-For the **StatefulSets** (with 3 replicas) workload with dynamic PV provisioning, the procedure is as follows:
+    ```yaml
+    piVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: mysql
+    spec:
+    ...
+    volumeClaimTemplates:
+      - metadata:
+      	name: data
+    	spec:
+      	accessModes: ["ReadWriteOnce"]
+      	resources:
+        	requests:
+          	storage: 10Gi
+    ```
+    <p class="note"><strong>Note</strong>: In the volumeClaimTemplates section, you must specify the required storage size for each replica. Do not to refer to a StorageClass.</p>
 
-1. Define the StorageClass using a YAML manifest file (for example, `mysql-sc.yaml`):
+## <a id='dynamic-pv'></a>Provision a Dynamic PV
 
-```
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: my-storage-class
-provisioner: kubernetes.io/vsphere-volume
-parameters:
-	datastore: Datastore-NFS-VM
-	diskformat: thin
-	fstype: ext3
-```
+For dynamic PV provisioning, the procedure is to define and create a PVC that automatically triggers the creation of the PV and its backend VMDK file. When the PV is created, Kubernetes knows which volume instance is available for use. When a PVC or volumeClaimTemplate is requested, Kubernetes chooses an available PV and allocates it to the Deployment or StatefulSets workload.
 
-1. Define a StatefultSets object using a YAML manifest file (for example, `mysql-statefulsets.yaml`):
+### <a id='dynamic-pv-deployment'></a>Provision a Dynamic PV for Deployment Workloads
 
-```
-piVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: mysql
-spec:
-...
-volumeClaimTemplates:
-  - metadata:
-  	name: data
-	spec:
-  	accessModes: ["ReadWriteOnce"]
-      storageClassName: "my-storage-class"
-  	resources:
+For the Deployment workload with dynamic PV provisioning, the procedure is as follows:
+
+1. Define a StorageClass using a YAML manifest file. For example, create a file named `redis-sc.yaml` with the following contents:
+
+    ```yaml
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1
+    metadata:
+      name: thin-disk
+    provisioner: kubernetes.io/vsphere-volume
+    parameters:
+    	datastore: Datastore-NFS-VM
+    	diskformat: thin
+    	fstype: ext3
+    ```
+
+1. Define a PVC using a YAML manifest file that references the StorageClass. For example, create a file named `redis-master-claim.yaml` with the following contents:
+
+    ```yaml
+    kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: redis-master-claim
+      annotations:
+    	volume.beta.kubernetes.io/storage-class: thin-disk
+    spec:
+      accessModes:
+    	- ReadWriteOnce
+      resources:
     	requests:
-      	storage: 10Gi
-```
+      	storage: 2Gi
+    ```
+    <p class="note"><strong>Note</strong>: When you deploy the PVC, the vSphere Cloud Provider plugin automatically creates the PV and associated VMDK file.</p>
 
-<p class="note"><strong>Note</strong>: In the volumeClaimTemplates, specify the required storage size for each replica. Unlike static provisioning, with dymnamic PV provisioning case you must explicitly refer to the desired StorageClass.
+1. Define a Deployment using a YAML manifest file that references the PVC. For example, create a file named `redis-master.yaml` with the following contents:
+
+    ```yaml
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: redis-master
+    …
+    spec:
+      template:
+        spec:
+          volumes:
+      	  - name: redis-master-data
+        	persistentVolumeClaim:
+            claimName: redis-master-claim
+    ```
+
+### <a id='dynamic-pv-statefulsets'></a>Provision a Dynamic PV for StatefulSets Workloads
+
+To provision a static PV for a StatefulSets workload with three replicas, the procedure is as follows:
+
+1. Define a StorageClass using a YAML manifest file. For example, create a file named `mysql-sc.yaml` with the following contents:
+
+    ```yaml
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1
+    metadata:
+      name: my-storage-class
+    provisioner: kubernetes.io/vsphere-volume
+    parameters:
+    	datastore: Datastore-NFS-VM
+    	diskformat: thin
+    	fstype: ext3
+    ```
+
+1. Define a StatefultSets object using a YAML manifest file that references the StorageClass. For example, create a file named `mysql-statefulsets.yaml` with the following contents:
+
+    ```yaml
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: mysql
+    spec:
+    ...
+    volumeClaimTemplates:
+      - metadata:
+      	name: data
+    	spec:
+      	accessModes: ["ReadWriteOnce"]
+          storageClassName: "my-storage-class"
+      	resources:
+        	requests:
+          	storage: 10Gi
+    ```
+    <p class="note"><strong>Note</strong>: In the volumeClaimTemplates, specify the required storage size for each replica. Unlike static provisioning, you must explicitly refer to the desired StorageClass when you use dynamic PV provisioning.</p>
