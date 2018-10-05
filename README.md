@@ -23,7 +23,7 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 
 The `master` branch is used to publish the pre-release v1.3 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation. **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
-The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.1 documentation.
+The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
 
 The `1.1` branch is used to publish the live v1.1 version of the site. Create pull requests on `1.1` to contribute bug fixes or correct technical inaccuracies in the v1.1 documentation.
 
