@@ -42,7 +42,7 @@ To create the certificate from the **Networking** tab in the PKS tile, follow th
 1. On the same Linux VM, create a file named `pks-nsx-t-superuser.key` and copy the private key into it.
 1. Save both files.
 
-<p class="note"><strong>Note</strong>: The Linux VM should have network access to the NSX Manager. The PKS Client VM where you have installed the PKS CLI is a good place to perform these actions.</p>
+<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. The PKS Client VM where you have installed the PKS CLI is a good place to perform these actions.</p>
 
 ###<a id='variables'></a> Step 3. Export environment variables
 
@@ -129,24 +129,41 @@ curl -k -X GET \
 
 This option provides bash shell scripts for generating and registering the principal identity certificate and key.
 
+<p class="note"><strong>Note</strong>: The Linux VM where you run the scripts must have OpenSSL installed and have network access to the NSX Manager. The PKS Client VM where you have installed the PKS CLI is a good place to perform these actions.</p>
+
 ### Step 1: Run Script to Create and Register Certificate and Key
 
-Provided below is a script that generates a certificate and private key, and registers the certificate with the NSX Manager. When you install PKS on NSX-T, you will copy and paste the contents of the `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` into the NSX Manager Super User Principal Identity Certificate field on the **Networking** pane in the PKS tile.
+Provided below is the `create_certificate.sh` script that generates a certificate and private key, and uploads the certificate to the NSX Manager. Complete the following steps to run this script.
 
-1. On a Linux VM (such as the PKS Client VM), create a shell script file (for example `nano create_certificate.sh`).
+1. Log into a Linux VM in your PKS environment, such as the PKS Client VM.
+1. Run the following command to create an empty file for the first script: `nano create_certificate.sh`.
 1. Copy the script contents provided below to this file and save it.
-1. Change the `NSX_MANAGER_IP`, `NSX_MANAGER_USERNAME`, and `NSX_MANAGER_PASSWORD` value to match your environment.
-1. Run the script (for example, `bash create_certificate.sh`).
-1. Verify that the script successfully generates the cert and key, and registers the cert with the NSX Manager (the response should be the `CERTIFICATE_ID` and value).  
+1. Update the values for the first two lines to match your environment: 
+- NSX_MANAGER_IP – IP address of the NSX Manager host
+- NSX_MANAGER_USERNAME – Username for NSX Manager
+1. Save the script and run it using the following command: `bash create_certificate.sh`.
+1. When prompted enter the NSX_MANAGER_PASSWORD for the NSX user you specified in the script.
+1. Verify results. 
+- The certifcate (`pks-nsx-t-superuser.crt`) and private key (`pks-nsx-t-superuser.key`) are generated in the directory where the script was run; 
+- The certificate is uploaded to the NSX Manager and the CERTIFICATE_ID value is returned to the console. You need this ID for the second script.
+  
 
 ```
+#!/bin/bash
+#create_certificate.sh
+
 NSX_MANAGER="<NSX_MANAGER_IP>"
 NSX_USER="<NSX_MANAGER_USERNAME>"
-NSX_PASSWORD='<NSX_MANAGER_PASSWORD>'
+
+
 PI_NAME="pks-nsx-t-superuser"
 NSX_SUPERUSER_CERT_FILE="pks-nsx-t-superuser.crt"
 NSX_SUPERUSER_KEY_FILE="pks-nsx-t-superuser.key"
-NODE_ID=$(cat /proc/sys/kernel/random/uuid)
+
+stty -echo
+printf "Password: "
+read NSX_PASSWORD
+stty echo
 
 openssl req \
   -newkey rsa:2048 \
@@ -179,26 +196,40 @@ curl -k -X POST \
     -d "$cert_request"
 ```
 
-### Step 2: Run Script to Create and Register Principle Identity
+### Step 2: Run Script to Create and Register Principal Identity
 
-Provided below is a script that creates and registers the pricinple identity with the NSX Manager. This script requires the `CERTIFICATE_ID` returned from the previous script.
+Provided below is the `create_pi.sh` script that creates the principal identity and registers it with the NSX Manager. This script requires the `CERTIFICATE_ID` returned from the `create_certificate.sh` script.
 
-1. On the same Linux VM where you ran the previous script (such as the PKS Client VM), create a shell script file (for example, `nano create_pi.sh`). 
+<p class="note"><strong>Note</strong>: Perform these steps on the same Linux VM where you ran the `create_certificate.sh` script.</p>
+
+1. Run the following command to create an empty file for the second script: `nano create_pi.sh`.
 1. Copy the script contents provided below to this file and save it.
-1. Change the `NSX_MANAGER_IP`, `NSX_MANAGER_USERNAME`, and `NSX_MANAGER_PASSWORD` values to match your environment.
-1. Provide the `CERTIFCATE_ID` value returned from the previous script. 
-1. Run the script (for example, `bash create_pi.sh`).
+1. Update the values for the first three lines to match your environment: 
+- NSX_MANAGER_IP – IP address of the NSX Manager host
+- NSX_MANAGER_USERNAME – Username for NSX Manager
+- CERTIFICATE_ID – Response from the `create_certificate.sh` script
+1. Save the script and run it using the following command: `bash create_pi.sh`.
+1. When prompted enter the NSX_MANAGER_PASSWORD for the NSX user you specified in the script.
+1. When you configure PKS for deployment, copy and paste the contents of the `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the NSX Manager Super User Principal Identity Certificate fields in the **Networking** pane of the PKS tile. For more information, see the [Networking](installing-nsx-t.html#networking).
 
 ```
+#!/bin/bash
+#create_pi.sh
+
 NSX_MANAGER="<NSX_MANAGER_IP>"
 NSX_USER="<NSX_MANAGER_USERNAME>"
-NSX_PASSWORD='<NSX_MANAGER_PASSWORD>'
+CERTIFICATE_ID='<CERTIFICATE_ID>'
+
+
 PI_NAME="pks-nsx-t-superuser"
 NSX_SUPERUSER_CERT_FILE="pks-nsx-t-superuser.crt"
 NSX_SUPERUSER_KEY_FILE="pks-nsx-t-superuser.key"
 NODE_ID=$(cat /proc/sys/kernel/random/uuid)
 
-CERTIFICATE_ID='<CERTIFCATE_ID>'
+stty -echo
+printf "Password: "
+read NSX_PASSWORD
+stty echo
 
 pi_request=$(cat &lt;&lt;END
     {
