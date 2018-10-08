@@ -31,13 +31,36 @@ Before you begin backing up the PKS control plane, perform the following steps:
   <pre>BOSH-CLI-CREDENTIALS deployments | grep pivotal-container-service</pre>
   Your PKS BOSH deployment name begins with `pivotal-container-service` and includes a unique identifier.
 
+## <a id='connect-to-jumpbox'></a> Connect to Your Jumpbox
+
+You can establish a connection to your jumpbox in one of the following ways.
+
+* [SSH](#ssh)
+* [BOSH_ALL_PROXY](#bosh-all-proxy)
+
+For general information about the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html).
+
+### <a id='ssh'></a> SSH
+
+SSH into your jumpbox. If you connect to your jumpbox with SSH, you must run the BBR commands in the following sections from within your jumpbox.
+
+### <a id='bosh-all-proxy'></a> BOSH_ALL_PROXY
+
+Set the `BOSH_ALL_PROXY` environment variable. Using `BOSH_ALL_PROXY` opens an SSH tunnel with SOCKS5 to the jumpbox. This tunnel allows you to forward requests to the BOSH Director through the jumpbox from your local machine.
+
+Use one of the following methods to create the tunnel:
+
+* **Tunnel created by BOSH CLI**: To provide the BOSH CLI with the SSH credentials it needs to create the tunnel, run the following command: `export BOSH_ALL_PROXY=ssh+socks5://jumpbox@jumpbox-ip:12345?private_key=jumpbox.key`
+<br>
+<br>
+* **Tunnel established separately**:
+
+  1. To establish the tunnel and make it available on a local port, run the following command: `ssh -4 -D 12345 -fNC jumpbox@jumpbox-ip -i jumpbox.key`
+  1. To provide the BOSH CLI with access to the tunnel through use of the `BOSH_ALL_PROXY` environment variable, run the following command: `export BOSH_ALL_PROXY=socks5://localhost:12345`
+
 ## <a id='back-up-deployment'></a> Back up the PKS Control Plane
 
-Perform the following steps to check that your BOSH Director is reachable and has a deployment that can be backed up:
-
-1. SSH into your jumpbox. For general information about the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html).
-
-2. Run the BBR pre-backup check:
+1. Run the BBR pre-backup check to confirm that your BOSH Director is reachable and has a deployment that can be backed up:
 
     ```
     BOSH_CLIENT_SECRET=SECRET=BOSH-CLIENT-SECRET \
@@ -88,11 +111,11 @@ Perform the following steps to check that your BOSH Director is reachable and ha
     --ca-cert bosh.ca.cert \
     pre-backup-check</pre>
 
-3. If the pre-backup check command fails, perform the following actions:
+1. If the pre-backup check command fails, perform the following actions:
     * Run the command again, adding the `--debug` flag to enable debug logs. For more information, see [BBR Logging](bbr-logging.html).
     * Make any correction suggested in the output and run the pre-backup check again. For example, the deployment that you selected might not have the correct backup scripts, or the connection to the BOSH Director failed.
 
-4. If the pre-backup check succeeds, run the BBR backup command from your jumpbox to back up the PKS control plane:
+1. If the pre-backup check succeeds, run the BBR backup command from your jumpbox to back up the PKS control plane:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
@@ -147,9 +170,9 @@ Perform the following steps to check that your BOSH Director is reachable and ha
 
     <p class="note"><strong>Note</strong>: The BBR backup command can take a long time to complete. You can run it independently of the SSH session so that the process can continue running even if your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you can instead run the command in a <code>screen</code> or <code>tmux</code> session.</p>
 
-5. If the command completes successfully, follow the steps in [Manage Your Backup Artifact](#good-practices) below.
+1. If the command completes successfully, follow the steps in [Manage Your Backup Artifact](#good-practices) below.
 
-6. If the backup command fails, perform the following actions:
+1. If the backup command fails, perform the following actions:
     * Run the command again, adding the `--debug` flag to enable debug logs. For more information, see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
 
