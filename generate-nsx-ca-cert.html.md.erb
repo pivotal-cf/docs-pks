@@ -5,21 +5,27 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
+This topic describes how to generate and register the NSX Manager certificate authority (CA) certificate for Pivotal Container Service (PKS) on vSphere with NSX-T.
+
 ##<a id='certificates-nsx-mgr'></a> About the NSX Manager CA Certificate
 
-The NSX Manager CA Certificate is used to authenticate with the NSX Manager. You create an IP-based, self-signed certificate and register it with NSX Manager. During PKS installation on NSX-T, you will need to provide this certificate in the **NSX Manager CA Cert** field on the Networking Tab in the PKS tile.
+The NSX Manager CA certificate is used to authenticate with the NSX Manager. You create an IP-based, self-signed certificate and register it with the NSX Manager. During PKS installation on vSphere with NSX-T, you provide this certificate in the **NSX Manager CA Cert** field in the **Networking** pane in the PKS tile.
 
-	<img src="images/nsxt/nsx-ca-cert.png" alt="NSX Manager CA Certificate" width="375">
+See the **NSX Manager CA Cert** field in the following screenshot:
 
-By default NSX-Manager comes with an API certificate that only has its hostname as the subject and issuer of the self-signed certificate. Ops Manager requires strict certificate validation, and expects either the NSX-Manager IP Address or the FQDN of NSX Manager in the subject and issuer of the self-signed certificate. As a result, you need to regenerate the self-signed certificate using the FQDN in the subject and issuer field and then register the certificate with NSX Manager using the NSX API.
+<img src="images/nsxt/nsx-ca-cert.png" alt="NSX Manager CA certificate configuration" width="375">
 
-The **Disable SSL certificate verification** option lets you disable validation of the NSX Manager CA cert. This option should only be selected for testing purposes. 
+For configuration information, see the [Networking](installing-nsx-t.html#networking) section of _Installing PKS on vSphere with NSX-T_.
 
-<p class="note"><strong>Note</strong>: If you elect to disable SSL certificate verification, do not populate the CA cert field. If you do, the PKS installation will fail. If you populate the CA cert field and later decide to disable SSL certificate verification, you must remove the certificate.</p>
+By default, the NSX Manager includes a self-signed API certificate with its hostname as the subject and issuer. Ops Manager requires strict certificate validation and expects the subject and issuer of the self-signed certificate to be either the IP address or fully qualified domain name (FQDN) of the NSX Manager. As a result, you need to regenerate the self-signed certificate using the FQDN of the NSX Manager in the subject and issuer field and then register the certificate with the NSX Manager using the NSX API.
 
-##<a id='generate-self-signed-certificate'></a> Step 1: Generate a Self-Signed CA Certificate for NSX Manager
+The **Disable SSL certificate verification** option lets you disable validation of the NSX Manager CA certificate. Select this option for testing purposes only.
 
-Complete the following steps to generate a self0sgned CA certficate for the NSX Manager. Later, when you install PKS on NSX-T, copy and paste the contents of the `nsx.crt` certificate into the **NSX Manager CA Cert** field on the **Networking** pane in the PKS tile.
+<p class="note"><strong>Note</strong>: If you disable SSL certificate verification, leave the CA certificate field blank. If you enter text in this field when SSL certificate verification is disabled, the PKS installation fails. If you populate the CA certificate field and later decide to disable SSL certificate verification, you must remove the certificate.</p>
+
+##<a id='generate-self-signed-certificate'></a> Step 1: Generate a Self-Signed CA Certificate for the NSX Manager
+
+Complete the following steps to generate a self-signed CA certificate for the NSX Manager:
 
 1. Create a file for the certificate request parameters named `nsx-cert.cnf`.
 
@@ -84,29 +90,32 @@ For example:
 
 ##<a id='import-certificate'></a> Step 2: Import the Certificate to NSX Manager
 
-In this section you import the self-sgined CA certificate you generated in the previous to the NSX Manager. For additional guidance, see [Import a CA Certificate](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-4135E962-E3EE-4285-8A66-E54E43937AE9.html) in the NSX-T documentation.
+In this section you import the self-signed CA certificate you generated in the previous step to the NSX Manager. For additional guidance, see [Import a CA Certificate](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-4135E962-E3EE-4285-8A66-E54E43937AE9.html) in the NSX-T documentation.
 
-1. Log into the NSX Manager UI.
+Complete the following steps to import the certificate to the NSX Manager:
 
-1. Navigate to System > Trust > Certificates.
+1. Log in to the NSX Manager UI.
 
-1. Click Import > Import CA Certficate.
+1. Navigate to **System > Trust > Certificates**.
 
-	<img src="images/nsxt/import-cert.png" alt="NSX Manager CA Certificate" width="575">
+1. Click **Import > Import CA Certificate**.
+
+	<img src="images/nsxt/import-cert.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="575">
 
 1. Give the certificate a unique name, such as `NSX-API-CERT-NEW`.
-
-<p class="note"><strong>Note</strong>: Because the NSX Manager ships with a default CA certificate (typically named `NSX-API-CERT`), make sure you use a unique name for the new CA certificate you are importing.</p>
+  <p class="note"><strong>Note</strong>: Use a unique name for the new CA certificate you import. The default NSX Manager CA certificate is typically named <code>NSX-API-CERT</code>.</p>
 
 1. Browse to and select the CA certificate you generated in the previous step.
 
-1. Click Save.
+1. Click **Save**.
 
-	<img src="images/nsxt/import-cert-2.png" alt="NSX Manager CA Certificate" width="475">
+	<img src="images/nsxt/import-cert-2.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475">
 
 ##<a id='register-certificate'></a> Step 3: Register the Certificate with NSX Manager
 
-The last step is to exchange the default CA certificate with the new CA certficate you have generated here. This must be done using the NSX API.
+The last step is to exchange the default CA certificate with the new CA certificate you generated. You must use the NSX API.
+
+Complete the following steps to register the certificate with the NSX Manager:
 
 1. Get the ID of the certificate. Run the following command, replacing `CERTIFICATE-NAME` with the certificate name:
 
@@ -122,4 +131,3 @@ The last step is to exchange the default CA certificate with the new CA certfica
     curl --insecure -u admin:'admin_pw' -X \
     POST 'https://NSX-Manager-IP-Address/api/v1/node/services/http?action=apply_certificate&certificate_id=CERTIFICATE-ID'
     ```
-
