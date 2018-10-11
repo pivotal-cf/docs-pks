@@ -15,13 +15,29 @@ See the following table for supported use cases:
 
 Profile Type 	| Description
 ----------------|----------------------------
-Load balancer sizing		| Customize the size of the load balancer deployed with a Kubernetes cluster.
-Routable pods	| Give Kubernetes cluster pods routable IP addresses from a specified IP block.
+[Load balancer sizing](lb-sizing)		| Customize the size of the load balancer deployed with a Kubernetes cluster.
+[Routable pods](routable-pods)	| Give Kubernetes cluster pods routable IP addresses from a specified IP block.
+
+## <a id='use-cases'></a> Use Cases for Network Profiles
+
+This section describes the use cases for network profiles.
+
+### <a id='lb-sizing'></a> Load Balancer Sizing
 
 Using a network profile, you can customize the size of the load balancer that is deployed when a Kubernetes cluster is created using PKS.
 See [Load Balancers in PKS Deployments on vSphere with NSX‑T](about-lb.html#with-nsx-t) for more information.
 
-Using a network profile, you can give pods routable addresses from a specific IP block, instead of using the global default NAT’ed approach. Routable pod addresses provide traceability of pods making egress requests. To use routable pods, you must create the dedicated IP block. The supported subnet size is /24. See [Create NSX-T Objects](nsxt-prepare-env.html#create-objects-network-objects) for instructions on creating IP blocks.
+### <a id='routable-pods'></a> Routable Pods Network
+
+Using a network profile, you can give pods routable IP addresses from a specific IP block, instead of using the global default NAT’ed approach. Routable pod addresses provide traceability of pods making egress requests. To use routable pods, you must create the dedicated IP block. The supported subnet size is /24. See [Create NSX-T Objects](nsxt-prepare-env.html#create-objects-network-objects) for instructions on creating IP blocks.
+
+When you configure NSX-T for PKS, you are required to create the [Pods IP Block](nsxt-prepare-env.html#plan-ip-blocks). This subnet is assumed to be non-routable. When a Kubernetes cluster is deployed, each pod is given an IP address from the **Pods IP Block**. Since the pod IP addresses are non-routable, the system creates a SNAT rule on the T0 router to allow network ingress to the pods. This deployment is shown in the diagram below.
+
+  <img src="images/nsxt/routable-pods-01.png" alt="Non-routable Pod Network with SNAT">
+
+Routable pods using network profiles lets you override the default behavior. After PKS is deployed, you define a /24 routable IP block in NSX-T. You then define a network profile that references the routable IP block. When you deploy a Kubernetes cluster using that network profile, each pod is given a routable IP address. With this configuration there is no NAT rule required since the pod IPs are routable. This configuration is shown in the diagram below.
+
+  <img src="images/nsxt/routable-pods-02" alt="Routable Pod Network Using Network Profiles">
 
 ## <a id='permissions'></a> Required Permissions
 
@@ -64,17 +80,18 @@ The following network profile, `np-lb-med.json`, defines a medium load balancer:
 }
 ```
 
-The following network profile, `np-routable-pods.json`, defines routable pod addresses from a /24 IP block:
+The following network profile, `np-routable-pods.json`, defines routable pod addresses from two /24 IP blocks:
 
 ```
 {
-  "description": "Network profile with small load balancer, routable pod network using IP block eebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+  "description": "Network profile with small load balancer and two routable pod networks",
   "name": "small-routable-pod",
   "parameters": {
     "lb_size": "small",
     "pod_routable": true,
     "pod_ip_block_ids": [
-      "ebe78a74-a5d5-4dde-ba76-9cf4067eee55"
+      "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+      "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
     ]
   }
 }
@@ -155,7 +172,7 @@ $ pks network-profiles
 
 	Name				Description 
 	lb-profile-medium	Network profile for medium size NSX-T load balancer
-	small-routable-pod 	Network profile with small load balancer and routable pod network using IP block
+	small-routable-pod 	Network profile with small load balancer and two routable pod networks
 </pre>
 
 ### <a id="create-cluster"></a> Create a Cluster with a Network Profile
