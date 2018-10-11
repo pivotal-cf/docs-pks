@@ -11,52 +11,72 @@ To perform a restore, see [Restoring the PKS Control Plane](bbr-restore.html).
 
 ## <a id='prereqs'></a> Prerequisites
 
-If you want to use the result of the backup to restore to a destination environment,
-verify that the current environment and the destination environment are compatible.
-For more information, see the [Compatibility of Restore](bbr-restore.html#compatibility) section of _Restoring the PKS Control Plane_.
+If you want to use the result of the backup to restore to a destination environment, verify that
+the current environment and the destination environment are compatible.
+For more information, see the [Compatibility of Restore](bbr-restore.html#compatibility) section of
+_Restoring the PKS Control Plane_.
 
 Before you begin backing up the PKS control plane, perform the following steps:
 
-1. Download the root CA certificate for your PKS deployment:
-  1. From the Ops Manager Installation Dashboard, click your username in the top right corner.
-  1. Navigate to <strong>Settings > Advanced</strong>.
-  1. Click <strong>Download Root CA Cert</strong>.
+1. Download the root CA certificate for your PKS deployment as follows:
+  1. On the Ops Manager Installation Dashboard, in the top right corner, click your username.
+  1. Navigate to **Settings** > **Advanced**.
+  1. Click **Download Root CA Cert**.
 
-1. Locate your PKS BOSH deployment name:
-  1. From the Ops Manager Installation Dashboard, click the Director tile.
-  1. Click the **Credentials** tab.
+1. Locate and record your PKS BOSH deployment name as follows:
+  1. On the Ops Manager Installation Dashboard, click the Director tile.
+  1. In the Director tile, click the **Credentials** tab.
   1. Navigate to **Bosh Commandline Credentials** and click **Link to Credential**.
   1. Copy the credential value.
-  1. From the command line, run the following command to retrieve your PKS BOSH deployment name, replacing `BOSH-CLI-CREDENTIALS` with the credential value that you copied in the previous step:
+  1. On the command line, run the following command to retrieve your PKS BOSH deployment name.
+  Replace `BOSH-CLI-CREDENTIALS` with the credential value you copied in the previous step:
   <pre>BOSH-CLI-CREDENTIALS deployments | grep pivotal-container-service</pre>
-  Your PKS BOSH deployment name begins with `pivotal-container-service` and includes a unique identifier.
+  <p class="note"><strong>Note</strong>: Your PKS BOSH deployment name begins with
+  "pivotal-container-service" and includes a unique identifier.</p>
 
 ## <a id='connect-to-jumpbox'></a> Connect to Your Jumpbox
 
 You can establish a connection to your jumpbox in one of the following ways.
 
-* [SSH](#ssh)
-* [BOSH_ALL_PROXY](#bosh-all-proxy)
+* [Connect with SSH](#ssh)
+* [Connect with BOSH_ALL_PROXY](#bosh-all-proxy)
 
 For general information about the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html).
 
-### <a id='ssh'></a> SSH
+### <a id='ssh'></a> Connect with SSH
 
-SSH into your jumpbox. If you connect to your jumpbox with SSH, you must run the BBR commands in the following sections from within your jumpbox.
+SSH into your jumpbox. If you connect to your jumpbox with SSH, you must run the BBR commands in
+the following sections from within your jumpbox.
 
-### <a id='bosh-all-proxy'></a> BOSH_ALL_PROXY
+### <a id='bosh-all-proxy'></a> Connect with BOSH_ALL_PROXY
 
-Set the `BOSH_ALL_PROXY` environment variable. Using `BOSH_ALL_PROXY` opens an SSH tunnel with SOCKS5 to the jumpbox. This tunnel allows you to forward requests to the BOSH Director through the jumpbox from your local machine.
+Set and use `BOSH_ALL_PROXY`. Using `BOSH_ALL_PROXY` opens an SSH tunnel with SOCKS5 to the
+jumpbox. This tunnel allows you to forward requests to the BOSH Director through the jumpbox from
+your local machine.
 
 Use one of the following methods to create the tunnel:
 
-* **Tunnel created by BOSH CLI**: To provide the BOSH CLI with the SSH credentials it needs to create the tunnel, run the following command: `export BOSH_ALL_PROXY=ssh+socks5://jumpbox@jumpbox-ip:12345?private_key=jumpbox.key`
-<br>
-<br>
+* **Tunnel created by BOSH CLI**: To provide the BOSH CLI with the SSH credentials it needs to
+create the tunnel, run the following command:
+
+    ```
+	 export BOSH_ALL_PROXY=ssh+socks5://jumpbox@jumpbox-ip:12345?private_key=jumpbox.key
+	 ```
+
 * **Tunnel established separately**:
 
-  1. To establish the tunnel and make it available on a local port, run the following command: `ssh -4 -D 12345 -fNC jumpbox@jumpbox-ip -i jumpbox.key`
-  1. To provide the BOSH CLI with access to the tunnel through use of the `BOSH_ALL_PROXY` environment variable, run the following command: `export BOSH_ALL_PROXY=socks5://localhost:12345`
+  1. To establish the tunnel and make it available on a local port, run the following command:
+
+    ```
+    ssh -4 -D 12345 -fNC jumpbox@jumpbox-ip -i jumpbox.key
+    ```
+	
+  1. To provide the BOSH CLI with access to the tunnel through use of the `BOSH_ALL_PROXY`
+  environment variable, run the following command:
+
+    ```
+    export BOSH_ALL_PROXY=socks5://localhost:12345
+    ```
 
 <p class="note"><strong>Note</strong>: Using <code>BOSH_ALL_PROXY</code> can result in longer
 backup and restore times due to network performance degradation. Because all operations must pass
@@ -64,7 +84,8 @@ through the proxy, moving backup artifacts can be significantly slower.</p>
 
 ## <a id='back-up-deployment'></a> Back up the PKS Control Plane
 
-1. Run the BBR pre-backup check to confirm that your BOSH Director is reachable and has a deployment that can be backed up:
+1. Run the BBR pre-backup check to confirm that your BOSH Director is reachable and has a
+deployment that can be backed up:
 
     ```
     BOSH_CLIENT_SECRET=SECRET=BOSH-CLIENT-SECRET \
@@ -116,10 +137,14 @@ through the proxy, moving backup artifacts can be significantly slower.</p>
     pre-backup-check</pre>
 
 1. If the pre-backup check command fails, perform the following actions:
-    * Run the command again, adding the `--debug` flag to enable debug logs. For more information, see [BBR Logging](bbr-logging.html).
-    * Make any correction suggested in the output and run the pre-backup check again. For example, the deployment that you selected might not have the correct backup scripts, or the connection to the BOSH Director failed.
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+    see [BBR Logging](bbr-logging.html).
+    * Make any correction suggested in the output and run the pre-backup check again. For example,
+    the deployment that you selected might not have the correct backup scripts, or the connection
+    to the BOSH Director failed.
 
-1. If the pre-backup check succeeds, run the BBR backup command from your jumpbox to back up the PKS control plane:
+1. If the pre-backup check succeeds, run the BBR backup command from your jumpbox to back up the
+PKS control plane:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
@@ -130,7 +155,8 @@ through the proxy, moving backup artifacts can be significantly slower.</p>
     --ca-cert PATH-TO-BOSH-SERVER-CERT \
     backup
     ```
-    Replace the placeholder text using the information in the following table. These are the same values as shown in the previous table.
+    Replace the placeholder text using the information in the following table. These are the same
+    values as shown in the previous table.
     <table>
       <tr>
         <th width="32%">Placeholder Text</th>
@@ -158,7 +184,9 @@ through the proxy, moving backup artifacts can be significantly slower.</p>
         <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section.</td>
       </tr>
     </table>
-    <p class="note"><strong>Note</strong>: If you want to include the manifest in the backup artifact, add the <code>--with-manifest</code> flag. However, be aware that the backup artifact then includes credentials that you must keep secret.</p>
+    <p class="note"><strong>Note</strong>: If you want to include the manifest in the backup
+    artifact, add the <code>--with-manifest</code> flag. However, be aware that the backup artifact
+    then includes credentials that you must keep secret.</p>
 
     For example:
 
@@ -172,12 +200,16 @@ through the proxy, moving backup artifacts can be significantly slower.</p>
     backup
     </pre>
 
-    <p class="note"><strong>Note</strong>: The BBR backup command can take a long time to complete. You can run it independently of the SSH session so that the process can continue running even if your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you can instead run the command in a <code>screen</code> or <code>tmux</code> session.</p>
+    <p class="note"><strong>Note</strong>: The BBR backup command can take a long time to complete.
+    You can run it independently of the SSH session so that the process can continue running even 
+    if your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you can
+    run the command in a <code>screen</code> or <code>tmux</code> session instead.</p>
 
 1. If the command completes successfully, follow the steps in [Manage Your Backup Artifact](#good-practices) below.
 
 1. If the backup command fails, perform the following actions:
-    * Run the command again, adding the `--debug` flag to enable debug logs. For more information, see [BBR Logging](bbr-logging.html).
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+    see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
 
 ## <a id="recover-from-failing-command"></a> Recover from a Failing Command
@@ -196,11 +228,12 @@ If the backup fails, follow these steps:
 ## <a id='cancel-backup'></a> Cancel a Backup
 
 Backups can take a long time.
-If you need to cancel a backup, for example if you realize that the backup is going to fail
-or that your developers need to push an app in a hurry, follow these steps:
+If you need to cancel a backup, for example if you realize that the backup is going to fail or that
+your developers need to push an app in a hurry, follow these steps:
 
 1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
-1. Because stopping a backup can leave the system in an unusable state and prevent additional backups, follow the procedures in [Clean up After a Failed Backup](#manual-clean) below.
+1. Because stopping a backup can leave the system in an unusable state and prevent additional
+backups, follow the procedures in [Clean up After a Failed Backup](#manual-clean) below.
 
 ## <a id="manual-clean"></a> Clean up After a Failed Backup
 
@@ -208,7 +241,8 @@ If your backup process fails, it might leave the BBR backup folder on the instan
 subsequent attempts to backup to fail.
 In addition, BBR might not have run the post-backup scripts, leaving the instance in a locked state.
 
-If the PKS control plane backup failed, run the following command to use the BBR cleanup script to clean up:
+If the PKS control plane backup failed, run the following command to use the BBR cleanup script to
+clean up:
 
 ```
 BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
@@ -220,7 +254,8 @@ bbr deployment \
 backup-cleanup
 ```
 
-Replace the placeholder text using the information in the following table. These are the same values as shown in the previous table.
+Replace the placeholder text using the information in the following table. These are the same
+values as shown in the previous table.
 <table>
   <tr>
     <th width="32%">Placeholder Text</th>
@@ -248,7 +283,9 @@ Replace the placeholder text using the information in the following table. These
     <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section.</td>
   </tr>
 </table>
-<p class="note"><strong>Note</strong>: If you want to include the manifest in the backup artifact, add the <code>--with-manifest</code> flag. However, be aware that the backup artifact then includes credentials that you must keep secret.</p>
+<p class="note"><strong>Note</strong>: If you want to include the manifest in the backup artifact,
+add the <code>--with-manifest</code> flag. However, be aware that the backup artifact then includes
+credentials that you must keep secret.</p>
 
 For example:
 
@@ -266,10 +303,14 @@ backup-cleanup
 
 Keep your backup artifact safe by following these steps:
 
-1. Move the backup artifact off the jumpbox to your storage space. BBR stores each backup in a subdirectory named `DEPLOYMENT-TIMESTAMP` within the current working directory. The backup created by BBR consists of a folder with the backup artifacts and metadata files.
+1. Move the backup artifact off the jumpbox to your storage space. BBR stores each backup in a
+subdirectory named `DEPLOYMENT-TIMESTAMP` within the current working directory. The backup created
+by BBR consists of a folder with the backup artifacts and metadata files.
 
 1. Compress and encrypt the backup artifacts when storing them.
 
-1. Make redundant copies of your backup and store them in multiple locations. This minimizes the risk of losing your backups in the event of a disaster.
+1. Make redundant copies of your backup and store them in multiple locations. This minimizes the
+risk of losing your backups in the event of a disaster.
 
-1. Each time you redeploy PKS, test your backup artifact by following the procedures in [Restoring the PKS Control Plane](bbr-restore.html).
+1. Each time you redeploy PKS, test your backup artifact by following the procedures in
+[Restoring the PKS Control Plane](bbr-restore.html).
