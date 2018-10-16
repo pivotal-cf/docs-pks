@@ -26,7 +26,7 @@ The `1.2` branch is used to publish the live v1.2 version of the site. Create pu
 
 The `1.1` branch is used to publish the live v1.1 version of the site. Create pull requests on `1.1` to contribute bug fixes or correct technical inaccuracies in the v1.1 documentation.
 
-The `1.0-publish` branch is no longer maintained. A PDF of the PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.0.pdf.
+The `1.0-publish` and `0.8` branches are no longer maintained. A PDF of the PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.0.pdf.
 
 ## How To Use Bookbinder To View Your Docs
 
