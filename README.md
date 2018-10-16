@@ -14,6 +14,8 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 
 ## Versions and Branching
 
+| **Branch Name** | **Content** | **Location** |
+|-----------------|-------------|--------------|
 | `master` | PKS 1.3.x pre-release content | https://docs-pcf-staging.cfapps.io/runtimes/pks/1-3/index.html |
 | `1.2` | PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
 | `1.1` | PKS 1.1.x released content | https://docs.pivotal.io/runtimes/pks/1-1/index.html |
