@@ -1,0 +1,135 @@
+---
+title: Viewing and Exporting Usage Data
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how operators can view and export usage information from
+their Pivotal Container Service (PKS) deployment. Operators can use this data to
+calculate billed usage, chargeback customers, and generate reports.
+
+The PKS database stores the following pod usage data:
+
+- **Watermark**: the greatest number of pods that run at a single time.
+- **Consumption**: the total memory and CPU usage of all pods.
+
+To extract either type of usage data from your PKS deployment, you must
+`bosh ssh` into your PKS API VM.
+
+## <a id="about"></a>About Usage Data
+
+### <a id="about-watermark"></a>Watermark Data
+
+The PKS database stores comma-separated watermark data about the number of pods
+that run simultaneously in your PKS deployment. You can view the watermark data
+on the command line or export it to a comma-separated values (`.csv`) file.
+
+The following is an example of a watermark usage data export:
+
+```
+id,collect_time,day,month,year,agent,agent_pod_cnt,total_pod_cnt,high_watermark_since_install_pod_cnt,high_watermark_since_install_date
+1,2018-06-08 01:16:22,7,6,2018,Service-instance_61916de4-8abe-4ec7-a67b-e2568c83dbe0,1,1,1,2018-06-08 01:16:22
+2,2018-06-09 01:16:24,8,6,2018,service-instance_61916de4-8abe-4ec7-a67b-e2568c83dbe0,1,1,1,2018-06-08 01:16:22
+3,2018-06-10 01:16:34,9,6,2018,service-instance_61916de4-8abe-4ec7-a67b-e2568c83dbe0,1,1,1,2018-06-08 01:16:22
+4,2018-06-12 01:12:25,11,6,2018,service-instance_61916de4-8abe-4ec7-a67b-e2568c83dbe0,1,1,1,2018-06-12 01:12:25
+5,2018-06-26 01:16:38,25,6,2018,service-instance_748709f7-41be-4c5f-9123-78874caeb602,3,3,3,2018-06-26 01:16:38
+6,2018-06-28 01:16:59,27,6,2018,service-instance_748709f7-41be-4c5f-9123-78874caeb602,3,3,3,2018-06-28 01:16:59
+```
+
+The following table describes the fields included in the watermark usage data:
+
+<table>
+  <tr>
+    <th>Field Name</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><b>id</b></td>
+    <td>Unique watermark record identifier</td>
+  </tr>
+  <tr>
+    <td><b>collect_time</b></td>
+    <td>The date when the agent collects the watermark record</td>
+  </tr>
+  <tr>
+    <td><b>day</b></td>
+    <td>The day that corresponds to the watermark record</td>
+  </tr>
+  <tr>
+    <td><b>month</b></td>
+    <td>The month that corresponds to the watermark record</td>
+  </tr>
+  <tr>
+    <td><b>year</b></td>
+    <td>The year that corresponds to the watermark record</td>
+  </tr>
+  <tr>
+    <td><b>agent</b></td>
+    <td>The name of the pod that contains the agent</td>
+  </tr>
+  <tr>
+    <td><b>agent_pod_cnt</b></td>
+    <td>The maximum number of pods in the cluster on the given day</td>
+  </tr>
+  <tr>
+    <td><b>total_pod_cnt</b></td>
+    <td>The maximum number of pods in the deployment on the given day</td>
+  </tr>
+  <tr>
+    <td><b>high_watermark_since_install_pod_cnt</b></td>
+    <td>The maximum number of pods in the deployment since installation</td>
+  </tr>
+  <tr>
+    <td><b>high_watermark_since_install_date</b></td>
+    <td>The date when the agent logs the maximum number of pods in the deployment</td>
+  </tr>
+</table>
+
+
+### <a id="about-consumption"></a>Consumption Data
+
+## <a id="bosh-ssh"></a>SSH into the PKS API VM
+
+To SSH into your PKS API VM using BOSH, follow the steps below:
+
+<ol>
+<%= partial 'bosh-ssh' %>
+</ol>
+
+## <a id="watermark"></a>Locate and Export Watermark Usage Data
+
+To locate and export the watermark usage data for your PKS deployment, follow
+the steps below:
+
+1. From the PKS API VM, create a new file named `print-watermark.sh`.
+
+1. Paste the following contents into the `print-watermark.sh` file:
+
+    ```bash
+    #! /bin/bash
+
+    set -e
+
+    db_username="$(grep 'DBName: telemetry' -A2 /var/vcap/jobs/mysql/config/mariadb_ctl_config.yml | grep 'User' | tr -d ' ' | cut -d':' -f2)"
+  db_password="$(grep 'DBName: telemetry' -A2 /var/vcap/jobs/mysql/config/mariadb_ctl_config.yml | grep 'Password' | tr -d ' ' | cut -d':' -f2)"
+
+    mysql_cmd="/var/vcap/packages/mariadb/bin/mysql -u$db_username -h 127.0.0.1 -p$db_password"
+
+    watermark_select_result="$($mysql_cmd --execute="use telemetry; select * from pkswatermark order by collect_time")"
+
+    watermark_csv="$(echo "$watermark_select_result" | tr '\t' ',')"
+
+    echo "$watermark_csv"
+    ```
+
+1. To print all watermark data to the terminal window, run the following command:
+    <pre class="terminal">$ bash print-watermark.sh</pre>
+    <p class="note"><strong>Note</strong>: To print the most recent watermark data entries, append <code>| tail -nNUMBER</code> to the above command. For example, to display the five most recent watermarks, run <code>bash print-watermark.sh | tail -n5</code>.</p>
+
+1. (Optional) To write the data to a `.csv` file, run the following command:
+    <pre class="terminal">$ bash print-watermark.sh > watermarks-$(date -u +"%Y-%m-%dT%H:%M:%SZ").csv</pre>
+
+## <a id="consumption"></a>Locate Consumption Usage Data
+
+To locate the consumption data for your PKS deployment, follow the steps below:
