@@ -43,7 +43,7 @@ id,collect_time,day,month,year,agent,agent_pod_cnt,total_pod_cnt,high_watermark_
 6,2018-06-28 01:16:59,27,6,2018,service-instance_748709f7-41be-4c5f-9123-78874caeb602,3,3,3,2018-06-28 01:16:59
 ```
 
-The following table describes the fields included in the watermark usage data:
+The following table describes the fields related to watermark usage data:
 
 <table>
   <tr>
@@ -52,23 +52,23 @@ The following table describes the fields included in the watermark usage data:
   </tr>
   <tr>
     <td><b>id</b></td>
-    <td>Unique watermark record identifier</td>
+    <td>Unique record identifier</td>
   </tr>
   <tr>
     <td><b>collect_time</b></td>
-    <td>The date when the agent collects the watermark record</td>
+    <td>The date when the agent collects the record</td>
   </tr>
   <tr>
     <td><b>day</b></td>
-    <td>The day that corresponds to the watermark record</td>
+    <td>The day that corresponds to the record</td>
   </tr>
   <tr>
     <td><b>month</b></td>
-    <td>The month that corresponds to the watermark record</td>
+    <td>The month that corresponds to the record</td>
   </tr>
   <tr>
     <td><b>year</b></td>
-    <td>The year that corresponds to the watermark record</td>
+    <td>The year that corresponds to the record</td>
   </tr>
   <tr>
     <td><b>agent</b></td>
@@ -92,8 +92,61 @@ The following table describes the fields included in the watermark usage data:
   </tr>
 </table>
 
-
 ### <a id="about-consumption"></a>Consumption Data
+
+The PKS database stores resource consumption data for all pods in a deployment.
+You can view the uptime and pod count for each instance in your PKS deployment
+by accessing the database on the command line.
+
+If you need to perform a chargeback, you can assign a label to a specific pod
+agent using the Kubernetes command line interface (CLI), `kubectl`. You can
+then track the consumption data associated with that label when you calculate
+the chargeback.
+
+For more information about Kubernetes labels, see the [Add a label to a
+node](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/#add-a-label-to-a-node)
+section of _Assign Pods to Nodes_ in the Kubernetes documentation.
+
+The following table describes the fields related to consumption usage data:
+
+<table>
+  <tr>
+    <th>Field Name</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><b>id</b></td>
+    <td>Unique record identifier</td>
+  </tr>
+  <tr>
+    <td><b>agent</b></td>
+    <td>Unique cluster name</td>
+  </tr>
+  <tr>
+    <td><b>collect_time</b></td>
+    <td>The date when the agent collects the record</td>
+  </tr>
+  <tr>
+    <td><b>pod_id</b></td>
+    <td>Unique pod identifier</td>
+  </tr>
+  <tr>
+    <td><b>pod_name</b></td>
+    <td>Unique pod name</td>
+  </tr>
+  <tr>
+    <td><b>memory_used</b></td>
+    <td>The amount of memory usage for the pod</td>
+  </tr>
+  <tr>
+    <td><b>cpu_used</b></td>
+    <td>The amount of CPU usage for the pod</td>
+  </tr>
+  <tr>
+    <td><b>pod_cnt</b></td>
+    <td>The number of pods in the cluster</td>
+  </tr>
+</table>
 
 ## <a id="bosh-ssh"></a>SSH into the PKS API VM
 
@@ -131,11 +184,141 @@ the steps below:
 
 1. To print all watermark data to the terminal window, run the following command:
     <pre class="terminal">$ bash print-watermark.sh</pre>
-    <p class="note"><strong>Note</strong>: To print the most recent watermark data entries, append <code>| tail -nNUMBER</code> to the above command. For example, to display the five most recent watermarks, run <code>bash print-watermark.sh | tail -n5</code>.</p>
+    <p class="note"><strong>Note</strong>: To print only the most recent watermark
+    data entries, append <code>| tail -nNUMBER</code> to the above command. For
+    example, to display the five most recent watermarks, run
+    <code>bash print-watermark.sh | tail -n5</code>.</p>
 
 1. (Optional) To write the data to a `.csv` file, run the following command:
-    <pre class="terminal">$ bash print-watermark.sh > watermarks-$(date -u +"%Y-%m-%dT%H:%M:%SZ").csv</pre>
+    <pre class="terminal">$ bash print-watermark.sh &gt; watermarks-$(date -u +"%Y-%m-%dT%H:%M:%SZ").csv</pre>
 
 ## <a id="consumption"></a>Locate Consumption Usage Data
 
 To locate the consumption data for your PKS deployment, follow the steps below:
+
+1. On the command line, log in to your PKS database.
+
+1. To view the `pksdata` table in the database run `describe pksdata;`.<br><br>
+    For example:
+    <pre class="terminal">
+    MariaDB [telemetry]&gt; describe pksdata;
+    +--------------+------------+------+-----+-------------------+-----------------------------+
+    | Field        | Type       | Null | Key | Default           | Extra                       |
+    +--------------+------------+------+-----+-------------------+-----------------------------+
+    | id           | int(11)    | NO   | PRI | NULL              | auto_increment              |
+    | agent        | char(253)  | YES  |     | NULL              |                             |
+    | collect_time | timestamp  | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+    | pod_id       | char(253)  | YES  |     | NULL              |                             |
+    | pod_name     | char(253)  | YES  |     | NULL              |                             |
+    | memory_used  | bigint(20) | NO   |     | NULL              |                             |
+    | cpu_used     | bigint(20) | NO   |     | NULL              |                             |
+    | pod_cnt      | bigint(20) | NO   |     | NULL              |                             |
+    +--------------+------------+------+-----+-------------------+-----------------------------+
+    </pre>
+
+1. Continue to the following sections to run specific queries.
+
+### <a id="pod-count"></a>View Pod Counts by Cluster in a Given Time Window
+
+To view the pod counts by cluster for a given time window, run the following query:
+
+```
+select agent,count(distinct pod_name) from pksdata where collect_time between
+'BEGINNING-TIMESTAMP' and 'ENDING-TIMESTAMP' group by agent;
+```
+
+Where `BEGINNING-TIMESTAMP` and `ENDING-TIMESTAMP` represent the beginning and
+ending times for your search window.
+
+For example:
+
+<pre class="terminal">
+MariaDB [telemetry]&gt; select agent,count(distinct pod_name) from pksdata where collect_time between '2018-08-14 00:00:00' and '2018-08-14 01:00:00' group by agent;
++-------------------------------------------------------+--------------------------+
+| agent                                                 | count(distinct pod_name) |
++-------------------------------------------------------+--------------------------+
+| service-instance_1a8617eb-a582-45b5-8749-3b18fb1d661c | 9                        |
+| service-instance_1c025915-0ef7-4621-b1eb-aff1c549feb9 | 8                        |
+| service-instance_209caeb3-87da-47b7-81db-8b978249f80a | 7                        |
+| service-instance_3eb8c734-dce5-4de3-b971-88792d5262d0 | 12                       |
+| service-instance_483fa035-c2ee-47c4-b2bd-79329155d6b2 | 3                        |
+| service-instance_666ded63-7265-4af8-bfbb-b51f4b1e3f0a | 2                        |
+| service-instance_789f7c3f-33f6-4914-88f5-0359c39bf856 | 24                       |
+| service-instance_998f7e11-940e-4fdd-9abb-117370dcaaf3 | 12                       |
+| service-instance_e3139ecc-5567-4232-9707-1c16e3cdf571 | 10                       |
++-------------------------------------------------------+--------------------------+
+</pre>
+
+### <a id="pod-hours-day"></a>View Running Pod Hours for a Given Day
+
+To view the pod counts by cluster for a given time window, run the following query:
+
+```
+select agent,timestampdiff(HOUR,min(collect_time), max(collect_time)) + 1 as "hours today", pod_name from pksdata where collect_time > curdate() -1 group by pod_name;
+```
+
+For example:
+
+<pre class="terminal">
+MariaDB [telemetry]&gt; select agent,timestampdiff(HOUR,min(collect_time), max(collect_time)) + 1 as "hours today", pod_name from pksdata where collect_time &gt; curdate() -1 group by pod_name;
++-------------------------------------------------------+-------------+-------------------------------------------------+
+| agent                                                 | hours today | pod_name                                        |
++-------------------------------------------------------+-------------+-------------------------------------------------+
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-create-bucket-mtlpr                  |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-minio-7d6647dcdd-f62wx               |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |           1 | my-release-spinnaker-clouddriver-c4d56c6b-fd227 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-spinnaker-deck-5f7c94d6b8-qm49n      |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-spinnaker-echo-75655dd8bb-hkc2t      |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-spinnaker-front50-8f58449b6-pwpdq    |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |           1 | my-release-spinnaker-gate-c66c8996-xxt5h        |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-spinnaker-igor-59d69c6c69-2xcrp      |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |           1 | my-release-spinnaker-orca-7c8ffd56d9-pmr7d      |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-spinnaker-rosco-7759ffcc65-jsw66     |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | my-release-upload-build-image-d4f9f             |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |           1 | nginx-77v62                                     |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |           1 | nginx-kkrm8                                     |
+| service-instance_db568933-c59d-409e-a488-a716641e55cd |           1 | nginx-mqr9x                                     |
+| service-instance_db568933-c59d-409e-a488-a716641e55cd |           1 | nginx-rbnlm                                     |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |          21 | wordpress-mysql-bcc89f687-vjfvc                 |
++-------------------------------------------------------+-------------+-------------------------------------------------+
+</pre>
+
+### <a id="pod-running-time"></a>View Pods by Running Time
+
+To view the number of pods by running time, run the following query:
+
+```
+select agent,timestampdiff(HOUR,min(collect_time), max(collect_time)) + 1 as "hours today", pod_name from pksdata where collect_time > curdate() -1 group by pod_name;
+```
+
+For example:
+
+<pre class="terminal">
+MariaDB [telemetry]&gt; select agent,hour(collect_time) as hour,count(distinct pod_name) from pksdata group by agent,hour;
++-------------------------------------------------------+------+--------------------------+
+| agent                                                 | hour | count(distinct pod_name) |
++-------------------------------------------------------+------+--------------------------+
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    0 |                       12 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    1 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    2 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    3 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    4 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    5 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    6 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    7 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    8 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |    9 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   10 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   11 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   12 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   13 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   14 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   15 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   16 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   17 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   18 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   19 |                        9 |
+| service-instance_b43c891c-6a4d-42ef-8bcd-402c0433f89e |   20 |                       11 |
+| service-instance_db568933-c59d-409e-a488-a716641e55cd |   20 |                        2 |
++-------------------------------------------------------+------+--------------------------+
+</pre>
