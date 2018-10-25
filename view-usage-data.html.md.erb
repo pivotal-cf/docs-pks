@@ -7,12 +7,12 @@ owner: PKS
 
 This topic describes how operators can view and export usage information from
 their Pivotal Container Service (PKS) deployment. Operators can use this data to
-calculate billed usage, chargeback customers, and generate reports.
+calculate billed usage, perform customer chargebacks, and generate usage reports.
 
 The PKS database stores the following pod usage data:
 
-- **Watermark**: the greatest number of pods that run at a single time.
-- **Consumption**: the total memory and CPU usage of all pods.
+- **Watermark**: the number of pods that run at a single time.
+- **Consumption**: the memory and CPU usage of pods.
 
 To extract either type of usage data from your PKS deployment, you must
 `bosh ssh` into your PKS API VM.
@@ -43,7 +43,7 @@ id,collect_time,day,month,year,agent,agent_pod_cnt,total_pod_cnt,high_watermark_
 6,2018-06-28 01:16:59,27,6,2018,service-instance_748709f7-41be-4c5f-9123-78874caeb602,3,3,3,2018-06-28 01:16:59
 ```
 
-The following table describes the fields related to watermark usage data:
+The following table describes the database fields related to watermark usage data:
 
 <table>
   <tr>
@@ -95,19 +95,19 @@ The following table describes the fields related to watermark usage data:
 ### <a id="about-consumption"></a>Consumption Data
 
 The PKS database stores resource consumption data for all pods in a deployment.
-You can view the uptime and pod count for each instance in your PKS deployment
-by accessing the database on the command line.
+You can view the uptime and pod count for each cluster in your PKS deployment
+as well as memory and CPU usage for each pod by accessing the database on the
+command line.
 
 If you need to perform a chargeback, you can assign a label to a specific pod
-agent using the Kubernetes command line interface (CLI), `kubectl`. You can
-then track the consumption data associated with that label when you calculate
-the chargeback.
+using the Kubernetes command line interface (CLI), `kubectl`. You can then track
+the consumption data associated with that label when you calculate the chargeback.
 
 For more information about Kubernetes labels, see the [Add a label to a
 node](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/#add-a-label-to-a-node)
 section of _Assign Pods to Nodes_ in the Kubernetes documentation.
 
-The following table describes the fields related to consumption usage data:
+The following table describes the database fields related to consumption usage data:
 
 <table>
   <tr>
@@ -136,11 +136,11 @@ The following table describes the fields related to consumption usage data:
   </tr>
   <tr>
     <td><b>memory_used</b></td>
-    <td>The amount of memory usage for the pod</td>
+    <td>Pod memory usage</td>
   </tr>
   <tr>
     <td><b>cpu_used</b></td>
-    <td>The amount of CPU usage for the pod</td>
+    <td>Pod CPU usage</td>
   </tr>
   <tr>
     <td><b>pod_cnt</b></td>
@@ -156,10 +156,10 @@ To SSH into your PKS API VM using BOSH, follow the steps below:
 <%= partial 'bosh-ssh' %>
 </ol>
 
-## <a id="watermark"></a>Locate and Export Watermark Usage Data
+## <a id="watermark"></a>View and Export Watermark Usage Data
 
-To locate and export the watermark usage data for your PKS deployment, follow
-the steps below:
+To view and export the watermark usage data for your PKS deployment, follow the
+steps below:
 
 1. From the PKS API VM, create a new file named `print-watermark.sh`.
 
@@ -171,7 +171,7 @@ the steps below:
     set -e
 
     db_username="$(grep 'DBName: telemetry' -A2 /var/vcap/jobs/mysql/config/mariadb_ctl_config.yml | grep 'User' | tr -d ' ' | cut -d':' -f2)"
-  db_password="$(grep 'DBName: telemetry' -A2 /var/vcap/jobs/mysql/config/mariadb_ctl_config.yml | grep 'Password' | tr -d ' ' | cut -d':' -f2)"
+    db_password="$(grep 'DBName: telemetry' -A2 /var/vcap/jobs/mysql/config/mariadb_ctl_config.yml | grep 'Password' | tr -d ' ' | cut -d':' -f2)"
 
     mysql_cmd="/var/vcap/packages/mariadb/bin/mysql -u$db_username -h 127.0.0.1 -p$db_password"
 
@@ -192,13 +192,14 @@ the steps below:
 1. (Optional) To write the data to a `.csv` file, run the following command:
     <pre class="terminal">$ bash print-watermark.sh &gt; watermarks-$(date -u +"%Y-%m-%dT%H:%M:%SZ").csv</pre>
 
-## <a id="consumption"></a>Locate Consumption Usage Data
+## <a id="consumption"></a>View Consumption Usage Data
 
-To locate the consumption data for your PKS deployment, follow the steps below:
+To view the consumption data for your PKS deployment, follow the steps below:
 
-1. On the command line, log in to your PKS database.
+1. On the command line, connect to your PKS database. You can locate your database
+credentials in `/var/vcap/jobs/mysql/config/mariadb_ctl_config.yml`.
 
-1. To view the `pksdata` table in the database run `describe pksdata;`.<br><br>
+1. To view the `pksdata` table, run `describe pksdata;`.<br><br>
     For example:
     <pre class="terminal">
     MariaDB [telemetry]&gt; describe pksdata;
@@ -249,9 +250,10 @@ MariaDB [telemetry]&gt; select agent,count(distinct pod_name) from pksdata where
 +-------------------------------------------------------+--------------------------+
 </pre>
 
-### <a id="pod-hours-day"></a>View Running Pod Hours for a Given Day
+### <a id="pod-hours-day"></a>View Running Pod Hours for the Current Day
 
-To view the pod counts by cluster for a given time window, run the following query:
+To view the running pod count by cluster for the current day, run the following
+query:
 
 ```
 select agent,timestampdiff(HOUR,min(collect_time), max(collect_time)) + 1 as "hours today", pod_name from pksdata where collect_time > curdate() -1 group by pod_name;
@@ -285,7 +287,8 @@ MariaDB [telemetry]&gt; select agent,timestampdiff(HOUR,min(collect_time), max(c
 
 ### <a id="pod-running-time"></a>View Pods by Running Time
 
-To view the number of pods by running time, run the following query:
+To view the running pod count by cluster for each hour in the current day, run
+the following query:
 
 ```
 select agent,timestampdiff(HOUR,min(collect_time), max(collect_time)) + 1 as "hours today", pod_name from pksdata where collect_time > curdate() -1 group by pod_name;
