@@ -7,7 +7,7 @@ owner: PKS
 
 This topic explains how to upgrade the Pivotal Container Service (PKS) for environments using vSphere with NSX-T.
 
-## <a id="prepare"></a>Before You Upgrade
+## <a id="before"></a>Before You Upgrade
 
 This section describes the activites you must perform before upgrading PKS.
 
@@ -105,15 +105,15 @@ Before you begin upgrading the PKS tile, follow the steps below:
   1. Verify that hosts have enough memory.
   1. Verify that there are no alarms.
   1. Verify that hosts are in a good state.
-1. (Optional) Configure NSX Edge for high availability using Active/Standby mode. 
-  <p class="note"><strong>Note</strong>: When you upgrade PKS on vSphere with NSX-T, workloads in your Kubernetes cluster are unavailable while the NSX Edge nodes run the upgrade unless you configure NSX Edge for high availability. For more information, see the <a href="./nsxt-prepare-env.html#nsx-edge-ha">Configure NSX Edge for High Availability (HA)</a> section of <em>Preparing NSX-T Before Deploying PKS</em>.</p>
+1. Verify that NSX Edge is configured for high availability using Active/Standby mode. 
+  <p class="note"><strong>Note</strong>: Workloads in your Kubernetes cluster are unavailable while the NSX Edge nodes run the upgrade unless you configure NSX Edge for high availability. For more information, see the <a href="./nsxt-prepare-env.html#nsx-edge-ha">Configure NSX Edge for High Availability (HA)</a> section of <em>Preparing NSX-T Before Deploying PKS</em>.</p>
 1. (Optional) Back up the environment using the procedures in the following topics:
   - <a href="https://docs.vmware.com/en/VMware-Pivotal-Container-Service/1.1/vmware-pks-11/GUID-PKS11-backup-and-restore.html">Backup PKS</a>
   - <a href="https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A0B3667C-FB7D-413F-816D-019BFAD81AC5.html">Backup NSX-T</a>
   - <a href="https://kb.vmware.com/s/article/2149237">Backup vCenter</a>
 <p class="note"><strong>Note</strong>: If you choose not to back up PKS, NSX-T, or vCenter, we recommend backing up the NSX-T and NSX-T Container Plugin (NCP) logs. For more information, see <a href="#logs">PKS Logs for NSX-T and NCP</a> below.</p>
 
-## <a id="upgrade-opsman"></a> During the Upgrade
+## <a id="upgrade"></a> During the Upgrade
 
 This section describes the steps required to upgrade to PKS v1.2 with NSX-T v2.3.
 
@@ -121,7 +121,10 @@ This section describes the steps required to upgrade to PKS v1.2 with NSX-T v2.3
 
 Skip this step if you are already running PKS v1.1.5+.
 
-Follow the procedures detailed in [Upgrade PKS](https://docs.pivotal.io/runtimes/pks/1-1/upgrade-pks.html#upgrade-tile) in the PKS v1.1 documentation.
+Follow the procedures detailed in [Upgrading PKS with NSX-T](https://docs.pivotal.io/runtimes/pks/1-1/upgrade-pks-nsxt.html) in the PKS v1.1 documentation.
+
+<p class="note"><strong>Note:</strong> PKS v1.1.5 with NSX-T introduces architectural changes that require larger sized worker node VMs. Before you upgrade to PKS v1.1.5 or later, you must increase the size of the Kubernetes worker node VM. For more information on how to increase the worker node VM size, see <a href="https://docs.pivotal.io/runtimes/pks/1-1/upgrade-pks.html#upgrade-tile">Increase the Kubernetes Worker Node VM Size</a> in the PKS v1.1 documentation. For more information about the architectural changes in PKS v1.1.5 with NSX-T, see <a href="https://docs.pivotal.io/runtimes/pks/1-1/release-notes.html#arch-changes">NSX-T Architectural Changes</a> in the PKS v1.1.5 Release Notes. 
+</p>
 
 ### <a id="upgrade-nsxt-2.2"></a> Step 2: Upgrade to NSX-T v2.2
 
@@ -135,12 +138,13 @@ Follow the procedures detailed in [Upgrade Ops Manager and Installed Products to
 
 <%= partial 'add-clusters-workloads' %>
 
-### <a id="upgrade"></a> Step 4: Upgrade to PKS v1.2
+### <a id="upgrade-pks"></a> Step 4: Upgrade to PKS v1.2
 
 To upgrade PKS, you follow the same Ops Manager process that you use to install
 the tile for the first time.
 
-Your configuration settings migrate to the new version automatically. Follow the steps below to perform an upgrade.
+Your configuration settings migrate to the new version automatically. 
+Follow the steps below to perform an upgrade.
 
 1. Review the [Release Notes](release-notes.html) for the version you are upgrading to.
 
@@ -171,53 +175,40 @@ Your configuration settings migrate to the new version automatically. Follow the
   1. Select the **Installation Dashboard** link to return to the Installation Dashboard.
     <img src="images/upgrade-nsxt-8.png" alt="Verify status is green">
 
-### <a id="worker-nodes"></a> Step 5: Increase the Kubernetes Worker Node VM Size
+### <a id="worker-nodes"></a> Step 5: Verify Errand Configuration
 
-The default Kubernetes worker node VM size provides insufficient disk space for PKS v1.1.5 and later on vSphere with NSX-T.
+To verify that errands are configured correctly in the PKS tile, perform the following steps.
 
-<p class="note"><strong>Note</strong>: If you do not increase the size of the Kubernetes worker node VM before you upgrade, the VM can run out of ephemeral disk space and cause the upgrade to fail.</p>
+1. In the PKS tile, click **Errands**.
 
-Follow the steps below to increase the Kubernetes worker node VM size:
+1. Under **Post-Deploy Errands**, verify that the listed errands are configured as follows:
+  * **NSX-T Validation errand**: Set to **On**
+  * **Upgrade all clusters errand**: Set to **Default (On)**
+  * **Create pre-defined Wavefront alerts errand**: Set to **Default (Off)**
 
-1. Navigate to the Ops Manager Installation Dashboard.
+    <p class="note warning"><strong>WARNING</strong>: If you set the <strong>Upgrade all clusters errand</strong> to <strong>Off</strong>, your Kubernetes cluster version will fall behind the PKS tile version. If your clusters fall more than one version behind the tile, you can no longer upgrade the clusters. You must upgrade your clusters to match the PKS tile version before the next tile upgrade.</p>
 
-1. Click the **Pivotal Container Service** tile.
+1. If you make any changes, click **Save**.
 
-1. Click **Plan 1**.
+### <a id="apply-changes"></a> Step 6: Apply Changes to the PKS Tile
 
-1. Under **Worker VM Type**, select a VM type with a minimum disk size of 16&nbsp;GB.
+Perform the following steps to complete the upgrade to the PKS tile.
 
-1. (Optional) If you have additional plans configured, repeat this procedure for each plan.
+1. Return to the **Installation Dashboard** in Ops Manager.
 
-### <a id="ca-cert"></a> Step 6: Verify NSX-T Manager CA Certificate Settings
+1. If you are using Ops Manager v2.2, click **Review Pending Changes [BETA]**. 
+     For more information about this Ops Manager page, see
+    [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/2-2/customizing/review-pending-changes.html).
 
-Follow the steps below:
+1. If you are using Ops Manager v2.3, click **Review Pending Changes**.
+   For more information about this Ops Manager page, see
+    [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/2-3/customizing/review-pending-changes.html).
 
-1. Navigate to the Ops Manager Installation Dashboard.
+1. Click **Apply Changes**. 
 
-1. Click the **Pivotal Container Service** tile.
+### <a id="upgrade-nsxt-2.3"></a> Step 7: Upgrade to NSX-T v2.3
 
-1. Click **Networking**.
-
-1. Under **NSX Manager CA Cert**, choose one of the following options:
-  * Confirm that you have a valid NSX-T Manager CA certificate.
-  * Select **Disable SSL certificate verification**.
-  <p class="note"><strong>Note</strong>: You cannot choose both options. If you provide an NSX Manager CA certificate and also disable SSL certificate verification, the PKS upgrade fails.</p>
-
-### <a id="apply-changes"></a> Step 7: Apply Changes to the PKS Tile
-
-Return to the Installation Dashboard and do one of the following:
-
-  * **Apply Changes**: Under **Pending Changes**, click **Apply Changes**.
-  <img src="images/upgrade-nsxt-9.png" alt="Apply changes and upgrade">
-  * **Review Pending Changes [BETA]**:
-      1. Click **Review Pending Changes**.
-      1. Click **Pivotal Container Service**.
-      1. Click **Apply Changes**.
-
-### <a id="upgrade-nsxt-2.3"></a> Step 8: Upgrade to NSX-T v2.3
-
-NSX-T v2.3 is the recommended version to use with PKS v1.2. 
+NSX-T v2.3 is the recommended version of NSX-T to use with PKS v1.2. 
 
 To upgrade to NSX-T v2.3, follow the procedures detailed in [Upgrading NSX-T Data Center](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.upgrade.doc/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html).
 
