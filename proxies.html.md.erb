@@ -3,39 +3,53 @@ title: Using Proxies with PKS
 owner: PKS
 ---
 
-PKS lets you proxy outgoing HTTP and HTTPS traffic from PKS management components and Kubernetes cluster nodes to vSphere and NSX-T components on the standard network.
+If your environment includes HTTP/S proxies, you can configure PKS with NSX-T to use these proxies so that PKS-deployed Kubernetes master and worker nodes access public Internet services and other internal services through a proxy.
 
-    <%= image_tag("pks-proxy-arch.png") %>
+In addition, PKS proxy settings apply to the PKS API instance. When a PKS operator creates a Kubernetes cluster, the PKS API instance VM behind a proxy is able to manage NSX-T objects on the standard network.
 
-## <a id='pks-proxy'></a>PKS Proxy
+You can also proxy outgoing HTTP/S traffic from Ops Manager and BOSH Director so that all PKS components use the same proxy service.
 
-In a PKS environment on vSphere with NSX-T, PKS components are typically deployed to a management network/subnet separate from the standard network with vCenter, NSX-T Manager, and ESXi hosts. PKS Proxy is for such environments where there is an HTTP/S proxy between the PKS network and the main network.
+    <img src="images/pks-proxy-arch.png" alt="PKS Proxy Settings" width="325">
 
-PKS Proxy settings are applied to the PKS API instance. When a PKS operator creates a Kubernetes cluster, the PKS API instance VM behind a proxy is able to manage objects on the NSX-T Manager.
+## <a id='pks-proxy'></a>Enable PKS API and Kuberbetes Proxy
 
-    <%= image_tag("pks-proxy-config.png") %>
+To configure a global proxy for all outgoing HTTP and HTTPS traffic from Kubernetes cluster nodes and the PKS API server:
 
-To configure a proxy for PKS: 
+   <img src="images/networking-https-proxy.png" alt="PKS Proxy Settings" width="325">
+
+1. In the PKS tile select the [Networking - NSX-T](https://docs.pivotal.io/runtimes/pks/1-2/installing-nsx-t.html#networking) pane.
+
+1. Under **HTTP/HTTPS proxy**, select **Enabled**.
+
+1. Under **HTTP Proxy URL**, enter the URL of your HTTP/HTTPS proxy endpoint. For example, `https://myproxy.com:1234`.
+
+1. (Optional) If your proxy uses basic authentication, enter the username and password in either **HTTP Proxy Credentials** or **HTTPS Proxy Credentials**.
+
+1. Under **No Proxy**, enter the following IP addresses that must bypass the proxy to allow for internal PKS communication:
+
+	`127.0.0.1,localhost,<Deployment-Network-Cidr>,<Node-Network-IP-Block-Cidr>,<Pod-Network-IP-Block-Cidr>`
+
+## <a id='pks-proxy'></a>Enable Ops Manager and BOSH Proxy
+
+To enable a proxy for outgoing HTTP/S traffic from Ops Manager and BOSH: 
+
+    <img src="images/pks-proxy-config.png" alt="PKS Proxy Settings" width="325">
 
 1. Log in to Ops Manager.
 
-1. Select User Name > Settings in the upper right.
+1. Select User Name > **Settings** in the upper right.
 
-1. Select Proxy Settings.
+1. Select **Proxy Settings**.
 
-1. Under HTTP Proxy, enter the FQDN or IP address of the HTTP proxy endpoint. For example, `http://proxy.pks.com:1234`.
+1. Under **HTTP Proxy**, enter the FQDN or IP address of the HTTP proxy endpoint. For example, `http://myproxy.com:1234`.
 
-1. Under HTTPS Proxy, enter the FQDN or IP address of the HTTPS proxy endpoint. For example, `https://proxy.pks.com:1234`.
+1. Under **HTTPS Proxy**, enter the FQDN or IP address of the HTTPS proxy endpoint. For example, `https://myproxy.com:1234`.
 
-1. Under No Proxy, **include** the following networks that must bypass the proxy (required).
+1. Under **No Proxy**, include the following networks that must bypass the proxy (required).
 
-		`<Deployment-Network-Cidr>,<Node-Network-IP-Block-Cidr>,<Pod-Network-IP-Block-Cidr>`
+		`127.0.0.1,localhost,<Deployment-Network-CIDR>`
 1. Save.
 
 1. Review pending changes in Ops Manager.
 
-1. Deploy PKS components using Ops Manager.
-
-## Kubernetes Cluster Proxy
-
-To configure a global proxy for all outgoing HTTP and HTTPS traffic from Kubernetes cluster nodes, see the [Networking section](https://docs.pivotal.io/runtimes/pks/1-2/installing-nsx-t.html#networking) of installing PKS with NSX-T.
+1. Deploy Ops Manager and BOSH.
