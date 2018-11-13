@@ -1,0 +1,627 @@
+---
+title: Install and Configure NSX-T for PKS
+owner: PKS-NSXT
+---
+
+<strong><%= modified_date %></strong>
+
+This section provides a set of procedures for installing and configuring NSX-T for PKS. 
+
+It is assumed that you are using vSphere 6.7 and NSX-T 2.3. During the installation, you will create two clusters in a Datacenter: Compute Cluster and Management/Edge Cluster. The Compute cluster runs PKS components. The management cluster runs infrastructure components, including vCenter and NSX-T. Compute cluster hypervisors are prepared as transport nodes. See [vSphere with NSX-T Prerequisites and Resource Requirements](vsphere-nsxt-requirements.html) for more information.
+
+To deploy NSX-T for PKS, complete the following procedures: 
+
+- Part I:     [Deploy the NSX Manager](deploy-nsx-manager)         
+- Part II:    [Deploy NSX Controllers](deploy-nsx-controllers)                                  
+- Part III:   [Create NSX Clusters](create-nsx-cluster) 
+- Part IV:    [Deploy NSX Edge Nodes](deploy-nsx-edges)
+- Part V:     [Register NSX Edge Nodes](register-nsx-edges)
+- Part VI:    [Enable VIB Repository Service on NSX Manager](enable-repo)
+- Part VII:   [Create TEP IP Pool](create-tep)
+- Part VIII:  [Create Overlay TZ](create-tz-overlay)
+- Part IX:    [Create VLAN TZ](create-tz-vlan)
+- Part X:     [Create Uplink Profile for Edge Nodes](create-uplink)
+- Part XI:    [Create Transport Edge Nodes](create-edge-tns)
+- Part XII:   [Create Edge Cluster](create-edge-cluster)
+- Part XIII:  [Create T0 Router](create-t0-router)
+- Part XIV:   [Configure Edge HA](configure-edge-ha)
+- Part XV:    [Prepare Compute Cluster ESXi Hosts](prepare-esxi)
+
+
+
+##<a id='deploy-nsx-manager'></a>Part I. Deploy NSX Manager
+
+The NSX Manager is provided as an OVA file named **NSX Unified Appliance** that you import into your vSphere environment and configure.
+
+1. Complete either of the following procedures to deploy the NSX Manager appliance:
+
+- [Deploy NSX Manager using the vSphere client](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-FA0ABBBD-34D8-4DA9-882D-085E7E0D269E.html)
+- [Deploy NSX Manager using the ovftool CLI](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-5843917A-A1D1-4D19-B9B0-0FD4C900C31C.html)
+
+1. Power on the NSX Manager VM.
+
+1. To verify deployment, ping the VM. Get the IP address for the NSX Manager from the **Summary** tab in vCenter. Verify that you can ping the host (`ping 10.196.188.21`, for example).
+
+1. SSH to the VM. Use the IP address for the NSX Manager to remotely connect using SSH. From Unix hosts use the command `ssh admin@10.196.188.21`, for example. On Windows use Putty and provide the IP address. Enter the CLI user name and password that you defined during OVA import.
+
+1. Review NSX CLI usage. Once you are logged into the NSX Manager VM, enter ? to view the command usage and options for the NSX CLI.
+
+1. Connect to the NSX Manager GUI by from a supported web browser. The URL is `https://<IP address of NSX Manager>`. For example, `https://10.16.176.10`.
+
+
+
+##<a id='deploy-nsx-controllers'></a>Part II. Deploy NSX Controllers
+
+The NSX Controller provides communications for NSX-T components. You must deploy at least 1 NSX Controller for PKS; 3 NSX Controllers are recommended. 
+
+1. Complete either of the following procedures to deploy an NSX Controller:
+
+- [Deploy NSX Controllers using the vSphere client](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-24428FD4-EC8F-4063-9CF9-D8136740963A.html)
+- [Deploy NSX Controllers using the ovftool CLI](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-B7C068CD-F5C4-4C18-B2E3-539FCA5FACAA.html)
+
+1.  Power on the NSX Controller VM.
+
+1.  To verify deployment, ping the VM. Get the IP address for the NSX Controller from the Summary tab in vCenter. You must use the routable IP. If necessary click View all X IP addresses to reveal the proper IP address. Verify that you can ping the host (ping 10.196.188.22, for example).
+
+1. SSH to the VM. Use the IP address for the NSX Controller to remotely connect using SSH. From Unix hosts use the command `ssh admin@10.196.188.22`, for example. On Windows use Putty and provide the IP address. Enter the CLI admin user name and password that you defined in the Customize template > Application section.
+
+1. Review NSX CLI usage.Once you are logged into the NSX Controller VM, enter ? to view the command usage and options for the NSX CLI.
+
+1. Repeat the deployment and verification process for each NSX Controller you intend to use for PKS.
+
+
+
+##<a id='create-nsx-cluster'></a>Part III. Create NSX Clusters (Management and Control Planes)
+
+In this section you create NSX Clusters for the PKS Management and Control Planes.
+
+1. Complete this procedure to create the NSX Management Cluster: [Join NSX Controllers with the NSX Manager](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-05434745-7D74-4DA8-A68E-9FE17093DA7B.html#GUID-05434745-7D74-4DA8-A68E-9FE17093DA7B).
+
+1. Complete this procedure to create the NSX Control Cluster: [Initialize Control Cluster](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-273F6344-7212-4105-9FBA-A872CD75803F.html).
+
+1. If you are deploying more than one NSX Controller, complete this proecedure: [Join Additional NSX Controllers with the Cluster Master](
+https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-8A8394EB-9D4A-4F13-AE91-8CFDD10334D4.html).
+
+1. Verify that the NSX Controller is `Connected` to the NSX Manger:
+
+        NSX-CONTROLLER-1> get managers
+ 
+1. Verify that the status of the Control Cluster is `active`:
+
+        NSX-CONTROLLER-1> get control-cluster status
+
+1. Verify that the Management Cluster is `STABLE`:
+
+        NSX-MGR-1-1-0> get management-cluster status
+
+1. Verify the configuration using the NSX Manager Web UI.
+
+  Go to https://<NSX Manager IP>.
+  Log in using your admin credentials.
+  Select Dashboard > System > Overview.
+  Check that the status of the NSX Manager and each NSX Controller is green.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-manager-18.png">
+
+
+##<a id='deploy-nsx-edges'></a>Part IV: Deploy NSX Edge Nodes
+
+This section provides instructions for deploying NSX Edge Nodes for PKS. Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for PKS run load balancers for PKS API traffic, Kubenetes pod LB services, and pod ingress controllers.
+
+PKS supports active/standby Edge Node failover and requires at least two Edge Nodes. In addition, PKS requires the Edge Node Large VM (8 vCPU, 16 GB of RAM, and 120 GB of storage). The Small and Medium VMs are not suitable for use with PKS. Bare metal edge support is planned. See [Edge Node Requirements](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html) for details.
+
+1. Complete either of the following procedures to deploy an NSX Edge Node:
+
+- [Edge Node Installation using vSphere Client](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-AECC66D0-C968-4EF2-9CAD-7772B0245BF6.html)
+- [Edge Node Installation using ofvtool CLI](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-BF5EC490-CB5D-4FA9-AEC8-BB1A85E55B01.html)
+
+1. When deploying the Edge Node, be sure to connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment:
+
+  * Network 0: for management purposes. Connect the first Edge interface to your environment's PortGroup/VLAN where your Edge Management IP can route and communicate with the NSX Manager.
+  * Network 1: for TEP (Tunnel End Point). Connect the second Edge interface to your environment's PortGroup/VLAN where your GENEVE VTEPs can route and communicate with each other. Your **VTEP CIDR** should be routable to this PortGroup.
+  * Network 2: for uplink connectivity to external physical router. Connect the third Edge interface to your environment's PortGroup/VLAN where your T0 uplink interface is located.
+  * Network 3: unused (select any port group)
+
+  For example: 
+
+    <img src="images/nsxt/nsx-edge/install-nsx-edge-08.png">
+
+1. Power on the Edge Node VM. 
+
+1. Ping the Edge VM. Get the IP address for the NSX Manager from the Summary tab in vCenter. Verify that you can ping the host (ping 10.196.188.21, for example).
+
+1. SSH to the Edge VM. Use the IP address for the NSX Manager to remotely connect using SSH. From Unix hosts use the command ssh admin@10.196.188.21, for example. On Windows use Putty and provide the IP address. Enter the CLI admin user name and password that you defined in the Customize template > Application section.
+
+1. Review NSX CLI usage. Once you are logged into the NSX Manager VM, enter ? to view the command usage and options for the NSX CLI.
+
+1. Repeat this process for each Edge Node you intend to deploy for PKS.
+
+
+
+##<a id='register-nsx-edges'></a>Part V: Register NSX Edge Nodes with NSX Manager
+
+In this section you register each NSX Edge Node with the NSX Manager.
+
+1. Complete this procedure on the Edge Node: [Join NSX Edge with the Management Plane](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html)
+
+1. Verify Edge Node registration with the NSX Manager; status should be `Connected`:
+
+			nsx-edge-1> get managers
+
+1. Verify Edge Node registration using the NSX Manager Web UI. Go to Fabric > Nodes > Edges. You should see each registered Edge Node.
+
+	<img src="images/nsxt/nsx-manager/register-nsx-edge-01.png">
+
+1. Repeat this procedure for each NSX Edge Node you are deploying for PKS.
+
+
+
+##<a id='enable-repo'></a>Part VI: Enable Respoitory Service on NSX Manager
+
+To enable VIB installation from the NSX Manager repository, the repository service needs to be be enabled on the NSX manager. VIB installation is used when preparing ESXi hosts for NSX-T.
+
+1. SSH to NSX Manager. See Part 1 for guidance on doing this.
+
+1. Run the following command:
+
+		nsx-manager> set service install-upgrade enable
+
+
+
+##<a id='create-tep'></a>Part VII: Create TEP IP Pool
+
+In this section you create the Tunnel Endpoint IP Pool for PKS.
+
+1. Complete this procedure to create TEP IP Pool [Create an IP Pool for Tunnel Endpoint IP Addresses](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html).
+
+1. For example:
+
+  <img src="images/nsxt/tep/tep-01.png">
+
+1. Verify TEP IP Pool configuration:
+
+  <img src="images/nsxt/tep/tep-02.png">
+
+
+
+##<a id='create-tz-overlay'></a>Part VIII: Create Overlay Transport Zone 
+
+In this section you create an Overlay Transport Zone (`TZ-Overlay`) for PKS control plane services and Kubernetes clusters associated with associated with VDS `hostswitch1`.
+
+1. To create TZ-Overlay, complete this procedure: [Create Transport Zones](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html).
+
+1. For example:
+
+  <img src="images/nsxt/nsx-misc/tz-overlay-01.png">
+
+1. Verify that you see the TZ-Ovwerlay transport zone:
+
+  <img src="images/nsxt/nsx-misc/tz-overlay-02.png">
+
+
+
+##<a id='create-tz-vlan'></a>Part IX: Create VLAN Transport Zone 
+
+In this section you create the VLAN Transport Zone (`TZ-VLAN`) for NSX Edge Node uplinks (ingress/egress) for PKS Kubernetes clusters associated with VDS `hostswitch2`.
+
+1. To create TZ-VLAN, complete this procedure: [Create Transport Zones](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html).
+
+1. For example:
+
+  <img src="images/nsxt/tep/tz-vlan-01.png">
+
+1. Verify that you see the TZ-VLAN transport zone:
+
+  <img src="images/nsxt/tep/tz-vlan-02.png">
+
+
+
+##<a id='create-uplink'></a>Part X: Create Uplink Profile for Edge Nodes
+
+In this section you create an NSX uplink host profile for use by NSX Edge Node for PKS. 
+
+###<a id='create-objects-logical-switches'></a>Create Uplink Profile for Edge Nodes
+
+1. To create an Uplink Profile, compelte this procedure: [Create an Uplink Profile](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html).
+
+1. For example:
+
+  <img src="images/nsxt/nsx-misc/edge-uplink-01.png">
+
+1. Verify that you see the Edge Node uplink profile:
+
+  <img src="images/nsxt/nsx-misc/edge-uplink-02.png">
+
+
+
+##<a id='create-edge-tns'></a>Part XI: Create Edge Transport Nodes
+
+In this section you create NSX Edge Transport Nodes which allow Edge Nodes to exchange traffic for Virtual Networks among other NSX nodes.
+
+	* Add both the VLAN and OVERLAY NSX Transport Zones to the NSX Edge Transport Nodes. Controller Connectivity and Manager Connectivity should be **UP**.
+	* Refer to the MAC addresses of the Edge VM interfaces you deployed to deploy your virtual NSX Edges:
+  		* Connect the OVERLAY N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the second NIC from your deployed Edge VM.
+  		* Connect the VLAN N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the third NIC from your deployed Edge VM.
+
+###<a id='create-edge-tns-steps'></a>Create Edge Transport Nodes
+
+1. Log in to the NSX Manager web interface (`https://<NSX Manager IP>`).
+
+1. Go to Fabric > Nodes > Edges.
+
+1. Select an Edge Node.
+
+1. Click Actions > **Configure as Transport Node**.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-01.png">
+
+1. In the General tab, enter the name: `edge-TN1` and select both Transport Zones: TX-Overlay (Overlay) and TX-VLAN (VLAN).
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-02a.png">
+
+1. Select the **Host Switches** tab.
+
+1. Configure the first transport node switch as follows:
+
+	Edge Switch Name: `hostswitch1`
+	Uplink Profile: `edge-uplink-profile`
+	IP Assignment: `Use IP Pool`
+	IP Pool: `TEP-ESXi-POOL`
+	virtual NICs: `fp-eth0` (corresponds to Edge VM vnic1 (second vnic))
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-02.png">
+
+1. Click **Add Host Switch**.
+
+1. Configure the second transport node switch as follows:
+
+	Edge Switch Name: `hostswitch2`
+	Uplink Profile: `edge-uplink-profile`
+	virtual NICs: `fp-eth1` (corresponds to Edge VM vnic2 (third vnic))
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-03.png">
+
+1. Click Save.
+
+1. Verify the creation of the edge transport node.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-03.png">
+
+1. Repeat the same procedure for the second Edge Transport Node (Edge-TN2), as well as additional Edge Node pairs you deploy for PKS.
+
+
+###<a id='verify-edge-tns'></a> Verify Edge Transport Nodes
+
+1. Select Fabric > Nodes > Edges. Verify that Controller Connectivty and Manager Connectivity are 'UP' for both Edge Nodes.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-08.png">
+
+1. Select Fabric > Nodes > Transport Node. Verify that the configuration state is Success.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-07.png">
+
+1. SSH to each NSX Edge VM and that the Edge Transport Node is "connected" to the Controller.
+
+		nsx-edge-1> get controllers
+
+
+
+##<a id='create-edge-cluster'></a>Part XII: Create Edge Cluster
+
+In this section you create an NSX Edge Cluster and add each Edge Transport Nodes to the Edge Cluster. 
+
+1. To create an Edge Cluster, complete this procedure: [Create an NSX Edge Cluster](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.install.doc/GUID-898099FC-4ED2-4553-809D-B81B494B67E7.html.
+
+1. For example:
+
+  <img src="images/nsxt/nsx-misc/edge-cluster-01.png">
+
+1. Select Fabric > Nodes > Edge Clusters. Verify that you see the new Edge Cluster.
+
+  <img src="images/nsxt/nsx-misc/edge-cluster-02.png">
+
+1. Select the Edge Cluster > Related > Transport Nodes. Verify that all Edge Transport Nodes are part of the Edge Cluster.
+
+  <img src="images/nsxt/nsx-misc/edge-cluster-03.png">
+
+1. SSH to NSX Edge Node 1 and run the following commands to verify proper connectivity.
+
+		nsx-edge-1> get vteps
+		nsx-edge-1> get host-switches
+		nsx-edge-1> get edge-cluster status
+		nsx-edge-1> get controller sessions
+
+1. SSSH to NSX Edge Node 2 and repeat the above commands to verify proper connectivity.
+
+1. Verify Edge-TN1 to Edge-TN2 connectivity (TEP to TEP).
+
+		nsx-edge-1> get logical-router
+		nsx-edge-1> vrf 0
+		nsx-edge-1(vrf)> ping IP-ADDRESS-EDGE-2
+
+
+
+###<a id='create-t0-router'></a>Part XIII: Create T0 Logical Router
+
+This section provides instructions for creating a T0 Logical Router for PKS. 
+
+T0 routers are edge routers that route data between the physical network and the NSX-T-defined virtual network. For more information, see the following topics in the in the VMware NSX-T documentation: [Tier-0 Logical Router](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html).
+
+### Create VLAN Logical Switch (LS)
+
+1. In NSX Manager, go to Switching > Switches.
+
+1. Click **Add** and create a VLAN logical switch (LS). For example:
+
+  <img src="images/nsxt/nsx-misc/t0-router-01.png">
+
+1. Click Save.
+
+1. You should see the new LS:
+
+  <img src="images/nsxt/nsx-misc/t0-router-02.png">
+
+### Create T0 Router Instance
+
+1. In NSX Manager, go to Routing > Routers.
+
+1. Click Add and select the **Tier-0 Router** option.
+
+  <img src="images/nsxt/nsx-misc/t0-router-03.png">
+
+1. Create new T0 router as follows:
+
+	Name: `T0-LR` or `t0-pks`, for example
+	Edge Cluster: Select the `edgecluster1` or `edge-cluster-pks`, for example
+	High Availability Mode: `Active-Standby`
+
+	    <p class="note"><strong>Note</strong>: Make sure to select Active/Standby. NAT rules are be applied on T0 by NCP. If not set Active-Standby, NCP will not be able to create NAT rules on the T0 Router.</p>
+
+  <img src="images/nsxt/nsx-misc/t0-router-04.png">
+
+1. Click Save and verify you see the new T0 Router instance:
+
+  <img src="images/nsxt/nsx-misc/t0-router-05.png">
+
+### Create T0 Router Port
+
+Attach the T0 logical router to the uplink logical switch you created above (`uplink-LS1`, for example). To do this, create a logical router port for the uplink and assign an IP address and CIDR that your environment uses to route to all PKS assigned IP pools and IP blocks.
+
+1. Go to Routing > Routers.
+
+1. Select the T0 Router.
+
+1. Select Configuration > Router Ports.
+
+1. Select Tier-0 Router.
+
+  <img src="images/nsxt/nsx-misc/t0-router-06.png">
+
+1. Click Add.
+
+1. Create new T0 router port. Attach the T0 router port to the uplink logical switch you created above (`uplink-LS1`, for example). Assign an IP address and CIDR that your environment uses to route to all PKS assigned IP pools and IP blocks. For example:
+
+	Name: `Uplink1`
+	Type: Uplink
+	Transport Node: `edge-TN1`
+	Logical Switch: `uplink-LS1`
+	Logical Switch Port: `uplink1-port`
+	IP Address/mask: `10.40.206.24/25`
+
+  <img src="images/nsxt/nsx-misc/t0-router-07.png">
+
+1. Click Save and verify that you see the new port interface:
+
+  <img src="images/nsxt/nsx-misc/t0-router-08.png">
+
+### Define Default Static Route
+
+Configure T0 routing to the rest of your environment using the appropriate routing protocol (if you are using no-NAT-mode), or using static routes (NAT-mode). This example uses static routing for the T0 router. The CIDR used in ip-pool-vips must route to the IP you just assigned to your T0 uplink interface.
+
+1. Go to Routing > Routers and select the T0 Router.
+
+1. Select Routing > Static Routes and click **Add**.
+
+  <img src="images/nsxt/nsx-misc/t0-router-09.png">
+
+1. Create new static route for the T0 router. For example:
+
+	Network: `0.0.0.0/0`
+	Next Hop: `10.40.206.125` (for example)
+	Admin Distance: `1`
+	Logical Router Port: `Uplink1`
+
+  <img src="images/nsxt/nsx-misc/t0-router-10.png">
+
+1. Click Save and verify that see the newly created static route:
+
+  <img src="images/nsxt/nsx-misc/t0-router-11.png">  
+
+### Verify T0 Router Creation
+
+The T0 router uplink IP should be reachable from your corporate network. 
+
+1. From your local machine (laptop or worksation), ping the uplink IP address. For example:
+
+		  PING 10.40.206.24 (10.40.206.24): 56 data bytes
+		  64 bytes from 10.40.206.24: icmp_seq=0 ttl=53 time=33.738 ms
+		  64 bytes from 10.40.206.24: icmp_seq=1 ttl=53 time=36.965 ms
+
+
+##<a id='create-edge-ha'></a> Part XIV: Configure Edge Nodes for HA
+
+This section provides instructions for configuring <a href="nsxt-prepare-env.html#nsx-edge-ha">high-availability (HA) for NSX Edge Nodes</a>. If the T0 Router is not correctly cofigured for HA, failover to the standby Edge Node will not occur.
+
+Proper configuration requires two new uplinks on the T0 router: one attached to Edge TN1, and the other attached to Edge TN2. In addition, you need to create a VIP that is the IP address used for the T0 uplink defined when the T0 Router was created.
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-01.png">
+
+### Create Uplink1 for Edge-TN1
+
+1. On the T0 router, create Uplink1 attached to Egde TN1. For example:
+
+	IP Address/Mask: `10.40.206.10/25`
+	URPF Mode: None (optional)
+	Transport Node: `edge-TN1`
+	Logical Switch: `uplink-LS1`
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-02.png">
+
+1. Click Save.
+
+### Create Uplink2 for Edge-TN2
+
+1. On the T0 router, create Uplink2 attached to Egde TN2. For example:
+
+	IP Address/Mask: `10.40.206.9/25`
+	URPF Mode: None (optional)
+	Transport Node: `edge-TN2`
+	Logical Switch: `uplink-LS1`
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-03.png">
+
+1. Click Save.
+
+### Create HA VIP
+
+Once crated the HA VIP becomes the official IP for the T0 router uplink. External router devices peering with the T0 router _must_ use this IP address.
+
+<p class="note"><strong>Note</strong>: The IP addresses for uplink-1, uplink-2 and HA VIP _must_ belong to same subnet.</p>
+
+1. On the T0 router, create the HA VIP. For example:
+
+<table>
+  <tr>
+    <th>Setting</th>
+    <th>HA VIP</th>
+  </tr>
+  <tr>
+    <td>VIP address</td>
+    <td>10.40.206.24/25</td>
+  </tr>
+  <tr>
+    <td>Uplinks ports</td>
+    <td>uplink-1 and uplink-2</td>
+  </tr>
+</table>
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-05.png">
+
+1. Verify creation of the HA VIP.
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-04.png">
+
+
+### Create Static Route for HA
+
+1. On the T0 router, create a static default route so that the next hop points to the HA VIP address. For example:
+
+	Network: `0.0.0.0/0`
+	Next Hop: `10.40.206.125`
+	Logical Router port: empty
+
+    <img src="images/nsxt/nsx-misc/edge-node-ha-05b.png">
+
+1. Using vCenter, disconnect the last interface of each Edge Node VM (this interface can cause duplicate packets).
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-06.png">
+
+### Verify Edge Node HA
+
+1. The T0 router should display both Edge TNs in active/standby pairing.
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-07.png">
+
+1. Run the following commands to verify HA channels:
+
+  nsx-edge-n-1> get high-availability channels
+  nsx-edge-n-1> get high-availability channels stats
+  nsx-edge-n-1> get logical-router
+  nsx-edge-n-1> get logical-router ROUTER-UUID high-availability status
+
+
+##<a id='prepare-esxi'></a> Part XV: Prepare ESXi Servers for the PKS Compute Cluster
+
+In this section you prepare ESXi servers for the PKS Compute Cluster.
+
+These instructions assume that for each participating ESXi host the ESXi hypervisor is installed and the vmk0 is configured. In addition, each host must have at least one **free nic/vmnic** not already used by other vSwitches on the ESXi host for use with NSX Host Transport Nodes. Make sure vmnic1 (second physical interface) of the hosts are not used. NSX will take ownership of it (opaque NSX vswitch will use it as uplink).
+
+For additional information, see [Add a Hypervisor Host to the NSX-T Fabric](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.install.doc/GUID-8C0EEC08-3A63-4918-A5E2-7A94AD50B0E6.html) in the VMware NSX-T documentation. 
+
+### Add ESXi Host to NSX-T Fabric
+
+Complete the following operation for each ESXi host to be used by the PKS Compute Cluster.
+
+1. Go to Fabric > Nodes > Hosts.
+
+1. Click Add.
+
+1. Create new host. For example:
+
+	IP Address: 10.115.40.72
+	OS: ESXi
+	Username: root
+	Password: PASSWORD
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-01">
+
+1. Click on Save.
+
+1. Click Yes if the following invalid thumbprint message appears.
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-02">
+
+1. NSX will install VIBs on the ESXi host. Momentiarily you should see the new defined host.
+
+	Deployment status should show "NSX Installed" and Manager Connectivity should show "Up".
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-03">
+
+
+### Create Transport Node
+
+1. Go to Fabric > Nodes > Transport Nodes
+
+1. Click on Add.
+
+1. Create a new TN:
+
+	Name: ESXi-COMP-1-TN
+	Node: ESXi-COMP-1
+	TZ: TZ-Overlay
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-04">
+
+1. Select the Host Switches tab.
+
+1. Configure Host Switch:
+
+	Host Switch Name: `hostswitch1`
+	Uplink Profile: `nsx-default-uplink-hostswitch-profile`
+	IP Assignment: `Use IP Pool`
+	IP POOL: `TEP-ESXi-POOL`
+	Physical NICs: `vmnic1`
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-05">
+
+1. Click Save.
+
+
+### Verify ESXi Host Preparation for PKS Compute Cluster
+
+1. Verify that you see the ESXi TN:
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-06">
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-07">
+
+    <p class="note"><strong>Note</strong>: If you are using NSX-T 2.3, the status should be up. If you are using NSX-T 2.2, the status may incorectly show as down (because the Tunnel Status is Down. Verify TEP communications as described next.</p>
+
+1. Make sure the NSX TEP vmk is created on ESXi host and TEP to TEP communication (with Edge TN for instance) works.
+
+		[root@ESXi-1:~] esxcfg-vmknic -l
+
+		[root@ESXi-1:~] vmkping ++netstack=vxlan <IP of the vmk10 interface> -d -s 1500
+
+
+

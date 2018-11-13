@@ -1,0 +1,225 @@
+---
+title: Prepare PKS Management Plane
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This section provides instructions for preparing the vSphere and NSX-T infrastructure for the PKS Management Plane where the PKS, Ops Manager, and BOSH VMs run. 
+
+
+## Installation Instructions
+
+- Part I:     [Create vSphere Resource Pool for the PKS Management Plane](create-rp)         
+- Part II:    [Create NSX-T Logical Switch for the PKS Management Plane](create-ls)                                  
+- Part II:    [Create NSX-T Tier-1 Logical Router for the PKS Management Plane](create-t1)                                  
+- Part IV:	  [Create DNAT rule on T0 router to access Ops Manager Web UI](create-dnat-om)
+- Part V: 	  [Create SNAT rule on T0 router for access vCenter and NSX-T manager]
+- Part VI:    [Create SNAT rule on T0 router for access DNS, NTP, AD (LDAP) Servers and other Management Systems]
+- Part VII:	  [Create SNAT rule on T0 router for access ESXi Hosts (Management IP)
+
+##<a id='create-rp'></a>Part I. Create vSphere Resource Pool for the PKS Managment Plane
+
+1. Log in to vCenter for your vSphere environment.
+
+1. Select Compute Cluster > New Resource Pool.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-01.png">
+
+1. Name the resource pool, such as `RP-MGMT-PKS`.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-02.png">
+
+1. Click OK and verify resource pool creation:
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-03.png">
+
+
+##<a id='create-ls'></a>Part II. Create NSX-T Logical Switch for the PKS Management Plane
+
+1. In NSX Manager, select Switching > Add.
+
+1. Create a new logical switch. For example: 
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-04.png">
+
+1. Verify LS creation:
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-05.png">
+
+
+##<a id='create-rp'></a>Part III. Create NSX-T Tier-1 Router for the PKS Management Plane
+
+1. In NSX Manager, select Routing > Add > Tier-1 Router.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-06.png">
+
+1. Configure the T1 router. For example:
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-07.png">
+
+1. Verify T1 router creation:
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-08.png">
+
+1. Select the T1 router you created.
+
+1. Select Configuration > Router Ports.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-09.png">
+
+1. Click Add and configure the T1 router port. For example:
+
+	Name: `T1-MGMT-PKS-PORT`	
+	Logical Switch: `select LS-MGMT-PKS`
+	IP Address/mask: `10.0.0.1/24`
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-10.png">
+
+1. Click Add and verify T1 router port creation:
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-11.png">
+
+1. Select the T1 router > Routing > Route Advertisement.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-12.png">
+
+1. Advertise the T1 route as follows:
+
+	Status: enabled
+	Advertise all NSX connected routes: yes
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-13.png">
+
+1. Verify route advertisement.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-14.png">
+
+1. Select the T1 router > Overview.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-15.png">
+
+1. Select Tier-0 Connection > Connect. Select the T0 router and click Connect.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-16.png">
+
+1. Verify connectivity between T1 and T0 routers.
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-17.png">
+
+1. Verify T1 router configuration by seclecting the T1 router > Router ports. The T1 router created for the PKS Management Plane should have 2 ports: one connected to the T0 router, and a second connected to logical switch defined for the PKS Management Plane (this port will be the default GW for all VM connected to this LS).
+
+  <img src="images/nsxt/nsx-manager/create-mgmt-plane-18.png">
+
+
+##<a id='create-dnat-om'></a>Part IV. Create DNAT Rule on T0 Router for Ops Manager
+
+Create a DNAT rule on the T0 Router to access the Ops Manager Web UI, which is required to deploy PKS. If you are using Harbor Registry, you would need to create a similar DNAT rule on T0 router to access the Harbor Web UI. See [Create DNAT rule for Harbor](https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat) for details.
+
+The Destination NAT (DNAT) rule on the T0 maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the `ls-pks-mgmt` logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
+
+1. In NSX Manager, select Routing > Routers.
+
+1. Select the T0 Router > Services > NAT.
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-19.png">
+
+1. Click ADD and configure a DNAT rule with the routable IP address as the detination and the internal IP address for Ops Manager as the translated IP. For example:
+
+	Priority: 1000
+	Action: DNAT
+	Destination IP: 10.40.14.1
+	Translated IP: 10.0.0.2
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-20.png">
+
+1. Click Add and verify: 
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-21.png">
+
+
+##<a id='create-snat-infra'></a>Part V. Create SNAT rule on T0 router for vCenter and NSX-T Manager
+
+Create a SNAT rule on T0 router for PKS management components to access vCenter and NSX-T manager.
+
+The Source NAT (SNAT) rule on the T0 allows the PKS Management VMs to communicate with your vCenter and NSX Manager environments. For example, an SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
+
+<p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnets that contain your vCenter and NSX Manager IP addresses.</p>
+
+1. Select T0 router > Services > NAT.
+
+1. Click ADD and configure the SNAT rule. For example:
+
+	Priority: 1010
+	Action: SNAT
+	Source: 10.0.0.0/24
+	Destination IP: 10.40.206.0/24
+	Translated IP: 10.40.14.2
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-22.png">
+
+1. Click Add and verify SNAT rule creation:
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-23.png">
+
+
+##<a id='create-snat-etc'></a>Part VI. Create SNAT Rules on T0 Router for DNS, NTP, and LDAP/AD
+
+1. In NSX Manager, select T0 router > Services > NAT.
+
+1. Add an SNAT rule for DNS. For example:
+
+	Priority: 1010
+	Action: SNAT
+	Source: 10.0.0.0/24
+	Destination IP: 10.20.20.1
+	Translated IP: 10.40.14.2
+
+	<img src="images/nsxt/nsx-manager/create-mgmt-plane-24.png">
+
+1. Add an SNAT rule for NTP. For example:
+
+	Priority: 1010
+	Action: SNAT
+	Source: 10.0.0.0/24
+	Destination IP: 10.113.60.176
+	Translated IP: 10.40.14.2
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-26.png">
+
+1. Add an SNAT rule for LDAP/AD. For example:
+
+	Priority: 1010
+	Action: SNAT
+	Source: 10.0.0.0/24
+	Destination IP: 10.40.207.0/24
+	Translated IP: 10.40.14.2
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-27.png">
+
+1. Verify SNAT rule creation:
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-28.png">
+
+
+##<a id='create-snat-esxi'></a>Part VII. Create SNAT Rule on T0 Router for ESXi Hosts (Management IP)
+
+Create a SNAT rule on T0 router for PKS management components to access ESXi Hosts. The Destination IP is the Management IP subnet where ESXi Hosts are networked.
+
+<p class="note"><strong>Note</strong>: Ops Manager and BOSH must use the NFCP protocol to the actual ESX hosts to which it is uploading stemcells. Specifically, <strong>Ops Manager & BOSH Director -> ESXi</strong>.</p>
+
+1. Select T0 router > Services > NAT.
+
+1. Click Add and configure the SNAT rule. For example:
+
+	Priority: 1010
+	Action: SNAT
+	Source: 10.0.0.0/24
+	Destination IP: 10.115.40.0/24   
+	Translated IP: 10.40.14.2
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-29.png">
+
+1. Click Add and verify SNAT rule creation:
+
+	  <img src="images/nsxt/nsx-manager/create-mgmt-plane-29.png">
