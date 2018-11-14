@@ -104,11 +104,9 @@ Create NSX Clusters for the [Management Plane](https://docs.vmware.com/en/VMware
 
 ##<a id='nsx-edges'></a> Step 5: Deploy NSX Edge Nodes
 
-Deploy two or more [NSX Edge Nodes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-6E035C20-35B4-415F-A0B9-20C4A5674B46.html). Edge Nodes for PKS run load balancers for PKS API traffic, Kubenetes pod LB services, and pod ingress controllers.
+Deploy two or more [NSX Edge Nodes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-6E035C20-35B4-415F-A0B9-20C4A5674B46.html). Edge Nodes for PKS run load balancers for PKS API traffic, Kubenetes pod LB services, and pod ingress controllers. For instructions, see [Deploy NSX Edge Nodes](deploy-nsx-edges).
 
-PKS supports active/standby Edge Node failover and requires at least two Edge Nodes. In addition, PKS requires the Edge Node Large VM (8 vCPU, 16 GB of RAM, and 120 GB of storage). The Small and Medium VMs are not suitable for use with PKS due to load balancer requirements. Bare metal edge support is planned. For more information, see [Edge Node Requirements](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html).
-
-For instructions, see [Deploy NSX Edge Nodes](deploy-nsx-edges).
+PKS supports active/standby Edge Node failover and requires at least two Edge Nodes. In addition, PKS requires the Edge Node Large VM (8 vCPU, 16 GB of RAM, and 120 GB of storage). The default size of the LB provisioned for PKS is small. You can customize this after deploying PKS using <a href="network-profiles.html">Network Profiles</a>.
 
 ##<a id='nsx-edge-reg'></a> Step 6: Register NSX Edge Nodes
 
@@ -136,13 +134,7 @@ Create an [NSX Uplink Profile](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.v
 
 ##<a id='nsx-tn'></a> Step 12: Create Transport Edge Nodes
 
-Create [NSX Edge Transport Nodes](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-53295329-F02F-44D7-A6E0-2E3A9FAE6CF9.html), which allow Edge Nodes to exchange traffic for Virtual Networks among other NSX nodes.
-
-Be sure to add both the VLAN and OVERLAY NSX Transport Zones to the NSX Edge Transport Nodes and confirm NSX Controller and Manager connectivity. Use the MAC addresses of the Edge VM interfaces to deploy the virtual NSX Edges:
- * Connect the OVERLAY N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the second NIC from your deployed Edge VM.
- * Connect the VLAN N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the third NIC from your deployed Edge VM.
-
-For instructions, see [Create Transport Edge Nodes](create-edge-tns). 
+Create [NSX Edge Transport Nodes](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.install.doc/GUID-53295329-F02F-44D7-A6E0-2E3A9FAE6CF9.html), which allow Edge Nodes to exchange traffic for virtual networks among other NSX nodes. For instructions, see [Create Transport Edge Nodes](create-edge-tns). 
 
 ##<a id='nsx-edge-cluster'></a> Step 13: Create Edge Cluster
 
@@ -150,41 +142,27 @@ Create an [NSX Edge Cluster](https://docs.vmware.com/en/VMware-NSX-T-Data-Center
 
 ##<a id='nsx-to'></a> Step 14: Create T0 Logical Router for PKS
 
-[NSX Tier-0 Logical Routers](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) route data between the NSX-T virtual network and the physical network.
-
-To create a Tier-0 (T0) logical router, define a T0 logical switch with an ingress/egress uplink port. Attach the T0 LS to the VLAN Transport Zone. Create a logical router port and assign to it a routable CIDR block, for example `10.172.1.0/28`, that your environment uses to route to all PKS assigned IP pools and IP blocks. Connect the TO router to the uplink VLAN logical switch. Attach the T0 router to the Edge Cluster and set HA mode to **Active-Standby**. NAT rules are applied on the T0 by NCP. If the T0 router is not set in **Active-Standby** mode, the router does not support NAT rule configuration. Lastly, configure T0 routing to the rest of your environment using the appropriate routing protocol for your environment or by using static routes.
-
-For instructions, see [Create T0 Router](create-t0-router).
+[NSX Tier-0 Logical Routers](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) route data between the NSX-T virtual network and the physical network. For instructions, see [Create T0 Router](create-t0-router).
 
 ##<a id='nsx-edge-ha'></a> Step 15: Configure NSX Edge for High Availability (HA)
 
 Configure NSX Edge for high availability (HA) using Active/Standby mode to support failover, as shown in the following figure. For instructions, see [Configure Edge HA](configure-edge-ha).
 
-![NSX Edge High Availability](images/vsphere/nsxt-edge-ha.png)
+<p class="note"><strong>Note</strong>: If the T0 Router is not properly cofigured for HA, failover to the standby Edge Node will not occur. See [Configure Edge HA](configure-edge-ha) for instructions.</p>
 
-<p class="note"><strong>Note</strong>: If the T0 Router is not correctly cofigured for HA, failover to the standby Edge Node will not occur. See [Configure Edge HA](configure-edge-ha) for instructions.</p>
+![NSX Edge High Availability](images/vsphere/nsxt-edge-ha.png)
 
 ##<a id='nsx-esxi'></a> Step 16: Prepare ESXi Hosts for PKS Compute Plane
 
-An [NSX Transport Node](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-FCC5390E-3489-47E8-ABE6-2F7FD43775BD.html) allows NSX Nodes to exchange traffic for virtual networks. ESXi hosts dedicated to the PKS Compute Cluster must be prepared as tranport nodes. For each ESXi host in the NSX-T Fabric to be used for PKS Compute purposes, create an associated transport node. For example, if you have three ESXi hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`. Add the Overlay Transport Zone to each ESXi Host Transport Node.
-
-For instructions, see [Prepare Compute Cluster ESXi Hosts](prepare-esxi).
+An [NSX Transport Node](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-FCC5390E-3489-47E8-ABE6-2F7FD43775BD.html) allows NSX Nodes to exchange traffic for virtual networks. ESXi hosts dedicated to the PKS Compute Cluster must be prepared as tranport nodes. For instructions, see [Prepare Compute Cluster ESXi Hosts](prepare-esxi).
 
 <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>VTEPS</code> IP pool that allows ESXi hosts to route and communicate with each other, as well as other Edge Transport Nodes.</p>
 
 ##<a id='nsx-esxi'></a> Step 17: Create NSX-T Objects for PKS Management Plane
 
-Create a vSphere resource pool for Management Plane components. If you are using either the the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a> or the <a href="nsxt-topologies.html#topology-no-nat-logical-switch">No-NAT with Logical Switch deployment topology</a>, create a [Tier-1 (T1) Logical Switch](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html), and a [Tier-1 Logical Router and Port](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html). Link the T1 logical router to the T0 logical router, and select the Edge Cluster defined for PKS. Enable route advertisement for the T1 Logical Router and advertise All NSX connected routes for the PKS Management Plane VMs (PKS, Ops Manager, and BOSH Director). 
+Prepare the vSphere and NSX-T infrastructure for the PKS Management Plane where the PKS, Ops Manager, BOSH Director, and Harbor Registry VMs are deployed. This includes a vSphere resource pool for PKS management components, NSX [Tier-1 (T1) Logical Switch](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html), and a [Tier-1 Logical Router and Port](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html). For instructions, see [Prepare Management Plane](nsxt-prepare-mgmt-plane.html).
 
-For instructions, see [Prepare Management Plane](nsxt-prepare-mgmt-plane.html).
-
-If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>, create the following NAT rules for the Mgmt T0.
-  * Destination NAT (DNAT) rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the `ls-pks-mgmt` logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
-  * Source NAT (SNAT) rule to allow the PKS Management VMs to communicate with your vCenter and NSX Manager environments. For example, an SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
-  * SNAT rule for PKS management components to access ESXi Hosts. 
-  * SNAT rules for access to other management servers, such as DNS, NTP, and LDAP/AD.
-
-Summary of required NAT rules for PKS with <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>:
+If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>, create the following NAT rules on the T0 Router. For instructions, see [Prepare Management Plane](nsxt-prepare-mgmt-plane.html).
 
 <table>
   <tr>
@@ -221,18 +199,9 @@ Summary of required NAT rules for PKS with <a href="nsxt-topologies.html#topolog
   </tr>
 </table>
 
-
-<p class="note"><strong>Note</strong>: Ops Manager and BOSH must use the NFCP protocol to the actual ESX hosts to which it is uploading stemcells. Specifically, <strong>Ops Manager & BOSH Director -> ESXi</strong>.</p>
-
-<p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnets that contain your vCenter and NSX Manager IP addresses.</p>
-
-<p class="note"><strong>Note</strong>: If you are using the VMware Harbor Registry with PKS, create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the PKS Management network. See [Installing Harbor](nsx-pks-harbor) for more informaiton.</p>
-
 ##<a id='nsx-comp-plane'></a> Step 18: Create NSX-T Objects for PKS Compute Plane
 
-Create Resource Pools for AZ-1 and AZ-2, which map to the Availability Zones you will create when you configure BOSH Director and reference when you install the PKS tile.
-
-In addition, create two SNAT rules on the T0 router:
+Create Resource Pools for AZ-1 and AZ-2, which map to the Availability Zones you will create when you configure BOSH Director and reference when you install the PKS tile. In addition, create SNAT rules on the T0 router:
 
 - One for K8s Master Nodes (hosting NCP) to reach the NSX-T Manager                                  
 - One for Kubernetes Master Node Access to LDAP/AD (optional)
@@ -251,26 +220,21 @@ For instructions, see <a href="generate-nsx-ca-cert.html">Generate the NSX Manag
 
 ##<a id='nsx-bosh'></a> Step 21. Configure BOSH Director for vSphere with NSX-T
 
-Create availability zones (AZs) that map to the Managment and Compute resource pools in vSphere, and the Management and Compute networks in NSX-T. 
+Create availability zones (AZs) that map to the Managment and Compute resource pools in vSphere, and the Management and Control networks in NSX-T. 
 For instructions, see <a href="vsphere-nsxt-om-config.html">Configure BOSH Director for vSphere with NSX-T</a>.
 
-##<a id='nsx-pi-cert'></a> Step 22: Generate NSX Manager Super User Principal Identity Certificate
+##<a id='nsx-pi-cert'></a> Step 22: Generate NSX Manager Principal Identity Certificate
 
 Generate the NSX Manager Super User Principal Identity Certificate and register it with the NSX Manager using the NSX API.
 For instructions, see <a href="generate-nsx-pi-cert.html">Generate the NSX Manager PI Cert</a>.
 
 ##<a id='nsx-pks-obj'></a> Step 23: Create NSX-T Objects for PKS
 
-You must create separate NSX IP blocks for the [node networks](#nodes-ip-block) and the [pod networks](#pods-ip-block). The subnets for both nodes and pods should have a size of 256 (/16). For more information about planning IP blocks, see [Plan IP Blocks](#plan-ip-blocks). 
+Create IP blocks for the [node networks](#nodes-ip-block) and the [pod networks](#pods-ip-block). The subnets for both nodes and pods should have a size of 256 (/16). For more information, see [Plan IP Blocks](#plan-ip-blocks) as well as [Reserved IP Blocks](#reserved-ip-blocks). 
 
- * NODE-IP-BLOCK is used by PKS to assign address space to Kubernetes master and worker nodes when new clusters are deployed or a cluster increases its scale.
- * POD-IP-BLOCK is used by the NSX-T Container Plug-in (NCP) to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
+In addition, create a Floating IP Pool from which to assign routable IP addresses to components. This network provides your load balancing address space for each Kubernetes cluster created by PKS. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services. 
 
-In addition, create a Floating IP Pool from which to assign routable IP addresses to components. This network provides your load balancing address space for each Kubernetes cluster created by PKS. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/24` provides 256 usable IPs. This network is used when creating the virtual IP pools, or when the services are deployed. You enter this network in the **Floating IP Pool ID** field in the **Networking** pane of the PKS tile.
-
-For instructions, see <a href="nsxt-create-objects.html">Create NSXT Object for PKS</a>.
-
-<p class="note"><strong>Note</strong>: Do not use IP addresses that are [reserved for PKS](#reserved-ip-blocks).</p>
+These objects are required to configure the PKS tile for NSX-T networking. For instructions, see <a href="nsxt-create-objects.html">Create NSXT Object for PKS</a>.
 
 ##<a id='nsx-pks-install'></a> Step 24: Install PKS on vSphere with NSX-T
 
@@ -278,6 +242,6 @@ At this point your NSX-T environment is prepared for PKS installation using the 
 
 ##<a id='nsx-pks-harbor'></a> Step 25: Install Harbor Harbor Registry for PKS
 
-The VMware Harbor Registry is an optional but recommended component for PKS. Install Harbor in the NSX Management Plane with other PKS componets, including the PKS API Server, Ops Manager, and BOSH. For instructions, see <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html">Installing Harbor Registry on vSphere with NSX-T</a> in the PKS Harbor documentation.
+The VMware Harbor Registry is recommended for PKS. Install Harbor in the NSX Management Plane with other PKS componets (PKS API, Ops Manager, and BOSH). For instructions, see <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html">Installing Harbor Registry on vSphere with NSX-T</a> in the PKS Harbor documentation.
 
-If you are using the [NAT deployment topology](nsxt-topologies.html#topology-nat) for PKS, create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the PKS Management network. See <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat">Create DNAT Rule</a>.
+If you are using the [NAT deployment topology](nsxt-topologies.html#topology-nat) for PKS, create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the PKS management network. See <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat">Create DNAT Rule</a>.
