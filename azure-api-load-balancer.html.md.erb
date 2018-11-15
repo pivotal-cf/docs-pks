@@ -1,0 +1,104 @@
+---
+title: Creating an Azure Load Balancer for the PKS API
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to create a load balancer for the PKS API using Azure.
+
+Before you install PKS, you must configure an external TCP load balancer to
+access the PKS API from outside the network. You can use any external TCP load
+balancer of your choice.
+
+Refer to the procedures in this topic to create a load balancer using Azure. If
+you choose to use a different load balancer, use this topic as a guide.
+
+## <a id='define-lb'></a>Step 1: Define Load Balancer
+
+Prerequisite
+
+- Identify the vm of the pks-api through Azure console (vm tagged with `instance_group:pivotal-container-service`) or using `bosh vms`, in both case note the name of the vm.
+
+1. In the browser navigate to [Azure Console](https://portal.azure.com)
+1. Locate the **Load Balancers** service (Searching or on the sidebar)
+1. Click **Add**
+1. On the **Create load balancer** page complete the configuration
+  1. **Name**: Name the load balancer.
+  1. **Type**: Choose **Public**
+  1. **SKU**: Choose **Standard**
+  1. **Public IP address**: Choose **Create new** and give a name to it.
+  1. **Availability zone**: Choose an availability zone or **Zone-redundant**
+  1. **Subscription**: Pick the subscription which has PKS deployed.
+  1. **Resource group**: Pick the resource group which has PKS deployed.
+  1. **Location**: Pick the location group which has PKS deployed.
+  1. Click **Create**
+1. Select the created load balancer
+1. Note the IP address
+1. In the setting area select **Backend pools**
+1. Click **Add**
+1. On the **Add backend pool** page
+  1. **Name**: Pick a name for the backend pool.
+  1. **Virtual network**: select the virtual network where the pks-api are deployed
+  1. Under virtual machine select the virtual machine previously identified as pks-api vm and select the appropriate IP Address.
+  1. Click **Add**
+1. In the setting area select **Health Probes**
+  1. Click **Add**
+  1. Complete the configuration
+    1. **Name**: Name of the health probe
+    1. **Protocol**: Choose **TCP**
+    1. **Port**: Enter **9021**
+    1. **Interval**: Select amount of time between probe attempts
+    1. **Unhealthy Threshold**: Select the number of consecutive probe failures that must occur before a virtual machine is considered unhealthy.
+    1. Click **OK**
+1. In the setting area select **Load Balancing Rules**
+  1. Click **Add**
+  1. Complete the configuration
+    1. **Name**: Name of the Load Balancing Rule
+    1. **IP Version**: Select IPv4
+    1. **Frontend IP address**: Select the appropriate IP address
+    1. **Protocol**: Select TCP
+    1. **Port**: Select **9021**
+    1. **Backend port**: Select **9021**
+    1. **Backend Pool**: Select backend pool previously defined.
+    1. **Health Probe**: Select health probe previously defined.
+    1. **Session persistence**: Select **None**
+    1. Click **OK**
+1. In the setting area select **Health Probes**
+  1. Click **Add**
+  1. Complete the configuration
+    1. **Name**: Name of the health probe
+    1. **Protocol**: Choose **TCP**
+    1. **Port**: Enter **8443**
+    1. **Interval**: Select amount of time between probe attempts
+    1. **Unhealthy Threshold**: Select the number of consecutive probe failures that must occur before a virtual machine is considered unhealthy.
+    1. Click **OK**
+1. In the setting area select **Load Balancing Rules**
+  1. Click **Add**
+  1. Complete the configuration
+    1. **Name**: Name of the Load Balancing Rule
+    1. **IP Version**: Select IPv4
+    1. **Frontend IP address**: Select the appropriate IP address
+    1. **Protocol**: Select TCP
+    1. **Port**: Select **8443**
+    1. **Backend port**: Select **8443**
+    1. **Backend Pool**: Select backend pool previously defined.
+    1. **Health Probe**: Select health probe previously defined.
+    1. **Session persistence**: Select **None**
+    1. Click **OK**
+1. Locate the **Security Groups** service (Searching or on the sidebar)
+1. Identify and select the Security Group attached to the subnet where PKS API is deployed (if deployed using terraform it has the suffix ops-manager-security-group)
+1. In the setting area select **Inbound security rules**
+  1. Click **Add**
+  1. Complete the configuration
+    1. **Source**: select **Any**
+    1. **Source port ranges**: input ***** (star)
+    1. **Destination**: select **Any**
+    1. **Destination port ranges**: input 9021,8443
+    1. **Name**: Name of the rule
+    1. Click **Add**
+1. Ensure the **API Hostname (FQDN)** you put in the PKS API configuration in the tile resolve to the IP address of the loadbalancer
+
+## <a id='next-steps'></a>Next Steps
+
+After you complete this procedure, follow the instructions in [Installing PKS on Azure](installing-pks-azure.html).
