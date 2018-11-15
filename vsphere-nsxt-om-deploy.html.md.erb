@@ -1,99 +1,145 @@
 ---
-title: Deploying Ops Manager on vSphere with NSX-T
+title: Deploying Ops Manager on vSphere with NSX-T for PKS
 owner: Ops Manager
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic provides instructions for deploying Ops Manager on VMware vSphere with NSX-T integration.
+This topic provides instructions for deploying Ops Manager on VMware vSphere with NSX-T integration for use with PKS.
 
-<p class="note"><strong>Note</strong>: With vSphere 6.5 and NSX-T 2.1, when initially deploying the Operations Manager OVF, you cannot connect directly to an NSX-T logical switch.
-You must first connect to a vSphere Standard (vSS) or vSphere Distributed Switch (vDS).
-A suggested approach is to connect to a VSS or VDS when deploying the OVF, but do not power the VM on.
-After the OVF deployment has completed, you can then connect the network interface to the appropriate NSX-T logical switch and power the VM on to proceed with the install.
-This issue is resolved in VMware vCenter Server 6.7.
-For more information about this issue, see the <a href="https://kb.vmware.com/kb/54142">VMware Knowledge Base</a>.</p>
+<p class="note"><strong>Note</strong>: For security purposes, VMware requires a dedicated instance of Ops Manager for use with PKS. Do not deploy Pivotal Application Service (PAS) on the same instance of Ops Manager as PKS. For more information, see <a href="pas-and-pks.html">PAS and PKS Deployments with Ops Manager</a>.</p>
 
+##<a id='prerequisites'></a>Prerequisites
+
+<ul>
+  <li>
+    <a href="./nsxt-deploy.html">Deploy NSX-T for PKS</a>
+  </li>
+  <li>
+    <a href="./nsxt-prepare-mgmt-plane.html">Create PKS Management Plane</a>
+  </li>
+  <li>
+    <a href="./nsxt-prepare-compute-plane.html">Create PKS Compute Plane</a>
+  </li>
+</ul>
+
+## <a id="deploy-om"></a>Deploy Ops Manager for PKS
+
+1. Before starting, refer to the [PKS Release Notes](https://docs.pivotal.io/runtimes/pks/1-2/release-notes.html#v1.2.1-snapshot) for supported Ops Manager versions for PKS. Or, download the [Compatiblity Matrix](https://network.pivotal.io/products/ops-manager/) from the Ops Manager download page. 
 1. Before starting, refer to the known issues in the [PCF Ops Manager Release v2.2 Release Notes](http://docs.pivotal.io/pivotalcf/2-2/pcf-release-notes/opsmanager-rn.html) or the [PCF Ops Manager Release v2.3 Release Notes](http://docs.pivotal.io/pivotalcf/2-3/pcf-release-notes/opsmanager-rn.html).
-1. Download the [Pivotal Cloud Foundry](https://network.pivotal.io/products/pivotal-cf) (PCF) Ops Manager `.ova` file at [Pivotal Network](https://network.pivotal.io). Click the **Pivotal Cloud Foundry** region to access the PCF product page. Use the dropdown menu to select an Ops Manager release.
+1. Download the [Pivotal Cloud Foundry Ops Manager for vSphere](https://network.pivotal.io/products/ops-manager) `.ova` file at [Pivotal Network](https://network.pivotal.io). Use the dropdown menu to select the supported Ops Manager release.
 
-    <%= image_tag("vsphere/vm-ops-man.png") %>
+	Ops Manager for vSphere is provided as an OVA file (`pcf-vsphere-2.3-build.170.ova`, for example) that you import into your vSphere environment. An OVA file is a template for a VM. 
 
-1. Log into vCenter.
-1. Select the **VM and Templates** view.
+    <%= image_tag("images/nsxt/om/deploy-om-01.png") %>
 
-    <%= image_tag("vsphere/vm-template-view.png") %>
+1. Log into vCenter using the vSphere Web Client (FLEX) to deploy the Ops Manager OVA. This can also be done using the using the vSphere Client (HTML5), the OVFTool, or the PowerCLI.
 
-1. Right click on your datacenter and select **New Folder**.
+1. Select the Resource Pool defined for the PKS Management Plane. See <a href="./nsxt-prepare-mgmt-plane.html">Create PKS Management Plane</a> if you have not defined the PKS Management Resource Pool.
 
-    <%= image_tag("vsphere/new-folder.png") %>
+1. Right click the PKS Managment Plane Resource Pool and select **Deploy OVF Template.**
 
-1. Name the folder `pivotal_cf` and select it.
+    <%= image_tag("images/nsxt/om/deploy-om-02.png") %>
 
-    <%= image_tag("vsphere/folder-name.png") %>
+1. At the **Select template** screen, click **Browse**.
 
-1. Select **File > Deploy OVF Template**.
+    <%= image_tag("images/nsxt/om/deploy-om-03.png") %>
 
-    <%= image_tag("vsphere/deploy-ova.png") %>
+1. Select the Ops Manager OVA file you downloaded and click **Open**.
 
-1. Select the .ova file and click **Next**.
+    <%= image_tag("images/nsxt/om/deploy-om-05.png") %>
 
-    <%= image_tag("vsphere/next.png") %>
+1. Review template selection and click **Next**.
 
-1. Review the product details and click **Next**.
-1. Accept the license agreement and click **Next**.
-1. Name the virtual machine and click **Next**.
+    <%= image_tag("images/nsxt/om/deploy-om-04.png") %>
 
-    <%= image_tag("vsphere/vm-name.png") %>
+1. At the **Select Name and location** screen, enter a name for the Ops Manager VM (or use the default name), select the **Datacenter object, and click **Next**
 
-    <p class="note"><strong>Note</strong>: The selected folder is the one you created.</p>
+    <%= image_tag("images/nsxt/om/deploy-om-06.png") %>
 
-1. Select a vSphere cluster and click **Next**.
+1. At the **Select a resource** screen, select the PKS Management Plane Resource Pool and click **Next**.
 
-    <%= image_tag("vsphere/anchovy-cluster.png") %>
+    <%= image_tag("images/nsxt/om/deploy-om-07.png") %>
 
-1. If prompted, select a resource pool and click **Next**.
+1. At the **Review Details** screen, confirm the configuration up to this point and click **Next**.
 
-1. If prompted, select a host and click **Next**.
+    <%= image_tag("images/nsxt/om/deploy-om-08.png") %>
 
-    <p class="note"><strong>Note</strong>: If your vSphere host does not support VT-X/EPT, you must disable hardware virtualization. For more information, see <a href="https://docs.pivotal.io/pivotalcf/customizing/vsphere.html#vsphere-reqs">PCF on vSphere Requirements</a>.</p>
+1. At the **Select Storage** screen, select **Thin Provision**, choose the desired Datastore, and click **Next**. For more information about disk formats, see [Provisioning a Virtual Disk in vSphere](https://docs.pivotal.io/pivotalcf/customizing/disk-format.html).
 
-    <%= image_tag("vsphere/host.png") %>
+    <p class="note warning"><strong>Warning</strong>: Ops Manager requires a Director VM with at least 8GB memory.</p>
 
-1. Select a storage destination and click **Next**.
+    <%= image_tag("images/nsxt/om/deploy-om-09.png") %>
 
-    <%= image_tag("vsphere/storage.png") %>
+1. At the **Select Networks** screen, if you are using vSphere 6.7, select either the PKS Management T1 Logical Switch that you defined when <a href="./nsxt-prepare-mgmt-plane.html">Creating the PKS Management Plane</a>, or if you are using vSphere 6.5, select a vSS or vDS port-group such as the standard **VM Network**, and click **Next**.
 
-1. Select a disk format and click **Next**. For more information about disk formats, see [Provisioning a Virtual Disk in vSphere](https://docs.pivotal.io/pivotalcf/customizing/disk-format.html).
+    <%= image_tag("images/nsxt/om/deploy-om-10.png") %>
 
-    <p class="note warning"><strong>Warning</strong>: Ops Manager v2.2.2 requires a Director VM with at least 8&nbsp;GB memory.</p>
+    <p class="note"><strong>WARNING</strong>: With VMware vCenter Server 6.5, when initially deploying the Ops Manager OVA, you cannot connect to an NSX-T logical switch. You must first connect to a vSphere Standard (vSS) or vSphere Distributed Switch (vDS). After the OVA deployment is complete, before powering on the Ops Manager VM, connect the network interface to the NSX-T logical switch. The instructions below describe how to do this. This issue is resolved in VMware vCenter Server 6.7. For more information about this issue, see the <a href="https://kb.vmware.com/kb/54142">VMware Knowledge Base</a>.</p>
 
-    <%= image_tag("vsphere/disk-format.png") %>
-
-1. Select a network from the drop down list and click **Next**.
-
-    <%= image_tag("vsphere/network.png") %>
-
-1. Enter network information and passwords for the Ops Manager VM admin user.
-
-    <%= image_tag("vsphere/vm-admin.png", :height => "375px", :width => "400px") %>
-
-    <p class="note"><strong>Note</strong>: Record this network information. The IP Address will be the location of the Ops Manager interface.</p>
-
-1. In the **Admin Password** field, enter a default password for the ubuntu user. If you do not enter a default password, your Ops Manager will not boot up. 
-
-    <%= image_tag("vsphere/admin-login.png", :height => "375px", :width => "400px") %>
+1. At the **Customize template** screen, enter the following information.
+   * **Admin Password**: A default password for the "ubuntu" user. If you do not enter a password, Ops Manager will not boot up.
+   * **Custom hostname**: The hostname for the Ops Manager VM, for example `ops-manager`.
+   * **DNS**: One or more DNS servers for the Ops Manager VM to use, for example `10.20.20.1`.
+   * **Default Gateway**: The default gateway for Ops Manager to use, for example `10.0.0.1`.
+   * **IP Address**: The IP address of the Ops Manager network interface, for example `10.0.0.2` (assuming PKS NAT-mode).
+   * **NTP Server**: The IP address of one or more NTP servers for Ops Manager, for example `10.113.60.176`.
+   * **Netmask**: The network mask for Ops Manager, for example, `255.255.255.0`.
+    <%= image_tag("images/nsxt/om/deploy-om-11.png") %>
 
 1. Click **Next**.
 
-1. Check the **Power on after deployment** checkbox and click **Finish**. Once the VM boots, the interface is available at the IP address you specified.
+1. At the **Ready to complete** screen, review the configuration settings and click **Finish**. This action begins the OVA import and deployment process.
 
-     <p class="note"><strong>Note</strong>: It is normal to experience a brief delay before the interface is accessible while the web server and VM start up.</p>
+    <%= image_tag("images/nsxt/om/deploy-om-12.png") %>
 
-1. Create a DNS entry for the IP address that you used for Ops Manager. You must use this fully qualified domain name when you log into Ops Manager in [Installing Pivotal Cloud Foundry on vSphere](https://docs.pivotal.io/pivotalcf/customizing/vsphere.html#paas).
+1. Use the **Recent Tasks** panel at the bottom of the vCenter dashboard to check the progress of the OVA import and deployment. IF the import or deployment is unsuccessful, check the configuration for errors.
 
-<p class="note"><strong>Note</strong>: Ops Manager security features require you to create a fully qualified domain name to access Ops Manager during the initial configuration. For more information, see <a href="https://docs.pivotal.io/pivotalcf/customizing/vsphere.html#paas">PCF on vSphere Requirements</a>.</p>
+    <%= image_tag("images/nsxt/om/deploy-om-13.png") %>
 
-## Next Steps
+1. Once the deployment completes successfully, right-click the Ops Manager VM and select **Edit Settings**.
 
-After you complete this procedure, follow the instructions in [Configuring Ops Manager on vSphere with NSX-T](vsphere-nsxt-om-config.html).
+    <%= image_tag("images/nsxt/om/deploy-om-14.png") %>
+
+1. If you initially selected a vDS or vSS network for the **Virtual Hardware** > **Network adapter 1** setting, change the vNIC connection to use the `nsx.LogicalSwitch` that is defined for the PKS Management Plane, for example `LS-MGMT-PKS`. See <a href="./nsxt-prepare-mgmt-plane.html">Create PKS Management Plane</a> if you have not defined the PKS Management T1 Logical Switch and Router.
+
+    <%= image_tag("images/nsxt/om/deploy-om-15.png") %>
+
+1. Right-click the Ops Manager VM and click **Power On**.
+
+    <%= image_tag("images/nsxt/om/deploy-om-16.png") %>
+
+## <a id="config-om"></a>Configure Ops Manager for PKS
+
+1. Create a DNS entry for the IP address that you used for Ops Manager. You must use this fully qualified domain name when you log into Ops Manager in the [Installing Pivotal Cloud Foundry on vSphere](https://docs.pivotal.io/pivotalcf/2-4/customizing/vsphere.html#paas) topic. Use the routable IP address assigned to Ops Manager.
+    <p class="note"><strong>Note</strong>: Ops Manager security features require you to create a fully qualified domain name to access Ops Manager during the <a href="https://docs.pivotal.io/pivotalcf/2-4/customizing/vsphere.html#paas">initial configuration.</a></p>
+
+1. Navigate to the fully qualified domain of your Ops Manager in a web browser.
+  <p class="note"><strong>Note</strong>: It is normal to experience a brief delay before the interface is accessible while the web server and VM start up.</p>
+  <p class="note"><strong>Note</strong>: If you are using the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a>, you will need a DNAT rule that maps the Ops Manager private IP to a routable IP. See <a href="./nsxt-prepare-mgmt-plane.html">Create PKS Management Plane</a> for instructions.</p>
+    <%= image_tag("images/nsxt/om/deploy-om-17.png") %>
+
+1. The first time you start Ops Manager, you are required select an authentication system. These instructions use <strong>Internal Authentication</strong>. See [Set Up Ops Manager](https://docs.pivotal.io/pivotalcf/2-3/om/vsphere/config.html#set-up) in the PCF documentation for configuration details for the <strong>SAML</strong> and <strong>LDAP</strong> options.
+
+     <%= image_tag("images/nsxt/om/deploy-om-18.png") %>
+
+1. Select **Internal Authentication** and provide the following information:
+   * **Username**, **Password**, and **Password confirmation** to create an Admin user.
+   * **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the Ops Manager datastore, and is not recoverable.
+   * **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://docs.pivotal.io/pivotalcf/customizing/pcf-director-proxy-settings.html).
+
+1. Click **Setup Authentication**. It will take a few minutes to initialize the database.
+
+     <%= image_tag("images/nsxt/om/deploy-om-19.png") %>
+
+1. Log in to Ops Manager with the user name and password you created.
+
+     <%= image_tag("images/nsxt/om/deploy-om-20.png") %>
+
+1. Verify success. You should be able to log in, and you should see the BOSH Director tile is present and ready for configuration, indicated by the orange color.
+
+     <%= image_tag("images/nsxt/om/deploy-om-21.png") %>
+
+## Next Step
+
+<a href="./generate-nsx-ca-cert.html">Generate and Register the NSX Manager Certificate for PKS</a>.
