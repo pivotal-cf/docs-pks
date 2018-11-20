@@ -1,0 +1,59 @@
+---
+title: Using Proxies with PKS
+owner: PKS
+---
+
+If your environment includes HTTP/S proxies, you can configure PKS with NSX-T to use these proxies so that PKS-deployed Kubernetes master and worker nodes access public Internet services and other internal services through a proxy.
+
+In addition, PKS proxy settings apply to the PKS API instance. When a PKS operator creates a Kubernetes cluster, the PKS API instance VM behind a proxy is able to manage NSX-T objects on the standard network.
+
+You can also proxy outgoing HTTP/S traffic from Ops Manager and BOSH Director so that all PKS components use the same proxy service.
+
+    <img src="images/pks-proxy-arch.png" alt="PKS Proxy Architecture" width="325">
+
+## <a id='pks-nsxt-proxy'></a>Enable PKS API and Kuberbetes Proxy
+
+To configure a global proxy for all outgoing HTTP and HTTPS traffic from Kubernetes cluster nodes and the PKS API server:
+
+   <img src="images/networking-https-proxy.png" alt="PKS-NSX-T Proxy Settings" width="325">
+
+1. In the PKS tile select the [Networking - NSX-T](https://docs.pivotal.io/runtimes/pks/1-2/installing-nsx-t.html#networking) pane.
+
+1. Under **HTTP/HTTPS proxy**, select **Enabled**.
+
+1. Under **HTTP Proxy URL**, enter the URL of your HTTP/HTTPS proxy endpoint. For example, `https://myproxy.com:1234`.
+
+1. (Optional) If your proxy uses basic authentication, enter the username and password in either **HTTP Proxy Credentials** or **HTTPS Proxy Credentials**.
+
+1. Under **No Proxy**, enter the following IP addresses that must bypass the proxy to allow for internal PKS communication:
+
+	`127.0.0.1,localhost,<Deployment-Network-CIDR>,<Node-Network-IP-Block-CIDR>,<Pod-Network-IP-Block-CIDR>`
+
+## <a id='pks-om-bosh-proxy'></a>Enable Ops Manager and BOSH Proxy
+
+To enable a proxy for outgoing HTTP/S traffic from Ops Manager and BOSH: 
+
+    <img src="images/pks-proxy-config.png" alt="PKS Proxy Settings" width="325">
+
+1. Log in to Ops Manager.
+
+1. Select User Name > **Settings** in the upper right.
+
+1. Select **Proxy Settings**.
+
+1. Under **HTTP Proxy**, enter the FQDN or IP address of the HTTP proxy endpoint. For example, `http://myproxy.com:1234`.
+
+1. Under **HTTPS Proxy**, enter the FQDN or IP address of the HTTPS proxy endpoint. For example, `https://myproxy.com:1234`.
+
+1. Under **No Proxy**, include the following hosts that must bypass the proxy (required). Typically the BOSH Director IP is the first IP in the deployment network CIDR, and the 
+PKS VM IP is the second IP in the deployment network CIDR.
+
+		`127.0.0.1,localhost,<bosh-director-ip>,<pks-vm-ip>`
+
+<p class="note"><strong>Note</strong>: Ops Manager does not allow the use of a CIDR range in the **No Proxy** field. You must specify the individual IPs to bypass the proxy.</p>
+
+1. Click **Save**.
+
+1. Return to the Installation Dashboard and click **Review Pending Changes**.
+
+1. Click **Apply Changes** to deploy Ops Manager and BOSH Director with the updated proxy settings.
