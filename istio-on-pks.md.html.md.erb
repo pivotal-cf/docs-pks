@@ -1,0 +1,172 @@
+---
+title: Install Istio on PKS Using Helm
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic provides instructions for installing [Istio](https://istio.io/) in a PKS with NSX-T environment using Helm. 
+
+<p class="note"><strong>Note</strong>: These instructions are intended for using Istio for the service mesh layer for **new** Kubernetes clusters, not for retrofitting clusters with pods that currently exist.</p>
+
+## Prerequisites
+These instructions assume the following software is installed and configured:
+
+- PKS v1.2+
+- NSX-T v2.3+
+- Medium load balancer
+- PKS Plan with at least 1 Master and 2 worker nodes
+
+## Instructions
+Complete the following instructions to install Istio on PKS with NSX-T using Helm. Helm is the package manager for Kubernetes that runs on the local machine. The installation process for Istio involves creating a Helm template from the downloaded Istio files. For reference, see also <a href="https://istio.io/docs/setup/kubernetes/helm-install/">Istio Installation with Helm</a>.
+
+<p class="note"><strong>Note</strong>: Using <a href="https://istio.io/docs/setup/kubernetes/helm-install/#option-2-install-with-helm-and-tiller-via-helm-install">Tiller with Helm Install</a> is not recommeded at this time.</p>
+
+### Step 1. Create a New PKS Cluster
+Start with a fresh Kubernetes cluster using a medium size load balancer so there are enough virtual servers and ports. See <a href="./network-profiles.html#about">Customzing the Size of the Load Balancer</a> in the Network Profiles (NSX-T) documentation for instructions on defining a network profile that implements a medium load balancer.
+
+```
+$ pks create-cluster pks-cluster-med-lb-istio --external-hostname k8s-cluster-med-lb-istio --plan large --num-nodes 3 --network-profile network-profile-medium
+$ pks get-credentials pks-cluster-med-lb-istio
+```
+
+### Step 2. Download Istio
+On the a machine with `kubectl` access to the Kubernetes cluster, download Istio package that has all the files needed. The `export` command will put the `istioctl` command line tool in your `PATH`.
+
+```
+$ curl -L https://git.io/getLatestIstio | sh -
+$ cd istio-[version number]
+$ export PATH=$PWD/bin:$PATH
+```
+
+### Step 3. Install Helm on the system with kubectl access
+
+```
+$ curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+```
+
+### Step 4. Install Kubernetes CRDs
+Install Istio’s Custom Resource Definitions via `kubectl apply`, and wait a few seconds for the CRDs to be committed in the kube-apiserver:  
+
+```
+$ kubectl apply -f install/kubernetes/helm/istio/templates/crds.yaml 
+```
+
+### Step 5. Create and Install Helm Template
+Render Istio’s core components to a Kubernetes manifest called istio.yaml:
+
+```
+$ helm template install/kubernetes/helm/istio --name istio --namespace istio-system > $HOME/istio.yaml
+```
+
+### Step 6. Install Istio using the Helm manifest
+For both PKS and VMware Cloud PKS, Create a namespace and install Istio via the Helm manifest:
+
+```
+$ kubectl create namespace istio-system
+$ kubectl apply -f $HOME/istio.yaml
+```
+
+## Verify Istio Installation
+Complete the following set of instructions to verfiy the installation of Istio on PKS with NSX-T.
+
+### Step 1. Ensure Services are Deployed
+Ensure the following Kubernetes services are deployed: `istio-pilot`, `istio-ingressgateway`, `istio-policy`, `istio-telemetry`, `prometheus`, `istio-galley`, and, optionally, `istio-sidecar-injector`.
+```
+$ kubectl get svc -n istio-system
+```
+
+### Step 2. Ensure Pods Are Running
+Ensure the corresponding Kubernetes pods are deployed and all containers are up and running: `istio-pilot-*`, `istio-ingressgateway-*`, `istio-egressgateway-*`, `istio-policy-*`, `istio-telemetry-*`, `istio-citadel-*`, `prometheus-*`, `istio-galley-*`, and, optionally, `istio-sidecar-injector-*`.
+
+```
+$ kubectl get pods -n istio-system
+```
+
+## Deploy Test Application
+The [Bookinfo App](https://istio.io/docs/examples/bookinfo/) is a standard testing application to verify a successful deployment.
+
+### Step 1. Deploy the BookInfo App
+Using a cluster with automatic sidecar injection enabled, label the `default` namespace with `istio-injection=enabled`.
+
+```
+$ kubectl label namespace default istio-injection=enabled
+```
+
+Deploy the services using `kubectl`.
+
+```
+$ kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+```
+
+Confirm all services and pods are correctly defined and running:
+
+```
+$ kubectl get services
+$ kubectl get pods
+```
+
+### Step 2. Determine the Ingress IP and Port
+Now that the BookInfo services are up and running, you need to make the application accessible from outside of your Kubernetes cluster using a  browser. An Istio Gateway is used for this purpose. Since PKS uses NSX-T, load balancers will be used instead of NodePort.
+
+Define the ingress gateway for the application:
+
+```
+$ kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+```
+
+Confirm the gateway has been created:
+
+```
+$ kubectl get gateway
+NAME               AGE
+bookinfo-gateway   32s
+```
+
+Execute the following command to determine the NSX-T external load balancer IP and service ports:
+
+```
+$ kubectl get svc istio-ingressgateway -n istio-system
+NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP                PORT(S)                                                                                                                   AGE
+istio-ingressgateway   LoadBalancer   10.100.200.220   100.64.80.23,24.24.24.98   80:31380/TCP,443:31390/TCP,31400:31400/TCP,15011:30230/TCP,8060:30211/TCP,853:32055/TCP,15030:30556/TCP,15031:31751/TCP   1h
+```
+
+Set the ingress IP and ports:
+
+```
+$ export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+$ export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+$ export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+```
+
+Set `GATEWAY_URL`:
+
+```
+$ export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+```
+
+To confirm that the Bookinfo application is running, run the following curl command:
+
+```
+$ curl -o /dev/null -s -w "%{http_code}\n" http://${GATEWAY_URL}/productpage
+200
+```
+
+You can point your browser to http://$GATEWAY_URL/productpage to view the BookInfo web page. If you refresh the page several times, you should see different versions of reviews shown in productpage, presented in a round robin style (red stars, black stars, no stars).
+
+  <img src="images/nsxt/istio-on-pks.png" alt="BookInfo Sample">
+
+## Uninstall Istio
+To uninstall Istio, use the following command: 
+
+```
+$ kubectl delete -f $HOME/istio.yaml 
+```
+
+Delete the CRDs using the following command:
+
+```
+$ kubectl delete -f install/kubernetes/helm/istio/templates/crds.yaml -n istio-system
+```
+ 
+ 
