@@ -1,5 +1,5 @@
 ---
-title: Defining Network Profiles (NSX-T Only)
+title: Defining Network Profiles
 owner: PKS
 ---
 
@@ -7,28 +7,30 @@ owner: PKS
 
 This topic describes how to define network profiles for Kubernetes clusters provisioned with PKS on vSphere with NSX-T.
 
+<p class="note"><strong>Note</strong>: The large load balancer requires a Bare Metal NSX Edge Node.</p>
+
 ## <a id='about'></a> About Network Profiles
 
-Network profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use Cases for Network Profiles include the following:
+Network profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use cases for Network Profiles include the following:
 
-Profile Type 								| Description
---------------------------------------------|----------------------------
-[Load Balancer Sizing](#lb-sizing)			| Customize the size of the [NSX-T load balancer](about-lb.html#with-nsx-t) that is deployed when a Kubernetes cluster is created using PKS.
-[Custom Pod Networks](#custom-pods)	| Assign IP addresses, from a dedicated IP block, to pods in your Kubernetes cluster.
-[Routable Pod Networks](#routable-pods) 	| Assign routable IP addresses, from a dedicated IP block, to pods in your Kubernetes cluster. 
-[Bootstrap Namespace Groups](#ns-groups)	| Specify a namespace group to bootstrap Kubernetes master nodes. 
-[Pod Subnet Prefix](#pod-prefix)			| Specify the size of the Pod subnet.
-[Customizable Floating IP](#floating-ip)	| Specify a custom floating IP pool.
-[Multi T0 Router](#multi-t0)				| Define a dedicate Multi-T0 for multitenancy clusters.
+Profile Type 								            | Description
+----------------------------------------|----------------------------
+[Load Balancer Sizing](#lb-size)			  | Customize the size of the NSX-T load balancer provisioned when a Kubernetes cluster is created using PKS.
+[Custom Pod Networks](#custom-pods)	    | Assign IP addresses, from a dedicated IP block, to pods in your Kubernetes cluster.
+[Routable Pod Networks](#routable-pods) | Assign routable IP addresses, from a dedicated IP block, to pods in your Kubernetes cluster. 
+[Bootstrap Namespace Groups](#ns-groups)| Specify namespace group to bootstrap Kubernetes master nodes. 
+[Pod Subnet Prefix](#pod-prefix)			  | Specify the size of the Pod subnet.
+[Custom Floating IP](#floating-ip)      | Specify custom floating IP pool.
+[Multi T0 Router](#multi-t0)				    | Specify T0 router for customer multitenancy.
 
+## <a id="define-profile"></a> Network Profile Format
 
-## <a id="define-profile"></a> Defining Network Profiles
-
-Network profiles are defines using JSON files. For example, here are two network profiles for two different customers:
+Network profiles are defined using JSON. Here are example network profiles for two different customers:
 
 ```
+np_customer_A.json
 {
-    "name": "np-alt",
+    "name": "np-cust-a",
     "description": "Network Profile for Customer A",
     "parameters": {
         "lb_size": "small",
@@ -46,93 +48,99 @@ Network profiles are defines using JSON files. For example, here are two network
 ```
 
 ```
+np_customer_B.json
 {
-    "name": "np-alt",
+    "name": "np-cust-b",
     "description": "Network Profile for Customer B",
     "parameters": {
-        "lb_size": "small",
-        "t0_router_id": "5a7a82b2-37e2-4d73-9cb1-97a8329e1a90",
+        "lb_size": "medium",
+        "t0_router_id": "5a7a82b2-37e2-4d73-9cb1-97a8329e1a92",
         "fip_pool_ids": [
-            "e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0"
+            "e50e8f6e-1a7a-45dc-ad49-3a607baa7fa2"
         ],
     	"pod_routable": true,
     	"pod_ip_block_ids": [
       		"ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
       		"ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
     	]
-        "master_vms_nsgroup_id": "9b8d535a-d3b6-4735-9fd0-56305c4a5293",
-        "pod_subnet_prefix" : 27
+        "master_vms_nsgroup_id": "9b8d535a-d3b6-4735-9fd0-56305c4a5292",
+        "pod_subnet_prefix" : 26
     }
 }
 ```
 
 ## <a id="define-profile"></a> Network Profile Parameters
 
-Before you can create a network profile, you must define your network profile configuration in a JSON file as described below.
-For information about creating network profiles, see [Create a Network Profile](#create-profile).
+Define a network profile configuration in a JSON file using the following parameters.
 
-Parameter 				| Type 			| Description
-------------------------|----------------------------
+Parameter 				| Description
+------------------|----------------------------
 `name`	  				| User-defined name for the network profile.
-`description`   		| User-defined description for the network profile.
-`parameters`    		| One or more name-value pairs.
-`lb_size`	  			| Size of the NSX-T load balancer deployed with the Kubernetes cluster: `small`, `medium`, or `large`.
-`pod_ip_block_ids`		| UUID of the IP block from NSX Manager, comma-separated.
-`pod_routable`  		| Set to `true` to enable routable pods (default is `false`).
+`description`   	| User-defined description for the network profile.
+`parameters`    	| One or more name-value pairs.
+`lb_size`	  			| Size of the NSX-T load balancer deployed with the Kubernetes cluster: `small`, `medium`, `large`.
+`pod_ip_block_ids`| UUID of the IP block from NSX Manager; one or more, comma-separated.
+`pod_routable`  	| Set to `true` to enable routable pods (default is `false`).
 `master_vms_nsgroup_id` | UUID of a Namespace Group (nsgroup).
-`fip_pool_ids`			| UUID of a Floating IP Pool.
-`pod_subnet_prefix` 	| CIDR block range for the Pods subnet.
-`t0_router_id` 			| UUID of a dedicated T0 Router.
+`fip_pool_ids`		| UUID of a Floating IP Pool.
+`pod_subnet_prefix`     | CIDR block range for the Pods subnet.
+`t0_router_id` 		| UUID of a dedicated T0 Router.
 
-## <a id="create-profile"></a> Creating Network Profiles
+## <a id="create-profile"></a> Network Profile Creation
 
-Once the network profile is defined in a JSON file, you create the profile using the PKS CLI. For more information, see [Creating Network Profile](#create-profile).
+Once the network profile is defined in a JSON file, a PKS admin can create the network profile using the PKS CLI. At this point the Kubernetes admin can use the network profile when creating a cluster. For more information, see [Creating and Using Network Profiles](create-profile).
 
-## <a id='profiles-usage'></a>
+## <a id='lb-size'></a> Load Balancer Sizing
 
-Here are examples for each type of Network Profile use case.
+When you deploy a Kubernetes cluster using PKS on NSX-T, an [NSX-T load balancer](about-lb.html#with-nsx-t) is automatically provisioned. By default the size of this load balancer is small. Using a network profile, you can customize the size of the load balancer. 
 
-### <a id='lb-sizing'></a> Load Balancer Sizing
+NSX-T load balancers run on edge nodes. There are various [form factors for edge nodes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html). PKS does not support the small and medium VM form factors because they do not provide a sufficient number of logical load balancer instances. The large VM edge node must run on Intel processors. The large load balancer requires a bare metal edge node. 
 
-Using a network profile, you can customize the size of the load balancer that is deployed when a Kubernetes cluster is created using PKS.
-See [Load Balancers in PKS Deployments on vSphere with NSX‑T](about-lb.html#with-nsx-t) for more information.
+The NSX-T load balancer is a logical load balancer that handles a number of functions using [virtual servers and pools](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-91F2D574-F469-481A-AA39-CD6DBC9682CA.html). The following virtual servers are required for PKS:
 
-The following network profile, `np-lb-med.json`, defines a medium load balancer:
+- 1x virtual server for each Kubernetes service of type load balancer (TCP layer 4 LB)
+- 2 global virtual servers for Kubernetes ingress resources (HTTP and HTTPS layer 7 LBs)
+- 1 global virtual server for the PKS API
+
+The following network profile defines a medium load balancer:
 
 ```
 {
- "name": "lb-profile-medium",
- "description": "Network profile for medium size NSX-T load balancer",
+ "name": "np-lb-med",
+ "description": "Network profile for medium NSX-T load balancer",
  "parameters": { 
  	"lb_size": "medium" 
  	}
 }
 ```
 
+The following network profile defines a medium load balancer:
+
 ```
 {
- "name": "lb-profile-large",
- "description": "Network profile for large size NSX-T load balancer",
+ "name": "np-lb-large",
+ "description": "Network profile for large NSX-T load balancer",
  "parameters": { 
  	"lb_size": "large" 
  	}
 }
 ```
 
-<p class="note"><strong>Note</strong>: The large load balancer requires a Bare Metal NSX Edge Node.</p>
-
-### <a name='custom-pod-blocks'></a> Custom Pod IP Blocks
+### <a name='custom-pods'></a> Custom Pod Networks
 
 When you configure your [NSX-T infrastructure for PKS](nsxt-prepare-env.html#plan-ip-blocks), you must create a **Pods IP Block**. By default, this subnet is non-routable. When a Kubernetes cluster is deployed, each pod receives an IP address from the **Pods IP Block** you created. Because the pod IP addresses are non-routable, NSX-T creates a SNAT rule on the T0 router to allow network egress from the pods. This configuration is shown in the diagram below.
 
   <img src="images/nsxt/non-routable-pods.png" alt="Non-routable pod network with SNAT">
 
-You can use a network profile to override the global non-routable **Pods IP Block** that you configured in preparation for deploying PKS with NSX-T with a new non-routable IP block. For example, the following network profile, `np-non-routable-pods.json`, defines a non-routable /24 IP block for pods. With this approach, the non-routable IP block specified in the network profile definition overrides the default non-routable **Pods IP Block** specified in the PKS tile.
+You can use a network profile to override the global **Pods IP Block** that you specify in the PKS tile with a custom Pods IP Block. To use a custom pods network, do the following after you deploy PKS:
+
+1. Define a custom Pods IP Block in NSX-T. For guidance, see [Create NSX-T Objects](nsxt-prepare-env.html#create-objects-network-objects) in _Preparing NSX-T Before Deploying PKS_.
+2. Define a network profile that references the custom Pods IP block. For example.
 
 ```
 {
   "description": "Network profile with two non-routable pod networks",
-  "name": "small-routable-pod",
+  "name": "non-routable-pod",
   "parameters": {
     "pod_ip_block_ids": [
       "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
@@ -142,7 +150,7 @@ You can use a network profile to override the global non-routable **Pods IP Bloc
 }
 ```
 
-### <a id='routable-pod-blocks'></a> Routable Pod IP Blocks
+### <a id='routable-pods'></a> Routable Pod Networks
 
 Using a network profile, you can assign routable IP addresses from a dedicated routable IP block to pods in your Kubernetes cluster. When a cluster is deployed using that network profile, the routable IP block overrides the default non-routable IP block described created for deploying PKS. When you deploy a Kubernetes cluster using that network profile, each pod receives a routable IP address. This configuration is shown in the diagram below. If you use routable pods, the SNAT rule is not created.
 
@@ -150,11 +158,10 @@ Using a network profile, you can assign routable IP addresses from a dedicated r
 
 To use routable pods, do the following after you deploy PKS:
 
-1. Define a routable /24 IP block in NSX-T. For information about creating IP blocks,
-see [Create NSX-T Objects](nsxt-prepare-env.html#create-objects-network-objects) in _Preparing NSX-T Before Deploying PKS_.
+1. Define a routable IP block in NSX-T. For guidane, see [Create NSX-T Objects](nsxt-prepare-env.html#create-objects-network-objects) in _Preparing NSX-T Before Deploying PKS_.
 2. Define a network profile that references the routable IP block.
 
-For example, the following network profile, `np-routable-pods.json`, defines routable pod addresses from two /24 IP blocks:
+For example, the following network profile defines routable pod addresses from two IP blocks:
 
 ```
 {
@@ -170,8 +177,6 @@ For example, the following network profile, `np-routable-pods.json`, defines rou
 }
 ```
 
-<p class="note"><strong>Note</strong>: You must specify pod_routable = true for the IP block to be routable (and of course it must in fact be routable).</p>
-
 ### <a id='ns-groups'></a> Bootstrap Namespace Groups
 
 Most of the NSX-T virtual interface tags used by PKS are added to the Kubernetes master node(s) during the node initialization phase of cluster provisioning. To add tags to virtual interfaces, the Kubernetes master node(s) needs to connect to the NSX-T Manager API. Network security rules provisioned prior to cluster creation time will most likely not allow nodes to connect to NSX-T, if such rules are based on namespace groups (nsGroups) managed by PKS. 
@@ -180,15 +185,14 @@ To address this bootstrap issue, PKS exposes an optional configuration parameter
 
 To bootstrap nsGroups:
 
-1. Create the nsGroup in NSX Manager prior to provisioning a Kubernetes cluster using PKS. For instructions, see [Create an NSGroup](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-718E769B-8D89-485B-8DBD-04F1F82CFE14.html) in the NSX-T documentation.
+1. Create the nsGroup in NSX Manager prior to provisioning a Kubernetes cluster using PKS. For guidance, see [Create an NSGroup](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-718E769B-8D89-485B-8DBD-04F1F82CFE14.html) in the NSX-T documentation.
 2. Define a network profile that references the nsGroup UUID that the BOSH CPI can use to bootstrap the master node(s).
 
-For example, the following network profile, `np-bootstrap-nsGroup.json`, specifies a nsGroup that the BOSH CPI will use to dynamically update Kubernetes master node(s) memberships:
+For example, the following network profile specifies a nsGroup that the BOSH CPI will use to dynamically update Kubernetes master node(s) memberships:
 
 ```
-ubuntu@opsmanager-2-3:~$ cat np-custB.json 
 {
-    "name": "np-alt",
+    "name": "np-boot-nsgroups",
     "description": "Network Profile for Customer B",
     "parameters": {
         "master_vms_nsgroup_id": "9b8d535a-d3b6-4735-9fd0-56305c4a5293",
@@ -198,9 +202,9 @@ ubuntu@opsmanager-2-3:~$ cat np-custB.json
 
 ### <a id='pod-prefix'></a> Pod Subnet Prefix
 
-Each time a Kubernetes namespace is created, a subnet from the Pods IP Block is allocated. The subnet size carved out from this block for such purposes is /24. See [Pods IP Block](nsxt-prepare-env.html#pods-ip-block) for more information.
+Each time a Kubernetes namespace is created, a subnet from the Pods IP Block is allocated. The size of the subnet carved from this block for such purposes is /24. See [Pods IP Block](nsxt-prepare-env.html#pods-ip-block) for more information.
 
-You can define a Network Profile using the `pod_subnet_prefix` parameter to cusomtize the size of the pod subnet reserved for namespaces. For example, the following network profile, `np-pod-prefix.json`, specifies /27 for the size of the Pods IP Block subnet:
+You can define a Network Profile using the `pod_subnet_prefix` parameter to cusomtize the size of the pod subnet reserved for namespaces. For example, the following network profile specifies /27 for the size of the Pods IP Block subnet:
 
 ```
 {
@@ -212,7 +216,7 @@ You can define a Network Profile using the `pod_subnet_prefix` parameter to cuso
 }
 ```
 
-### <a id='floating-ip'></a> Floating IP Address Block
+### <a id='floating-ip'></a> Custom Floating IP Pool
 
 To deploy PKS no vSphere with NSX-T, you must define a Floating IP Pool in NSX Manager. The IP addresses in this floating IP pool are assigned to load balancers automatically provisioned by NSX-T when you deploy a Kubernetes cluster using PKS. See [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) for more information.
 
@@ -220,8 +224,8 @@ You can define a Network Profile that specifies a custom Floating IP Pool to use
 
 To do this:
 
-1. Create a Floating IP Pool using NSX Manager prior to provisioning a Kubernetes cluster using PKS. For instructions, see [Create IP Pool](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-8639F737-1D75-4177-9D31-5F20551DEE8E.html) in the NSX-T documentation.
-2. Define a network profile that references the Floating IP Pool UUID that you defined.
+1. Create a Floating IP Pool using NSX Manager prior to provisioning a Kubernetes cluster using PKS. For guidance, see [Create IP Pool](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-8639F737-1D75-4177-9D31-5F20551DEE8E.html) in the NSX-T documentation.
+2. Define a network profile that references the Floating IP Pool UUID that you defined. For example:
 
 ```
 {
@@ -230,7 +234,7 @@ To do this:
     "parameters": {
         "fip_pool_ids": [
             "e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0"
-      		"ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+      		  "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
     	]
     }
 }
@@ -238,30 +242,73 @@ To do this:
 
 ### <a id='multi-t0'></a> Multi-T0 Router
 
-Using PKS on vSphere with NSX-T, you can deploy Kubernetes clusters on dedicated T0 routers, creating a full multi-tenant environment. As depicted below, with this configuration you will have a shared T0 router where the PKS Control Plane is hosted, and which connects to each customer T0 router via BGP. To support multitenancy, you will need to configure firewall rules and security settings in NSX Manager. 
+Using PKS on vSphere with NSX-T, you can deploy Kubernetes clusters on dedicated T0 routers, creating a multi-tenant environment for each Kubernetes cluster. As depicted below, with this configuration you will have a shared T0 router where the PKS Control Plane is hosted, and which connects to each customer T0 router via BGP. To support multitenancy, you will need to configure firewall rules and security settings in NSX Manager. 
+
+  <img src="images/nsxt/mt0-01.png" alt="Routable pod network using network profiles">
 
 To do this:
 
 1. Create a dedciated T0 router for each customer tenant, as well as BGP routes and security firewall rules. For instructions, see [Create Tenant T0 Router]() in this documentation.
 2. Define a network profile that references the Floating IP Pool UUID that you defined.
 
+For example, the following network profiles define two cutomer T0 routers for a no-NAT topoplogy.
+
 ```
+np_customer_A-NAT.json
 {
-    "name": "np-alt",
-    "description": "Network Profile for Customer B",
-    "parameters": {
-        "lb_size": "small",
-        "t0_router_id": "5a7a82b2-37e2-4d73-9cb1-97a8329e1a90",
-        "fip_pool_ids": [
-            "e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0"
-        ],
-    	"pod_routable": true,
-    	"pod_ip_block_ids": [
-      		"ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-      		"ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
-    	]
-        "master_vms_nsgroup_id": "9b8d535a-d3b6-4735-9fd0-56305c4a5293",
-        "pod_subnet_prefix" : 27
-    }
+  "description": "network profile for Customer A",
+  "name": "network-profile-Customer-A",
+  "parameters": {
+    "lb_size": "medium”
+    “t0_router_id”: “82e766f7-67f1-45b2-8023-30e2725600ba”
+    “floating_ip_pool_id”: “8ec655f-009a-79b7-ac22-40d37598c0ff”
+    “pods_ip_block_id”: “fce766f7-aaf1-49b2-d023-90e272e600ba”
+  }
+}
+```
+
+```
+np_customer_B-NAT.json
+{
+  "description": "network profile for Customer B",
+  "name": "network-profile-Customer-B",
+  "parameters": {
+    "lb_size": ”small”
+    “t0_router_id”: “a4e766cc-87ff-15bd-9052-a0e2425612b7”
+    “floating_ip_pool_id”: “4ec625f-b09b-29b4-dc24-10d37598c0d1”
+    “pods_ip_block_id”: “91e7a3a1-c5f1-4912-d023-90e272260090”
+  }
+}
+```
+
+The following network profiles define two customer T0 routers for a no-NAT toplogy.
+
+```
+np_customer_A.json
+{
+  "description": "network profile for Customer A",
+  "name": "network-profile-Customer-A",
+  "parameters": {
+    "lb_size": "medium”
+    “t0_router_id”: “82e766f7-67f1-45b2-8023-30e2725600ba”
+    “floating_ip_pool_id”: “8ec655f-009a-79b7-ac22-40d37598c0ff”
+    “pod_routable”: enabled
+    “pods_ip_block_id”: “fce766f7-aaf1-49b2-d023-90e272e600ba”
+  }
+}
+```
+
+```
+np_customer_B.json
+{
+  "description": "network profile for Customer B",
+  "name": "network-profile-Customer-B",
+  "parameters": {
+    "lb_size": ”small”
+    “t0_router_id”: “a4e766cc-87ff-15bd-9052-a0e2425612b7”
+    “floating_ip_pool_id”: “4ec625f-b09b-29b4-dc24-10d37598c0d1”
+    “pod_routable”: enabled
+    “pods_ip_block_id”: “91e7a3a1-c5f1-4912-d023-90e272260090”
+  }
 }
 ```
