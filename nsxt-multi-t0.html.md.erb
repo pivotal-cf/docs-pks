@@ -29,16 +29,18 @@ Using the NSX Manager interface, deploy the number of edge nodes you will need a
 
 ### Step 2. Configure inter-T0 network and logical switch
 
-All Edge Nodes must be interconnected by a dedicated network provisioned on the physical infrastructure. This network is used to transport traffic across the T0 routers. Plan to allocate an internal private CIDR range of /24 to be used for all T0 communications. For example: `50.0.0/24`. Each T0 router will need have a unique IP address allocated from that range. 
+All NSX Edge Nodes must be connected by a dedicated network provisioned on the physical infrastructure. This network is used to transport traffic across the T0 routers. Plan to allocate an internal private CIDR range of /24 to be used for all T0 communications. For example: `50.0.0/24`. Each T0 router will need have a unique IP address allocated from that range. 
 
-Once you have physically interconnected the T0s:
+Once you have physically connected the the Edge Nodes (and thereby the T0s), define a logical switch that will be used to connect to this physical network from the T0 routers:
 
 - In NSX Manager, go to **Switching > Switches**.
 - Click **Add** and create a vLAN logical switch (LS).
 - Name the VLAN switch descriptively, such as `inter-t0-vlan-switch`.
 - Connect the VLAN LS to the existing vLAN transport zone (or to a pNIC).
 
- See [Deploying PKS with NSX-T](https://docs.pivotal.io/runtimes/pks/1-2/nsxt-deploy.html) for instructions on creating a vLAN switch and zone.
+![inter-tier0-vlan](images/nsxt/nsxt-inter-t0-vlan-01.png)
+
+See <a href="./nsxt-deploy.html">Deploying PKS with NSX-T</a> for instructions on creating a vLAN switch.
 
 ### Step 3. Configure router port on the vLAN switch.
 
@@ -51,29 +53,39 @@ Configure a port on the VLAN switch:
 	- For the Logical Switch, select the Inter T0 vLAN switch you created in the previous step (for example, `inter-t0-vlan-switch`). 
 	- Provide an IP address from the allocated range, for example: `50.0.0.1/24`.
 
-### Step 4. Provision T0 router for each customer/tenant
+![inter-tier0-vlan](images/nsxt/nsxt-inter-t0-vlan-02.png)
 
-Create a [Tier-0 logical router](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html?hWord=N4IghgNiBcIM4BcwIJYGMAEAnA9gVwQFMQBfIA) for each customer/tenant you want to isolate. Make sure you set the router to be active/passive. For guidance, see [Create T0 Router](https://docs.pivotal.io/runtimes/pks/1-2/nsxt-deploy.html#create-t0-router).
+### Step 4. Provision Tier-0 router for each customer/tenant
 
-### Step 5. Create uplink interface for shared connectivity 
+Create a <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html?hWord=N4IghgNiBcIM4BcwIJYGMAEAnA9gVwQFMQBfIA">Tier-0 logical router</a> for each customer/tenant you want to isolate. Make sure you set the router to be active/passive. For guidance, see <a href=".nsxt-deploy.html#create-t0-router">Create T0 Router</a>.
 
-The first uplink interface defines how the shared T0 connects to each customer/tenant T0 network. Typically this will be a dedicated vLAN on the vLAN transport zone. For guidance, see [Create Uplink Profile](https://docs.pivotal.io/runtimes/pks/1-2/nsxt-deploy.html#create-uplink).
+### Step 5. Create uplink interfaces
 
-### Step 6. Create Second Uplink Interface 
+You need to <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html">create uplink profiles</a> to connect the T0 routers as follows:
 
-The second uplink interface connects to the inter-t0 logical switch that you configured (for example, `inter-t0-vlan-switch`). Give this uplink interface an IP address from the allocated pool. 
+**Uplink 1**. The first uplink interface defines how the shared T0 connects to each customer/tenant T0 network. Typically this will be a dedicated vLAN on the vLAN transport zone. 
 
-<p class="note"><strong>Note</strong>: It's important to keep these two uplink interfaces separate and distinct. One is for the shared T0 network where PKS control plane components are deployed, and the other is for the customer/tenant network where PKS-provisioned Kubernetes clusters will be deployed.</p>
+**Uplnk 2**. The second uplink interface connects to the Inter-T0 logical switch that you configured (for example, `inter-t0-vlan-switch`). Give this uplink interface an IP address from the allocated pool.
 
-### Step 7. Configure Static Routes
+For guidance, see <a href="./nsxt-deploy.html#create-uplink">Create Uplink Profile</a>.
 
-For each T0 router--shared and customer/tenant--define a static route to an external network. See [Configure Static Routes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-55CC9E79-3637-41D5-9FDA-49CDEA9A3E0C.html) for details. 
+An uplink profile defines policies for the links from the NSX Edge Nodes to the logical switches. For multi-T0 you will need to define two uplink profiles:
+- One is for the shared T0 network where PKS control plane components are deployed, and
+- The other is for the customer/tenant network where PKS-provisioned Kubernetes clusters will be deployed.
+
+### Step 6. Configure Static Routes
+
+For each T0 router--shared and customer/tenant--define a <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-55CC9E79-3637-41D5-9FDA-49CDEA9A3E0C.html">static route</a> to the external network. 
+
+For the shared T0, the default route will point to the external management components such as vCenter and NSX Manager and provide internet connectivity. For example:
+
+![T0-shared](images/nsxt/nsxt-static-routes-01.png)
 
 For each customer/tenant T0, the default route should point to the customer's corporate network.
 
-The default route on the shared T0 will point to the external management components such as vCenter and NSX Manager and provide internet connectivity. 
+![T0-shared](images/nsxt/nsxt-static-routes-02.png)
 
-### Step 8. Add NO_SNAT Rules
+### Step 7. Add NO_SNAT Rules
 
 For each customer/tenant T0 router, add a NO_SNAT rule to allow global routable connectivity from Kubernetes node networks to the PKS control plane components (PKS API, Ops Manager, BOSH Director, Harbor Registry) and infrastructure components (vCenter, NSX Manager). 
 
@@ -81,7 +93,7 @@ PKS will deploy Kubernetes nodes using IP addresses from the [Nodes IP Block](ht
 
 For guidance on creating NAT rules, see [Configure Source and Destination NAT on a Tier-0 Router](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-45949ACD-9029-4674-B29C-C2EABEB39E1D.html).
 
-### Step 9. Configure BGP on each customer/tenant T0
+### Step 8. Configure BGP on each customer/tenant T0
 
 The Border Gateway Protocol (BGP) is used for route redistribution and filtering across all T0 routers. 
 
@@ -100,7 +112,7 @@ Add BGP Peer.
 	- Address Families: Enter IP4_Unicast, State - Enabled, Out Filter, select the filter created in #2. Enter Remote AS number. Each T0 will have a unique AS number. 
 - After creating the neighbor, select BGP Edit and Enable BGP.
 
-### Step 10. Configure BGP on the shared T0
+### Step 9. Configure BGP on the shared T0
 
 Repeat the same steps as the customer T0 BGP configuration.
 
