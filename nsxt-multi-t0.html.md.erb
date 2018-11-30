@@ -1,103 +1,91 @@
 ---
-title: Configuring Multi-Tier-0 Routers for Customer/Tenant Isolation
+title: Configuring Multiiple Tier-0 Routers for Customer/Tenant Isolation
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to create a dedicated Tier-0 router in NSX-T for use with PKS multitenant environments.
+This topic describes how to create multiple NSX-T Tier-0 Logical Routers for use with PKS multitenant environments.
 
 ## <a id='about'></a> About Multi-T0 Router for Customer/Tenant Isolation
 
-Multi-T0 lets you manage and secure Kubernetes cluster deployments on isolated networks for multiple customers or tenants. This section provides instructions for setting up a multi-T0 environment for PKS. After completing these steps you be able to deploy multiple customer/tenant clusters in their own T0 network. See Advanced Configuration for security enhancements to the base configuration.
+PKS multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated customer/tenant networks. As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. The shared T0 router handles traffic between the PKS Management Network and the vSphere standard network where vCenter and NSX Manager are deployed. There are two customer/tenant T0 routers that connect to the shared T0 over an NSX-T logical switch and port. Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each customer/tenant network.
+
+  <img src="images/nsxt/mt0/mt0-01.png" alt="Multi-T0 Router">
 
 ## <a id="prereqs"></a> Prerequisites
 
-It is assumed that PKS 1.2.x is deployed with NSX-T 2.3.x with at least one Edge Cluster and two Edge Nodes. See [Configuring NSX-T for PKS](nsxt-prepare-env.html) for details on deploying PKS with NSX-T. 
+It is assumed that the version of PKS that supports Multi-T0 routers is installed on vSphere with NSX-T 2.3.x. In addition you will need to have a T0 router attached to the PKS management plane and at least one Edge Cluster and two Edge Nodes deployed. See <a href="./nsxt-prepare-env.html">Configuring NSX-T for PKS</a> for details.
 
 ## <a id="base-config"></a> Base Configuration
 
-### Step 1. Plan and provision NSX edge nodes for Multi-T0 routers.
+### Step 1. Plan and provision additional NSX edge nodes for each Multi-T0 router
 
-Multi T0 requires a minimum of four Edge Nodes: 2 Edge Nodes per T0 operating in active/standby mode. There is one shared T0 attached to the PKS management plane and 1 T0 per customer/tenant. Each tenanat/customer requires 2 Edge Nodes minimum.
+Multi-T0 requires a minimum of four Edge Nodes: 2 Edge Nodes per T0 operating in active/standby mode. As a prerequisite you will already have a T0 attached to the PKS management plane; this is to be used as the "shared" T0 router that connects all T0s. In addion, you will deploy an additional T0 router for each customer/tenant you want to isolate. 
 
   <img src="images/nsxt/mt0/mt0-02.png" alt="Multi-T0 Router">
 
-The formula for determining the minimum number of edge nodes is 2 + (# of tenants x 2). For example, for three customers/tenants you need 8 Edge Nodes; for 10 customers/tenants you need 22 edge nodes.
+Each tenanat/customer T0 router requires a minimum of 2 Edge Nodes. The formula for determining the minimum number of edge nodes for all customers/tenants is as follows: 2 + (number of tenants x 2). For example, for three customers/tenants you need 8 edge nodes; for 10 customers/tenants you need 22 edge nodes.
 
-Using the NSX Manager interface, deploy the number of edge nodes you will need and join them to an edge cluster. See [Deploying PKS with NSX-T](nsxt-deploy.html) for instructions.
+Using the NSX Manager interface, deploy at least the minimum number of edge nodes you will need for each customer/tenant T0, and join these edge nodes to an edge cluster. For guidance, see <a href="./nsxt-deploy.html">Deploying PKS with NSX-T</a>.
 
-### Step 2. Configure inter-T0 network and logical switch
+### Step 2. Configure Inter-T0 VLAN logical switch
 
-All NSX Edge Nodes must be connected by a dedicated network provisioned on the physical infrastructure. This network is used to transport traffic across the T0 routers. Plan to allocate an internal private CIDR range of /24 to be used for all T0 communications. For example: `50.0.0/24`. Each T0 router will need have a unique IP address allocated from that range. 
+All NSX-T Edge Nodes must be connected by a dedicated network provisioned on the physical infrastructure. This network is used to transport traffic across the T0 routers. Plan to allocate an internal private CIDR range of /24 to be used for all T0 communications. For example: `50.0.0/24`. Each T0 router will need have a unique IP address allocated from that range. 
 
-Once you have physically connected the the Edge Nodes (and thereby the T0s), define a logical switch that will be used to connect to this physical network from the T0 routers:
-
-- In NSX Manager, go to **Switching > Switches**.
-- Click **Add** and create a vLAN logical switch (LS).
-- Name the VLAN switch descriptively, such as `inter-t0-vlan-switch`.
-- Connect the VLAN LS to the existing vLAN transport zone (or to a pNIC).
+Once you have physically connected the the Edge Nodes, define a VLAN logical switch that will be used to connect to the shared T0 router to the customer/tenant T0 router(s). 
+- In NSX Manager, go to **Networking** > **Switching** > **Switches**.
+- Click **Add** and create a VLAN logical switch (LS).
+- Be sure to name the VLAN switch descriptively, such as `inter-t0-vlan-switch`.
+- Connect the VLAN LS to the existing VLAN transport zone that you defined when <a href="./nsxt-deploy.html">deploying NSX-T</a>.
 
 ![inter-tier0-vlan](images/nsxt/mt0/nsxt-inter-t0-vlan-01.png)
 
-See <a href="./nsxt-deploy.html">Deploying PKS with NSX-T</a> for instructions on creating a vLAN switch.
+### Step 3. Configure a new router port interface on the shared T0
 
-### Step 3. Configure router port on the vLAN switch
-
-Configure a port on the VLAN switch:
-
+Configure a router port on the shared T0 that connects to the VLAN network you defined.
 - In NSX Manager, go to **Networking > Routers**. 
-- Select the shared/existing T0 router.
-- Select *Configuration > Router Ports* and click **Add**.
+- Select the shared T0 router.
+- Select *Configuration** > **Router Ports** and click **Add**.
 - Configure the router port as follows:
-	- For the Logical Switch, select the Inter T0 vLAN switch you created in the previous step (for example, `inter-t0-vlan-switch`). 
+	- For the Logical Switch, select the Inter-T0 VLAN LS you created in the previous step (for example, `inter-t0-vlan-switch`). 
 	- Provide an IP address from the allocated range, for example: `50.0.0.1/24`.
-
-![inter-tier0-vlan](images/nsxt/mt0/nsxt-inter-t0-vlan-02.png)
 
 ### Step 4. Provision Tier-0 router for each customer/tenant
 
 Create a <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html?hWord=N4IghgNiBcIM4BcwIJYGMAEAnA9gVwQFMQBfIA">Tier-0 logical router</a> for each customer/tenant you want to isolate. Make sure you set the router to be active/passive. 
 
-For guidance, see <a href=".nsxt-deploy.html#create-t0-router">Create T0 Router</a>. 
+For instructions, see <a href=".nsxt-deploy.html#create-t0-router">Create T0 Router</a>. When creating each customer/tenant T0 router, be sure to name the logical switch descriptively, such as `customer_tier0_vlan`.   
 
-### Step 5. Create uplink interfaces
+### Step 5. Create two port interfaces on each customer/tenant T0 router
 
-You need to <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html">create uplink profiles</a> to connect the T0 routers. One uplink interface is for the shared T0 network where PKS control plane components are deployed. The other uplink interface is for the customer/tenant network where PKS-provisioned Kubernetes clusters will be deployed.
-
-**Uplink 1**. The first uplink interface defines how the shared T0 connects to each customer/tenant T0 network. Typically this will be a dedicated vLAN on the vLAN transport zone, as you defined in Step 2. 
-
-**Uplnk 2**. The second uplink interface connects to the Inter-T0 VLAN logical switch that you configured (for example, `inter-t0-vlan-switch`). Give this uplink interface an IP address from the allocated pool.
-
-For guidance, see <a href="./nsxt-deploy.html#create-uplink">Create Uplink Profile</a>.
+For each customer/teanant T0 router, create two uplink port interfaces: 
+- The first uplink port interface connects the customer/tenant T0 router to the customer's corporate network. 
+- The second uplink interface connects to the Inter-T0 VLAN LS that you configured (for example, `inter-t0-vlan-switch`). Be sure to give this uplink interface an IP address from the allocated pool.
 
 ### Step 6. Configure static routes
 
 For each Tier-0 router, including the shared T0 and *all* customer/tenant T0 routers, define a <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-55CC9E79-3637-41D5-9FDA-49CDEA9A3E0C.html">static route</a> to the external network. 
 
-For the shared T0 router, the default/static route will point to the external management components such as vCenter and NSX Manager and provide internet connectivity. For example:
+For the shared T0 router, the default static route will point to the external management components such as vCenter and NSX Manager and provide internet connectivity. For example:
 
 ![T0-shared-route](images/nsxt/mt0/nsxt-static-routes-01.png)
 
-For each customer/tenant T0 router, the default/static route should point to the customer's corporate network. For example:
+For each customer/tenant T0 router, the default static route should point to the customer's corporate network. For example:
 
 ![T0-customer-route](images/nsxt/mt0/nsxt-static-routes-02.png)
 
-### Step 7. Add Selective NAT Rules
+### Step 7. Add Selective NAT Rules (NAT Toplogies only)
 
-For each customer/tenant T0 router, define <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-45949ACD-9029-4674-B29C-C2EABEB39E1D.html">selective NAT rules</a> (`NO_SNAT`) to allow global routable connectivity from Kubernetes node networks to the PKS control plane components (PKS API, Ops Manager, BOSH Director, Harbor Registry) and infrastructure components (vCenter, NSX Manager). 
+For <a href="https://docs.pivotal.io/runtimes/pks/1-2/nsxt-topologies.html#topology-nat">NAT toplogies only</a>, define <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-45949ACD-9029-4674-B29C-C2EABEB39E1D.html">selective NAT rules</a> (`NO_SNAT`) for each customer/tenant T0 router that allow global routable connectivity from Kubernetes node networks to the PKS Management Network components (PKS API, Ops Manager, BOSH Director, Harbor Registry) and infrastructure components (vCenter, NSX Manager). 
 
-PKS will deploy Kubernetes nodes using IP addresses from the [Nodes IP Block](https://docs.pivotal.io/runtimes/pks/1-2/nsxt-prepare-env.html#plan-ip-blocks) network. Use that IP block here to configure each NO_SNAT rule.
-
-For example, the following diagram shows the types of SNAT rules required for a no-NAT toplogy:
-
-![SNAT Rules for T0--No-NAT](images/nsxt/mt0/snat-no-nat.png)
+PKS will deploy Kubernetes nodes using IP addresses from the [Nodes IP Block](nsxt-prepare-env.html#plan-ip-blocks) network. Use that IP block here to configure each NO_SNAT rule.
 
 The following diagram shows the types of SNAT rules required for a NAT toplogy:
 
 ![SNAT Rules for T0--NAT](images/nsxt/mt0/snat-yes-nat.png)
 
-### Step 8. Configure BGP on each T0 router
+### Step 8. Configure BGP on each customer/tenant T0 router
 
 The Border Gateway Protocol (BGP) is used for route redistribution and filtering across all Tier-0 routers. 
 
@@ -105,56 +93,70 @@ The Border Gateway Protocol (BGP) is used for route redistribution and filtering
 
 As a prerequisite, assign a unique <a href="https://en.wikipedia.org/wiki/Autonomous_system_%28Internet%29">Autonomous System Number</a> to each T0 router. The numbers you choose must be below ~64,500. In the example shown, `AS-64001` is assigned to the *Shared Tier0* router, and `AS-64002` is assigned to the *Customer Tier0* router.  
 
-Once the AS number is assigned, use NSX Manager to configure the following BGP routes:
+Once the AS number is assigned, use NSX Manager to configure the following for each customer/tenant T0 router:
 - Route Distribution
-- IP Prefix Lists, and
+- IP Prefix Lists
 - BGP Peering
 
 #### Configure BGP Route Distribution
 
-- In NSX Manager, select the T0 router.
-- Select **Routing > Static Routes**.
-- Click **Add** and create a new static route as follows:
-	- Name: NSX Static
+- In NSX Manager, select the customer/tenant T0 router.
+- Select **Routing** > **Route Redistribution**.
+- Click **Add** and configure as follows:
+	- Name: NSX Static Route Redistribution
+	- Sources: NSX Static
 	- Next Hop: NSX Connected
 
-#### Configure BGP IP Prefix Lists
+![Route Distribution 1](images/nsxt/mt0/bgp-02.png)
 
-IP Prefix Lists: Permit rule and Deny rule. Permit will allow redistribution of node network with the node IP block /24 (greater than or lower than). Deny rule: Everything else is deny so 0.0.0.0/0.
+![Route Distribution 2](images/nsxt/mt0/bgp-03.png)
+
+#### Configure IP Prefix Lists
+
+- In NSX Manager, select the customer/tenant T0 router.
+- Select **Routing** > **IP Prefix Lists**.
+- Click **Add** and configure as follows:
+	- Name: Enter a descriptive name
+	- Click **Add** and create a `Permit` rule that will allow redistribution on the /24 network (greater than or lower than) with the **Nodes IP Block**.
+	- Click **Add** and create a `Deny` rule that will deny everything else on the network `0.0.0.0/0`.
+
+![IP Prefix Lists](images/nsxt/mt0/bgp-04.png)
 
 ### Configure BGP Peer
 
-- Go to Routing > BGP > Add.
-- Configure as follows:
-	- Neighbor Address: IP address of the Shared T0.
-	- Local Address: Select All Uplinks.
-	- Address Families: Enter IP4_Unicast, State - Enabled, Out Filter, select the filter created in #2. Enter Remote AS number. Each T0 will have a unique AS number. 
-- After creating the neighbor, select BGP Edit and Enable BGP.
+- In NSX Manager, select the customer/tenant T0 router.
+- Go to **Routing** > **BGP**.
+- Click **Add** and configure the BGP rule as follows:
+	- Neighbor Address: Enter the IP address of the shared T0 router.
+	- Local Address: Select **All Uplinks**.
+	- Address Families: Click **Add** and configure as follows:
+		- Type: IPV4_UNICAST
+		- State: Enabled
+		- Out Filter: Select the IP Prefix List created above.
+		- Click **Add**.
+	- Back at the **Routing** > **BGP** screen:
+		- Enter the Remote AS number. Each T0 will have a unique AS number. 
+		- After creating the BGP neighbor, select **Edit** and click **Enable BGP**.
 
 ### Step 9. Configure BGP on the shared T0
 
-Repeat the same steps as the customer T0 BGP configuration.
+Repeat the same steps as the customer/tenant T0 BGP configuration.
 
-Additionally, the IP prefix list needs to include the networks where vCenter, NSX manager, and the PKS Control Plane are deployed. 
+When configring BGP for the shared T0 router, the **IP Prefix List** needs to include the network where vCenter and NSX manager are deployed, as well as the network where the PKS Management Plane is deployed. 
 
-## Test Base Configuration
+### Step 10. Test the base configuration
 
 To checkpoint/verify the base configuration:
 - Download the routing table for each of the deployed T0s. 
-- Make sure that the Customer T0 routing table includes all BGP routes ("b") to reach vC, NSX Mgr, PKS mgmt plane.
+- Make sure that the Customer T0 routing table includes all BGP routes ("b") to reach vCenter, NSX Manager, and the PKS Management Plane.
 
 <p class="note"><strong>Note</strong>: The shared T0 will not have any BGP routes at this point. It will only show BGP routes when you deploy Kubernetes clusters to the customer/tenant Tier-0 routers.</p>
 
 ## <a id="security-config"></a> Security Configuration
 
-Security configuration involves advanced settings for securing the customer/tenant networks. There are two environments to secure:
-- [Traffic between tenants/customers](#inter-tenant) (inter-tenant communications).
-- [Traffic between clusters](#inter-cluster) in the same tenant (inter-cluster communications).
+Security configuration involves configuring NSX-T to secure traffic between tenants/customers. The objective of these configurations is to isolate each customer/tenant so that the traffic between the cutomer/tenant T0s and the shared T0 is restricted to the legitimate traffic path.
 
-### <a id="inter-tenant"></a> Secure Inter-Tenant Communications
-Secure each tenant so that the tenant cannot communicate and the traffic between the cutomer/tenant T0s and the shared T0 is restricted to the legitimate traffic path.
-
-#### Step 1. Define IP Sets 
+### Step 1. Define IP Sets 
 
 In NSX-T an **IP Set** is a group of IP addresses that you can use as sources and destinations in firewall rules. For the Multi-T0 deployment you will need to create several IP Sets as described below. For guidance in creating IP Sets, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-99F67483-8584-4ECC-A948-29E3C857619C.html?hWord=N4IghgNiBcIJIAUAEBnApgFxSAvkA">Create an IP Set</a>.
 
@@ -162,31 +164,13 @@ Define an IP Set that includes the IP addresses for the NSX Manager and vCenter 
 
 ![NSX and VC IP Set](images/nsxt/mt0/ip-set-01.png)
 
-Define an IP Set that includes the network CIDR for PKS Control Plane components, for example:
+Define an IP Set that includes the network CIDR for PKS Management Plane components, for example:
 
 ![PKS Admin CIDR IP Set](images/nsxt/mt0/ip-set-02.png)
 
-Define an IP Set to include the IP Address for the BOSH Director VM, for example:
+Lastly, define an IP Set for the the Inter-T0 CIDR created during the base configuration.
 
-![BOSH IP Set](images/nsxt/mt0/ip-set-03.png)
-
-Define an IP Set to include the CIDR reserved for the **Nodes IP Block** which is shared among all customers, for example:
-
-![Node CIDR IP Set](images/nsxt/mt0/ip-set-04.png)
-
-Define an IP Set to include the CIDRs for both the **Nodes IP Block** and the customer-specific **Pods IP Block**, for example:
-
-![Node and Pods CIDR IP Set](images/nsxt/mt0/ip-set-05.png)
-
-<p class="note"><strong>Note</strong>: Create a separate IP Set for each customer-specific Pods IP Block.</p>
-
-Define an IP Set for the the Inter-T0 CIDR created previously during the base configuration section of this documentation.
-
-Lastly, define a IP Set for each customer-specific Floating IP Pool you have created.
-
-Here is a summary of the IP Sets you should configure: 
-
-![IP Set Summary](images/nsxt/mt0/ip-set-06.png)
+![IP Set Summary](images/nsxt/mt0/ip-set-07.png)
 
 #### Step 2. Create edge firewall
 
@@ -246,103 +230,3 @@ To do this, select the Edge Firewall **Section** you just created, then select *
 - Action: Drop
 - Apply the rule to the Inter-T0-Uplink interface
 
-### <a id="inter-cluster"></a> Secure Inter-Cluster Communications
-Secure communication between clusters in the same tenancy. To disallow any form of communication between Kubernetes clusters created by PKS, you can provision Security Groups and distributed firewall (DFW) rules to secure inter-cluster communications. 
-
-<p class="note"><strong>Note</strong>: The first three steps are global security configurations. You must perform these steps *before* you deploy a Kubernetes cluster to a customer/tenant T0.</p>
-
-#### Step 1. Create namespace group for all PKS Clusters
-
-In NSX Manager, go to **Inventory** > **Groups** and click **Add**.
-Configure the new NSGroup as follows: 
-- Name: `All-PKS-Clusters`
-- Scope = Equals pks/clusters 
-- Scope = Equals ncp/cluster
-
-#### Step 2. Create DFW Section
-
-Before you create distributed firewall (DFW) rules, you must create a DFW section for the DFW rule set you define later.
-
-In NSX Manager, go to **Security > Distributed Firewall**. Select the highest rule and click **Add Section Above**.
-
-![Global Firewall](images/nsxt/mt0/firewall-04.png)
-
-Configure the DFW rule as follows:
-- Section Name: `pks-dfw`, for example
-- Leave all else as defaults
-- Click **OK**
-
-Click **Manage Tags**, then **Add tag**.
-- Tag name: "top" (must be precise)
-- Scope: "ncp/fw_sect_marker" (name must be precise)
-
-#### Step 3. Create deny all DFW rule
-
-This is a global deny rule. You will define acceptable routes later in the configuration process.
-
-In NSX Manager, go to **Security > Distributed Firewall**. 
-Select the DFW Section you previously defined and click **Add Rule**.
-- Source: `All-PKS-Clusters` nsgroup
-- Destination: `All-PKS-Clusters` nsgroup
-- Service: Any
-- Apply To: cluster-UUID-node-pods nsgroup
-- Action: Deny
-
-#### Step 4. Retrieve the ID of the Kube cluster you want to secure. 
-
-Using the PKS CLI:
-- Authenticate with PKS
-- Run command `pks cluster <clsuter-name>`
-- Get the cluster UUID, which you can use to create NS Groups.
-
-#### Step 5. Create NS group for cluster nodes
-
-Go to **Inventory > Groups** and **Add new group**. 
-- Name: Cluster UUID or Cluster NAME (must be unique) and append "-nodes" to the end of the name to distinguish it.
-- Membership Criteria: Logical Switch
-- Tag = Equals
-- Enter Cluster UUID 
-- Scope = Equals
-- Value = pks/cluster
-
-#### Step 6. Create NS group for cluster pods
-
-Go to **Inventory** > **Groups** and **Add new group**. 
-- Name: Cluster UUID or Cluster NAME (must be unique) and append "-pods" to the end of the name to distinguish it.
-- Membership Criteria: Logical Port
-- Tag = Equals "pks-cluster-UUID"
-- Scope = Equals
-- Value = ncp/cluster
-
-#### Step 7. Create NS group for cluster nodes and pods. 
-
-This NS group is for everything in the cluster.
-
-Go to **Inventory > Groups > Groups** and **Add new group**. 
-- Name: Cluster UUID or Cluster NAME (must be unique) and append "-nodes-pods" to the end of the name to distinguish it.
-- Membership Criteria: Logical Switch and Logical Port (both criteria that you entered before)
-- Repeat the same as above for each criteria
-
-#### Step 8. Create DFW Rules.
-
-You need 3 rules. You already created one (the global deny all DFW rule); here are the others: 
-
-Rule 1: Disable POD to NODE Communication.
-
-Pods should not be allowed to talk to nodes. (But nodes can talk to pods.)
-
-Go to Add Rule
-- Source: Pick the cluster-UUID-"node" nsgroup 
-- Dest: cluster-UUID-"pod" nsgroup
-- Service: Any
-- Apply To: cluster-UUID-node-pods nsgroup
-- Action: Deny
-
-Rule 2: Allow Node to Node and Pods
-
-Go to Add Rule
-- Source: Pick the cluster-UUID-"node" nsgroup 
-- Dest: cluster-UUID-"node-pods" nsgroup
-- Service: Any
-- Apply To: cluster-UUID-node-pods nsgroup
-- Action: Allow
