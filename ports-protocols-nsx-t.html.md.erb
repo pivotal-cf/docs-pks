@@ -1,5 +1,5 @@
 ---
-title: Firewall Ports and Protocols Requirements
+title: Firewall Ports and Protocols Requirements for PKS on vSphere with NSX-T
 owner: PKS
 ---
 
@@ -11,11 +11,13 @@ In environments with strict inter-network access control policies, firewalls oft
 
 For PKS, the recommendation is to disable security policies that filter traffic between the networks supporting the system. When that is not an option, refer to the following table, which identifies the flows between system components in a typical PKS deployment. 
 
+<p class="note"><strong>Note</strong>: Depending on how you elect to control who has access (Developers, Developer team leads/managers, Operators etc.) to deploy and scale PKS-deployed Kubernetes clusters in your organization, you will need to account for that communication path in your firewall settings. Mirror the settings on the lines below for the Operator --> PKS API server in that case.</p>
+
+
 | Source Component | Destination Component | Destination Protocol | Destination Port | Service |
 | --- | --- | --- | --- | --- |
-| Application User | K8s Cluster Worker Nodes | TCP | 30000-32767 | k8s nodeport |
-| Application User | K8s Load-Balancers | TCP/UDP | varies | varies |
-| Application User | K8s Ingress-Controllers | TCP/UDP | varies | varies |
+| Application User | NSX-T Load Balancers | TCP/UDP | varies | varies |
+| Application User | NSX-T Ingress Controllers | TCP/UDP | varies | varies |
 | Cloud Foundry BOSH Director | Domain Name Server | UDP | 53 | dns |
 | Cloud Foundry BOSH Director | vCenter Server | TCP | 443 | https |
 | Cloud Foundry BOSH Director | vSphere ESXI Mgmt. vmknic | TCP | 443 | https |
@@ -24,9 +26,8 @@ For PKS, the recommendation is to disable security policies that filter traffic 
 | Developer | Harbor Private Image Registry | TCP | 443 | https |
 | Developer | Harbor Private Image Registry | TCP | 80 | http |
 | Developer | K8s Cluster Master/Etcd Nodes | TCP | 8443 | uaa auth |
-| Developer | K8sCluster Worker Nodes | TCP | 30000-32767 | k8s nodeport |
-| Developer | K8s Load-Balancers | TCP/UDP | varies | varies |
-| Developer | K8s Ingress-Controllers | TCP/UDP | varies | varies |
+| Developer | NSX-T Load Balancers | TCP/UDP | varies | varies |
+| Developer | NSX-T Ingress Controllers | TCP/UDP | varies | varies |
 | Domain Name Server | vCenter Server | UDP | 1433 | ms-sql-server |
 | Harbor Private Image Registry | Domain Name Server | UDP | 53 | dns |
 | Harbor Private Image Registry | Public CVE Source Database | TCP | 443 | https |
@@ -49,13 +50,13 @@ For PKS, the recommendation is to disable security policies that filter traffic 
 | NSX Manager Server | SFTP Backup Server | TCP | 22 | ssh |
 | Operator | Harbor Private Image Registry | TCP | 443 | https |
 | Operator | Harbor Private Image Registry | TCP | 80 | http |
-| Operator | K8s Load-Balancers | TCP | 80 | http |
+| Operator | NSX-T Load Balancers | TCP/UDP | varies | varies |
 | Operator | NSX Manager Server | TCP | 443 | https |
 | Operator | PCF Operations Manager | TCP | 22 | ssh |
 | Operator | PCF Operations Manager | TCP | 443 | https |
 | Operator | PCF Operations Manager | TCP | 80 | http |
-| Operator | PKS Controller | TCP | 8443 | uaa auth |
-| Operator | PKS Controller | TCP | 9021 | pks api server |
+| Operator | PKS API Server | TCP | 8443 | uaa auth |
+| Operator | PKS API Server | TCP | 9021 | pks api server |
 | Operator | vCenter Server | TCP | 443 | https |
 | Operator | vCenter Server | TCP | 80 | http |
 | Operator | vSphere ESXI Mgmt. vmknic | TCP | 22 | ssh |
@@ -64,10 +65,10 @@ For PKS, the recommendation is to disable security policies that filter traffic 
 | PCF Operations Manager | Network Time Server | UDP | 123 | ntp |
 | PCF Operations Manager | vCenter Server | TCP | 443 | https |
 | PCF Operations Manager | vSphere ESXI Mgmt. vmknic | TCP | 443 | https |
-| PKS Controller | Domain Name Server | UDP | 53 | dns |
-| PKS Controller | K8s Cluster Master/Etcd Nodes | TCP | 8443 | uaa auth |
-| PKS Controller | NSX Manager Server | TCP | 443 | https |
-| PKS Controller | vCenter Server | TCP | 443 | https |
+| PKS API Server | Domain Name Server | UDP | 53 | dns |
+| PKS API Server | K8s Cluster Master/Etcd Nodes | TCP | 8443 | uaa auth |
+| PKS API Server | NSX Manager Server | TCP | 443 | https |
+| PKS API Server | vCenter Server | TCP | 443 | https |
 | vCenter Server | Domain Name Server | UDP | 53 | dns |
 | vCenter Server | Network Time Server | UDP | 123 | ntp |
 | vCenter Server | vSphere ESXI Mgmt. vmknic | TCP | 8080 | vsanvp |
@@ -75,4 +76,4 @@ For PKS, the recommendation is to disable security policies that filter traffic 
 | vCenter Server | vSphere ESXI Mgmt. vmknic | TCP | 443 | https |
 | vCenter Server | vSphere ESXI Mgmt. vmknic | TCP | 902 | ideafarm-door |
 
-<p class="note"><strong>Note</strong>: You have the option to expose containerized applications, running in a Kubernetes cluster, for external consumption through various ports and methods. You can enable external access to applications by way of Kubernetes NodePorts, load-balancers, and ingress. Enabling access to applications through Kubernetes load-balancers and ingress controller types allow for specific port and protocol designations, while NodePort offers the least control and dynamically allocates ports from a pre-defined range of ports.</p>
+<p class="note"><strong>Note</strong>: You have the option to expose containerized applications, running in a Kubernetes cluster, for external consumption through various ports and methods. You can enable external access to applications by way of NSX and non-NSX load balancers and ingress. Enabling access to applications through standard Kubernetes load-balancers and ingress controller types allow for specific port and protocol designations, while the NAT function offered through NSX-T will allow external addresses and ports to be automatically mapped and resolved to internal/local addresses and ports. The NodePort Service type is not supported for PKS deployments on vSphere with NSX-T. Only type:LoadBalancerServices and Services associated with Ingress rules are supported on vSphere with NSX-T.</p>
