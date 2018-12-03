@@ -13,25 +13,19 @@ provisioned with Pivotal Container Service (PKS) on vSphere with NSX-T integrati
 Network profiles enable you to specify NSX-T configuration parameters at the time of cluster creation.
 See the following table for supported use cases:
 
-Profile Type 	| Description
-----------------|----------------------------
-Load balancer sizing		| Customize the size of the load balancer deployed with your Kubernetes cluster. For more information, see [Load Balancer Sizing](#lb-sizing).
-Routable IP addresses for pods	| Assign routable IP addresses, from a dedicated IP block, to pods in your Kubernetes cluster. For more information, see [Routable IP Addresses for Pods](#routable-pods).
+Profile Type 			| Description
+------------------------|----------------------------
+Load balancer sizing	| Customize the size of the load balancer deployed with your Kubernetes cluster. For more information, see [Load Balancer Sizing](#lb-sizing).
+Custom Pods IP Block	| Assign custom IP addresses, from a dedicated IP block, to pods in your Kubernetes cluster. For more information, see [Custom IP Addresses for Pods](#custom-pods).
+Routable Pods IP Block	| Assign routable IP addresses, from a dedicated IP block, to pods in your Kubernetes cluster. For more information, see [Routable IP Addresses for Pods](#routable-pods).
+Pods Subnet Prefix 		| Specify the size of the Pod subnet. For more information, see [Pods Subnet Prefix](#subnet-prefix).
 
 ### <a id='lb-sizing'></a> Load Balancer Sizing
 
 Using a network profile, you can customize the size of the load balancer that is deployed when a Kubernetes cluster is created using PKS.
 See [Load Balancers in PKS Deployments on vSphere with NSX‑T](about-lb.html#with-nsx-t) for more information.
 
-### <a id='routable-pods'></a> Routable IP Addresses for Pods
-
-Using a network profile, you can assign routable IP addresses from a dedicated routable IP block to pods in your Kubernetes cluster.
-For more information, see [Routable IP Block for Pods](#routable).
-
-When a cluster is deployed using that network profile,
-the routable IP block overrides the default non-routable IP block described in [Non-Routable IP Block for Pods](#non-routable).
-
-#### <a name='non-routable'></a> Non-Routable IP Block for Pods
+### <a name='custom-pods'></a> Custom Pods IP Blocks
 
 When you configure your NSX-T infrastructure for PKS, you must create a **Pods IP Block**.
 For more information, see [Plan IP Blocks](nsxt-prepare-env.html#plan-ip-blocks) in _Preparing NSX-T Before Deploying PKS_.
@@ -43,7 +37,7 @@ This configuration is shown in the diagram below.
 
   <img src="images/nsxt/non-routable-pods.png" alt="Non-routable pod network with SNAT">
 
-#### <a name='routable'></a> Routable IP Block for Pods
+### <a name='routable'></a> Routable Pods IP Block
 
 With network profiles, you can override the default behavior described in [Non-Routable IP Blocks](#non-routable) by using routable pods.
 To use routable pods, do the following after you deploy PKS:
@@ -60,6 +54,12 @@ This configuration is shown in the diagram below.
   <img src="images/nsxt/routable-pods.png" alt="Routable pod network using network profiles">
 
 If you use routable pods, the SNAT rule is not created.
+
+### <a id='subnet-prefix'></a> Pods Subnet Prefix
+
+Each time a Kubernetes namespace is created, a subnet from the Pods IP Block is allocated. The size of the subnet carved from this block for such purposes is /24. See [Pods IP Block](nsxt-prepare-env.html#pods-ip-block) for more information.
+
+You can define a Network Profile using the `pod_subnet_prefix` parameter to cusomtize the size of the pod subnet reserved for namespaces. See the example below.
 
 ### <a id='permissions'></a> Required Permissions
 
@@ -89,9 +89,7 @@ Parameter 			| Description
 `lb_size`	  		| Size of the load balancer deployed with the Kubernetes cluster:<br> `small`, `medium`, or `large`.
 `pod_routable`  	| Either `true` or `false`. Set to `true` to enable routable pods<br> or to `false` to use a non-routable IP block that overrides<br> the default.
 `pod_ip_block_ids`	| UUID of the IP block from NSX Manager, comma-separated.
-
-<p class="note"><strong>Note</strong>: You must include the <code>lb_size</code> parameter in any network profile you define.
-To use the default load balancer, set the value of <code>lb_size</code> to <code>small</code>.</p>
+`pod_subnet_prefix` | CIDR block range for the Pods IP Block subnet.
 
 The following network profile, `np-lb-med.json`, defines a medium load balancer:
 
@@ -149,6 +147,18 @@ overrides the default non-routable **Pods IP Block**.
   }
 }
 ```
+
+The following network profile specifies /27 for the size of the Pods IP Block subnet:
+
+```
+{
+    "name": "np-pod-prefix",
+    "description": "Network Profile for Customizing Pod Subnet Size",
+    "parameters": {
+        "pod_subnet_prefix" : 27
+    }
+}
+``` 
 
 ## <a id="cli-commands"></a> Create and Use Network Profiles
 
