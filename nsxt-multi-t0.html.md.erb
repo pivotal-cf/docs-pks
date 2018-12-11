@@ -15,25 +15,25 @@ PKS multi-T0 lets you provision, manage, and secure Kubernetes cluster deploymen
 
 ## <a id="prereqs"></a> Prerequisites
 
-To implement Multi-Tier-0, verify the following prerequisites:
+To implement Multi-T0, verify the following prerequisites:
 
 * Supported version of vSphere IaaS is installed. See <a href="./vsphere-nsxt-requirements.html">PKS with NSX-T requirements</a>.
 * VMware NSX-T Data Center 2.3, Build 10085361 (18 SEP 2018), is installed.
-* NSX-T v2.3.0.2 hot-patch is applied. For more information, see <a href="https://kb.vmware.com/s/article/60293">KB article 60293</a> at the <a href="https://kb.vmware.com/s/">VMware Knowledge Base</a>.
+* NSX-T v2.3.0.2 hot-patch is applied. For more information, see <a href="https://kb.vmware.com/s/article/60293">ESX hosts lose network connectivity rendering the host inaccessible from network (60293)</a> in the <a href="https://kb.vmware.com/s/">VMware Knowledge Base</a>.
 * PKS v1.2.4 is installed. For more information, see <a href="./installing-nsx-t.html">Installing PKS on vSphere with NSX-T</a>.
-* If you are using NAT mode for the Shared Tier-0 router, review [NAT considerations for Shared T0](#nat-consid-shared) and [NAT considerations for Tenant T0](#nat-consid-tenant) before proceeding.
+* If you are using NAT mode for the Shared Tier-0 router, review [Considerations for NAT Topology on Shared Tier-0](#consider-nat-shared) and [Considerations for NAT Topology on Tenant Tier-0](#consider-nat-tenant) before proceeding.
 
-<p class="note"><strong>Note</strong>: This step only applies to NAT topologies on the Tenant Tier-0 router. For more information on NAT mode, see <a href="./nsxt-topologies.html">NSXSteps 8 and 9 below before proceeding.
+<p class="note"><strong>Note</strong>: This step only applies to NAT topologies on the Tenant Tier-0 router. For more information about NAT mode, see <a href="./nsxt-topologies.html">NSX-T Deployment Topologies for PKS</a>.
 
 ## <a id="base-config"></a> Base Configuration
 
 ### <a id="edge-nodes"></a>Step 1: Plan and Provision Additional NSX Edge Nodes for Each Multi-T0 Router
 
-Multi-T0 requires a minimum of four NSX Edge Nodes: 2 nodes per T0 operating in active-standby mode. Use the T0 attached to the PKS management plane as the Shared Tier-0 router that connects all T0 routers. In addition, deploy an additional T0 router for each tenant you want to isolate. 
+Multi-T0 requires a minimum of four NSX Edge Nodes: Two nodes per T0 operating in active-standby mode. Use the T0 attached to the PKS management plane as the Shared Tier-0 router that connects all T0 routers. In addition, deploy an additional T0 router for each tenant you want to isolate.
 
   <img src="images/nsxt/mt0/mt0-02.png" alt="Multi-T0 Router">
 
-Each Tenant Tier-0 router requires a minimum of 2 NSX Edge Nodes. The formula for determining the minimum number of nodes for all tenants is as follows:
+Each Tenant Tier-0 router requires a minimum of two NSX Edge Nodes. The formula for determining the minimum number of nodes for all tenants is as follows:
 
 ```
 2 + (TENANTS x 2)
@@ -101,9 +101,9 @@ For instructions, see <a href="./nsxt-deploy.html#create-t0-router">Create T0 Ro
 
 ### <a id="port-interfaces"></a>Step 6: Verify the Status of the Shared and Tenant Tier-0 Routers
 
-When you have completed the configuration of the shared and Tenant Tier-0 routers as described above, verify your progress up to this point. On the Shared Tier-0 router, you should have two uplink interfaces, one to the external network and the other to the inter-T0 logical switch. On the Tenant Tier-0 router, you should have two uplink interfaces, one to the inter-T0 logical switch and the other to the external network. Each uplink interface is connected to a transport node.
+When you have completed the configuration of the Shared and Tenant Tier-0 routers as described above, verify your progress up to this point. On the Shared Tier-0 router, you should have two uplink interfaces, one to the external network and the other to the inter-T0 logical switch. On the Tenant Tier-0 router, you should have two uplink interfaces, one to the inter-T0 logical switch and the other to the external network. Each uplink interface is connected to a transport node.
 
-The images below provide an example checkpoint for verifying the uplink interfaces for the shared and Tenant Tier-0 routers. In this example, the Shared Tier-0 has one uplink interface at `10.40.206.10/25` on the transport Edge Node `edge-TN1`, and the second uplink interface at `110.40.206.9/25` on the transport Edge Node `edge-TN2`.
+The images below provide an example checkpoint for verifying the uplink interfaces for the Shared and Tenant Tier-0 routers. In this example, the Shared Tier-0 has one uplink interface at `10.40.206.10/25` on the transport Edge Node `edge-TN1`, and the second uplink interface at `110.40.206.9/25` on the transport Edge Node `edge-TN2`.
 
   <img src="images/nsxt/mt0/uplink-interfaces-shared.png" alt="Shared-T0 Uplink Interfaces">
 
@@ -123,15 +123,15 @@ For each Tenant Tier-0 router, the default static route should point to the tena
 
 ![T0-customer-route](images/nsxt/mt0/nsxt-static-routes-02.png
 
-### <a id="nat-consid-shared"></a>Step 8: Considerations for NAT Topology on Shared Tier-0
+### <a id="consider-nat-shared"></a>Step 8: Considerations for NAT Topology on Shared Tier-0
 
-The Multi-Tier-0 configuration steps documented here apply to deployments where NAT mode is **not** used on the Shared Tier-0 router. For more information, see <a href="./nsxt-topologies.html">NSX-T Deployment Topologies for PKS</a>.
+The Multi-T0 configuration steps documented here apply to deployments where NAT mode is **not** used on the Shared Tier-0 router. For more information, see <a href="./nsxt-topologies.html">NSX-T Deployment Topologies for PKS</a>.
 
 For deployments where NAT-mode is used on the Shared Tier-0 router, additional provisioning steps must be followed to preserve NAT functionality to external networks while bypassing NAT rules for traffic flowing from the Shared Tier-0 router to each Tenant Tier-0 router.
 
-Existing PKS deployments where NAT mode is configured on the Shared Tier-0 router cannot be repurposed to support a Multi-Tier-0 deployment following this documentation.
+Existing PKS deployments where NAT mode is configured on the Shared Tier-0 router cannot be repurposed to support a Multi-T0 deployment following this documentation.
 
-### <a id="nat-consid-tenant"></a>Step 9: Considerations for NAT Topology on Tenant Tier-0
+### <a id="consider-nat-tenant"></a>Step 9: Considerations for NAT Topology on Tenant Tier-0
 
 <p class="note"><strong>Note</strong>: This step only applies to NAT topologies on the Tenant Tier-0 router. For more information on NAT mode, see <a href="./nsxt-topologies.html">NSX-T Deployment Topologies for PKS</a>.</p>
 
@@ -141,7 +141,7 @@ In a Multi-T0 environment with NAT mode, traffic on the Tenant Tier-0 network go
 
 To avoid NAT rules being applied to this class of traffic, you need to create two high-priority **NO_SNAT** rules on each Tenant Tier-0 router. These NO_SNAT rules allow "selective" bypass of NAT for the relevant class of traffic, which in this case is connectivity from Kubernetes node networks to PKS management components such as the PKS API, Ops Manager, and BOSH Director, as well as to infrastructure components such as vCenter and NSX Manager.
 
-For each Tenant Tier-0 router, define two NO_SNAT rule(s) to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the PKS Management network where PKS, Ops Manager, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
+For each Tenant Tier-0 router, define two NO_SNAT rules to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the PKS Management network where PKS, Ops Manager, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
 
 For example, the following image shows two NO_SNAT rules created on a Tenant Tier-0 router. The first rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the PKS management network (`30.0.0.0/24`). The second rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the external network (`192.168.201.0/24`).
 
@@ -157,11 +157,11 @@ The end result is two NO_SNAT rules on each Tenant Tier-0 router that bypass the
 
 The Border Gateway Protocol (BGP) is used for route redistribution and filtering across all Tier-0 routers. BGP allows the Shared Tier-0 router to dynamically discover the location of Kubernetes clusters (Node networks) deployed on each Tenant Tier-0 router.
 
-In a Multi-Tier-0 deployment, all Tier-0 routers are deployed in Active/Standby mode. As such, special consideration must be given to the network design to preserve reliability and fault tolerance of the Shared and Tenant Tier-0 routers.
+In a Multi-T0 deployment, all Tier-0 routers are deployed in Active/Standby mode. As such, special consideration must be given to the network design to preserve reliability and fault tolerance of the Shared and Tenant Tier-0 routers.
 
 Failover of a logical router is triggered when the router is losing all of its BGP sessions. If multiple BGP sessions are established across different uplink interfaces of a Tier-0 router, failover will only occur if **all** such sessions are lost. Thus, to ensure high availability on the Shared and Tenant Tier-0 routers, BGP can only be configured on uplink interfaces facing the Inter-Tier-0 network. This configuration is shown in the diagram below.
 
-<p class="note"><strong>Note</strong>: In a Multi-Tier-0 deployment, BGP cannot be configured on external uplink interfaces. Uplink external connectivity must use VIP-HA with NSX-T to provide high availability for external interfaces. For more information, see <a href="./nsxt-deploy.html#create-edge-ha">Configure Edge Nodes for HA</a>.</p>
+<p class="note"><strong>Note</strong>: In a Multi-T0 deployment, BGP cannot be configured on external uplink interfaces. Uplink external connectivity must use VIP-HA with NSX-T to provide high availability for external interfaces. For more information, see <a href="./nsxt-deploy.html#create-edge-ha">Configure Edge Nodes for HA</a>.</p>
 
 ![Tier-0 HA](images/nsxt/mt0/Tier-0-HA.png)
 
@@ -217,7 +217,7 @@ To configure BGP peering for each Tenant Tier-0 router, follow the steps below:
 1. Go to **Routing** > **BGP**.
 1. Click **Add** and configure the BGP rule as follows:
 	1. **Neighbor Address**: Enter the IP address of the Shared Tier-0 router.
-	1. **Local Address**: Select the individual uplink interface(s) facing the inter-tier0 logical switch.
+	1. **Local Address**: Select the individual uplink interfaces facing the inter-tier0 logical switch.
 	1. **Address Families**: Click **Add** and configure as follows:
 		1. **Type**: IPV4_UNICAST
 		1. **State**: Enabled
