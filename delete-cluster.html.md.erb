@@ -3,11 +3,147 @@ title: Deleting Clusters
 owner: PKS
 ---
 
-Follow the steps below to delete a cluster using the PKS CLI. In PKS v1.1, running the `pks delete-cluster` command automatically deletes all NSX objects.
+Follow the steps below to delete a cluster using the PKS CLI. Running the `pks delete-cluster` command automatically deletes all NSX objects.
 
+##<a id='delete-cluster-success'></a>Delete Successfully Created Cluster
+
+##If the [pks create-cluster](./create-cluster.html) operation results in a successfully deployed Kubernetes cluster, complete the following steps to delete that cluster.
 
 1. <%= partial 'login-pks-api' %>
 
 1. Run `pks delete-cluster CLUSTER-NAME` to delete a cluster. Replace `CLUSTER-NAME` with the unique name for your cluster.
 For example:
   <pre class="terminal">$ pks delete-cluster my-cluster</pre>
+
+##<a id='delete-failed-cluster'></a>Delete Failed Cluster
+
+If the [pks create-cluster](./create-cluster.html) operation results in a failed Kubernetes cluster state, complete the following steps to delete that cluster.
+
+1. <%= partial 'login-pks-api' %>
+
+1. Set the BOSH environment. 
+
+Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use BOSH CLI v2+ to log in to the BOSH Director from the Ops Manager VM. There are various methods to do this, two of which are provided below. For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
+
+Option 1: Set command line alias that contains the BOSH credential and host. 
+
+```
+alias bosh="BOSH_CLIENT=ops_manager BOSH_CLIENT_SECRET={BOSH-CLIENT-SECRET} BOSH_CA_CERT={CA-CERT-PATH} BOSH_ENVIRONMENT={BOSH-IP-ADDRESS} bosh "
+```
+
+Where:
+
+- BOSH_CLIENT_SECRET is the string from the `Bbr Ssh Credentials` parameter in the **Credentials** tab for the BOSH Director tile.
+- BOSH_CA_CERT is the path of the BOSH CA certificate.
+- BOSH_ENVIRONMENT is the IP address of the BOSH Director VM available in the **Status** tab of the BOSH Director tile.
+
+For example:
+
+```
+alias bosh="BOSH_CLIENT=ops_manager BOSH_CLIENT_SECRET=Q336epOEhEzI_8bwgqzGKnO1_Jn9OT2o BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate BOSH_ENVIRONMENT=30.0.0.2 bosh "
+```
+
+Option 2: Create a `bosh_env.sh` file and source it.
+
+```
+vi bosh_env.sh
+
+#!/bin/bash
+export BOSH_CLIENT=ops_manager
+export BOSH_CLIENT_SECRET={BOSH-CLIENT-SECRET}
+export BOSH_CA_CERT={CA-CERT-PATH}
+export BOSH_ENVIRONMENT={BOSH-IP-ADDRESS}
+alias om=om-linux
+```
+
+```
+source bosh_env.sh
+```
+
+Where:
+
+- BOSH_CLIENT_SECRET is the string from the `Bbr Ssh Credentials` parameter in the **Credentials** tab for the BOSH Director tile.
+- BOSH_CA_CERT is the path of the CA certificate.
+- BOSH_ENVIRONMENT is the IP address of the BOSH Director VM available in the **Status** tab of the BOSH Director tile.
+
+For example:
+
+```
+vi bosh_env.sh
+
+#!/bin/bash
+export BOSH_CLIENT=ops_manager
+export BOSH_CLIENT_SECRET=Q336epOEhEzI_8bwgqzGKnO1_Jn9OT2o
+export BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate
+export BOSH_ENVIRONMENT=30.0.0.2
+alias om=om-linux
+```
+
+```
+source bosh_env.sh
+```
+
+1. After setting your BOSH environment, run the following command to list all deployments:
+  <pre class="terminal">$ bosh deployments</pre>
+
+1. Using the PKS ClI, run the following command to list the Kubernetes clusters deployed by PKS. 
+  <pre class="terminal">$ pks clusters</pre>
+
+1. Using the PKS ClI, run the following command to get the Kubernetes cluster UUID for the target cluster. Replace `{CLUSTERNAME}` with the name of the cluster you want to delete.
+  <pre class="terminal">$ pks cluster {CLUSTERNAME}</pre>
+
+The corresponding BOSH deployment ID includes the `service-instance_` prefix followed by the cluster UUID, for example: `service-instance_cdaee466-539b-4d9c-bd00-b02d766023ea`.
+
+1. Using the BOSH CLI, run the following command to get the deployment ID of the PKS cluster to delete.
+  <pre class="terminal">$ bosh -d "service-instance_$(pks cluster {CLUSTERNAME} --json | jq -cr '.uuid')"</pre>
+
+<p class="note"><strong>Note</strong>: The above command assumes you have installed the <a href="https://stedolan.github.io/jq/">JQ command-line JSON processor</a> to format the JSON response. To install JQ on Linux, run the following command: `sudo apt-get install jq`.</p>
+
+1. Using the BOSH CLI, run the following command to get view the virtual machines provisioned by BOSH to support the named cluster deployment.
+  <pre class="terminal">$ bosh -d "service-instance_$(pks cluster {CLUSTERNAME} --json | jq -cr '.uuid')" vms</pre>
+
+1. Once you have verified the Kubernetes cluster to delete, run the following command to delete it using BOSH.
+  <pre class="terminal">$ bosh -d  "service-instance_$(pks cluster {CLUSTERNAME} --json | jq -cr '.uuid')" delete-deployment</pre>
+
+1. Lastly, run `pks delete-cluster {CLUSTERNAME}` to delete a cluster. Replace `{CLUSTERNAME}` with the name of the cluster you want to delete.
+For example:
+  <pre class="terminal">$ pks delete-cluster my-cluster</pre>
+
+For example, the complete deletion workflow for a cluster named `k8s2` is as follows:
+
+```
+$ bosh -d  "service-instance_$(pks cluster k8s2 --json | jq -cr '.uuid')" vms
+Using environment '30.0.0.11' as client 'ops_manager'
+
+Task 1107. Done
+
+Deployment 'service-instance_cdaee466-539b-4d9c-bd00-b02d766023ea'
+
+Instance                                     Process State  AZ    IPs       VM CID                                   VM Type      Active
+master/31f293e7-dc7d-471f-90b6-e671b7464b98  running        az-2  30.0.3.3  vm-02b0a305-bce1-4f47-8eca-2be13d716303  medium.disk  true
+master/7c32f053-1849-44a9-9ee8-d99dbc782992  running        az-3  30.0.3.4  vm-fbd1a0b4-61f6-47df-a77b-eeffb4421231  medium.disk  true
+master/ef7b29bc-6f77-4656-93d3-545b3b0eeedc  running        az-1  30.0.3.2  vm-9107c305-5104-4311-9aa0-33a89469dfc3  medium.disk  true
+worker/8720482e-38c7-475f-8199-e7c7a3d6a145  running        az-2  30.0.3.6  vm-b1794d82-e6da-4b2d-b8f2-476bebbdd5b1  medium.disk  true
+worker/a74935ab-21cf-4a96-8aa4-38e7050a4aa9  running        az-3  30.0.3.7  vm-3f5caff1-2706-428d-af4e-485cc74934a9  medium.disk  true
+worker/f2276b8e-af08-4de3-ba60-7b6dc8bd910c  running        az-1  30.0.3.5  vm-4eae862e-b4c7-4aac-8e5e-61960904f41e  medium.disk  true
+
+6 vms
+
+Succeeded
+
+
+$ bosh -d  "service-instance_$(pks cluster k8s2 --json | jq -cr '.uuid')" delete-deployment
+Using environment '30.0.0.11' as client 'ops_manager'
+
+Using deployment 'service-instance_cdaee466-539b-4d9c-bd00-b02d766023ea'
+
+Continue? [yN]: y
+
+...
+
+$ pks delete-cluster my-cluster
+```
+
+
+
+
