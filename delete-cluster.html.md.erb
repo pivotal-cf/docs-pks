@@ -23,7 +23,7 @@ If the [pks create-cluster](./create-cluster.html) operation results in a failed
 
 1. Set the BOSH environment. 
 
-Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use BOSH CLI v2+ to log in to the BOSH Director from the Ops Manager VM. There are various methods to do this, two of which are provided below. For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
+Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and run the BOSH CLI to access BOSH Director from the Ops Manager VM. There are various methods to do this, two of which are provided below. For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
 
 Option 1: Set command line alias that contains the BOSH credential and host. 
 
@@ -95,21 +95,30 @@ source bosh_env.sh
 The corresponding BOSH deployment ID includes the `service-instance_` prefix followed by the cluster UUID, for example: `service-instance_cdaee466-539b-4d9c-bd00-b02d766023ea`.
 
 1. Using the BOSH CLI, run the following command to get the deployment ID of the PKS cluster to delete.
-  <pre class="terminal">$ bosh -d "service-instance_$(pks cluster {CLUSTERNAME} --json | jq -cr '.uuid')"</pre>
+  <pre class="terminal">$ echo "service-instance_$(pks cluster {CLUSTERNAME} --json | jq -cr '.uuid')"</pre>
 
 <p class="note"><strong>Note</strong>: The above command assumes you have installed the <a href="https://stedolan.github.io/jq/">JQ command-line JSON processor</a> to format the JSON response. To install JQ on Linux, run the following command: `sudo apt-get install jq`.</p>
+
+For example:
+
+```
+echo "service-instance_$(pks cluster k8s2 --json | jq -cr '.uuid')"
+service-instance_cdaee466-539b-4d9c-bd00-b02d766023ea
+```
+
+If you'd prefer not to install JQ on the Ops Manager host, use the command `bosh deployments` to get the UUID of the service instance you want to delete. 
 
 1. Using the BOSH CLI, run the following command to get view the virtual machines provisioned by BOSH to support the named cluster deployment.
   <pre class="terminal">$ bosh -d "service-instance_$(pks cluster {CLUSTERNAME} --json | jq -cr '.uuid')" vms</pre>
 
-1. Once you have verified the Kubernetes cluster to delete, run the following command to delete it using BOSH.
+1. Once you have verified the Kubernetes cluster to delete, run the following command to delete it from BOSH.
   <pre class="terminal">$ bosh -d  "service-instance_$(pks cluster {CLUSTERNAME} --json | jq -cr '.uuid')" delete-deployment</pre>
 
 1. Lastly, run `pks delete-cluster {CLUSTERNAME}` to delete a cluster. Replace `{CLUSTERNAME}` with the name of the cluster you want to delete.
 For example:
   <pre class="terminal">$ pks delete-cluster my-cluster</pre>
 
-For example, the complete deletion workflow for a cluster named `k8s2` is as follows:
+For example, to delete a failed cluster named `k8s2`:
 
 ```
 $ bosh -d  "service-instance_$(pks cluster k8s2 --json | jq -cr '.uuid')" vms
@@ -141,7 +150,7 @@ Continue? [yN]: y
 
 ...
 
-$ pks delete-cluster my-cluster
+$ pks delete-cluster k8s2
 ```
 
 
