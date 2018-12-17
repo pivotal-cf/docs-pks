@@ -1,0 +1,97 @@
+---
+title: Creating Managed Identities in Azure for PKS
+owner: Ops Manager
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes the steps required to create managed identities for Pivotal Container Service (PKS) on Azure.
+
+In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create managed identities with sufficient permissions.
+
+You need separate manged identities for Kubernetes cluster master and worker node VMs.
+<%= vars.vm_credentials %>
+
+## <a id='create-master'></a>Create the Master Custom Role
+
+1. Create a Role definition starting from the following template, replace `SUBSCRIPTION_ID` and`RESOURCE_GROUP` with the values of your environment. Save it as `pks_worker_role.json`. [Custom Roles in Azure](https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles)
+
+```
+{
+    "Name":  "PKS master",
+    "IsCustom":  true,
+    "Description":  "Permissions for PKS master",
+    "Actions":  [
+        "Microsoft.Network/*",
+        "Microsoft.Compute/disks/*",
+        "Microsoft.Compute/virtualMachines/write",
+        "Microsoft.Compute/virtualMachines/read",
+        "Microsoft.Storage/storageAccounts/*"
+    ],
+    "NotActions":  [
+
+    ],
+    "DataActions":  [
+
+    ],
+    "NotDataActions":  [
+
+    ],
+    "AssignableScopes":  [
+      "/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP}"
+    ]
+}
+```
+1. Login in the azure cli with `az login`.
+1. Create the role in Azure running `az role definition create --role-definition pks_master_role.json`
+1. Create a managed identity running `az identity create -g {RESOURCE_GROUP} -n pks-master`, replace `RESOURCE_GROUP` with the Resource Group where you are going to deploy PKS. [Create a user-assigned managed identity](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-cli#create-a-user-assigned-managed-identity)
+1. Assign managed identity access to the resource group.
+  1. On the Azure Portal open the Resource Group where PKS is going to be deployed
+  1. Click on **Access control (IAM)** on the left panel.
+  1. Click on **Add role assignment**
+  1. On the **Add role assignment** page add the following
+    1. **Role**: Select **PKS master**
+    1. **Assign access to**: **User Assigned Managed Identity**
+    1. **Select**: choose the **pks-master** identity created above.
+
+## <a id='create-worker'></a>Create the Worker Custom Role
+
+1. Create a Role definition starting from the following template, replace `SUBSCRIPTION_ID` and`RESOURCE_GROUP` with the values of your environment. Save it as `pks_worker_role.json`. [Custom Roles in Azure](https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles)
+
+```
+{
+    "Name":  "PKS worker",
+    "IsCustom":  true,
+    "Description":  "Permissions for PKS worker",
+    "Actions":  [
+        "Microsoft.Storage/storageAccounts/*"
+    ],
+    "NotActions":  [
+
+    ],
+    "DataActions":  [
+
+    ],
+    "NotDataActions":  [
+
+    ],
+    "AssignableScopes":  [
+      "/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP}"
+    ]
+}
+```
+1. Login in the azure cli with `az login`.
+1. Create the role in Azure running `az role definition create --role-definition pks_worker_role.json`
+1. Create a managed identity running `az identity create -g {RESOURCE_GROUP} -n pks-worker`, replace `RESOURCE_GROUP` with the Resource Group where you are going to deploy PKS. [Create a user-assigned managed identity](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-cli#create-a-user-assigned-managed-identity)
+1. Assign managed identity access to the resource group.
+  1. On the Azure Portal open the Resource Group where PKS is going to be deployed
+  1. Click on **Access control (IAM)** on the left panel.
+  1. Click on **Add role assignment**
+  1. On the **Add role assignment** page add the following
+    1. **Role**: Select **PKS worker**
+    1. **Assign access to**: **User Assigned Managed Identity**
+    1. **Select**: choose the **pks-worker** identity created above.
+
+
+After you create both managed identities for Kubernetes, follow the procedures in
+[Installing PKS on Azure](./installing-pks-azure.html).
