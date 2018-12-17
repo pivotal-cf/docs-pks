@@ -1,88 +1,39 @@
 ---
-title: Configuring Ops Manager on vSphere
+title: Configuring Ops Manager on vSphere NEW
 owner: Ops Manager
 iaas: vSphere
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to configure Ops Manager for vSphere without NSX-T integration.
+This topic describes how to configure BOSH Director on Ops Manager for vSphere.
 
-Before you begin this procedure, ensure that you have successfully completed all of the steps in [Deploying Ops Manager on vSphere](vsphere-om-deploy.html).
+     <%= image_tag("images/vsphere/om-deploy-10.png") %>
 
-<p class="note"><strong>Note</strong>: You can also perform the procedures in this topic using the Ops Manager API. For more information, see <a href="https://docs.pivotal.io/pivotalcf/customizing/ops-man-api.html">Using the Ops Manager API</a>.</p>
 
-## <a id="set-up"></a>Step 1: Set up Ops Manager
+##<a id='prerequisites'></a>Prerequisite
 
-<p class="note"><strong>Note</strong>: If you have Pivotal Application Service (PAS) installed, we strongly recommend installing PKS on a separate instance of Ops Manager for security reasons.
-For more information, see <a href="pas-and-pks.html">PAS and PKS Deployments with Ops Manager</a>.</p>
+Before you begin this procedure, ensure that you have successfully completed the following:
 
-1. Navigate to the fully qualified domain of your Ops Manager in a web browser.
+<ul>
+  <li>
+    <a href="./vsphere-om-deploy.html">Deploying Ops Manager on vSphere</a>
+  </li>
+</ul>
 
-1. The first time you start Ops Manager, you must choose one of the following:
-    * <strong>[Use an Identity Provider](#idp)</strong>: If you use an Identity Provider (IdP), an external identity server maintains your user database.
-    * <strong>[Internal Authentication](#internal)</strong>: If you use Internal Authentication, PCF maintains your user database.
+## <a id="set-up"></a>Step 1: Log in to Ops Manager
 
-<%= image_tag("select-authentication.png") %>
+1. Log in to Ops Manager with the Admin username and password credentials.
 
-### <a id='idp'></a>Use an Identity Provider
+1. Click the **BOSH Director for vSphere** tile.
 
-1. Log in to your IdP console and download the IdP metadata XML. Optionally, if your IdP supports metadata URL, you can copy the metadata URL instead of the XML.
+    <%= image_tag("images/nsxt/bosh/config-bosh-01.png") %>
 
-1. Copy the IdP metadata XML or URL to the Ops Manager **Use an Identity Provider** log in page.
-
-    <%= image_tag("meta-om.png") %>
-
-    <p class="note"><strong>Note</strong>: The same IdP metadata URL or XML is applied for the BOSH Director. If you use a separate IdP for BOSH, copy the metadata XML or URL from that IdP and enter it into the BOSH IdP Metadata text box in the Ops Manager log in page.</p>
-
-1. Enter your **Decryption passphrase**. Read the **End User License Agreement**, and select the checkbox to accept the terms.
-
-1. Your Ops Manager log in page appears. Enter your username and password. Click **Login**.
-
-1. Download your SAML Service Provider metadata (SAML Relying Party metadata) by navigating to the following URLs:
-    * <strong>5a.</strong> Ops Manager SAML service provider metadata: `https://OPS-MAN-FQDN:443/uaa/saml/metadata`
-    * <strong>5b.</strong> BOSH Director SAML service provider metadata: `https://BOSH-IP-ADDRESS:8443/saml/metadata`
-
-    <p class="note"><strong>Note</strong>: To retrieve your <code>BOSH-IP-ADDRESS</code>, navigate to the <strong>Ops Manager Director</strong> tile > <strong>Status</strong> tab. Record the <strong>Ops Manager Director</strong> IP address.</p>
-
-1. Configure your IdP with your SAML Service Provider metadata. Import the Ops Manager SAML provider metadata from Step 5a above to your IdP.
-If your IdP does not support importing, provide the values below.
-    * **Single sign on** URL: `https://OPS-MAN-FQDN:443/uaa/saml/SSO/alias/OPS-MAN-FQDN`
-    * **Audience URI** (SP Entity ID): `https://OP-MAN-FQDN:443/uaa`
-    * **Name ID**: Email Address
-    * SAML authentication requests are always signed
-
-1. Import the BOSH Director SAML provider metadata from Step 5b to your IdP. If the IdP does not support an import, provide the values below.
-    * **Single sign on** URL: `https://BOSH-IP:8443/saml/SSO/alias/BOSH-IP`
-    * **Audience URI** (SP Entity ID): `https://BOSH-IP:8443`
-    * **Name ID**: Email Address
-    * SAML authentication requests are always signed
-
-1. Return to the **Ops Manager Director** tile, and continue with the configuration steps below.
-
-### <a id='internal'></a>Internal Authentication ###
-
-1. When redirected to the **Internal Authentication** page, you must complete the following steps:
-    * Enter a **Username**, **Password**, and **Password confirmation** to create an Admin user.
-    * Enter a **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the Ops Manager datastore, and is not recoverable.
-    * If you are using an **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://docs.pivotal.io/pivotalcf/customizing/pcf-director-proxy-settings.html).
-    * Read the **End User License Agreement**, and select the checkbox to accept the terms.
-
-<%= image_tag("om-login.png") %>
-
-## <a id='vcenter-config'></a>Step 2: vCenter Config Page
-
-1. Log in to Ops Manager with the Admin username and password you created in the previous step.
-
-    <%= image_tag("cf-login.png") %>
-
-1. Click the **Ops Manager Director** tile.
-
-    <%= image_tag("director-tile-vmware.png") %>
+## <a id='vcenter-config'></a>Step 2: Configure vCenter for PKS
 
 1. Select **vCenter Config**.
 
-    <%= image_tag("vcenter-config.png") %>
+    <%= image_tag("images/nsxt/bosh/config-bosh-02.png") %>
 
 1. Enter the following information:
     * **vCenter Host**: The hostname of the vCenter that manages ESXi/vSphere.
@@ -92,21 +43,30 @@ If your IdP does not support importing, provide the values below.
     * **Virtual Disk Type**: The Virtual Disk Type to provision for all VMs. For guidance on selecting a virtual disk type, see [Provisioning a Virtual Disk in vSphere](https://docs.pivotal.io/pivotalcf/customizing/disk-format.html).
     * **Ephemeral Datastore Names (comma delimited)**: The names of the datastores that store ephemeral VM disks deployed by Ops Manager.
     * **Persistent Datastore Names (comma delimited)**: The names of the datastores that store persistent VM disks deployed by Ops Manager.
-    * **VM Folder**: The vSphere datacenter folder (default: `pcf_vms`) where Ops Manager places VMs.
-    * **Template Folder**: The vSphere datacenter folder (default: `pcf_templates`) where Ops Manager places VMs.
-    * **Disk path Folder**: The vSphere datastore folder (default: `pcf_disk`) where Ops Manager creates attached disk images. You must not nest this folder.
 
-1. Select **Standard vCenter Networking**.
+    <%= image_tag("images/vsphere/om-deploy-11.png") %>
+    <%= image_tag("images/vsphere/om-deploy-12.png") %>
+
+1. Select **Standard vCenter Networking**. If you are using NSX-T, see [Intalling PKS on vSphere with NSX-T](vsphere-nsxt-index.html).
+
+1. Configure the following folder names:
+    * **VM Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_vms`.
+    * **Template Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_templates`.
+    * **Disk path Folder**: The vSphere datastore folder where Ops Manager creates attached disk images. You must not nest this folder. Enter `pks_disk`.
+
+    <p class="note"><strong>Note</strong>: After initial deployment, you cannot edit folder names.</p>
+
+    <%= image_tag("images/nsxt/bosh/config-bosh-04.png") %>
 
 1. Click **Save**.
 
-<p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the VM Folder, Template Folder, and Disk path Folder names.</p>
+    <%= image_tag("images/nsxt/bosh/config-bosh-05.png") %>
 
-## <a id='dir-config'></a>Step 3: Director Config Page
+## <a id='dir-config'></a>Step 3: Configure BOSH Director
 
 1. Select **Director Config**.
 
-    <%= image_tag("vsphere/vsphere-director.png") %>
+    <%= image_tag("images/nsxt/bosh/config-bosh-06.png") %>
 
 1. In the **NTP Servers (comma delimited)** field, enter your NTP server addresses.
 
@@ -115,15 +75,19 @@ If your IdP does not support importing, provide the values below.
     if you modify the value of this field.</p>
 
 1. Leave the **JMX Provider IP Address** field blank.
-    <p class="note"><strong>Note</strong>: Starting from PCF v2.0, BOSH-reported system metrics are available in the Loggregator Firehose by default. If you continue to use PCF JMX Bridge for consuming them outside of the Firehose, you may receive duplicate data. To prevent this duplicate data, leave the <strong>JMX Provider IP Address</strong> field blank.</p>
-
+    <p class="note"><strong>Note</strong>: Starting from PCF v2.0, BOSH-reported system metrics are available in the Loggregator Firehose by default.</p>
 1. Leave the **Bosh HM Forwarder IP Address** field blank.
-    <p class="note"><strong>Note</strong>: Starting from PCF v2.0, BOSH-reported system metrics are available in the Loggregator Firehose by default. If you continue to use the BOSH HM Forwarder for consuming them, you may receive duplicate data. To prevent duplicate data, leave the <strong>Bosh HM Forwarder IP Address</strong> field blank.</p>
+    <p class="note"><strong>Note:</strong> Starting in PCF v2.0, BOSH-reported component metrics are available in the Loggregator Firehose by default.</p>
 
 1. Select the **Enable VM Resurrector Plugin** to enable Ops Manager Resurrector functionality.
+
 1. Select **Enable Post Deploy Scripts** to run a post-deploy script after deployment. This script allows the job to execute additional commands against a deployment.
   <p class="note"><strong>Note</strong>: You must enable post-deploy scripts to install PKS.</p>
+
 1. Select **Recreate all VMs** to force BOSH to recreate all VMs on the next deploy. This process does not destroy any persistent disk data.
+
+    <%= image_tag("images/vsphere/om-deploy-15.png") %>
+
 1. Select **Enable bosh deploy retries** if you want Ops Manager to retry failed BOSH operations up to five times.
 <p class="note"><strong>Note</strong>: If you use Ops Manager v2.2, Pivotal recommends disabling <b>Allow Legacy Agents</b>. Disabling the field allows Ops Manager to implement TLS secure communications.</p>
 1. Select **Keep Unreachable Director VMs** if you want to preserve Ops Manager Director VMs after a failed deployment for troubleshooting purposes.
@@ -174,21 +138,33 @@ If your IdP does not support importing, provide the values below.
 
 <p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the Blobstore and Database locations.</p>
 
-## <a id='create-az'></a>Step 4: Create Availability Zone Page
+## <a id='create-az'></a>Step 4: Create Availability Zones
 Ops Manager Availability Zones correspond to your vCenter clusters and resource pools. Multiple Availability Zones allow you to provide high-availability and load balancing to your applications. When you run more than one instance of an application, Ops Manager balances those instances across all of the Availability Zones assigned to the application. At least three availability zones are recommended for a highly available installation of your chosen runtime.
+  <p class="note"><strong>Note</strong>: For more information about using availability zones in vSphere, see <a href="https://docs.pivotal.io/pivotalcf/customizing/understand-az.html">Understanding Availability Zones in VMware Installations</a> in the PCF documentation.</p>
 
 1. Select **Create Availability Zones**.
 
-    <%= image_tag("create-az.png") %>
+    <%= image_tag("images/nsxt/bosh/config-bosh-08.png") %>
 
-1. Use the following steps to create one or more Availability Zones for your applications to use:
-    * Click **Add**.
-    * Enter a unique **Name** for the Availability Zone.
-    * Enter the name of an existing vCenter **Cluster** to use as an Availability Zone.
-    * **(Optional)** Enter the name of a **Resource Pool** in the vCenter cluster that you specified above. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
-    * **(Optional)** Click **Add Cluster** to create another set of **Cluster** and **Resource Pool** fields. You can add multiple clusters. Click the trash icon to delete a cluster. The first cluster cannot be deleted.
-    <p class="note"><strong>Note</strong>: For more information about using availability zones in vSphere, see <a href="https://docs.pivotal.io/pivotalcf/customizing/understand-az.html">Understanding Availability Zones in VMware Installations</a> in the PCF documentation.</p>
+1. Use the following steps to create one or more Availability Zones for PKS to use:
+    * Click **Add** and create the PKS Management AZ.
+    * Enter a unique **Name** for the Availability Zone, such as `AZ-MGMT`.
+    * Select the IaaS configuration (vSphere/vCenter).
+    * Enter the name of an existing vCenter **Cluster** to use as an Availability Zone, such as `COMP-Cluster-1`.
+    * Enter the name of the **PKS Management Resource Pool** in the vCenter cluster that you specified above, such as `RP-MGMT-PKS`. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
+    * Click **Add Cluster** and create at least one PKS Compute AZ.
+    * Specify the **Cluster** and the **Resource Pool**, such as `RP-PKS-AZ`.
+    * Add additional clusters as necessary. Click the trash icon to delete a cluster. The first cluster cannot be deleted.
+
+    <%= image_tag("images/nsxt/bosh/config-bosh-09.png") %>
+
+    <%= image_tag("images/nsxt/bosh/config-bosh-11.png") %>
+
+    <%= image_tag("images/nsxt/bosh/config-bosh-13.png") %>
+
 1. Click **Save**.
+
+    <%= image_tag("images/nsxt/bosh/config-bosh-12.png") %>
 
 ## <a id='create-networks'></a>Step 5: Create Networks Page
 
@@ -300,27 +276,31 @@ Ops Manager Availability Zones correspond to your vCenter clusters and resource 
     <p class='note'><strong>Note</strong>: If you use the Cisco Nexus
 1000v Switch, see more information in <a href="https://docs.pivotal.io/pivotalcf/customizing/nexus-switch.html">Using the Cisco Nexus 1000v Switch with Ops Manager</a> in the PCF documentation.</p>
 
-## <a id='assign-azs'></a>Step 6: Assign AZs and Networks Page
+## <a id='assign-azs'></a>Step 6: Assign AZs and Networks
 
 1. Select **Assign AZs and Networks**.
 
-    <%= image_tag("assign-az.png") %>
+    <%= image_tag("images/nsxt/bosh/config-bosh-18.png") %>
 
-1. Use the drop-down menu to select a **Singleton Availability Zone**. The Ops Manager Director installs in this Availability Zone.
-1. Use the drop-down menu to select a **Network** for your Ops Manager Director.
+1. Use the drop-down menu to select a **Singleton Availability Zone**. The Ops Manager Director installs in this Availability Zone. For PKS, this will be the `AZ-MGMT` availability zone.
+
+1. Use the drop-down menu to select a **Network** for BOSH Director. BOSH Director runs on the PKS Management Plane network. Select the `NST-MGTM-PKS` network.
+
 1. Click **Save**.
 
-## <a id='security-config'></a>Step 7: Security Page
+    <%= image_tag("images/nsxt/bosh/config-bosh-19.png") %>
+
+## <a id='security-config'></a>Step 7: Configure Security
 
 1. Select **Security**.
 
-    <%= image_tag("om-security.png") %>
+1. In **Trusted Certificates**, enter a custom certificate authority (CA) certificate to insert into your organization's certificate trust chain. This allows all BOSH-deployed components in your deployment to trust a custom root certificate. If you are using a private [Docker registry](https://docs.pivotal.io/pivotalcf/opsguide/docker-registry.html), such as VMware Harbor, use this field to enter the certificate for the registry. See [Integrating Harbor Registry with PKS](https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html) for details.
 
-1. In **Trusted Certificates**, enter a custom certificate authority (CA) certificate to insert into your organization's certificate trust chain. This feature enables all BOSH-deployed components in your deployment to trust a custom root certificate. If you want to use Docker Registries for running app instances in Docker containers, use this field to enter your certificate for your private Docker Registry. For more information, see [Using Docker Registries](https://docs.pivotal.io/pivotalcf/opsguide/docker-registry.html) in the PCF documentation.
 1. Choose **Generate passwords** or **Use default BOSH password**. Pivotal recommends that you use the **Generate passwords** option for increased security.
+
 1. Click **Save**. To view your saved Director password, click the **Credentials** tab.
 
-## <a id='syslog'></a>Step 8: Syslog Page
+## <a id='syslog'></a>Step 8: Configure Logging
 
 1. Select **Syslog**.
 
@@ -340,11 +320,9 @@ Ops Manager Availability Zones correspond to your vCenter clusters and resource 
 
 1. Click **Save**.
 
-## <a id='resource-config'></a>Step 9: Resource Config Page
+## <a id='resource-config'></a>Step 9: Configure Resources
 
 1. Select **Resource Config**.
-
-    <%= image_tag("vsphere/vsphere-om-resources.png") %>
 
 1. Adjust any values as necessary for your deployment. Under the **Instances**, **Persistent Disk Type**, and **VM Type** fields,
 choose **Automatic** from the drop-down menu to allocate the recommended resources for the job. If the **Persistent Disk Type** field reads **None**, the job does not require persistent disk space.
