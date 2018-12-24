@@ -9,14 +9,24 @@ This topic describes how to create managed identities for Pivotal Container Serv
 
 In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create managed identities with sufficient permissions.
 
-You need separate managed identities for Kubernetes cluster master and worker node VMs.
+You need separate managed identities for the Kubernetes cluster master and worker node VMs.
 <%= vars.vm_credentials %>
 
-## <a id='create-master'></a>Create the Master Managed Identity
+## <a id='id-resource-group'></a>Retrieve Your Subscription ID and Resource Group
 
-Perform the following steps to create the managed identity for master nodes:
+To perform the procedures in this topic, you must retrieve your subscription ID and the name of your PKS resource group.
 
-1. Create a role definition using the following template, replacing `SUBSCRIPTION_ID` and`RESOURCE_GROUP` with the values of your environment. For more information about custom roles in Azure, see [Custom Roles in Azure](https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles) in the Azure documentation.
+You entered your subscription ID into the `terraform.tfvars` file in [Step 1: Download and Edit the Terraform Variables File](azure-om-deploy.html) of <em>Deploying Ops Manager on Azure</em>.
+
+The name of your PKS resource group is exported from Terraform as the output `pcf_resource_group_name`.
+
+To retrieve your subscription ID and the name of your PKS resource group, you must have access to the output from when you ran `terraform apply` to create resources for the PKS deployment in [Deploying Ops Manager on Azure](azure-om-deploy.html). You can view this output at any time by running `terraform output`.
+
+## <a id='create-master'></a>Create the Master Node Managed Identity
+
+Perform the following steps to create the managed identity for the master nodes:
+
+1. Create a role definition using the following template, replacing `SUBSCRIPTION_ID` and`RESOURCE_GROUP` with your subscription ID and the name of your PKS resource group. For more information about custom roles in Azure, see [Custom Roles in Azure](https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles) in the Azure documentation.
 
     ```
     {
@@ -61,24 +71,24 @@ Perform the following steps to create the managed identity for master nodes:
     ```
     az identity create -g RESOURCE_GROUP -n pks-master
     ```
-    Where `RESOURCE_GROUP` is the resource group where you are going to deploy PKS. 
+    Where `RESOURCE_GROUP` is the name of your PKS resource group.
     <br><br>
     For more information about managed identities, see [Create a user-assigned managed identity](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-cli#create-a-user-assigned-managed-identity) in the Azure documentation.
-1. Assign managed identity access to the resource group by performing the following steps:
+1. Assign managed identity access to the PKS resource group by performing the following steps:
   1. Navigate to the Azure Portal and log in.
-  1. Open the resource group where PKS is going to be deployed.
+  1. Open the PKS resource group.
   1. Click **Access control (IAM)** on the left panel.
   1. Click **Add role assignment**.
   1. On the **Add role assignment** page, enter the following configurations:
-    1. For **Role**, select **PKS master**.
-    1. For **Assign access to**, select **User Assigned Managed Identity**.
-    1. For **Select**, select the **pks-master** identity created above.
+      1. For **Role**, select **PKS master**.
+      1. For **Assign access to**, select **User Assigned Managed Identity**.
+      1. For **Select**, select the **pks-master** identity created above.
 
-## <a id='create-worker'></a>Create the Worker Managed Identity
+## <a id='create-worker'></a>Create the Worker Node Managed Identity
 
-Perform the following steps to create the managed identity for worker nodes:
+Perform the following steps to create the managed identity for the worker nodes:
 
-1. Create a role definition using the following template, replacing `SUBSCRIPTION_ID` and`RESOURCE_GROUP` with the values of your environment. 
+1. Create a role definition using the following template, replacing `SUBSCRIPTION_ID` and`RESOURCE_GROUP` with your subscription ID and the name of your PKS resource group: 
 
     ```
     {
@@ -98,7 +108,7 @@ Perform the following steps to create the managed identity for worker nodes:
 
         ],
         "AssignableScopes":  [
-          "/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP}"
+          "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP"
         ]
     }
     ```
@@ -114,16 +124,16 @@ Perform the following steps to create the managed identity for worker nodes:
     ```
     az identity create -g RESOURCE_GROUP -n pks-worker
     ```
-    Where `RESOURCE_GROUP` is the resource group where you are going to deploy PKS. 
-1. Assign managed identity access to the resource group by performing the following steps:
+    Where `RESOURCE_GROUP` is the name of your PKS resource group. 
+1. Assign managed identity access to the PKS resource group by performing the following steps:
   1. Navigate to the Azure Portal and log in.
-  1. Open the resource group where PKS is going to be deployed.
+  1. Open the PKS resource group.
   1. Click **Access control (IAM)** on the left panel.
   1. Click **Add role assignment**.
   1. On the **Add role assignment** page, enter the following configurations:
-    1. For **Role**, select **PKS worker**.
-    1. For **Assign access to**, select **User Assigned Managed Identity**.
-    1. For **Select**, select the **pks-worker** identity created above.
+      1. For **Role**, select **PKS worker**.
+      1. For **Assign access to**, select **User Assigned Managed Identity**.
+      1. For **Select**, select the **pks-worker** identity created above.
 
 After you create managed identities for both the master and worker nodes, follow the procedures in
 [Installing PKS on Azure](installing-pks-azure.html).
