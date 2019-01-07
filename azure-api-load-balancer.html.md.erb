@@ -1,0 +1,130 @@
+---
+title: Creating an Azure Load Balancer for the PKS API
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to create a load balancer for the Pivotal Container Service (PKS) API
+using Azure.
+
+Before you install PKS, you must configure an external TCP load balancer to access the PKS API from
+outside of your network. You can use any external TCP load balancer of your choice.
+
+Refer to the procedures in this topic to create a load balancer using Azure. To use a different
+load balancer, use this topic as a guide.
+
+<p class="note warning"><strong>WARNING:</strong> To use the latest version of the Azure
+Terraforming templates to create a load balancer suitable for the PKS API, you must set load
+balancing rules on port 9021, and open ports 8443 and 9021 on the security group. The load balancer
+is named <code>RESOURCENAME-pks-lb</code>, where <code>RESOURCENAME</code> is the value of
+<code>env_name</code> that you define in your <code>terraform.tfvars</code> file. For more
+information, see <a href="azure-om-deploy.html">Deploying Ops Manager on Azure</a>.
+
+##<a id='prerequisites'></a> Prerequisites
+
+To complete the steps below, you must identify the PKS API virtual machine (VM). You can find
+the name in the following ways:
+
+* In the [Azure Dashboard](https://portal.azure.com), locate the VM tagged with
+`instance_group:pivotal-container-service`.
+* On the command line, run `bosh vms`.
+
+##<a id='create-load-balancer'></a> Create Load Balancer
+
+1. In a browser, navigate to the [Azure Dashboard](https://portal.azure.com).
+1. Open the **Load Balancers** service.
+1. Click **Add**.
+1. On the **Create load balancer** page, complete the form as follows:
+  1. **Name**: Name the load balancer.
+  1. **Type**: Select **Public**.
+  1. **SKU**: Select **Standard**.
+  1. **Public IP address**: Select **Create new** and name the new IP address.
+  1. **Availability zone**: Select an availability zone or **Zone-redundant**.
+  1. **Subscription**: Select the subscription which has PKS deployed.
+  1. **Resource group**: Select the resource group which has PKS deployed.
+  1. **Location**: Select the location group which has PKS deployed.
+1. Click **Create**.
+
+##<a id='create-backend-pool'></a> Create Backend Pool
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. Click the name of the load balancer that you created in [Create Load Balancer](#create).
+1. On your load balancer page, locate and record the IP address of your load balancer.
+1. In the **Settings** menu, select **Backend pools**.
+1. On the **Backend pools** page, click **Add**.
+1. On the **Add backend pool** page, complete the form as follows:
+  1. **Name**: Name the backend pool.
+  1. **Virtual network**: Select the virtual network where the PKS API VM is deployed.
+  1. **Virtual machine**: Select the PKS API VM that you identified in
+    [Prerequisites](#prerequisites) and select the corresponding IP Address.
+1. Click **Add**.
+
+##<a id='create-health-probes'></a> Create Health Probe
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. In the **Settings** menu, select **Health probes**.
+1. On the **Health probes** page, click **Add**.
+1. On the **Add health probe** page, complete the form as follows:
+  1. **Name**: Name the health probe.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `9021`.
+  1. **Interval**: Enter the interval of time to wait between probe attempts.
+  1. **Unhealthy Threshold**: Enter a number of consecutive probe failures that must occur before
+    a VM is considered unhealthy.
+1. Click **OK**.
+
+##<a id='create-health-probes'></a> Create Load Balancing Rule
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. In the **Settings** menu, select **Load Balancing Rules**.
+1. On the **Load balancing rules** page, click **Add**.
+1. On the **Add load balancing rules** page, complete the form as follows:
+  1. **Name**: Name the load balancing rule.
+  1. **IP Version**: Select **IPv4**.
+  1. **Frontend IP address**: Select the appropriate IP address. Clients communicate with your load
+    balancer on the selected IP address and service traffic is routed to the target VM by this NAT
+    rule.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `9021`.
+  1. **Backend port**: Enter `9021`.
+  1. **Backend Pool**: Select the backend pool that you created in
+    [Create Backend Pool](#create-backend-pool).
+  1. **Health Probe**: Select the health probe that you created in
+    [Create Health Probe](#create-health-probes).
+  1. **Session persistence**: Select **None**.
+1. Click **OK**.
+
+##<a id='create-inbound-rule'></a> Create Inbound Security Rule
+
+1. From the Azure Dashboard, open the **Security Groups** service.
+1. Click the name of the Security Group attached to the subnet where PKS API is deployed. If you
+deployed PKS using Terrform, the name of the Security Group ends with the suffix
+`ops-manager-security-group`.
+1. In the **Settings** menu for your security group, select **Inbound security rules**.
+1. Click **Add**.
+1. On the **Add inbound security rule** page, click **Advanced** and complete the form as follows:
+  1. **Name**: Name the inbound security rule.
+  1. **Source**: Select **Any**.
+  1. **Source port range**: Enter `*`.
+  1. **Destination**: Select **Any**.
+  1. **Destination port range**: Enter `9021,8443`.
+1. Click **OK**.
+
+##<a id='verify'></a> Verify Hostname Resolution
+
+1. In a browser, log into Ops Manager.
+1. Click the PKS tile.
+1. Select **PKS API**.
+1. Record the **API Hostname (FQDN)**.
+1. Verify that the API hostname resolves to the IP address of the load balancer.
+
+## <a id='next-steps'></a>Next Steps
+
+After you complete this procedure, follow the instructions in
+[Installing PKS on Azure](installing-pks-azure.html).
+
+## <a id="next"></a> Next Steps
+
+After you complete this procedure, follow the instructions in [Creating Managed Identities in Azure for PKS](azure-managed-identities.html).
+

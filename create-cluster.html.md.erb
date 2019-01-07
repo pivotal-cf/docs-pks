@@ -26,11 +26,14 @@ If you use GCP, AWS, or vSphere without NSX-T, you can create a load balancer us
 
 For more information about configuring a cluster load balancer, see the following:
 
-* [Configuring a GCP Load Balancer for PKS Clusters](gcp-cluster-load-balancer.html)
-* [Configuring an AWS Load Balancer for PKS Clusters](aws-cluster-load-balancer.html)
+* [Creating and Configuring a GCP Load Balancer for PKS Clusters](gcp-cluster-load-balancer.html)
+* [Creating and Configuring an AWS Load Balancer for PKS Clusters](aws-cluster-load-balancer.html)
+* [Creating and Configuring an Azure Load Balancer for PKS Clusters](azure-cluster-load-balancer.html)
 
-Create the load balancer before you create the cluster, then point the load balancer to the IP address of the master virtual machine (VM) after cluster creation.
-If the cluster has multiple master nodes, you must configure the load balancer to point to all master VMs for the cluster.
+Create the load balancer before you create the cluster. Use the load balancer IP address
+as the external hostname, and then point the load balancer to the IP address of the master
+virtual machine (VM) after cluster creation. If the cluster has multiple master nodes, you
+must configure the load balancer to point to all master VMs for the cluster.
 
 If you are creating a cluster in a non-production environment, you can choose to create a cluster without a load balancer.
 Create a DNS entry that points to the IP address of the cluster's master VM after cluster creation.
@@ -55,18 +58,21 @@ See the [Grant PKS Access to a User](manage-users.html#uaa-user) section of _Man
   </pre>
   Replace the placeholder values in the command as follows:
   * `CLUSTER-NAME`: Enter a unique name for your cluster.
-  * `HOSTNAME`: Enter an external hostname for your cluster. You can use any fully qualified domain name (FQDN) or IP address you own.
-  For example, `my-cluster.example.com` or `10.0.0.1`.
+  * `HOSTNAME`: Enter an external hostname for your cluster. You can use any fully qualified
+domain name (FQDN) or IP address you own. For example, `my-cluster.example.com` or `10.0.0.1`.
+If you created an external load balancer, use its IP address.
   * `PLAN-NAME`: Choose a plan for your cluster. Run `pks plans` to list your available plans.
-  * (Optional) `WORKER-NODES`: Choose the number of worker nodes for the cluster.
-  If you do not specify a number of worker nodes, the default value is 3.
-  For high availability, Pivotal recommends creating clusters with at least 3 worker nodes.
-  The maximum value is 50.
+  * (Optional) `WORKER-NODES`: Choose the number of worker nodes for the cluster. 
+  <br><br>
+  For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use PersistentVolumes (PVs). For example, if you deploy across three AZs, you should have six worker nodes. For more information about PVs, see [PersistentVolumes](maintain-uptime.html#persistent-volumes) in *Maintaining Workload Uptime*. Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
+  <br><br>
+  The maximum value you can specify is configured in the **Plans** pane of the PKS tile. If you do not specify a number of worker nodes, the cluster is deployed with the default number, which is also configured in the **Plans** pane. For more information, see the *Installing PKS* topic for your IaaS, such as [Installing PKS on vSphere](installing-pks-vsphere.html#plans).
     <br><br>
     For example:
     <pre class="terminal">$ pks create-cluster my-cluster \
     --external-hostname my-cluster.example.com \
     --plan large --num-nodes 3</pre>
+  <p class="note"><strong>Note</strong>: It can take up to 30 minutes to create a cluster.</p>
 
 1. Track the cluster creation process by running `pks cluster CLUSTER-NAME`.
 Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
@@ -86,12 +92,13 @@ Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
   See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
 
 1. Depending on your deployment:
-  * For GCP and vSphere without NSX-T, configure external access to the cluster's master nodes using either DNS records or an external load balancer. Use the output from the `pks cluster` command to locate the master node IP addresses and ports.
-  <p class="note"><strong>Note</strong>: For clusters with multiple master node VMs, health checks on port 8443 are recommended.</p>
-  * For vSphere with NSX-T, choose one of the following:
+  * For **vSphere with NSX-T**, choose one of the following:
       * Specify the hostname or FQDN and register the FQDN with the IP provided by PKS after cluster deployment. You can do this using `resolv.conf` or via DNS registration.
       * Specify a temporary placeholder value for FQDN, then replace the FQDN in the `kubeconfig` with the IP address assigned to the load balancer dedicated to the cluster.<br><br>
   To retrieve the IP address to access the Kubernetes API and UI services, use the `pks cluster CLUSTER-NAME` command.
+  * For **vSphere without NSX-T** and **AWS**, configure external access to the cluster's master nodes using either DNS records or an external load balancer. Use the output from the `pks cluster` command to locate the master node IP addresses and ports.
+  * For **GCP**, use the output from the `pks cluster` command to locate the master node IP addresses and ports, and then continue to [Configure Load Balancer Backend](gcp-cluster-load-balancer.html#backend) in _Configuring a GCP Load Balancer for PKS Clusters_.
+  <p class="note"><strong>Note</strong>: For clusters with multiple master node VMs, health checks on port 8443 are recommended.</p>
 
 1. To access your cluster, run `pks get-credentials CLUSTER-NAME`.
 This command creates a local `kubeconfig` that allows you to manage the cluster.

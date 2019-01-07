@@ -1,0 +1,142 @@
+---
+title: Creating and Configuring an Azure Load Balancer for PKS Clusters
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to create and configure an Azure load balancer for your Pivotal Container
+Service (PKS) cluster.
+Using an Azure load balancer is optional, but you may want to add one to your Kubernetes cluster to
+manage the cluster using the PKS API and Kubernetes CLI (kubectl).
+
+A load balancer is a third-party device that distributes network and application traffic across
+resources.
+You can use a load balancer to secure and facilitate access to a PKS cluster from outside the
+network. Using a load balancer can also prevent individual network components from being overloaded
+by high traffic.
+
+<p class='note'><strong>Note:</strong> If your Kubernetes master node VMs are recreated for any
+reason, you must reconfigure your cluster load balancers to point to the new master VMs. For
+instructions, see <a href="#reconfigure">Reconfigure Load Balancer</a>.</p>
+
+##<a id='prerequisites'></a> Prerequisites
+
+To complete the steps below, you must identify the PKS API virtual machine (VM). You can find
+the name in the following ways:
+
+* In the [Azure Dashboard](https://portal.azure.com), locate the VM tagged with
+`instance_group:pivotal-container-service`.
+* On the command line, run `bosh vms`.
+
+## <a id='define-lb'></a>Create and Configure a Load Balancer
+
+Follow the steps below to create and configure an Azure load balancer for your PKS cluster.
+
+###<a id='create-load-balancer'></a> Create Load Balancer
+
+1. In a browser, navigate to the [Azure Dashboard](https://portal.azure.com).
+1. Open the **Load Balancers** service.
+1. Click **Add**.
+1. On the **Create load balancer** page, complete the form as follows:
+  1. **Name**: Name the load balancer.
+  1. **Type**: Select **Public**.
+  1. **SKU**: Select **Standard**.
+  1. **Public IP address**: Select **Create new** and name the new IP address.
+  1. **Availability zone**: Select an availability zone or **Zone-redundant**.
+  1. **Subscription**: Select the subscription which has PKS deployed.
+  1. **Resource group**: Select the resource group which has PKS deployed.
+  1. **Location**: Select the location group which has PKS deployed.
+1. Click **Create**.
+
+###<a id='create-backend-pool'></a> Create Backend Pool
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. Click the name of the load balancer that you created in [Create Load Balancer](#create).
+1. On your load balancer page, locate and record the IP address of your load balancer.
+1. In the **Settings** menu, select **Backend pools**.
+1. On the **Backend pools** page, click **Add**.
+1. On the **Add backend pool** page, complete the form as follows:
+  1. **Name**: Name the backend pool.
+  1. **Virtual network**: Select the virtual network where the PKS API VM is deployed.
+  1. **Virtual machine**: Select all of the master VMs for your cluster. For information about
+    identifying the master VM IDs, see
+    [Identify Kubernetes Cluster Master VMs](create-cluster.html#master-id) in _Creating Clusters_.
+1. Click **Add**.
+
+###<a id='create-health-probes'></a> Create Health Probe
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. In the **Settings** menu, select **Health probes**.
+1. On the **Health probes** page, click **Add**.
+1. On the **Add health probe** page, complete the form as follows:
+  1. **Name**: Name the health probe.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `8443`.
+  1. **Interval**: Enter the interval of time to wait between probe attempts.
+  1. **Unhealthy Threshold**: Enter a number of consecutive probe failures that must occur before
+    a VM is considered unhealthy.
+1. Click **OK**.
+
+###<a id='create-health-probes'></a> Create Load Balancing Rule
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. In the **Settings** menu, select **Load Balancing Rules**.
+1. On the **Load balancing rules** page, click **Add**.
+1. On the **Add load balancing rules** page, complete the form as follows:
+  1. **Name**: Name the load balancing rule.
+  1. **IP Version**: Select **IPv4**.
+  1. **Frontend IP address**: Select the appropriate IP address. Clients communicate with your load
+    balancer on the selected IP address and service traffic is routed to the target VM by this NAT
+    rule.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `8443`.
+  1. **Backend port**: Enter `8443`.
+  1. **Backend Pool**: Select the backend pool that you created in
+    [Create Backend Pool](#create-backend-pool).
+  1. **Health Probe**: Select the health probe that you created in
+    [Create Health Probe](#create-health-probes).
+  1. **Session persistence**: Select **None**.
+1. Click **OK**.
+
+###<a id='create-inbound-rule'></a> Create Inbound Security Rule
+
+1. From the Azure Dashboard, open the **Security Groups** service.
+1. Click the name of the Security Group attached to the subnet where PKS API is deployed. If you
+deployed PKS using Terrform, the name of the Security Group ends with the suffix
+`ops-manager-security-group`.
+1. In the **Settings** menu for your security group, select **Inbound security rules**.
+1. Click **Add**.
+1. On the **Add inbound security rule** page, click **Advanced** and complete the form as follows:
+  1. **Name**: Name the inbound security rule.
+  1. **Source**: Select **Any**.
+  1. **Source port range**: Enter `*`.
+  1. **Destination**: Select **Any**.
+  1. **Destination port range**: Enter `8443`.
+1. Click **OK**.
+
+###<a id='verify'></a> Verify Hostname Resolution
+
+Verify that the **External hostname** used when creating a Kubernetes cluster resolves to the IP
+address of the load balancer.
+
+For more information, see [Create a Kubernetes Cluster](create-cluster.html#create) in
+_Creating Clusters_.
+
+## <a id="reconfigure"></a>Reconfigure Load Balancer
+
+If your Kubernetes master node VMs are recreated for any reason, you must reconfigure your cluster
+load balancers to point to the new master VMs.
+For example, after a stemcell upgrade, BOSH recreates the VMs in your deployment.
+
+To reconfigure your Azure cluster load balancer to use the new master VMs, do the following:
+
+1. Identify the VM IDs of the new master node VMs for the cluster. For information about
+  identifying the master VM IDs, see
+  [Identify Kubernetes Cluster Master VMs](create-cluster.html#master-id) in _Creating Clusters_.
+1. In a browser, navigate to the [Azure Dashboard](https://portal.azure.com).
+1. Open the **Load Balancers** service.
+1. Select the load balancer for your cluster.
+1. In the **Settings** menu, select **Backend pools**.
+1. Update the VMs list with the new master VM IDs.
+1. Click **Save**.
