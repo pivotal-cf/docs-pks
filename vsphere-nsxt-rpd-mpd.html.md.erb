@@ -5,7 +5,7 @@ owner: PKS with NSX-T
 
 <strong><%= modified_date %></strong>
 
-This topic describes the hardware requirements for production deployments of PKS on vSphere with NSX-T, including recommended and minimum production deployment guidelines.
+This topic describes the hardware requirements for **production** deployments of PKS on vSphere with NSX-T, including recommended and minimum deployment guidelines.
 
 ## vSphere Cluster Characteristics for PKS
 
@@ -15,110 +15,154 @@ The PKS Management Cluster on vSphere comprises the following components:
 - NSX-T Manager
 - NSX-T Controller (quantity 3)
 
-The PKS Edge Cluster on vSphere comprises the following components:
-- NSX-T Edge Node (quantity 2)
+The PKS Edge Cluster on vSphere comprises at a minimum two NSX-T Edge Nodes in active/standby mode. The minimum number of Edge Nodes per Edge Cluster is 2; the maximum is 10. PKS supports running Edge Node pairs in active/standby mode only.
 
 <p class="note"><strong>Note</strong>: NSX-T Edge Nodes must be deployed on Intel-based hardware.</p>
 
 The PKS Compute Cluster on vSphere comprises the following components:
+
 - Kubernetes master nodes (quantity 3)
 - Kubernetes worker nodes
 
 The PKS Management Plane comprises the following components:
+
 - Pivotal Ops Manager
 - Pivotal BOSH Director 
 - PKS Control Plane
 - VMware Harbor Registry
 
-Depending on your design choice, the PKS management components can be deployed in the PKS Management Cluster or in the PKS Compute Cluster. For more information, see [NSX-T toplogies for PKS](#nsxt-topologies.html). 
+Depending on your design choice, PKS management components can be deployed in the PKS Management Cluster or in the PKS Compute Cluster. For more information, see [NSX-T topologies for PKS](#nsxt-topologies.html). 
 
-In addion, for all vSphere clusters, the following configurations are required:
-- The vSphere Distributed Resource Scheduler (DRS) is turned on (partially automated or fully automated). 
-- vSphere high-availiabity (HA) with Admission Control (AC) to support 1 ESXi host failure is turned on and configured as follows:
+In addition, for all vSphere clusters, the following configurations are required:
+
+- The vSphere Distributed Resource Scheduler (DRS) is turned on (partially or fully automated). 
+- vSphere high-availability (HA) with Admission Control (AC) to support 1 ESXi host failure is turned on and configured as follows:
 	- Host failure: Restart VMs
 	- Admission Control: Host failures cluster tolerates = 1
 
 ##<a id='pks-rpd'></a> RPD for PKS on vSphere with NSX-T
 
-The recommended production deployment (RPD) topology represents the VMware-recommended configuration to run PKS with NSX-T in production. The recommendations differ depending on whether you are using vSAN or not.
+The recommended production deployment (RPD) topology represents the VMware-recommended configuration to run PKS on vSphere with NSX-T in production.
+
+<p class="note"><strong>Note</strong>: The recommendations differ depending on whether you are using vSAN or not.</p>
 
 ###<a id='pks-rpd-vsan'></a> RPD for PKS with vSAN
 
-The recommended production deployment for PKS on a vSAN-based topology requires 12 ESXi hosts deployed and configured as follows:
-
-- Management/Edge cluster
-	- Collapsed Management/Edge cluster with 3 ESXi hosts.
-	- Each ESXi host runs 1 NSX-T controller (NSX-T control plane with 3 NSX-T controllers total).
-	- 2 NSX-T edge nodes deployed across 2 different ESXi hosts.
-- Compute clusters
-	- Each Compute cluster has 3 ESXi hosts and is bound by a distinct availability zone (AZ) defined in BOSH Director.
-		- Compute cluster1 (AZ1) with 3 ESXi hosts.
-		- Compute cluster2 (AZ2) with 3 ESXi hosts.
-		- Compute cluster3 (AZ3) with 3 ESXi hosts.
-	- Each Compute cluster runs 1 instance of a PKS-provisioned Kubernetes cluster with 3 master nodes per cluster and a per-plan number of worker nodes.
-- Storage
-	- Each Compute cluster is backed by a vSAN datastore
-	- An external shared datastore (using NFS or iSCSI for instance) must be provided to store Kubernetes Pod PV (Persistent Volumes).
-	- 3 ESXi hosts are required per Compute cluster because of the vSAN cluster requirements. For data protection, vSAN creates two copies of the data and requires one witness. For more information, see <a href="./vsphere-persistent-storage.html">PersistentVolume Storage Options on vSphere</a>.
-- Growth
-	- The collapsed Management/Edge cluster can expand up to 64 ESXi hosts for future needs.
-	- Each Compute cluster can expand up to 64 ESXi hosts for future needs.
+The recommended production deployment (RPD) for PKS on vSphere with NSX-T and vSAN requires 12 ESXi hosts. The diagram below shows the toplogy for this deployment scenario. 
 
 <img src="images/nsxt/pks-vs-nsxt-rpd-vsan.png" alt="RPD for PKS with vSAN">
 
+The following subsections describe configuration details for the RPD of PKS on vSphere with NSX-T and vSAN.
+
+#### Management/Edge Cluster
+
+The RPD topology for PKS with vSAN includes a Management/Edge Cluster with the following characteristics:
+
+- Collapsed Management/Edge Cluster with 3 ESXi hosts.
+- Each ESXi host runs 1 NSX-T Controller. The NSX-T Control Plane has 3 NSX-T Controllers total.
+- 2 NSX-T Edge Nodes are deployed across 2 different ESXi hosts.
+
+#### Compute Clusters
+
+The RPD topology for PKS with vSAN includes 3 Compute Clusters with the following characteristics:
+
+- Each Compute cluster has 3 ESXi hosts and is bound by a distinct availability zone (AZ) defined in BOSH Director.
+	- Compute cluster1 (AZ1) with 3 ESXi hosts.
+	- Compute cluster2 (AZ2) with 3 ESXi hosts.
+	- Compute cluster3 (AZ3) with 3 ESXi hosts.
+- Each Compute cluster runs 1 instance of a PKS-provisioned Kubernetes cluster with 3 master nodes per cluster and a per-plan number of worker nodes.
+
+#### Storage (vSAN)
+
+The RPD topology for PKS with vSAN requires the following storage configuration:
+
+- Each Compute Cluster is backed by a vSAN datastore
+- An external shared datastore (using NFS or iSCSI for instance) must be provided to store Kubernetes Pod PV (Persistent Volumes).
+- 3 ESXi hosts are required per Compute cluster because of the vSAN cluster requirements. For data protection, vSAN creates two copies of the data and requires one witness. For more information, see <a href="./vsphere-persistent-storage.html">PersistentVolume Storage Options on vSphere</a>.
+
+#### Future Growth
+
+The RPD topology for PKS with vSAN can be scaled as follows to accommodate future growth requirements:
+
+- The collapsed Management/Edge Cluster can be expanded to include up to 64 ESXi hosts.
+- Each Compute Cluster can expand up to 64 ESXi hosts.
+
 ###<a id='pks-rpd-no-vsan'></a> RPD for PKS without vSAN
 
-RPD Topology (non VSAN-based) description:
-
-- Management/Edge cluster
-	- Collapsed Management/Edge cluster with 3 ESXi hosts.
-	- Each ESXi host runs 1 NSX-T controller (NSX-T control plane with 3 NSX-T controllers total).
-	- 2 NSX-T edge nodes deployed across 2 different ESXi hosts.
-- Compute clusters
-	- Each Compute cluster has 2 ESXi hosts and is bound by a distinct availability zone (AZ) defined in BOSH Director.
-		- Compute cluster1 (AZ1) with 2 ESXi hosts.
-		- Compute cluster2 (AZ2) with 2 ESXi hosts.
-		- Compute cluster3 (AZ3) with 2 ESXi hosts.
-	- Each Compute cluster runs 1 instance of a PKS-provisioned Kubernetes cluster with 3 master nodes per cluster and a per-plan number of worker nodes.
-- Storage
-	- All Compute clusters are connected to same shared datastore (used for VM disks and Kubernetes Pod PV (Persistent Volumes). 
-	- All datastores can be collapses to single datastore if needed.
-- Growth
-	- The collapsed Management/Edge cluster can expand up to 64 ESXi hosts for future needs.
-	- Each Compute cluster can expand up to 64 ESXi hosts for future needs
+The recommended production deployment (RPD) for PKS on vSphere with NSX-T without vSAN storage requires 9 ESXi hosts. The diagram below shows the topology for this deployment scenario. 
 
 <img src="images/nsxt/pks-vs-nsxt-rpd.png" alt="RPD for PKS without vSAN">
 
-##<a id='pks-mpd'></a> MPD for PKS
+The following subsections describe configuration details for the RPD of PKS without vSAN.
 
-The minimum production deployment (MPD) topology represents the VMware supported minimum deployment to run PKS/NSX-T in production. 
+#### Management/Edge Cluster
+
+The RPD for PKS without vSAN includes a Management/Edge Cluster with the following characteristics:
+
+- Collapsed Management/Edge Cluster with 3 ESXi hosts.
+- Each ESXi host runs 1 NSX-T Controller. The NSX-T Control Plane has 3 NSX-T Controllers total.
+- 2 NSX-T Edge Nodes are deployed across 2 different ESXi hosts.
+
+#### Compute Clusters
+
+The RPD for PKS without vSAN includes 3 Compute Clusters with the following characteristic:
+
+- Each Compute cluster has 2 ESXi hosts and is bound by a distinct availability zone (AZ) defined in BOSH Director.
+	- Compute cluster1 (AZ1) with 2 ESXi hosts.
+	- Compute cluster2 (AZ2) with 2 ESXi hosts.
+	- Compute cluster3 (AZ3) with 2 ESXi hosts.
+- Each Compute cluster runs 1 instance of a PKS-provisioned Kubernetes cluster with 3 master nodes per cluster and a per-plan number of worker nodes.
+
+#### Storage (non-vSAN)
+
+The RPD topology for PKS without vSAN requires the following storage configuration:
+
+- All Compute Clusters are connected to same shared datastore that is used for persistent VM disks and Kubernetes Pod PV (Persistent Volumes). 
+- All datastores can be collapses to single datastore, if needed.
+
+#### Future Growth 
+
+The RPD topology for PKS without vSAN can be scaled as follows to accommodate future growth requirements:
+
+- The collapsed Management/Edge Cluster can expand up to 64 ESXi hosts.
+- Each Compute Cluster can expand up to 64 ESXi hosts.
+
+##<a id='pks-mpd'></a> MPD for PKS on vSphere with NSX-T
+
+The minimum production deployment (MPD) topology represents the baseline requirements for running PKS on vSphere with NSX-T.
+
+<p class="note"><strong>Note</strong>: The MPD topology is not recommended for production workloads.</p>
+
+The diagram below shows the topology for this deployment scenario.
+
+<img src="images/nsxt/pks-vs-nsxt-mpd.png" alt="MPD for PKS">
+
+The following subsections describe configuration details for a MPD of PKS.
 
 ###<a id='pks-mpd-toplogy'></a> MPD Topology
 
-<p class="note"><strong>Note:</strong> The MPD topology for PKS applies to vSAN and non-vSAN configuration.</p>
+<p class="note"><strong>Note:</strong> The MPD topology for PKS on vSphere with NSX-T applies to both vSAN and non-vSAN configurations.</p>
 
-The MPD topology for PKS requires the following minimum configuration: 
+The MPD topology for PKS on vSphere with NSX-T requires the following minimum configuration: 
 
-- A single collapsed Management/Edge/Compute cluster using 3 ESXi hosts in total. 
-- Each ESXi host runs 1 NSX-T Controller (NSX-T control plane with 3 NSX-T controllers total).
-- Each ESXi host runs 1 Kubernetes master node (Kubernetes cluster with 3 master nodes total).
+- A single collapsed Management/Edge/Compute cluster running 3 ESXi hosts in total. 
+- Each ESXi host runs 1 NSX-T Controller. The NSX-T Control Plane has 3 NSX-T Controllers in total.
+- Each ESXi host runs 1 Kubernetes master node. Each Kubernetes cluster has 3 master nodes in total.
 - 2 NSX-T edge nodes deployed across 2 different ESXi hosts.
 - The shared datastore (NFS/SCSI/…) or vSAN datastore will be leveraged for VM disks and Kubernetes Pod PV (Persistent Volumes).
 - The collapsed Management/Edge/Compute cluster can expand up to 64 ESXi hosts for future needs.
 
 ###<a id='pks-mpd-toplogy'></a> MPD Considerations
 
-Keep in mind the following considerations when using MPD:
+If you plan to deploy the MPD topology for PKS on vSphere with NSX-T, keep in mind the following considerations:
 
-- When deploying 1 NSX-T Controller per ESXi host, create a DRS anti-affinity rule of type "separate virtual machines" for each of the 3 controllers.
-- When deploying 2 NSX-T Edge Nodes across 2 different ESXi hosts, create DRS anti-affinity rule of type "separate virtual machines" for the 2 VMs.
-- MPD topology (Base): Make sure to leverage vSphere resource pools to allocate proper HW resources for management plane components (tune reservation and limits accordingly).
+- When deploying an NSX-T Controller to each ESXi host, create a vSphere distributed resource scheduler (DRS) anti-affinity rule of type "separate virtual machines" for each of the 3 NSX-T Controllers.
+- When deploying the NSX-T Edge Nodes across 2 different ESXi hosts, create a DRS anti-affinity rule of type "separate virtual machines" for bot Edge Node VMs.
+- Leverage vSphere resource pools to allocate proper hardware resources for the PKS Management Plane Components (tune reservation and limits accordingly).
 - There is no fault tolerance for the Kubernetes cluster because PKS Availability Zones are not fully leveraged with this topology.
-- PKS AZ can be mapped as vSphere Resource Pool.
-- After deploying the Kubernetes cluster, user has to intervene to make sure each master node is living on a different ESXi host (by tuning the DRS anti-affinity rule of type "separate virtual machines" for instance).
+- The PKS AZ should be mapped to a vSphere Resource Pool.
+- After deploying the Kubernetes cluster, you must manually make sure each master node is deployed to a different ESXi host (by tuning the DRS anti-affinity rule of type "separate virtual machines").
  
-<img src="images/nsxt/pks-vs-nsxt-mpd.png" alt="MPD for PKS">
-
 ## VM Size Inventory
 
 The following tables list the VMs and their sizes for PKS on vSphere with NSX-T deployments.
@@ -137,8 +181,7 @@ NSX-T Controller 3		| 4 	| 16 			| 120
 Ops Manager 			| 1 	| 8 			| 160
 BOSH Director 			| 2 	| 8 			| 103
 Harbor Registry 		| 2 	| 8 			| 167
-------------------------|-------|---------------|----------------
-TOTAL					| 27	| 112			| 1.25 TB
+**TOTAL**				| **27**| **112**		| **1.25 TB**
 
 ### NSX-T Edge Nodes VM Sizes
 
@@ -146,8 +189,7 @@ VM 						| CPU   				| Memory (GB) 	| Disk Space (GB)
 ------------------------|-----------------------|---------------|----------------
 NSX-T Edge Node 1		| 8 (Intel CPU only)	| 16 			| 120
 NSX-T Edge Node 1		| 8 (Intel CPU only)	| 16 			| 120
-------------------------|-----------------------|---------------|----------------
-TOTAL					| 16					| 32			| .25 TB
+**TOTAL**				| **16**				| **32**		| **.25 TB**
 
 ### Kubernetes Cluster Nodes VM Sizes
 
@@ -164,7 +206,7 @@ The following table shows sizing information for two example Kubernetes clusters
 VM 						| CPU per Node 	| Memory (GB) per Node 	| Ephemeral Disk Space per Node (GB) | Persistent Disk Space per Node (GB)
 ------------------------|---------------|-----------------------|------------------------------------|------------------------------------
 Master Nodes (6 total)	| 2 			| 8 					| 64 		   				 		 | 128
-Worker Nodes (10 todal)	| 4 			| 16 					| 64 		   				 		 | 256
+Worker Nodes (10 total)	| 4 			| 16 					| 64 		   				 		 | 256
 
 ## Hardware Requirements
 
@@ -191,7 +233,7 @@ Compute Cluster	1	| 3 				| 6 (with Hyper Threading)	| 48 		   			| 2x 10GbE		| 
 Compute Cluster	2	| 3 				| 6 (with Hyper Threading)	| 48 		   			| 2x 10GbE		| 192 GB
 Compute Cluster	3	| 3 				| 6 (with Hyper Threading)	| 48 		   			| 2x 10GbE		| 192 GB
 
-The following table lists the hardware requirements for a RPD of PKS not using vSAN.
+The following table lists the hardware requirements for a RPD of PKS without vSAN.
 
 VM 					| Number of Hosts 	| Total Cores per Host 		| Memory per Host (GB)  | NICs per Host | Shared Datastore
 --------------------|-------------------|---------------------------|-----------------------|---------------|-----------------
