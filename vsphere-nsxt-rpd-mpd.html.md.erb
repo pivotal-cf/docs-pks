@@ -1,37 +1,39 @@
 ---
-title: System Requirements for Recommended and Minimum Production Deployments of PKS on vSphere with NSX-T
+title: Hardware Requirements for Production Deployments of PKS on vSphere with NSX-T
 owner: PKS with NSX-T
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes the recommended and minimum resource requirements for production deployments of PKS on vSphere with NSX-T. 
+This topic describes the hardware requirements for production deployments of PKS on vSphere with NSX-T, including recommended and minimum production deployment guidelines.
 
-## vSphere Cluster Allocation
+## vSphere Cluster Characteristics for PKS
 
-Management Cluster
-- vCenter (1 VM)
-- NSX-T Manager (1 VM)
-- NSX-T Controllers (3 VMs)
+The PKS Management Cluster on vSphere comprises the following components:
+- vCenter Server
+- NSX-T Manager
+- NSX-T Controller (quantity 3)
 
-Edge Cluster
-- NSX-T Edge Nodes (2 VMs in active/standby mode)
-- Requires Intel based hardware only because of DPDK requirement)
+The PKS Edge Cluster on vSphere comprises the following components:
+- NSX-T Edge Node (quantity 2)
 
-Compute Cluster
-- Kubernetes cluster nodes
-- Kubernetes master nodes (3 VMs)
+<p class="note"><strong>Note</strong>: NSX-T Edge Nodes must be deployed on Intel-based hardware.</p>
 
-PKS Management Plane
-- Consists of Ops Manager, Bosh, PKS Control Plane VM and Harbor VMs
-- Can reside in the Management cluster or Compute cluster depending on design choice. For more information, see [NSX-T toplogies for PKS](#nsxt-topologies.html). 
+The PKS Compute Cluster on vSphere comprises the following components:
+- Kubernetes master nodes (quantity 3)
+- Kubernetes worker nodes
 
-## vSphere Cluster Configuration 
+The PKS Management Plane comprises the following components:
+- Pivotal Ops Manager
+- Pivotal BOSH Director 
+- PKS Control Plane
+- VMware Harbor Registry
 
-For all vSphere clusters:
-- vSphere DRS is turned on (partially automated or fully automated).
-- vSphere HA
-	- HA with Admission Control is turned on (with support for 1 host down max)
+Depending on your design choice, the PKS management components can be deployed in the PKS Management Cluster or in the PKS Compute Cluster. For more information, see [NSX-T toplogies for PKS](#nsxt-topologies.html). 
+
+In addion, for all vSphere clusters, the following configurations are required:
+- The vSphere Distributed Resource Scheduler (DRS) is turned on (partially automated or fully automated). 
+- HA with Admission Control is turned on (with support for 1 host down max)
 	- Host failure: Restart VMs
 	- Admission Control: Host failures cluster tolerates = 1
 
@@ -117,3 +119,58 @@ Keep in mind the following considerations when using MPD:
 - After deploying the Kubernetes cluster, user has to intervene to make sure each master node is living on a different ESXi host (by tuning the DRS anti-affinity rule of type "separate virtual machines" for instance).
  
 <img src="images/nsxt/pks-vs-nsxt-mpd.png" alt="MPD for PKS">
+
+## VM Size Inventory
+
+The following tables list the VMs and their sizes for PKS on vSphere with NSX-T deployments.
+
+### Control Plane VM Sizes
+
+The following table lists the resource requirements for each VM in the PKS infrastructure and control plane. 
+
+VM 						| CPU   | Memory (GB) 	| Disk Space (GB)
+------------------------|-------|---------------|----------------
+vCenter (small size) 	| 4 	| 16 			| 290
+NSX-T Manager			| 4		| 16			| 140
+NSX-T Controller 1		| 4 	| 16 			| 120
+NSX-T Controller 2		| 4 	| 16 			| 120
+NSX-T Controller 3		| 4 	| 16 			| 120
+Ops Manager 			| 1 	| 8 			| 160
+BOSH Director 			| 2 	| 8 			| 103
+Harbor Registry 		| 2 	| 8 			| 167
+------------------------|-------|---------------|----------------
+TOTAL					| 27	| 112			| 1.25 TB
+
+### NSX-T Edge Nodes VM Sizes
+
+VM 						| CPU   				| Memory (GB) 	| Disk Space (GB)
+------------------------|-----------------------|---------------|----------------
+NSX-T Edge Node 1		| 8 (Intel CPU only)	| 16 			| 120
+NSX-T Edge Node 1		| 8 (Intel CPU only)	| 16 			| 120
+------------------------|-----------------------|---------------|----------------
+TOTAL					| 16					| 32			| .25 TB
+
+### Kubernetes Cluster Nodes VM Sizes
+
+The following table lists general sizing information:
+
+VM 						| CPU   	| Memory (GB) 	| Ephemeral Disk Space | Persistent Disk Space
+------------------------|-----------|---------------|----------------------|----------------------
+Master Nodes 			| 1 to 16 	| 1 to 64 		| 8 to 256 GB 		   | 1 GB to 32 TB
+Worker Nodes 			| 1 to 16 	| 1 to 64 		| 8 to 256 GB 		   | 1 GB to 32 TB
+
+
+The following table shows sizing information for two example Kubernetes clusters with 3 master nodes and 5 worker nodes each.
+
+VM 						| CPU per Node 	| Memory (GB) per Node 	| Ephemeral Disk Space per Node (GB) | Persistent Disk Space per Node (GB)
+------------------------|---------------|-----------------------|------------------------------------|------------------------------------
+Master Nodes (6 total)	| 2 			| 8 					| 64 		   				 		 | 128
+Worker Nodes (10 todal)	| 4 			| 16 					| 64 		   				 		 | 256
+
+## MPD Hardware Requirements
+
+The following tables list the VMs and their sizes for PKS on vSphere with NSX-T deployments.
+
+VM 					| Number of Hosts 	| Total Cores per Host (with Hyperthreading)	| Memory per Host (GB)  | Shared Datastore
+--------------------|-------------------|-----------------------------------------------|-----------------------|---------------------
+Collapsed Cluster	| 3 				| 32 											| 236 		   			| 
