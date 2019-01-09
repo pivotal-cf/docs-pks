@@ -9,20 +9,36 @@ This topic describes the hardware requirements for **production** deployments of
 
 ##<a id='pks-cluster-chars'></a> vSphere Cluster Characteristics for PKS
 
+In vSphere a [cluster](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.vcenterhost.doc/GUID-F7818000-26E3-4E2A-93D2-FCDCE7114508.html?hWord=N4IghgNiBcIMYQK4GcAuBTATiAvkA) is a collection of ESXi hosts and associated virtual machines (VMs) with shared resources and a shared management interface.
+
+Deploying PKS on vSphere with NSX-T requires the creation of a number of vSphere cluster objects, including: 
+
+- PKS Management Cluster
+- PKS Edge Cluster
+- PKS Compute Cluster
+
+###<a id='pks-mgmt-cluster'></a> PKS Management Cluster
+
 The PKS Management Cluster on vSphere comprises the following components:
 
 - vCenter Server
 - NSX-T Manager
 - NSX-T Controller (quantity 3)
 
-The PKS Edge Cluster on vSphere comprises at a minimum two NSX-T Edge Nodes in active/standby mode. The minimum number of Edge Nodes per Edge Cluster is 2; the maximum is 10. PKS supports running Edge Node pairs in active/standby mode only.
+###<a id='pks-edge-cluster'></a> PKS Edge Cluster
+
+The PKS Edge Cluster on vSphere comprises two or more NSX-T Edge Nodes in active/standby mode. The minimum number of Edge Nodes per Edge Cluster is 2; the maximum is 10. PKS supports running Edge Node pairs in active/standby mode only.
 
 <p class="note"><strong>Note</strong>: NSX-T Edge Nodes must be deployed on Intel-based hardware.</p>
+
+###<a id='pks-compute-cluster'></a> PKS Compute Cluster
 
 The PKS Compute Cluster on vSphere comprises the following components:
 
 - Kubernetes master nodes (quantity 3)
-- Kubernetes worker nodes
+- Kubernetes worker nodes (quantity depends on the chosen plan)
+
+###<a id='pks-cluster-consids'></a> PKS Management Plane Considerations
 
 The PKS Management Plane comprises the following components:
 
@@ -31,14 +47,23 @@ The PKS Management Plane comprises the following components:
 - PKS Control Plane
 - VMware Harbor Registry
 
-Depending on your design choice, PKS management components can be deployed in the PKS Management Cluster or in the PKS Compute Cluster. For more information, see [NSX-T topologies for PKS](#nsxt-topologies.html). 
+Depending on your design choice, PKS management components can be deployed in the PKS Management Cluster (on the standard vSphere network) or in the PKS Compute Cluster (on the NSX-T-defined virtual network). For more information, see [NSX-T topologies for PKS](#nsxt-topologies.html). 
 
-In addition, for all vSphere clusters, the following configurations are required:
+###<a id='pks-cluster-reqs'></a> Additional Requirements for vSphere Clusters for PKS
 
-- The vSphere Distributed Resource Scheduler (DRS) is turned on (partially or fully automated). 
-- vSphere high-availability (HA) with Admission Control (AC) to support 1 ESXi host failure is turned on and configured as follows:
+For each vSphere cluster defined for PKS, the following configurations are required for production workloads:
+
+- The vSphere Distributed Resource Scheduler (DRS) is enabled. For more information, see <a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.resmgmt.doc/GUID-8ACF3502-5314-469F-8CC9-4A9BD5925BC2.html">Creating a DRS Cluster</a> in the vSphere documentation.</p>
+
+- The DRS custom automation level is set to **Partially Automated** or **Fully Automated**. For more information, see <a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.resmgmt.doc/GUID-C21C0609-923B-46FB-920C-887F00DBCAB9.html">Set a Custom Automation Level for a Virtual Machine</a> in the vSphere documentation.</p> 
+
+- vSphere high-availability (HA) is enabled. For more information, see <a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-5432CA24-14F1-44E3-87FB-61D937831CF6.html">Creating and Using vSphere HA Clusters</a> in the vSphere documentation.</p>
+
+- vSphere HA Admission Control (AC) is configured to support 1 ESXi host failure. Specifically:
 	- Host failure: Restart VMs
 	- Admission Control: Host failures cluster tolerates = 1
+
+For more information, see <a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.avail.doc/GUID-C4059DB9-D673-45CB-918C-68C87FEB060A.html">Configure Admission Control</a> in the vSphere documentation.</p>
 
 ##<a id='pks-rpd'></a> RPD for PKS on vSphere with NSX-T
 
@@ -48,7 +73,7 @@ The recommended production deployment (RPD) topology represents the VMware-recom
 
 ###<a id='pks-rpd-vsan'></a> RPD for PKS with vSAN
 
-The recommended production deployment (RPD) for PKS on vSphere with NSX-T and vSAN requires 12 ESXi hosts. The diagram below shows the toplogy for this deployment scenario. 
+The recommended production deployment (RPD) for PKS on vSphere with NSX-T and vSAN requires 12 ESXi hosts. The diagram below shows the topology for this deployment scenario. 
 
 <img src="images/nsxt/pks-vs-nsxt-rpd-vsan.png" alt="RPD for PKS with vSAN">
 
@@ -157,7 +182,7 @@ The MPD topology for PKS on vSphere with NSX-T requires the following minimum co
 If you plan to deploy the MPD topology for PKS on vSphere with NSX-T, keep in mind the following considerations:
 
 - When deploying an NSX-T Controller to each ESXi host, create a vSphere distributed resource scheduler (DRS) anti-affinity rule of type "separate virtual machines" for each of the 3 NSX-T Controllers.
-- When deploying the NSX-T Edge Nodes across 2 different ESXi hosts, create a DRS anti-affinity rule of type "separate virtual machines" for bot Edge Node VMs.
+- When deploying the NSX-T Edge Nodes across 2 different ESXi hosts, create a DRS anti-affinity rule of type "separate virtual machines" for both Edge Node VMs.
 - Leverage vSphere resource pools to allocate proper hardware resources for the PKS Management Plane Components (tune reservation and limits accordingly).
 - There is no fault tolerance for the Kubernetes cluster because PKS Availability Zones are not fully leveraged with this topology.
 - The PKS AZ should be mapped to a vSphere Resource Pool.
