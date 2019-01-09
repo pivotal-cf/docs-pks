@@ -78,11 +78,11 @@ Parameter 				| Description
 `parameters`    		| One or more name-value pairs.
 `lb_size`	  			| Size of the NSX-T load balancer deployed with the Kubernetes cluster: `small`, `medium`, or `large`.
 `pod_ip_block_ids`		| UUID of the IP block from NSX Manager; one or more, comma-separated.
-`pod_routable`  		| Include this parameter and set the value to `true` if the custom Pods IP Block is a routable subnet.
+`pod_routable`  		| `true` or `false`. Set the parameter to `true` to assign routable IP addresses to pods.
 `master_vms_nsgroup_id` | UUID of an NSGroup.
 `fip_pool_ids`			| UUID of a floating IP pool.
 `pod_subnet_prefix`     | Prefix size of the custom Pods IP Block subnet.
-`t0_router_id` 			| UUID of a dedicated T0 router.
+`t0_router_id` 			| UUID of a dedicated Tier-0 router.
 
 ## <a id="creation"></a> Network Profile Creation
 
@@ -136,7 +136,7 @@ The following network profile, `np-lb-large`, defines a large load balancer:
 When you configure your NSX-T infrastructure for PKS, you must create a **Pods IP Block**.
 For more information, see the [Plan IP Blocks](nsxt-prepare-env.html#plan-ip-blocks) section of _Planning, Preparing, and Configuring NSX-T for PKS_.
 
-By default, this subnet is non-routable. When a Kubernetes cluster is deployed, each pod receives an IP address from the **Pods IP Block** you created. Because the pod IP addresses are non-routable, NSX-T creates a SNAT rule on the T0 router to allow network egress from the pods. This configuration is shown in the diagram below:
+By default, this subnet is non-routable. When a Kubernetes cluster is deployed, each pod receives an IP address from the **Pods IP Block** you created. Because the pod IP addresses are non-routable, NSX-T creates a SNAT rule on the Tier-0 router to allow network egress from the pods. This configuration is shown in the diagram below:
 
   <img src="images/nsxt/non-routable-pods.png" alt="Non-routable pod network with SNAT">
 
@@ -255,74 +255,77 @@ To define a custom floating IP pool, follow the steps below:
 
 ## <a id='multi-t0'></a> Edge Router Selection
 
-Using PKS on vSphere with NSX-T, you can deploy Kubernetes clusters on dedicated T0 routers, creating a multi-tenant environment for each Kubernetes cluster. As shown in the diagram below, with this configuration a shared T0 router hosts the PKS control plane and connects to each customer T0 router using BGP. To support multi-tenancy, configure firewall rules and security settings in NSX Manager.
+Using PKS on vSphere with NSX-T, you can deploy Kubernetes clusters on dedicated Tier-0 routers, creating a multi-tenant environment for each Kubernetes cluster. As shown in the diagram below, with this configuration a shared Tier-0 router hosts the PKS control plane and connects to each customer Tier-0 router using BGP. To support multi-tenancy, configure firewall rules and security settings in NSX Manager.
 
   <img src="images/nsxt/mt0/mt0-01.png" alt="Cluster Isolation Using Multiple T0 Routers">
 
 To deploy Kubernetes clusters on tenancy-based Tier-0 router(s), follow the steps below:
 
-1. For each Kubernetes tenant, create a dedicated T0 router, and configure static routes, BGP, NAT and Edge Firewall security rules as required by each tenant. For instructions, see <a href="./nsxt-multi-t0.html">Configuring Multi-T0 Routers</a>.
+1. For each Kubernetes tenant, create a dedicated Tier-0 router, and configure static routes, BGP, NAT and Edge Firewall security rules as required by each tenant. For instructions, see <a href="./nsxt-multi-t0.html">Configuring Multiple Tier-0 Routers for Tenant Isolation</a>.
 2. Define a network profile per tenant that references the Tier-0 router UUID provisioned for that tenant. 
-For example, the following network profiles define two tenant T0 routers with a NATed topology.
+For example, the following network profiles define two tenant Tier-0 routers with a NATed topology.
 
-```
-np_customer_A-NAT.json
-{
-  "description": "network profile for Customer A",
-  "name": "network-profile-Customer-A",
-  "parameters": {
-    "lb_size": "medium"
-    "t0_router_id": "82e766f7-67f1-45b2-8023-30e2725600ba"
-    "fip_pool_ids": "8ec655f-009a-79b7-ac22-40d37598c0ff"
-    "pod_ip_block_ids": "fce766f7-aaf1-49b2-d023-90e272e600ba"
-  }
-}
-```
+    ```
+    np_customer_A-NAT.json
+    {
+      "description": "network profile for Customer A",
+      "name": "network-profile-Customer-A",
+      "parameters": {
+        "lb_size": "medium"
+        "t0_router_id": "82e766f7-67f1-45b2-8023-30e2725600ba"
+        "fip_pool_ids": "8ec655f-009a-79b7-ac22-40d37598c0ff"
+        "pod_ip_block_ids": "fce766f7-aaf1-49b2-d023-90e272e600ba"
+      }
+    }
+    ```
 
-```
-np_customer_B-NAT.json
-{
-  "description": "network profile for Customer B",
-  "name": "network-profile-Customer-B",
-  "parameters": {
-    "lb_size": "small"
-    "t0_router_id": "a4e766cc-87ff-15bd-9052-a0e2425612b7"
-    "fip_pool_ids": "4ec625f-b09b-29b4-dc24-10d37598c0d1"
-    "pod_ip_block_ids": "91e7a3a1-c5f1-4912-d023-90e272260090"
-  }
-}
-```
+    ```
+    np_customer_B-NAT.json
+    {
+      "description": "network profile for Customer B",
+      "name": "network-profile-Customer-B",
+      "parameters": {
+        "lb_size": "small"
+        "t0_router_id": "a4e766cc-87ff-15bd-9052-a0e2425612b7"
+        "fip_pool_ids": "4ec625f-b09b-29b4-dc24-10d37598c0d1"
+        "pod_ip_block_ids": "91e7a3a1-c5f1-4912-d023-90e272260090"
+      }
+    }
+    ```
+    The following network profiles define two customer Tier-0 routers for a no-NAT topology:
 
-The following network profiles define two customer T0 routers for a no-NAT topology:
+    ```
+    np_customer_A.json
+    {
+      "description": "network profile for Customer A",
+      "name": "network-profile-Customer-A",
+      "parameters": {
+        "lb_size": "medium"
+        "t0_router_id": "82e766f7-67f1-45b2-8023-30e2725600ba"
+        "fip_pool_ids": "8ec655f-009a-79b7-ac22-40d37598c0ff"
+        "pod_routable": true
+        "pod_ip_block_ids": "fce766f7-aaf1-49b2-d023-90e272e600ba"
+      }
+    }
+    ```
 
-```
-np_customer_A.json
-{
-  "description": "network profile for Customer A",
-  "name": "network-profile-Customer-A",
-  "parameters": {
-    "lb_size": "medium"
-    "t0_router_id": "82e766f7-67f1-45b2-8023-30e2725600ba"
-    "fip_pool_ids": "8ec655f-009a-79b7-ac22-40d37598c0ff"
-    "pod_routable": true
-    "pod_ip_block_ids": "fce766f7-aaf1-49b2-d023-90e272e600ba"
-  }
-}
-```
+    ```
+    np_customer_B.json
+    {
+      "description": "network profile for Customer B",
+      "name": "network-profile-Customer-B",
+      "parameters": {
+        "lb_size": "small"
+        "t0_router_id": "a4e766cc-87ff-15bd-9052-a0e2425612b7"
+        "fip_pool_ids": "4ec625f-b09b-29b4-dc24-10d37598c0d1"
+        "pod_routable": true
+        "pod_ip_block_ids": "91e7a3a1-c5f1-4912-d023-90e272260090"
+      }
+    }
+    ```
 
-```
-np_customer_B.json
-{
-  "description": "network profile for Customer B",
-  "name": "network-profile-Customer-B",
-  "parameters": {
-    "lb_size": "small"
-    "t0_router_id": "a4e766cc-87ff-15bd-9052-a0e2425612b7"
-    "fip_pool_ids": "4ec625f-b09b-29b4-dc24-10d37598c0d1"
-    "pod_routable": true
-    "pod_ip_block_ids": "91e7a3a1-c5f1-4912-d023-90e272260090"
-  }
-}
-```
-
-<p class="note"><strong>Note</strong>: The difference between NAT and No-NAT for a tenant T0 router is the <code>pod_routable</code> parameter. If <code>pod_routable</code> is set to `true`, the custom Pods IP Block subnet is routable and therefore No-NAT. If <code>pod_routable</code> is not present or is set to `false`, the custom Pods IP Block is not routable and the tenant Tier-0 is deployed in NAT-mode.</p>
+    <p class="note"><strong>Note:</strong>
+    The <code>pod_routable</code> parameter controls the routing behavior of a tenant Tier-0 router.
+    If the parameter is set to <code>true</code>, the custom Pods IP Block subnet is routable and NAT is not used.
+    If <code>pod_routable</code> is not present or is set to <code>false</code>,
+    the custom Pods IP Block is not routable and the tenant Tier-0 is deployed in NAT mode.</p>
