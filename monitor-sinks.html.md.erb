@@ -1,0 +1,91 @@
+---
+title: Monitoring PKS with Sinks
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to monitor Pivotal Container Service (PKS) deployments using sink resources.
+
+
+## <a id="prerequisites"></a> Prerequisites
+
+Using sink resources for monitoring requires that you have set up a log processing solution capable 
+of log ingress over TCP as described in [RFC 5424](https://tools.ietf.org/html/rfc5424). 
+
+In addition, you must configure sinks in PKS to send logs to that destination. 
+For information on how to create and manage sinks in PKS, see [Creating Sink Resources](./create-sinks.html).
+
+The following provides a guide for how the information is formatted within that specification and 
+makes suggestion on how you might use that data for monitoring purposes. 
+
+## <a id="distinguish"></a> Distinguishing Pod Logs and API Events in Sinks
+
+Sinks and ClusterSinks include both pod logs as well as events from the Kubernetes API. 
+
+These logs and events are combined in a shared format to provide operators with a 
+robust set of filtering and monitoring options. 
+
+Sink data has the following characteristics. All entries:
+
+* Are timestamped.
+* Contain the host ID of the BOSH-defined VM.
+* Are annotated with a set of structured data, which includes the namespace, the object name, and the container name. 
+
+### <a id="podlogs"></a> Pod Logs
+
+Pod logs are distinguished by the string `pod.log` in the app-name field and use the following format:
+
+```
+pod.log/NAMESPACE/POD-ID/DEPLOYMENT
+```
+
+Where:
+
+  * `NAMESPACE` is the namespace associated with the pod log.
+  * `POD-ID` is the ID of the pod associated with the pod log.
+  * `DEPLOYMENT` is the deployment associated with the pod log.
+
+### <a id="k8s-api"></a> Kubernetes API Events
+
+Kubernetes API Events are distinguished by the string `k8s.event` in the app-name field and use the following format:
+
+```
+k8s.event/NAMESPACE/POD-ID/DEPLOYMENT
+```
+
+Where:
+
+  * `NAMESPACE` is the namespace associated with the event.
+  * `POD-ID` is the container name associated with the event.
+  * `DEPLOYMENT` is the deployment associated with the event.
+
+## <a id="important-events"></a> Notable Kubernetes API Events
+
+The following table lists Kubernetes API Events that may help assess any scheduling problems that occur. 
+
+<table>
+  <tr>
+	<th width="200px">Event</th>
+	<th>Description</th>
+  </tr>
+  <tr>
+  	<td><code>ImagePullBackOff</code></td>
+  	<td>Image pull back offs occur when the Kubernetes API can not reach a registry to retrieve a container, or the container does not exist in the registry. The scheduler might be trying to access a registry that is not available on the network. For example, Docker Hub is blocked by a firewall. Other reasons could include the registry is experiencing an outage or a specified container has been deleted or was never uploaded.
+    </td>
+  </tr>
+  <tr>
+  	<td><code>CrashLoopBackOff</code></td>
+  	<td>Crash loop back offs imply that the container is not functioning as intended. There are several potential causes of crash loop back offs which depend on the related workload. To investigate further, examine the logs for that workload.</td>
+  </tr>
+  <tr>
+  	<td><code>ContainerCreated</code></td>
+  	<td>Operators can monitor the creation of containers to keep track of platform usage at a high level. Teams can use this event to monitor the usage of their cluster.</td>
+  </tr>
+  <tr>
+  	<td><code>FailedScheduling</code></td>
+  	<td>This event occurs when a container cannot be scheduled. For instance, this may occur due to lack of node resources.
+  	</td>
+  </tr>
+</table>
+
