@@ -1,0 +1,130 @@
+---
+title: Deploying Ops Manager on vSphere
+owner: Ops Manager
+---
+
+<strong><%= modified_date %></strong>
+
+This topic provides instructions for deploying Ops Manager on VMware vSphere for use with Pivotal Container Service (PKS).
+
+<p class="note"><strong>Note</strong>: For security purposes, VMware requires a dedicated instance of Ops Manager for use with PKS. Do not deploy Pivotal Application Service (PAS) on the same instance of Ops Manager as PKS. For more information, see <a href="pas-and-pks.html">PAS and PKS Deployments with Ops Manager</a>.</p>
+
+##<a id='prerequisites'></a>Prerequisites
+
+Before you deploy Ops Manager, see the following topics:
+
+<ul>
+  <li>
+    <a href="./vsphere-requirements.html">vSphere Prerequisites and Resource Requirements</a>
+  </li>
+  <li>
+    <a href="./vsphere-prepare-env.html">Preparing vSphere Before Deploying PKS</a>
+  </li>
+    <li>
+    <a href="./release-notes.html">PKS Release Notes</a>
+  </li>
+  <li>
+    <a href="https://docs.pivotal.io/pivotalcf/2-3/pcf-release-notes/opsmanager-rn.html">Ops Manager v2.3 Release Notes</a>
+  </li>
+  <li>
+    <a href="https://docs.pivotal.io/pivotalcf/2-4/pcf-release-notes/opsmanager-rn.html">Ops Manager v2.4 Release Notes</a>
+  </li>
+</ul>
+
+## <a id="deploy-om"></a>Deploy Ops Manager for PKS
+
+1. Download the [Pivotal Cloud Foundry Ops Manager for vSphere](https://network.pivotal.io/products/ops-manager) `.ova` file at [Pivotal Network](https://network.pivotal.io). Use the dropdown menu to select the supported Ops Manager release.
+  <br><br>
+	Ops Manager for vSphere is provided as an OVA file. For example, `pcf-vsphere-2.3-build.170.ova`. An OVA file is a template for a VM. You import the OVA file into your vSphere environment.
+
+    <%= image_tag("images/nsxt/om/deploy-om-01.png") %>
+
+1. Log into vCenter using the HTML5 vSphere Client.
+
+1. Create a Resource Pool for the PKS management plane VMs.
+
+1. Right click the Resource Pool you created and select **Deploy OVF Template**.
+
+1. At the **Select template** screen, click **Browse**.
+
+1. Select the Ops Manager OVA file you downloaded and click **Open**.
+
+1. Review template selection and click **Next**.
+
+1. At the **Select Name and location** screen, enter a name for the Ops Manager VM or use the default name. Select the **Datacenter** object and click **Next**.
+
+    <%= image_tag("images/vsphere/om-deploy-01.png") %>
+
+1. At the **Select a compute resource** screen, select the PKS management plane Resource Pool and click **Next**.
+
+    <%= image_tag("images/vsphere/om-deploy-02.png") %>
+
+1. At the **Review Details** screen, confirm the configuration up to this point and click **Next**.
+
+    <%= image_tag("images/vsphere/om-deploy-03.png") %>
+
+1. At the **Select Storage** screen, select **Thin Provision**, choose the desired Datastore, and click **Next**. For more information about disk formats, see [vSphere Virtual Disk Types](https://docs.pivotal.io/pivotalcf/customizing/disk-format.html) in the Pivotal Cloud Foundry (PCF) documentation.
+
+    <p class="note warning"><strong>WARNING</strong>: Ops Manager requires a VM with at least 8&nbsp;GB memory.</p>
+
+    <%= image_tag("images/vsphere/om-deploy-04.png") %>
+
+1. At the **Select Networks** screen, select the standard **VM Network**, and click **Next**.
+
+    <%= image_tag("images/vsphere/om-deploy-05.png") %>
+
+1. At the **Customize template** screen, enter the following information, and click **Next**.
+   * **Admin Password**: A default password for the `ubuntu` user. If you do not enter a password, Ops Manager will not boot.
+   * **Custom hostname**: The hostname for the Ops Manager VM. For example, `ops-manager`.
+   * **DNS**: One or more DNS servers for the Ops Manager VM to use. For example, `10.20.20.1`.
+   * **Default Gateway**: The default gateway for Ops Manager to use. For example, `10.0.0.1`.
+   * **IP Address**: The IP address of the Ops Manager network interface. For example, `10.0.0.2` if you are using PKS in NAT mode.
+   * **NTP Server**: The IP address of one or more NTP servers for Ops Manager. For example, `10.113.60.176`.
+   * **Netmask**: The network mask for Ops Manager. For example, `255.255.255.0`.
+    <%= image_tag("images/vsphere/om-deploy-06.png") %>
+    <%= image_tag("images/vsphere/om-deploy-07.png") %>
+
+1. At the **Ready to complete** screen, review the configuration settings and click **Finish**. This action begins the OVA import and deployment process.
+
+    <%= image_tag("images/vsphere/om-deploy-08.png") %>
+
+1. Use the **Recent Tasks** panel at the bottom of the vCenter dashboard to check the progress of the OVA import and deployment. If the import or deployment is unsuccessful, check the configuration for errors.
+
+1. Right-click the Ops Manager VM and click **Power On**.
+
+    <%= image_tag("images/nsxt/om/deploy-om-16.png") %>
+
+## <a id="config-om"></a>Configure Ops Manager for PKS
+
+1. Create a DNS entry for the IP address that you used for Ops Manager. You must use this fully qualified domain name when you log in to Ops Manager.
+    <p class="note"><strong>Note</strong>: Ops Manager security features require you to create a fully qualified domain name to access Ops Manager during the initial configuration.</p>
+
+1. Navigate to the fully qualified domain of your Ops Manager in a web browser.
+  <p class="note"><strong>Note</strong>: It is normal to experience a brief delay before the interface is accessible while the web server and VM start up.</p>
+  <p class="note"><strong>Note</strong>: If you are using the <a href="nsxt-topologies.html#topology-nat">Network Address Translation (NAT) deployment topology</a>, you need a DNAT rule that maps the Ops Manager private IP to a routable IP. See <a href="./nsxt-prepare-mgmt-plane.html">Creating the PKS Management Plane</a> for instructions.</p>
+    <%= image_tag("images/nsxt/om/deploy-om-17.png") %>
+
+1. The first time you start Ops Manager, you are required select an authentication system. These instructions use <strong>Internal Authentication</strong>. See [Set Up Ops Manager](https://docs.pivotal.io/pivotalcf/2-3/om/vsphere/config.html#set-up) in the PCF documentation for configuration details for the <strong>SAML</strong> and <strong>LDAP</strong> options.
+
+     <%= image_tag("images/nsxt/om/deploy-om-18.png") %>
+
+1. Select **Internal Authentication** and provide the following information:
+   * **Username**, **Password**, and **Password confirmation** to create an Admin user.
+   * **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the Ops Manager datastore, and is not recoverable.
+   * **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://docs.pivotal.io/pivotalcf/customizing/pcf-director-proxy-settings.html).
+
+1. Click **Setup Authentication**. It will take a few minutes to initialize the database.
+
+     <%= image_tag("images/nsxt/om/deploy-om-19.png") %>
+
+1. Log in to Ops Manager with the user name and password you created.
+
+     <%= image_tag("images/nsxt/om/deploy-om-20.png") %>
+
+1. Verify success. You should be able to log in, and you should see the BOSH Director tile is present and ready for configuration, indicated by the orange color.
+
+     <%= image_tag("images/vsphere/om-deploy-10.png") %>
+
+## <a id="next"></a> Next Step
+
+After you complete this procedure, follow the instructions in <a href="./vsphere-om-config.html">Configuring Ops Manager on vSphere</a>.
