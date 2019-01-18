@@ -16,13 +16,16 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `master` | PKS 1.3.x pre-release content | https://docs-pcf-staging.cfapps.io/runtimes/pks/1-3/index.html |
+| `master` | PKS 1.4.x pre-release content | N/A |
+| `1.3` | PKS 1.3.x released content | https://docs.pivotal.io/runtimes/pks/1-3/index.html |
 | `1.2` | PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
 | `1.1` | PKS 1.1.x released content | https://docs.pivotal.io/runtimes/pks/1-1/index.html |
 | `1.0-publish` | Not in use | N/A |
 | `0.8` | Not in use | N/A |
 
-The `master` branch is used to publish the pre-release v1.3 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation. **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
+The `master` branch is used to publish the pre-release v1.4 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation. **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
+
+The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
 
 The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
 
