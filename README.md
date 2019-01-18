@@ -24,6 +24,7 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 | `0.8` | Not in use | N/A |
 
 The `master` branch is used to publish the pre-release v1.4 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
+**This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
 The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
 
