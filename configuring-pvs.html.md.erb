@@ -272,3 +272,50 @@ To provision a static PV for a StatefulSets workload with three replicas, the pr
           	storage: 10Gi
     ```
     <p class="note"><strong>Note</strong>: In the volumeClaimTemplates, specify the required storage size for each replica. Unlike static provisioning, you must explicitly refer to the desired StorageClass when you use dynamic PV provisioning.</p>
+
+### <a id='dynamic-pv-statefulsets'></a>Tutorial: Provision a Dynamic PV for Use with PKS
+
+This tutorial leads you through the process of creating a PersistentVolumeClaim (PVC) that Kubernetes cluster users can invoke on demand to define a persistent storage backend for their pods on demand.
+
+1. Download the StorageClass spec for your cloud provider.
+
+  * **AWS**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-aws.yml</pre>
+
+  * **GCP**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-gcp.yml</pre>
+
+  * **vSphere**: <pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-vsphere.yml</pre>
+      After downloading the vSphere StorageClass spec, replace the contents of the file with the following to create the correct StorageClass:
+
+          ```yaml
+          kind: StorageClass
+          apiVersion: storage.k8s.io/v1
+          metadata:
+            name: thin
+            annotations:
+              storageclass.kubernetes.io/is-default-class: "true"
+          provisioner: kubernetes.io/vsphere-volume
+          parameters:
+              diskformat: thin
+          ```
+
+1. Apply the spec by running `kubectl create -f STORAGE-CLASS-SPEC.yml`.
+Replace `STORAGE-CLASS-SPEC` with the name of the file you downloaded in the previous step.
+
+For example:
+<pre class="terminal">$ kubectl create -f storage-class-gcp.yml</pre>
+
+1. Run the following command to download the example PVC:
+<pre class="terminal">$ wget https&#58;//raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/persistent-volume-claim.yml
+</pre>
+
+1. Run the following command to apply the PVC:
+<pre class="terminal">
+$ kubectl create -f persistent-volume-claim.yml
+</pre>
+  * To confirm you applied the PVC, run the following command:
+  <pre class="terminal">
+  $ kubectl get pvc -o wide
+  </pre>
+
+1. To use the dynamic PV, create a pod that uses the PVC.
+See the [pv-guestbook.yml configuration file](https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/pv-guestbook.yml) as an example.
