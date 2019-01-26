@@ -15,7 +15,7 @@ of log ingress over TCP as described in [RFC 5424](https://tools.ietf.org/html/r
 In addition, you must configure sinks in PKS to send logs to that destination. 
 For information on how to create and manage sinks in PKS, see [Creating Sink Resources](./create-sinks.html).
 
-## <a id="distinguish"></a> Distinguishing Pod Logs and API Events in Sinks
+## <a id="distinguish"></a> About Sink Log Entries
 
 Sinks and ClusterSinks include both pod logs as well as events from the Kubernetes API. 
 
@@ -44,9 +44,11 @@ Where:
   * `CONTAINER-NAME` is the deployment associated with the pod log or Kubernetes event.
 
 
-### <a id="pod-logs"></a> Pod Log Example
+## <a id="pod-logs"></a> Pod Logs
 
 Pod logs entries are distinguished by the string `pod.log` in the `APP-NAME` field. 
+
+### <a id="pod-log-example"></a> Pod Log Example
 
 The following is a sample pod log entry:
 
@@ -66,9 +68,11 @@ Where:
   * `logspewer-6b58b6689d-dhddj` is the `POD-ID`.
 
 
-### <a id="k8s-api"></a> Kubernetes API Event Example
+## <a id="k8s-api"></a> Kubernetes API Events
 
 Kubernetes API Event entries are distinguished by the string `k8s.event` in the `APP-NAME` field. 
+
+### <a id="k8s-api-example"></a> Kubernetes API Event Example
 
 The following is an example Kubernetes API event log entry:
 
@@ -86,55 +90,103 @@ Where:
   * `rocky-raccoon` is the `NAMESPACE`.
   * `logspewer-6b58b6689d-j9n` is the `POD-ID`.
 
-The following are additional example Kubernetes API event log entries:  
 
-<pre>
-Nov 14 16:01:49 vm-b409c60e-2517-47ac-7c5b-2cd302287c3a 
-k8s.event/rocky-raccoon/logspewer-6b58b6689d-76x: 
-Killing container with id docker://logspewer:Need to kill Pod 
-</pre>
+### <a id="important-events"></a> Notable Kubernetes API Events
 
-<pre>
-Nov 14 16:01:50 vm-38dfd896-bb21-43e4-67b0-9d2f339adaf1 
-k8s.event/rocky-raccoon/logspewer-6b58b6689d-j9n: 
-Container image "oratos/logspewer:v0.1" already present on machine 
-</pre>
+The following section lists Kubernetes API Events that can help assess any Kubernetes scheduling problems in PKS. 
 
-<pre>
-Nov 14 16:01:50 vm-38dfd896-bb21-43e4-67b0-9d2f339adaf1 
-k8s.event/rocky-raccoon/logspewer-6b58b6689d-j9n: 
-Created container
-</pre>
+To monitor for these events, look for log entries that contain the <strong>Identifying String</strong> indicated below for each event.
 
-
-## <a id="important-events"></a> Notable Kubernetes API Events
-
-The following table lists Kubernetes API Events that can help assess any Kubernetes scheduling problems in PKS. 
+####<a id="imagepullbackoff"></a> Failure to Retrieve Containers from Registry
 
 <table>
-  <tr>
-	<th width="200px">Event</th>
-	<th>Description</th>
-  </tr>
-  <tr>
-  	<td><code>ImagePullBackOff</code></td>
-  	<td>Image pull back offs occur when the Kubernetes API can not reach a registry to retrieve a container, or the container does not exist in the registry. The scheduler might be trying to access a registry that is not available on the network. For example, Docker Hub is blocked by a firewall. Other reasons could include the registry is experiencing an outage or a specified container has been deleted or was never uploaded.
-    </td>
-  </tr>
-  <tr>
-  	<td><code>CrashLoopBackOff</code></td>
-  	<td>Crash loop back offs imply that the container is not functioning as intended. There are several potential causes of crash loop back offs which depend on the related workload. To investigate further, examine the logs for that workload.</td>
-  </tr>
-  <tr>
-  	<td><code>ContainerCreated</code></td>
-  	<td>Operators can monitor the creation of containers to keep track of platform usage at a high level. Teams can use this event to monitor the usage of their cluster.</td>
-  </tr>
-  <tr>
-  	<td><code>FailedScheduling</code></td>
-  	<td>This event occurs when a container cannot be scheduled. For instance, this may occur due to lack of node resources.
-  	</td>
-  </tr>
+   <tr><th colspan="2" style="text-align: center;"><br>ImagePullBackOff<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>Image pull back offs occur when the Kubernetes API cannot reach a registry to retrieve a container or the container does not exist in the registry. The scheduler might be trying to access a registry that is not available on the network. For example, Docker Hub is blocked by a firewall. Other reasons might include the registry is experiencing an outage or a specified container has been deleted or was never uploaded.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>Error:ErrImagePull</code></td>
+   </tr>
+   <tr>
+      <th>Example Sink Log Entry</th>
+      <td>
+      <code>Jan 25 10:18:58 gke-bf-test-default-pool-aa8027bc-rnf6 k8s.event/default/test-669d4d66b9-zd9h4/:  Error: ErrImagePull</code>
+      </td>
+   </tr>
 </table>
+
+#### <a id="crashloopbackoff"></a> Malfunctioning Containers
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>CrashLoopBackOff<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>Crash loop back offs imply that the container is not functioning as intended. There are several potential causes of crash loop back offs which depend on the related workload. To investigate further, examine the logs for that workload.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>Back-off restarting failed container</code></td>
+   </tr>
+   <tr>
+      <th>Example Sink Log Entry</th>
+      <td>
+      <code>Jan 25 09:26:44 vm-bfdfedef-4a6a-4c36-49fc-8b290ad42623 k8s.event/monitoring/cost-analyzer-prometheus-se: Back-off restarting failed container</code>
+      </td>
+   </tr>
+</table>
+
+#### <a id="containercreated"></a> Successful Scheduling of Containers
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>ContainerCreated<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>Operators can monitor the creation and successful start of containers to keep track of platform usage at a high level. Cluster users can track this event to monitor the usage of their cluster.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>Started container</code></td>
+   </tr>
+   <tr>
+      <th>Example Sink Log Entries</th>
+      <td>
+      <code>
+        Jan 25 09:14:55 35.239.18.250 k8s.event/rocky-raccoon/logspewer-6b58b6689d/: Created pod: logspewer-6b58b6689d-sr96t <br/>
+        Jan 25 09:14:55 35.239.18.250 k8s.event/rocky-raccoon/logspewer-6b58b6689d-sr9: Successfully assigned rocky-raccoon/ logspewer-6b58b6689d-sr96t to vm-efe48928-be8e-4db5-772c-426ee7aa52f2 <br/>
+        Jan 25 09:14:55 vm-efe48928-be8e-4db5-772c-426ee7aa52f2 k8s.event/rocky-raccoon/logspewer-6b58b6689d-mkd: Killing container with id docker://logspewer:Need to kill Pod <br/>
+        Jan 25 09:14:56 vm-efe48928-be8e-4db5-772c-426ee7aa52f2 k8s.event/rocky-raccoon/logspewer-6b58b6689d-sr9: Container image "oratos/logspewer:v0.1" already present on machine <br/>
+        Jan 25 09:14:56 vm-efe48928-be8e-4db5-772c-426ee7aa52f2 k8s.event/rocky-raccoon/logspewer-6b58b6689d-sr9: Created container <br/>
+        Jan 25 09:14:56 vm-efe48928-be8e-4db5-772c-426ee7aa52f2 k8s.event/rocky-raccoon/logspewer-6b58b6689d-sr9: Started container <br/>
+      </code>
+      </td>
+   </tr>
+</table>
+
+#### <a id="failedscheduling"></a> Failure to Schedule Containers
+
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>FailedScheduling<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>This event occurs when a container cannot be scheduled. For instance, this may occur due to lack of node resources..</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>Insufficient RESOURCE</code><br>where <code>RESOURCE</code> is a specific type of resource. For example, <code>cpu</code>.</td>
+   </tr>
+   <tr>
+      <th>Example Sink Log Entries</th>
+      <td>
+      <code>
+       Jan 25 10:51:48 gke-bf-test-default-pool-aa8027bc-rnf6 k8s.event/default/test2-5c87bf4b65-7fdtd/: 0/1 nodes are available: 1 Insufficient cpu.
+      </code>
+      </td>
+   </tr>
+</table>
+
 
 ## <a id="related-links"></a> Related Links
 
