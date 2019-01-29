@@ -11,6 +11,8 @@ For more information on storage management in Kubernetes, refer to the [Kubernet
 
 For static PV provisioning, you do not need to specify a StorageClass. The PersistentVolumeClaim (PVC) does not need to reference a StorageClass. For dynamic PV provisioning, you must specify a StorageClass and define the PVC using a reference to that StorageClass. 
 
+<p class="note"><strong>Note</strong>: Most of the YAML examples in this section use vSphere as the provisioner. In general the definition of storage classes, PVs, and PVCs are virtually the same, except for the provisioner definition in the YAML. Refer to the [provisioner section](https://kubernetes.io/docs/concepts/storage/storage-classes/) of the Kubernetes documentation for examples that are specific to your IaaS provider.</p>
+
 ## <a id='static-pv'></a>Provision a Static PV
 
 To provision a static PV, you manually create a Virtual Machine Disk (VMDK) file to use as a storage backend for the PV. When the PV is created, Kubernetes knows which volume instance is ready for use. When a PVC or volumeClaimTemplate is requested, Kubernetes chooses an available PV in the system and allocates it to the Deployment or StatefulSets workload.
@@ -179,8 +181,6 @@ To provision a static PV for a StatefulSets workload with three replicas, the pr
 
 For dynamic PV provisioning, the procedure is to define and create a PVC that automatically triggers the creation of the PV and its backend VMDK file. When the PV is created, Kubernetes knows which volume instance is available for use. When a PVC or volumeClaimTemplate is requested, Kubernetes chooses an available PV and allocates it to the Deployment or StatefulSets workload.
 
-For usage instructions, see [Using Dynamic PersistentVolumes](volumes.html).
-
 ### <a id='dynamic-pv-deployment'></a>Provision a Dynamic PV for Deployment Workloads
 
 For the Deployment workload with dynamic PV provisioning, the procedure is as follows:
@@ -272,6 +272,26 @@ To provision a static PV for a StatefulSets workload with three replicas, the pr
           	storage: 10Gi
     ```
     <p class="note"><strong>Note</strong>: In the volumeClaimTemplates, specify the required storage size for each replica. Unlike static provisioning, you must explicitly refer to the desired StorageClass when you use dynamic PV provisioning.</p>
+
+### <a id='default-storage-class'></a>Specify a Default Storage Class
+
+If you have or anticipate having more than one storage class for use with dynamic PVs for a Kubernetes cluster, you may want to designate a particular storage class as the default. This is useful to provide easy management of a storage volume without having to set up or communicate specialized StorageClasses across the cluster. If necessary a developer can change the default storage class in the PVC definition. See the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/) for more information.
+
+To specify a storage class as the default for a Kubernetes cluster, use the annotation `storageclass.kubernetes.io/is-default-class: "true"`, for example:
+
+    ```yaml
+    kind: StorageClass
+    apiVersion: storage.k8s.io/v1
+    metadata:
+      name: thin-disk
+      annotations:
+  		storageclass.kubernetes.io/is-default-class: "true"
+    provisioner: kubernetes.io/vsphere-volume
+    parameters:
+    	datastore: Datastore-NFS-VM
+    	diskformat: thin
+    	fstype: ext3
+    ```
 
 ### <a id='dynamic-pv-statefulsets'></a>Provision Dynamic PVs for Use with PKS
 
