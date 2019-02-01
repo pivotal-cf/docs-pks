@@ -3,7 +3,9 @@ title: Deleting Clusters
 owner: PKS
 ---
 
-Follow the steps below to delete a cluster using the PKS CLI. Running the `pks delete-cluster` command automatically deletes all cluster objects. See [vSphere with NSX-T Cluster Objects](vsphere-nsxt-cluster-objects.html) for a list of vSphere and NSX-T objects that will be deleted.
+Follow the steps below to delete a cluster using the PKS CLI. Running the `pks delete-cluster` command automatically deletes all cluster objects. If you are using PKS with NSX-T, see [vSphere with NSX-T Cluster Objects](vsphere-nsxt-cluster-objects.html) for a list of vSphere and NSX-T objects that will be deleted as part of the cluster deletion process.
+
+## Delete Cluster 
 
 1. <%= partial 'login-pks-api' %>
 
@@ -11,6 +13,40 @@ Follow the steps below to delete a cluster using the PKS CLI. Running the `pks d
 For example:
   <pre class="terminal">$ pks delete-cluster my-cluster</pre>
 
-1. To verify cluster deletion, run the command `pks clusters`. The cluster you deleted should no longer appear in the list. Alternatively, run `pks cluster CLUSTER-NAME`. Replace `CLUSTER-NAME` with the unique name for your cluster. The command should return "Cluster not found."
+1. Confirm cluster deletion by entering "y" (yes), or enter "n" (no) to cancel cluster deletion.
+For example:
+  <pre class="terminal">$ Are you sure you want to delete cluster my-cluster? (y/n)</pre>
 
-1. If the cluster is not deleted, see [Cluster Deletion Fails](./troubleshoot-issues.html#cluster-delete-fail) in [Diagnosing and Troubleshooting PKS](./troubleshoot.htm). 
+## Verify Cluster Deletion
+
+1. To verify cluster deletion, run the command `pks cluster CLUSTER-NAME`. Replace `CLUSTER-NAME` with the unique name for your cluster. You should see "deletion in progress."
+For example:
+  <pre class="terminal">$ pks cluster my-cluster</pre>
+
+```
+Name:                     my-cluster
+Plan Name:                small
+UUID:                     106aabc7-5ecb-4c54-a800-a32eef57a593
+Last Action:              DELETE
+Last Action State:        in progress
+Last Action Description:  Instance deletion in progress
+Kubernetes Master Host:   my-cluster.pks.local
+Kubernetes Master Port:   8443
+Worker Nodes:             3
+Kubernetes Master IP(s):  10.196.219.88
+Network Profile Name:
+```
+
+1. Rerun `pks cluster CLUSTER-NAME` and eventually you should see the message "Error: Cluster CLUSTER-NAME not found," indicating the cluster is deleted. 
+
+1. Run the `pks clusters` command. The cluster you deleted should not appear in the list of PKS clusters.
+
+1. If the cluster is not deleted, see [Cluster Deletion Fails](./troubleshoot-issues.html#cluster-delete-fail) in [Troubleshooting PKS](./troubleshoot.htm). 
+
+## Delete Cluster without Prompt
+
+1. If you do not want to be prompted to confirm cluster deletion, use the `--non-interactive` flag.
+For example:
+  <pre class="terminal">$ pks delete-cluster CLUSTER-NAME --non-interactive</pre>
+
+<p class="note"><strong>Note</strong>: BOSH needs time to delete the cluster. If you use the `--non-interactive` flag, be sure to delete each cluster one-by-one. In other words, do not create a script that deletes multiple clusters using the `--non-interactive` flag. If you do, BOSH Director may hang and become unusable until you log into BOSH and cancel each deletion task.</p>
