@@ -19,8 +19,8 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 | `master` | PKS 1.4.x pre-release content | N/A |
 | `1.3` | PKS 1.3.x released content | https://docs.pivotal.io/runtimes/pks/1-3/index.html |
 | `1.2` | PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
-| `1.1` | Not in use | N/A (PDF available: https://docs.pivotal.io/archives/pks-docs-1.1.pdf) |
-| `1.0-publish` | Not in use | N/A (PDF available: https://docs.pivotal.io/archives/pks-docs-1.0.pdf) |
+| `1.1` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-docs-1.1.pdf)) |
+| `1.0-publish` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-docs-1.0.pdf)) |
 | `0.8` | Not in use | N/A |
 
 The `master` branch is used to publish the pre-release v1.4 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
