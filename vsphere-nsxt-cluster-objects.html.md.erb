@@ -1,0 +1,167 @@
+---
+title: vSphere with NSX-T Cluster Objects
+owner: PKS
+iaas: vsphere-nsxt
+---
+
+<strong><%= modified_date %></strong>
+
+This topic lists and describes the vSphere VMs and NSX-T objects that Pivotal Container Service (PKS) creates when you create a Kubernetes cluster. When you delete a Kubernetes cluster, PKS removes these objects.
+
+For information about creating a Kubernetes cluster using PKS, see [Creating Clusters](create-cluster.html). For information about deleting a Kubernetes cluster using PKS, see [Deleting Clusters](delete-cluster.html).
+
+
+##<a id="vsphere-vms"></a> vSphere Virtual Machines
+
+When a new Kubernetes cluster is created, PKS creates the following virtual machines (VMs) in the designated vSphere cluster:
+
+<table>
+  <tr>
+    <th>Object Number</th>
+    <th>Object Description</th>
+  </tr>
+  <tr>
+    <td>1 or 3</td>
+    <td>Kubernetes master nodes. The number depends on the plan used to create the cluster.</td>
+  </tr>
+  <tr>
+    <td>1 or more</td>
+    <td>Kubernetes worker nodes. The number depends on the plan used to create the cluster, or the number specified during cluster creation.</td>
+  </tr>
+</table>
+
+<p class="note"><strong>Note</strong>: For production clusters, three master nodes are required, and a minimum of three worker nodes are required. See <a href="vsphere-nsxt-rpd-mpd.html">Requirements for PKS on vSphere with NSX-T</a> for more information.</p>
+
+##<a id="nsxt-ls"></a> NSX-T Logical Switches
+
+When a new Kubernetes cluster is created, PKS creates the following [NSX-T logical switches](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-F89C1C1F-A270-4FC9-A1CF-CB90545FB636.html):
+
+<table>
+  <tr>
+    <th>Object Number</th>
+    <th>Object Description</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Logical switch for Kubernetes master and worker nodes.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Logical switch for each Kubernetes namespace: <code>default</code>, <code>kube-public</code>, <code>kube-system</code>, <code>pks-infrastructure</code>.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Logical switch for the NSX-T load balancer associated with the Kubernetes cluster.</td>
+  </tr>
+</table>
+
+##<a id="nsxt-t1"></a> NSX-T Tier-1 Logical Routers
+
+When a new Kubernetes cluster is created, PKS creates the following [NSX-T Tier-1 logical routers](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html):
+
+<table>
+  <tr>
+    <th>Object Number</th>
+    <th>Object Description</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Tier-1 router for Kubernetes master and worker nodes. Name: <code>cluster-router</code>.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Tier-1 router for each Kubernetes namespace: <code>default</code>, <code>kube-public</code>, <code>kube-system</code>, <code>pks-infrastructure</code>.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Tier-1 router for the NSX-T load balancer associated with the Kubernetes cluster.</td>
+  </tr>
+</table>
+
+##<a id="nsxt-lb"></a> NSX-T Load Balancers
+
+For each Kubernetes cluster created, PKS creates a single instance of a small [NSX-T load balancer](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-46567C8D-A5C5-4793-8CDF-858E58FDE3C4.html). This load balancer contains the objects listed in the following table:
+
+<table>
+  <tr>
+    <th>Object Number</th>
+    <th>Object Description</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Virtual Server (VS) to access Kubernetes control plane API on port 8443.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Server Pool containing the 3 Kubernetes master nodes.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>VS for HTTP Ingress Controller.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>VS for HTTPS Ingress Controller.</td>
+  </tr>
+</table>
+
+The IP address allocated to each VS is derived from the **Floating IP Pool** that was created for use with PKS. The VS for the HTTP Ingress Controller and the VS for the HTTPS Ingress Controller use the same IP address.
+
+##<a id="nsxt-ddi"></a> NSX-T DDI/IPAM
+
+For each Kubernetes cluster created, PKS extracts and allocates the following NSX-T subnets from the [IP blocks](./nsxt-prepare-env.html#plan) created in preparation for installing PKS with NSX-T:
+
+<table>
+  <tr>
+    <th>Object Number</th>
+    <th>Object Description</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>A /24 subnet from the <b>Nodes IP Block</b> will be extracted and allocated for the Kubernetes master and worker nodes.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>A /24 subnet from the <b>Pods IP Block</b> will be extracted and allocated for each Kubernetes namespace: <code>default</code>, <code>kube-public</code>, <code>kube-system</code>, <code>pks-infrastructure</code>.</td>
+  </tr>
+</table>
+
+##<a id="nsxt-t0"></a> NSX-T Tier-0 Logical Routers
+
+For each Kubernetes cluster created, PKS defines the following [NSX-T NAT rules](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-E9B40B40-D0C4-4CC9-9706-E9C153FF1A6C.html) on the Tier-0 logical router:
+
+<table>
+  <tr>
+    <th>Object Number</th>
+    <th>Object Description</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>SNAT rule created for each Kubernetes namespace: <code>default</code>, <code>kube-public</code>, <code>kube-system</code>, <code>pks-infrastructure</code> using 1 IP from the <b>Floating IP Pool</b> as translated IP address.</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>(NAT topology only) SNAT rule created for each Kubernetes cluster using 1 IP from the <b>Floating IP Pool</b> as translated IP address. The Kubernetes cluster subnet is derived from the <b>Nodes IP Block</b> using a /24 netmask.</td>
+  </tr>
+</table>
+
+##<a id="nsxt-dfw"></a> NSX-T Distributed Firewall (DFW) Rules
+
+For each Kubernetes cluster created, PKS defines the following [NSX-T distributed firewall rules](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-22DF2616-8B3F-4E13-8116-B7501D2A8E6D.html):
+
+<table>
+  <tr>
+    <th>Object Amount</th>
+    <th>Object Description</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>DFW rule for kubernetes-dashboard: <code>Source=Kubernetes worker node (hosting the Dashboard Pod); Destination=Dashboard Pod IP; Port: TCP/8443; Action: allow</code></td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>DFW rule for kube-dns: <code>Source=Kubernetes worker node (hosting the DNS Pod); Destination=DNS Pod IP; Port: TCP/8081 and TCP/10054; Action: allow</code></td>
+  </tr>
+</table>
+
+
