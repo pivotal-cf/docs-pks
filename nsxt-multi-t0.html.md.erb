@@ -305,7 +305,7 @@ Verify that the T0 routing table for each Tenant Tier-0 includes all BGP routes 
 
 ## <a id="security-config"></a> Security Configuration
 
-Security configuration involves NSX-T configurations for securing tenant networks and clusters. In a multi-T0 environment, there are two configurations to secure:
+Security configuration involves NSX-T configurations for securing tenant networks and clusters. In a multi-T0 environment, there are two types of traffic to secure:
 - Traffic between tenants ([secure inter-tenant communications](#secure-inter-tenant))
 - Traffic between clusters in the same tenant ([secure inter-cluster communications](secure-inter-cluster))
 
@@ -443,29 +443,17 @@ In NSX Manager, go to **Inventory > Groups > Groups** and **Add new group**.
 
 #### <a id="dfw-section"></a>Step 2: Create DFW Section.
 
-Before you create distributed firewall rules, you must create a DFW section for the DFW rule set you define later. NOTE: You must create the DFW Section before you create a K8 cluster.
+Before you create distributed firewall rules, you must create a DFW section for the DFW rule set you define later. 
 
 In NSX Manager, go to **Security > DFW**, select the top-most rule and click **Add Section Above**.
 
-* Name = pks-dfw
+* **Name**: `pks-dfw` (for example)
 * Leave all else as defaults.
-* Click Manage Tags.
-* Add tag.
-* Tag name: "top" (must be precise)
-* Scope: "ncp/fw_sect_marker" (name must be precise)
+* Click **Manage Tags** and add a new tag.
+* **Tag name**: `top` (name must be precise)
+* **Scope**: `ncp/fw_sect_marker` (name must be precise)
 
-#### <a id="deny-else"></a>Step 3: Create Deny Everything Else DFW rule.
-
-This is a global deny rule. You will define acceptable routes later in the configuration process.
-
-* Go to Add Rule
-* Source: pks-all-clusters nsgroup 
-* Dest: pks-all-clusters nsgroup
-* Service: Any
-* Apply To: cluster-UUID-node-pods nsgroup
-* Action: Deny
-
-#### <a id="ns-groups"></a>Step 4: Create NS Groups
+#### <a id="ns-groups"></a>Step 3: Create NS Groups
 
 To create NS Groups, you will need the cluster UUID that you want to secure. To get the cluster UUID, use the PKS CLI and run `pks cluster <clsuter-name>`. See [PKS CLI Commands](./cli/index.html) for more information.
 
@@ -495,26 +483,37 @@ Name: Cluster UUID or Cluster NAME (must be unique) and append "-nodes-pods" to 
 Membership Criteria: Logical Switch and Logical Port (both criteria that you entered before)
 Repeat the same as above for each criteria
 
-#### <a id="ns-groups"></a>Step 5: Create DFW Rules
+#### <a id="dfw-rules"></a>Step 4: Create DFW Rules
 
-You will need 3 ditributed firewall rules. You already created one (the global deny all DFW rule); here are the other two: 
+You will need 3 ditributed firewall rules. 
 
-##### Rule 1: Disable POD to NODE Communication
+##### <a id="deny-else"></a>DFW Rule 1: Create Deny Everything Else DFW rule.
+
+This is a global deny rule.
+
+* Click **Add Rule**
+* **Source**: `pks-all-clusters` nsgroup 
+* **Dest**: `pks-all-clusters` nsgroup
+* **Service**: Any
+* **Apply To**: `cluster-UUID-node-pods` nsgroup
+* **Action**: Deny
+
+##### <a id="pods-rule"></a>DFW Rule 2: Disable POD to NODE Communication
 
 Pods should not be allowed to talk to nodes. (But nodes can talk to pods.)
 
-Go to Add Rule
-Source: Pick the cluster-UUID-"node" nsgroup 
-Dest: cluster-UUID-"pod" nsgroup
-Service: Any
-Apply To: cluster-UUID-node-pods nsgroup
-Action: Deny
+* Click **Add Rule**
+* **Source**: Pick the `cluster-UUID-<node-name>` nsgroup 
+* **Dest**: cluster-UUID-"pod" nsgroup
+* **Service**: Any
+* **Apply To**: cluster-UUID-node-pods nsgroup
+* **Action**: Deny
 
-##### Allow Node to Node and Pods
+##### <a id="nodes-rule"></a>DFW Rule 3: Allow Node to Node and Pods
 
-Go to Add Rule
-Source: Pick the cluster-UUID-"node" nsgroup 
-Dest: cluster-UUID-"node-pods" nsgroup
-Service: Any
-Apply To: cluster-UUID-node-pods nsgroup
-Action: Allow
+* Click **Add Rule**
+* **Source**: Pick the cluster-UUID-"node" nsgroup 
+* **Dest**: cluster-UUID-"node-pods" nsgroup
+* **Service**: Any
+* **Apply To**: `cluster-UUID-node-pods` nsgroup
+* **Action**: Allow
