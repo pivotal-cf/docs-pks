@@ -32,15 +32,19 @@ In addition, ensure that you have successfully deployed NSX-T for PKS. For more 
 
 The PKS Management Plane is the network for PKS Management components, including PKS, Ops Manager, and BOSH Director. The PKS Management Plane includes a vSphere resource pool for Management Plane components, as well as a NSX Tier-1 Logical Switch, Tier-1 Logical Router, and Router Port, as well as NSX NAT rules.
 
-If you are using either the the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a> or the <a href="nsxt-topologies.html#topology-no-nat-logical-switch">No-NAT with Logical Switch deployment topology</a>, create a [Tier-1 (T1) Logical Switch](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html), and a [Tier-1 Logical Router and Port](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html). Link the T1 logical router to the T0 logical router, and select the Edge Cluster defined for PKS. Enable route advertisement for the T1 Logical Router and advertise All NSX connected routes for the PKS Management Plane VMs (PKS, Ops Manager, and BOSH Director). 
+If you are using either the the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a> or the <a href="nsxt-topologies.html#topology-no-nat-logical-switch">No-NAT with Logical Switch deployment topology</a>, create a [Tier-1 (T1) Logical Switch](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html), and a [Tier-1 Logical Router and Port](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html). Link the T1 logical router to the T0 logical router, and select the Edge Cluster defined for PKS. Enable route advertisement for the T1 Logical Router and advertise All NSX connected routes for the PKS Management Plane VMs (PKS, Ops Manager, and BOSH Director).
 
 If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>, create the following NAT rules on the T0 Router.
 
 * Destination NAT (DNAT) rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the PKS Management logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
 * (Optional) Destination NAT (DNAT) rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Harbor on the PKS Management logical switch. For example, a DNAT rule that maps `10.172.1.3` to `172.31.0.3`, where `172.31.0.3` is the IP address you assign to Harbor when connected to `ls-pks-mgmt`.
 * Source NAT (SNAT) rule to allow the PKS Management VMs to communicate with your vCenter and NSX Manager environments. For example, an SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
-* SNAT rule for PKS management components to access ESXi Hosts. 
+* SNAT rule for PKS management components to access ESXi Hosts.
 * (Optional) SNAT rules for access to other management servers, such as DNS, NTP, and LDAP/AD.
+
+Lastly, for both NAT and no-NAT mode, if you want developers to be able to access the PKS API (that is, use the PKS CLI) from their workstations or laptops, you must share the PKS API endpoint to allow your organization to use the API to create, update, and delete clusters. For more information, see [Creating Clusters](create-cluster.html).
+
+Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using PKS](using.html). To create this DNAT rule, see [Create DNAT Rule on T0 Router for External Access to the PKS CLI](#create-dnat-pks).
 
 ##<a id='create-rp'></a>Step 1. Create vSphere Resource Pool for the PKS Management Plane
 
@@ -56,7 +60,7 @@ If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a
 ##<a id='create-ls'></a>Step 2. Create NSX-T Logical Switch for the PKS Management Plane
 
 1. In NSX Manager, select **Switching > Add**.
-1. Create a new logical switch. For example: 
+1. Create a new logical switch. For example:
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-04.png">
 1. Click **Add**.
 1. Verify logical switch creation.
@@ -82,7 +86,7 @@ Defining a T1 router involves creating the router and attaching it to the logica
 1. Select **Configuration > Router Ports**.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-09.png">
 1. Click **Add** and configure the T1 router port. For example:
-  * **Name**: `T1-MGMT-PKS-PORT`	
+  * **Name**: `T1-MGMT-PKS-PORT`
   * **Logical Switch**: `select LS-MGMT-PKS`
   * **IP Address/mask**: `10.0.0.1/24`
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-10.png">
@@ -106,17 +110,17 @@ Defining a T1 router involves creating the router and attaching it to the logica
 
 1. Select the **T1 Router > Overview**.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-15.png">
-1. Select **Tier-0 Connection > Connect**, then select the T0 router and click **Connect**. 
+1. Select **Tier-0 Connection > Connect**, then select the T0 router and click **Connect**.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-16.png">
 1. Verify connectivity between T1 and T0 routers.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-17.png">
-1. Select the **T1 router > Router ports**. The T1 router created for the PKS Management Plane should have 2 ports: one connected to the T0 router, and 
+1. Select the **T1 router > Router ports**. The T1 router created for the PKS Management Plane should have 2 ports: one connected to the T0 router, and
 a second port connected to logical switch defined for the PKS Management Plane. This second port will be the default gateway for all VMs connected to this LS.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-18.png">
 
 ##<a id='create-dnat-om'></a>Step 4. Create DNAT Rule on T0 Router for Ops Manager
 
-Create a DNAT rule on the T0 Router to access the Ops Manager Web UI, which is required to deploy PKS. 
+Create a DNAT rule on the T0 Router to access the Ops Manager Web UI, which is required to deploy PKS.
 
 The Destination NAT (DNAT) rule on the T0 maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the PKS Management logical switch that you created on the T0 router. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
 
@@ -131,8 +135,8 @@ To create a DNAT rule for Ops Manager:
    * **Destination IP**: 10.40.14.1
    * **Translated IP**: 10.0.0.2
 	  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-20.png">
-1. Click **Add**. 
-1. Verify the DNAT rule. 
+1. Click **Add**.
+1. Verify the DNAT rule.
 	  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-21.png">
 
 ##<a id='create-dnat-harbor'></a>Step 5. Create DNAT Rule on T0 Router for Harbor Registry
@@ -197,12 +201,24 @@ Create a SNAT rule on T0 router for PKS management components to access ESXi Hos
 1. Click **Add** and configure the SNAT rule. For example:
    * **Priority**: 1010
    * **Action**: SNAT
-   * **Destination IP**: 10.115.40.0/24   
+   * **Destination IP**: 10.115.40.0/24
    * **Translated IP**: 10.40.14.2
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-29.png">
 1. Click **Add**.
 1. Verify SNAT rule creation:
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-29.png">
+
+##<a id='create-dnat-pks'></a>(Optional) Step 9. Create DNAT Rule on T0 Router for External Access to the PKS CLI
+
+This DNAT rule is optional depending on whether or not you need to provide external access to the PKS CLI. If you do need to provide external access, this rule is needed for both NAT and no-NAT modes.
+
+  <p class="note"><strong>Note</strong>: You cannot create this rule until after PKS is installed and the PKS API VM has an IP address.</p>
+
+1. When the PKS installation is completed, retrieve the PKS endpoint by performing the following steps:
+  1. From the Ops Manager Installation Dashboard, click the **Pivotal Container Service** tile.
+  1. Click the **Status** tab and record the IP address assigned to the `Pivotal Container Service` job.
+1. Create a DNAT rule on the shared Tier-0 router to map an external IP from the **PKS MANAGEMENT CIDR** to the PKS endpoint. For example, a DNAT rule that maps `10.172.1.4` to `172.31.0.4`, where `172.31.0.4` is PKS endpoint IP address on the `ls-pks-mgmt` NSX-T Logical Switch.
+  <p class="note"><strong>Note</strong>: Ensure that you have no overlapping NAT rules. If your NAT rules overlap, you cannot reach PKS Management Plane from VMs in the vCenter network.</p>
 
 ##<a id='next'></a> Next Step
 
