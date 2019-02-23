@@ -305,9 +305,16 @@ Verify that the T0 routing table for each Tenant Tier-0 includes all BGP routes 
 
 ## <a id="security-config"></a> Security Configuration
 
-Security configuration involves configuring NSX-T to secure traffic between tenants. The objective of these configurations is to isolate each tenant so that the traffic between the Tenant Tier-0s and the Shared Tier-0 is restricted to the legitimate traffic path.
+In a multi-T0 environment, you can secure two types of traffic:
 
-### <a id="ip-sets"></a>Step 1: Define IP Sets
+- Traffic between tenants. See [Secure Inter-Tenant Communications](#secure-inter-tenant).
+- Traffic between clusters in the same tenant. See [Secure Intra-Tenant Communications](#secure-intra-tenant).
+
+### <a id="secure-inter-tenant"></a> Secure Inter-Tenant Communications
+
+Securing traffic between tenants isolates each tenant and ensures the traffic between the Tenant Tier-0 routers and the Shared Tier-0 router is restricted to the legitimate traffic path.
+
+#### <a id="ip-sets"></a>Step 1: Define IP Sets
 
 In NSX-T an **IP Set** is a group of IP addresses that you can use as sources and destinations in firewall rules. For a Multi-T0 deployment you need to create several IP Sets as described below. For more information about creating IP Sets, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-99F67483-8584-4ECC-A948-29E3C857619C.html?hWord=N4IghgNiBcIJIAUAEBnApgFxSAvkA">Create an IP Set</a> in the NSX-T documentation.
 
@@ -329,7 +336,7 @@ Lastly, define an IP Set for the the Inter-T0 CIDR created during the base confi
 
 <p class="note"><strong>Note</strong>: These are the minimum IP Sets you need to create. You may want to define additional IP Sets for convenience.</p>
 
-### <a id="edge-firewall"></a>Step 2: Create Edge Firewall
+#### <a id="edge-firewall"></a>Step 2: Create Edge Firewall
 
 NSX-T Data Center uses Edge Firewall sections and rules to specify traffic handling in and out of the network. A firewall section is a collection of firewall rules. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-22DF2616-8B3F-4E13-8116-B7501D2A8E6D.html">About Firewall Rules</a> in the NSX-T documentation.
 
@@ -345,7 +352,7 @@ For each Tenant Tier-0 router, create an Edge Firewall and section as follows:
 	1. **State**: **Stateful**
     ![Edge Firewall](images/nsxt/mt0/firewall-02.png)
 
-### <a id="firewall-rules"></a>Step 3: Add Firewall Rules
+#### <a id="firewall-rules"></a>Step 3: Add Firewall Rules
 
 The last step is to define several firewall rules for the Edge Firewall. The firewall rules allow only legitimate control plane traffic to traverse the inter-Tier-0 logical switch, and deny all other traffic.
 
@@ -356,7 +363,7 @@ The following image shows a summary of the five firewall rules you will create:
 
 Select the Edge Firewall **Section** you just created, then select **Add Rule**. Add the following five firewall rules:
 
-#### <a id="bgp-firewall-rule"></a>BGP Firewall Rule
+##### <a id="bgp-firewall-rule"></a>BGP Firewall Rule
 
 - **Name**: `BGP`
 - **Direction**: in and out
@@ -367,7 +374,7 @@ Select the Edge Firewall **Section** you just created, then select **Add Rule**.
 - Apply the rule to the Inter-T0-Uplink interface.
 - Save the firewall rule.
 
-#### <a id="masters-firewall-rule"></a>Clusters Masters Firewall Rule
+##### <a id="masters-firewall-rule"></a>Clusters Masters Firewall Rule
 
 The source for this firewall rule is a Namespace Group (NSGroup) you define in NSX Manager. The NSGroup is the Bootstrap Security Group specified in the Network Profile associated with this tenant. See <a href="./network-profiles-define.html#ns-groups">Bootstrap Security Group (NSGroup)</a>.
 
@@ -382,7 +389,7 @@ Once you have defined the NSGroup, configure the firewall rule as follows.
 - Apply the rule to the Inter-T0-Uplink interface.
 - Save the firewall rule.
 
-#### <a id="nodes-firewall-rule"></a>Node Network to Management Firewall Rule
+##### <a id="nodes-firewall-rule"></a>Node Network to Management Firewall Rule
 
 This firewall rule allows Kubernetes node traffic to reach PKS management VMs and the standard network.
 
@@ -395,7 +402,7 @@ This firewall rule allows Kubernetes node traffic to reach PKS management VMs an
 - Apply the rule to the Inter-T0-Uplink interface.
 - Save the firewall rule.
 
-#### <a id="pks-firewall-rule"></a>PKS Firewall Rule
+##### <a id="pks-firewall-rule"></a>PKS Firewall Rule
 
 This firewall rule allows PKS management plane components to talk to Kubernetes nodes.
 
@@ -408,7 +415,7 @@ This firewall rule allows PKS management plane components to talk to Kubernetes 
 - Apply the rule to the Inter-T0-Uplink interface.
 - Save the firewall rule.
 
-#### <a id="deny-all-firewall-rule"></a>Deny All Firewall Rule
+##### <a id="deny-all-firewall-rule"></a>Deny All Firewall Rule
 
 - **Name**: `Deny All`. This setting drops all other traffic that does not meet the criteria of the first three rules.
 - **Direction**: in and out
@@ -418,3 +425,129 @@ This firewall rule allows PKS management plane components to talk to Kubernetes 
 - **Action**: Drop
 - Apply the rule to the Inter-T0-Uplink interface.
 - Save the firewall rule.
+
+#### <a id="dfw-section"></a> (Optional) Step 4: Create DFW Section
+
+To use distributed firewall (DWF) rules, you must create a DFW section for the DFW rule set.
+The DFW section must exist before you create a Kubernetes cluster.
+
+This optional step is recommended for inter-tenant security.
+It is required for intra-tenant security as described in [Secure Intra-Tenant Communications](#secure-intra-tenant).
+Because you need to create the DFW section only once,
+you can use the DFW section you configure in this step when defining DFW rules for intra-tenant communications.
+
+Even if you do not currently plan to use DFW rules, you can create the DFW section and
+use it later if you decide to define DFW rules.
+Those rules will apply to any cluster created after you define the DFW section for the tenant Tier-0 router.
+
+<p class="note"><strong>Note:</strong> You must perform this procedure before you deploy a Kubernetes cluster to the target tenant Tier-0 router.</p>
+
+1. In NSX Manager, navigate to **Security > DFW**, select the top-most rule, and click **Add Section Above**.
+1. Configure the section as follows:
+  * **Name**: For example, `pks-dfw`.
+  * Leave all else as defaults.
+  * Click **Manage Tags** and add a new tag.
+  * **Tag name**: `top`. The name must be precise.
+  * **Scope**: `ncp/fw_sect_marker`. The name must be precise.
+
+### <a id="secure-intra-tenant"></a> Secure Intra-Tenant Communications
+
+To secure communication between clusters in the same tenancy, you must disallow any form of communication between
+Kubernetes clusters created by PKS.
+Securing inter-cluster communications is achieved by provisioning security groups and DFW rules.
+
+<p class="note"><strong>Note</strong>: You must perform the global procedures, the first three steps described below, before you deploy a Kubernetes cluster to the target tenant Tier-0 router.</p>
+
+#### <a id="ns-group"></a>Step 1: Create NS Group for All PKS Clusters
+
+1. In NSX Manager, navigate to **Inventory > Groups > Groups** and **Add new group**.
+1. Configure the group as follows:
+  - **Name**: All-PKS-Clusters.
+  - **Scope**: Equals pks/clusters.
+  - **Scope**: Equals ncp/cluster.
+
+You need to perform this procedure only once.
+
+#### <a id="dfw-section"></a>Step 2: Create DFW Section
+
+Before you create distributed firewall rules, you must create a DFW section for the DFW rule set you define later.
+
+1. In NSX Manager, navigate to **Security > DFW**, select the top-most rule, and click **Add Section Above**.
+1. Configure the section as follows:
+  * **Name**: For example, `pks-dfw`.
+  * Leave all else as defaults.
+  * Click **Manage Tags** and add a new tag.
+  * **Tag name**: `top`. The name must be precise.
+  * **Scope**: `ncp/fw_sect_marker`. The name must be precise.
+
+#### <a id="ns-groups"></a>Step 3: Create NS Groups
+
+Before creating NS groups, retrieve the UUID of the cluster that you want to secure.
+To retrieve the cluster UUID, run the `pks cluster YOUR-CLUSTER-NAME` command.
+For more information about the PKS CLI, see [PKS CLI](./cli/index.html).
+
+##### Create NS Group for Cluster Nodes
+
+1. In NSX Manager, navigate to **Inventory > Groups > Groups** and click **Add new group**.
+1. Configure the group as follows:
+  * **Name**: Enter the cluster UUID or cluster name and append "-nodes" to the end of the name to distinguish it.
+  The cluster name must be unique.
+  * **Membership Criteria**: Logical Switch.
+  * **Tag**: Equals "pks-cluster-UUID".
+  * **Scope**: Equals `pks/cluster`.
+
+##### Create NS Group for Cluster Pods
+
+1. In NSX Manager, navigate to **Inventory > Groups > Groups** and click **Add new group**.
+1. Configure the group as follows:
+  * **Name**: Enter cluster UUID or cluster name and append "-pods" to the end of the name to distinguish it.
+  The cluster name must be unique.
+  * **Membership Criteria**: Logical Port.
+  * **Tag**: Equals "pks-cluster-UUID".
+  * **Scope**: Equals `ncp/cluster`.
+
+##### Create NS Group for Cluster Nodes and Pods
+
+1. In NSX Manager, navigate to **Inventory > Groups > Groups** and click **Add new group**.
+1. Configure the group as follows:
+  * **Name**: Enter cluster UUID or cluster name and append "-nodes-pods" to the end of the name to distinguish it.
+  The cluster name must be unique.
+  * **Membership Criteria**: Logical Switch and Logical Port.
+  * Repeat the same as above for each criteria.
+
+#### <a id="dfw-rules"></a>Step 4: Create DFW Rules
+
+Configure the following three DFW rules.
+
+##### <a id="deny-else"></a>DFW Rule 1: Deny Everything Else
+
+This is a global deny rule. Configure the rule as follows:
+
+* Click **Add Rule**.
+* **Source**: `pks-all-clusters` nsgroup.
+* **Dest**: `pks-all-clusters` nsgroup.
+* **Service**: Any.
+* **Apply To**: `cluster-UUID-node-pods` nsgroup.
+* **Action**: Deny.
+
+##### <a id="pods-rule"></a>DFW Rule 2: Disable Pod to Node Communication
+
+Configure this rule as follows:
+
+* Click **Add Rule**.
+* **Source**: Pick the `cluster-UUID-<node-name>` nsgroup.
+* **Dest**: cluster-UUID-"pod" nsgroup.
+* **Service**: Any.
+* **Apply To**: cluster-UUID-node-pods nsgroup.
+* **Action**: Deny.
+
+##### <a id="nodes-rule"></a>DFW Rule 3: Allow Node to Node and Nodes to Pods Communications
+
+Configure this rule as follows:
+
+* Click **Add Rule**.
+* **Source**: Pick the cluster-UUID-"node" nsgroup.
+* **Dest**: cluster-UUID-"node-pods" nsgroup.
+* **Service**: Any.
+* **Apply To**: `cluster-UUID-node-pods` nsgroup.
+* **Action**: Allow.
