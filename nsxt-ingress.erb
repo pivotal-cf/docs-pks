@@ -1,0 +1,122 @@
+---
+title: Configuring Ingress Routing and Load Balancing for PKS with NSX-T
+owner: PKS-NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+This section provides information about ingress routing (Layer 7) and load balancing (Layer 4) for your PKS deployment.
+
+Note: The examples provided here are based on NCP v2.3.1.
+
+##<a id='nsxt-ingress'></a> Ingress Routing
+
+NSX-T provides a native ingress router. Wildcard DNS entries are needed for pointing at the ingress service. Domain information for ingress is defined in the manifest of your Kubernetes deployment.
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  namespace: test  
+spec:
+  rules:
+  - host: ingress.pks.test.com
+    http:
+      paths:
+      - path: /testpath
+        backend:
+          serviceName: test-ingress-svc
+          servicePort: 80
+```
+
+For the ingress above with the same path in the rule, NCP will create a rule with URI matching crtieria /testpath and Hostname matching criteria test.com and forwarding action configured to second-svc port 80. 
+
+Note: HTTPS with NSX-T-provided ingress is not currently supported.
+ 
+If a request is sent to, http://test.com/testpath, HTTP Virtual Server now has two rules which match the incoming request parameters and Virtual Server will select the first matching rule which will depend on order of attachment. 
+ 
+Ingress rules without hostnames are not supported by NCP. If such an ingress is created, it will not be active.
+
+User may intend to use rules without hostnames for the purpose of implementing a default backend. In that case, an Ingress spec with a default backend can be used. This ingress can additionally contains rules but they should be with a hostname. 
+
+In NCP Version 2.3.2, this will be supported as follows:
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: default-ingress
+spec:
+   backend:
+     serviceName: default-ingress-svc
+     servicePort: 80
+```
+
+##<a id='nsxt-lb'></a> Load Balancing
+
+When pushing a Kubernetes deployment with type set to LoadBalancer, NSX-T automatically creates a new virtual IP address (VIP) for the deployment on the existing load balancer for that namespace.
+
+You need to specify a listening and translation port in the service, along with a name for tagging. You also specify a protocol to use. 
+
+``` 
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: testApp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+    name: web
+``` 
+
+For a single port service with named targetPort which matches the container’s port name, service endpoints will be added as loadbalancer members for test-svc.
+
+Named targetPort in service type LoadBalancer is not supported, for example:
+
+``` 
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: testApp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: http
+    name: web
+``` 
+
+Same with a ReplicationController, for example:
+
+``` 
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: test-rc
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: testApp
+    spec:
+      containers:
+      - name: test
+        image: nginxdemos/hello
+        ports:
+        - containerPort: 80
+          name: http.  -------->
+ 
+ 
+In NCP version 2.3.2, if a service is created with named targetPort, service endpoints will not be added as loadbalancer members for test-svc. In this case, modify the service spec, so that the targetPort: <containerPort>, In the above example, targetPort: 80 and then service endpoints will be added as loadbalancer members.
+
+In sum, the `targetPort` value should be of type integer for the service to have loadbalancer members, not type string.
