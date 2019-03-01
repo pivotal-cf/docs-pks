@@ -17,16 +17,21 @@ The NSX-T load balancer that is automatically provisioned by PKS provides two la
 
 Ingress resource configuration is defined in the manifest of your Kubernetes deployment. Wildcard DNS entries are needed to route traffic to the exposed ingress resource.
 
-### Example Ingress Resource
+### Example Ingress Rules
 
-The following example ingress resource can be used with a PKS-provisioned cluster deployed with NSX-T. You must include both a hostname (`host`) and URI (`path`) in the ingress definition. In this example ingress requests will be sent to `http://test.com/testpath` where the the HTTP Virtual Server is listening. 
+Ingress rules without hostnames are not common. But ingress rule with just a hostname and no path should be a common configuration. The issue occurs when there is an additional ingress rule with the same host name and some path. In such a case, for incoming requests, the NSX rule first created is always selected. Instead of blocking the configuration for ingresses with hostname and no path, you might want to consider letting the customers know about this scenario, so they can work around it.
 
+Consider the following example ingress rules. 
+
+#### Ingress Rule Example 1
+
+In this example, the NSX ingress rule matches `host: test.com` and `path: /testpath` for the incoming request.
 
 ```
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: svc-ingress
+  name: svc-ingress1
 spec:
   rules:
   - host: test.com
@@ -34,14 +39,41 @@ spec:
       paths:
       - path: /testpath
           backend:
-            serviceName: svc-ingress
+            serviceName: svc1
             servicePort: 80
 ```
 
 
+#### Ingress Rule Example 2
+
+In the following example, the NSX ingress rule matches `host: test.com` for the incoming request.
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: svc-ingress2
+spec:
+  rules:
+  - host: test.com
+    http:
+      paths:
+      - path:
+          backend:
+            serviceName: svc1
+            servicePort: 80
+```
+
+For the above two example ingress rules:
+
+- If the order of rule creation is svc-ingress1 followed by svc-ingress2, the `test.com/testpath` URI will be served by svc1 because an inbound request first hits the NSX rule which matches `host: test.com` and `path: /testpath`.
+- If the order of rule creation is svc-ingress2 followed by svc-ingress1, the `test.com/testpath` URI will be served by svc2 because an inbound request first hits the NSX rule which matches `host: test.com`. 
+
+To summarize, when defining ingress rules for use with PKS on NSX-T, if two ingress rules have the same hostname, you should create ingress rules that include both host and path.
+
 ##<a id='nsxt-lb'></a> Load Balancer Service
 
-When deploying a Kubernetes service of type LoadBalancer, NSX-T automatically creates a new virtual IP address (VIP) on the existing load balancer for that namespace. 
+When deploying a Kubernetes service of type LoadBalancer, NSX-T automatically creates a new virtual IP address (VIP) on the existing load balancer. NSX-T supports autoscaling which will spin up a new Load balancer Service if the previous one has reached scale limit. 
 
 ### Load Balancer Example
 
@@ -49,7 +81,10 @@ The Kubernetes load balancer service definition supports an integer or a string 
 
 With NCP 2.3.2 and earlier, the named `targetPort` must be an integer, not a string. In other words, if you are implementing a service of type load balancer with NSX-T, the value of `targetPort` must be a port number, not a port name.
 
-The following example shows an load balancer service definition for a PKS-provisioned cluster with NSX-T. You must specify a listening and translation port in the service, along with a name for tagging. You must also specify a protocol to use. The `targetPort` value must be of type integer for the service to have LoadBalancer members.
+The following example shows a load balancer service definition for a PKS-provisioned cluster with NSX-T. You must specify a listening port and a target port in the service. The port name is not mandatory for a single port service. For multi-port service Kubernetes mandates a port name.
+If the protocol is not specified it defaults to TCP. 
+
+With PKS on NSX-T, the `targetPort` value must be of type integer for the service to have LoadBalancer members. The `targetPort` value cannot be a string.
 
 ``` 
 kind: Service
