@@ -1,0 +1,104 @@
+---
+title: Configuring Ingress Resources and Load Balancer Services
+owner: PKS-NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes example configurations for ingress routing (Layer 7) and load balancing (Layer 4) for Kubernetes clusters deployed by <%= vars.product_full %> on vSphere with NSX-T integration.
+
+<p class="note"><strong>Note:</strong> The examples in this topic are based on NCP v2.3.2.</p>
+
+## <a id='about'></a>About Ingress Routing
+
+A Kubernetes ingress resource exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Traffic routing is controlled by rules defined on the ingress resource. See the [Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource) for more information about ingress resources.
+
+The NSX-T load balancer that is automatically provisioned by <%= vars.product_short %> provides two Layer 7 virtual servers for Kubernetes ingress resources, one for HTTP and the other for HTTPS. For more information, see [Supported Load Balancer Features](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-91F2D574-F469-481A-AA39-CD6DBC9682CA.html) in the NSX-T documentation.
+
+You define ingress resource configuration in the manifest of your Kubernetes deployment.
+Use wildcard DNS entries to route traffic to the exposed ingress resource.
+
+### <a id='how'></a>How Kubernetes Applies Ingress Rules
+
+When you define an ingress rule, the hostname and path values are both optional.
+It is common to define an ingress rule that specifies a hostname and no path, but defining an ingress rule without a hostname is uncommon.
+
+When you define two ingress rules with the same hostname, include both the hostname and path in the ingress rule.
+If multiple ingress rules use the same hostname and the same path, the first rule you create takes priority.
+
+For example, see the two ingress rules below.
+
+#### Ingress Rule Example 1
+
+In this example, the NSX ingress rule matches `host: test.com` and `path: /testpath` for the incoming request.
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: svc-ingress1
+spec:
+  rules:
+  - host: test.com
+    http:
+      paths:
+      - path: /testpath
+          backend:
+            serviceName: svc1
+            servicePort: 80
+```
+
+#### Ingress Rule Example 2
+
+In the following example, the NSX ingress rule matches `host: test.com` for the incoming request with no path.
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: svc-ingress2
+spec:
+  rules:
+  - host: test.com
+    http:
+      paths:
+      - path:
+          backend:
+            serviceName: svc1
+            servicePort: 80
+```
+
+If you create **Ingress Rule Example 1** before **Ingress Rule Example 2**, then `svc-ingress1` serves the `test.com/testpath` URI because inbound requests hit the `host: test.com` and `path: /testpath` NSX ingress rule first.
+
+If you create **Ingress Rule Example 2** before **Ingress Rule Example 1**, then `svc2-ingress2` serves the `test.com/testpath` URI because inbound requests hit the `host: test.com` NSX ingress rule first.
+
+## <a id='lb'></a>About the Load Balancer Service
+
+When deploying a Kubernetes service `type: LoadBalancer`, NSX-T automatically creates a new virtual IP address (VIP) on the existing load balancer. NSX-T supports autoscaling, which spins up a new `LoadBalancer` service if the previous one has reached its scale limit.
+
+### Load Balancer Example
+
+The Kubernetes `LoadBalancer` service definition supports an integer or a string value for the named `targetPort` attribute. For example, `8080` or `http`. For more information, see [Type LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) in the Kubernetes documentation.
+
+<p class="note"><strong>Note</strong>: With NCP v2.3.2 and earlier, the named <code>targetPort</code> must be an integer, not a string. If you define a service <code>type: LoadBalancer</code> with NSX-T, the value of <code>targetPort</code> must be a port number, not a port name.</p>
+
+You must specify a listening port and a target port in the service. The port name is not mandatory for a single port service. For multi-port services, Kubernetes requires a port name.
+If the protocol is not specified it defaults to TCP.
+
+The following example shows a `LoadBalancer` service definition for an <%= vars.product_short %>-provisioned cluster with NSX-T:
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: testApp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+    name: web
+```
