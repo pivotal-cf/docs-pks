@@ -1,24 +1,24 @@
-# Pivotal Container Service (PKS) Documentation
+# Enterprise Pivotal Container Service (Enterprise PKS) Documentation
 
-This repository contains the content for the documentation for Pivotal Container Service (PKS).
+This repository contains the content for the documentation for Enterprise Pivotal Container Service (Enterprise PKS).
 
-The content in this repository publishes to the PKS documentation site at https://docs.pivotal.io/runtimes/pks/index.html.
+The content in this repository publishes to the Enterprise PKS documentation site at https://docs.pivotal.io/runtimes/pks/index.html.
 
 ## How To Contribute
 
-Please help us improve the accuracy and completeness of the PKS documentation by contributing.
+Please help us improve the accuracy and completeness of the Enterprise PKS documentation by contributing.
 
 The easiest way to contribute is to file a pull request through GitHub.
 
-Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a corresponding file in this repository. Locate the correct file and make a pull request against it. You can also navigate to the topic in the PKS documentation site and click "View the source for this page in GitHub" at the bottom of the topic.
+Every topic in the [Enterprise PKS documentation site](https://docs-pks.cfapps.io) has a corresponding file in this repository. Locate the correct file and make a pull request against it. You can also navigate to the topic in the Enterprise PKS documentation site and click "View the source for this page in GitHub" at the bottom of the topic.
 
 ## Versions and Branching
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `master` | PKS 1.4.x pre-release content | N/A |
-| `1.3` | PKS 1.3.x released content | https://docs.pivotal.io/runtimes/pks/1-3/index.html |
-| `1.2` | PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
+| `master` | Enterprise PKS 1.4.x pre-release content | N/A |
+| `1.3` | Enterprise PKS 1.3.x released content | https://docs.pivotal.io/runtimes/pks/1-3/index.html |
+| `1.2` | Enterprise PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
 | `1.1` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-1-1.pdf)) |
 | `1.0-publish` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-docs-1.0.pdf)) |
 | `0.8` | Not in use | N/A |
@@ -30,9 +30,9 @@ The `1.3` branch is used to publish the live v1.3 version of the site. Create pu
 
 The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
 
-The `1.1` branch is no longer maintained. A A PDF of the PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.1.pdf.
+The `1.1` branch is no longer maintained. A A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.1.pdf.
 
-The `1.0-publish` and `0.8` branches are no longer maintained. A PDF of the PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.0.pdf.
+The `1.0-publish` and `0.8` branches are no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.0.pdf.
 
 ## How To Use Bookbinder To View Your Documentation
 
