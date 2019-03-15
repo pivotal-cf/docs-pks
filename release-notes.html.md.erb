@@ -10,7 +10,7 @@ This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
 
 ## <a id="v1.3.4"></a>v1.3.4
 
-**Release Date**: March 11, 2019
+**Release Date**: March 15, 2019
 
 ### <a id="v1.3.4-snapshot"></a>Product Snapshot
 
@@ -23,7 +23,7 @@ This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
     </tr>
     <tr>
         <td>Release date</td>
-        <td>March 11, 2019</td>
+        <td>March 15, 2019</td>
     </tr>
     <tr>
         <td>Compatible Ops Manager versions</td>
@@ -35,7 +35,7 @@ This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
     </tr>
     <tr>
         <td>Kubernetes version</td>
-        <td>v1.12.5</td>
+        <td>v1.12.6</td>
     </tr>
     <tr>
         <td>On-Demand Broker version</td>
@@ -43,7 +43,7 @@ This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
     </tr>
     <tr>
         <td>CFCR</td>
-        <td>v0.25.9</td>
+        <td>v0.25.11</td>
     </tr>
     <tr>
         <td>NSX-T versions <strong>&#42;</strong></td>
@@ -55,7 +55,7 @@ This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
     </tr>
     <tr>
         <td>Docker version</td>
-        <td>v18.06.3-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR v0.25.9</a></td>
+        <td>v18.06.3-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR v0.25.11</a></td>
     </tr>
 </table>
 
@@ -129,12 +129,13 @@ The supported upgrade paths to PKS v1.3.3 are as follows:
 
 PKS v1.3.4 adds the following:
 
-- Custom DNS configuration for Kubernetes clusters using Network Profiles. For more information, see [DNS Configuration for Kubernetes Clusters] (./network-profiles-define.html#dns) in _Defining Network Profiles_.
-- Support for NCP v2.3.2. For more information, see the [VMware NSX Container Plug-in 2.3.2 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3.2/rn/VMware-NSX-T-Data-Center-232-Release-Notes.html).
+- Custom DNS configuration for Kubernetes clusters using NSX-T & Network Profiles. For more information, see [DNS Configuration for Kubernetes Clusters] (./network-profiles-define.html#dns) in _Defining Network Profiles_.
+- Support for NSX-T NCP v2.3.2. For more information, see the [VMware NSX Container Plug-in 2.3.2 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3.2/rn/VMware-NSX-T-Data-Center-232-Release-Notes.html).
 - Kubelet customization. You can configure Kubelet to reserve compute resources for system daemons in the **Plans** pane of the PKS tile. For more information, see the [Plans](./installing-nsx-t.html#plans) section of the _Installing PKS_ topic for your IaaS.
-- **Fix**: [CVE-TBD]
-- **Fix**: [CVE-TBD]
 - Operators can configure up to ten sets of resource types, or **plans**, in the PKS tile. All plans except the first can made available or unavailable to developers deploying clusters. Plan 1 must be configured and made available as a default for developers.
+- **Fix**: [CVE-2019-1002100](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1002100).   Kubernetes 1.12.6 address this CVE.
+- **Fix**: Telemetry url update
+- **Fix**: Issue where vSphere Cloud Provider config could fail if crdentials contained non-alphanumeric characters like `#`, `\`, and `"` characters.
 
 ### <a id="v1.3.4-known-issues"></a>Breaking Changes and Known Issues
 
@@ -145,23 +146,21 @@ repository on GitHub.</p>
 
 PKS v1.3.4 has the following known issues:
 
+####<a id="small-ephemral-disks"></a> K8s Clusters created from plans that set the worker ephermal disk size at 8GB or smaller can fail during upgrades.
+
+PKS deploys packages to the ephemeral disk (var/vcap/data) during installs and upgrades.  If worker nodes have ephermal disks smaller than 8GB,  the disk can fill during an upgrade and fail.   Cluster upgrades can present error messages such as:
+
+```
+{"time":999999999,"error":{"code":450001,"message":"Response exceeded maximum allowed length"}}
+```
+
+**Workaround**:  Ensure worker node ephemeral disks in plans are set to greater that 8GB.   This issue should not affect new installations of 1.3.x as the default worker ephemeral size in plans is larger than 8GB.
+
 ####<a id="flannel"></a> PKS Flannel Network Gets Out of Sync with Docker Bridge Network (cni0)
 
 When VMs have been powered down for multiple days, turning them back on and issuing a `bosh recreate` to re-create the VMs causes the pods to get stuck in a `ContainerCreating` state.
 
 **Workaround**: See [PKS Flannel network gets out of sync with docker bridge network (cni0)](https://community.pivotal.io/s/article/PKS-Flannel-network-gets-out-of-sync-with-docker-bridge-network-cni0) in the Pivotal Knowledge Base.
-
-####<a id="special-char"></a> Deploy Fails if vSphere Master Credentials Field Has Special Characters Without Quotes
-
-If you install PKS on vSphere and you enter credentials in the **vCenter Master Credentials** field of the **Kubernetes Cloud Provider** pane of the PKS tile that contain special characters, such as `#`, `$`, `,`, `!`, or `-`, your deployment might fail with the following error:
-
-```
-ServerFaultCode: Cannot complete login due to an incorrect user name or password.
-```
-
-**Workaround**: If you install PKS on vSphere **without** NSX-T integration, place quotes around the credentials in the cloud provider configuration. For example, `"SomeP4$$w0rd#!"`. Then redeploy the PKS tile by clicking **Apply Changes**.
-
-If you install PKS on vSphere **with** NSX-T integration, avoid using special characters in this field until this issue is resolved.
 
 ####<a id="azure-service"></a> Cluster Upgrades from PKS v1.3.0 on Azure Fail If Services Are Exposed
 
