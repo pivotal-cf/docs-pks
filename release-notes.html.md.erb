@@ -8,6 +8,176 @@ topictype: releasenotes
 
 This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
 
+## <a id="v1.3.4"></a>v1.3.4
+
+**Release Date**: March 15, 2019
+
+### <a id="v1.3.4-snapshot"></a>Product Snapshot
+
+<table class="nice">
+    <th>Element</th>
+    <th>Details</th>
+    <tr>
+        <td>Version</td>
+        <td>v1.3.4</td>
+    </tr>
+    <tr>
+        <td>Release date</td>
+        <td>March 15, 2019</td>
+    </tr>
+    <tr>
+        <td>Compatible Ops Manager versions</td>
+        <td>v2.3.1+, v2.4.0+</td>
+    </tr>
+    <tr>
+        <td>Stemcell version</td>
+        <td>v170.15</td>
+    </tr>
+    <tr>
+        <td>Kubernetes version</td>
+        <td>v1.12.6</td>
+    </tr>
+    <tr>
+        <td>On-Demand Broker version</td>
+        <td>v0.24</td>
+    </tr>
+    <tr>
+        <td>CFCR</td>
+        <td>v0.25.11</td>
+    </tr>
+    <tr>
+        <td>NSX-T versions <strong>&#42;</strong></td>
+        <td>v2.2, v2.3.0.2, v2.3.1</td>
+    </tr>
+    <tr>
+        <td>NCP version</td>
+        <td>v2.3.2</td>
+    </tr>
+    <tr>
+        <td>Docker version</td>
+        <td>v18.06.3-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR v0.25.11</a></td>
+    </tr>
+</table>
+
+### <a id='v1.3.4-vsphere-reqs'></a> vSphere Version Requirements
+
+If you are installing PKS on vSphere or vSphere with NSX&#8209;T, note that Ops Manager and PKS support the following vSphere component versions:
+<%= partial 'vsphere_versions' %>
+
+### <a id="v1.3.4-iaas"></a>Feature Support by IaaS
+
+<table>
+  <tr>
+    <th></th>
+    <th>AWS</th>
+    <th>Azure</th>
+    <th>GCP</th>
+    <th>vSphere</th>
+    <th>vSphere with NSX-T</th>
+  </tr>
+
+  <tr>
+    <th>Automatic Kubernetes Cluster API load balancer</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td></td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>HTTP proxy</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td>&check;</td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>Multi-AZ storage</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td>&check;</td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>Per-namespace subnets</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td></td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>Service <code>type:LoadBalancer</code></th>
+    <td>&check;<sup>&#42;</sup></td>
+    <td>&check;</sup></td>
+    <td>&check;</td>
+    <td></td>
+    <td>&check;</td>
+  </tr>
+</table>
+
+### <a id="v1.3.4-upgrade"></a>Upgrade Path
+
+The supported upgrade paths to PKS v1.3.3 are as follows:
+
+- **When upgrading from PKS v1.3.x**: PKS v1.3.1 or later
+- **When upgrading from PKS v1.2.x**: PKS v1.2.8 or later
+
+### <a id="v1.3.4-whats-new"></a>What's New
+
+PKS v1.3.4 adds the following:
+
+- Custom DNS configuration for Kubernetes clusters using NSX-T and Network Profiles. For more information, see [DNS Configuration for Kubernetes Clusters] (./network-profiles-define.html#dns) in _Defining Network Profiles_.
+- Support for NSX-T NCP v2.3.2. For more information, see the [VMware NSX Container Plug-in 2.3.2 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3.2/rn/VMware-NSX-T-Data-Center-232-Release-Notes.html).
+- Support for additional plans. Operators can configure up to ten sets of resource types, or **Plans**, in the PKS tile. All plans except the first can made available or unavailable to developers deploying clusters. **Plan 1** must be configured and made available as a default for developers.
+- Kubelet customization. You can configure Kubelet to reserve compute resources for system daemons in the **Plans** pane of the PKS tile. For more information, see the [Plans](./installing-nsx-t.html#plans) section of the _Installing PKS_ topic for your IaaS.
+- **Fix**: [CVE-2019-1002100](https://discuss.kubernetes.io/t/kubernetes-security-announcement-v1-11-8-1-12-6-1-13-4-released-to-address-medium-severity-cve-2019-1002100/5147). Kubernetes v1.12.6 address this CVE.
+- **Fix**: Updated the Telemetry URL.
+- **Fix**: Resolved an issue where vSphere Cloud Provider configuration could fail if credentials contained non-alphanumeric characters. For example, `#`, `\`, and `"`.
+
+### <a id="v1.3.4-known-issues"></a>Breaking Changes and Known Issues
+
+<p class="note breaking"><strong>Breaking Change:</strong> Heapster is deprecated in PKS v1.3.x, and
+Kubernetes has retired Heapster. For more information, see the
+<a href="https://github.com/kubernetes-retired/heapster">kubernetes-retired/heapster</a>
+repository on GitHub.</p>
+
+PKS v1.3.4 has the following known issues:
+
+####<a id="small-ephemeral-disks"></a> Worker Nodes with Small Ephemeral Disks Can Cause Upgrade Failure
+
+PKS deploys packages to the ephemeral disk, `/var/vcap/data`, during installations and upgrades. If worker node VMs have ephemeral disks smaller than 8&nbsp;GB,  the disk can fill during an upgrade and cause the upgrade to fail. Cluster upgrades can present error messages such as the following:
+
+```
+{"time":999999999,"error":{"code":450001,"message":"Response exceeded maximum allowed length"}}
+```
+
+**Workaround**: In the plans you use to deploy clusters, ensure that worker node ephemeral disks are set to greater than 8&nbsp;GB. For plan configuration instructions, see the [Plans](./installing-nsx-t.html#plans) section of the _Installing PKS_ topic for your IaaS.
+
+This issue should not affect new installations of PKS v1.3.x as the default ephemeral disk size in plans is larger than 8&nbsp;GB.
+
+####<a id="flannel"></a> PKS Flannel Network Gets Out of Sync with Docker Bridge Network (cni0)
+
+When VMs have been powered down for multiple days, turning them back on and issuing a `bosh recreate` to re-create the VMs causes the pods to get stuck in a `ContainerCreating` state.
+
+**Workaround**: See [PKS Flannel network gets out of sync with docker bridge network (cni0)](https://community.pivotal.io/s/article/PKS-Flannel-network-gets-out-of-sync-with-docker-bridge-network-cni0) in the Pivotal Knowledge Base.
+
+####<a id="azure-service"></a> Cluster Upgrades from PKS v1.3.0 on Azure Fail If Services Are Exposed
+
+If you install PKS v1.3.0 on Azure, clusters might fail with the following error when you upgrade to PKS v1.3.1 or later:
+
+```
+result: 1 of 2 post-start scripts failed. Failed Jobs: kubelet. Successful Jobs: bosh-dns
+```
+
+This issue is caused by a timeout condition. The issue affects nodes hosting Kubernetes pods that are exposed externally by a Kubernetes service.
+
+New cluster creations and cluster scaling operations are not affected by this issue.
+
+**Workaround**: If you install PKS on Azure and experience this issue, contact Support for assistance.
+
 ## <a id="v1.3.3"></a>v1.3.3
 
 **Release Date**: February 22, 2019
