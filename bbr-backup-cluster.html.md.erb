@@ -1,5 +1,5 @@
 ---
-title: Backing up the Single Master Cluster
+title: Backing Up the Single Master Cluster
 owner: PKS
 ---
 
@@ -14,9 +14,10 @@ To perform a restore of a single master cluster with BBR, see the instructions i
 
 BBR has the following limitations:
 
+* BBR can only back up a single-master cluster.
 * BBR does not back up the contents of disks that are attached to nodes.
 * BBR only backs up and restores the cluster etcd data. 
-This includes the cluster deployed workloads. 
+This includes the cluster-deployed workloads.
 Persistent volumes and other IaaS resources, such as load balancers of workloads, are not backed up. 
 * Backup and restore for clusters deployed on vSphere with NSX-T is not yet supported.
 
@@ -27,10 +28,12 @@ current environment and the destination environment are compatible. For more inf
 [Compatibility of Restore](bbr-restore-cluster.html#compatibility) in
 _Restoring the Single Master Cluster_.
 
-Before you begin backing up your PKS Cluster deployment, perform the following steps:
+When running BBR to back up your cluster deployments, ensure that you are using the correct BOSH credentials, as described below, which limit the scope of BBR to only your cluster deployments.
+
+Before you begin backing up your clusters, perform the following steps:
 
 * [Download the Root CA Certificate](#download-certificate)
-* [Record Your PKS Cluster BOSH Deployment Name](#record-name)
+* [Verify Your Cluster Deployments](#verify-deployments)
 
 ### <a id='download-certificate'></a> Download the Root CA Certificate
 
@@ -43,45 +46,7 @@ steps below.
 
 1. Click **Download Root CA Cert**.
 
-### <a id='record-name'></a> Record Your PKS Cluster BOSH Deployment Name
-
-Locate and record your PKS Cluster BOSH deployment name by following the steps below.
-
-1. <%= partial 'login-pks-api' %>
-
-1. To find the cluster ID associated with the cluster you want to back up, run the following
-command:
-
-    ```
-    pks cluster CLUSTER-NAME
-    ```
-    Where `CLUSTER-NAME` is the name of your cluster. From the output of this command, record the
-    value of **UUID**.
-
-1. From the Ops Manager Installation Dashboard, click the Director tile.
-
-1. Select the **Credentials** tab.
-
-1. Navigate to **Bosh Commandline Credentials** and click **Link to Credential**.
-
-1. Copy the credential value.
-
-1. SSH into your jumpbox. For more information about configuring the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html#jumpbox-setup).
-
-1. To retrieve your PKS Cluster BOSH deployment name, run the following command:
-
-    ```
-    BOSH-CLI-CREDENTIALS deployments | grep UUID
-    ```
-    Where:
-	 * `BOSH-CLI-CREDENTIALS` is the credential value that you copied in the previous step.
-	 * `UUID` is the cluster UUID that you recorded in
-    [Record Your PKS Cluster BOSH Deployment Name](#record-name).
-    <br><br>
-    Your PKS Cluster BOSH deployment name begins with `service-instance` and includes a unique
-    identifier.
-
-## <a id='pre-backup-check'></a> Step 1: Verify Your PKS Cluster Deployment
+### <a id='verify-deployments'></a> Verify Your Cluster Deployment
 
 To verify that you can reach your BOSH Director and that the BOSH Director has a deployment that
 can be backed up, follow the steps below.
@@ -91,25 +56,23 @@ can be backed up, follow the steps below.
 1. To perform the BBR pre-backup check, run the following command from your jumpbox:
 
     ```
-    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    BOSH_CLIENT_SECRET=BOSH-TEAM-CLIENT-SECRET \
     bbr deployment \
+    --all-deployments \
     --target BOSH-TARGET \
-    --username BOSH-CLIENT \
-    --deployment DEPLOYMENT-NAME \
+    --username BOSH-TEAM-CLIENT \
     --ca-cert PATH-TO-BOSH-SERVER-CERT \
     pre-backup-check
     ```
     Replace the placeholder text as follows:
-    * `BOSH-CLIENT-SECRET`: In the BOSH Director tile, navigate to
-      **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_CLIENT_SECRET`.
+    * `BOSH-TEAM-CLIENT-SECRET`: In the the <%= vars.product_tile %> tile, navigate to
+      **Credentials > UAA Client Credentials**. Record the value for `uaa_client_secret`.
     * `BOSH-TARGET`: In the BOSH Director tile, navigate to
       **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_ENVIRONMENT`.
       You must be able to reach the target address from the workstation where you run `bbr`
       commands.
-    * `BOSH-CLIENT`: In the BOSH Director tile, navigate to
-      **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_CLIENT`.
-    * `DEPLOYMENT-NAME`: Use the PKS Cluster BOSH deployment name that you recorded in the
-      [Prerequisites](#prereqs) section.
+    * `BOSH-TEAM-CLIENT`: In the BOSH Director tile, navigate to
+      **Credentials > UAA Client Credentials**. Record the value for `uaa_client_name`.
     * `PATH-TO-BOSH-CA-CERT`: Use the path to the root CA certificate that you downloaded in the
       [Prerequisites](#prereqs) section.
 
@@ -117,9 +80,9 @@ can be backed up, follow the steps below.
     <pre class="terminal">
     $ BOSH_CLIENT_SECRET=p455w0rd \
     bbr deployment \
+    --all-deployments \
     --target bosh.example.com \
-    --username admin \
-    --deployment cf-acceptance-0 \
+    --username pivotal-container-service-xxxxxx \
     --ca-cert bosh.ca.cert \
     pre-backup-check
     </pre>
@@ -128,36 +91,34 @@ can be backed up, follow the steps below.
     * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
       see [Exit Codes and Logging](bbr-logging.html).
     * Make the changes suggested in the output and run the pre-backup check again. For example,
-      the deployment you selected might not have the correct backup scripts, or the connection to
+      the deployment that you selected might not have the correct backup scripts, or the connection to
       the BOSH Director failed.
 
-## <a id='back-up'></a> Step 2: Back up Your PKS Cluster Deployment
+## <a id='back-up'></a> Back Up Your Cluster Deployment
 
-To back up your PKS cluster deployment, follow the steps below.
+To back up your cluster deployment, follow the steps below.
 
 1. Run the following command from your jumpbox:
 
     ```
-    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    BOSH_CLIENT_SECRET=BOSH-TEAM-CLIENT-SECRET \
     nohup bbr deployment \
+    --all-deployments \
     --target BOSH-DIRECTOR-IP \
-    --username BOSH-CLIENT \
-    --deployment DEPLOYMENT-NAME \
+    --username BOSH-TEAM-CLIENT \
     --ca-cert PATH-TO-BOSH-SERVER-CERT \
     backup
     ```
 
     Replace the placeholder text as follows:
-    * `BOSH-CLIENT-SECRET`: In the BOSH Director tile, navigate to
-      **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_CLIENT_SECRET`.
+    * `BOSH-TEAM-CLIENT-SECRET`: In the the <%= vars.product_tile %> tile, navigate to
+      **Credentials > UAA Client Credentials**. Record the value for `uaa_client_secret`.
     * `BOSH-TARGET`: In the BOSH Director tile, navigate to
       **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_ENVIRONMENT`.
       You must be able to reach the target address from the workstation where you run `bbr`
       commands.
-    * `BOSH-CLIENT`: In the BOSH Director tile, navigate to
-      **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_CLIENT`.
-    * `DEPLOYMENT-NAME`: Use the PKS Cluster BOSH deployment name that you recorded in the
-      [Prerequisites](#prereqs) section.
+    * `BOSH-TEAM-CLIENT`: In the BOSH Director tile, navigate to
+      **Credentials > UAA Client Credentials**. Record the value for `uaa_client_name`.
     * `PATH-TO-BOSH-CA-CERT`: Use the path to the root CA certificate that you downloaded in the
       [Prerequisites](#prereqs) section.
 
@@ -167,9 +128,9 @@ To back up your PKS cluster deployment, follow the steps below.
     <pre class="terminal">
     $ BOSH_CLIENT_SECRET=p455w0rd \
     nohup bbr deployment \
+    --all-deployments \
     --target bosh.example.com \
-    --username admin \
-    --deployment cf-acceptance-0 \
+    --username pivotal-container-service-xxxxxx \
     --ca-cert bosh.ca.cert \
     backup
     </pre>
@@ -222,26 +183,24 @@ may be left in a locked state.
 If you stop the backup process or the process fails, run the following command:
 
 ```
-BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+BOSH_CLIENT_SECRET=BOSH-TEAM-CLIENT-SECRET \
 bbr deployment \
+--all-deployments \
 --target BOSH-TARGET \
---username BOSH-CLIENT \
---deployment DEPLOYMENT-NAME \
+--username BOSH-TEAM-CLIENT \
 --ca-cert PATH-TO-BOSH-CA-CERT \
 backup-cleanup
 ```
 
 Replace the placeholder text as follows:
 
-* `BOSH-CLIENT-SECRET`: In the BOSH Director tile, navigate to
-  **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_CLIENT_SECRET`.
+* `BOSH-TEAM-CLIENT-SECRET`: In the the <%= vars.product_tile %> tile, navigate to
+  **Credentials > UAA Client Credentials**. Record the value for `uaa_client_secret`.
 * `BOSH-TARGET`: In the BOSH Director tile, navigate to
   **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_ENVIRONMENT`. You must
   be able to reach the target address from the workstation where you run `bbr` commands.
-* `BOSH-CLIENT`: In the BOSH Director tile, navigate to
-  **Credentials > Bosh Commandline Credentials**. Record the value for `BOSH_CLIENT`.
-* `DEPLOYMENT-NAME`: Use the PKS Cluster BOSH deployment name that you recorded in the
-  [Prerequisites](#prereqs) section.
+* `BOSH-TEAM-CLIENT`: In the BOSH Director tile, navigate to
+  **Credentials > UAA Client Credentials**. Record the value for `uaa_client_name`.
 * `PATH-TO-BOSH-CA-CERT`: Use the path to the root CA certificate that you downloaded in the
   [Prerequisites](#prereqs) section.
 
@@ -250,9 +209,9 @@ For example:
 <pre class="terminal">
 $ BOSH_CLIENT_SECRET=p455w0rd \
 bbr deployment \
+--all-deployments \
 --target bosh.example.com \
---username admin \
---deployment cf-acceptance-0 \
+--username pivotal-container-service-xxxxxx \
 --ca-cert bosh.ca.crt \
 backup-cleanup
 </pre>
@@ -291,7 +250,7 @@ For more information about interpreting the exit codes, see
 
 ## <a id="manage"></a>Manage Your Backup Artifact
 
-Keep your backup artifact safe in following way:
+Keep your backup artifact safe in following ways:
 
 * Move the backup artifact off the jumpbox to a secure storage space. BBR stores each backup in a
 subdirectory named `DEPLOYMENT-TIMESTAMP` within the current working directory. The backup created
@@ -300,7 +259,7 @@ by BBR consists of a folder that contains the backup artifacts and metadata file
 * Compress and encrypt the backup artifacts when storing them.
 
 * Make redundant copies of your backup and store them in multiple locations. This can help
-minimizes the risk of losing your backups in the event of a disaster.
+minimize the risk of losing your backups in the event of a disaster.
 
 * Each time you redeploy PKS Cluster, test your backup artifact by following the procedures in
 [Restore the Single Master Cluster](bbr-restore-cluster.html).
