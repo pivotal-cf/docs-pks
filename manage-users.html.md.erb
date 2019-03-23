@@ -71,7 +71,7 @@ Manager VM in the AWS console and locate the `key pair name` in the properties.
 
 To SSH into the Ops Manager VM on AWS, do the following:
 
-1. From the AWS console, locate the Ops Manager fully qualified domain name on the AWS **EC2 instances** page.
+1. From the AWS console, locate the Ops Manager FQDN on the AWS **EC2 instances** page.
 
 1. Run `chmod 600 ops_mgr.pem` to change the permissions on the `.pem` file to be more restrictive. For example:
 
@@ -84,7 +84,7 @@ To SSH into the Ops Manager VM on AWS, do the following:
     ```
     ssh -i ops_mgr.pem ubuntu@OPS-MANAGER-FQDN
     ```
-    Where `OPS-MANAGER-FQDN` is the fully qualified domain name of Ops Manager. For example:
+    Where `OPS-MANAGER-FQDN` is the FQDN of Ops Manager. For example:
 
 	<pre class="terminal">
 	$ ssh -i ops_mgr.pem ubuntu@my-opsmanager-fqdn.example.com
@@ -96,7 +96,7 @@ To SSH into the Ops Manager VM on AWS, do the following:
 
 To retrieve the UAA management admin client secret, do the following:
 
-1. In a web browser, navigate to the fully qualified domain name of Ops Manager and click the **<%= vars.product_tile %>** tile.
+1. In a web browser, navigate to the FQDN of Ops Manager and click the **<%= vars.product_tile %>** tile.
 
 1. Click **Credentials**.
 
@@ -222,10 +222,10 @@ To grant <%= vars.product_short %> access to an automated client for a script or
 
 ##<a id='cluster-access'></a> Grant Cluster Access
 
-You can grant a user or a group access to an entire cluster with a `ClusterRole` or to a namespace
-within a given cluster with a `Role`.
+You can grant a user or a group access to an entire cluster with a ClusterRole or to a namespace
+within a given cluster with a Role.
 
-The admin of the cluster must then create a `ClusterRoleBinding` or a `RoleBinding` for that Kubernetes end user.
+The admin of the cluster must then create a ClusterRoleBinding or a RoleBinding for that Kubernetes end user.
 
 For more information, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubernetes documentation.
 
@@ -236,16 +236,16 @@ Interface (kubectl) to connect to the cluster and perform actions as configured 
 admin. However, even with this access, Kubernetes end users cannot create, resize, or delete
 clusters.
 
+<p class='note'><strong>Note</strong>: Before you can grant cluster access to Kubernetes end users, you must enable OpenID Connect (OIDC) by selecting <strong>Enable UAA as OIDC provider</strong> in the UAA section of the <%= vars.product_tile %> tile. Once you enable OIDC, you must run <code>pks get-credentials</code> again to update your existing kubeconfig.</p>
+
 The following diagram outlines the workflow you use to grant cluster access to a
 user who belongs to an LDAP group:
 
 <a href="images/enterprise-id.png"><img src="images/enterprise-id.png" alt="This diagram shows the workflow that operators and cluster admins use to grant cluster access to users."></a>
 
-<p class='note'><strong>Note</strong>: In order for cluster admins to grant cluster access to Kubernetes end users, cluster admins must ensure that they have selected <strong>Enable UAA as OIDC provider</strong> in the UAA section of the <%= vars.product_tile %> tile. Once you enable OIDC, you must run <code>get-credentials</code> again to update your existing kubeconfig.</p>
-
 To grant cluster access to other users, the cluster admin must perform the following actions:
 
-1. Run the following command to log in to the <%= vars.product_short %> client using LDAP credentials:
+1. Run the following command to log in to the PKS client using LDAP credentials:
 
     ```
     pks login -u LDAP-NAME -p LDAP-PASSWORD -a PKS-API --ca-cert ROOT-CA-FILENAME
@@ -253,7 +253,7 @@ To grant cluster access to other users, the cluster admin must perform the follo
     Where:
     * `LDAP-USER-NAME` is the cluster admin's LDAP username.
     * `LDAP-PASSWORD` is the cluster admin's LDAP password.
-    * `PKS-API` is the fully qualified domain name you use to access the PKS API.
+    * `PKS-API` is the FQDN you use to access the PKS API.
 
 1. Run the following command to confirm that you can successfully connect to a cluster and use
 kubectl as a cluster admin:
@@ -261,11 +261,11 @@ kubectl as a cluster admin:
     ```
     pks get-credentials CLUSTER-NAME
     ```
-    This step creates a `ClusterRoleBinding` for the LDAP cluster admin.
+    This step creates a ClusterRoleBinding for the LDAP cluster admin.
 
 1. When prompted, re-enter your LDAP password.
 
-1. Create a spec YML file with either the `Role` or `ClusterRole` for your Kubernetes end user.
+1. Create a spec YAML file with either the Role or ClusterRole for your Kubernetes end user.
 
     ```
     kind: ROLE-TYPE
@@ -279,20 +279,20 @@ kubectl as a cluster admin:
       verbs: API-REQUEST-VERB
     ```
     Where:
-    * `ROLE-TYPE` is the type of role you are creating. This must be either `Role` or `ClusterRole`.
-    * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.
-    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you are creating. This name is created by the cluster admin.
+    * `ROLE-TYPE` is the type of role you are creating. This must be either Role or ClusterRole.
+    * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a ClusterRole.
+    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the Role or ClusterRole you are creating. This name is created by the cluster admin.
     * `RESOURCE` is the resource you are granting access to. It must be specified in a comma-separated array. An example resource could be `["pod-reader"]`.
     * `API-REQUEST-VERB` is used to specify resource requests. For more information, see
 	 [Determine the Request Verb](https://kubernetes.io/docs/reference/access-authn-authz/authorization/#determine-the-request-verb) in the Kubernetes documentation.
 
-1. Run the following command to create the `Role` or `ClusterRole` resource based on your spec file:
+1. Run the following command to create the Role or ClusterRole resource based on your spec file:
 
     ```
     kubectl create -f ROLE-SPEC.yml
     ```
 
-1. Create a spec YML file containing either a `ClusterRoleBinding` or `RoleBinding` for the Kubernetes end user.
+1. Create a spec YAML file containing either a ClusterRoleBinding or RoleBinding for the Kubernetes end user.
 
     ```
     kind: ROLE-BINDING-TYPE
@@ -310,29 +310,40 @@ kubectl as a cluster admin:
       apiGroup: rbac.authorization.k8s.io
     ```
     Where:
-    * `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be either `RoleBinding` or `ClusterRoleBinding`.
+    * `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be either RoleBinding or ClusterRoleBinding.
     * `ROLE-OR-CLUSTER-ROLE-BINDING-NAME` is the name of the role binding. This name is created by the cluster admin.
-    * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.
+    * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a ClusterRole.
     * `USERNAME` is the Kubernetes end user's username. If your organization uses LDAP, for example, this is your LDAP username.
-    * `ROLE-TYPE` is the type of role you created in the previous step. This must be either `Role` or `ClusterRole`.
-    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you are creating.
+    * `ROLE-TYPE` is the type of role you created in the previous step. This must be either Role or ClusterRole.
+    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the Role or ClusterRole you are creating.
 
-1. Run the following command to create the above defined `ClusterRoleBinding` resource in the cluster:
+1. Run the following command to create the above defined RoleBinding or ClusterRoleBinding resource in the cluster:
 
     ```
     kubectl apply -f ROLE-BINDING-SPEC.yml
     ```
 
-1. The cluster admin partially completes the `kubeconfig` by detailing the following:
-  + `clusters.cluster.certificate-authority-data`
-  + `clusters.cluster.server`
-  + `cluster.name`
-  + `contexts.context.cluster`
-  + `contexts.context.name`
-  + `current-context`
-  + `users.user.auth-provider.config.idp-issuer-url`
+1. Share the following information with your Kubernetes end users:
+  - FQDN of the PKS API
+  - Cluster name
 
-1. The cluster admin sends the partially completed `kubeconfig` to their Kubernetes end user. Review the example kubeconfig file below. For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
+###<a id='obtain-cluster-access'></a> Obtain Cluster Access as a User
+
+To obtain cluster access, the end user must perform the following actions:
+
+1. Run the following command:
+
+    ```
+    pks get-kubeconfig -a PKS-API -u LDAP-USER-NAME -k CLUSTER-NAME
+    ```
+    Where:
+    * `PKS-API` is the FQDN you use to access the PKS API.
+    * `LDAP-USER-NAME` is the cluster user's LDAP username.
+    * `CLUSTER-NAME` is the cluster name provided by the cluster admin.
+
+1. When prompted, enter your LDAP password.
+
+1. The PKS CLI generates a kubeconfig for the cluster you have access to. Review the example kubeconfig file below. For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
 
     ```
     apiVersion: v1
@@ -362,51 +373,15 @@ kubectl as a cluster admin:
           name: oidc
     ```
 
-###<a id='obtain-cluster-access'></a> Obtain Cluster Access as a User
-
-To obtain cluster access, the end user must perform the following actions:
-
-1. Run the following command to obtain the `users.user.auth-provider.config.id-token` and `users.user.auth-provider.config.refresh-token`:
-
-    ```
-    curl 'https://PKS-API:8443/oauth/token' -k -XPOST -H
-    'Accept: application/json' -d "client_id=pks_cluster_client&client_secret=""&grant_type=password
-     &username=UAA-USERNAME&response_type=id_token" --data-urlencode password=UAA-PASSWORD
-    ```
-    Where:
-    * `PKS-API` is the FQDN you use to access the PKS API.
-    * `UAA-USERNAME` is the Kubernetes end user's UAA username.
-    * `UAA-PASSWORD` is the Kubernetes end user's UAA password.
-
-1. Edit the `kubeconfig` by providing the following:
-  * `contexts.context.user`
-  * `users.name`
-  * `users.user.auth-provider.config.id-token`
-  * `users.user.auth-provider.config.refresh-token`
-
-1. Save the `kubeconfig` to the `$HOME/.kube/config` directory. After doing so, the Kubernetes end user can connect to the cluster using `kubectl`.
-
-<div class='note'><strong>Note</strong>: To automate this process, follow the instructions in one
-of the following Knowledge Base Articles:<br>
-<ul>
-  <li>
-    <a href="https://community.pivotal.io/s/article/script-to-automate-generation-of-the-kubeconfig-for-the-kubernetes-user">Script to automate generation of the kubeconfig for the kubernetes user</a>
-  </li>
-  <li>
-    <a href="https://community.pivotal.io/s/article/powershell-script-to-automate-generation-of-kubeconfig-for-the-kubernetes-use">Powershell script to automate generation of kubeconfig for the kubernetes user</a>
-  </li>
-</ul>
-</div>
-
 ###<a id='cluster-access-group'></a> Grant Cluster Access to a Group
 
-Cluster admins can also grant cluster-wide access to an LDAP Group by creating a `ClusterRoleBinding` for that LDAP group. This feature is only available if LDAP is used as your identity provider for UAA.
+Cluster admins can also grant cluster-wide access to an LDAP Group by creating a ClusterRoleBinding for that LDAP group. This feature is only available if LDAP is used as your identity provider for UAA.
 
 <p class='note'><strong>Note</strong>: You must confirm that the group you are referencing in your <code>ClusterRoleBinding</code> has been whitelisted in the <%= vars.product_tile %> tile. To do so, review the <strong>External Groups Whitelist</strong> field in the UAA section of the <%= vars.product_tile %> tile.</p>
 
 The process for granting cluster access to an LDAP is similar to the process described in [Grant Cluster Access to a User](#cluster-access-user).
 
-The only difference is that when the cluster admin is creating the spec file containing the `RoleBinding` or `ClusterRoleBinding` for a group, the spec file must reflect the following:
+The only difference is that when the cluster admin is creating the spec file containing the RoleBinding or ClusterRoleBinding for a group, the spec file must reflect the following:
 
 ```
 kind: ROLE-BINDING-TYPE
@@ -426,8 +401,8 @@ roleRef:
 
 Where:
 
-* `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be either `RoleBinding` or `ClusterRoleBinding`.
-* `ROLE-OR-CLUSTER-ROLE-BINDING-NAME` is the name of your `RoleBinding` or `ClusterRoleBinding`. This is created by the cluster admin.
+* `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be either RoleBinding or ClusterRoleBinding.
+* `ROLE-OR-CLUSTER-ROLE-BINDING-NAME` is the name of your RoleBinding or ClusterRoleBinding. This is created by the cluster admin.
 * `NAME-OF-GROUP` is the LDAP group name. This name is case sensitive.
-* `ROLE-TYPE` is the type of role you are creating. This must be either `Role` or `ClusterRole`.
-* `ROLE-OR-CLUSTER-ROLE-NAME` is the name of your `Role` or `ClusterRole`. This is created by the cluster admin.
+* `ROLE-TYPE` is the type of role you are creating. This must be either Role or ClusterRole.
+* `ROLE-OR-CLUSTER-ROLE-NAME` is the name of your Role or ClusterRole. This is created by the cluster admin.
