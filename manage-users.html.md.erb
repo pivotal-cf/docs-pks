@@ -105,12 +105,12 @@ To retrieve the UAA management admin client secret, do the following:
 1. On the command line, run the following command to target your UAA server:
 
     ```
-    uaac target https://PKS-API:8443 --ca-cert ROOT-CA-FILENAME
+    uaac target https://PKS-API:8443 --ca-cert CERT-PATH
     ```
 
     Where:
     * `PKS-API` is the URL to your PKS API server. You configured this URL in the PKS API section of _Installing <%= vars.product_short %>_ for your IaaS. For example, see [Installing <%= vars.product_short %> on vSphere](installing-pks-vsphere.html#pks-api).
-    * `ROOT-CA-FILENAME` is the certificate file you downloaded in [Configuring PKS API Access](configure-api.html#access).
+    * `CERT-PATH` is the path to your root CA certificate. Provide the certificate to validate the PKS API certificate with SSL.
 
     For example:
     <pre class="terminal">
@@ -245,15 +245,16 @@ user who belongs to an LDAP group:
 
 To grant cluster access to other users, the cluster admin must perform the following actions:
 
-1. Run the following command to log in to the PKS client using LDAP credentials:
+1. Run the following command to log in to PKS:
 
     ```
-    pks login -u LDAP-NAME -p LDAP-PASSWORD -a PKS-API --ca-cert ROOT-CA-FILENAME
+    pks login -u USERNAME -p PASSWORD -a PKS-API --ca-cert CERT-PATH
     ```
     Where:
-    * `LDAP-USER-NAME` is the cluster admin's LDAP username.
-    * `LDAP-PASSWORD` is the cluster admin's LDAP password.
+    * `USERNAME` is the cluster admin's username. If your organization uses LDAP, for example, this is your LDAP username.
+    * `PASSWORD` is the cluster admin's password.
     * `PKS-API` is the FQDN you use to access the PKS API.
+    * `CERT-PATH` is the path to your root CA certificate. Provide the certificate to validate the PKS API certificate with SSL.
 
 1. Run the following command to confirm that you can successfully connect to a cluster and use
 kubectl as a cluster admin:
@@ -261,11 +262,11 @@ kubectl as a cluster admin:
     ```
     pks get-credentials CLUSTER-NAME
     ```
-    This step creates a ClusterRoleBinding for the LDAP cluster admin.
+    This step creates a ClusterRoleBinding for the cluster admin.
 
-1. When prompted, re-enter your LDAP password.
+1. When prompted, re-enter your password.
 
-1. Create a spec YAML file with either the Role or ClusterRole for your Kubernetes end user.
+1. Create a spec YAML file with either the Role or ClusterRole for your Kubernetes end user:
 
     ```
     kind: ROLE-TYPE
@@ -334,16 +335,20 @@ To obtain cluster access, the end user must perform the following actions:
 1. Run the following command:
 
     ```
-    pks get-kubeconfig -a PKS-API -u LDAP-USER-NAME -k CLUSTER-NAME
+    pks get-kubeconfig CLUSTER-NAME -u USERNAME -a PKS-API --ca-cert CERT-PATH
     ```
     Where:
-    * `PKS-API` is the FQDN you use to access the PKS API.
-    * `LDAP-USER-NAME` is the cluster user's LDAP username.
     * `CLUSTER-NAME` is the cluster name provided by the cluster admin.
+    * `USERNAME` is the Kubernetes end user’s username. If your organization uses LDAP, for example, this is your LDAP username.
+    * `PKS-API` is the FQDN you use to access the PKS API.
+    * `CERT-PATH` is the path to your root CA certificate. Provide the certificate to validate the PKS API certificate with SSL.<br><br>
+    For example:
+    <pre class="terminal">$ pks get-kubeconfig my-cluster -u naomi -a api.pks.example.com \
+    --ca-cert /var/tempest/workspaces/default/root_ca_certificate</pre>
 
-1. When prompted, enter your LDAP password.
+1. When prompted, enter your password.
 
-1. The PKS CLI generates a kubeconfig for the cluster you have access to. Review the example kubeconfig file below. For more information about organizing information using kubeconfig, see [Organizing Cluster Access Using kubeconfig Files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) in the Kubernetes documentation.
+1. The PKS CLI generates a kubeconfig for the cluster you have access to. Review the example kubeconfig file below.
 
     ```
     apiVersion: v1
@@ -373,13 +378,15 @@ To obtain cluster access, the end user must perform the following actions:
           name: oidc
     ```
 
+1. Access the cluster using kubectl. For more information about kubectl commands, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) the Kubernetes documentation.
+
 ###<a id='cluster-access-group'></a> Grant Cluster Access to a Group
 
 Cluster admins can also grant cluster-wide access to an LDAP Group by creating a ClusterRoleBinding for that LDAP group. This feature is only available if LDAP is used as your identity provider for UAA.
 
 <p class='note'><strong>Note</strong>: You must confirm that the group you are referencing in your ClusterRoleBinding has been whitelisted in the <%= vars.product_tile %> tile. To do so, review the <strong>External Groups Whitelist</strong> field in the UAA section of the <%= vars.product_tile %> tile.</p>
 
-The process for granting cluster access to an LDAP is similar to the process described in [Grant Cluster Access to a User](#cluster-access-user).
+The process for granting cluster access to an LDAP group is similar to the process described in [Grant Cluster Access to a User](#cluster-access-user).
 
 The only difference is that when the cluster admin is creating the spec file containing the RoleBinding or ClusterRoleBinding for a group, the spec file must reflect the following:
 
