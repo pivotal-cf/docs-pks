@@ -1,0 +1,119 @@
+---
+title: Shutdown and Startup Procedure
+owner: PKS
+iaas: vsphere-nsxt
+---
+
+<strong><%= modified_date %></strong>
+
+This topic lists and describes the shutdown and startup sequence for Kubernetes clusters, PKS control plane, and NSX-T, and vSphere components.
+
+##<a id="shutdown"></a> Shutdown Sequence and Tasks
+
+To gracefully shut down all infrastrucure and PKS and Kubernetes VMs, complete the following tasks in the sequence presented.
+
+###<a id="shutdown-apps"></a> Customer Apps
+
+Shutdown all applications running on PKS-provisioned Kubernetes clusters.
+
+This task is optional to be performed at your discretion. If you do perform this taks, you may want to distinguish between stateless (no shutdown) and stateful (yes shutdown) applications.
+
+###<a id="shutdown-k8s"></a> Kubernetes Clusters
+
+Shutdown all PKS-provisioned Kubernetes clusters following the procedure defined in this Pivotal KB article: <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
+
+For each Kubernetes cluster that you intend to shutdown, follow this order:
+
+- a) Using the BOSH CLI, stop the Kubernetes worker nodes using the following command: `bosh -d service-instance_xxxxxxxxx stop worker`
+- b) Using the BOSH CLI, stop the Kubernetes master nodes using the following command: `bosh -d service-instance_xxxxxxxxxx stop master`
+- c) Log in to vCenter using the vSphere Client and shutdown all Kubernetes node VMs. To shutdown the VM gracefully, right-click the target VM and select **Power** > **Shut Down Guest OS**. 
+
+<p class="note"><strong>Note</strong>: When you use the BOSH `stop` command, all processes on the Kubernetes node will be stopped, and BOSH will mark them as stopped so when the VM is powered on, the process won't start automatically.</p>
+
+###<a id="shutdown-pks"></a> PKS Control Plane
+
+Shutdown the PKS Control Plane VM as follows:
+- BOSH stop the PKS Control Plane VM (`bosh -d pivotal-container-service-xxx stop`)
+- vCenter shutdown the PKS Control Plane VM
+
+###<a id="shutdown-harbor"></a> Harbor Registry
+
+Shutdown the Harbor Registry VM as follows:
+- BOSH stop the Harbor VM (`bosh -d harbor-container-registry-xxx stop`)
+- vCenter shutdown Harbor VM
+
+###<a id="shutdown-bosh"></a> BOSH Director
+
+Use vCenter to shut down the BOSH VM. Make sure you are shutting down the correct VM. In the Custom Attributes pane, verify the VM name in the "job" row. To shutdown the VM gracefully, right-click the target VM and select **Power** > **Shut Down Guest OS**. 
+
+###<a id="shutdown-om"></a> Ops Manager
+
+Use vCenter to shut down the Ops Manager VM. Make sure you are shutting down the correct VM. In the Custom Attributes pane, verify the VM name in the "job" row. To shutdown the VM gracefully, right-click the target VM and select **Power** > **Shut Down Guest OS**. 
+
+###<a id="shutdown-nsxt"></a> NSX-T Components
+
+Use vCenter to shut down all NSX-T VMs:
+- NSX-T Manager
+- NSX-T controllers
+- NSX-T edge nodes
+
+###<a id="shutdown-vc"></a> vCenter
+
+Use vCenter to shutdown the vCenter VM. The vSphere Client will no longer be avaialable when this VM is shutdown.
+
+###<a id="shutdown-esxi"></a> ESXi hosts
+
+Lastly, shutdown each ESXi host. To do this, go the HTTPS address of the host IP, for example: https://10.196.146.20/. Log in using the ESXi credentials.
+
+Put the ESXi host in maintenance mode and then power it off (using iLO or other methods).
+
+##<a id="startup"></a> Startup Sequence
+
+###<a id="start-esxi"></a> ESXi hosts
+
+Power on all ESXi hosts (using iLO or other methods)
+
+###<a id="start-vc"></a> vCenter
+
+Connect to the web interface of the ESXi hosting vCenter VM. Then power on the VM.
+
+###<a id="start-nsxt"></a> NSX-T Components
+
+Use vCenter to power on the VMs below:
+- NSX-T Manager
+- NSX-T controllers
+- NSX-T edge nodes
+
+###<a id="start-om"></a> Ops Manager
+
+vCenter power on the VM.
+
+###<a id="start-bosh"></a> BOSH Director
+
+vCenter power on the VM.
+
+Note: at this point in time, BOSH won’t try to resurrect any VMs because BOSH knows all the VMs under its control were BOSH stopped.
+
+###<a id="start-pks"></a> PKS Control Plane
+
+vCenter power on the VM
+
+###<a id="start-harbor"></a> Harbor Registry
+
+vCenter power on the VM
+
+###<a id="start-k8s"></a> Kubernetes Clusters
+
+Start each PKS-provisioned Kubernetes cluster following the procedure defined in this Pivotal KB article: <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
+
+For each Kubernetes cluster that you intend to startup, follow carefully the procedure detailed in the KB:
+
+- a) BOSH ssh to first master node and start etcd
+- b) BOSH start next master node
+- c) BOSH start all master nodes 
+- d) BOSH start all worker nodes
+
+###<a id="start-apps"></a> Customer Apps
+
+Start all apps running on Kubernetes clusters.
+
