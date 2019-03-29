@@ -101,15 +101,15 @@ To restart all Kubernetes, PKS, and infrastructure components, complete the foll
 
 ###<a id="start-esxi"></a> ESXi Hosts
 
-Using the remote management console such as such as Dell IDRAC or HP iLO, power on each ESXi host.
+First, using the remote management console, such as such as Dell IDRAC or HP iLO, power on each ESXi host. Next, connect to the web interface of each ESXi host and exit maintenance mode.
 
 ###<a id="start-vc"></a> vCenter
 
-Connect to the web interface of the ESXi server that is hosting the vCenter VM, then power on the VM.
+Connect to the web interface of the ESXi server that is hosting the vCenter VM. Select the vCenter VM and click on Power On.
 
 ###<a id="start-nsxt"></a> NSX-T Components
 
-Log into vCenter and power on the following VMs:
+Log into vCenter using the vSphere Client and power on the following VMs in the sequence presented:
 - NSX-T Manager
 - NSX-T Controllers
 - NSX-T Edge Nodes
@@ -120,30 +120,45 @@ Using vCenter, power on the Ops Manager VM.
 
 ###<a id="start-bosh"></a> BOSH Director
 
-Using vCenter, power on the BOSH Director VM.
+Using vCenter, power on the BOSH Director VM. 
 
-<p class="note"><strong>Note</strong>: BOSH is aware that all the VMs under its control were BOSH stopped; thus, BOSH will not attempt to resurrect any VMs, which is the desired behavior.</p>
+<p class="note"><strong>Note</strong>: BOSH is aware that all the VMs under its control were stopped; thus, BOSH will not attempt to resurrect any VMs, which is the desired behavior.</p>
+
+Due to a bug, it may take approximately 90 minutes for BOSH to start properly. To speed up the BOSH startup process:
+1. Get the BOSH Director VM Credentials from Ops Manager. 
+1. SSH to the BOSH VM.
+1. Run the following commands:
+		sudo -i
+		monit summary
+1. If you see "Process uaa Connection failed" and "Process credhub not monitored," issue the following command:
+		monit restart uaa
+1. After a few minutes, run `monit summary` again. You should see that the above processes are now running. At this point BOSH should be fully up and running.
 
 ###<a id="start-pks"></a> PKS Control Plane
 
-Using vCenter, power on the PKS Control Plane VM.
+Start the PKS Control Plane as follows:
+- Using vCenter, power on the PKS VM.
+- Using the BOSH CLI, start the PKS process on the VM (`bosh -d pivotal-container-service-xxx start`).
+
+<p class="note"><strong>Note</strong>: Because you stopped the PKS process using BOSH, you must restart it using BOSH.</p>
 
 ###<a id="start-harbor"></a> Harbor Registry
 
-Using vCenter, power on the Harbor VM.
+Start Harbor Registry as follows:
+- Using vCenter, power on the Harbor VM.
+- Using the BOSH CLI, start the Harbor process on the VM (`bosh -d harbor-container-registry-xxx start`).
 
 ###<a id="start-k8s"></a> Kubernetes Clusters
 
-Start each PKS-provisioned Kubernetes cluster following the procedure defined in this Pivotal KB article: <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
-
-For each Kubernetes cluster that you intend to startup, start the Kubernetes nodes in the following order:
+For each Kubernetes cluster that you intend to startup, start the Kubernetes nodes in the following sequence:
 
 - Using the BOSH CLL, ssh to the first master node and start etcd.
 - Using the BOSH CLI, start the next master node.
-- Using the BOSH CLI, start all remaining master nodes.
+- Using the BOSH CLI, start all remaining master nodes (including the master where you started etcd).
 - Using the BOSH CLI, start all worker nodes.
+
+Refer to the following the procedure for the exact Kubernetes node startup instructions: <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
 
 ###<a id="start-apps"></a> Customer Apps
 
 Start all apps running on the PKS-provisioned Kubernetes clusters.
-
