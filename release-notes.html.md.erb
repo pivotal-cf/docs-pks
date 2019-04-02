@@ -8,6 +8,180 @@ topictype: releasenotes
 
 This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
 
+---
+## <a id="v1.3.5"></a>v1.3.5
+
+**Release Date**: March 28, 2019
+
+### <a id="v1.3.5-snapshot"></a>Product Snapshot
+
+<table class="nice">
+    <th>Element</th>
+    <th>Details</th>
+    <tr>
+        <td>Version</td>
+        <td>v1.3.5</td>
+    </tr>
+    <tr>
+        <td>Release date</td>
+        <td>March 28, 2019</td>
+    </tr>
+    <tr>
+        <td>Compatible Ops Manager versions</td>
+        <td>v2.3.1+, v2.4.0+</td>
+    </tr>
+    <tr>
+        <td>Stemcell version</td>
+        <td>v170.15</td>
+    </tr>
+    <tr>
+        <td>Kubernetes version</td>
+        <td>v1.12.7</td>
+    </tr>
+    <tr>
+        <td>On-Demand Broker version</td>
+        <td>v0.24</td>
+    </tr>
+    <tr>
+        <td>CFCR</td>
+        <td>v0.25.11</td>
+    </tr>
+    <tr>
+        <td>NSX-T versions <strong>&#42;</strong></td>
+        <td>v2.2, v2.3.0.2, v2.3.1</td>
+    </tr>
+    <tr>
+        <td>NCP version</td>
+        <td>v2.3.2</td>
+    </tr>
+    <tr>
+        <td>Docker version</td>
+        <td>v18.06.3-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR v0.25.11</a></td>
+    </tr>
+</table>
+
+<p class="note"><strong>Note:</strong> Ops Manager v2.3.0 through v2.3.9 and Ops Manager v2.4.0 through v2.4.3 do not support PKS v1.3 on Azure.
+Before deploying PKS v1.3 on Azure, you must install Ops Manager v2.3.10 or later in the 2.3 version or Ops Manager v2.4.4 or later in the 2.4 version.</p>
+
+### <a id='v1.3.5-vsphere-reqs'></a> vSphere Version Requirements
+
+If you are installing PKS on vSphere or vSphere with NSX&#8209;T, note that Ops Manager and PKS support the following vSphere component versions:
+<%= partial 'vsphere_versions' %>
+
+### <a id="v1.3.5-iaas"></a>Feature Support by IaaS
+
+<table>
+  <tr>
+    <th></th>
+    <th>AWS</th>
+    <th>Azure</th>
+    <th>GCP</th>
+    <th>vSphere</th>
+    <th>vSphere with NSX-T</th>
+  </tr>
+
+  <tr>
+    <th>Automatic Kubernetes Cluster API load balancer</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td></td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>HTTP proxy</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td>&check;</td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>Multi-AZ storage</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td>&check;</td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>Per-namespace subnets</th>
+    <td></td>
+    <td></sup></td>
+    <td></td>
+    <td></td>
+    <td>&check;</td>
+  </tr>
+  <tr>
+    <th>Service <code>type:LoadBalancer</code></th>
+    <td>&check;<sup>&#42;</sup></td>
+    <td>&check;</sup></td>
+    <td>&check;</td>
+    <td></td>
+    <td>&check;</td>
+  </tr>
+</table>
+
+### <a id="v1.3.5-upgrade"></a>Upgrade Path
+
+The supported upgrade paths to PKS v1.3.5 are as follows:
+
+- PKS v1.3.4 or later
+
+### <a id="v1.3.5-whats-new"></a>What's New
+
+PKS v1.3.5 adds the following:
+
+- Support for Kubernetes v1.12.7.
+- **Fix**: [CVE-2019-1002101](https://nvd.nist.gov/vuln/detail/CVE-2019-1002101). Kubernetes v1.12.7 address this CVE.
+- **Fix**: [CVE-2019-9946](https://github.com/kubernetes/kubernetes/pull/75455). Kubernetes v1.12.7 address this CVE.
+
+### <a id="v1.3.5-known-issues"></a>Breaking Changes and Known Issues
+
+<p class="note breaking"><strong>Breaking Change:</strong> Heapster is deprecated in PKS v1.3.x, and
+Kubernetes has retired Heapster. For more information, see the
+<a href="https://github.com/kubernetes-retired/heapster">kubernetes-retired/heapster</a>
+repository on GitHub.</p>
+
+PKS v1.3.5 has the following known issues:
+
+####<a id="small-ephemeral-disks"></a> Worker Nodes with Small Ephemeral Disks Can Cause Upgrade Failure
+
+PKS deploys packages to the ephemeral disk, `/var/vcap/data`, during installations and upgrades. If master or worker node VMs have ephemeral disks smaller than 8&nbsp;GB,  the disk can fill during an upgrade and cause the upgrade to fail. Cluster upgrades can present error messages such as the following:
+
+```
+{"time":999999999,"error":{"code":450001,"message":"Response exceeded maximum allowed length"}}
+```
+
+**Workaround**: In the plans you use to deploy clusters, ensure that worker and master node ephemeral disks are set to greater than 8&nbsp;GB. For plan configuration instructions, see the [Plans](./installing-nsx-t.html#plans) section of the _Installing PKS_ topic for your IaaS.
+
+This issue should not affect new installations of PKS v1.3.x as the default ephemeral disk size in plans is larger than 8&nbsp;GB.
+
+####<a id="flannel"></a> PKS Flannel Network Gets Out of Sync with Docker Bridge Network (cni0)
+
+When VMs have been powered down for multiple days, turning them back on and issuing a `bosh recreate` to re-create the VMs causes the pods to get stuck in a `ContainerCreating` state.
+
+**Workaround**: See [PKS Flannel network gets out of sync with docker bridge network (cni0)](https://community.pivotal.io/s/article/PKS-Flannel-network-gets-out-of-sync-with-docker-bridge-network-cni0) in the Pivotal Knowledge Base.
+
+####<a id="azure-service"></a> Cluster Upgrades from PKS v1.3.0 on Azure Fail If Services Are Exposed
+
+If you install PKS v1.3.0 on Azure, clusters might fail with the following error when you upgrade to PKS v1.3.1 or later:
+
+```
+result: 1 of 2 post-start scripts failed. Failed Jobs: kubelet. Successful Jobs: bosh-dns
+```
+
+This issue is caused by a timeout condition. The issue affects nodes hosting Kubernetes pods that are exposed externally by a Kubernetes service.
+
+New cluster creations and cluster scaling operations are not affected by this issue.
+
+**Workaround**: If you install PKS on Azure and experience this issue, contact Support for assistance.
+
+####<a id="kubelet-customizations"></a> The kubelet customization feature is only enabled for Plan 1
+
+PKS 1.3.4 introduces the ability to configure kubelet startup parameters `system-reserved` and `evction-hard` within a [plan](https://docs.pivotal.io/runtimes/pks/1-3/installing-pks-vsphere.html#plans).  This capability is only functional in Plan 1 for PKS 1.3.4 and will be enabled in additional plans in the next release.
+
+---
 ## <a id="v1.3.4"></a>v1.3.4
 
 **Release Date**: March 26, 2019
@@ -58,6 +232,9 @@ This topic contains release notes for Pivotal Container Service (PKS) v1.3.x.
         <td>v18.06.3-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR v0.25.11</a></td>
     </tr>
 </table>
+
+<p class="note"><strong>Note:</strong> Ops Manager v2.3.0 through v2.3.9 and Ops Manager v2.4.0 through v2.4.3 do not support PKS v1.3 on Azure.
+Before deploying PKS v1.3 on Azure, you must install Ops Manager v2.3.10 or later in the 2.3 version or Ops Manager v2.4.4 or later in the 2.4 version.</p>
 
 ### <a id='v1.3.4-vsphere-reqs'></a> vSphere Version Requirements
 
@@ -235,6 +412,9 @@ This feature is only functional in Plan 1 for PKS v1.3.4 and will be enabled in 
     </tr>
 </table>
 
+<p class="note"><strong>Note:</strong> Ops Manager v2.3.0 through v2.3.9 and Ops Manager v2.4.0 through v2.4.3 do not support PKS v1.3 on Azure.
+Before deploying PKS v1.3 on Azure, you must install Ops Manager v2.3.10 or later in the 2.3 version or Ops Manager v2.4.4 or later in the 2.4 version.</p>
+
 ### <a id="v1.3.3-iaas"></a>Feature Support by IaaS
 
 <table>
@@ -294,7 +474,7 @@ This feature is only functional in Plan 1 for PKS v1.3.4 and will be enabled in 
 The supported upgrade paths to PKS v1.3.3 are as follows:
 
 - **When upgrading from PKS v1.3.x**: PKS v1.3.1 or v1.3.2
-- **When upgrading from PKS v1.2.x**: PKS v1.2.8 or v1.2.9 or v1.2.10
+- **When upgrading from PKS v1.2.x**: PKS v1.2.8 through v1.2.11
 
 ### <a id="v1.3.3-whats-new"></a>What's New
 
@@ -393,6 +573,9 @@ New cluster creations and cluster scaling operations are not affected by this is
         <td>v18.06.2-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR v0.25.8</a></td>
     </tr>
 </table>
+
+<p class="note"><strong>Note:</strong> Ops Manager v2.3.0 through v2.3.9 and Ops Manager v2.4.0 through v2.4.3 do not support PKS v1.3 on Azure.
+Before deploying PKS v1.3 on Azure, you must install Ops Manager v2.3.10 or later in the 2.3 version or Ops Manager v2.4.4 or later in the 2.4 version.</p>
 
 ### <a id="v1.3.2-iaas"></a>Feature Support by IaaS
 
@@ -556,6 +739,9 @@ New cluster creations and cluster scaling operations are not affected by this is
         <td>v18.06.1-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR v0.25.8</a></td>
     </tr>
 </table>
+
+<p class="note"><strong>Note:</strong> Ops Manager v2.3.0 through v2.3.9 and Ops Manager v2.4.0 through v2.4.3 do not support PKS v1.3 on Azure.
+Before deploying PKS v1.3 on Azure, you must install Ops Manager v2.3.10 or later in the 2.3 version or Ops Manager v2.4.4 or later in the 2.4 version.</p>
 
 ### <a id='v1.3.1-vsphere-reqs'></a> vSphere Version Requirements
 
@@ -728,6 +914,9 @@ New cluster creations and cluster scaling operations are not affected by this is
     <li>To use the network profile features available in PKS v1.3, you must use NSX-T v2.3.</li>
     <li>NSX-T 2.3.0 has a known critical issue: <a href="https://kb.vmware.com/s/article/60293">ESX hosts lose network connectivity rendering the host inaccessible from network (60293)</a>. This issue is patched in NSX-T v2.3.0.2 and fixed in the NSX-T v2.3.1 release.</li>
 </ul>
+
+<p class="note"><strong>Note:</strong> Ops Manager v2.3.0 through v2.3.9 and Ops Manager v2.4.0 through v2.4.3 do not support PKS v1.3 on Azure.
+Before deploying PKS v1.3 on Azure, you must install Ops Manager v2.3.10 or later in the 2.3 version or Ops Manager v2.4.4 or later in the 2.4 version.</p>
 
 ### <a id='v1.3.0-vsphere-reqs'></a> vSphere Version Requirements
 
