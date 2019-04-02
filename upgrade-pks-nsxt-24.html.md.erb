@@ -81,7 +81,7 @@ Refer to the [VMware ESXi Upgrade](https://docs.vmware.com/en/VMware-vSphere/6.7
 
 ## <a id="upgrade-nsxt"></a> Step 4: Upgrade from NSX-T v2.3.1 to NSX-T v2.4.0.1
 
-Complete the following steps to upgrade from NSX-T 2.3.1 to NSX-T v2.4.0.1. For additional guidance, refer to [Upgrading NSX-T Data Center](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/upgrade/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) in the VMware documentation.
+Complete the following steps to upgrade from NSX-T 2.3.1 to NSX-T v2.4.0.1. For detailed guidance, refer to [Upgrading NSX-T Data Center](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/upgrade/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) in the VMware documentation.
 
 1. Log in to the VMware software download site and download the NSX-T 2.4.0.1 upgrade bundle file: `VMware-NSX-upgrade-bundle-2.4.0.1.0.<Build-ID>.mub`. 
 1. Log in to the NSX Manager web interface.
@@ -103,20 +103,30 @@ Complete the following steps to upgrade from NSX-T 2.3.1 to NSX-T v2.4.0.1. For 
 
 ## <a id="remove-controllers"></a> Step 5: Power Off the NSX Controllers
 
-There are architectural changes in NSX 2.4. The NSX Controller is now a component of the NSX Manager. Once the NSX-T upgrade is complete, you will have a single NSX-T Manager node. Power off the NSX Controllers.
+There are architectural changes in NSX 2.4. The NSX Controller is now a component of the NSX Manager. Once the NSX-T upgrade is complete, you will have a single NSX-T Manager node. Power off the NSX Controllers. At the end of the upgrade, you can delete the controller VMs.
 
-## <a id="add-manager-capacity"></a> Step 6: Upgrade NSX Manager Disk Size
+<p class="note"><strong>Note:</strong> Once you upgrade to NSX-T 2.4, the T0 router(s) and all other management plane objects can be seen only from the "Advanced Networking Configuration" tab. They will not be migrated to the new policy UI.</p>
 
-Because the controller component is now part of NSX Manager, the NSX Manager requires more disk space. Upgrade NSX-T Mgr appliance disk to 200GB.
+## <a id="add-manager-capacity"></a> Step 6: Verify PKS Functionality
+
+Once the upgrade to NSX 2.4 is complete, verify that your PKS environment is functioning properly by logging to to PKS and creating a small test cluster.
 
 ## <a id="add-managers"></a> Step 7: Deploy Two Additional NSX Managers
 
 With NSX-T v2.4, the NSX Controller component is now part of the NSX Manager. Previously the NSX Manager was a singleton, and HA was achieved using multiple NSX Controllers. With NSX-T v2.4, since the NSX Controller component is no longer used, to achieve HA you need to deploy multiple (three) NSX Managers.
 
-- In the NSX Manager web interface, go to System > Fabric > Compute Manager.
-- Click **Add**.
-- Create a new compute manager.
-- Repeat the process.
+<p class="note"><strong>Note:</strong> When you add additional NSX Managers, the system prompts you to enter a Compute Manager, which is a vCenter Server. If you do not have a Compute Manager configured, create one now before proceeding. See the [Add a Compute Manager](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-D225CAFC-04D4-44A7-9A09-7C365AAFCA0E.html) in the NSX-T documentation.</p>
+
+To add an NSX Manager:
+
+- Log in to the NSX Manager web interface.
+- Select the **Home** tab.
+- Click **Add Nodes**.
+- Configure the host and node fields.
+
+When the new NSX Manager is added, the system will sync it. When the sync is complete and successful, you should see that the **Repository Status** is "Sync Completed".
+
+Repeat the process so that you have 3 NSX Managers.
 
 ## <a id="add-vip"></a> Step 8: Configure the NSX Manager VIP
 
@@ -137,7 +147,9 @@ Create a new NSX Manager CA cert using the VIP address, and register this certif
 
 1. Generate the certificate. Refer to [Generate NSX CA Cert](https://docs.pivotal.io/runtimes/pks/1-3/generate-nsx-ca-cert.html). Be sure to use the VIP address.
 1. Import the cert to the VIP NSX Manager. Refer to [Import the Certificate to NSX Manager](https://docs.pivotal.io/runtimes/pks/1-3/generate-nsx-ca-cert.html#import-certificate).
-1. Register the cert using the NSX API. You must register the cert with all three NSX Manager hosts using a cURL request to the Cluster Certificate API. For example:
+1. Register the cert using the NSX API. You must register the cert with all three NSX Manager hosts using a cURL request to the Cluster Certificate API. 
+
+For example:
 
 ```
 # export NSX_MANAGER_IP_ADDRESS=192.0.2.0
@@ -211,3 +223,7 @@ To verify successful upgrade, create a new Kubernetes test cluster. For example:
 ```
 pks create-cluster pks-cluster-medium-LB-5 --external-hostname k8s-cluster-medium-LB-5 --plan large --num-nodes 6 --network-profile network-profile-medium
 ```
+
+## <a id="add-manager-capacity"></a> Step 6: Upgrade NSX Manager Disk Size
+
+Because the controller component is now part of NSX Manager, the NSX Manager requires more disk space. Upgrade NSX-T Mgr appliance disk to 200GB.
