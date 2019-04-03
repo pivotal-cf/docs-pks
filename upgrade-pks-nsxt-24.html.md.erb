@@ -122,7 +122,12 @@ To add an NSX Manager:
 - Log in to the NSX Manager web interface.
 - Select the **Home** tab.
 - Click **Add Nodes**.
-- Configure the host and node fields.
+- Configure the **Common Attributes** fields and click Next.
+- Configure the **Nodes** fields.
+
+  <img src="images/nsx_24_upgrade-06.png" alt="Add Nodes">
+
+  <img src="images/nsx_24_upgrade-07.png" alt="Configure Nodes">
 
 When the new NSX Manager is added, the system will sync it. When the sync is complete and successful, you should see that the **Repository Status** is "Sync Completed".
 
@@ -130,26 +135,30 @@ Repeat the process so that you have 3 NSX Managers.
 
 ## <a id="add-vip"></a> Step 8: Configure the NSX Manager VIP
 
-Assuming you deployed two additional NSX Managers (such that you have three), you need create a virtual IP address that can be used to access the NSX Manager web interface.
+Since you deployed two additional NSX Managers (for a total of three), you need create a virtual IP address that can be used to access the NSX Manager web interface. Currently the NSX Manager certificate is associated with the original NSX Manager IP.
 
-- Go to System > Overview.
-- Select Virtual IP > Edit.
-- Enter a publically routable virtual IP address.
-- Click Save.
+To create a VIP for the management cluster:
+
+- Go to **System** > **Overview**.
+- Select **Virtual IP** > **Edit**.
+- Enter an IP address, such as `10.40.206.5`.
+- Click **Save**.
 
 At this point in time, you can connect to any NSX-T manager using its own IP address or use the VIP to connect to NSX-T Manager. Both methods work. However, note that the VIP will be associated with a single NSX Manager. To determine which NSX Manager the VIP is associated with, select the Virtual IP.
 
   <img src="images/nsx_24_upgrade-05.png" alt="VIP Association">
 
-## <a id="nsx-cert"></a> Step 9: Generate and Register a New NSX Manager CA Cert for the VIP
+## <a id="nsx-cert"></a> Step 9: Generate, Upload and Register a New NSX Manager CA Cert with the Cluster API
 
-Create a new NSX Manager CA cert using the VIP address, and register this certificate with the NSX Manager node cluster using a cURL command against the cluster_certificate API.
+Create a new NSX Manager CA cert using the VIP address, and upload it to NSX Manager. Then, register this certificate with the management cluster using a cURL command against the cluster_certificate API.
 
-1. Generate the certificate. Refer to [Generate NSX CA Cert](https://docs.pivotal.io/runtimes/pks/1-3/generate-nsx-ca-cert.html). Be sure to use the VIP address.
-1. Import the cert to the VIP NSX Manager. Refer to [Import the Certificate to NSX Manager](https://docs.pivotal.io/runtimes/pks/1-3/generate-nsx-ca-cert.html#import-certificate).
-1. Register the cert using the NSX API. You must register the cert with all three NSX Manager hosts using a cURL request to the Cluster Certificate API. 
+1. Generate a new CA certificate and private key using the VIP address. See [Generate NSX CA Cert](./generate-nsx-ca-cert.html) for instructions. 
 
-For example:
+1. Import the new CA certificate to the NSX Manager. Refer to [Import the Certificate to NSX Manager](./generate-nsx-ca-cert.html#import-certificate).
+
+1. Register the new CA certificate using the Cluster API. You must register the cert with all three NSX Manager hosts using a cURL request to the Cluster Certificate API. 
+
+For example, the following commands register the cert wit the NSX Manager that is associated with the VIP.
 
 ```
 # export NSX_MANAGER_IP_ADDRESS=192.0.2.0
@@ -162,6 +171,9 @@ For example:
   "certificate_id": "63bb6646-052c-49df-b603-64d7e5bdb5bf"
 }
 ```
+
+1. Repeat the registration command for the other 2 NSX Managers, using their respective IP addresses.
+
 
 To verify, using a browser go to the VIP address of the NSX Manager. Login and check that the new cert is used by the site (accessed using the VIP address). 
 
