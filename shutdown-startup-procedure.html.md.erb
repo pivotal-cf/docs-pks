@@ -12,16 +12,17 @@ This topic lists and describes the shutdown and startup sequence for PKS-provisi
 
 To perform a graceful shutdown of all Kubernetes, PKS, and infrastructure components, complete the following tasks in sequence.
 
-###<a id="shutdown-apps"></a> Customer Apps
+###<a id="shutdown-apps"></a>Step 1: Shut Down Customer Apps
 
 Shut down all customer apps running on PKS-provisioned Kubernetes clusters.
 
 <p class="note"><strong>Note</strong>: This task is optional. Perform it after considering the types of apps you have deployed. For example, stateful, stateless, or legacy apps.</p>
 
-###<a id="shutdown-k8s"></a> Kubernetes Clusters
+###<a id="shutdown-k8s"></a>Step 2: Shut Down Kubernetes Clusters
 
-Shut down all PKS-provisioned Kubernetes clusters following the procedure defined in this Pivotal KB article: 
-<a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
+Shut down all PKS-provisioned Kubernetes clusters following the procedure defined in this knowledgebase article: 
+
+- <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
 
 For each Kubernetes cluster that you intend to shut down, do the following:
 
@@ -63,11 +64,11 @@ For each Kubernetes cluster that you intend to shut down, do the following:
 	1. Verify the node type by checking the "job" name in the the **Custom Attributes** pane.
 	1. Perform a graceful shutdown by right-clicking the target VM and selecting **Power** > **Shut Down Guest OS**. 
 
-    <img src="images/nsxt/shutdown/shutdown-k8s-nodes.png" alt="Shutdown Kubernetes Nodes">
+        <img src="images/nsxt/shutdown/shutdown-k8s-nodes.png" alt="Shut down Kubernetes Nodes">
 
-    [View a larger version of this image.](images/nsxt/shutdown/shutdown-k8s-nodes.png)
+        [View a larger version of this image.](images/nsxt/shutdown/shutdown-k8s-nodes.png)
 
-###<a id="shutdown-pks"></a> PKS Control Plane
+###<a id="shutdown-pks"></a>Step 3: Shut Down PKS Control Plane
 
 To shut down the PKS control plane VM, do the following:
 
@@ -91,43 +92,68 @@ To shut down the PKS control plane VM, do the following:
 
 1. Using vCenter, locate and gracefully shut down the PKS control plane VM.
 
-   <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shutdown PKS Control Plane VM">
+    <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shut down PKS control plane VM">
 
-   [View a larger version of this image.](images/nsxt/shutdown/shutdown-pks.png)
+    [View a larger version of this image.](images/nsxt/shutdown/shutdown-pks.png)
 
-###<a id="shutdown-harbor"></a> Harbor Registry
+###<a id="shutdown-harbor"></a>Step 4: Shut Down VMware Harbor Registry
 
 To shut down the Harbor Registry VM, do the following:
 
-1. Using the BOSH CLI, stop the Harbor VM by running the following command. 
+1. Using the BOSH CLI, retrieve the BOSH deployment ID of your Harbor Registry 
+deployment by running the following command.
 
-(`bosh -d harbor-container-registry-xxx stop`).
-- Using vCenter, locate and gracefully shutdown the Harbor VM.
+    ```
+    bosh deployments
+    ```
+    Harbor Registry deployment names begin with `harbor-container-registry` and include a unique BOSH-generated hash.
 
-<img src="images/nsxt/shutdown/shutdown-harbor.png" alt="Shutdown Harbor VM">
+1. Using the BOSH CLI, stop the Harbor Registry VM by running the following command.
 
-###<a id="shutdown-bosh"></a> BOSH Director
+    ```
+    bosh -d harbor-container-registry-DEPLOYMENT-ID stop 
+    ```
 
-Shutdown BOSH Director as follows:
-- Using vCenter, locate and gracefully shutdown the BOSH VM.
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your Harbor Registry deployment. For example:
+
+    <pre class="terminal">
+    $ bosh -d harbor-container-registry-b4023f6857207b237399 stop</pre>
+
+1. Using vCenter, locate and gracefully shut down the Harbor Registry VM.
+
+    <img src="images/nsxt/shutdown/shutdown-harbor.png" alt="Shutd own Harbor Registry VM">
+
+    [View a larger version of this image.](images/nsxt/shutdown/shutdown-harbor.png)
+
+###<a id="shutdown-bosh"></a>Step 5: Shut Down BOSH Director
+
+Using vCenter, locate and gracefully shut down the BOSH Director VM.
 
 <img src="images/nsxt/shutdown/shutdown-bosh.png" alt="Shutdown BOSH VM">
 
-###<a id="shutdown-om"></a> Ops Manager
+[View a larger version of this image.](images/nsxt/shutdown/shutdown-bosh.png)
 
-Shutdown Ops Manager as follows:
-- Using vCenter, locate and gracefully shutdown the Ops Manager VM.
+###<a id="shutdown-om"></a>Step 6: Shut Down Ops Manager
+
+Using vCenter, locate and gracefully shut down the Ops Manager VM.
 
 <img src="images/nsxt/shutdown/shutdown-om.png" alt="Shutdown Ops Manager VM">
 
-###<a id="shutdown-nsxt"></a> NSX-T Components
+[View a larger version of this image.](images/nsxt/shutdown/shutdown-om.png)
 
-Shutdown all NSX-T components as follows:
-- Using vCenter, gracefully shutdown all NSX-T VMs in the following order: NSX-T Manager, NSX-T Controllers, NSX-T Edge Nodes.
+###<a id="shutdown-nsxt"></a>Step 7: Shut Down NSX-T Components
+
+Using vCenter, gracefully shut down all NSX-T VMs in the following order: 
+
+- NSX-T Manager
+- NSX-T Controllers
+- NSX-T Edge Nodes
 
 <img src="images/nsxt/shutdown/shutdown-nsxt.png" alt="Shutdown NSX-T VMs">
 
-###<a id="shutdown-vc"></a> vCenter Server
+[View a larger version of this image.](images/nsxt/shutdown/shutdown-nsxt.png)
+
+###<a id="shutdown-vc"></a>Step 8: Shut Down vCenter Server
 
 Using vCenter, gracefully shutdown the vCenter Server VM. 
 
@@ -135,85 +161,133 @@ Using vCenter, gracefully shutdown the vCenter Server VM.
 
 <img src="images/nsxt/shutdown/shutdown-vc.png" alt="Shutdown vCenter Server VM">
 
-###<a id="shutdown-esxi"></a> ESXi Hosts
+[View a larger version of this image.](images/nsxt/shutdown/shutdown-vc.png)
 
-Shutdown all each ESXi host in the vSphere cluster as follows:
+###<a id="shutdown-esxi"></a>Step 9: Shut Down ESXi Hosts
 
-First, put the ESXi host into maintence mode. To do this:
-- Using a browser, navigate to the HTTPS IP address of the ESXi host, for example: https://10.196.146.20/.
-- Log in using vSphere administrative credentials.
-- Put the ESXi host in maintenance mode by selecing **Actions** > **Enter maintenance mode**.
-<img src="images/nsxt/shutdown/maint-mode.png" alt="Put ESXi Host into Maintenance Mode">
+To shut down each ESXi host in the vSphere cluster, do the following:
 
-Second, power off the ESXi host. To do this you have two options:
-- Use the EXSi web interface and select **Actions** > **Shut down**, or
-- Use the remote management console for the host, such as Dell IDRAC or HP iLO.
-<img src="images/nsxt/shutdown/shutdown-idrac.png" alt="Shutdown ESXi Host">
+1. Put the ESXi host into maintence mode by doing the following: 
+    1. Using a browser, navigate to the HTTPS IP address of the ESXi host, for example: https://10.196.146.20/.
+    1. Log in using vSphere administrative credentials.
+    1. Put the ESXi host in maintenance mode by selecting **Actions** > **Enter maintenance mode**.
+     <img src="images/nsxt/shutdown/maint-mode.png" alt="Put ESXi Host into Maintenance Mode">
+     [View a larger version of this image.](images/nsxt/shutdown/maint-mode.png)
+
+2. Power off the ESXi host. To do this, you have two options:
+    - Use the EXSi web interface and select **Actions** > **Shut down**, 
+    - Use the remote management console for the host, such as Dell IDRAC or HP iLO.
+      <img src="images/nsxt/shutdown/shutdown-idrac.png" alt="Shutdown ESXi Host">
+     [View a larger version of this image.](images/nsxt/shutdown/shutdown-idrac.png)
 
 ##<a id="startup"></a> Startup Sequence and Tasks
 
 To restart all Kubernetes, PKS, and infrastructure components, complete the following tasks in the sequence presented.
 
-###<a id="start-esxi"></a> ESXi Hosts
+###<a id="start-esxi"></a> Step 1: Start ESXi Hosts
 
-First, using the remote management console, such as such as Dell IDRAC or HP iLO, power on each ESXi host. Next, connect to the web interface of each ESXi host and exit maintenance mode.
+To start the ESXi hosts, do the following:
 
-###<a id="start-vc"></a> vCenter
+1. Using the remote management console, such as Dell IDRAC or HP iLO, power on each ESXi host. 
+1. Connect to the web interface of each ESXi host and exit maintenance mode.
 
-Connect to the web interface of the ESXi server that is hosting the vCenter VM. Select the vCenter VM and click on Power On.
+###<a id="start-vc"></a> Step 2: Start vCenter
 
-###<a id="start-nsxt"></a> NSX-T Components
+Connect to the web interface of the ESXi server that hosts the vCenter VM. Select the vCenter VM, and click **Power On**.
 
-Log into vCenter using the vSphere Client and power on the following VMs in the sequence presented:
-- NSX-T Manager
-- NSX-T Controllers
-- NSX-T Edge Nodes
+###<a id="start-nsxt"></a> Step 3: Start NSX-T Components
 
-###<a id="start-om"></a> Ops Manager
+To start the NSX-T components, perform the following steps:
+
+1. Log into vCenter using the vSphere Client.
+1. Power on the following VMs in the following order:
+   - NSX-T Manager
+   - NSX-T Controllers
+   - NSX-T Edge Nodes
+
+###<a id="start-om"></a> Step 4: Start Ops Manager
 
 Using vCenter, power on the Ops Manager VM.
 
-###<a id="start-bosh"></a> BOSH Director
+###<a id="start-bosh"></a> Step 5: Start the BOSH Director
 
 Using vCenter, power on the BOSH Director VM. 
 
-<p class="note"><strong>Note</strong>: BOSH is aware that all the VMs under its control were stopped; thus, BOSH will not attempt to resurrect any VMs, which is the desired behavior.</p>
+<p class="note"><strong>Note</strong>: BOSH is aware that all the VMs under its control were stopped. BOSH does not attempt to resurrect any VMs, which is the desired behavior.</p>
 
-Due to a bug, it may take approximately 90 minutes for BOSH to start properly. To speed up the BOSH startup process:
-1. Get the BOSH Director VM Credentials from Ops Manager. 
-1. SSH to the BOSH VM.
-1. Run the following commands:
-		sudo -i
-		monit summary
-1. If you see "Process uaa Connection failed" and "Process credhub not monitored," issue the following command:
-		monit restart uaa
-1. After a few minutes, run `monit summary` again. You should see that the above processes are now running. At this point BOSH should be fully up and running.
+It may take approximately 90 minutes for BOSH to start properly. 
 
-###<a id="start-pks"></a> PKS Control Plane
+To speed up the BOSH startup process:
 
-Start the PKS Control Plane as follows:
-- Using vCenter, power on the PKS VM.
-- Using the BOSH CLI, start the PKS process on the VM (`bosh -d pivotal-container-service-xxx start`).
+1. Obtain the BOSH Director VM Credentials from Ops Manager. For information on how to do this, see [Retrieving Credentials from Your Deployment ](https://docs.pivotal.io/pivotalcf/customizing/credentials.html).
+1. SSH to the BOSH Director VM.
+1. On the BOSH Director VM, run the following commands:
 
-<p class="note"><strong>Note</strong>: Because you stopped the PKS process using BOSH, you must restart it using BOSH.</p>
+    ```
+	sudo -i
+	monit summary
+    ```
+1. If you see messages such as `Process uaa Connection failed` and `Process credhub not monitored`, then run the following command:
 
-###<a id="start-harbor"></a> Harbor Registry
+    ```
+	monit restart uaa
+	```
+1. After a few minutes, run the following command again:
 
-Start Harbor Registry as follows:
-- Using vCenter, power on the Harbor VM.
-- Using the BOSH CLI, start the Harbor process on the VM (`bosh -d harbor-container-registry-xxx start`).
+    ```
+    monit summary
+    ```
+    You should see that the `uaa` and `credhub` processes are now running. At this point, the BOSH Director should be fully up and running.
 
-###<a id="start-k8s"></a> Kubernetes Clusters
+###<a id="start-pks"></a>Step 6: Start the PKS Control Plane
 
-For each Kubernetes cluster that you intend to startup, start the Kubernetes nodes in the following sequence:
+To start the PKS control plane, do the following: 
 
-- Using the BOSH CLL, ssh to the first master node and start etcd.
-- Using the BOSH CLI, start the next master node.
-- Using the BOSH CLI, start all remaining master nodes (including the master where you started etcd).
-- Using the BOSH CLI, start all worker nodes.
+1. Using vCenter, power on the PKS control plane VM. 
+1. Using the BOSH CLI, start the PKS process on the VM by running the following command.
 
-Refer to the following the procedure for the exact Kubernetes node startup instructions: <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
 
-###<a id="start-apps"></a> Customer Apps
+    ```
+    bosh -d pivotal-container-service-DEPLOYMENT-ID start 
+    ```
+
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of the PKS deployment. For example:
+
+    <pre class="terminal">
+    $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 start</pre>
+
+     <p class="note"><strong>Note</strong>: Because you stopped the PKS process using BOSH, you must restart it using BOSH.</p>
+
+###<a id="start-harbor"></a> Step 7: Start Harbor Registry
+
+To start Harbor Registry, do the following:
+
+1. Using vCenter, power on the Harbor VM.
+1. Using the BOSH CLI, start the Harbor process on the VM by running the following:
+
+
+    ```
+    bosh -d harbor-container-registry-DEPLOYMENT-ID start 
+    ```
+
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your Harbor Registry deployment. For example:
+
+    <pre class="terminal">
+    $ bosh -d harbor-container-registry-b4023f6857207b237399 start</pre>
+
+###<a id="start-k8s"></a> Step 8: Start the Kubernetes Clusters
+
+For each Kubernetes cluster that you intend to start up, start the Kubernetes nodes in the following order:
+
+1. Using the BOSH CLL, run `ssh` to access the first PKS master node and start etcd.
+1. Using the BOSH CLI, start the next PKS master node.
+1. Using the BOSH CLI, start all remaining PKS master nodes including the master where you started etcd.
+1. Using the BOSH CLI, start all PKS worker nodes.
+
+For exact Kubernetes node startup instructions, refer to the following knowledgebase article: 
+
+- <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
+
+###<a id="start-apps"></a> Step 9: Start Customer Apps
 
 Start all apps running on the PKS-provisioned Kubernetes clusters.
