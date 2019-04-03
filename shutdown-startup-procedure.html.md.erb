@@ -6,47 +6,102 @@ iaas: vsphere-nsxt
 
 <strong><%= modified_date %></strong>
 
-This topic lists and describes the shutdown and startup sequence for PKS-provisioned Kubernetes cluster nodes, PKS Control Plane components, and vShphere IaaS hosts.
+This topic lists and describes the shutdown and startup sequence for PKS-provisioned Kubernetes cluster nodes, PKS control plane components, and vSphere hosts.
 
 ##<a id="shutdown"></a> Shutdown Sequence and Tasks
 
-To perform a graceful shutdown of all Kubernetes, PKS, and infrastructure components, complete the following tasks in the sequence presented .
+To perform a graceful shutdown of all Kubernetes, PKS, and infrastructure components, complete the following tasks in sequence.
 
 ###<a id="shutdown-apps"></a> Customer Apps
 
-Shutdown all applications running on PKS-provisioned Kubernetes clusters.
+Shut down all customer apps running on PKS-provisioned Kubernetes clusters.
 
-<p class="note"><strong>Note</strong>: This task is optional to be performed at your discretion with consideration given to the types of apps you have deployed (stateful, stateless, legacy, etc.).</p>
+<p class="note"><strong>Note</strong>: This task is optional. Perform it after considering the types of apps you have deployed. For example, stateful, stateless, or legacy apps.</p>
 
 ###<a id="shutdown-k8s"></a> Kubernetes Clusters
 
-Shutdown all PKS-provisioned Kubernetes clusters following the procedure defined in this Pivotal KB article: <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
+Shut down all PKS-provisioned Kubernetes clusters following the procedure defined in this Pivotal KB article: 
+<a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master PKS cluster</a>.
 
-For each Kubernetes cluster that you intend to shutdown, follow this procedure:
+For each Kubernetes cluster that you intend to shut down, do the following:
 
-- Using the BOSH CLI, stop the Kubernetes worker nodes (`bosh -d service-instance_xxxxxxxxx stop worker`).
-- Using the BOSH CLI, stop the Kubernetes master nodes (`bosh -d service-instance_xxxxxxxxxx stop master`).
+1. Using the BOSH CLI, retrieve the BOSH deployment name of your PKS clusters by running the following command.
+    
+    ```
+    bosh deployments
+    ```
+     
+    Kubernetes cluster deployment names begin with service-instance_ and include a unique BOSH-generated hash.
 
-<p class="note"><strong>Note</strong>: When you use the BOSH `stop` command, all processes on the Kubernetes node will be stopped, and BOSH will mark them as stopped so when the VM is powered back on, the processes will not start automatically.</p>
+1. Using the BOSH CLI, stop the Kubernetes worker nodes by running the following command. 
 
-- Using vCenter, shutdown all Kubernetes node VMs. 
-	- Verify the node type by checking the "job" name in the the **Custom Attributes** pane.
-	- Perform a graceful shutdown by right-clicking the target VM and selecting **Power** > **Shut Down Guest OS**. 
+    ```
+    bosh -d service-instance_CLUSTER-UUID stop worker
+    ```
 
-<img src="images/nsxt/shutdown/shutdown-k8s-nodes.png" alt="Shutdown Kubernetes Nodes">
+    Where `CLUSTER-UUID` is the BOSH deployment name of your PKS cluster. For example:
+
+    <pre class="terminal">
+    $ bosh -d service-instance_aa1234567bc8de9f0a1c stop worker</pre>
+
+    <p class="note"><strong>Note</strong>: When you use the BOSH <code>stop</code> command, all processes 
+    on the Kubernetes node are stopped. BOSH marks them stopped so that when the VM is powered 
+    back on, the processes do not start automatically.</p>
+
+1. Using the BOSH CLI, stop the Kubernetes master nodes by running the following command. 
+
+    ```
+    bosh -d service-instance_CLUSTER-UUID stop master
+    ```
+
+    Where `CLUSTER-UUID` is the BOSH deployment name of your PKS cluster. For example:
+
+    <pre class="terminal">
+    $ bosh -d service-instance_aa1234567bc8de9f0a1c stop worker</pre>
+
+1. Using vCenter, shut down all Kubernetes node VMs. To do this, perform the following steps:
+	1. Verify the node type by checking the "job" name in the the **Custom Attributes** pane.
+	1. Perform a graceful shutdown by right-clicking the target VM and selecting **Power** > **Shut Down Guest OS**. 
+
+    <img src="images/nsxt/shutdown/shutdown-k8s-nodes.png" alt="Shutdown Kubernetes Nodes">
+
+    [View a larger version of this image.](images/nsxt/shutdown/shutdown-k8s-nodes.png)
 
 ###<a id="shutdown-pks"></a> PKS Control Plane
 
-Shutdown the PKS Control Plane VM as follows:
-- Using the BOSH CLI, stop the PKS Control Plane VM (`bosh -d pivotal-container-service-xxx stop`).
-- Using vCenter, locate and gracefully shutdown the PKS Control Plane VM.
+To shut down the PKS control plane VM, do the following:
 
-<img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shutdown PKS Control Plane VM">
+1. Using the BOSH CLI, retrieve the BOSH deployment ID of your PKS deployment by running the following command.
+
+    ```
+    bosh deployments
+    ```
+    PKS deployment names begin with `pivotal-container-service` and include a unique BOSH-generated hash.
+
+1. Using the BOSH CLI, stop the PKS control plane VM by running the following command. 
+
+    ```
+    bosh -d pivotal-container-service-DEPLOYMENT-ID stop 
+    ```
+
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your PKS deployment. For example:
+
+    <pre class="terminal">
+    $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 stop</pre>
+
+1. Using vCenter, locate and gracefully shut down the PKS control plane VM.
+
+   <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shutdown PKS Control Plane VM">
+
+   [View a larger version of this image.](images/nsxt/shutdown/shutdown-pks.png)
 
 ###<a id="shutdown-harbor"></a> Harbor Registry
 
-Shutdown the Harbor Registry VM as follows:
-- Using the BOSH CLI, stop the Harbor VM (`bosh -d harbor-container-registry-xxx stop`).
+To shut down the Harbor Registry VM, do the following:
+
+1. Using the BOSH CLI, stop the Harbor VM by running the following command. 
+
+(`bosh -d harbor-container-registry-xxx stop`).
 - Using vCenter, locate and gracefully shutdown the Harbor VM.
 
 <img src="images/nsxt/shutdown/shutdown-harbor.png" alt="Shutdown Harbor VM">
