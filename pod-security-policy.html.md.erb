@@ -1,0 +1,254 @@
+---
+title: Enabling and Configuring Pod Security Policies
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to enable and use Pod Security Policies in <%= vars.product_full %>.
+
+##<a id='psp-about'></a> About Pod Security Policies
+
+A Pod Security Policy (PSP) is a Kubernetes object that controls the security of pods, such as who can deploy them and who can access them. PSPs only apply when the pod is created. If a pod does not meet the conditions specified in the PSP, Kubernetes will not allow the pod to be created.
+
+For more information, refer to [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) in the Kubernetes documentation.
+
+##<a id='psp-roles'></a> Roles and Roles Bindings for Pod Security Policies
+
+A PSP is assigned to a role, which is then assigned to a role binding. A role binding can be assigned to a Kubernetes cluster or to one or more individual namesapces. The diagram below depicts the relationship between these objects in Kuberentes.
+
+  <img src="images/psp-roles.png" alt="PSPs, Role Bindings, and Roles" width="425">
+
+A PSP defines what a pod can do. A role defines what a user can do. The role binding connects the two.
+
+Typically a clusters administrator creates a PSP, a role, and a role binding. The administrator then applies the PSP to a cluster or a namespace, and binds users to the role. 
+
+For more information about roles and role bindings, refer to [Using RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/) in the Kubernetes documentation.
+
+##<a id='psp-default'></a> Default Pod Security Policies
+
+<%= vars.product_short %> ships with two default PSPs: PKS Privileged and PKS Restricted.
+
+PSP             | Description
+----------------|------------
+PKS Privileged  | Allows privileged access to pod containers, which allows the container to do almost everything a host can do. See [Privileged](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privileged) in the Kubernets PSP documentation for more information. 
+PKS Restricted  | Restricts privileged access to pod containers. 
+
+By default, when PSPs are enabled for the plan, the cluster administrator is assigned to the PKS PRIVILEGED PSP. The cluster administrator is able to deploy pods. However, other users will not be able to deploy pods unless the cluster administrator creates and applies a PSP for such users. The PKS RESTRICTED PSP is shipped as an example for this purpose.
+
+  <img src="images/psp-default.png" alt="Default PSPs with PKS" width="425">
+
+##<a id='psp-enable'></a> Enabling Pod Security Policies
+
+Enabling PSPs is done during configuration of <%= vars.product_short %> in the Plan section of the tile configuration.
+
+  <img src="images/psp-enable.png" alt="Enabling Pod Security Policy" width="425">
+
+This admission controller acts on creation and modification of the pod and determines if it should be admitted based on the requested security context and the available Pod Security Policies.
+
+For new <%= vars.product_short %> installations, PSPs are enabled by default. This means that the cluster administrator will be able to deploy pods, but developers will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods.
+
+On upgrade, existing plans will not have PSP enabled. In this case, the individual who configures the PKS tile will need to check the box to enable PSPs. If PSPs are enabled for a plan that is in use, and the cluster is upgraded (that is, the "Upgrade all clusters errand" is enabled), the cluster administrator will need to create the appropropriate PSP, role and role binding for developers to use the cluster. 
+
+For example, consider a scenario with the following roles: 
+- Platform Operator (Op) who configures and deploys <%= vars.product_short %>.
+- Cluster Administrator (Admin) who uses the PKS CLI to create Kubernets clusters
+- Developer (Dev) who uses kubectl deploy workloads to the cluster.
+
+If Op upgrades <%= vars.product_short %> and enables PSPs for all active plans, Admin and Dev will need at least 1 PSP and role binding to execute pods. Admin will be able to execute pods automatically because <%= vars.product_short %> binds the privileged PSP to the role where Admin is a member. Thus, Admin will be able to log in to the cluster and deploy a pod. However, Dev will not until Admin creates the necessary PSP and role binding. So, for new deployments, Admin will have to create bindings if default settings are used for Dev to use the cluster as she or he expects.
+
+Enabling PSP is a securty feature. The design goal is to make cluster more secure. 
+
+##<a id='psp-view'></a> Viewing PSPs
+
+This section lists common kubectl commands for viewing a PSP.
+
+To view PSPs:
+
+```
+kubectl get psp
+```
+
+To view the details of a particular PSP:
+
+```
+kubectl describe psp <psp-name>
+```
+
+For example:
+
+```
+kubectl describe psp pks-privileged
+Name:  pks-privileged
+
+Settings:
+  Allow Privileged:                       true
+  Allow Privilege Escalation:             true
+  Default Add Capabilities:               <none>
+  Required Drop Capabilities:             <none>
+  Allowed Capabilities:                   *
+  Allowed Volume Types:                   awsElasticBlockStore,azureDisk,azureFile,cephFS,configMap,csi,downwardAPI,emptyDir,fc,flexVolume,flocker,gcePersistentDisk,glusterfs,iscsi,nfs,persistentVolumeClaim,projected,portworxVolume,quobyte,rbd,scaleIO,secret,storageos,vsphereVolume
+  Allow Host Network:                     true
+  Allow Host Ports:                       0-65535
+  Allow Host PID:                         true
+  Allow Host IPC:                         true
+  Read Only Root Filesystem:              false
+  SELinux Context Strategy: RunAsAny
+    User:                                 <none>
+    Role:                                 <none>
+    Type:                                 <none>
+    Level:                                <none>
+  Run As User Strategy: RunAsAny
+    Ranges:                               <none>
+  FSGroup Strategy: RunAsAny
+    Ranges:                               <none>
+  Supplemental Groups Strategy: RunAsAny
+    Ranges:                               <none>
+```
+
+```
+kubectl describe psp pks-restricted
+Name:  pks-restricted
+
+Settings:
+  Allow Privileged:                        false
+  Allow Privilege Escalation:              false
+  Default Add Capabilities:                <none>
+  Required Drop Capabilities:              ALL
+  Allowed Capabilities:                    <none>
+  Allowed Volume Types:                    configMap,emptyDir,projected,secret,downwardAPI,persistentVolumeClaim
+  Allow Host Network:                      false
+  Allow Host Ports:                        <none>
+  Allow Host PID:                          false
+  Allow Host IPC:                          false
+  Read Only Root Filesystem:               false
+  SELinux Context Strategy: RunAsAny
+    User:                                  <none>
+    Role:                                  <none>
+    Type:                                  <none>
+    Level:                                 <none>
+  Run As User Strategy: MustRunAsNonRoot
+    Ranges:                                <none>
+  FSGroup Strategy: MustRunAs
+    Ranges:                                1-65535
+  Supplemental Groups Strategy: MustRunAs
+    Ranges:                                1-65535
+```
+
+##<a id='psp-config'></a> Configuring the Restricted PSP for Developers to Use
+
+This section describes how to define and configure a pod security policy for developers to use to access a PKS provisioned cluster.
+
+If you want to onboard cluster users (developers), the best practice is to start with the pks-resricted PSP and customize it further for your needs. 
+
+At a high-level, the steps for configuring a restricted pod security policy and binding a developer to it are as follows:
+
+1. Define the PSP.
+1. Create a role.
+1. Create a role binding to the PSP.
+
+If you want to create your own PSP, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example).
+
+<p class="note"><strong>Note</strong>: The default PSPs will be updated and overwritten on upgrade. You should not edit the default PSPs.</p>
+
+###<a id='psp-define'></a> Step 1: Define the PSP
+
+In this case the PSP is already defined for you: the pks-restricted PSP is sufficient for general development work in Kubernetes.
+
+To view the pks-restricted PSP, run the folowing command:
+
+```
+kubectl get psp pks-restricted -o yaml
+```
+
+Here is the pks-restricted PSP:
+
+```
+apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: runtime/default
+    apparmor.security.beta.kubernetes.io/defaultProfileName: runtime/default
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"policy/v1beta1","kind":"PodSecurityPolicy","metadata":{"annotations":{"apparmor.security.beta.kubernetes.io/allowedProfileNames":"runtime/default","apparmor.security.beta.kubernetes.io/defaultProfileName":"runtime/default","seccomp.security.alpha.kubernetes.io/allowedProfileNames":"docker/default","seccomp.security.alpha.kubernetes.io/defaultProfileName":"docker/default"},"name":"pks-restricted"},"spec":{"allowPrivilegeEscalation":false,"fsGroup":{"ranges":[{"max":65535,"min":1}],"rule":"MustRunAs"},"hostIPC":false,"hostNetwork":false,"hostPID":false,"privileged":false,"readOnlyRootFilesystem":false,"requiredDropCapabilities":["ALL"],"runAsUser":{"rule":"MustRunAsNonRoot"},"seLinux":{"rule":"RunAsAny"},"supplementalGroups":{"ranges":[{"max":65535,"min":1}],"rule":"MustRunAs"},"volumes":["configMap","emptyDir","projected","secret","downwardAPI","persistentVolumeClaim"]}}
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default
+    seccomp.security.alpha.kubernetes.io/defaultProfileName: docker/default
+  creationTimestamp: 2019-03-28T02:33:07Z
+  name: pks-restricted
+  resourceVersion: "261"
+  selfLink: /apis/extensions/v1beta1/podsecuritypolicies/pks-restricted
+  uid: d25bb0eb-5101-11e9-abc1-0a834658b12e
+spec:
+  allowPrivilegeEscalation: false
+  fsGroup:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  requiredDropCapabilities:
+  - ALL
+  runAsUser:
+    rule: MustRunAsNonRoot
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  volumes:
+  - configMap
+  - emptyDir
+  - projected
+  - secret
+  - downwardAPI
+  - persistentVolumeClaim
+```
+
+###<a id='psp-define'></a> Step 2: Create the Role
+
+Here is an example role that binds to the pks-restricted PSP, which is the PSS we are giving access to.
+
+```
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: psp:restricted
+rules:
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - pks-restricted # the psp we are giving access to
+  verbs:
+  - use
+```
+
+###<a id='psp-define'></a> Step 3: Create the RoleBinding
+
+Here is an example role that binds to the pks-restricted PSP, which is the PSS we are giving access to.
+
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: psp:kube-system-psp-extended
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: psp:kube-system-psp
+subjects:
+  - kind: ServiceAccount
+    name: kube-dns
+  - kind: ServiceAccount
+    name: heapster
+  - kind: ServiceAccount
+    name: influxdb
+```
+
+##<a id='psp-custom'></a> Configuring Your Own PSP 
+
+To create your own PSP and authorize users with RBAC, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example).
