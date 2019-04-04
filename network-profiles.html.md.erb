@@ -7,6 +7,7 @@ owner: PKS
 
 This topic describes how to use network profiles for Kubernetes clusters
 provisioned with <%= vars.product_full %> on vSphere with NSX-T integration.
+
 Network profiles let you customize NSX-T configuration parameters.
 
 ## <a id='assign-profile'></a> Assign a Network Profile to a Cluster
@@ -23,7 +24,8 @@ For instructions on how to create network profiles, see [Create a Network Profil
 For instructions on how to create a Kubernetes cluster with a network profile,
 see [Create a Cluster with a Network Profile](#create-cluster).
 
-<p class="note"><strong>Note:</strong> Only <%= vars.product_short %> cluster administrators can create and delete network profiles.
+<p class="note"><strong>Note:</strong> Only <%= vars.product_short %> cluster administrators 
+can create and delete network profiles.
 Cluster managers can list existing network profiles and assign them to clusters.</p>
 
 ### <a name="create-cluster"></a> Create a Cluster with a Network Profile
@@ -111,33 +113,46 @@ the following error occurs:
 You do not have enough privileges to perform this action. Please contact the PKS administrator.
 ```
 
-### <a id="update-profile"></a> Update a Network Profile
+### <a id="update-profile"></a> Change the Network Profile for a Cluster
+ 
+PKS supports changing the network profile for an already created cluster. 
 
-PKS supports limited updates to an existing network profile that has been applied to create a cluster. Currently you can update the `pod_ip_block_ids` field as follows:
+To change the network profile, you create a new network profile and then apply it to the existing cluster.
+
+Currently you only can change the `pod_ip_block_ids` field as follows:
+
 - Reorder the IP Block IDs in the array
 - Add more IP Block IDs in the array
 
-See [Network Profile Parameters](./network-profiles-define.html#params) for more information on the `pod_ip_block_ids` field, and [Network Profile Use Cases](./network-profiles-define.html#use-cases) for more information on the supported use cases for the `pod_ip_block_ids` field.
+For more information on the `pod_ip_block_ids` field, see [Network Profile Parameters](./network-profiles-define.html#params). 
+For more information on the supported use cases for the `pod_ip_block_ids` field, see [Network Profile Use Cases](./network-profiles-define.html#use-cases).
 
-To update the `pod_ip_block_ids` field in an existing network profile, complete the following procedure:
+To update the `pod_ip_block_ids` network profile field for a cluster, do the following:
 
-1. Define a new network profile. In the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs. See [Defining Network Profiles](./network-profiles-define.html) for more information on defining the network profile JSON file.
+1. Define a new network profile. In the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.
+For more information on defining the network profile JSON file, see [Defining Network Profiles](./network-profiles-define.html).
 
-<p class="note"><strong>Note:</strong> If possible, start with the exact contents of the original network profile and update the `pod_ip_block_ids` field, as well as the `name` field. If it is not possible to obtain the original network profile, create a new network profile with a unique `name` and the original values in the `pod_ip_block_ids` field, then reorder or add IPs as desired.</p>
+    <p class="note"><strong>Note:</strong> If possible, start with the exact contents of the original network profile and update the <code>pod_ip_block_ids</code> field, as well as the <code>name</code> field. If it is not possible to obtain the original network profile, create a new network profile with a unique <code>name</code> and the original values in the <code>pod_ip_block_ids</code> field. Then reorder or add IPs as desired.</p>
 
-1. Create a new network profile as described in the [Create a Network Profile)[./network-profiles.html#create-profile] section. 
+1. Create a new network profile as described in the [Create a Network Profile](./network-profiles.html#create-profile) section. 
 
-<p class="note"><strong>Note:</strong> The name you specify for the new network profile must be unique, otherwise you will receive an error when you try to create it.</p>
+    <p class="note"><strong>Note:</strong> The name you specify for the new network profile must be unique and differ from the previously assigned network profile. Otherwise, you receive an error when you try to create the network profile.</p>
 
 1. Run the following command to update the cluster with the new network profile:
 
-```
-pks update-cluster CLUSTER-NAME --network-profile NEW-NETWORK-PROFILE-NAME
-```
+    ```
+    pks update-cluster CLUSTER-NAME --network-profile NEW-NETWORK-PROFILE-NAME
+    ```
 
-Where `CLUSTER-NAME` is the name of the existing Kubernetes cluster and `NEW-NETWORK-PROFILE-NAME` is the name of the new network profile you want to update the cluster with.
+    Where: 
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
+    * `NEW-NETWORK-PROFILE-NAME` is the name of the new network profile you want to apply to the cluster.
 
-<p class="note"><strong>Note:</strong> There are strict validation rules for the `update-cluster --network-profile` command:
-- If a field in the original network profile is empty, the system ignores this field if it is included in the new network profile. 
-- If the existing `pod_ip_block_ids` field contains the same entries as the new network profile, the `update-cluster --network-profile` operation will pass validation. 
-- If a field in the existing network profile conflicts with a field in the new network profile, the system will report the conflict and fail the validation.</p>
+#### <a id="network-profile-validation"></a> Network Profile Update Validation
+
+There are strict validation rules for the `pks update-cluster --network-profile` command:
+
+- If a field in the original network profile is empty, the system ignores the empty field even if the field is included in the new network profile. 
+- If the existing `pod_ip_block_ids` field contains the same entries as the new network profile, the `update-cluster --network-profile` operation passes validation. 
+- If a field in the existing network profile conflicts with a field in the new network profile, the system reports the conflict and fails the validation.
+- If the field is empty in the new network profile, then the system ignores the field even if the field is not empty in the original network profile.
