@@ -28,7 +28,7 @@ logs and metrics. You can create the following types of sink resources:
   </tr>
   <tr>
     <td><code>Sink</code></td>
-    <td>Sends logs from a specified namespace to a log destination. Logs are transported following the Syslog Protocol defined in <a href="https://tools.ietf.org/html/rfc5424">RFC 5424</a>.</td>
+    <td>Sends logs from a specified namespace within a cluster to a log destination. Logs are transported following the Syslog Protocol defined in <a href="https://tools.ietf.org/html/rfc5424">RFC 5424</a>.</td>
   </tr>
   <tr>
     <td><code>ClusterMetricSink</code></td>
@@ -38,7 +38,7 @@ logs and metrics. You can create the following types of sink resources:
 
 ## <a id='prerequisites'></a>Prerequisites
 
-Before creating a sink resource, do the following: 
+Before creating a sink resource, do the following:
 
 * If you want to create a `ClusterSink` or `Sink` resource, ensure that the **Enable Log Sink Resources** checkbox is selected in the <%= vars.product_tile %> tile.
 * If you want to create a `ClusterMetricSink` resource, ensure that the **Enable Metric Sink Resources** checkbox is selected in the <%= vars.product_tile %> tile.
@@ -66,12 +66,14 @@ and <a href="installing-pks-cli.html">Installing the PKS CLI</a>.
 You can create sinks for clusters and namespaces. 
 A namespace sink filters logs by namespace within a cluster.
 
-* If you want to create a cluster sink, see
-[ClusterSink Resource](#define-cluster-sink).
-* If you want to create a namespace sink, see
-[Sink Resource](#define-namespace-sink).
+* If you want to create a `ClusterSink`, see
+[ClusterSink Resources](#define-cluster-sink).
+* If you want to create a `Sink`, see
+[Sink Resources](#define-namespace-sink).
+** If you want to create a `ClusterMetricSink`, see
+[ClusterMetricSink Resources](#define-metric-sink).
 
-<p class="note"><strong>Note</strong>: Sinks created in <%= vars.product_short %> only support TCP connections. 
+<p class="note"><strong>Note</strong>: Log sinks created in <%= vars.product_short %> support only TCP connections. 
 UDP connections are not currently supported.</p>
 
 ### <a id='define-cluster-sink'></a>ClusterSink Resources
@@ -241,6 +243,60 @@ To define a `Sink` resource with YAML and `kubectl`, perform the following steps
   <pre class='terminal'>
   $ kubectl apply -f my-namespace-sink.yml
   </pre>
+
+### <a id='define-metric-sink'></a> ClusterMetricSink Resources
+
+By default, a `ClusterMetricSink` resource collects metrics from a cluster using the [Kubernetes Input Plugin]
+(https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kubernetes) and writes them to specified outputs.
+For a list of supported metrics and output plugins,
+see [Metrics](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kubernetes#metrics)
+and [Output Plugins](https://github.com/influxdata/telegraf#output-plugins) in the telegraf GitHub repository.
+
+Currently, you can use only `kubectl` to create and manage cluster metric sinks.
+
+#### <a id='sink-kubectl'></a> Create a ClusterMetricSink Resource with YAML and kubectl
+
+To define a `ClusterMetricSink` resource with YAML and `kubectl`, perform the following steps:
+
+1. Create a YAML file in the following format:
+
+    ```
+    apiVersion: apps.pivotal.io/v1beta1
+    kind: ClusterMetricSink
+    metadata:
+      name: YOUR-SINK
+    spec:
+      inputs:
+      outputs:
+      - type: YOUR-OUTPUT-PLUGIN
+    ```
+  Where:
+    * `YOUR-SINK` is a name you choose for your sink.
+    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use.
+  <p class="note"><strong>Note:</strong> You must leave the <code>inputs</code> field blank. By de</p>
+
+    For example:
+
+    ```
+    apiVersion: apps.pivotal.io/v1beta1
+    kind: ClusterMetricSink
+    metadata:
+      name: kubernetes-datadog
+    spec:
+      inputs:
+      outputs:
+      - type: datadog
+        apikey: 123456example
+    ```
+
+1. Save the YAML file.
+
+1. Apply the `ClusterMetricSink` resource to your cluster by running the following command:
+
+    ```
+    kubectl apply -f MY-SINK.yml
+    ```
+   Where `MY-SINK.yml` is the name of your YAML file.
 
 ## <a id='list-sinks'></a> List Sinks
 
