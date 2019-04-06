@@ -7,27 +7,23 @@ owner: PKS
 
 This topic describes how to enable and use Pod Security Policies in <%= vars.product_full %>.
 
-<p class="note"><strong>Note</strong>: When pod security policies (PSP) are enabled for a plan, a cluster administrator will need to define policy, role, and role binding that gives developers permission to deploy pods to the cluster. See [Configuring the Restricted PSP for Developers to Use](#psp-config).
+<p class="note"><strong>Note</strong>: When the **PodSecurityPolicy** option is enabled for a Kubernetes cluster plan, a cluster administrator must define the policy, role, and role binding that gives cluster users (developers) permission to deploy pods to the cluster. See [Configuring the Restricted PSP for Developers to Use](#psp-config).
 
 ##<a id='psp-about'></a> About Pod Security Policies
 
-A Pod Security Policy (PSP) is a Kubernetes object that controls the security of pods, such as who can deploy them and who can access them. PSPs only apply when the pod is created. If a pod does not meet the conditions specified in the PSP, Kubernetes will not allow the pod to be created.
+In Kubernetes, a Pod Security Policy (PSP) is a cluster-level resource that controls security sensitive aspects of the pod specification. **PodSecurityPolicy** objects define a set of conditions that a pod must run with in order to be accepted into the system, as well as defaults for related fields. For more information, see [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) in the Kubernetes documentation.
 
-For more information, refer to [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) in the Kubernetes documentation.
+There are various ways to authorize the use of policies in Kubernetes. One common approach is the use of role based access control (RBAC) objects: roles and role bindings. 
 
-##<a id='psp-roles'></a> Roles and Roles Bindings for Pod Security Policies
+A role contains rules that represent a set of permissions. A role can be defined within a namespace with a **Role**, or cluster-wide with a **ClusterRole**. For more information, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) in the Kubenetes documentation. 
 
-A PSP is assigned to a role, which is then assigned to a role binding. A role binding can be assigned to a Kubernetes cluster or to one or more individual namesapces. The diagram below depicts the relationship between these objects in Kuberentes.
+A role binding grants the permissions defined in a role to a user or set of users. A role binding holds a list of subjects (users, groups, or service accounts), and a reference to the role being granted. Permissions can be granted within a namespace with a **RoleBinding**, or cluster-wide with a **ClusterRoleBinding**. For more information, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubenetes documentation.
+
+The diagram below illustrates the relationship between PSPs, roles, and role bindings in Kubernetes.
 
   <img src="images/psp-roles.png" alt="PSPs, Role Bindings, and Roles" width="425">
 
-A PSP defines what a pod can do. A role defines what a user can do. The role binding connects the two.
-
-Typically a clusters administrator creates a PSP, a role, and a role binding. The administrator then applies the PSP to a cluster or a namespace, and binds users to the role. 
-
-For more information about roles and role bindings, refer to [Using RBAC Authorization](https://kubernetes.io/docs/reference/access-authn-authz/rbac/) in the Kubernetes documentation.
-
-##<a id='psp-default'></a> Default Pod Security Policies
+##<a id='psp-default'></a> Default Pod Security Policies in PKS
 
 <%= vars.product_short %> ships with two default PSPs: PKS Privileged and PKS Restricted.
 
@@ -36,39 +32,181 @@ PSP             | Description
 PKS Privileged  | Allows privileged access to pod containers, which allows the container to do almost everything a host can do. See [Privileged](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privileged) in the Kubernets PSP documentation for more information. 
 PKS Restricted  | Restricts privileged access to pod containers. 
 
-By default, when PSPs are enabled for the plan, the cluster administrator is assigned to the PKS PRIVILEGED PSP. The cluster administrator is able to deploy pods. However, other users will not be able to deploy pods unless the cluster administrator creates and applies a PSP for such users. The PKS RESTRICTED PSP is shipped as an example for this purpose.
+By default, when PSPs are enabled for a plan, the cluster administrator is assigned to bound to the the PKS Privileged PSP. This policy grant gives the cluster administrator permission to deploy pods. Other users will not be able to deploy pods unless the cluster administrator creates and binds a PSP for such users. The PKS Restricted PSP is example for such purposes.
 
   <img src="images/psp-default.png" alt="Default PSPs with PKS" width="425">
 
-##<a id='psp-enable'></a> Enabling Pod Security Policies
+<p class="note"><strong>Note</strong>: The default PSPs will be updated and overwritten on upgrade. You should not edit the default PSPs.</p>
 
-Enabling PSPs is done during configuration of <%= vars.product_short %> in the Plan section of the tile configuration.
+##<a id='psp-enable'></a> Enabling Pod Security Policies in PKS
+
+Enabling PSPs is done during configuration of <%= vars.product_short %> in the Plan section of the tile configuration. Refer to the PKS tile configuration documentation for your IaaS for details.
 
   <img src="images/psp-enable.png" alt="Enabling Pod Security Policy" width="425">
 
-This admission controller acts on creation and modification of the pod and determines if it should be admitted based on the requested security context and the available Pod Security Policies.
+A Kubernetes cluster created from a plan with the **PodSecurilyPolicy** option enabled will require cluster users to have bound role permissions to deploy pods. Enabling PSP is a securty feature. The design goal is to make the Kubernetes cluster more secure. Once enabled, **PodSecurilyPolicy** acts on creation and modification of pods in that cluster, and determines the action should be admitted based on the requested security context and the available Pod Security Policies.
 
-For new <%= vars.product_short %> installations, PSPs are enabled by default. This means that the cluster administrator will be able to deploy pods, but developers will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods.
+###<a id='psp-enable-new-installs'></a> PSPs Are Enabled by Default for New Installations of PKS
 
-On upgrade, existing plans will not have PSP enabled. In this case, the individual who configures the PKS tile will need to check the box to enable PSPs. If PSPs are enabled for a plan that is in use, and the cluster is upgraded (that is, the "Upgrade all clusters errand" is enabled), the cluster administrator will need to create the appropropriate PSP, role and role binding for developers to use the cluster. 
+For new <%= vars.product_short %> installations, the **PodSecurilyPolicy** option is enabled by default. This means that the cluster administrator will be able to deploy pods, but developers will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods.
 
-For example, consider a scenario with the following roles: 
-- Platform Operator (Op) who configures and deploys <%= vars.product_short %>.
-- Cluster Administrator (Admin) who uses the PKS CLI to create Kubernets clusters
-- Developer (Dev) who uses kubectl deploy workloads to the cluster.
+###<a id='psp-enable-new-installs'></a> PSPs Must Be Enabled for Upgrades of PKS
 
-If Op upgrades <%= vars.product_short %> and enables PSPs for all active plans, Admin and Dev will need at least 1 PSP and role binding to execute pods. Admin will be able to execute pods automatically because <%= vars.product_short %> binds the privileged PSP to the role where Admin is a member. Thus, Admin will be able to log in to the cluster and deploy a pod. However, Dev will not until Admin creates the necessary PSP and role binding. So, for new deployments, Admin will have to create bindings if default settings are used for Dev to use the cluster as she or he expects.
+On upgrade <%= vars.product_short %>, existing plans will not have the **PodSecurilyPolicy** option enabled. If the option is enabled for a plan that is in use, and the cluster is upgraded (that is, the "Upgrade all clusters errand" is enabled), the cluster administrator will need to create the appropropriate PSP, role and role binding for developers to use the cluster. 
 
-Enabling PSP is a securty feature. The design goal is to make cluster more secure. 
+##<a id='psp-config'></a> Configuring PSP for Developers to Use
 
-##<a id='psp-view'></a> Viewing PSPs
+This section describes how to define and configure a pod security policy for developers to use to access a PKS provisioned cluster that has enabled PSPs.
 
-This section lists common kubectl commands for viewing a PSP.
+At a high-level, the steps for configuring a PSP with appropriate RBAC controls are as follows:
 
-To view PSPs:
+1. Define the PSP.
+1. Create a role.
+1. Create a role binding.
+
+###<a id='psp-define'></a> Step 1: Define the PSP
+
+We provide the PSP named `pks-restricted` for general development work in Kubernetes. To onboard cluster users (developers), the best practice is to start with the `pks-resricted` PSP. 
+
+To view the `pks-restricted` PSP, run the folowing command:
+
+```
+kubectl get psp pks-restricted -o yaml
+```
+
+```
+apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: runtime/default
+    apparmor.security.beta.kubernetes.io/defaultProfileName: runtime/default
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"policy/v1beta1","kind":"PodSecurityPolicy","metadata":{"annotations":{"apparmor.security.beta.kubernetes.io/allowedProfileNames":"runtime/default","apparmor.security.beta.kubernetes.io/defaultProfileName":"runtime/default","seccomp.security.alpha.kubernetes.io/allowedProfileNames":"docker/default","seccomp.security.alpha.kubernetes.io/defaultProfileName":"docker/default"},"name":"pks-restricted"},"spec":{"allowPrivilegeEscalation":false,"fsGroup":{"ranges":[{"max":65535,"min":1}],"rule":"MustRunAs"},"hostIPC":false,"hostNetwork":false,"hostPID":false,"privileged":false,"readOnlyRootFilesystem":false,"requiredDropCapabilities":["ALL"],"runAsUser":{"rule":"MustRunAsNonRoot"},"seLinux":{"rule":"RunAsAny"},"supplementalGroups":{"ranges":[{"max":65535,"min":1}],"rule":"MustRunAs"},"volumes":["configMap","emptyDir","projected","secret","downwardAPI","persistentVolumeClaim"]}}
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default
+    seccomp.security.alpha.kubernetes.io/defaultProfileName: docker/default
+  creationTimestamp: 2019-03-28T02:33:07Z
+  name: pks-restricted
+  resourceVersion: "261"
+  selfLink: /apis/extensions/v1beta1/podsecuritypolicies/pks-restricted
+  uid: d25bb0eb-5101-11e9-abc1-0a834658b12e
+spec:
+  allowPrivilegeEscalation: false
+  fsGroup:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  requiredDropCapabilities:
+  - ALL
+  runAsUser:
+    rule: MustRunAsNonRoot
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    ranges:
+    - max: 65535
+      min: 1
+    rule: MustRunAs
+  volumes:
+  - configMap
+  - emptyDir
+  - projected
+  - secret
+  - downwardAPI
+  - persistentVolumeClaim
+```
+
+To create your own PSP, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example).
+
+###<a id='psp-define'></a> Step 2: Create the Role
+
+The following **ClusterRole** grants permission to use the `pks-restricted` PSP resource. You can use this role for onboarding cluster users and granting them cluster access. Because this is a **ClusterRole**, the namespace is omitted. 
+
+```
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: psp:restricted 
+rules:
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - pks-restricted # the psp we are giving access to
+  verbs:
+  - use
+```
+
+For additional examples, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) in the Kubernetes documentation.
+
+###<a id='psp-define'></a> Step 3: Create the Role Binding
+
+For onboaring cluster users, you have two options based on the mode of authentication you have chosen for PKS: internal or external. Internal authentication uses a service account mechanism for role binding, such as `SERVICE-UUID-cluster-admin`, for example. External authentication uses the OpenID Connect (OIDC) identity provider to interface with an external system such as LDAP or AD. In this case the role binding references the `user` or `group` name.
+
+Here is an example **ClusterRoleBinding** that binds service account users to the the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP.
+
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: psp:restricted
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole # Must be Role or ClusterRole
+  name: psp:restricted # The name of the ClusterRole to bind to
+subjects:
+  - kind: ServiceAccount
+    name: cluster-user
+```
+
+Here is an example **ClusterRoleBinding** that binds an externally authenticated user named `jane` to the the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP.
+
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: psp:restricted
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole # This must be Role or ClusterRole
+  name: psp:restricted # The name of the ClusterRole to bind to
+subjects:
+  - kind: User
+    name: jane # Name is case sensitive
+```
+
+Here is an example **ClusterRoleBinding** that binds externally authenticated group members to the the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP.
+
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: psp:restricted
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole # This must be Role or ClusterRole
+  name: psp:restricted # The name of the ClusterRole to bind to
+subjects:
+  - kind: Group
+    name: developers # Name is case sensitive
+```
+
+##<a id='psp-admin'></a> Administering PSPs
+
+This section lists common kubectl commands for administering and managing PSPs and related objects in Kubernetes.
+
+To view the default PSPs:
 
 ```
 kubectl get psp
+```
+
+```
+NAME                PRIV    CAPS   SELINUX    RUNASUSER          FSGROUP     SUPGROUP    READONLYROOTFS   VOLUMES
+pks-privileged      true    *      RunAsAny   RunAsAny           RunAsAny    RunAsAny    false            awsElasticBlockStore,azureDisk,azureFile,cephFS,configMap,csi,downwardAPI,emptyDir,fc,flexVolume,flocker,gcePersistentDisk,glusterfs,iscsi,nfs,persistentVolumeClaim,projected,portworxVolume,quobyte,rbd,scaleIO,secret,storageos,vsphereVolume
+pks-restricted      false          RunAsAny   MustRunAsNonRoot   MustRunAs   MustRunAs   false            configMap,emptyDir,projected,secret,downwardAPI,persistentVolumeClaim
 ```
 
 To view the details of a particular PSP:
@@ -137,228 +275,44 @@ Settings:
     Ranges:                                1-65535
 ```
 
-##<a id='psp-config'></a> Configuring PSP for Developers to Use
-
-This section describes how to define and configure a pod security policy for developers to use to access a PKS provisioned cluster that has enabled PSPs.
-
- 
-
-At a high-level, the steps for configuring a restricted pod security policy and binding a developer to it are as follows:
-
-1. Define the PSP.
-1. Create a role.
-1. Create a role binding.
-
-<p class="note"><strong>Note</strong>: The default PSPs will be updated and overwritten on upgrade. You should not edit the default PSPs.</p>
-
-###<a id='psp-define'></a> Step 1: Define the PSP
-
-We provide a PSP named `pks-restricted` for general development work in Kubernetes. To onboard cluster users (developers), the best practice is to start with the `pks-resricted` PSP. To create your own PSP, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example).
-
-To view the `pks-restricted` PSP, run the folowing command:
+To view the cluster role bindings:
 
 ```
-kubectl get psp pks-restricted -o yaml
+kubectl get clusterrolebindings
 ```
 
-```
-apiVersion: extensions/v1beta1
-kind: PodSecurityPolicy
-metadata:
-  annotations:
-    apparmor.security.beta.kubernetes.io/allowedProfileNames: runtime/default
-    apparmor.security.beta.kubernetes.io/defaultProfileName: runtime/default
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"policy/v1beta1","kind":"PodSecurityPolicy","metadata":{"annotations":{"apparmor.security.beta.kubernetes.io/allowedProfileNames":"runtime/default","apparmor.security.beta.kubernetes.io/defaultProfileName":"runtime/default","seccomp.security.alpha.kubernetes.io/allowedProfileNames":"docker/default","seccomp.security.alpha.kubernetes.io/defaultProfileName":"docker/default"},"name":"pks-restricted"},"spec":{"allowPrivilegeEscalation":false,"fsGroup":{"ranges":[{"max":65535,"min":1}],"rule":"MustRunAs"},"hostIPC":false,"hostNetwork":false,"hostPID":false,"privileged":false,"readOnlyRootFilesystem":false,"requiredDropCapabilities":["ALL"],"runAsUser":{"rule":"MustRunAsNonRoot"},"seLinux":{"rule":"RunAsAny"},"supplementalGroups":{"ranges":[{"max":65535,"min":1}],"rule":"MustRunAs"},"volumes":["configMap","emptyDir","projected","secret","downwardAPI","persistentVolumeClaim"]}}
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default
-    seccomp.security.alpha.kubernetes.io/defaultProfileName: docker/default
-  creationTimestamp: 2019-03-28T02:33:07Z
-  name: pks-restricted
-  resourceVersion: "261"
-  selfLink: /apis/extensions/v1beta1/podsecuritypolicies/pks-restricted
-  uid: d25bb0eb-5101-11e9-abc1-0a834658b12e
-spec:
-  allowPrivilegeEscalation: false
-  fsGroup:
-    ranges:
-    - max: 65535
-      min: 1
-    rule: MustRunAs
-  requiredDropCapabilities:
-  - ALL
-  runAsUser:
-    rule: MustRunAsNonRoot
-  seLinux:
-    rule: RunAsAny
-  supplementalGroups:
-    ranges:
-    - max: 65535
-      min: 1
-    rule: MustRunAs
-  volumes:
-  - configMap
-  - emptyDir
-  - projected
-  - secret
-  - downwardAPI
-  - persistentVolumeClaim
-```
-
-###<a id='psp-define'></a> Step 2: Create the Role
-
-In Kubernetes, a role contains rules that represent a set of permissions. A role can be defined within a namespace with a **Role**, or cluster-wide with a **ClusterRole**. See [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) in the Kubenetes documentation for more information. 
-
-The following **ClusterRole** grants permission to use the `pks-restricted` PSP resource. You can use this role for onboarding cluster users and granting them cluster access.
+In the results, the `UUID-cluster-admin` is a service account.
 
 ```
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: psp:restricted
-rules:
-- apiGroups:
-  - extensions
-  resources:
-  - podsecuritypolicies
-  resourceNames:
-  - pks-restricted # the psp we are giving access to
-  verbs:
-  - use
-```
-
-###<a id='psp-define'></a> Step 3: Create the RoleBinding
-
-A role binding grants the permissions defined in a role to a user or set of users. A role binding holds a list of subjects (users, groups, or service accounts), and a reference to the role being granted. Permissions can be granted within a namespace with a **RoleBinding**, or cluster-wide with a **ClusterRoleBinding**. See [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubenetes documentation for more information.
-
-For onboaring cluster users, You have two options, depending on the mode of authentication you have chosen for PKS: internal or external. Internal authentication uses a service account mechanism for role binding, such as `SERVICE-UUID-cluster-admin`, for example. External authentication uses the OpenID Connect (OIDC) identity provider to interface with an external system such as LDAP or AD. In this case the role binding references the user name. In addition, there are two types of role bindings: standard role bindings and cluster role bindings. Standard role bindings are applied to one or more namespaces; cluster role bindings apply cluster-wide.
-
-Here is an example role that binds to the pks-restricted PSP, which is the PSP we are giving access to.
-
-```
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: psp:kube-system-psp-extended
-  namespace: kube-system
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: psp:kube-system-psp
-subjects:
-  - kind: ServiceAccount
-    name: kube-dns
-  - kind: ServiceAccount
-    name: heapster
-  - kind: ServiceAccount
-    name: influxdb
-```
-
-##<a id='psp-custom'></a> Configuring Your Own PSP 
-
-To create your own PSP and authorize users with RBAC, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example).
-
-
-
-
-----
-
-
-C:\kube>pks login -a apple-acceptance-1846871634.eu-west-1.elb.amazonaws.com -u alanamg -p "P1v0t4l!" -k
-
-API Endpoint: apple-acceptance-1846871634.eu-west-1.elb.amazonaws.com
-User: alanamg
-
-
-C:\kube>pks clusters
-
-Name        Plan Name  UUID                                  Status     Action
-k8s2-apple  Plan-5     486e94bd-fe7a-4220-ba60-78ac191631f1  succeeded  UPDATE
-k8s1-apple  small      c6422a18-2d07-4fee-97f8-ebdeb398104f  succeeded  UPDATE
-
-
-C:\kube>pks get-credentials k8s1-apple
-
-Fetching credentials for cluster k8s1-apple.
-Context set for cluster k8s1-apple.
-
-You can now switch between clusters by using:
-$kubectl config use-context <cluster-name>
-
-C:\kube>kubectl config use-context k8s1-apple
-Switched to context "k8s1-apple".
-
-C:\kube>kubectl get clusterrolebindings
 NAME                                                   AGE
-2c92e23f-6480-4265-9456-4c81bffaa9c6-cluster-admin     2d1h
-38cb4886-8e19-4da3-a522-3ebaa3d6e553-cluster-admin     44h
-51fca8c0-c69c-4dee-8409-0bf2264f08a9-cluster-admin     8d
 9a605c3d-b2f3-4961-b2a4-804885d85eba-cluster-admin     23s
 9e495241-65b0-43bb-ac3a-120cb4ee6533-cluster-admin     2d1h
 c990e9cc-29fc-4696-8673-fc69a93904f4-cluster-admin     2d1h
 cluster-admin                                          8d
-event-controller                                       8d
-fluent-bit                                             8d
-kubo:internal:admin                                    8d
-kubo:internal:kube-proxy                               8d
-kubo:internal:kubelet                                  8d
-kubo:internal:kubelet-drain                            8d
-metric-controller                                      8d
-metrics-server:system:auth-delegator                   8d
-observability-manager                                  8d
-sink-controller                                        8d
-system:aws-cloud-provider                              8d
 system:basic-user                                      8d
-system:controller:attachdetach-controller              8d
-system:controller:certificate-controller               8d
-system:controller:clusterrole-aggregation-controller   8d
-system:controller:cronjob-controller                   8d
-system:controller:daemon-set-controller                8d
-system:controller:deployment-controller                8d
-system:controller:disruption-controller                8d
-system:controller:endpoint-controller                  8d
-system:controller:expand-controller                    8d
-system:controller:generic-garbage-collector            8d
-system:controller:horizontal-pod-autoscaler            8d
-system:controller:job-controller                       8d
-system:controller:namespace-controller                 8d
-system:controller:node-controller                      8d
-system:controller:persistent-volume-binder             8d
-system:controller:pod-garbage-collector                8d
-system:controller:pv-protection-controller             8d
-system:controller:pvc-protection-controller            8d
-system:controller:replicaset-controller                8d
-system:controller:replication-controller               8d
-system:controller:resourcequota-controller             8d
-system:controller:route-controller                     8d
-system:controller:service-account-controller           8d
-system:controller:service-controller                   8d
-system:controller:statefulset-controller               8d
-system:controller:ttl-controller                       8d
-system:coredns                                         8d
-system:discovery                                       8d
-system:kube-controller-manager                         8d
-system:kube-dns                                        8d
-system:kube-scheduler                                  8d
-system:metrics-server                                  8d
-system:node                                            8d
-system:node-proxier                                    8d
-system:volume-scheduler                                8d
-telegraf                                               8d
 telemetry-agent                                        8d
-validator                                              8d
+```
 
-C:\kube>kubectl get sa
+To view service accounts:
+
+```
+kubectl get sa
+```
+
+```
 NAME                                   SECRETS   AGE
 2c92e23f-6480-4265-9456-4c81bffaa9c6   1         2d1h
 38cb4886-8e19-4da3-a522-3ebaa3d6e553   1         44h
-51fca8c0-c69c-4dee-8409-0bf2264f08a9   1         8d
-9a605c3d-b2f3-4961-b2a4-804885d85eba   1         2m12s
-9e495241-65b0-43bb-ac3a-120cb4ee6533   1         2d1h
-c990e9cc-29fc-4696-8673-fc69a93904f4   1         2d1h
 default                                1         8d
+```
 
+To view the YAML for a cluster role binding:
 
-C:\kube>kubectl get clusterrolebinding 9a605c3d-b2f3-4961-b2a4-804885d85eba-cluster-admin -o yaml
+```
+kubectl get clusterrolebinding 9a605c3d-b2f3-4961-b2a4-804885d85eba-cluster-admin -o yaml
+```
+
+```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -377,12 +331,26 @@ subjects:
 - kind: ServiceAccount
   name: 9a605c3d-b2f3-4961-b2a4-804885d85eba
   namespace: default
+```
 
-C:\kube>kubectl get clusterrole cluster-admin
+To view a cluster role:
+
+```
+kubectl get clusterrole cluster-admin
+```
+
+```
 NAME            AGE
 cluster-admin   8d
+```
 
-C:\kube>kubectl get clusterrole cluster-admin -o yaml
+To view the YAML for a clusterrole:
+
+```
+kubectl get clusterrole cluster-admin -o yaml
+```
+
+```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -409,6 +377,3 @@ rules:
 
 C:\kube>
 ---
-
-
-https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding
