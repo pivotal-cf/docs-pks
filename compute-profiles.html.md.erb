@@ -1,0 +1,289 @@
+---
+title: Using Compute Profiles (NSX-T Only)
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+<%= partial 'beta-component' %>
+
+This topic describes how to use compute profiles for Kubernetes clusters
+provisioned with <%= vars.product_full %> on vSphere with NSX-T integration
+using the PKS API.
+
+## <a id='overview'></a> Overview
+
+When you deploy a cluster using <%= vars.product_short %>, you allocate
+resources to the cluster workload by specifying a plan. You define plans in the
+<%= vars.product_tile %> tile. For more information, see the [Plans](./installing-nsx-t.html#plans)
+section of _Installing <%= vars.product_short %> on vSphere with NSX-T_.
+
+In addition to plans, you can also use compute profiles to allocate resources to
+cluster workloads. You can customize any number of compute profiles.
+
+You define a compute profile in a JSON file, and then create clusters
+that use the compute profile using the PKS API.
+
+## <a id='prerequisites'></a> Prerequisites
+
+Before you define a compute profile, you must have the following:
+
+* A configured <%= vars.product_short %> installation on vSphere with NSX-T. See [Installing <%= vars.product_short %> on vSphere with NSX-T](installing-nsx-t.html).
+* At least one network profile. See [Defining Network Profiles](network-profiles-define.html).
+
+## <a id='define'></a> Define a Compute Profile
+
+Define a compute profile in a JSON file. Any parameters you do not configure
+in the compute profile are set by the plan you use to create the cluster.
+
+To create a compute profile, do the following:
+
+1. Locate the credentials used to import the PCF .ova or .ovf file into your virtualization system. You set these credentials when you installed Ops Manager.
+    <p class="note"><strong>Note</strong>: If you lose your credentials, you must shut down the Ops Manager VM in the vSphere UI and reset the password. See <a href="https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-4BDBF79A-6C16-43B0-B0B1-637BF5516112.html">vCenter Password Requirements and Lockout Behavior</a> in the vSphere documentation for more information.</p>
+
+1. From a command line, run the following command to SSH into the Ops Manager VM:
+
+    ```
+    ssh ubuntu@OPS-MANAGER-FQDN
+    ```
+    Where `OPS-MANAGER-FQDN` is the fully qualified domain name (FQDN) of Ops Manager.
+
+1. When prompted, enter the password that you set during the .ova deployment
+into vCenter. For example:
+  <pre class="terminal">
+  $ ssh ubuntu&#64;my-opsmanager-fqdn.example.com
+  Password: ***********
+  </pre>
+
+1. Run `bosh cpi-config` to locate the Cloud Provider Interface (CPI) name for your deployment. For example:
+
+    ```
+    USERNAME@OPS-MANAGER-VM:~$ bosh cpi-config
+    Using environment 'BOSH-DIRECTOR-IP' as client 'ops_manager'
+
+    cpis:
+    - migrated_from:
+      - name: ""
+      name: YOUR-CPI-NAME
+    ```
+    For more information about running BOSH commands in your PKS deployment, see [Managing <%= vars.product_short %> Deployments with BOSH](manage-deployments-bosh.html).
+
+1. In a new text file, enter the parameters for the compute profile in the following format:
+
+    ```txt
+    {
+        "name" : "PROFILE-NAME",
+        "description" : "PROFILE-DESCRIPTION",
+        "parameters" : {
+            "azs": [{
+                "cpi": "CPI-NAME",
+                "name": "AZ-NAME",
+                "cloud_properties": {
+                    availability_zone: "CLUSTER-AZ"
+                }
+            }],
+            "worker_azs": ["AZ-NAME"],
+            "master_azs": ["AZ-NAME"],
+        },
+    }
+    ```
+
+    Where:
+    - `PROFILE-NAME` is the name of the compute profile you want to define. Enter a string value up to 26 characters long. For example, `dev`.
+    - (Optional) `PROFILE-DESCRIPTION` describes the compute profile.
+    - `CPI-NAME` is the CPI name you located in the previous step. For example, `abc012abc345abc567de`.
+    - (Optional) `AZ-NAME` is a name you define for the availability zone (AZ) where you want to deploy cluster VMs. For example, `z1`.
+    - `CLUSTER-AZ` is the name of an AZ as it appears in Ops Manager and your cloud provider console. For example, `us-east-1a`.
+
+    For example:
+
+    ```txt
+    {
+        "name" : "dev",
+        "description" : "For development clusters",
+        "parameters" : {
+            "azs": [{
+                "cpi": "abc012abc345abc567des",
+                "name": "z1",
+                "cloud_properties": {
+                    availability_zone: "us-east-1a"
+                }
+            }],
+            "worker_azs": ["z1"],
+            "master_azs": ["z1"],
+        },
+    }
+    ```
+
+    <p class="note"><strong>Note</strong>: If you define multiple AZs in the <code>azs</code> array, you can specify different AZs for worker node VMs and master node VMs.</p>
+
+1. Save the file with a JSON extension. For example, `dev-clusters.json`.
+
+## <a id='create'></a> Create a Compute Profile
+
+Use the JSON file that contains your compute profile parameters
+to make a request to the PKS API. The PKS API applies the parameters
+to your PKS deployment as a compute profile.
+
+To create the compute profile, run the following command:
+
+```
+curl -s -k -X POST "https://PKS-API:9021/v1beta1/compute-profiles" \
+-H "cache-control: no-cache" -H "authorization: Bearer YOUR-ACCESS-TOKEN" \
+-H "Content-Type: application/json" --data "YOUR-COMPUTE-PROFILE.json" )
+```
+
+Where:
+
+- `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
+- `YOUR-ACCESS-TOKEN` is your PKS UAA admin access token. For more information about locating this token, see [Log in as a UAA Admin](manage-users.html#uaa-admin-login) in _Managing Users in PKS with UAA_.
+- `YOUR-COMPUTE-PROFILE` is the file that contains your compute profile parameters. For example, `dev-clusters`.
+
+## <a id='list'></a> List Compute Profiles
+
+You can list compute profiles in your PKS deployment by making a request to
+the PKS API.
+
+To list compute profiles, run the following command:
+
+```
+curl -s -k  "https://PKS-API:9021/v1beta1/compute-profiles" \
+-H "cache-control: no-cache" -H "authorization: Bearer YOUR-ACCESS-TOKEN" \
+-H "Content-Type: application/json"
+```
+
+Where:
+
+- `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
+- `YOUR-ACCESS-TOKEN` is your PKS UAA admin access token. For more information about locating this token, see [Log in as a UAA Admin](manage-users.html#uaa-admin-login) in _Managing Users in PKS with UAA_.
+
+## <a id='create-cluster'></a> Create a Cluster with a Compute Profile
+
+Define cluster parameters in a JSON file. Include the name of the compute profile,
+network profile, and plan in this file, and then make a request to the PKS API to
+create the cluster.
+
+To create a cluster with a compute profiles, do the following:
+
+1. Create a new JSON file that describes the cluster you want to create. Include the
+compute profile and network profile names in the file. For example:
+
+    ```json
+    {
+      "name": "my-cluster",
+      "plan_name": "small",
+      "parameters": {
+        "kubernetes_master_host": "master.host"
+      },
+      "compute_profile_name": "dev-clusters",
+      "network_profile_name": "my-network-profile"
+    }
+    ```
+1. To create the cluster using the compute profile, run the following command:
+
+    ```
+    curl -k -X POST "https://PKS-API:9021/v1beta1/clusters/" \
+    -H "cache-control: no-cache" -H "authorization: Bearer YOUR-ACCESS=TOKEN" \
+    -H "Content-Type: application/json" -d "CLUSTER.json"
+    ```
+
+    Where:
+    - `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
+    - `YOUR-ACCESS-TOKEN` is your PKS UAA admin access token. For more information about locating this token, see [Log in as a UAA Admin](manage-users.html#uaa-admin-login) in _Managing Users in PKS with UAA_.
+    - `CLUSTER` is the JSON file you created in the previous step.
+
+## <a id="example-1"></a> Example Compute Profiles
+
+This section includes example compute profiles that define different sets of vSphere resources.
+
+#### dev-clusters.json
+
+The following example compute profile for a single cluster uses one AZ and one resource pool:
+
+```json
+{
+	"name": "dev",
+	"description": "For development clusters",
+	"parameters": {
+		"azs": [{
+			"cpi": "abc012abc345abc567des",
+			"name": "z1",
+			"cloud_properties": {
+				"datacenters": [{
+					"name": "my-dc",
+					"clusters": [{
+						"my-vsphere-cluster": {
+							"resource_pool": "my-res-pool1",
+							"drs_rules": {
+								"name": "my-drs-rule",
+								"type": "separate-vms"
+							}
+						}
+					}]
+				}]
+			}
+		}],
+       "master_azs": ["z1"],
+       "worker_azs": ["z1"]
+	}
+}
+```
+
+#### prod-clusters.json
+
+The following example compute profile uses two AZs, with one cluster in the first AZ and three clusters in the second AZ:
+
+```json
+{
+	"name": "prod",
+	"description": "For production clusters",
+	"parameters": {
+		"azs": [{
+				"cpi": "abc012abc345abc567des",
+				"name": "z1",
+				"cloud_properties": {
+					"datacenters": [{
+						"name": "my-dc",
+						"clusters": [{
+							"cluster1": {
+								"resource_pool": "rp3",
+								"drs_rules": {
+									"name": "my-drs-rule",
+									"type": "separate-vms"
+								}
+							}
+						}]
+					}]
+				}
+			},
+			{
+				"cpi": "abc012abc345abc567des",
+				"name": "z2",
+				"cloud_properties": {
+					"datacenters": [{
+						"name": "my-dc",
+						"clusters": [{
+								"cluster1": {
+									"resource_pool": "rp1"
+								}
+							},
+							{
+								"cluster2": {
+									"resource_pool": "rp1"
+								}
+							},
+							{
+								"cluster1": {
+									"resource_pool": "rp2"
+								}
+							}
+						]
+					}]
+				}
+			}
+		],
+      "master_azs": ["z1"],
+      "worker_azs": ["z2"],
+	}
+}
+```
