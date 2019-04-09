@@ -8,17 +8,29 @@ owner: PKS
 This topic provides resources for configuring an ingress controller on <%= vars.product_full %>.
 
 <p class="note"><strong>Note</strong>: If you deploy <%= vars.product_short %> to
-vSphere with NSX-T, you can use the ingress services provided by NSX-T. For
-more information, see <a href="nsxt-ingress-srvc-lb.html">Configuring Ingress Resources and Load Balancer Services</a>.</p>
+vSphere with NSX-T, see <a href="nsxt-ingress-srvc-lb.html">Configuring Ingress Resources and Load Balancer Services</a>.</p>
 
 ## <a id='overview'></a>Overview
 
 In Kubernetes, an ingress is an API object that manages external access to the
 services in a cluster. You can use ingress rules to provide HTTP or HTTPS routes
-to services within the cluster instead of creating a load balancer. The cluster
-must have an ingress controller running. For more information, see [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) in the Kubernetes documentation.
+to services within the cluster instead of creating a load balancer. Using ingress
+routing instead of a cluster load balancer can reduce complexity in your
+deployment and requires fewer reserved IP addresses.
+
+The cluster must have an ingress controller running. For more information, see
+[Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) in the Kubernetes documentation.
 
 You define ingress resource configuration in the manifest of your Kubernetes deployment. Use wildcard DNS entries to route traffic to the exposed ingress resource.
+
+If your cloud provider offers ingress resources, you can configure a cloud provider
+ingress controller using your cloud provider console. You can also deploy Istio,
+an open source service mesh that offers ingress services.
+
+## <a id='prerequisites'></a>Prerequisite
+
+Before you configure an ingress controller, you must have a PKS-deployed cluster.
+See [Creating Clusters](create-cluster.html).
 
 ## <a id='gcp'></a>Configure a Cloud Provider Ingress Controller
 
@@ -36,4 +48,75 @@ If your cloud provider does not offer ingress resources and you do not want to
 use a cluster load balancer, you can deploy Istio to the cluster and push an app
 using the ingress service. For more information about Istio, see the [Istio documentation](https://istio.io/docs/).
 
-Before you deploy Istio, make sure KubeDNS is enabled for your cluster.
+To deploy Istio to a PKS cluster, do the following:
+
+1. Set the kubectl context for the cluster where you want to deploy Istio.
+
+1. Verify that KubeDNS is enabled for your cluster by running the following command:
+
+    ```
+    kubectl cluster-info
+    ```
+
+    If KubeDNS is enabled, the  output lists the URL for the KubeDNS service in the cluster. For example:
+    <pre class="terminal">$ kubectl cluster-info
+    Kubernetes master is running at https\://104.197.5.247
+    elasticsearch-logging is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/elasticsearch-logging/proxy
+    kibana-logging is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/kibana-logging/proxy
+    kube-dns is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/kube-dns/proxy
+    grafana is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy
+    heapster is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/monitoring-heapster/proxy
+    </pre>
+    If KubeDNS is not enabled, do the following:
+    1. Navigate to Ops Manager and click the **BOSH Director** tile.
+    1. Click the **Director Config** pane.
+    1. Select the **Enable Post Deploy Scripts** checkbox.
+    1. Click **Review Pending Changes**, and then **Apply Changes**.
+    1. Delete the cluster, and then re-create the cluster.
+
+1. Run the following command to install Istio:
+
+    ```
+    curl -L https://git.io/getLatestIstio | sh -
+    kubectl apply -f istio-*/install/kubernetes/istio.yaml
+    ```
+
+1. Run the following command to scale up Istio for high availability:
+
+    ```
+    kubectl -n istio-system scale deploy/istio-ingress --replicas=3
+    ```
+
+## <a id='setup'></a>Configure Kubernetes LoadBalancer Service
+
+After Istio starts, determine the current Kubernetes LoadBalancer service
+configuration for your cluster.
+
+To configure the Kubernetes LoadBalancer service, do the following:
+
+1. Determine your current LoadBalancer configuration by running the following command:
+
+    ```
+    kubectl  --namespace=istio-system get services
+    ```
+    In the output of this command, locate the exposed HTTP port.<br><br>
+    For example:
+    <pre class="terminal">$ kubectl --namespace=istio-system get services
+    NAME           TYPE            CLUSTER-IP       EXTERNAL-IP     PORT(S)
+    istio-ingress  LoadBalancer    10.100.200.200   &lt;pending&gt;       80:30822/TCP,443:31441/TCP
+    </pre>
+    In the example above, the exposed HTTP port is 30822.
+
+1. List the IP addresses for the Kubernetes worker node VMs by running the following command:
+
+    ```
+    kubectl -o jsonpath='{.items[*].status.addresses[0].address}' get nodes
+    ```
+
+1. Locate the IP addresses in the output of the above command. Set up a load
+balancer pool using the worker node IP addresses and the HTTP port number you
+located in the first step.
+
+1. Configure a wildcard DNS entry that points to the load balancer pool address.
+For more information, see the [DNS for Domains](https://docs.pivotal.io/pivotalcf/devguide/deploy-apps/routes-domains.html#domains-dns) section of _Routes and Domains_
+in the Pivotal Cloud Foundry documentation.
