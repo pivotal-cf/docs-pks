@@ -250,9 +250,19 @@ For a list of supported metrics and output plugins,
 see [Metrics](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kubernetes#metrics)
 and [Output Plugins](https://github.com/influxdata/telegraf#output-plugins) in the telegraf GitHub repository.
 
+If you want to collect a larger set of metrics, you can replace the default Kubernetes input plugin
+with the Prometheus input plugin. For more information about the Prometheus input plugin, see
+[Prometheus Input Plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/prometheus) in
+the telegraf GitHub repository.
+
+To create a `ClusterMetricSink` resource, do one of the following:
+
+* [Create a Default ClusterMetricSink Resource with YAML and kubectl](#default)
+* [Create an Extended ClusterMetricSink Resource with YAML and kubectl](#extended)
+
 Currently, you can use only `kubectl` to create and manage metric sinks for clusters.
 
-#### <a id='sink-kubectl'></a> Create a ClusterMetricSink Resource with YAML and kubectl
+#### <a id='default'></a> Create a Default ClusterMetricSink Resource with YAML and kubectl
 
 To define a `ClusterMetricSink` resource with YAML and `kubectl`, perform the following steps:
 
@@ -270,7 +280,7 @@ To define a `ClusterMetricSink` resource with YAML and `kubectl`, perform the fo
     ```
   Where:
     * `YOUR-SINK` is a name you choose for your sink.
-    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use.
+    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.
   <p class="note"><strong>Note:</strong> You must leave the <code>inputs</code> field blank.</p>
 
     For example:
@@ -285,6 +295,77 @@ To define a `ClusterMetricSink` resource with YAML and `kubectl`, perform the fo
       outputs:
       - type: datadog
         apikey: 123456example
+    ```
+
+1. Save the YAML file with an appropriate file name. For example, `my-cluster-metric-sink.yml`.
+
+1. Apply the `ClusterMetricSink` resource to your cluster by running the following command:
+
+    ```
+    kubectl apply -f MY-SINK.yml
+    ```
+  Where `MY-SINK.yml` is the name of your YAML file.
+  For example:
+  <pre class='terminal'>
+  $ kubectl apply -f my-cluster-metric-sink.yml
+  </pre>
+
+#### <a id='extended'></a> Create an Extended ClusterMetricSink Resource with YAML and kubectl
+
+Before creating an extended `ClusterMetricSink` resource, you must deploy Helm.
+For instructions on deploying Helm, see [Configure Tiller](./helm.html#configure-tiller)
+in _Using Helm with <%= vars.product_short %>_.
+
+1. Install the Prometheus node exporter by running the following command:
+
+    ```
+    helm install --name YOUR-RELEASE-NAME \
+      --set service.targetPort=YOUR-PORT  \
+      --set service.port=YOUR-PORT  \
+        stable/prometheus-node-exporter
+    ```
+  Where:
+    * `YOUR-RELEASE-NAME` is a release name you choose for your release of `prometheus-node-exporter`.
+    * `YOUR-PORT`is the port you want to use for `prometheus-node-exporter`.
+
+1. Create a YAML file in the following format.
+
+    ```
+    apiVersion: apps.pivotal.io/v1beta1
+    kind: ClusterMetricSink
+    metadata:
+    name: YOUR-SINK
+    spec:
+    inputs:
+     - type: prometheus
+       urls:
+         - http://YOUR-RELEASE-NAME-prometheus-node-exporter.YOUR-NAMESPACE:YOUR-PORT/metrics
+    outputs:
+    - type: YOUR-OUTPUT-PLUGIN
+    ```
+
+  Where:
+    * `YOUR-SINK` is a name you choose for your sink.
+    * `YOUR-RELEASE-NAME` is the release name you specified in the previous step.
+    * `YOUR-NAMESPACE` is the namespace where you installed `prometheus-node-exporter`.
+    * `YOUR-PORT` is the port you specified in the previous step.
+    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.
+
+  For example:
+
+    ```
+    apiVersion: apps.pivotal.io/v1beta1
+    kind: ClusterMetricSink
+    metadata:
+    name: node-exporter
+    spec:
+    inputs:
+     - type: prometheus
+       urls:
+         - http://my-release-prometheus-node-exporter.oratos:10536/metrics
+    outputs:
+    - type: datadog
+     apikey: 123456example
     ```
 
 1. Save the YAML file with an appropriate file name. For example, `my-cluster-metric-sink.yml`.
