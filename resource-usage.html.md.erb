@@ -10,16 +10,39 @@ This topic describes how to manage and monitor resource utilization using the Pi
 As <%= vars.product_short %> administrator you can set a maximum limit on each user's total VM resource allocation.  
 
 PKS API quota commands provide a way for you to restrict a user's total allocated VM memory size and CPU count. 
-Using the PKS API you can create rules, review rules and review users' current total utilization.  
-
+Using the PKS API you can create rules, review rules and review users' current total utilization. 
+    
 <%= partial 'beta-component' %>
+
+## <a id='setup-token'></a> Setup Your Command Line Authentication Token
+
+The <%= vars.product_short %> Quota and Resource API commands in this topic use an authentication 
+token environment variable.
+
+To export your authentication token into an environment variable, run the following command:
+
+```
+pks login -a PKS-API -u USER-ID -p 'PASSWORD' \
+-k export AUTH-TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+``` 
+
+Where:  
+* `PKS-API` is your PKS API server URI.  
+* `USER-ID` is your PKS User ID.  
+* `PASSWORD` is your PKS password.  
+* `AUTH-TOKEN` is the name of your authentication token environment variable.  
+
+For example:
+<pre class="terminal">
+$ pks login -a pks.my.lab -u alana -p 'psswrdabc123...!' -k export SECRETTOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+</pre>  
 
 ## <a id='quota-admin'></a> Manage Quota Limitations
 
 To enforce a quota on a specific user, run the following command:
 
 ```
-curl -k -H "Authorization: Bearer AUTH-TOKEN" \
+curl -k -H "Authorization: Bearer $AUTH-TOKEN" \
 -H "Content-Type: application/json" \
 -d \
 '{ \
@@ -33,7 +56,7 @@ https://API:9021/v1beta1/quotas
 ```
 
 Where:  
-* `AUTH-TOKEN` is your authentication token.  
+* `AUTH-TOKEN` is your authentication token environment variable.  
 * `USER-ID` is user account ID to enforce the quota restriction on.  
 * `MAX-CPU` is the maximum total number of vCPUs the user is allowed to allocate to VM instances.  
 * `MAX-MEM` is the maximum total amount of memory, in gigabytes, the user is allowed to allocate to VM instances.  
@@ -42,7 +65,7 @@ Where:
 To modify a specific user's existing quota, run the following command:
 
 ```
-curl -k -X PATCH -H "Authorization: Bearer AUTH-TOKEN" \
+curl -k -X PATCH -H "Authorization: Bearer $AUTH-TOKEN" \
 -H "Content-Type: application/json" \
 -d \
 '{ \
@@ -56,7 +79,7 @@ https://API:9021/v1beta1/quotas/USER-ID
 ```
 
 Where:  
-* `AUTH-TOKEN` is your authentication token.  
+* `AUTH-TOKEN` is your authentication token environment variable.  
 * `USER-ID` is user account ID to enforce the quota restriction on.  
 * `MAX-CPU` is the maximum total number of vCPUs the user is allowed to allocate to VM instances.  
 * `MAX-MEM` is the maximum total amount of memory, in gigabytes, the user is allowed to allocate to VM instances.  
@@ -65,7 +88,8 @@ Where:
 For example:
 <pre class="terminal">
 $ user=exampleuser
-$ curl -v -k -X PATCH -H "Authorization: Bearer $token" \
+$ pks login -a pks.my.lab -u $user -p 'psswrdabc123...!' -k export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+$ curl -v -k -X PATCH -H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" -d \
 '{ \
     "owner": "cody",  \
@@ -79,20 +103,21 @@ $ curl -v -k -X PATCH -H "Authorization: Bearer $token" \
 To delete a specific user's existing quota, run the following command:
 
 ```
-curl -k -X DELETE -H "Authorization: Bearer AUTH-TOKEN" \
+curl -k -X DELETE -H "Authorization: Bearer $AUTH-TOKEN" \
 https://API:9021/v1beta1/quotas/USER-ID
 ```
 
 Where:  
-* `AUTH-TOKEN` is your authentication token.  
+* `AUTH-TOKEN` is your authentication token environment variable.  
 * `API` is your PKS API instance address.  
 * `USER-ID` is user account ID to enforce the quota restriction on.  
 
 For example:
 <pre class="terminal">
 $ user=exampleuser
-$ curl -k -X DELETE -H "Authorization: Bearer $token" https&#58;//example.com&#58;9021/v1beta1/quotas/$user
-$ curl -k -X DELETE -H "Authorization: Bearer $token" https&#58;//example.com&#58;9021/v1beta1/quotas/$user
+$ pks login -a pks.my.lab -u $user -p 'psswrdabc123...!' -k export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+$ curl -k -X DELETE -H "Authorization: Bearer $TOKEN" https&#58;//example.com&#58;9021/v1beta1/quotas/$user
+$ curl -k -X DELETE -H "Authorization: Bearer $TOKEN" https&#58;//example.com&#58;9021/v1beta1/quotas/$user
 {
   "body":"The quota owner named: \"exampleuser\" not found."
 }
@@ -105,19 +130,20 @@ The PKS API `quotas` command reports resource utilization quotas as JSON.
 To to list the resource quota restrictions currently applied to a single user, run the following command:
 
 ```
-curl -k -H "Authorization: Bearer AUTH-TOKEN" \
+curl -k -H "Authorization: Bearer $AUTH-TOKEN" \
 https://API:9021/v1beta1/quotas/USER-ID
 ```
 
 Where:  
-* `AUTH-TOKEN` is your authentication token.  
+* `AUTH-TOKEN` is your authentication token environment variable.  
 * `API` is your PKS API instance address.  
 * `USER-ID` is the account ID to report on.  
 
 For example:
 <pre class="terminal">
 $ user=exampleuser
-$ curl -v -k -H "Authorization: Bearer $token" \
+$ pks login -a pks.my.lab -u $user -p 'psswrdabc123...!' -k export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+$ curl -v -k -H "Authorization: Bearer $TOKEN" \
 https&#58;//example.com&#58;9021/v1beta1/quotas/$user 
 {
   "owner":"cody",
@@ -132,18 +158,19 @@ https&#58;//example.com&#58;9021/v1beta1/quotas/$user
 To to list all current resource quota restrictions, run the following command:
 
 ```
-curl -k -H "Authorization: Bearer AUTH-TOKEN" \
+curl -k -H "Authorization: Bearer $AUTH-TOKEN" \
 https://API:9021/v1beta1/quotas
 ```
 
 Where:  
-* `AUTH-TOKEN` is your authentication token.  
+* `AUTH-TOKEN` is your authentication token environment variable.  
 * `API` is your PKS API instance address.  
 
 For example:
 <pre class="terminal">
 $ user=exampleuser
-$ curl -v -k -H "Authorization: Bearer $token" \
+$ pks login -a pks.my.lab -u $user -p 'psswrdabc123...!' -k export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+$ curl -v -k -H "Authorization: Bearer $TOKEN" \
 https&#58;//example.com&#58;9021/v1beta1/quotas
 [
   {
@@ -167,7 +194,7 @@ curl -k -H "Authorization: Bearer AUTH-TOKEN" https://API:9021/v1beta1/usages/US
 ```
 
 Where:  
-* `AUTH-TOKEN` is your authentication token.  
+* `AUTH-TOKEN` is your authentication token environment variable.  
 * `API` is your PKS API instance address.  
 * `USER-ID` is your user account ID.  
 
@@ -179,6 +206,6 @@ https://API:9021/v1beta1/usages
 ```
 
 Where:  
-* `AUTH-TOKEN` is your authentication token.  
+* `AUTH-TOKEN` is your authentication token environment variable.  
 * `API` is your PKS API instance address.  
 * `USER-ID` is your user account ID.  
