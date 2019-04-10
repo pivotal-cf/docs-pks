@@ -3,23 +3,19 @@ title: Accessing Dashboard
 owner: PKS
 ---
 
-This topic describes how to access Dashboard, a web-based Kubernetes user interface, for your <%= vars.product_full %> deployment. 
+This topic describes how to access Dashboard, a web-based Kubernetes UI, for your <%= vars.product_full %> deployment. 
 
 ##<a id='overview'></a>Overview
 
-Kubernetes provides Dashboard to manage Kubernetes clusters and applications. 
-You can use Dashboard's web-based UI to deploy containerized applications to a Kubernetes cluster, troubleshoot containerized apps, 
-manage the cluster and its resources, initiate rolling updates, and restart pods. 
-Dashboard also provides information about the state of Kubernetes resources in the cluster. 
+Kubernetes provides Dashboard to manage Kubernetes clusters and applications, and to review the state of Kubernetes cluster resources. 
 
 ##<a id='access-credentials'></a>Access Credentials
 
-You must have <code>kubectl</code> credentials to access Dashboard. This requirement prevents unauthorized browser access to the Kubernetes cluster administration UI. 
-You must use either a Kubeconfig or a Bearer Token access credential to access Dashboard. 
+You must have either a <code>kubectl</code> Kubeconfig or Bearer Token access credential to access Dashboard. 
 
 ###<a id='kubeconfig-access-credentials'></a>Configure Kubeconfig Access Credentials
-You can use the PKS CLI to request a Kubeconfig access credential. 
-You can save the credential to either a file or environment variable for use as your Dashboard access credential.
+You can use the PKS CLI to request a Kubeconfig access credential and 
+to save the credential to either a file or environment variable for use as your Dashboard access credential.
 
 1. To request Kubeconfig credentials use one of the two following methods.
     * Request a Kubeconfig access credential using the PKS CLI:
@@ -39,25 +35,16 @@ You can save the credential to either a file or environment variable for use as 
     * Request a Kubeconfig access credential and assign to your Kubernetes configuration:
 
         ```bash
-        KUBECONFIG=dashboard_kube_config pks get-credentials CLUSTER-NAME
+        KUBECONFIG=CONFIG-FILE pks get-credentials CLUSTER-NAME
         ```
-        Where `CLUSTER-NAME` is the name of your cluster.
-<br><br>
-        For example:
-        <pre class="terminal">
-        $ KUBECONFIG=dashboard&#95;kube&#95;config pks get-credentials pks-bosh
-
-        Fetching credentials for cluster pks-bosh.
-        Context set for cluster pks-bosh.
-        </pre>
-
-1. To save the kubeconfig access credential to file do the following:  
-    **XXXXXXXXXXXXXXXXXX**
+        Where:  
+        * `CLUSTER-NAME` is the name of your cluster.  
+        * `CONFIG-FILE` is the name of the output file which will store the exported access credentials.  
 
 ###<a id='bearertoken-access-credentials'></a>Request Bearer Token Access Credentials
-You can use kubectl to request a Bearer Token access credential.
+You can use `kubectl` to request a Bearer Token access credential.
 
-1. To request your Kubernetes User ID, run the following command:
+1. To request your Kubernetes user ID, run the following command:
 
     ```bash
     kubectl config view -o jsonpath='{.contexts[?(@.name == "CLUSTER-NAME")].context.user}'
@@ -66,34 +53,34 @@ You can use kubectl to request a Bearer Token access credential.
 <br><br>
     For example:
     <pre class="terminal">
-    kubectl config view -o jsonpath='{.contexts[?(@.name == "pks-bosh")].context.user}'
-    dxbaac0j-ac11-43f9-99a7-87e3e4fbe44b
+    $ kubectl config view -o jsonpath='{.contexts[?(@.name == "pks-bosh")].context.user}'
+    dxbjlm0j-ac11-43f9-99a7-87u5u4fbe44b
     </pre>
 
 1. To derive a Kubeconfig Token use one of the two following methods.
     * Kubectl Get Secret request:
 
-        ```bash
+        ```
         kubectl describe secret $(kubectl get secret | grep USER-ID | awk '{print $1}') | grep "token:"
         ```
         Where `USER-ID` is your Kubernetes User ID.
 <br><br>
         For example:
         <pre class="terminal">
-        $ kubectl describe secret $(kubectl get secret | grep dxbaac0j-ac11-43f9-99a7-87e3e4fbe44b | awk '{print $1}') | grep "token:"
-        token:      eyJhbGciOiJSUzI1NiIsIndxbaac0jac1143f999a787e3e4fbe44bcnZ....iI4utgU6-qKDIhwEJw5TQA
+        $ kubectl describe secret $(kubectl get secret | grep dxbjlm0j-ac11-43f9-99a7-87u5u4fbe44b | awk '{print $1}') | grep "token:"
+        token:      eyxYzGciOiJSUzI1NiPsIndxbaac0jac11erf999a787e3e4fbe44rgnZ....iI4utgU6-qKDEdwEJw5TQA
         </pre>
     * Kubectl Describe Service Accounts request:
 
-        ```bash
+        ```
         kubectl describe secret $(kubectl describe serviceaccounts USER-ID | grep Tokens | awk '{print $2}') | grep "token:"
         ```
         Where `USER-ID` is your Kubernetes User ID.
 <br><br>
         For example:
         <pre class="terminal">
-        $ kubectl describe secret $(kubectl describe serviceaccounts dxbaac0j-ac11-43f9-99a7-87e3e4fbe44b | grep Tokens | awk '{print $2}') | grep "token:"
-        token:      eyJhbGciOiJSUzI1NiIsIndxbaac0jac1143f999a787e3e4fbe44bcnZ....iI4utgU6-qKDIhwEJw5TQA
+        $ kubectl describe secret $(kubectl describe serviceaccounts dxbjlm0j-ac11-43f9-99a7-87u5u4fbe44b | grep Tokens | awk '{print $2}') | grep "token:"
+        token:      eyxYzGciOiJSUzI1NiPsIndxbaac0jac11erf999a787e3e4fbe44rgnZ....iI4utgU6-qKDEdwEJw5TQA
         </pre>
 
 ##<a id='access'></a>Access Dashboard
@@ -111,16 +98,18 @@ After you have obtained access credentials you can authenticate into Dashboard.
     http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
     ````
 
-1. You will be redirected to the Kubernetes Dashboard sign in page. Select either **Kubeconfig** or **Token** depending on the type of credential you prepared in the previous steps. 
-
-1. To specify your authentication strings perform one of the following:
-    * To specify a kubeconfig file select **`...`**, to the right of the **Choose kubeconfig file** area, and specify the kubeconfig file location.  
-<br>
-    * To specify a kuebconfig token, paste your kuebconfig token into the **Enter token** area.
+1. On the Kubernetes Dashboard sign in page select an option based on the type of credential you prepared in the previous steps. 
+    * If you prepared a Kubeconfig credential file:
+        * Select **Kubeconfig**.
+        * To specify your kubeconfig file select **`...`**, to the right of **Choose kubeconfig file**.
+        * Specify the kubeconfig file location.  
+    * If you prepared a Kubeconfig token:
+        * Select **Token**.
+        * To specify your kuebconfig token, paste your kuebconfig token into the **Enter token** area.  
 
 1. Click **SIGN IN**. The Dashboard Overview page is displayed.
 
 
 ##<a id='use'></a>Use Dashboard
 
-For information on how to use Dashboard, see [Web UI (Dashboard)](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#welcome-view) in the Kubernetes documentation. 
+For information about how to use Dashboard, see [Web UI (Dashboard)](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#welcome-view) in the Kubernetes documentation. 
