@@ -4,22 +4,51 @@ owner: PKS
 ---
 
 This topic describes how sinks are implemented in <%= vars.product_full %> deployments.
+## <a id="overview"></a> Overview
+<%= vars.product_short %>  provides two types of sinks for collecting logs and metrics:
 
-## <a id="sink-diagram"></a> Sink Architecture Diagram
+* A Log Sink for monitoring your cluster and namespace logs.
+* A Metric Sink for monitoring your cluster metrics.
+  
+## <a id="sink-architecture"></a> Log Sink Architecture
 
-The following diagram details sink architecture in <%= vars.product_short %>.
+The <%= vars.product_short %> Log Sink aggregates your deployment's logs and forwards them to a common repository.
 
-<img src="images/sink-architecture.png" alt="Sink architecture in PKS">
+The following diagram details <%= vars.product_short %> Log Sink architecture.
 
-<%#= original graphic is here https://realtimeboard.com/app/board/o9J_kyCO-oY=/ %>
+<a id="sink-diagram"><img src="images/sink-architecture.png" alt="Sink architecture in PKS"></a>
+<%#= original graphic is here https://github.com/pivotal-cf/docs-pks/tree/master/images/sink-architecture.graffle %>
 
-## <a id="sink-architecture"></a> Sink Architecture
+Logs are monitored and aggregated by a set of fluent-bit daemons running as a pod on a single node. 
 
-Logs are monitored by a set of fluent-bit daemons, which run as a pod on each node. 
+An event-controller collects Kubernetes API events and sends them to a second fluent-bit daemon pod for aggregation.
 
-When sinks are added or removed, all the fluent-bit pods are refreshed with new sink information. 
+All aggregated log entries are marshaled to a common log destination.
 
-Another pod collects Kubernetes API events and sends them to a fluent-bit pod.
+<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the fluent-bit pods are refreshed with new sink information.</p>
+
+## <a id="metric-sink-architecture"></a> Metric Sink Architecture
+
+The <%= vars.product_short %> Metric Sink aggregates your deployment's collected metrics and forwards them to a common repository. 
+
+The following diagram details <%= vars.product_short %> Metric Sink architecture. 
+
+<a id="metric-sink-diagram"><img src="images/sink-3rd-party-architecture.png" alt="Metric Sink architecture in PKS"></a>
+<%#= original graphic is here https://github.com/pivotal-cf/docs-pks/tree/master/images/sink-architecture.graffle %>
+
+A Metric Sink collects and writes metrics from a cluster to specified outputs using input and output plugins.
+
+Deployment metrics are monitored by a set of third-party plugins. The plugins forward the metrics to a Telegraph service pod. 
+
+Additionally, a pair of kubelets monitor kubernetes and forward kubernetes metrics to a pair of Telegraph service pods. 
+
+To define the collected unstructured metrics, a metric-controller monitors kubernetes for custom resource definitions and forwards those definitions 
+to the Telegraph services. 
+
+The Telegraph services collect, process, and aggregate gathered metrics. All aggregated metrics are marshaled 
+to an additional plug-in for forwarding to a third-party application. 
+
+<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Telegraph pods are refreshed with new sink information.</p>
 
 ## <a id="related-links"></a> Related Links
 
@@ -27,7 +56,3 @@ For more information on sinks in <%= vars.product_short %>, see the following to
 
 * For information about creating sinks in <%= vars.product_short %>, see [Creating Sink Resources](./create-sinks.html).
 * For information about using sinks for monitoring, see [Monitoring <%= vars.product_short %> with Sinks](./monitor-sinks.html).
-
-
-
-
