@@ -13,15 +13,11 @@ This topic describes how to enable and use Pod Security Policies in <%= vars.pro
 
 In Kubernetes, a Pod Security Policy (PSP) is a cluster-level resource that controls security sensitive aspects of the pod specification. **PodSecurityPolicy** objects define a set of conditions that a pod must run with in order to be accepted into the system, as well as defaults for related fields. For more information, see [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) in the Kubernetes documentation.
 
-There are various ways to authorize the use of policies in Kubernetes. One common approach is the use of role based access control (RBAC) objects: roles and role bindings. 
+There are various ways to implement the use of PodSecurityPolicy objects in Kubernetes. One common approach is the use of role based access control (RBAC) objects: roles and role bindings. For a PodSecurityPolicy to take effect, the Kubernetes cluster User or ServiceAccount launching a workload must have the `use` permission on the desired PodSecurityPolicy object. 
 
 A role contains rules that represent a set of permissions. A role can be defined within a namespace with a **Role**, or cluster-wide with a **ClusterRole**. For more information, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) in the Kubenetes documentation. 
 
 A role binding grants the permissions defined in a role to a user or set of users. A role binding holds a list of subjects (users, groups, or service accounts), and a reference to the role being granted. Permissions can be granted within a namespace with a **RoleBinding**, or cluster-wide with a **ClusterRoleBinding**. For more information, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubenetes documentation.
-
-The diagram below illustrates the relationship between PSPs, roles, and role bindings in Kubernetes.
-
-  <img src="images/psp-roles.png" alt="PSPs, Role Bindings, and Roles" width="425">
 
 ##<a id='psp-default'></a> Default Pod Security Policies in PKS
 
@@ -29,7 +25,7 @@ The diagram below illustrates the relationship between PSPs, roles, and role bin
 
 PSP             | Description
 ----------------|------------
-PKS Privileged  | Allows privileged access to pod containers, which allows the container to do almost everything a host can do. See [Privileged](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privileged) in the Kubernets PSP documentation for more information. 
+PKS Privileged  | Allows privileged access to pod containers, which allows the container to do almost everything a host can do. See [Privileged](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privileged) in the Kubernetes PSP documentation for more information. 
 PKS Restricted  | Restricts privileged access to pod containers. 
 
 By default, when PSPs are enabled for a plan, the cluster administrator is assigned to bound to the the PKS Privileged PSP. This policy grant gives the cluster administrator permission to deploy pods. Other users will not be able to deploy pods unless the cluster administrator creates and binds a PSP for such users. The PKS Restricted PSP is example for such purposes.
@@ -44,15 +40,27 @@ Enabling PSPs is done during configuration of <%= vars.product_short %> in the P
 
   <img src="images/psp-enable.png" alt="Enabling Pod Security Policy" width="425">
 
-A Kubernetes cluster created from a plan with the **PodSecurilyPolicy** option enabled will require cluster users to have bound role permissions to deploy pods. Enabling PSP is a securty feature. The design goal is to make the Kubernetes cluster more secure. Once enabled, **PodSecurilyPolicy** acts on creation and modification of pods in that cluster, and determines the action should be admitted based on the requested security context and the available Pod Security Policies.
+A Kubernetes cluster created from a plan with the **PodSecurilyPolicy** option enabled will require cluster users to have a binding that grants `use` on an appropriate PSP to deploy pods. Enabling the **PodSecurilyPolicy** option is a security feature. The design goal is to make the Kubernetes cluster more secure. Once enabled, **PodSecurilyPolicy** acts on creation and modification of pods in that cluster or namespace, and determines the actions that should be permitted based on the requested security context and the applied PSP. See [PSP Policy Order](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#policy-order) for more information on PSP application order when multiple PSPs are in use.
 
 ###<a id='psp-enable-new-installs'></a> PSPs Are Enabled by Default for New Installations of PKS
 
-For new <%= vars.product_short %> installations, the **PodSecurilyPolicy** option is enabled by default. This means that the cluster administrator will be able to deploy pods, but developers will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods.
+For new <%= vars.product_short %> installations, the **PodSecurilyPolicy** option is enabled by default in a newly configured plan. This means that the cluster administrator will be able to deploy pods, but developers without a binding to a PSP will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods.
 
-###<a id='psp-enable-new-installs'></a> PSPs Must Be Enabled for Upgrades of PKS
+###<a id='psp-enable-new-installs'></a> Enabling PSPs for an Existing Plan (Upgrade PKS)
 
-On upgrade <%= vars.product_short %>, existing plans will not have the **PodSecurilyPolicy** option enabled. If the option is enabled for a plan that is in use, and the cluster is upgraded (that is, the "Upgrade all clusters errand" is enabled), the cluster administrator will need to create the appropropriate PSP, role and role binding for developers to use the cluster. 
+<p class="note"><strong>WARNING</strong>: Enabling the **PodSecurityPolicy** option on upgrade of <%= vars.product_short %> will prevent developers from using the cluster as they would expect unless the proper PSP, role, and role binding are configured by the cluster administrator before the upgrade.
+
+On upgrade of <%= vars.product_short %>, existing plans will not have the **PodSecurilyPolicy** option enabled. If the PSP option is enabled for a plan that is in use and did not previously leverage PSPs, and the cluster is upgraded (that is, the "Upgrade all clusters errand" is enabled), the cluster administrator will need to create the appropriate PSPs, roles, and role bindings **BEFORE** upgrading the clusters associated to that plan. Cluster upgrades when enabling PSPs on an existing plan can have unpredictable results on workloads if the appropriate PSPs are not enabled. If you are considering enabling PSPs on an existing plan to apply to all associated clusters,  the following set of tasks is recommended:
+
+Therefore, before you select the **PodSecurityPolicy** check box and enable PSPs for an existing plan, complete the following tasks:
+
+1. Review all existing pods to collect and review thier security requirements for each cluster associated with that plan. There are some open source tools to assist in this task, such as [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor).
+1. Create the appropriate PSPs, roles, and role bindings for each cluster associated with that plan to allow the pods to run after upgrade. See [Configuring PSP for Developers to Use](#psp-config) as a starting point.
+1. Enable PSPs by selecting the **PodSecurityPolicy** check box in the appropriate plan.
+1. Review the pending changes and verify that the "Upgrade all clusters errand" is enabled.
+1. Apply the changes to update the clusters that use the plan with PSPs enabled.
+1. Verify that the workloads are in desired state after upgrade.
+1. If the "Upgrade all clusters errand" was not enabled, run it manually and redeploy.
 
 ##<a id='psp-config'></a> Configuring PSP for Developers to Use
 
@@ -68,7 +76,7 @@ At a high-level, the steps for configuring a PSP with appropriate RBAC controls 
 
 We provide the PSP named `pks-restricted` for general development work in Kubernetes. To onboard cluster users (developers), the best practice is to start with the `pks-resricted` PSP. 
 
-To view the `pks-restricted` PSP, run the folowing command:
+To view the `pks-restricted` PSP, run the following command:
 
 ```
 kubectl get psp pks-restricted -o yaml
@@ -193,7 +201,7 @@ subjects:
     name: developers # Name is case sensitive
 ```
 
-##<a id='psp-admin'></a> Administering PSPs
+##<a id='psp-admin'></a> Administering PSPs, Roles, and RoleBindings
 
 This section lists common kubectl commands for administering and managing PSPs and related objects in Kubernetes.
 
@@ -273,6 +281,12 @@ Settings:
     Ranges:                                1-65535
   Supplemental Groups Strategy: MustRunAs
     Ranges:                                1-65535
+```
+
+To view the role bindings:
+
+```
+kubectl get rolebinding
 ```
 
 To view the cluster role bindings:
@@ -374,6 +388,4 @@ rules:
   - '*'
   verbs:
   - '*'
-
-C:\kube>
 ---
