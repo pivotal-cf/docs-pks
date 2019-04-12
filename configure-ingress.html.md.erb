@@ -1,5 +1,5 @@
 ---
-title: Configuring an Ingress Controller
+title: Configuring Ingress Routing
 owner: PKS
 ---
 
@@ -7,6 +7,193 @@ owner: PKS
 
 This topic provides resources for configuring an ingress controller on Pivotal Container Service (PKS).
 
-In Kubernetes, an ingress is an API object that manages external access to the services in a cluster. The cluster must have an ingress controller running. For more information, see [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) in the Kubernetes documentation.
+For information about configuring an ingress controller using NSX-T, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).
 
-To configure an ingress controller for PKS on Google Cloud Platform (GCP), see [How to set up an Ingress Controller for a PKS cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster) in the Pivotal Knowledge Base.
+## <a id='overview'></a>Overview
+
+In Kubernetes, an ingress is an API object that manages external access to the
+services in a cluster. You can use ingress rules to provide HTTP or HTTPS routes
+to services within the cluster instead of creating a load balancer. For more information, see [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) in the Kubernetes documentation.
+
+The cluster must have an ingress controller running. You define ingress resource
+configuration in the manifest of your Kubernetes deployment, and then use wildcard
+DNS entries to route traffic to the exposed ingress resource.
+
+To configure an ingress controller, you must do the following:
+
+1. [Deploy a Kubernetes Ingress Controller](#deploy)
+1. [Configure DNS](#dns)
+1. (Optional) [Configure TLS](#tls)
+1. [Deploy an App to the Cluster](#app)
+
+## <a id='prerequisites'></a>Prerequisites
+
+Before you configure an ingress controller, you must have the following:
+
+- A PKS-deployed cluster with its own load balancer. See [Creating Clusters](create-cluster.html).
+- A wildcard DNS record that points to the cluster load balancer.
+
+## <a id='deploy'></a>Deploy a Kubernetes Ingress Controller
+
+You can deploy an ingress controller of your choice to your Kubernetes cluster.
+For a list of ingress controllers that Kubernetes supports, see [Ingress Controllers](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) in the Kubernetes documentation.
+
+<p class="note"><strong>Note</strong>: For information about configuring an ingress controller using NGINX on Amazon Web Services (AWS), Azure, or Google Cloud Platform (GCP), see <a href="https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster">How to set up an Ingress Controller for a PKS cluster</a> in the Pivotal Knowledge Base.</p>
+
+To deploy an open source ingress controller to a PKS cluster, do the following:
+
+1. Set the kubectl context for the cluster where you want to deploy the ingress controller by running the following command:
+
+    ```
+    pks get-credentials CLUSTER-NAME
+    ```
+    Where `CLUSTER-NAME` is the name of your PKS-deployed Kubernetes cluster.
+
+1. Verify that KubeDNS is enabled for your cluster by running the following command:
+
+    ```
+    kubectl cluster-info
+    ```
+
+    If KubeDNS is enabled, the output lists the URL for the KubeDNS service in the cluster. For example:
+    <pre class="terminal">$ kubectl cluster-info
+    Kubernetes master is running at https\://104.197.5.247
+    elasticsearch-logging is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/elasticsearch-logging/proxy
+    kibana-logging is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/kibana-logging/proxy
+    kube-dns is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/kube-dns/proxy
+    grafana is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy
+    heapster is running at https\://104.197.5.247/api/v1/namespaces/kube-system/services/monitoring-heapster/proxy
+    </pre>
+    If KubeDNS is not enabled, do the following:
+    1. Navigate to Ops Manager and click the **BOSH Director** tile.
+    1. Click the **Director Config** pane.
+    1. Select the **Enable Post Deploy Scripts** checkbox.
+    1. Click **Review Pending Changes**, and then **Apply Changes**.
+    1. Delete the cluster, and then re-create the cluster.
+
+1. Follow the installation instructions for the Kubernetes ingress controller
+you choose to deploy. For example, see the installation guide in the [Istio](https://istio.io/docs/setup/kubernetes/install/) documentation.
+
+## <a id='dns'></a>Configure DNS
+
+After you deploy an ingress controller to your cluster, locate the HTTP port
+number that the ingress rules expose. Configure DNS to point to the exposed port
+on your Kubernetes worker node VMs.
+
+To configure DNS for your cluster, do the following:
+
+1. Run `kubectl get services` in the namespace where you deployed the ingress
+controller. For example, if you deployed Istio, run the following command:
+
+    ```
+    kubectl  --namespace=istio-system get services
+    ```
+    In the output of this command, locate the exposed HTTP port.<br><br>
+    For example:
+    <pre class="terminal">$ kubectl --namespace=istio-system get services
+    NAME           TYPE            CLUSTER-IP       EXTERNAL-IP     PORT(S)
+    istio-ingress  LoadBalancer    10.100.200.200   &lt;pending&gt;       80:30822/TCP,443:31441/TCP
+    </pre>
+    In the example above, the exposed HTTP port is 30822.
+
+1. List the IP addresses for the Kubernetes worker node VMs by running the following command:
+
+    ```
+    kubectl -o jsonpath='{.items[*].status.addresses[0].address}' get nodes
+    ```
+
+1. Configure your load balancer to point to the Kubernetes worker node VMs,
+using the IP addresses you located in the previous step and the exposed port
+number you located in the first step.
+
+## <a id='tls'></a>(Optional) Configure TLS
+
+Enable Transport Layer Security (TLS) for the domain you configured for the cluster.
+
+To configure TLS, do the following:
+
+1. (Optional) Run the following command to generate a self-signed certificate:
+
+    ```
+    openssl req -x509 \
+      -nodes -newkey rsa:4096 \
+      -keyout KEY-PATH.pem \
+      -out CERT-PATH.pem \
+      -days 365 \
+      -subj "/CN=*.PKS.EXAMPLE.COM"
+    ```
+    Where:
+    - `KEY-PATH.pem` is the file path for the key you are generating.
+    - `CERT-PATH.pem` is the file path for the certificate you are generating.
+    - `*.PKS.EXAMPLE.COM` is the wildcard domain you configured in [Configure DNS](#dns).
+
+1. Upload your TLS certificate and key to your ingress controller namespace by
+running the following command:
+
+    ```
+    kubectl -n INGRESS-NAMESPACE create secret tls INGRESS-CERT \
+    --key `KEY-PATH.pem` --cert CERT-PATH.pem
+    ```
+    Where:
+    - `INGRESS-CERT` is a name you provide for the Kubernetes secret that contains
+    your TLS certificate and key pair.
+    - `KEY-PATH.pem` is the file path for your TLS key.
+    - `CERT-PATH.pem` is the file path for your TLS certificate.
+
+    For example:
+    <pre class="terminal">
+    $ kubectl -n istio-system create secret tls istio-ingress-certs \
+    --key /tmp/tls.key --cert /tmp/tls.crt
+    </pre>
+
+## <a id='app'></a>Deploy an App to the Cluster
+
+When your cluster has an ingress controller running and DNS configured, you can
+deploy an app to the cluster that uses the ingress rules.
+
+To deploy an app that uses ingress rules, do the following:
+
+1. Deploy your app manifest by running the following command:
+
+    ```
+    kubectl create -f YOUR-APP.yml
+    ```
+    Where `YOUR-APP.yml` is the file path for your app manifest.
+
+1. In the app manifest for your ingress controller, change the value of the `host:`
+property to match the wildcard domain you configured in [Configure DNS](#dns) above.
+
+1. Deploy your ingress controller app manifest by running the following command:
+
+    ```
+    kubectl create -f YOUR-APP.yml
+    ```
+    Where `INGRESS-CONTROLLER.yml` is the file path for your ingress controller app manifest.
+
+1. Navigate to the fully qualified domain name (FQDN) you defined in your app manifest and confirm that you can access your app workload.
+
+1. (Optional) If you configured TLS, do the following:
+
+    1. Add the following to your ingress controller manifest to enable TLS:
+
+        ```
+        spec:
+          tls:
+            - secretName: INGRESS-CERT
+          rules:
+          - host: INGRESS.PKS.EXAMPLE.COM
+        ```
+        Where:
+        - `INGRESS-CERT` is the name of the Kubernetes secret that contains your TLS
+        certificate and key pair.
+        - `INGRESS.PKS.EXAMPLE.COM` is the domain you defined for your app in the app manifest.
+
+    1. Redeploy the ingress controller manifest to update the ingress service by
+    running the following command:
+
+        ```
+        kubectl replace -f INGRESS-CONTROLLER.yml
+        ```
+        Where `INGRESS-CONTROLLER.yml` is the file path for your ingress controller app manifest.<br><br>
+
+    1. Navigate to the FQDN you defined in your app manifest and confirm that you can access your app workload.
