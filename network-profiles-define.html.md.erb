@@ -166,6 +166,25 @@ For example, the following network profile defines non-routable pod addresses fr
 }
 ```
 
+### <a id='pod-prefix'></a> Pod Subnet Prefix
+
+Each time a Kubernetes namespace is created, a subnet from the pods IP block is allocated. The default size of the subnet carved from this block for such purposes is /24. For more information, see the [Pods IP Block](nsxt-prepare-env.html#pods-ip-block) section of _Planning, Preparing, and Configuring NSX-T for <%= vars.product_short %>_.
+
+You can define a Network Profile using the `pod_subnet_prefix` parameter to customize the size of the pod subnet reserved for namespaces. For example, the following network profile specifies /27 for the size of the pods IP block subnet:
+
+```
+{
+    "name": "np-pod-prefix",
+    "description": "Network Profile for Customizing Pod Subnet Size",
+    "parameters": {
+        "pod_subnet_prefix" : 27
+    }
+}
+```
+
+<p class="note"><strong>Note:</strong> The subnet size for a Pods IP Block must be consistent across all Network Profiles.
+<%= vars.product_short %> does not support variable subnet sizes for a given IP Block.</p>
+
 ### <a id='routable-pods'></a> Routable Pod Networks
 
 Using a network profile, you can assign routable IP addresses from a dedicated routable IP block to pods in your Kubernetes cluster. When a cluster is deployed using that network profile, the routable IP block overrides the default non-routable IP block described created for deploying <%= vars.product_short %>. When you deploy a Kubernetes cluster using that network profile, each pod receives a routable IP address. This configuration is shown in the diagram below. If you use routable pods, the SNAT rule is not created.
@@ -215,25 +234,9 @@ For example, the following network profile specifies an NSGroup for the BOSH CPI
 }
 ```
 
-### <a id='pod-prefix'></a> Pod Subnet Prefix
-
-Each time a Kubernetes namespace is created, a subnet from the pods IP block is allocated. The size of the subnet carved from this block for such purposes is /24. For more information, see the [Pods IP Block](nsxt-prepare-env.html#pods-ip-block) section of _Planning, Preparing, and Configuring NSX-T for <%= vars.product_short %>_.
-
-You can define a Network Profile using the `pod_subnet_prefix` parameter to customize the size of the pod subnet reserved for namespaces. For example, the following network profile specifies /27 for the size of the pods IP block subnet:
-
-```
-{
-    "name": "np-pod-prefix",
-    "description": "Network Profile for Customizing Pod Subnet Size",
-    "parameters": {
-        "pod_subnet_prefix" : 27
-    }
-}
-```
-
 ### <a id='floating-ip'></a> Custom Floating IP Pool
 
-To deploy <%= vars.product_short %> to vSphere with NSX-T, you must define a floating IP pool in NSX Manager. The IP addresses in this floating IP pool are assigned to load balancers automatically provisioned by NSX-T when you deploy a Kubernetes cluster using <%= vars.product_short %>. For more information, see the [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) section of _Planning, Preparing, and Configuring NSX-T for <%= vars.product_short %>_.
+To deploy <%= vars.product_short %> to vSphere with NSX-T, you must define a Floating IP Pool in NSX Manager. IP addresses from the Floating IP Pool are used for SNAT IP addresses whenever a Namespace is created (NAT mode). In addition, IP addresses from the Floating IP Pool are assigned to load balancers automatically provisioned by NSX-T, including the load balancer fronting the PKS API server and load balancers for pod ingress. For more information, see the [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) section of _Planning, Preparing, and Configuring NSX-T for <%= vars.product_short %>_.
 
 You can define a network profile that specifies a custom floating IP pool to use instead of the default pool specified in the <%= vars.product_tile %> tile.
 
@@ -259,6 +262,8 @@ The example above uses two floating IP pools.
 With this configuration, if the first pool of IP addresses, `e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0`, is exhausted,
 the system will use the IP addresses in the next IP pool that is listed,
 `ebe78a74-a5d5-4dde-ba76-9cf4067eee55`.
+
+<p class="note"><strong>Note:</strong> If you are using multiple Floating IP Pools within the same Tier-0 router, the Floating IP Pools cannot overlap. Overlapping Floating IP Pools are allowed across Tier-0 routers, but not within the same Tier-0 router.</p>
 
 ### <a id='multi-t0'></a> Edge Router Selection
 
@@ -351,9 +356,11 @@ For example, the following network profiles define two tenant Tier-0 routers wit
 
 ### <a id='dns'></a> DNS Configuration for Kubernetes Clusters
 
+You can specify multiple DNS enterires in a Network Profile to override the **Nodes DNS** parameter configured in the PKS tile. In a multi-tenant environment, for example, each tenant can have a different set of DNS servers to do a DNS lookup.
+
 Using a network profile, you can define one or more DNS servers for use with Kubernetes clusters. Elements in the `nodes_dns` field of a network profile override the DNS server that is configured in the Networking section of the <%= vars.product_tile %> tile. For more information, see [Networking](installing-nsx-t.html#networking).
 
-The `nodes_dns` field accepts an array with up to 3 elements. Each element must be a valid IP address of a DNS server. If you are deploying <%= vars.product_short %> in a multi-tenant environment with multiple Tier-0 routers, the first DNS server entered should be a shared DNS server. Subsequent entries are typically specific to the tenant.
+The `nodes_dns` field accepts an array with up to 3 elements. Each element must be a valid IP address of a DNS server. If you are deploying <%= vars.product_short %> in a multi-tenant environment with multiple Tier-0 routers and a single PKS foundation (installation) shared across all the tenants, or if you have shared services that can be accessed by all Kubernetes clusters deployed across multiple Tier 0 routers, the first DNS server entered should be a shared DNS server. Subsequent DNS entries in the Network Profile can be specific to the tenant.
 
 The following example network profile, `nodes-dns.json`, demonstrates the configuration of the `nodes_dns` parameter with 3 DNS servers. Each entry is the IP address of a DNS server, with the first entry being a public DNS server.
 
