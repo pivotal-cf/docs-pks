@@ -8,35 +8,125 @@ owner: PKS
 <%= partial 'beta-component' %>
 
 This topic describes how to use compute profiles for Kubernetes clusters
-provisioned with <%= vars.product_full %> on vSphere with NSX-T integration
-using the PKS API.
+provisioned with <%= vars.product_full %> on vSphere with NSX-T integration.
+
+The procedures in this topic use the PKS API.
 
 ## <a id='overview'></a> Overview
 
-When you deploy a cluster using <%= vars.product_short %>, you allocate
-resources to the cluster workload by specifying a plan. You define plans in the
-<%= vars.product_tile %> tile. For more information, see the [Plans](./installing-nsx-t.html#plans)
-section of _Installing <%= vars.product_short %> on vSphere with NSX-T_.
+Compute profiles allow you to control which vSphere resources are used 
+when deploying Kubernetes clusters in a <%= vars.product_short %> deployment.
+You can use compute profiles to control where your Kubernetes clusters 
+are created within your virtual infrastructure.
 
-In addition to plans, you can also use compute profiles to allocate resources to
-cluster workloads. You can customize any number of compute profiles.
+With compute profiles, you can define Availability Zones (AZs) dynamically
+instead of having to add new AZs in the BOSH Director tile configuration. 
+Compute profiles override the AZ values specified in plans.
+As a result, you do not need to make AZ changes to each <%= vars.product_short %> plan
+and the overall impact to the PKS control plane is smaller.
 
-You define a compute profile in a JSON file, and then create clusters
-that use the compute profile using the PKS API.
+<p class="note"><strong>Note</strong>: Compute profiles only set AZs. 
+The rest of the cluster's configuration is always inherited from the plan.</p>
+
+You define a compute profile within a JSON file, and then create clusters
+that use the compute profile using the PKS API. 
+
+You can customize any number of compute profiles.
 
 ## <a id='prerequisites'></a> Prerequisites
 
 Before you define a compute profile, you must have the following:
 
-* A configured <%= vars.product_short %> installation on vSphere with NSX-T. See [Installing <%= vars.product_short %> on vSphere with NSX-T](installing-nsx-t.html).
-* At least one network profile. See [Defining Network Profiles](network-profiles-define.html).
+* A configured <%= vars.product_short %> installation on vSphere with NSX-T. 
+See [Installing <%= vars.product_short %> on vSphere with NSX-T](installing-nsx-t.html).
 
 ## <a id='define'></a> Define a Compute Profile
 
-Define a compute profile in a JSON file. Any parameters you do not configure
-in the compute profile are set by the plan you use to create the cluster.
+Define a compute profile in a JSON file. 
 
-To create a compute profile, do the following:
+1. In a new text file, enter the parameters for the compute profile in the following format:
+
+    ```txt
+    {
+        "name" : "PROFILE-NAME",
+        "description" : "PROFILE-DESCRIPTION",
+        "parameters" : {
+            "azs": [{
+                "cpi": "CPI-NAME",
+                "name": "AZ-NAME",
+                "cloud_properties": {
+                    availability_zone: "CLUSTER-AZ"
+                }
+            }],
+            "worker_azs": ["AZ-NAME"],
+            "master_azs": ["AZ-NAME"],
+        },
+    }
+    ```
+
+    Where:
+    - `PROFILE-NAME` is the name of the compute profile you want to define. Enter a string value up to 26 characters long. For example, `dev`.
+    - (Optional) `PROFILE-DESCRIPTION` describes the compute profile.
+    - `CPI-NAME` is the CPI name of your <%= vars.product_short %> deployment. For instructions on how to obtain this ID, see [Retrieve the BOSH CPI ID](retrieve-cpi-id). For example, `abc012abc345abc567de`.
+    - `AZ-NAME` is a name you define for the availability zone (AZ) where you want to deploy cluster VMs. For example, `z1`.     
+       <p class="note"><strong>Note</strong>: If you define multiple AZs in the <code>azs</code> array, you can specify different AZs for worker node VMs and master node VMs.</p>
+    - `CLUSTER-AZ` is the name of an AZ as it appears in Ops Manager and your cloud provider console. For example, `us-east-1a`. For additional cloud properties related to AZs, see the [vSphere CPI AZs](https://bosh.io/docs/vsphere-cpi/#azs) section of the BOSH documentation.
+
+    For example:
+
+    ```txt
+    {
+        "name" : "dev",
+        "description" : "For development clusters",
+        "parameters" : {
+            "azs": [{
+                "cpi": "abc012abc345abc567des",
+                "name": "z1",
+                "cloud_properties": {
+                    availability_zone: "us-east-1a"
+                }
+            }],
+            "worker_azs": ["z1"],
+            "master_azs": ["z1"],
+        },
+    }
+    ```
+    Another example showing one AZ with 1 cluster and a `resource_pool named` `my-res-pool`
+
+    ```txt
+    {
+        "name": "prod",
+        "description": "For production clusters",
+        "parameters": {
+            "azs": [{
+                "cpi": "cpi-id",
+                "name": "z1",
+                "cloud_properties": {
+                    "datacenters": [{
+                         "name": "my-dc",
+                         "clusters": [{
+                            "my-vsphere-cluster": {
+                                "resource_pool": "my-res-pool1",
+                                "drs_rules": {
+                                     "name": "my-drs-rule",  
+                                     "type": "separate-vms"
+                                }
+                             }
+                         }]
+                    }]
+                }
+            }],
+           “master_azs”: [“z1”],
+           “Worker_azs”: [“z1”]
+        }
+    }
+    ```
+
+1. Save the file with a JSON extension. For example, `dev-clusters.json` or `prod-clusters.json`.
+
+###<a id="retrieve-cpi-id"></a> Retrieve the BOSH CPI ID
+
+Use the following procedure to retrieve the BOSH CPI ID for your <%= vars.product_short %> deployment.
 
 1. Locate the credentials used to import the PCF .ova or .ovf file into your virtualization system. You set these credentials when you installed Ops Manager.
     <p class="note"><strong>Note</strong>: If you lose your credentials, you must shut down the Ops Manager VM in the vSphere UI and reset the password. See <a href="https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-4BDBF79A-6C16-43B0-B0B1-637BF5516112.html">vCenter Password Requirements and Lockout Behavior</a> in the vSphere documentation for more information.</p>
@@ -67,57 +157,6 @@ into vCenter. For example:
       name: YOUR-CPI-NAME
     ```
     For more information about running BOSH commands in your PKS deployment, see [Managing <%= vars.product_short %> Deployments with BOSH](manage-deployments-bosh.html).
-
-1. In a new text file, enter the parameters for the compute profile in the following format:
-
-    ```txt
-    {
-        "name" : "PROFILE-NAME",
-        "description" : "PROFILE-DESCRIPTION",
-        "parameters" : {
-            "azs": [{
-                "cpi": "CPI-NAME",
-                "name": "AZ-NAME",
-                "cloud_properties": {
-                    availability_zone: "CLUSTER-AZ"
-                }
-            }],
-            "worker_azs": ["AZ-NAME"],
-            "master_azs": ["AZ-NAME"],
-        },
-    }
-    ```
-
-    Where:
-    - `PROFILE-NAME` is the name of the compute profile you want to define. Enter a string value up to 26 characters long. For example, `dev`.
-    - (Optional) `PROFILE-DESCRIPTION` describes the compute profile.
-    - `CPI-NAME` is the CPI name you located in the previous step. For example, `abc012abc345abc567de`.
-    - (Optional) `AZ-NAME` is a name you define for the availability zone (AZ) where you want to deploy cluster VMs. For example, `z1`.
-    - `CLUSTER-AZ` is the name of an AZ as it appears in Ops Manager and your cloud provider console. For example, `us-east-1a`.
-
-    For example:
-
-    ```txt
-    {
-        "name" : "dev",
-        "description" : "For development clusters",
-        "parameters" : {
-            "azs": [{
-                "cpi": "abc012abc345abc567des",
-                "name": "z1",
-                "cloud_properties": {
-                    availability_zone: "us-east-1a"
-                }
-            }],
-            "worker_azs": ["z1"],
-            "master_azs": ["z1"],
-        },
-    }
-    ```
-
-    <p class="note"><strong>Note</strong>: If you define multiple AZs in the <code>azs</code> array, you can specify different AZs for worker node VMs and master node VMs.</p>
-
-1. Save the file with a JSON extension. For example, `dev-clusters.json`.
 
 ## <a id='create'></a> Create a Compute Profile
 
@@ -159,14 +198,14 @@ Where:
 
 ## <a id='create-cluster'></a> Create a Cluster with a Compute Profile
 
-Define cluster parameters in a JSON file. Include the name of the compute profile,
-network profile, and plan in this file, and then make a request to the PKS API to
+Define cluster parameters in a JSON file. Include the name of the compute profile
+and plan in this file. Then make a request to the PKS API to
 create the cluster.
 
 To create a cluster with a compute profiles, do the following:
 
 1. Create a new JSON file that describes the cluster you want to create. Include the
-compute profile and network profile names in the file. For example:
+compute profile names in the file. For example:
 
     ```json
     {
@@ -247,10 +286,6 @@ The following example compute profile uses two AZs, with one cluster in the firs
 						"clusters": [{
 							"cluster1": {
 								"resource_pool": "rp3",
-								"drs_rules": {
-									"name": "my-drs-rule",
-									"type": "separate-vms"
-								}
 							}
 						}]
 					}]
