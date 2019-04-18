@@ -116,13 +116,74 @@ At this point in time, you can connect to any NSX-T manager using its own IP add
 
   <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-05.png" alt="VIP Association">
 
-### <a id="nsx-cert"></a> Step 6: Generate and Register a New NSX Manager CA Cert with the Cluster API
+### <a id="nsx-cert"></a> Step 6: Generate, Import, and Register a New NSX Manager CA Cert with the Cluster API
 
 Both the BOSH Director tile and the PKS tile expect the NSX Manager CA certificate. However, the current NSX Manager CA certificate is associated with the original NSX Manager IP address. You need to generate a new NSX Manager CA cert using the VIP address, then register this certificate with NSX-T using the Cluster Certificate API.
 
-To generate a new NSX Manage CA certificate and private key using the VIP address, follow the instructions in the [Generate NSX CA Cert](./generate-nsx-ca-cert.html) PKS documentation. Make sure you use the VIP address, such as `10.40.206.5` in our example above.
+#### Generate a New NSX Manager CA Certificate and Private Key
 
-Once you have created the new CA certificate using the VIP address, import the new CA certificate to the NSX Manager. Refer to [Import the Certificate to NSX Manager](./generate-nsx-ca-cert.html#import-certificate) for instructions on doing this.
+To generate a new NSX Manager CA certificate and private key using the VIP address, follow the instructions below. Make sure you use the VIP address, such as `10.40.206.5`.
+
+Below is an example Certificate Signing Request (CSR) named `nsx-cert.cnf`. In this example, the IP address `10.40.206.5` is the IP address of the VIP. Substitute this IP address with the VIP you generated.
+
+```
+[ req ]
+
+default_bits = 2048
+
+distinguished_name = req_distinguished_name
+
+req_extensions = req_ext
+
+prompt = no
+
+[ req_distinguished_name ]
+
+countryName = US
+
+stateOrProvinceName = California
+
+localityName = CA
+
+organizationName = NSX
+
+commonName = 10.40.206.5
+
+[ req_ext ]
+
+subjectAltName = @alt_names
+
+
+[alt_names]
+
+DNS.1 = 10.40.206.5
+```
+
+To generate the certficate and private key using the above CSR, run the following commands:
+
+```
+# export NSX_MANAGER_IP_ADDRESS=10.40.206.5
+
+# export NSX_MANAGER_COMMONNAME=10.40.206.5
+
+# openssl req -newkey rsa:2048 -x509 -nodes \
+
+> -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
+
+> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
+
+>  <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 365
+```
+
+The result is `nsx.crt` and `nsx.key`. You can verify the certificate using the command `# openssl x509 -in nsx.crt -text -noout`.
+
+#### Upload the New NSX Manager CA Certificate and Private Key
+
+Once you have generated the new CA certificate using the VIP address, import the new CA certificate to the NSX Manager. 
+
+To do this: 
+
+Refer to [Import the Certificate to NSX Manager](./generate-nsx-ca-cert.html#import-certificate) for instructions on doing this.
 
 Once you have imported the NSX Manager certificate, register this certificate with the NSX Management cluster using a cURL command against the Cluster Certificate API.
 
