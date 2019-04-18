@@ -120,7 +120,7 @@ At this point in time, you can connect to any NSX-T manager using its own IP add
 
 Both the BOSH Director tile and the PKS tile expect the NSX Manager CA certificate. However, the current NSX Manager CA certificate is associated with the original NSX Manager IP address. You need to generate a new NSX Manager CA cert using the VIP address, then register this certificate with NSX-T using the Cluster Certificate API.
 
-#### Generate a New NSX Manager CA Certificate and Private Key
+####<a id='generate-certificate'></a> Generate a New NSX Manager CA Certificate and Private Key
 
 To generate a new NSX Manager CA certificate and private key using the VIP address, follow the instructions below. Make sure you use the VIP address, such as `10.40.206.5`.
 
@@ -177,17 +177,33 @@ To generate the certficate and private key using the above CSR, run the followin
 
 The result is `nsx.crt` and `nsx.key`. You can verify the certificate using the command `# openssl x509 -in nsx.crt -text -noout`.
 
-#### Upload the New NSX Manager CA Certificate and Private Key
+####<a id='import-certificate'></a> Import the New Certificate to NSX Manager
 
-Once you have generated the new CA certificate using the VIP address, import the new CA certificate to the NSX Manager. 
+Complete the following steps to import the certificate to the NSX Manager:
 
-To do this: 
+1. Log in to the NSX Manager UI.
 
-Refer to [Import the Certificate to NSX Manager](./generate-nsx-ca-cert.html#import-certificate) for instructions on doing this.
+1. Navigate to **System > Trust > Certificates**.
+
+1. Click **Import > Import Certificate**.
+
+	<img src="images/nsxt/import-cert.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475">
+    <p class="note"><strong>Note</strong>: Make sure you select **Import Certificate** and not **Import CA Certificate**</code>.</p>
+
+1. Give the certificate a unique name, such as `NSX-API-CERT-NEW`.
+  <p class="note"><strong>Note</strong>: Use a unique name for the new certificate you import. The default NSX Manager CA certificate is typically named <code>NSX-API-CERT</code>.</p>
+
+1. Browse to and select the CA certificate and private key you generated in the previous section of steps.
+
+1. Click **Save**.
+
+ 	<img src="images/nsxt/import-cert-2.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475"> 
+
+####<a id='register-certificate'></a> Register the New Certificate with NSX Manager
 
 Once you have imported the NSX Manager certificate, register this certificate with the NSX Management cluster using a cURL command against the Cluster Certificate API.
 
-First, create environment variables for the VIP address and the certificate ID:
+First, create environment variables for the VIP address and the certificate ID. In this example, `10.40.206.5` is the VIP address. The certificate ID is obtained from the NSX Manager UI where you imported the certificate.
 
 ```
 export NSX_MANAGER_IP_ADDRESS=10.40.206.5
@@ -195,25 +211,13 @@ export NSX_MANAGER_IP_ADDRESS=10.40.206.5
 export CERTIFICATE_ID="63bb6646-052c-49df-b603-64d7e5bdb5bf"
 ```
 
-Next, register the new NSX-T Manager CA cert using a cURL request to the Cluster Certificate API: 
+Next, register the new NSX-T Manager CA cert using a cURL request to the Cluster Certificate API. Substitute `PASSWORD` with the password for NSX Manager.
 
 ```
 curl --insecure -u admin:'PASSWORD' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
 ```
 
-The certificate will be registered with the NSX Manager that the VIP address is associated with. In this example that is `10.40.206.3`. To register the new certificate with the other two NSX-T Manager appliances, repeat the process twice more, each time updating the NSX Manager IP address. For example:
-
-```
-export NSX_MANAGER_IP_ADDRESS=10.40.206.2
-export CERTIFICATE_ID="63bb6646-052c-49df-b603-64d7e5bdb5bf"
-curl --insecure -u admin:'PASSWORD' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
-```
-
-```
-export NSX_MANAGER_IP_ADDRESS=10.40.206.4
-export CERTIFICATE_ID="63bb6646-052c-49df-b603-64d7e5bdb5bf"
-curl --insecure -u admin:'PASSWORD' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
-```
+The certificate will be registered with the NSX Manager that the VIP address is associated with. 
 
 To verify, using a browser go to the VIP address of the NSX Manager. Login and check that the new cert is used by the site (accessed using the VIP address). 
 
