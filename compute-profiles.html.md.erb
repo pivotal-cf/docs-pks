@@ -21,12 +21,12 @@ are created within your virtual infrastructure.
 
 With compute profiles, you can define Availability Zones (AZs) dynamically
 instead of adding new AZs in the BOSH Director tile. 
-Compute profiles override the AZ values specified in <%= vars.product_short %> plans.
 As a result, you do not need to make AZ changes to each plan
 and the overall impact to the PKS control plane is smaller.
 
-<p class="note"><strong>Note</strong>: Compute profiles only set AZs. 
-The rest of the cluster's configuration is always inherited from the plan.</p>
+<p class="note"><strong>Note</strong>: Compute profiles only override the AZ values 
+specified in <%= vars.product_short %> plans. 
+The rest of the cluster's configuration is inherited from the plan.</p>
 
 You define a compute profile within a JSON file, and then create clusters
 that use the compute profile using the <%= vars.product_short %> API. 
@@ -56,10 +56,16 @@ Define a compute profile in a JSON file.
         "description" : "PROFILE-DESCRIPTION",
         "parameters" : {
             "azs": [{
-                "cpi": "CPI-NAME",
                 "name": "AZ-NAME",
+                "cpi": "CPI-NAME",
                 "cloud_properties": {
-                    availability_zone: "CLUSTER-AZ"
+                    "datacenters": [{
+                        "name": "DC-NAME",
+                        "clusters": [{
+                            "CLUSTER-NAME": {
+                                "resource_pool": "RESOURCE-POOL-NAME"
+                            }
+                   }]     
                 }
             }],
             "worker_azs": ["AZ-NAME"],
@@ -71,39 +77,22 @@ Define a compute profile in a JSON file.
     Where:
     - `PROFILE-NAME` is the name of the compute profile you want to define. Enter a string value up to 26 characters long. For example, `dev`.
     - (Optional) `PROFILE-DESCRIPTION` describes the compute profile.
-    - `CPI-NAME` is the CPI name of your <%= vars.product_short %> deployment. For instructions on how to obtain the `CPI-NAME`, see [Retrieve the BOSH CPI ID](#retrieve-cpi-id). For example, `abc012abc345abc567de`.
     - `AZ-NAME` is a name for the availability zone (AZ) where you want to deploy cluster VMs. For example, `z1`.     
        <p class="note"><strong>Note</strong>: If you define multiple AZs in the <code>azs</code> array, you can specify different AZs for worker node VMs and master node VMs.</p>
-    - `CLUSTER-AZ` is the name of an AZ as it appears in Ops Manager and your cloud provider console. For example, `us-east-1a`. For additional cloud properties related to AZs, see the [vSphere CPI AZs](https://bosh.io/docs/vsphere-cpi/#azs) section of the BOSH documentation.
+    - `CPI-NAME` is the BOSH CPI ID of your <%= vars.product_short %> deployment. For instructions on how to obtain the `CPI-NAME`, see [Retrieve the BOSH CPI ID](#retrieve-cpi-id). For example, `abc012abc345abc567de`.
+    - `DC-NAME` is the name of your data center as it appears in Ops Manager and your cloud provider console. For example, `dc-east`. For additional cloud properties related to AZs, see the [vSphere CPI AZs](https://bosh.io/docs/vsphere-cpi/#azs) section of the BOSH documentation.
+    - `CLUSTER-NAME` is the name you want to give your cluster.
+    - `RESOURCE-POOL-NAME` is the name of the resource pool where you want to deploy your cluster.
 
-    For example:
-
-    ```txt
-    {
-        "name" : "dev",
-        "description" : "For development clusters",
-        "parameters" : {
-            "azs": [{
-                "cpi": "abc012abc345abc567des",
-                "name": "z1",
-                "cloud_properties": {
-                    availability_zone: "us-east-1a"
-                }
-            }],
-            "worker_azs": ["z1"],
-            "master_azs": ["z1"],
-        },
-    }
-    ```
-    Another example showing one AZ with one cluster and a `resource_pool` named `my-res-pool`:
+    For example, this compute profile shows one AZ for one cluster assigned to the `resource_pool` named `my-res-pool`:
 
     ```txt
     {
-        "name": "prod",
-        "description": "For production clusters",
+        "name": "dev",
+        "description": "For development clusters",
         "parameters": {
             "azs": [{
-                "cpi": "cpi-id",
+                "cpi": "abc012abc345abc567des",
                 "name": "z1",
                 "cloud_properties": {
                     "datacenters": [{
@@ -111,10 +100,6 @@ Define a compute profile in a JSON file.
                          "clusters": [{
                             "my-vsphere-cluster": {
                                 "resource_pool": "my-res-pool1",
-                                "drs_rules": {
-                                     "name": "my-drs-rule",  
-                                     "type": "separate-vms"
-                                }
                              }
                          }]
                     }]
@@ -126,7 +111,9 @@ Define a compute profile in a JSON file.
     }
     ```
 
-1. Save the file with a JSON extension. For example, `dev-clusters.json` or `prod-clusters.json`.
+1. Save the file with a JSON extension. For example, `dev-clusters.json`.
+
+For more example compute profiles, see [Example Compute Profiles](#examples).
 
 ###<a id="retrieve-cpi-id"></a> Retrieve the BOSH CPI ID
 
@@ -237,13 +224,25 @@ compute profile names in the file. For example:
     - `YOUR-ACCESS-TOKEN` is your <%= vars.product_short %> UAA admin access token specified as an environment variable. For information on how to export this token as an environment variable, see [Export PKS API Token](configure-api.html#pks-api-access).
     - `@PATH-TO-CLUSTER.json` is the path and filename for the JSON file you created in [Define a Compute Profile](#define).  
 
+## <a id="resize"></a> Resize a Cluster with a Compute Profile
+
+Currently, you cannnot use the the <%= vars.product_short %> API 
+to resize an existing cluster that uses a compute profile. 
+
+To resize an existing cluster, perform the following steps:
+
+1. Delete the cluster by running the `pks delete cluster` command. 
+
+1. Recreate the cluster with a compute profile as described in 
+[Create a Cluster with a Compute Profile](#create-cluster), and specify new scaling parameters.
+
 ## <a id="delete"></a> Delete Compute Profiles
 
 You can delete compute profiles in your <%= vars.product_short %> deployment by making a request to
 the <%= vars.product_short %> API.
 
 You cannot delete a compute profile that is applied to an existing cluster. 
-You must delete any clusters using the compute profile first. 
+First delete any clusters that use the compute profile. 
 To delete a cluster using a compute profile, use the `pks delete cluster` command. 
 
 To delete a compute profile, run the following command:
@@ -260,8 +259,7 @@ Where:
 - `YOUR-ACCESS-TOKEN` is your <%= vars.product_short %> UAA admin access token specified 
 as an environment variable. For information on how to export this token as an environment variable, see [Export PKS API Token](configure-api.html#pks-api-access).
 
-
-## <a id="example-1"></a> Example Compute Profiles
+## <a id="examples"></a> Example Compute Profiles
 
 This section includes example compute profiles that define different sets of vSphere resources.
 
@@ -283,10 +281,6 @@ The following example compute profile for a single cluster uses one AZ and one r
 					"clusters": [{
 						"my-vsphere-cluster": {
 							"resource_pool": "my-res-pool1",
-							"drs_rules": {
-								"name": "my-drs-rule",
-								"type": "separate-vms"
-							}
 						}
 					}]
 				}]
@@ -308,47 +302,46 @@ The following example compute profile uses two AZs, with one cluster in the firs
 	"description": "For production clusters",
 	"parameters": {
 		"azs": [{
+                "name": "z1",
 				"cpi": "abc012abc345abc567des",
-				"name": "z1",
 				"cloud_properties": {
 					"datacenters": [{
 						"name": "my-dc",
 						"clusters": [{
 							"cluster1": {
-								"resource_pool": "rp3",
+								"resource_pool": "rp3"
 							}
 						}]
 					}]
 				}
 			},
 			{
+                "name": "z2",
 				"cpi": "abc012abc345abc567des",
-				"name": "z2",
 				"cloud_properties": {
 					"datacenters": [{
 						"name": "my-dc",
 						"clusters": [{
-								"cluster1": {
-									"resource_pool": "rp1"
-								}
-							},
-							{
-								"cluster2": {
-									"resource_pool": "rp1"
-								}
-							},
-							{
-								"cluster1": {
-									"resource_pool": "rp2"
-								}
+							"cluster2": {
+								"resource_pool": "rp1"
 							}
-						]
+						},
+							{
+							"cluster3": {
+								"resource_pool": "rp1"
+							}
+						},
+							{
+							"cluster4": {
+								"resource_pool": "rp2"
+							}
+						}]
 					}]
 				}
 			}
 		],
-      "master_azs": ["z1"],
-      "worker_azs": ["z2"],
+      "master_azs": ["z1","z2"],
+      "worker_azs": ["z1","z2"]
 	}
 }
 ```
