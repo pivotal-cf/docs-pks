@@ -1,11 +1,11 @@
 ---
-title: Configuring and Deploying Basic Workloads
+title: Deploying and Exposing Basic Workloads
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to configure, deploy, and access basic workloads in <%= vars.product_full %>.
+This topic describes how to configure, deploy, and expose basic workloads in <%= vars.product_full %>.
 
 A load balancer is a third-party device that distributes network and application traffic across resources. 
 Using a load balancer can also prevent individual network components from being overloaded by high traffic. 
@@ -13,14 +13,17 @@ For more information about the different types of load balancers used in a <%= v
 deployment see [Load Balancers in PKS](../about-lb.html). 
 
 If you use Google Cloud Platform (GCP), Amazon Web Services (AWS), or vSphere with NSX-T integration, 
-your cloud provider can configure an external load balancer for your workload.
-See [Access Workloads Using an External Load Balancer](#external-lb).
+your cloud provider can configure a public-cloud external load balancer for your workload.
+See [Access Workloads Using an Public-Cloud External Load Balancer](#external-lb).
 
-If you use AWS, you can also access your workload using an internal load balancer.
-See the [AWS Prerequisites](#aws) section, and then [Access Workloads Using an Internal AWS Load Balancer](#internal-lb).
+If you use AWS, you can also expose your workload using an public-cloud internal load balancer.
+See the [AWS Prerequisites](#aws) section, and then [Access Workloads Using an Public-Cloud Internal AWS Load Balancer](#internal-lb).
 
 If you use vSphere without NSX-T, you can choose to configure your own external load balancer or expose static ports to access your workload without a load balancer.
 See [Access Workloads without a Load Balancer](#without-lb).
+
+**Deploy Complicated Workloads on Ingress Controllers**
+
 
 ## <a id='prerequisites'></a> Prerequisites
 ### <a id='aws'></a>AWS Prerequisites
@@ -45,164 +48,27 @@ If you use AWS, perform the following steps before you create a load balancer:
   </table>
   <p class='note'><strong>Note</strong>: AWS limits the number of tags on a subnet to 100.</p>
 
-## <a id='external-lb-section'></a>Deploy Workloads for an External Load Balancer
+## <a id='external-lb-section'></a>Deploy Workloads on vSphere with NSX-T
 
-### <a id='external-lb'></a>Deploy Workloads on GCP, AWS, or vSphere with NSX-T Using an External Load Balancer
-If you use GCP, AWS, or vSphere with NSX-T, follow the steps below to deploy and access basic workloads using a load balancer configured by your cloud provider.
+If you use vSphere with NSX-T, follow the steps below to deploy and expose basic workloads using the NSX-T load balancer.
+<%= partial 'expose-external-lb' %>
 
-<p class='note'><strong>Note</strong>: This approach creates a dedicated load balancer for each workload. This may be an inefficient use of resources in clusters with many apps.</p>
+## <a id='external-lb'></a>Deploy Workloads on GCP, AWS, or Azure, Using a Public-Cloud External Load Balancer
 
-#### <a id='external-lb-configure'></a>Configure Workloads on GCP, AWS, or vSphere with NSX-T for an External Load Balancer
+If you use GCP, AWS, or Azure, follow the steps below to deploy and expose basic workloads using a load balancer configured by your cloud provider.
+<%= partial 'expose-external-lb' %>
 
-1. Download the spec for a basic NGINX app from the [cloudfoundry-incubator/kubo-ci]
-(https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml) GitHub repository.
+## <a id='internal-lb'></a>Deploy AWS Workloads Using an Internal Load Balancer
 
-1. Open the `nginx.yml` file in an editor.
-
-1. To expose the workload through an external load balancer, modify the Service object to be `type: LoadBalancer`.  
-<br>
-    For example:
-
-    ```
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-      labels:
-        name: nginx
-      name: nginx
-    spec:
-      ports:
-        - port: 80
-      selector:
-        app: nginx
-      type: LoadBalancer
-    ---
-    ```
-
-    For more information about configuring the `LoadBalancer` Service type see the 
-[Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer).
-
-1. Save your edits to the `nginx.yml` file.
-
-#### <a id='external-lb-deploy'></a>Deploy Workloads on GCP, AWS, or vSphere with NSX-T for an External Load Balancer
-
-1. To deploy the basic NGINX app run the following command:
-
-    ```
-    kubectl create -f nginx.yml
-    ```
-    This command creates three pods (replicas) spanning three worker nodes.
-
-1. Wait until your cloud provider creates a dedicated load balancer and connects it to the worker nodes on a specific port.
-
-#### <a id='external-lb-access'></a>Access Workloads on GCP, AWS, or vSphere with NSX-T through an External Load Balancer
-
-1. To retrieve the load balancer IP address and port number, run the following command:
-
-    ```
-    kubectl get svc nginx
-    ```
-    Retrieve the load balancer's external IP and port from the returned listing.
-
-1. To access the app, run the following on the command:
-
-    ```
-    curl http://EXTERNAL-IP:PORT
-    ```
-    Where:  
-    * `EXTERNAL-IP` is the IP address of the load balancer 
-    * `PORT` is the port number.
-
-    <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the worker node.</p>
-
-### <a id='external-lb-generic'></a>Deploy Workloads for a Generic External Load Balancer
-
-Follow the steps below to deploy and access basic workloads using a load balancer configured by your cloud provider.
+If you use AWS, follow the steps below to deploy, expose and access basic workloads using an internal load balancer configured by your cloud provider.
 
 <p class='note'><strong>Note</strong>: This approach creates a dedicated load balancer for each workload. This may be an inefficient use of resources in clusters with many apps.</p>
 
-#### <a id='external-lb-generic-configure'></a>Configure Workloads for a Generic External Load Balancer
+#### <a id='internal-lb-configure'></a>Configure Your Workload
 
-1. Download the spec for a basic NGINX app from the [cloudfoundry-incubator/kubo-ci]
-(https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml) GitHub repository.
+1. Open your workload’s kubernetes service configuration file in an editor.
 
-1. Open the `nginx.yml` file in an editor.
-
-1. To expose the workload through an external load balancer, modify the kubernetes Service object to be `type: LoadBalancer`.  
-<br>
-    For example:
-
-    ```
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-      labels:
-        name: nginx
-      name: nginx
-    spec:
-      ports:
-        - port: 80
-      selector:
-        app: nginx
-      type: LoadBalancer
-
-    ---
-    ```
-
-    For more information about configuring the `LoadBalancer` Service type see the 
-[Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer).
-
-1. Save your edits to the `nginx.yml` file.
-
-#### <a id='external-lb-generic-deploy'></a>Deploy Workloads for a Generic External Load Balancer
-
-1. To deploy the basic NGINX app, run the following command:
-
-    ```
-    kubectl create -f nginx.yml
-    ```
-    This command creates three pods (replicas) spanning three worker nodes.
-
-1. Wait until your cloud provider creates a dedicated load balancer and connects it to the worker nodes on a specific port.
-
-#### <a id='external-lb-generic-access'></a>Access Workloads for a Generic External Load Balancer
-
-1. To retrieve the load balancer IP address and port number, run the following command:
-
-    ```
-    kubectl get svc nginx
-    ```
-
-1. To access the app, run the following command:  
-
-    ```
-    curl http://EXTERNAL-IP:PORT
-    ```
-
-    Where:
-    * `EXTERNAL-IP` is the IP address of the load balancer.
-    * `PORT` is the load balancer port number.
-
-    <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the worker node.</p>
-
-## <a id='internal-lb-section'></a>Deploy Workloads Using an Internal Load Balancer
-
-### <a id='internal-lb'></a>Deploy Workloads Using an Internal AWS Load Balancer
-
-If you use AWS, follow the steps below to deploy and access basic workloads using an internal load balancer configured by your cloud provider.
-
-<p class='note'><strong>Note</strong>: This approach creates a dedicated load balancer for each workload. This may be an inefficient use of resources in clusters with many apps.</p>
-
-#### <a id='internal-lb-configure'></a>Configure Workloads for an Internal AWS Load Balancer
-
-1. Download the spec for a basic NGINX app from the [cloudfoundry-incubator/kubo-ci]
-(https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml) GitHub repository.
-
-1. Open the `nginx.yml` file in an editor.
-
-1. To expose the workload through an internal load balancer, modify the kubernetes Service object to be `type: LoadBalancer`. 
+1. To expose the workload through a load balancer, modify the Service object to be `type: LoadBalancer`. 
 
 1. In the services metadata section of the manifest, add the following `annotations` tag:
 
@@ -232,29 +98,47 @@ If you use AWS, follow the steps below to deploy and access basic workloads usin
       ---
       ```
 
-    For more information about configuring the `LoadBalancer` Service type see the 
+1. Save and repeat your edits for all of the kubernetes service configurations necessary for you workload.
+
+<p class='note'><strong>Note</strong>: For an example of a fully configured kubernetes service, see the 
+<a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml">NGINX app's example <code>type: LoadBalancer</code> configuration</a>. </p>
+
+For more information about configuring the `LoadBalancer` Service type see the 
 [Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer).
 
-1. Save your edits to the `nginx.yml` file.
+#### <a id='internal-lb-deploy'></a>Deploy and Expose Your Workload
 
-#### <a id='internal-lb-deploy'></a>Deploy Workloads Using an Internal AWS Load Balancer
-
-1. To deploy the basic NGINX app, run the following command:
+1. To deploy the service configuration for your workload, run the following command:
 
     ```
-    kubectl create -f nginx.yml
+    kubectl apply -f SERVICE-CONFIG
     ```
+
+    Where `SERVICE-CONFIG` is your workload's kubernetes service configuration.  
+<br>
+    For example:
+    <pre class="terminal">kubectl apply -f nginx.yml</pre>
     This command creates three pods (replicas) spanning three worker nodes.
+
+1. Deploy your application, deployments, config maps, persistent volumes, secrets, 
+and any other configurations or objects necessary for your application to run.
 
 1. Wait until your cloud provider creates a dedicated load balancer and connects it to the worker nodes on a specific port.
 
-#### <a id='internal-lb-access'></a>Access Workloads through an Internal AWS Load Balancer
+#### <a id='internal-lb-access'></a>Access Your Workload
 
-1. To retrieve the load balancer IP address and port number, run the following command:
+1. To determine your exposed workload’s load balancer IP address and port number, run the following command:
 
     ```
-    kubectl get svc nginx
+    kubectl get svc WORKLOAD-NAME
     ```
+
+    Where `WORKLOAD-NAME` is your workload configuration’s specified app.  
+<br>
+    For example:
+    <pre class="terminal">kubectl get svc nginx</pre>
+
+1. Retrieve the load balancer’s external IP and port from the returned listing.
 
 1. To access the app, run the following command:
 
@@ -268,28 +152,28 @@ If you use AWS, follow the steps below to deploy and access basic workloads usin
 
     <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the worker node.</p>
 
+## <a id='external-lb-generic'></a>Deploy Workloads for a Generic External Load Balancer
+
+Follow the steps below to deploy and access basic workloads using a load balancer configured by your cloud provider.
+
+<%= partial 'expose-external-lb' %>
+
 ## <a id='without-lb-section'></a>Deploy Workloads without a Load Balancer
 
-If you do not use an external load balancer, you can configure the NGINX service to expose a static port on each worker node.
+If you do not use an external load balancer, you can configure your service to expose a static port on each worker node. 
+The following steps configure your service to be reachable from outside the cluster at `http://NODE-IP:NODE-PORT`.
 
 <p class='note'><strong>Note</strong>: If you use vSphere without NSX-T integration, you do not have a load balancer configured by your cloud provider.
 You can choose to <a href='#external-lb'>configure your own external load balancer</a> or 
 follow the procedures in this section to access your workloads without a load balancer.</p>
 
-### <a id='without-lb'></a>Deploy Workloads without a Load Balancer
-
-The following steps configure your service to be reachable from outside the cluster at `http://NODE-IP:NODE-PORT`.
-
-#### <a id='without-lb-configure'></a>Configure Workloads without a Load Balancer
+#### <a id='without-lb-configure'></a>Configure Your Workload
 
 To expose a static port on your workload, perform the following steps:
 
-1. Download the spec for a basic NGINX app from the [cloudfoundry-incubator/kubo-ci]
-(https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx.yml) GitHub repository.
+1. Open your workload’s kubernetes service configuration file in an editor.
 
-1. Open the `nginx.yml` file in an editor.
-
-1. To expose the workload without a load balancer, modify the kubernetes Service object to be `type: NodePort`.  
+1. To expose the workload without a load balancer, modify the Service object to be `type: NodePort`.  
 <br>
     For example:
 
@@ -310,30 +194,42 @@ To expose a static port on your workload, perform the following steps:
     ---
     ``` 
 
-    For more information about configuring the `NodePort` Service type see the 
+1. Save and repeat your edits for all of the kubernetes service configurations necessary for you workload.  
+
+<p class='note'><strong>Note</strong>: For an example of a fully configured kubernetes service, see the 
+<a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx.yml">NGINX app's example <code>type: NodePort</code> configuration</a>. </p>
+
+For more information about configuring the `NodePort` Service type see the 
 [Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport).
 
-1. Save your edits to the `nginx.yml` file.
-
-#### <a id='without-lb-deploy'></a>Deploy Workloads without a Load Balancer
+#### <a id='without-lb-deploy'></a>Deploy and Expose Your Workload
 
 1. To deploy the basic NGINX app, run the following command
 
+
     ```
-    kubectl create -f nginx.yml
+    kubectl apply -f SERVICE-CONFIG
     ```
+
+    Where `SERVICE-CONFIG` is your workload's kubernetes service configuration.  
+<br>
+    For example:
+    <pre class="terminal">kubectl apply -f nginx.yml</pre>
     This command creates three pods (replicas) spanning three worker nodes.
 
-1. Wait while this command runs.
+1. Deploy your application, deployments, config maps, persistent volumes, secrets, 
+and any other configurations or objects necessary for your application to run. 
 
-#### <a id='without-lb-access'></a>Access Workloads without a Load Balancer
+1. Wait until your cloud provider connects your worker nodes on a specific port.
 
-1. Retrieve the IP address for a worker node with a running NGINX pod.
+#### <a id='without-lb-access'></a>Access Your Workload
+
+1. Retrieve the IP address for a worker node with a running app pod.
   <p class='note'><strong>Note</strong>: If you deployed more than four worker
-  nodes, some worker nodes may not contain a running NGINX pod. Select a worker
-  node that contains a running NGINX pod.</p>
+  nodes, some worker nodes may not contain a running app pod. Select a worker
+  node that contains a running app pod.</p>
 
-    You can retrieve the IP address for a worker node with a running NGINX pod in
+    You can retrieve the IP address for a worker node with a running app pod in
     one of the following ways:
     * On the command line, run the following 
     
@@ -349,8 +245,12 @@ To expose a static port on your workload, perform the following steps:
 1. To see a listing of port numbers, run the following command:
 
     ```
-    kubectl get svc nginx
+    kubectl get svc WORKLOAD-NAME
     ```
+    Where `WORKLOAD-NAME` is your workload configuration's specified `app`.
+    <br>
+    For example:
+    <pre class="terminal">kubectl get svc nginx</pre>
 
 1. Find the node port number in the `3XXXX` range.
 

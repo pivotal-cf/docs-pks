@@ -1,0 +1,78 @@
+<p class='note'><strong>Note</strong>: This approach creates a dedicated load balancer for each workload. This may be an inefficient use of resources in clusters with many apps.</p>
+
+#### <a id='external-lb-configure'></a>Configure Your Workload
+
+1. Open your workload's kubernetes service configuration file in an editor. 
+
+1. To expose the workload through a load balancer, modify the Service object to be `type: LoadBalancer`.  
+<br>
+    For example:
+
+    ```
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        name: nginx
+      name: nginx
+    spec:
+      ports:
+        - port: 80
+      selector:
+        app: nginx
+      type: LoadBalancer
+    ---
+    ```
+
+1. Save and repeat your edits for all of the kubernetes service configurations necessary for you workload.
+
+<p class='note'><strong>Note</strong>: For an example of a fully configured kubernetes service, see the 
+<a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml">NGINX app's example <code>type: LoadBalancer</code> configuration</a>. </p>
+
+For more information about configuring the `LoadBalancer` Service type see the 
+[Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer).
+
+#### <a id='external-lb-deploy'></a>Deploy and Expose Your Workload
+
+1. To deploy the service configuration for your workload, run the following command:
+
+    ```
+    kubectl apply -f SERVICE-CONFIG
+    ```
+
+    Where `SERVICE-CONFIG` is your workload's kubernetes service configuration.  
+<br>
+    For example:
+    <pre class="terminal">kubectl apply -f nginx.yml</pre>
+    This command creates three pods (replicas) spanning three worker nodes.
+
+1. Deploy your application, deployments, config maps, persistent volumes, secrets, 
+and any other configurations or objects necessary for your application to run. 
+
+1. Wait until your cloud provider creates a dedicated load balancer and connects it to the worker nodes on a specific port.
+
+#### <a id='external-lb-access'></a>Access Your Workload
+
+1. To determine your exposed workload's load balancer IP address and port number, run the following command:
+
+    ```
+    kubectl get svc WORKLOAD-NAME
+    ```
+    Where `WORKLOAD-NAME` is your workload configuration's specified `app`.
+    <br>
+    For example:
+    <pre class="terminal">kubectl get svc nginx</pre>
+
+1. Retrieve the load balancer's external IP and port from the returned listing.
+
+1. To access the app, run the following on the command:
+
+    ```
+    curl http://EXTERNAL-IP:PORT
+    ```
+    Where:  
+    * `EXTERNAL-IP` is the IP address of the load balancer 
+    * `PORT` is the port number.
+
+    <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the worker node.</p>
