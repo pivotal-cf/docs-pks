@@ -7,35 +7,54 @@ owner: PKS
 
 This topic describes how to configure, deploy, and expose basic workloads in <%= vars.product_full %>.
 
+## <a id='overview'></a> Overview
+
 A load balancer is a third-party device that distributes network and application traffic across resources. 
 Using a load balancer can also prevent individual network components from being overloaded by high traffic. 
+
 For more information about the different types of load balancers used in a <%= vars.product_short %> 
-deployment see [Load Balancers in PKS](../about-lb.html). 
+deployment see [Load Balancers in PKS](about-lb.html). 
 
-If you use Google Cloud Platform (GCP), Amazon Web Services (AWS), or vSphere with NSX-T integration, 
-your cloud provider can configure a public-cloud external load balancer for your workload.
-See [Access Workloads Using an Public-Cloud External Load Balancer](#external-lb).
+<p class='note'><strong>Note</strong>: The steps below describe a procedure which creates a dedicated load balancer for each workload. 
+If your cluster has many apps, a load balancer dedicated to each workload can be an inefficient use of resources. 
+An ingress controller pattern is better suited for clusters with many workloads. 
+For information about deploying workloads configured for ingress routing on GCP, AWS, Azure, or vSphere without NSX-T, see 
+<a href="configure-ingress.html">Configuring Ingress Routing</a>. 
+For information about ingress routing on vSphere with NSX-T, see <a href="#nsxt-ingress-srvc-lb.html">Configuring Ingress Resources and Load Balancer Services</a> below.
+</p>
 
-If you use AWS, you can also expose your workload using an public-cloud internal load balancer.
-See the [AWS Prerequisites](#aws) section, and then [Access Workloads Using an Public-Cloud Internal AWS Load Balancer](#internal-lb).
-
-If you use vSphere without NSX-T, you can choose to configure your own external load balancer or expose static ports to access your workload without a load balancer.
-See [Access Workloads without a Load Balancer](#without-lb).
-
-**Deploy Complicated Workloads on Ingress Controllers**
-
+This topic references standard kubernetes primitives. If you are unfamiliar with kubernetes primitives, 
+please review the kubernetes [Workloads](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/) and 
+[Services, Load Balancing, and Networking](https://kubernetes.io/docs/concepts/services-networking/service/)
+documentation before following the procedures below.
 
 ## <a id='prerequisites'></a> Prerequisites
+
+### <a id='nonsxt'></a>vSphere without NSX-T Prerequisites
+If you use vSphere without NSX-T, you can choose to configure your own external load balancer or 
+expose static ports to access your workload without a load balancer.
+See [Deploy Workloads without a Load Balancer](#without-lb) below.
+
+### <a id='gcp'></a>GCP, AWS, Azure and vSphere with NSX-T Prerequisites
+If you use Google Cloud Platform (GCP), Amazon Web Services (AWS), Azure, or vSphere with NSX-T integration, 
+your cloud provider can configure a public-cloud external load balancer for your workload.
+See either [Deploy Workloads on vSphere with NSX-T](#external-lb-nsxt) or [Deploy Workloads on GCP, AWS, or 
+Azure, Using a Public-Cloud External Load Balancer](#external-lb), both below.
+
 ### <a id='aws'></a>AWS Prerequisites
+If you use AWS, you can also expose your workload using an public-cloud internal load balancer.
+
 If you use AWS, perform the following steps before you create a load balancer:
 
-1. In the [AWS Management Console](https://aws.amazon.com/console/), create or locate a public subnet for each availability zone (AZ) you are deploying to. A public subnet has a route table that directs Internet-bound traffic to the Internet gateway.
+1. In the [AWS Management Console](https://aws.amazon.com/console/), create or locate a public subnet for each availability zone (AZ) you are deploying to. 
+A public subnet has a route table that directs Internet-bound traffic to the internet gateway.
 
 1. On the command line, run `pks cluster CLUSTER-NAME`, replacing `CLUSTER-NAME` with the name of your cluster.
 
 1. Record the unique identifier for the cluster.
 
-1. In the [AWS Management Console](https://aws.amazon.com/console/), tag each public subnet based on the table below, replacing `CLUSTER-UUID` with the unique identifier of the cluster. Leave the **Value** field blank.
+1. In the [AWS Management Console](https://aws.amazon.com/console/), tag each public subnet based on the table below, replacing `CLUSTER-UUID` 
+with the unique identifier of the cluster. Leave the **Value** field blank.
   <table>
     <tr>
       <th>Key</th>
@@ -48,21 +67,24 @@ If you use AWS, perform the following steps before you create a load balancer:
   </table>
   <p class='note'><strong>Note</strong>: AWS limits the number of tags on a subnet to 100.</p>
 
-## <a id='external-lb-section'></a>Deploy Workloads on vSphere with NSX-T
+After completing these steps, follow the steps in [Deploy AWS Workloads Using an Internal Load Balancer](#internal-lb) below.
+
+
+## <a id='external-lb-nsxt'></a>Deploy Workloads on vSphere with NSX-T
 
 If you use vSphere with NSX-T, follow the steps below to deploy and expose basic workloads using the NSX-T load balancer.
 <%= partial 'expose-external-lb' %>
+
 
 ## <a id='external-lb'></a>Deploy Workloads on GCP, AWS, or Azure, Using a Public-Cloud External Load Balancer
 
 If you use GCP, AWS, or Azure, follow the steps below to deploy and expose basic workloads using a load balancer configured by your cloud provider.
 <%= partial 'expose-external-lb' %>
 
+
 ## <a id='internal-lb'></a>Deploy AWS Workloads Using an Internal Load Balancer
 
 If you use AWS, follow the steps below to deploy, expose and access basic workloads using an internal load balancer configured by your cloud provider.
-
-<p class='note'><strong>Note</strong>: This approach creates a dedicated load balancer for each workload. This may be an inefficient use of resources in clusters with many apps.</p>
 
 #### <a id='internal-lb-configure'></a>Configure Your Workload
 
@@ -101,7 +123,7 @@ If you use AWS, follow the steps below to deploy, expose and access basic worklo
 1. Save and repeat your edits for all of the kubernetes service configurations necessary for your workload.
 
 <p class='note'><strong>Note</strong>: For an example of a fully configured kubernetes service, see the 
-<a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml">NGINX app's example <code>type: LoadBalancer</code> configuration</a>. </p>
+<a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml">nginx app's example <code>type: LoadBalancer</code> configuration</a> in GitHub.</p>
 
 For more information about configuring the `LoadBalancer` Service type see the 
 [Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer).
@@ -118,12 +140,12 @@ For more information about configuring the `LoadBalancer` Service type see the
 <br>
     For example:
     <pre class="terminal">kubectl apply -f nginx.yml</pre>
-    This command creates three pods (replicas) spanning three worker nodes.
+    This command creates three pods (replicas) spanning three follower nodes.
 
 1. Deploy your application, deployments, config maps, persistent volumes, secrets, 
 and any other configurations or objects necessary for your application to run.
 
-1. Wait until your cloud provider creates a dedicated load balancer and connects it to the worker nodes on a specific port.
+1. Wait until your cloud provider creates a dedicated load balancer and connects it to the follower nodes on a specific port.
 
 #### <a id='internal-lb-access'></a>Access Your Workload
 
@@ -150,7 +172,8 @@ and any other configurations or objects necessary for your application to run.
     * `EXTERNAL-IP` is the IP address of the load balancer.
     * `PORT` is the port number.
 
-    <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the worker node.</p>
+    <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the follower node.</p>
+
 
 ## <a id='external-lb-generic'></a>Deploy Workloads for a Generic External Load Balancer
 
@@ -158,9 +181,10 @@ Follow the steps below to deploy and access basic workloads using a load balance
 
 <%= partial 'expose-external-lb' %>
 
-## <a id='without-lb-section'></a>Deploy Workloads without a Load Balancer
 
-If you do not use an external load balancer, you can configure your service to expose a static port on each worker node. 
+## <a id='without-lb'></a>Deploy Workloads without a Load Balancer
+
+If you do not use an external load balancer, you can configure your service to expose a static port on each follower node. 
 The following steps configure your service to be reachable from outside the cluster at `http://NODE-IP:NODE-PORT`.
 
 <p class='note'><strong>Note</strong>: If you use vSphere without NSX-T integration, you do not have a load balancer configured by your cloud provider.
@@ -197,14 +221,14 @@ To expose a static port on your workload, perform the following steps:
 1. Save and repeat your edits for all of the kubernetes service configurations necessary for your workload.  
 
 <p class='note'><strong>Note</strong>: For an example of a fully configured kubernetes service, see the 
-<a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx.yml">NGINX app's example <code>type: NodePort</code> configuration</a>. </p>
+<a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx.yml">nginx app's example <code>type: NodePort</code> configuration</a> in GitHub.</p>
 
 For more information about configuring the `NodePort` Service type see the 
 [Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport).
 
 #### <a id='without-lb-deploy'></a>Deploy and Expose Your Workload
 
-1. To deploy the basic NGINX app, run the following command
+1. To deploy the basic nginx app, run the following command
 
 
     ```
@@ -215,21 +239,21 @@ For more information about configuring the `NodePort` Service type see the
 <br>
     For example:
     <pre class="terminal">kubectl apply -f nginx.yml</pre>
-    This command creates three pods (replicas) spanning three worker nodes.
+    This command creates three pods (replicas) spanning three follower nodes.
 
 1. Deploy your application, deployments, config maps, persistent volumes, secrets, 
 and any other configurations or objects necessary for your application to run. 
 
-1. Wait until your cloud provider connects your worker nodes on a specific port.
+1. Wait until your cloud provider connects your follower nodes on a specific port.
 
 #### <a id='without-lb-access'></a>Access Your Workload
 
-1. Retrieve the IP address for a worker node with a running app pod.
-  <p class='note'><strong>Note</strong>: If you deployed more than four worker
-  nodes, some worker nodes may not contain a running app pod. Select a worker
+1. Retrieve the IP address for a follower node with a running app pod.
+  <p class='note'><strong>Note</strong>: If you deployed more than four follower
+  nodes, some follower nodes may not contain a running app pod. Select a follower
   node that contains a running app pod.</p>
 
-    You can retrieve the IP address for a worker node with a running app pod in
+    You can retrieve the IP address for a follower node with a running app pod in
     one of the following ways:
     * On the command line, run the following 
     
@@ -261,7 +285,7 @@ and any other configurations or objects necessary for your application to run.
     ```
 
     Where 
-    * `NODE-IP` is the IP address of the worker node.
+    * `NODE-IP` is the IP address of the follower node.
     * `NODE-PORT` is the node port number.
 
-    <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the worker node.</p>
+    <p class='note'><strong>Note</strong>: This command should be run on a server with network connectivity and visibility to the IP address of the follower node.</p>
