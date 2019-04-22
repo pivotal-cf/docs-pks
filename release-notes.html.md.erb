@@ -211,3 +211,26 @@ BOSH creates VMs for your <%= vars.product_short %> deployment using a round-rob
 algorithm. BOSH tries to create the first VM in the first AZ that your plan uses.
 If the first AZ runs out of resources, cluster creation fails and BOSH does not try
 to create more VMs.
+
+#### <a id='azure-external'></a>Azure Deployments That Require External Connectivity Fail after Upgrade
+
+**Symptom**
+
+Outbound communication from a worker node VM fails after an upgrade to <%= vars.product_short %> v1.4.0.
+
+**Explanation**
+
+<%= vars.product_short %> 1.4.0 uses Azure Availability Sets to improve the uptime of workloads and worker nodes in the event of Azure platform failures. Worker node
+VMs are distributed evenly across Availability Sets.
+
+Azure Standard SKU Load Balancers are recommended for the Kubernetes control plane and Kubernetes ingress and egress. This load balancer type provides an IP address for outbound communication using SNAT.
+
+During an upgrade, when BOSH rebuilds a given worker instance in an Availability Set,
+Azure can time out while re-attaching the worker node network interface to the
+back-end pool of the Standard SKU Load Balancer.
+
+For more information, see [Outbound connections in Azure](https://docs.microsoft.com/en-us/azure/load-balancer/load-balancer-outbound-connections) in the Azure documentation.
+
+**Workaround**
+
+You can manually re-attach the worker instance to the back-end pool of the Azure Standard SKU Load Balancer in your Azure console.
