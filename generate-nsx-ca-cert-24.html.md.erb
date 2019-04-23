@@ -1,0 +1,175 @@
+---
+title: Generating and Registering the NSX Manager Cluster Certificate for Enterprise PKS (NSX-T v2.4.1)
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to generate and register the NSX Manager certificate authority (CA) certificate in preparation for installing <%= vars.product_full %> on vSphere with NSX-T.
+
+<p class="note"><strong>Note</strong>: These instructions are specific to NSX-T v2.4.1.</p>
+
+##<a id='prerequisites'></a>Prerequisites
+
+Before you begin this procedure, ensure that you have successfully completed all preceding steps for installing <%= vars.product_short %> on vSphere with NSX-T, including:
+
+<ul>
+  <li>
+    <a href="./nsxt-deploy.html">Deploying NSX-T for <%= vars.product_short %></a>
+  </li>
+  <li>
+    <a href="./nsxt-prepare-mgmt-plane.html">Creating the <%= vars.product_short %> Management Plane</a>
+  </li>
+  <li>
+    <a href="./nsxt-prepare-compute-plane.html">Creating the PKS Compute Plane</a>
+  </li>
+  <li>
+    <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX-T for <%= vars.product_short %></a>
+  </li>
+</ul>
+
+##<a id='certificates-nsx-mgr'></a> About the NSX Manager CA Certificate
+
+The NSX Manager CA certificate is used to authenticate with the NSX Manager. You create an IP-based, self-signed certificate and register it with the NSX Manager. During <%= vars.product_short %> installation on vSphere with NSX-T, you provide this certificate in the **NSX Manager CA Cert** field in the **Networking** pane in the <%= vars.product_tile %> tile.
+
+See the **NSX Manager CA Cert** field in the following screenshot:
+
+<img src="images/nsxt/nsx-ca-cert.png" alt="NSX Manager CA certificate configuration" width="575">
+
+For configuration information, see the [Networking](installing-nsx-t.html#networking) section of _Installing <%= vars.product_short %> on vSphere with NSX-T_.
+
+By default, the NSX Manager includes a self-signed API certificate with its hostname as the subject and issuer. Ops Manager requires strict certificate validation and expects the subject and issuer of the self-signed certificate to be either the IP address or fully qualified domain name (FQDN) of the NSX Manager. As a result, you need to regenerate the self-signed certificate using the FQDN of the NSX Manager in the subject and issuer field and then register the certificate with the NSX Manager using the NSX API.
+
+The **Disable SSL certificate verification** option lets you disable validation of the NSX Manager CA certificate. Select this option for testing purposes only.
+
+<p class="note"><strong>Note</strong>: The <strong>NSX Manager CA Cert</strong> field and the <strong>Disable SSL certificate verification</strong> option are intended to be mutually exclusive. If you disable SSL certificate verification, leave the CA certificate field blank. If you enter a certificate in the <strong>NSX Manager CA Cert</strong> field, do not disable SSL certificate verification. If you populate the certificate field and disable certificate validation, insecure mode takes precedence.</p>
+
+##<a id="add-vip"></a> Step 1: Configure the NSX Manager VIP
+
+With NSX-T v2.4 you deloy a management cluster comprising three NSX Managers. As such, you need create a virtual IP address that can be used as a single endpoint to access the NSX Management cluster.
+
+To create a VIP for the NSX Management cluster:
+
+- Log in to the NSX Manager interface.
+- Go to **System** > **Overview**.
+- Select **Virtual IP** > **Edit**.
+- Enter a publicly routable IP address, such as `10.40.206.5`.
+- Click **Save**.
+
+At this point in time, you can connect to any NSX-T manager using its own IP address, or use the VIP to connect to NSX-T Manager. Both methods work. However, note that the VIP is associated with a single NSX Manager. To determine which NSX Manager the VIP is associated with, select the Virtual IP.
+
+  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-05.png" alt="VIP Association">
+
+##<a id="nsx-cert"></a> Step 2: Generate a New NSX Manager CA Certificate and Private Key Using the Cluster API
+
+To generate a new NSX Manager CA certificate and private key using the VIP address, follow the instructions below. Make sure you use the VIP address, such as `10.40.206.5`.
+
+Below is an example Certificate Signing Request (CSR) named `nsx-cert.cnf`. In this example, the IP address `10.40.206.5` is the IP address of the VIP. Substitute this IP address with the VIP you generated.
+
+```
+[ req ]
+
+default_bits = 2048
+
+distinguished_name = req_distinguished_name
+
+req_extensions = req_ext
+
+prompt = no
+
+[ req_distinguished_name ]
+
+countryName = US
+
+stateOrProvinceName = California
+
+localityName = CA
+
+organizationName = NSX
+
+commonName = 10.40.206.5
+
+[ req_ext ]
+
+subjectAltName = @alt_names
+
+
+[alt_names]
+
+DNS.1 = 10.40.206.5
+```
+
+To generate the certficate and private key using the above CSR, run the following commands:
+
+```
+# export NSX_MANAGER_IP_ADDRESS=10.40.206.5
+
+# export NSX_MANAGER_COMMONNAME=10.40.206.5
+
+# openssl req -newkey rsa:2048 -x509 -nodes \
+
+> -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
+
+> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
+
+>  <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 365
+```
+
+The result is `nsx.crt` and `nsx.key`. 
+
+Verify the certificate using the command `# openssl x509 -in nsx.crt -text -noout`.
+
+##<a id='import-certificate'></a> Import the New Certificate to NSX Manager
+
+Complete the following steps to import the certificate to the NSX Manager:
+
+1. Log in to the NSX Manager UI.
+
+1. Navigate to **System > Trust > Certificates**.
+
+1. Click **Import > Import Certificate**.
+
+  <img src="images/nsxt/import-cert.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475">
+    <p class="note"><strong>Note</strong>: Make sure you select **Import Certificate** and not **Import CA Certificate**</code>.</p>
+
+1. Give the certificate a unique name, such as `NSX-API-CERT-NEW`.
+  <p class="note"><strong>Note</strong>: Use a unique name for the new certificate you import. The default NSX Manager CA certificate is typically named <code>NSX-API-CERT</code>.</p>
+
+1. Browse to and select the CA certificate and private key you generated in the previous section of steps.
+
+1. Click **Save**.
+
+  <img src="images/nsxt/import-cert-2.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475"> 
+
+##<a id='register-certificate'></a> Register the Cluster Certificate
+
+Once you have imported the Cluster Certificate, register it with the NSX Management cluster using a cURL command against the Cluster Certificate API.
+
+First, create environment variables for the VIP address and the certificate ID. In this example, `10.40.206.5` is the VIP address. The certificate ID is obtained from the NSX Manager UI where you imported the certificate.
+
+```
+export NSX_MANAGER_IP_ADDRESS=10.40.206.5
+
+export CERTIFICATE_ID="63bb6646-052c-49df-b603-64d7e5bdb5bf"
+```
+
+Next, register the new NSX-T Manager CA cert using a cURL request to the Cluster Certificate API. Substitute `PASSWORD` with the password for NSX Manager.
+
+```
+curl --insecure -u admin:'PASSWORD' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
+```
+
+The certificate will be registered with the NSX Manager that the VIP address is associated with. 
+
+To verify, using a browser go to the VIP address of the NSX Manager. Login and check that the new cert is used by the site (accessed using the VIP address). 
+
+To further verify, SSH to each NSX Manager host and run the following two commands. All certificates returned should be the same.
+
+```
+get certificate api
+get certificate cluster
+```
+
+##<a id='next'></a> Next Step
+
+<a href="./vsphere-nsxt-om-config.html">Configure BOSH Director with NSX-T for <%= vars.product_short %></a>.
