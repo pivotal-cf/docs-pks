@@ -33,6 +33,72 @@ The PKS API control plane VM requires more resources.
 information, see [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/customizing/review-pending-changes.html).
 1. Click **Apply Changes**.
 
+##<a id='cluster-operation-fails'></a>All Cluster Operations Fail 
+
+**Symptom**
+
+All PKS CLI cluster operations fail including attempts to create or delete clusters 
+with `pks create-cluster` and `pks delete-cluster`.
+
+The output of `pks cluster CLUSTER-NAME` contains `Last Action State: error`, and
+the output of `bosh -e ENV-ALIAS -d SERVICE-INSTANCE vms` indicates that the `Process State` 
+of at least one deployed node is `failing`.
+
+**Explanation**
+
+If any deployed master or worker nodes run out of disk space in `/var/vcap/store` , 
+all cluster operations such as the creation or deletion of clusters will fail. 
+
+**Diagnostics**
+
+To confirm that there is a disk space issue, check recent BOSH activity for any disk space error messages.
+
+1. Log in to the BOSH Director and run `bosh tasks`.
+  The output from `bosh tasks` provides details about the tasks that the BOSH Director has run.
+  See [Managing <%= vars.product_short %> Deployments with BOSH](manage-deployments-bosh.html) for more information about logging in to the BOSH Director.
+
+1. In the BOSH command output, locate a task that attempted to perform a cluster operation, such as cluster creation or deletion.
+
+1. To retrieve more information about the task, run the following command:
+
+    ```
+    bosh -e MY-ENVIRONMENT task TASK-NUMBER
+    ```
+    Where:
+    * `MY-ENVIRONMENT` is the name of your BOSH environment.
+    * `TASK-NUMBER` is the number of the task that attempted to create the cluster.
+    <br>
+    For example:
+    <pre class="terminal">$ bosh -e pks task 23</pre>
+
+1. In the output, look for the following text string:
+
+    ```
+    no space left on device
+    ```
+
+1. Check the health of your deployed Kubernetes clusters by following 
+the procedure in [Verifying Deployment Health](verify-health.html).
+
+1. In the output of `bosh -e ENV-ALIAS -d SERVICE-INSTANCE vms`, 
+look for any nodes that display `failing` as their `Process State`. For example:
+
+    <pre class="terminal">
+    Instance                                     Process State  AZ       IPs         VM CID                                   VM Type  Active
+    master/3a3adc92-14ce-4cd4-a12c-6b5eb03e33d6  failing        az-1     10.0.11.10  vm-09027f0e-dac5-498e-474e-b47f2cda614d  small    true
+    </pre>
+
+1. Make a note of the plan assigned to the failing node.
+
+**Solution**
+
+1. In the <%= vars.product_short %> tile, locate the plan assigned to the failing node.
+
+1. In the plan configuration, select a larger VM type for the plan's master or worker nodes or both. 
+
+    For more information on how to scale existing clusters by changing the VM typess, see 
+[Scale Vertically by Changing Cluster Node VM Sizes in the PKS Tile](scale-clusters.html#scale-vertical).
+
 ##<a id='cluster-create-fail'></a>Cluster Creation Fails
 
 **Symptom**
