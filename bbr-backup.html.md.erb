@@ -7,7 +7,43 @@ owner: PKS
 
 This topic describes how to use BOSH Backup and Restore (BBR) to back up the  <%= vars.product_full %> control plane.
 
+Each <%= vars.product_short %> deployment includes custom backup and restore scripts which encapsulate the correct procedure 
+for backing up and restoring the deployment. 
+
+BBR supports backing up only deployments supplying these scripts.  
+
+BBR orchestrates running the backup and restore scripts and transferring the generated backup artifacts to and from a backup repository. 
+If configured correctly, BBR can use TLS to communicate securely with backup targets.  
+
+Deployed applications do not experience downtime during BBR backup processing. 
+
+The Cloud Controller API and Cloud Controller workers are stopped during backup processing. 
+These services and workers are stopped so that the saved backup is consistent. 
+Only API functionality, e.g., pushing applications and using the Cloud Foundry Command Line Interface (cf CLI), are affected.  
+
 To perform a restore, see [Restoring the <%= vars.product_short %> Control Plane](bbr-restore.html).
+
+To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup and Restore Release Notes](https://docs.cloudfoundry.org/bbr/bbr-rn.html).
+
+## <a id='supported'></a> Supported Components
+
+BBR can backup the following components:
+
+  - <%= vars.product_short %> control plane UAA MySQL database
+  - <%= vars.product_short %> control plane PKS API MySQL database
+  - BOSH Director
+  - External blobstores 
+  - Kubernetes cluster etcd database
+
+## <a id='unsupported'></a> Unsupported Components
+
+BBR can not be used to back up the following components:
+
+  - Harbor tile
+  - Cloud provider objects:  
+    * Persistent volumes  
+    * Network resources
+
 
 ## <a id='prereqs'></a> Prerequisites
 
@@ -29,7 +65,7 @@ Before you begin backing up the PKS control plane, perform the following steps:
 1. Locate and record your <%= vars.product_short %> BOSH deployment name as follows:
   1. On the Ops Manager Installation Dashboard, click the **BOSH Director** tile.
   1. In the BOSH Director tile, click the **Credentials** tab.
-  1. Navigate to **Bosh Commandline Credentials** and click **Link to Credential**.
+  1. Navigate to **Bosh Command line Credentials** and click **Link to Credential**.
   1. Copy the credential value.
   1. On the command line, run the following command to retrieve your <%= vars.product_short %> BOSH deployment name.
   Replace `BOSH-CLI-CREDENTIALS` with the credential value you copied in the previous step:
@@ -42,7 +78,7 @@ Before you begin backing up the PKS control plane, perform the following steps:
 You can establish a connection to your jumpbox in one of the following ways.
 
 * [Connect with SSH](#ssh)
-* [Connect with BOSH_ALL_PROXY](#bosh-all-proxy)
+* [Connect with BOSH&#95;ALL&#95;PROXY](#bosh-all-proxy)
 
 For general information about the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html).
 
@@ -51,10 +87,10 @@ For general information about the jumpbox, see [Installing BOSH Backup and Resto
 SSH into your jumpbox. If you connect to your jumpbox with SSH, you must run the BBR commands in
 the following sections from within your jumpbox.
 
-### <a id='bosh-all-proxy'></a> Connect with BOSH_ALL_PROXY
+### <a id='bosh-all-proxy'></a> Connect with BOSH&#95;ALL&#95;PROXY
 
 Set and use `BOSH_ALL_PROXY`. Using `BOSH_ALL_PROXY` opens an SSH tunnel with SOCKS5 to the
-jumpbox. This tunnel allows you to forward requests to the BOSH Director through the jumpbox from
+jumpbox. This tunnel enables you to forward requests to the BOSH Director through the jumpbox from
 your local machine.
 
 Use one of the following methods to create the tunnel:
@@ -120,11 +156,11 @@ deployment that can be backed up:
       </tr>
       <tr>
         <td><code>DEPLOYMENT-NAME</code></td>
-        <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Prerequisites](#prereqs) section.</td>
+        <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Prerequisites](#prereqs) section above.</td>
       </tr>
       <tr>
         <td><code>PATH-TO-BOSH-CA-CERT</code></td>
-        <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section.</td>
+        <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section above.</td>
       </tr>
     </table>
 
@@ -181,11 +217,11 @@ PKS control plane:
       </tr>
       <tr>
         <td><code>DEPLOYMENT-NAME</code></td>
-        <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Prerequisites](#prereqs) section.</td>
+        <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Prerequisites](#prereqs) section above.</td>
       </tr>
       <tr>
         <td><code>PATH-TO-BOSH-CA-CERT</code></td>
-        <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section.</td>
+        <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section above.</td>
       </tr>
     </table>
     <br>
@@ -254,7 +290,7 @@ backups, follow the procedures in [Clean up After a Failed Backup](#manual-clean
 
 ## <a id="manual-clean"></a> Clean up After a Failed Backup
 
-If your backup process fails, it might leave the BBR backup folder on the instance, causing any 
+If your backup process fails, it might leave the BBR backup directory on the instance, causing any 
 subsequent attempts to backup to fail.
 In addition, BBR might not have run the post-backup scripts, leaving the instance in a locked state.
 
@@ -293,11 +329,11 @@ values as shown in the previous table.
   </tr>
   <tr>
     <td><code>DEPLOYMENT-NAME</code></td>
-    <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Prerequisites](#prereqs) section.</td>
+    <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Prerequisites](#prereqs) section above.</td>
   </tr>
   <tr>
     <td><code>PATH-TO-BOSH-CA-CERT</code></td>
-    <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section.</td>
+    <td>Use the path to the root CA certificate that you downloaded in the [Prerequisites](#prereqs) section above.</td>
   </tr>
 </table>
 
@@ -319,7 +355,7 @@ Keep your backup artifact safe by following these steps:
 
 1. Move the backup artifact off the jumpbox to your storage space. BBR stores each backup in a
 subdirectory named `DEPLOYMENT-TIMESTAMP` within the current working directory. The backup created
-by BBR consists of a folder with the backup artifacts and metadata files.
+by BBR consists of a directory with the backup artifacts and metadata files.
 
 1. Compress and encrypt the backup artifacts when storing them.
 
