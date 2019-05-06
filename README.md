@@ -16,21 +16,24 @@ Every topic in the [Enterprise PKS documentation site](https://docs-pks.cfapps.i
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `master` | Enterprise PKS 1.4.x pre-release content | N/A |
+| `master` | Enterprise PKS 1.5 pre-release content | N/A |
+| `1.4` | Enterprise PKS 1.4.x released content | https://docs.pivotal.io/runtimes/pks/1-4/index.html |
 | `1.3` | Enterprise PKS 1.3.x released content | https://docs.pivotal.io/runtimes/pks/1-3/index.html |
 | `1.2` | Enterprise PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
 | `1.1` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-1-1.pdf)) |
 | `1.0-publish` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-docs-1.0.pdf)) |
 | `0.8` | Not in use | N/A |
 
-The `master` branch is used to publish the pre-release v1.4 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
+**master**: The `master` branch is used to publish the pre-release v1.5 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
 **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
-The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
+**1.4**: The `1.4` branch is used to publish the live v1.4 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
 
-The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
+**1.3**: The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
 
-The `1.1` branch is no longer maintained. A A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.1.pdf.
+**1.2**: The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
+
+The `1.1` branch is no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.1.pdf.
 
 The `1.0-publish` and `0.8` branches are no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.0.pdf.
 
