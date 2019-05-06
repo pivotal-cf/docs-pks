@@ -10,7 +10,7 @@ Please help us improve the accuracy and completeness of the Enterprise PKS docum
 
 The easiest way to contribute is to file a pull request through GitHub.
 
-Every topic in the [Enterprise PKS documentation site](https://docs-pks.cfapps.io) has a corresponding file in this repository. Locate the correct file and make a pull request against it. You can also navigate to the topic in the Enterprise PKS documentation site and click "View the source for this page in GitHub" at the bottom of the topic.
+Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/runtimes/pks/index.html) has a corresponding file in this repository. Locate the correct file and make a pull request against it. You can also navigate to the topic in the Enterprise PKS documentation site and click "View the source for this page in GitHub" at the bottom of the topic.
 
 ## Versions and Branching
 
