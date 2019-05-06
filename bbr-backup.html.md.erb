@@ -8,14 +8,18 @@ owner: PKS
 This topic describes how to use BOSH Backup and Restore (BBR) to back up the  <%= vars.product_full %> control plane.
 
 Each <%= vars.product_short %> deployment includes custom backup and restore scripts which encapsulate the correct procedure 
-for backing up and restoring that specific deployment. 
+for backing up and restoring the deployment. 
 
-BBR orchestrates running these customized backup and restore scripts and transfers the generated backup artifacts 
-to and from a backup repository.
+BBR supports backing up only deployments supplying these scripts.  
+
+BBR orchestrates running the backup and restore scripts and transferring the generated backup artifacts to and from a backup repository. 
+If configured correctly, BBR can use TLS to communicate securely with backup targets.  
 
 Deployed applications do not experience downtime during BBR backup processing. 
-However BBR does stop the Cloud Controller API and the Cloud Controller workers to create a consistent backup. 
-Only API functionality, e.g., pushing applications and using the Cloud Foundry Command Line Interface (cf CLI), are affected. 
+
+The Cloud Controller API and Cloud Controller workers are stopped during backup processing. 
+These services and workers are stopped so that the saved backup is consistent. 
+Only API functionality, e.g., pushing applications and using the Cloud Foundry Command Line Interface (cf CLI), are affected.  
 
 To perform a restore, see [Restoring the <%= vars.product_short %> Control Plane](bbr-restore.html).
 
@@ -23,12 +27,15 @@ To view the BBR release notes, see the [BOSH Backup and Restore Release Notes](h
 
 ## <a id='supported'></a> Supported Components
 
-BBR can communicate securely with external blobstores and databases, using TLS, if
-these are configured accordingly.  
+BBR can backup the following components:
+
+  - <%= vars.product_short %> control plane UAA MySQL database
+  - <%= vars.product_short %> control plane PKS API MySQL database
+  - BOSH Director
+  - External blobstores 
+  - Kubernetes cluster etcd database
 
 ## <a id='unsupported'></a> Unsupported Components
-
-BBR requires that the backup-target supply scripts to implement backup and restore functions.
 
 BBR can not be used to back up the following components:
 
@@ -58,7 +65,7 @@ Before you begin backing up the PKS control plane, perform the following steps:
 1. Locate and record your <%= vars.product_short %> BOSH deployment name as follows:
   1. On the Ops Manager Installation Dashboard, click the **BOSH Director** tile.
   1. In the BOSH Director tile, click the **Credentials** tab.
-  1. Navigate to **Bosh Commandline Credentials** and click **Link to Credential**.
+  1. Navigate to **Bosh Command line Credentials** and click **Link to Credential**.
   1. Copy the credential value.
   1. On the command line, run the following command to retrieve your <%= vars.product_short %> BOSH deployment name.
   Replace `BOSH-CLI-CREDENTIALS` with the credential value you copied in the previous step:
@@ -71,7 +78,7 @@ Before you begin backing up the PKS control plane, perform the following steps:
 You can establish a connection to your jumpbox in one of the following ways.
 
 * [Connect with SSH](#ssh)
-* [Connect with BOSH_ALL_PROXY](#bosh-all-proxy)
+* [Connect with BOSH&#95;ALL&#95;PROXY](#bosh-all-proxy)
 
 For general information about the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html).
 
@@ -80,7 +87,7 @@ For general information about the jumpbox, see [Installing BOSH Backup and Resto
 SSH into your jumpbox. If you connect to your jumpbox with SSH, you must run the BBR commands in
 the following sections from within your jumpbox.
 
-### <a id='bosh-all-proxy'></a> Connect with BOSH_ALL_PROXY
+### <a id='bosh-all-proxy'></a> Connect with BOSH&#95;ALL&#95;PROXY
 
 Set and use `BOSH_ALL_PROXY`. Using `BOSH_ALL_PROXY` opens an SSH tunnel with SOCKS5 to the
 jumpbox. This tunnel allows you to forward requests to the BOSH Director through the jumpbox from
