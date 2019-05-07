@@ -7,7 +7,42 @@ owner: PKS
 
 This topic describes how to use BOSH Backup and Restore (BBR) to back up the PKS control plane.
 
-To perform a restore, see [Restoring the PKS Control Plane](bbr-restore.html).
+Each <%= vars.product_short %> deployment includes custom backup and restore scripts which encapsulate the correct procedure 
+for backing up and restoring the deployment. 
+
+BBR supports backing up only deployments supplying these scripts.  
+
+BBR orchestrates running the backup and restore scripts and transferring the generated backup artifacts to and from a backup repository. 
+If configured correctly, BBR can use TLS to communicate securely with backup targets.  
+
+Deployed applications do not experience downtime during BBR backup processing. 
+
+The Cloud Controller API and Cloud Controller workers are stopped during backup processing. 
+These services and workers are stopped so that the saved backup is consistent. 
+Only API functionality, e.g., pushing applications and using the Cloud Foundry Command Line Interface (cf CLI), are affected.  
+
+To perform a restore, see [Restoring the <%= vars.product_short %> Control Plane](bbr-restore.html).
+
+To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup and Restore Release Notes](https://docs.cloudfoundry.org/bbr/bbr-rn.html).
+
+## <a id='supported'></a> Supported Components
+
+BBR can backup the following components:
+
+  - <%= vars.product_short %> control plane UAA MySQL database
+  - <%= vars.product_short %> control plane PKS API MySQL database
+  - BOSH Director
+  - External blobstores 
+  - Kubernetes cluster etcd database
+
+## <a id='unsupported'></a> Unsupported Components
+
+BBR can not be used to back up the following components:
+
+  - Harbor tile
+  - Cloud provider objects:  
+    * Persistent volumes  
+    * Network resources
 
 ## <a id='prereqs'></a> Prerequisites
 
@@ -16,23 +51,14 @@ the current environment and the destination environment are compatible.
 For more information, see the [Compatibility of Restore](bbr-restore.html#compatibility) section of
 _Restoring the PKS Control Plane_.
 
-Before you begin backing up the PKS control plane, perform the following steps:
+_Restoring the <%= vars.product_short %> Control Plane_.
 
-1. Download the root CA certificate for your PKS deployment as follows:
-  1. On the Ops Manager Installation Dashboard, in the top right corner, click your username.
-  1. Navigate to **Settings** > **Advanced**.
-  1. Click **Download Root CA Cert**.
+Before you begin backing up the PKS control plane, download the root CA certificate. To download 
+the root CA certificate for your <%= vars.product_short %> deployment, perform the following steps:
 
-1. Locate and record your PKS BOSH deployment name as follows:
-  1. On the Ops Manager Installation Dashboard, click the Director tile.
-  1. In the Director tile, click the **Credentials** tab.
-  1. Navigate to **Bosh Commandline Credentials** and click **Link to Credential**.
-  1. Copy the credential value.
-  1. On the command line, run the following command to retrieve your PKS BOSH deployment name.
-  Replace `BOSH-CLI-CREDENTIALS` with the credential value you copied in the previous step:
-  <pre>BOSH-CLI-CREDENTIALS deployments | grep pivotal-container-service</pre>
-  <p class="note"><strong>Note</strong>: Your PKS BOSH deployment name begins with
-  "pivotal-container-service" and includes a unique identifier.</p>
+1. On the Ops Manager Installation Dashboard, in the top right corner, click your username.
+1. Navigate to **Settings** > **Advanced**.
+1. Click **Download Root CA Cert**.
 
 ## <a id='connect-to-jumpbox'></a> Connect to Your Jumpbox
 
@@ -82,7 +108,38 @@ create the tunnel, run the following command:
 backup and restore times due to network performance degradation. Because all operations must pass
 through the proxy, moving backup artifacts can be significantly slower.</p>
 
-## <a id='back-up-deployment'></a> Back up the PKS Control Plane
+## <a id='locate-deploy-name'></a> Locate and Record the <%= vars.product_short %> Deployment Name
+
+Locate and record your <%= vars.product_short %> BOSH deployment name as follows:
+  
+1. On the Ops Manager Installation Dashboard, click the **BOSH Director** tile.
+1. In the BOSH Director tile, click the **Credentials** tab.
+1. Navigate to **Bosh Command line Credentials** and click **Link to Credential**.
+1. Copy the credential value.
+1. Open an SSH connection to either your jumpbox, as described in the previous section, or the Ops Manager VM.
+For instructions on how to SSH into the Ops Manager VM, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html#ssh).
+1. On the command line, run the following command to retrieve your <%= vars.product_short %> BOSH deployment name.
+
+    ```
+    BOSH-CLI-CREDENTIALS deployments | grep pivotal-container-service
+    ```
+    
+    Where `BOSH-CLI-CREDENTIALS` includes the full value that you copied from the BOSH Director tile.
+    For example:
+
+    <pre class="terminal">
+    $ BOSH_CLIENT=ops_manager BOSH_CLIENT_SECRET=secretstring BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate BOSH_ENVIRONMENT=10.0.0.5 bosh deployments | grep pivotal-container-service
+
+    pivotal-container-service-51f08f6402aaa960f041           backup-and-restore-sdk/1.8.0    bosh-google-kvm-ubuntu-xenial-go_agent/250.25
+    service-instance_4ffeb5b5-5182-4faa-9d92-696d97cc9ae1    bosh-dns/1.10.0                 bosh-google-kvm-ubuntu-xenial-go_agent/250.25
+    pivotal-container-service-51f08f6402aaa960f041
+    </pre>
+
+1. In the output, look for the <%= vars.product_short %> BOSH deployment name that begins with
+  `pivotal-container-service` and includes a unique identifier. 
+   In the example output above, the BOSH deployment name is `pivotal-container-service-51f08f6402aaa960f041`.
+
+## <a id='back-up-deployment'></a> Back up the <%= vars.product_short %> Control Plane
 
 1. Run the BBR pre-backup check to confirm that your BOSH Director is reachable and has a
 deployment that can be backed up:
@@ -117,7 +174,7 @@ deployment that can be backed up:
       </tr>
       <tr>
         <td><code>DEPLOYMENT-NAME</code></td>
-        <td>Use the PKS BOSH deployment name that you located in the [Prerequisites](#prereqs) section.</td>
+        <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [] section above.</td>
       </tr>
       <tr>
         <td><code>PATH-TO-BOSH-CA-CERT</code></td>
@@ -178,7 +235,7 @@ PKS control plane:
       </tr>
       <tr>
         <td><code>DEPLOYMENT-NAME</code></td>
-        <td>Use the PKS BOSH deployment name that you located in the [Prerequisites](#prereqs) section.</td>
+        <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Locate and Record the <%= vars.product_short %> Deployment Names](#locate-deploy-name) section above.</td>
       </tr>
       <tr>
         <td><code>PATH-TO-BOSH-CA-CERT</code></td>
@@ -290,7 +347,7 @@ values as shown in the previous table.
   </tr>
   <tr>
     <td><code>DEPLOYMENT-NAME</code></td>
-    <td>Use the PKS BOSH deployment name that you located in the [Prerequisites](#prereqs) section.</td>
+    <td>Use the <%= vars.product_short %> BOSH deployment name that you located in the [Locate and Record the <%= vars.product_short %> Deployment Names](#locate-deploy-name) section above.</td>
   </tr>
   <tr>
     <td><code>PATH-TO-BOSH-CA-CERT</code></td>
