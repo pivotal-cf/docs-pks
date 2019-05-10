@@ -154,9 +154,18 @@ can be backed up, follow the steps below.
       the deployments might not have the correct backup scripts, or the connection to
       the BOSH Director failed.
 
-## <a id='back-up-all'></a> Back Up Cluster Deployments
+## <a id='back-up'></a> Back up Clusters
 
-To back up cluster deployments, follow the steps below.
+To back up one or more cluster deployments, follow the procedures below.
+
+### <a id='back-up-all'></a> Back up All Cluster Deployments
+
+The following procedure backs up all cluster deployments. 
+
+Make sure you use the PKS UAA credentials that you recorded in 
+[Obtain and Record UAA Client Credentials for PKS](#cluster-bbr-credentials). 
+These credentials limit the scope of the backup to cluster deployments only.
+
 
 1. To back up all cluster deployments, run the following command from your jumpbox:
 
@@ -201,7 +210,17 @@ To back up cluster deployments, follow the steps below.
 
     <p class="note"><strong>Note</strong>: The BBR backup command can take a long time to complete. You can run it independently of the SSH session so that the process can continue running even if your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you could also run the command in a <code>screen</code> or <code>tmux</code> session.</p>
 
-1. To backup a single cluster deployment, run the following command from your jumpbox:
+1. If the `backup` command completes successfully, follow the steps in [Manage Your Backup Artifact](#manage) below.
+
+1. If the backup command fails, the backup operation exits. BBR does not attempt to continue backing up any non-backed up clusters.
+To troubleshoot a failing backup, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+      see [Exit Codes and Logging](bbr-logging.html).
+    * Follow the steps in [Recover from a Failing Command](#recovering-from-failing-command).
+
+### <a id='back-up-one'></a> Back up One Cluster Deployment
+
+1. To backup a single, specific cluster deployment, run the following command from your jumpbox:
 
     ```
     BOSH_CLIENT_SECRET=PKS-UAA-CLIENT-SECRET \
@@ -258,7 +277,7 @@ If your backup fails, follow these steps below:
 
 1. Ensure that all the parameters in the command are set.
 
-1. Ensure that the BOSH Director credentials are valid.
+1. Ensure that the PKS UAA credentials and root CA certificate path are valid.
 
 1. Ensure that the jumpbox can reach the BOSH Director.
 
@@ -290,17 +309,22 @@ If you stop the backup process or the process fails, run the following command:
 ```
 BOSH_CLIENT_SECRET=PKS-UAA-CLIENT-SECRET \
 bbr deployment \
---all-deployments \
+--all-deployments | --deployment CLUSTER-DEPLOYMENT-NAME \
 --target BOSH-TARGET \
 --username PKS-UAA-CLIENT-NAME \
 --ca-cert PATH-TO-BOSH-CA-CERT \
 backup-cleanup
 ```
+Specify `--all-deployments` or `--deployment` depending on whether the backup 
+you attempted previously was for all cluster deployments or a specific cluster deployment.
 
 Replace the placeholder text as follows:
 
 * `PKS-UAA-CLIENT-SECRET`: Enter the value you recorded for `uaa_client_secret` in 
   [Obtain and Record UAA Client Credentials for PKS](#cluster-bbr-credentials).
+* `CLUSTER-DEPLOYMENT-NAME`: Enter the BOSH deployment name for the cluster 
+   that you attempted to back up. Cluster deployment names begin with `service-instance` 
+   and contain a unique identifier.
 * `BOSH-TARGET`: Enter the value you recorded for the BOSH Director's address in 
   [Retrieve BOSH Director Address](#retrieve-bosh-address).
   You must be able to reach the target address from the machine where you run `bbr`
@@ -354,9 +378,9 @@ message.
 For more information about interpreting the exit codes, see
 [Exit Codes](bbr-logging.html#exit-codes) in _BBR Exit Codes and Logging_.
 
-## <a id="manage"></a>Manage Your Backup Artifact
+## <a id="manage"></a>Manage Your Backup Artifacts
 
-Keep your backup artifact safe in the following ways:
+Keep your backup artifacts safe in the following ways:
 
 * Move the backup artifacts off the jumpbox to a secure storage space. BBR stores each backup in a
 subdirectory named `DEPLOYMENT-TIMESTAMP` within the current working directory. The backup created
