@@ -1,0 +1,260 @@
+---
+title: Provisioning NSX-T v2.4 Load Balancer to Front the NSX Management Cluster in Enterprise PKS
+owner: PKS-NSXT
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to deploy a load balancer for the NSX-T Management Plane for <%= vars.product_short %>.
+
+<p class="note"><strong>Note:</strong> The instructions provided in this topic are for NSX-T v2.4.</p>
+
+##<a id='about'></a> About the NSX Management Cluster
+
+NSX-T v2.4 introduces a converged management and control plane cluster. The new deployment model delivers high hvailability of the NSX Manager UI and API, reduces the likelihood of failures of operation of NSX-T, and provides API and UI clients with multiple endpoints or single VIP for availability.
+
+The diagram below shows the NSX Management Cluster using a VIP.
+
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-01" alt="NSX Managment Cluster with VIP" width="725">
+
+In addition to high-availability, the NSX Management Cluster allows for increased processing capability and fair distribution of API load among multiple instances of the managment cluster. To make use of such capability, the NSX Management Cluster is fronted by a load balancer that distributes the API load among the members of the management cluster.
+
+The diagram below shows the NSX Management Cluster using a load balancer.
+
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-02" alt="NSX Managment Cluster with Load Balancer" width="725">
+
+Using a NSX Management Cluster with VIP gives you high-availability. The VIP attaches to one of the NSX Manager hosts. If that host goes down, the VIP attaches to another NSX Manager host in the management cluster. Including a load balancer is reserved for high-scale, multi-cluster environments where you need additional capacity. With a load balancer, the load is fairly distributed across all hosts in the management cluster. Using a load balancer gives you three times the capacity.
+
+<p class="note"><strong>Note:</strong> Using a load balancer to front the NSX Managment Cluster is optional.</p>
+
+###<a id='interactions'></a> Component Interaction with NSX Management Cluster
+
+Several components in an <%= vars.product_short %> deployment interact with the NSX Management Cluster.
+
+PKS components:
+- Ops Manager
+- BOSH CPI (Cloud Provider Interface)
+- NSX-T OSB Proxy
+
+Kubernetes cluster components:
+- BOSH jobs running on Kubernetes Master Nodes
+- NSX-T Container Plugin (NCP)
+
+The interaction of the PKS component and the BOSH Jobs running to prepare and update Kubernetes clusters with the NSX Management Cluster is sporadic. The NCP component is vital to the networking needs of each Kubernetes cluster and may demand a high level of scalability to the API processing capability of the NSX Management Cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX API processing to its system limits.
+
+To avoid overloading a single NSX Manager node, as may be the case when HA VIP addressing is used, and balance the load across all cluster node members, an NSX Load Balancer should be provisioned for <%= vars.product_short %> so that NCP and other components can use it.
+
+###<a id='provisioning'></a> Load Balancer provisioning for NSX Management Cluster
+
+An NSX-T load balancer can be manually-provisioned to allow NCP and other components orchestrated by PKS to distribute load efficiently among NSX Management Cluster nodes.
+
+Given a standard NSX-T topology for <%= vars.product_short %> with a pre-provisioned Tier-0 Router and Management Network components, it is possible to provision the management cluster load balancer during initial PKS Tile configuration for a new installation or when updating the PKS Tile configuration to introduce the new load balancer functionality on a pre-existent environment.
+
+The NSX-T topology for a typical <%= vars.product_short %> deployment can be enhanced to incorporate a new load balancer. A virtual server is configured on the load balancer. A virtual IP address is associated with the virtual server. This VIP can be used as the entry-point for PKS- and NCP-related API requests on the NSX-T Control Plane. The virtual server includes a member pool where all NSX Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX Management Cluster.
+
+The new Load Balancer, deployed within the NSX-T environment, intercepts requests toward the NSX Management Cluster. The virtual server selects one of the NSX Manager nodes to handle the request, rewrite the destination IP address to reflect the selection and SNAT-translate the packet to a new Virtual IP Address.
+
+The diagrams below show the NSX Management Cluster using a VIP versus using a load balancer.
+
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-03" alt="Typical Deployment of PKS with NSX-T" width="725">
+
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-05" alt="Load Balancer Provisioned with NSX-T Management Cluster" width="725">
+
+##<a id='provisioning'></a> Load Balancer Provisioning Steps
+
+To provision a load balancer fronting the NSX Management Plane, complete the instructions in each of the following sections.
+
+###<a id='prereqs'></a> Prerequisites
+
+Before you begin the provisioning procedure, ensure that your environment is configured as follows: 
+
+- NSX-T 2.4 is installed and configured for servicing an Enterprise PKS environment
+- Transport zone, transport node, Edge Cluster, Edge connectivity and Tier-0 Routers are deployed and operational with proper static routes or BGP.
+- Enough Edge Cluster resources are available to deploy a new small-size load balancer VM. 
+- A dedicated IP Address is available to be used as VIP and SNAT IP address for the new load balancer. The IP address need to be globally routable from networks external to NSX-T. Potentially, such IP address can be carved out from the standard IP Pool required by PKS.
+- A NSX Management Cluster with 3 nodes is provisioned with HA VIP (NSX Manager VIP).
+- A new NSX Manager CA cert has been generated using the HA VIP address. Make sure the CA cert generated does INCLUDE the pre-allocated IP Address mentioned above as part of the alt_names section of the certificate configuration (see image below).
+- The new certificate is registered with NSX-T using the Cluster Certificate API.
+
+Show below is an example certificate signing request. In this example, the IP address `192.168.6.210` is the HA VIP, and the IP address `91.0.0.1` is the Load Balancer VIP.
+
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-06" alt="CSR with HA VIP and LB VIP" width="725">
+
+### Provision the Load Balancer
+
+To provision the load balancer for the NSX-T Management Cluster, complete the following steps.
+
+<p class="note"><strong>Note</strong>: Be sure to use the "Advanced Networking and Security" tab in NSX Manager to create, read, update, and delete all networking objects used for PKS.</p>
+
+1. Create a new Tier-1 Router in Active/StandBy mode. Make sure Tier1 Router is created on the same Edge Cluster where Tier-0 providing external connectivity toward vCenter and NSX Manager is located.
+1. Connect the Tier-1 Router to the Tier-0 Router.
+1. Enable Route Advertisement for LB VIP and LB SNAT IP Routes on the newly-created Tier-1 Router.
+1. Create a new small-size Load Balancer and attach it to the Tier1 router previously created.
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-07" alt="Load Balancer Configuration" width="725">
+  <p class="note"><strong>Note</strong>: The small-size VM is suitable for the NSX Management Cluster load balancer.</p>
+1. Create a new Active Health Monitor (HM) for NSX Management Cluster members. Configure the new Active HM with Health Check protocol being LbHttpsHeathMonitor. Configure generic settings as per illustrated snapshot.
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-08" alt="Health Monitor Configuration" width="725">
+1. Configure the new Active HM with specific HTTP request fields:
+- Key: Authorization
+- Value: Basic YWRtaW46Vk13YXJlMSFWTXdhcmUxIQ==
+- Key: Content-Type
+- Value: application/json
+- Key: Accept
+- Value: application/json
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-09" alt="Health Monitor HTTP Request: Detailed Configuration" width="725">
+  <p class="note"><strong>Note:</strong> In the example, `YWRtaW46Vk13YXJlMSFWTXdhcmUxIQ==` is the base64-encoded value of the NSX-T administrator credentials, expressed in the form 'admin:password'. You can use the free online service <https://www.base64encode.org/> to encode your values.</p>
+1. If your PKS deployment is deployed in NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX-T topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-10" alt="SNAT rule for Health Monitor HTTP traffic, added to Tier0 router" width="725">
+
+### Create the Server Pool
+
+1. Configure the Server Pool in Round-Robin mode
+1. Configure the Server Pool w/t SNAT in IP List mode
+1. Provide the pre-allocated IP Address as address to be used for SNAT translation
+1. Configure Static Membership type, adding all NSX Management Cluster nodes as members of the Pool
+1. Select previously-created Health Monitor profile for the new Server Pool
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-11" alt="Server Pool Configuration" width="725">
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-12" alt="Details of Pool Members Configuration" width="725">
+
+### Create a New Virtual Server
+
+1. Configure the Virtual Server as Layer 4 / TCP.
+1. Provide the pre-allocated IP Address as address to be used for Virtual IP Address of the Virtual Server.
+1. Configure the Virtual Server on port 443.
+1. Select as Server Pool the pool previously created.
+1. Attach the newly-created Virtual Server to the Load Balancer previously created.
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-13" alt="Virtual Server Configuration" width="725">
+
+### Test the Load Balancer for the NSX Management Cluster
+
+Secure HTTPs requests can easily be validated against the new Virtual IP Address associated to the Load Balancer’s Virtual Server.
+
+Relying on the SuperUser Principal Identity created as part of PKS provisioning steps, we could curl NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP:
+
+Before load balancer provisioning is completed:
+
+```
+curl -k -X GET "https://192.168.6.210/api/v1/trust-management/principal-identities" --cert $(pwd)/pks-nsx-t-superuser.crt --key $(pwd)/pks-nsx-t-superuser.key
+`
+
+After load balancer provisioning is completed:
+
+```
+curl -k -X GET "https://91.0.0.1/api/v1/trust-management/principal-identities" --cert $(pwd)/pks-nsx-t-superuser.crt --key $(pwd)/pks-nsx-t-superuser.key
+```
+
+Key behavioral differences among the two API calls is the fact that the call toward the Virtual Server VIP will effectively Load Balance requests among the NSX-T Server Pool members. On the other hand, the call made toward the HA VIP address would ALWAYS select the same member (the Active Member) of the NSX Management Cluster.
+
+Residual configuration step would be to change PKS Tile configuration for NSX-Manager IP Address to use the newly-provisioned Virtual IP Address. This configuration will enable any component internal to PKS (NCP, NSX OSB Proxy, BOSH CPI, etc…)  to use the new Load Balancer functionality.
+
+### Appendix: Setting Up CA Cert when Clustering NSX-T Managers with LB
+
+There are two ways to set up the CA cert when using Load Balancer IP/hostname to communicate with NSX-T managers via TLS. 
+
+#### Set up cluster VIP 
+
+As mentioned earlier, cluster VIP can be set up and we can use it as the common name in the self-signed certificate. 
+
+Please note the following would be requirements on the certificate:
+- Have the cluster VIP as commonName
+- In SAN, have LB VIP and NSX-T manager IP’s (or wildcard domain for NSX-T managers). 
+
+Note that we need to add NSX-T manager IPs or the wildcard domain to the SAN because we need to register this certificate as node certificate, then one should be able to use this certificate to talk directly to NSX-T manager.
+
+As an example, say the LB VIP is 192.168.160.100, cluster VIP is 192.168.111.150, wildcard domain for NSX-T managers is “*.pks.vmware.local”. The detailed steps could be:
+
+1. Create a nsx-crt.cnf as the following:
+
+```
+[ req ]
+default_bits = 2048
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+[ req_distinguished_name ]
+countryName = US
+stateOrProvinceName = California
+localityName = CA
+organizationName = NSX
+commonName = 192.168.111.150
+[ v3_req ]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = 192.168.160.100
+    DNS.2 = *.pks.vmware.local
+IP.1  = 192.168.160.100
+```
+
+1. Generate the certificate and key and stores as nsx.crt/nsx.key:
+
+```
+openssl req -newkey rsa:2048 -x509 -nodes -keyout nsx.key -new -out nsx.crt -subj /CN=192.168.111.150 -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf <(printf "[SAN]\nsubjectAltName=DNS:192.168.160.100, DNS: *.pks.vmware.local, IP:192.168.160.100")) -sha256 -days 365
+```
+
+1. Check if the SAN has the correct IPs
+
+`openssl x509 -in nsx.crt -text -noout` should give you an output like this:
+
+```
+Certificate:
+...
+        Subject: C=US, ST=California, L=CA, O=NSX, CN=192.168.111.150
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                …
+        X509v3 extensions:
+            X509v3 Subject Alternative Name:
+                DNS:192.168.160.100, DNS:*.pks.vmware.local, IP Address:192.168.160.100
+    ...
+```
+
+1. Import this cert/key as a certificate in NSX-T manager.
+
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-14" alt="Import Certficate" width="725">
+
+1. Apply this certificate as the NSX-T manager node certificate 
+(NOTE: it has to be node certificate, not cluster certificate. Because with the LB setup we have, http request is passed through LB and reaches directly to NSX-T manager, and NSX-T manager uses the node certificate for TLS.)
+
+```
+curl -k -u admin:'Admin!23Admin' -X POST "https://<nsx-t-manager>/api/v1/node/services/http?action=apply_certificate&certificate_id=<certificate-id>"
+```
+
+1. Verify the cacert works for LB VIP and also for NSX-T manager hostname 
+
+```
+curl -X GET --cacert nsx.crt  -u admin:'Admin!23Admin' https://192.168.160.100/api/v1/pools/ip-pools
+
+curl -X GET --cacert nsx.crt  -u admin:'Admin!23Admin' https://nsxmanager.pks.vmware.local/api/v1/pools/ip-pools
+```
+
+
+#### No Cluster VIP 
+
+We can simplify the setting of a valid CA Certificate in case HA VIP is not required for the NSX-T management cluster. In this case, the following would be requirements on the certificate:
+
+- Have the wildcard domain for NSX-T managers as commonName
+- In SAN, have LB VIP and NSX-T manager IP’s (or wildcard domain for NSX-T managers). 
+    
+The steps to set up cacert in this case is similar to the previous approach. The only difference is Step 1: the nsx-crt.cnf should have wildcard domain as commonName, as illustrated below:
+
+```
+[ req ]
+default_bits = 2048
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+[ req_distinguished_name ]
+countryName = US
+stateOrProvinceName = California
+localityName = CA
+organizationName = NSX
+commonName = *.pks.vmware.local
+[ v3_req ]
+subjectAltName = @alt_names
+[alt_names]
+ DNS.1 = 192.168.160.100
+DNS.2 = *.pks.vmware.local
+IP.1  = 192.168.160.100
+```
+
+
