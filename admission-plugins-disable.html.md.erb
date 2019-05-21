@@ -6,33 +6,57 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-This section describes how to disable one or more admission control plugins for <%= vars.product_full %> clusters. For more information, see [Enabling and Using Admission Control Plugins for Enterprise PKS Clusters](./admission-plugins.html).
+This section describes how to disable one or more admission control plugins for <%= vars.product_full %> clusters. For more information, see [Enabling and Using Admission Control Plugins for 
+<%= vars.product_short %> Clusters](./admission-plugins.html).
 
-##<a id='admission-plugin-disable-single'></a> Disabling a Single Admission Plugin
+##<a id='admission-plugin-disable-single'></a> Disabling a Single Admission Control Plugin
 
-To disable a single Admission Plugin, complete the following steps:
+To disable a single admission control plugin, complete the following steps:
 
 1. Log in to Ops Manager.
-1. Edit the Enterprise PKS tile.
+1. Click on the <%= vars.product_short %> tile.
 1. Select the Plan, such as **Plan 1**.
-1. Deselect (uncheck) the Admission Plugin to disable it.
-1. Save the changes to the Enterprise PKS tile.
-1. At the Installation Dashboard, select **Review Pending Changes**.
-1. Verify that the **Upgrade all clusters errand** is enabled (checked) for Enterprise PKS.
+1. Deselect (uncheck) the admission control plugin to disable it.
+1. Save the changes to the <%= vars.product_short %> tile.
+1. Click on the Installation Dashboard, and select **Review Pending Changes**.
+1. Verify that the **Upgrade all clusters errand** is selected (enabled) for <%= vars.product_short %>.
 1. Click **Apply Changes**.
 
-##<a id='admission-plugin-disable'></a> Disabling an Orphaned Admission Plugin
+##<a id='admission-plugin-disable'></a> Disabling an Orphaned Admission Control Plugin
 
-The Ops Manager user interface does not let you deselect (disable) all Admission Plugins. In other words, once an Admission Plugin is enabled, the Ops Manager UI requires that at least one Admission Plugin checkbox be selected (checked).
+The Ops Manager UI does not let you deselect (disable) all admission control plugins. 
+In other words, after an admission control plugin is enabled, 
+the Ops Manager UI requires that at least one admission control plugin checkbox is selected (enabled).
 
-To disable an orphaned Admission Plugin, complete the following workflow:
+To disable an orphaned Admission control Plugin, complete the following workflow:
 
-1. Obtain the Ops Manager API URL.
-1. Obtain the Ops Manager user name and password.
-1. Obtain the GUID for the Enterprise PKS tile using either of the following methods:
-  - Option 1: In Ops Manager, select the PKS tile and copy the GUID from the URL:
-  	<img src="images/pks-guid.png" alt="PKS GUID" width="325">
-  - Option 2: Run the following command: 
-  		om -t OPSMAN-FQDN -u <ops man user> -p "<ops man password>" -k curl -s -p /api/v0/staged/products | jq .[].guid | grep "pivotal-container-service" | tr -d '"'
-1. To disable the orphaned Admission Plugin, run the following command using the Ops Manager CLI. In this example, `30.0.0.5` is the IP address of the Ops Manager VM.
-		om -t 30.0.0.5 -u <ops man user> -p "<ops man password>" -k curl -p /api/v0/staged/products/pivotal-container-service-guid/properties -x PUT -d '{"properties": {".properties.plan1_selector.active.admission_plugins":{"value":[]}}}' -H "Content-Type: application/json"
+1. Obtain the FQDN, user name and password of your Ops Manager.
+1. Authenticate into the Ops Manager API and retrieve a UAA access token to access Ops Manager. 
+    For more information, see [Using the Ops Manager API](https://docs.pivotal.io/pivotalcf/customizing/ops-man-api.html#auth).
+1. Obtain the BOSH deployment name for the <%= vars.product_short %> tile by performing the following steps:
+    1. In Ops Manager, click on the <%= vars.product_short %> tile. 
+    1. Copy the BOSH deployment name including the GUID from the URL:
+
+        <img src="images/pks-guid.png" alt="PKS GUID" width="325">
+        <br/><br/>
+        The deployment name contains "pivotal-container-service" and a unique GUID string. For example, `pivotal-container-service-4b48fc5b704d54c6c7de`.
+1. To disable the orphaned admission control plugin, run the following Ops Manager API command:
+
+     ```
+     curl "https://OPS-MAN-FQDN/api/v0/deployed/products/pivotal-container-service-GUID/properties" \
+     -H "Authorization: Bearer UAA-ACCESS-TOKEN" \
+     -X PUT -d '{"properties": {".properties.plan1_selector.active.admission_plugins":{"value":[]}}}' \
+     -H "Content-Type: application/json"
+	 ```
+    Where: 
+	   * `OPS-MAN-FQDN` is the URL of your Ops Manager.
+	   * `pivotal-container-service-GUID` is the BOSH deployment name of your <%= vars.product_short %> that you retrieved earlier in this procedure.
+	   * `UAA-ACCESS-TOKEN` is the UAA token you retrieved earlier in this procedure.
+
+	For example:
+	<pre class="terminal">
+	 $ curl "https<span>:</span>//pcf.example.com/api/v0/deployed/products/pivotal-container-service-4b48fc5b704d54c6c7de/properties" \
+     -H "Authorization: Bearer aBcdEfg0hIJKlm123.e" \
+     -X PUT -d '{"properties": {".properties.plan1_selector.active.admission_plugins":{"value":[]}}}' \
+     -H "Content-Type: application/json"
+    </pre>
