@@ -5,272 +5,339 @@ owner: PKS-NSXT
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to deploy a load balancer for the NSX-T Management Plane for <%= vars.product_short %>.
+This topic describes how to deploy a load balancer for the NSX-T Management Cluster for <%= vars.product_short %>.
 
 <p class="note"><strong>Note:</strong> The instructions provided in this topic are for NSX-T v2.4.</p>
 
 ##<a id='about'></a> About the NSX Management Cluster
 
-NSX-T v2.4 introduces a converged management and control plane cluster. The new deployment model delivers high hvailability of the NSX Manager UI and API, reduces the likelihood of failures of operation of NSX-T, and provides API and UI clients with multiple endpoints or single VIP for availability.
+NSX-T v2.4 introduces a converged management and control plane that is referred to as the **NSX-T Managment Cluster**. The new deployment model delivers high hvailability of the NSX Manager UI and API, reduces the likelihood of operation failures of NSX-T, and provides API and UI clients with multiple endpoints or single VIP for high availability.
 
-The diagram below shows the NSX Management Cluster using a VIP.
+In addition to high availability, the NSX Management Cluster allows for increased processing capability and fair distribution of API load among multiple instances of management nodes. To make use of such capability, the NSX Management Cluster can be fronted by a load balancer that distributes the load among the node members of the management cluster.
 
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-01.png" alt="NSX Managment Cluster with VIP" width="725">
+The diagram below shows the NSX Management Cluster using a virtual IP and a load balancer fronting the management nodes.
 
-In addition to high-availability, the NSX Management Cluster allows for increased processing capability and fair distribution of API load among multiple instances of the managment cluster. To make use of such capability, the NSX Management Cluster is fronted by a load balancer that distributes the API load among the members of the management cluster.
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-01.png" alt="NSX Managment Cluster with Load Balancer" width="725">
 
-The diagram below shows the NSX Management Cluster using a load balancer.
+Using a NSX Management Cluster with VIP gives you high-availability. The VIP attaches to one of the NSX Manager hosts. If that host goes down, the VIP attaches to another NSX Manager host in the management cluster. Using a load balancer is for high-scale, multi-cluster environments where you need additional capacity. With a load balancer, the load is fairly distributed across all hosts in the management cluster, giving you three times the capacity.
 
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-02.png" alt="NSX Managment Cluster with Load Balancer" width="725">
+###<a id='interactions'></a> Component Interaction with the NSX Management Cluster
 
-Using a NSX Management Cluster with VIP gives you high-availability. The VIP attaches to one of the NSX Manager hosts. If that host goes down, the VIP attaches to another NSX Manager host in the management cluster. Including a load balancer is reserved for high-scale, multi-cluster environments where you need additional capacity. With a load balancer, the load is fairly distributed across all hosts in the management cluster. Using a load balancer gives you three times the capacity.
+Various components in an <%= vars.product_short %> deployment interact with the NSX Management Cluster.
 
-<p class="note"><strong>Note:</strong> Using a load balancer to front the NSX Managment Cluster is optional.</p>
+PKS Control Plane components:
 
-###<a id='interactions'></a> Component Interaction with NSX Management Cluster
-
-Several components in an <%= vars.product_short %> deployment interact with the NSX Management Cluster.
-
-PKS components:
 - Ops Manager
 - BOSH CPI (Cloud Provider Interface)
 - NSX-T OSB Proxy
 
-Kubernetes cluster components:
-- BOSH jobs running on Kubernetes Master Nodes
+Kubernetes Cluster components:
+
+- BOSH jobs running on Kubernetes master nodes to prepare and update Kubernetes clusters
 - NSX-T Container Plugin (NCP)
 
-The interaction of the PKS component and the BOSH Jobs running to prepare and update Kubernetes clusters with the NSX Management Cluster is sporadic. The NCP component is vital to the networking needs of each Kubernetes cluster and may demand a high level of scalability to the API processing capability of the NSX Management Cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX API processing to its system limits.
+The interaction of the PKS Control Plane components and the BOSH jobs with the NSX-T Management Cluster is sporadic. However, the NCP component may demand a high level of scalability for the NSX-T API processing capability of the NSX Management Cluster, and NCP is vital to the networking needs of each Kubernetes cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX-T API processing to its limits.
 
-To avoid overloading a single NSX Manager node, as may be the case when HA VIP addressing is used, and balance the load across all cluster node members, an NSX Load Balancer should be provisioned for <%= vars.product_short %> so that NCP and other components can use it.
+###<a id='provisioning'></a> Load Balancer Provisioning for the NSX Management Cluster
 
-###<a id='provisioning'></a> Load Balancer provisioning for NSX Management Cluster
+While using a VIP to access the NSX-T Manager provides high-availability, it does not balance the load. To avoid overloading a single NSX-T Manager, as may be the case when HA VIP addressing is used, an NSX-T load balancer can be provisioned to allow NCP and other components orchestrated by PKS to distribute load efficiently among NSX Management Cluster nodes.
 
-An NSX-T load balancer can be manually-provisioned to allow NCP and other components orchestrated by PKS to distribute load efficiently among NSX Management Cluster nodes.
+The standard NSX-T topology for <%= vars.product_short %>--Tier-0 Router, Managment Cluster with Nodes, Edge Cluster with Nodes--can be enhanced to include a load balancer for the management layer. A virtual server is configured on the load balancer, and a virtual IP address is associated with the virtual server. This VIP can be used as the entry-point for PKS- and NCP-related API requests on the NSX-T Control Plane. The virtual server includes a member pool where all NSX-T Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX-T Management Cluster.
 
-Given a standard NSX-T topology for <%= vars.product_short %> with a pre-provisioned Tier-0 Router and Management Network components, it is possible to provision the management cluster load balancer during initial PKS Tile configuration for a new installation or when updating the PKS Tile configuration to introduce the new load balancer functionality on a pre-existent environment.
+The new Load Balancer, deployed within the NSX-T environment, intercepts requests to the NSX-T Management Cluster. The virtual server selects one of the NSX-T Manager nodes to handle the request, rewrite the destination IP address to reflect the selection, and SNAT-translate the packet to a new Virtual IP Address.
 
-The NSX-T topology for a typical <%= vars.product_short %> deployment can be enhanced to incorporate a new load balancer. A virtual server is configured on the load balancer. A virtual IP address is associated with the virtual server. This VIP can be used as the entry-point for PKS- and NCP-related API requests on the NSX-T Control Plane. The virtual server includes a member pool where all NSX Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX Management Cluster.
+The diagram below depicts a standard NSX-T topology for <%= vars.product_short %> with a Tier-1 Router and load balancer for the NSX Management Cluster.
 
-The new Load Balancer, deployed within the NSX-T environment, intercepts requests toward the NSX Management Cluster. The virtual server selects one of the NSX Manager nodes to handle the request, rewrite the destination IP address to reflect the selection and SNAT-translate the packet to a new Virtual IP Address.
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-02.png" alt="NSX Managment Cluster with Load Balancer" width="725">
 
-The diagrams below show the NSX Management Cluster using a VIP versus using a load balancer.
+##<a id='prereqs'></a> Prerequisites for Provisioning a Load Balancer for the NSX-T Management Cluster
 
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-03.png" alt="Typical Deployment of PKS with NSX-T" width="725">
+Before you provision a load balancer for the NSX-T Management Cluster, ensure that your environment is configured as follows: 
 
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-05.png" alt="Load Balancer Provisioned with NSX-T Management Cluster" width="725">
+- NSX-T 2.4 is installed and configured for servicing an Enterprise PKS environment. See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
+- Transport zone, transport node, Edge Cluster, Edge Node connectivity, and Tier-0 Router are deployed and operational with proper static routes or BGP. See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
+- Enough Edge Cluster resources to deploy a new small-size load balancer VM. 
+- A dedicated IP Address is available to be used as VIP and SNAT IP address for the new load balancer. The IP address needs to be globally routable from networks external to NSX-T. This IP address can be carved out from the standard IP Pool required by PKS.
+- A NSX-T Management Cluster with 3 nodes is provisioned with HA VIP (NSX-T Manager VIP). See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
+- A new NSX-T Manager CA certificate has been generated using the HA VIP address. Make sure the CA cert generated includes the pre-allocated IP Address mentioned above as part of the alt_names section of the certificate configuration (see image below). See <a href="./generate-nsx-ca-cert-24.html">Generating and Registering the NSX Manager Cluster Certificate for Enterprise PKS (NSX-T v2.4)</a>.
+- The new certificate is registered with NSX-T using the Cluster Certificate API. See <a href="./generate-nsx-ca-cert-24.html">Generating and Registering the NSX Manager Cluster Certificate for Enterprise PKS (NSX-T v2.4)</a>.
 
-##<a id='provisioning'></a> Load Balancer Provisioning Steps
-
-To provision a load balancer fronting the NSX Management Plane, complete the instructions in each of the following sections.
-
-###<a id='prereqs'></a> Prerequisites
-
-Before you begin the provisioning procedure, ensure that your environment is configured as follows: 
-
-- NSX-T 2.4 is installed and configured for servicing an Enterprise PKS environment
-- Transport zone, transport node, Edge Cluster, Edge connectivity and Tier-0 Routers are deployed and operational with proper static routes or BGP.
-- Enough Edge Cluster resources are available to deploy a new small-size load balancer VM. 
-- A dedicated IP Address is available to be used as VIP and SNAT IP address for the new load balancer. The IP address need to be globally routable from networks external to NSX-T. Potentially, such IP address can be carved out from the standard IP Pool required by PKS.
-- A NSX Management Cluster with 3 nodes is provisioned with HA VIP (NSX Manager VIP).
-- A new NSX Manager CA cert has been generated using the HA VIP address. Make sure the CA cert generated does INCLUDE the pre-allocated IP Address mentioned above as part of the alt_names section of the certificate configuration (see image below).
-- The new certificate is registered with NSX-T using the Cluster Certificate API.
-
-Show below is an example certificate signing request. In this example, the IP address `192.168.6.210` is the HA VIP, and the IP address `91.0.0.1` is the Load Balancer VIP.
-
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-06.png" alt="CSR with HA VIP and LB VIP" width="725">
-
-### Configure the NSX-T Load Balancer
+##<a id='provision'> Provision the NSX-T Load Balancer for the Management Cluster
 
 To provision the load balancer for the NSX-T Management Cluster, complete the following steps.
+
+###<a id='s1'> Step 1: Log in to NSX-T Manager.
 
 1. Log in to NSX-T Manager.
 <p class="note"><strong>Note</strong>: You can connect to any NSX-T Manager node in the management cluster to provision the load balancer.</p>
 1. Select the **Advanced Networking & Security** tab.
-<p class="note"><strong>Note</strong>: You must use the "Advanced Networking and Security" tab in NSX Manager to create, read, update, and delete all networking objects used for PKS.</p>
+<p class="note"><strong>Note</strong>: You must use the <strong>Advanced Networking and Security</strong> tab in NSX-T Manager to create, read, update, and delete all NSX-T networking objects used for Enterprise PKS.</p>
 
-1. Add a new logical switch for the load balancer. To do this:
-  - Select **Switching**.
-  - Click **Add**.
-  - Configure the logical switch and click **Add**:
-    - Enter a Name, such as **LS-NSX-T-EXTERNAL-LB**.
-	- Select the **Transport Zone**.
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-05.png" alt="Configure Logical Switch" width="725">
+###<a id='s2'> Step 2: Add and configure a logical switch.
 
-1. Create a new Tier-1 Router in Active/StandBy mode. Create the Tier-1 Router on the same Edge Cluster where the Tier-0 Router that provides external connectivity to vCenter and NSX Manager is located. To do this:
-  - Select **Routers**.
-  - Click **Add** > **Tier-1 Router**.
-  - Configure the new Tier-1 Router and click *Add*.
-    - Name: **T1-NSX-T-EXTERNAL-LB**, for example.
-	- Tier-0 Router: Connect the Tier-1 Router to the Tier-0 Router, for example **Shared-T0**.
-	- Edge Cluster: Select the same Edge Cluster where the Tier-0 Router is located, such as **edgecluster1**.
-	- Edge Cluster members: **edge-TN1** and **edge-TN2**, for example.
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-06.png" alt="Add Logical Router" width="725">
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-07.png" alt="Configure Logical Router" width="725">
+Add and configure a new logical switch for the load balancer.
 
-1. Configure Route Advertisement for the Tier-1 Router. To do this:
-  - Select the Tier-1 Router.
-  - Select the **Routing** tab.
-  - Select **Route Advertisement** > **Edit**.
-  - Enable Route Advertisement for all load balancer VIP routes for the Tier-1 Router:
-  	- Status: enabled
-  	- Advertise all LB VIP routes: yes
-  	- Advertise all LB SNAT IP routes: yes
-  	- Click **Save**
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-09.png" alt="Advertise Routes" width="725">
+- Select **Switching**.
+- Click **Add**.
+- Configure the logical switch:
+  - Name: Enter a name for the logical switch, such as **LS-NSX-T-EXTERNAL-LB**.
+  - Transport Zone: Select the overlay transport zone, such as **TZ-OVerlay**.
+- Click **Add**.
 
-1. Verify successful creation of the logical switch and router. To do this:
-  - Select the Tier-1 Router.
-  - Select the Configuration tab.
-  - At this point the T1 should have a single linked port connecting the Tier-1 Router to the Tier-0 Router.
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-11.png" alt="Verify Logical Switch and Router" width="725">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-05.png" alt="Add New Logical Switch" width="525">
 
-1. Create a new small-size Load Balancer and attach it to the Tier1 router previously created.
-  - Select **Load Balancers**.
-  - Click **Add**.
-  - Select the Small load balancer and name it.
-  - Click OK.
-    <p class="note"><strong>Note</strong>: The small-size VM is suitable for the NSX Management Cluster load balancer.</p>
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-12.png" alt="Add Load Balancer" width="725">
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-13.png" alt="Configure Load Balancer" width="725">
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-14.png" alt="Confirm Load Balancer" width="725">
+###<a id='s3'> Step 3: Add and configure a Tier-1 Router.
 
-1. Attach the load balancer to the Tier-1 Router previously created.
-  - Select the NSX-T LB.
-  - Select the Overview Tab.
-  - Select Attachment > Edit.
-  - Specify the Tier-1 Logical Router, for example `T1-NSX-T-EXTERNAL-LB`.
-  - Click OK.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-15.png" alt="Confirm Load Balancer" width="725">
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-16.png" alt="Confirm Load Balancer" width="725">
+Configure a new Tier-1 Router in Active/StandBy mode. Create the Tier-1 Router on the same Edge Cluster where the Tier-0 Router that provides external connectivity to vCenter and NSX Manager is located.
 
-1. Create a vitual server.
-  - Select Load-Balancer > Virtual Servers.
-  - Click Add.
-      <img src="images/nsxt/mgmt-cluster/mgmt-cluster-17.png" alt="Add Virtual Server" width="725">
-  - Configure the Virtual Server:
-  	- General Properties:
-      - Name: VS-NSX-T-EXTERNAL-LB
-      - Appliaiton Types: Layer 4 TCP
-      - Application Profile: default-tcp-lb-app-profile
-      - Access Log: Disabled
-      - Click Next
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-18.png" alt="Virtual Server General Properties" width="725">
-    - Virtual Server Identifiers:
-      - IP Address: Etner an IP address from the floating pool, such as `10.40.14.250`.
-      - Port: 443
-      - Click Next
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-19.png" alt="Virtual Server Identifiers" width="725">
-    - Server Pool:
-      - Click **Create a New Server Pool**.
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-20.png" alt="Add Server Pool" width="725">
-      - General Properites:
-        - Name the server pool, for example `NSX-T-MGRS-SRV-POOL`
-        - Click Next
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-21.png" alt="Server Pool General Properties" width="725">
-      - SNAT Translation:
-        - Translation Mode: IP List
-        - IP address: Enter the NSX-T VS IP here, for example `10.40.14.250`
-        - Click Next
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-22.png" alt="Server Pool SNAT Translation" width="725">  
-      - Pool Members:
-        - Membership Type: Static
-        - Add all 3 NSX Managers as members each with port 443
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-23.png" alt="Server Pool Members" width="725">  
-      - Health Monitors:
-        - You will create the Health Monitors separately.
-        - Click Finish.
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-24.png" alt="Health Monitors" width="725">  
-    - Back at the Server Pool screen, click Next.
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-25.png" alt="Server Pool" width="725">  
-    - Load Balancing Profiles:
-      - Persistence Profile: source IP: default-source-ip-lb-persistence-profile
-      - Click Finish.
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-26.png" alt="Load Balancing Persistence Profile" width="725">
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-27.png" alt="Load Balancing Persistence Profile" width="725">  
+- Select **Routers**.
+- Click **Add** > **Tier-1 Router**.
+- Configure the new Tier-1 Router and click *Add*.
+  - Name: **T1-NSX-T-EXTERNAL-LB**, for example.
+  - Tier-0 Router: Connect the Tier-1 Router to the Tier-0 Router, for example **Shared-T0**.
+  - Edge Cluster: Select the same Edge Cluster where the Tier-0 Router is located, such as **edgecluster1**.
+  - Edge Cluster members: **edge-TN1** and **edge-TN2**, for example.
 
-1. Attach the virtual switch to the NSX-T load balancer.
-  - Click on the VS and then select Load Balancers tab.
-  - Click Attach.
-  - Load Balancer: Specificy the load balancer to attach, such as `NSX-T-EXTERNAL-LB`.
-  - Click OK.
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-28.png" alt="Attach Load Balancer 1" width="725">  
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-29.png" alt="Attach Load Balancer 2" width="725">  
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-30.png" alt="Attach Load Balancer 2" width="725">  
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-06.png" alt="Add Tier-1 Router" width="525">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-07.png" alt="Configure Tier-1 Router" width="725">
 
-1. Verify the load balancer. You should be able to do the following:
-  - Ping the NSX-T LB VS IP address from your local machine.
-  - Access the NSX-T LB VS IP address, for example `https://10.40.14.250`.
-  <p class="note"><strong>Note:</strong> Because you selected the `default-source-ip-lb-persistence-profile`, the URL will redirect you to the same NSX-T Manager (because persistence is done on source IP).</p>
+###<a id='s4'> Step 4: Configure route advertisement.
 
-1. Create a new Active Health Monitor (HM) for NSX Management Cluster members. Configure the new Active Health Monitor with the Health Check protocol `LbHttpsHeathMonitor`. To do this:
-  - Select **Load Balancers** > **Server Pools**
-  - Select the server pool previously created (for example, NSX-T-MGRS-SRV-POOL) 
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-31.png" alt="Select Server Pool" width="725">  
-  - Select the Overview tab
-  - Click Health Monitor > Edit
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-32.png" alt="Health Monitor Edit" width="725">  
-  - Click **Create a new active monitor**
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-33.png" alt="New Active HM" width="725">  
-  - Monitor Properties:
-    - Name: NSX-T-Mgr-Health-Monitor
-    - Health Check Protocol: LbHttpsMonitor
-    - Monitoring Port: 443
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-34.png" alt="Monitor Properties" width="725">  
-  - Health Check Parameters: Configure the new Active HM with specific HTTP request fields:
-    - SSL Protocols: Select the TLS_v2 and v2 prootocols.
-        <img src="images/nsxt/mgmt-cluster/mgmt-cluster-35.png" alt="SSL Protocols" width="725">  
-    - SSL Ciphers: Select Balanced
-    - HTTP Request Configuration:
-      - HTTP Method: GET
-      - HTTP Request URL: /api/v1/reverse-proxy/node/health
-      - HTTP Request Version: HTTP_VERION_1_1
-      <img src="images/nsxt/mgmt-cluster/mgmt-cluster-36.png" alt="HTTP Request Configuration" width="725"> 
-      - HTTP Request Headers:
-        - Authorization: `Basic YWRtaW46Vk13YXJlMSE=`, which is base64 encoded for admin:Admin!1. 
-    	- Content-Type: application/json
-    	- Accept: application/json
-      <img src="images/nsxt/mgmt-cluster/mgmt-cluster-37.png" alt="HTTP Request Headers" width="725"> 
-  <p class="note"><strong>Note:</strong> In the example, `YWRtaW46Vk13YXJlMSFWTXdhcmUxIQ==` is the base64-encoded value of the NSX-T administrator credentials, expressed in the form 'admin-user:password'. You can use the free online service <https://www.base64encode.org/> to base64 encode your values.</p>
-  - Click Finish.
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-38.png" alt="Health Check Parameters" width="725"> 
-  - At the Health Monitors screen, specify the Active Health Monitor you just created: Active Health Monitor: NSX-T-Mgr-Health-Monitor.
-  - Click Finish.
+Configure Route Advertisement for the Tier-1 Router.
 
-1. If your Enterprise PKS deployment uses NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX-T topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
-- Retrieve the IP of the T1 uplink (Tier-1 Router that connected the NSX-T LB instance). In the example below, the T1 uplink IP is `100.64.112.37/31`.
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-44.png" alt="Retrieve IP of the T1 Uplink" width="725"> 
-- Create the following SNAT rule on T0:
-  - Priority: 2000
-  - Action: SNAT
-  - Source IP: 100.64.112.36/31
-  - Destination IP: 10.40.206.0/25
-  - Translated IP: 10.40.14.251
-  - Click Save
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-45.png" alt="SNAT rule for Health Monitor HTTP traffic, added to Tier0 router" width="725"> 
-  - Verify configuration of the SNAT rule:
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-46.png" alt="Verify SNAT" width="725"> 
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-47.png" alt="Verify SNAT" width="725"> 
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-48.png" alt="Verify SNAT" width="725"> 
+- Select the Tier-1 Router.
+- Select the **Routing** tab.
+- Select **Route Advertisement** > **Edit**.
+- Enable Route Advertisement for all load balancer VIP routes for the Tier-1 Router:
+  - Status: enabled
+  - Advertise all LB VIP routes: yes
+  - Advertise all LB SNAT IP routes: yes
+  - Click **Save**
 
-1. Verify the load balancer and that traffic is load balanced.
-  - Confirm that the status of the Logical Switch for the load balancer is Up.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-49.png" alt="Verify LS" width="725"> 
-  - Confirm that the status of the Virtual Server for the load balancer is Up.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-50.png" alt="Verify VS" width="725"> 
-  - Confirm that the status of the Server Pool is Up.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-51.png" alt="Verify LS" width="725">   
-  - Open an HTTPS session using multiple browser clients and confirm that traffic is load-balanced across different NSX-T Managers:
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-54.png" alt="Verify LS" width="725"> 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-08.png" alt="Advertise Routes" width="525">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-09.png" alt="Advertise Routes" width="525">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-10.png" alt="Advertise Routes" width="525">
 
+###<a id='s5'> Step 5: Verify logical switch and router configuration.
 
-Secure HTTPs requests can easily be validated against the new Virtual IP Address associated to the Load Balancer’s Virtual Server. Relying on the SuperUser Principal Identity created as part of PKS provisioning steps, we could curl NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP:
+Verify successful creation and configuration of the logical switch and router.
+
+- Select the Tier-1 Router.
+- Select the **Configuration** tab.
+- At this point the T1 should have a single linked port connecting the Tier-1 Router to the Tier-0 Router.
+
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-11.png" alt="Verify Logical Switch and Router" width="525">
+
+###<a id='s6'> Step 6: Add and configure a load balancer.
+
+Create a new small-size Load Balancer and attach it to the Tier1 router previously created.
+
+<p class="note"><strong>Note</strong>: The small-size VM is suitable for the NSX Management Cluster load balancer. Make sure you have enough Edge Cluster resources to provision the load balancer.</p>
+
+- Select **Load Balancers**.
+- Click **Add**.
+- Select the Small load balancer and name it.
+- Click OK.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-12.png" alt="Add Load Balancer" width="525">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-13.png" alt="Configure Load Balancer" width="525">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-14.png" alt="Confirm Load Balancer" width="525">
+
+###<a id='s7'> Step 7: Attach the load balancer to the router.
+
+Attach the load balancer to the Tier-1 Router previously created.
+
+- Select the load balancer you just provisioned.
+- Select the **Overview** tab.
+- Select **Attachment** > **Edit**.
+- Tier-1 Logical Router: Enter the name of the Tier-1 router you configured, for example `T1-NSX-T-EXTERNAL-LB`.
+- Click **OK**.
+
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-15.png" alt="Attach Load Balancer 1" width="525">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-16.png" alt="Attach Load Balancer 2" width="525">
+
+###<a id='s8'> Step 8: Add and configure a virtual server for the load balancer.
+
+- Select **Load Balancers** > **Virtual Servers**.
+- Click **Add**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-17.png" alt="Add Virtual Server" width="525">
+  
+Configure General Properties for the Virtual Server.
+
+- Name: VS-NSX-T-EXTERNAL-LB
+- Appliaiton Types: Layer 4 TCP
+- Application Profile: default-tcp-lb-app-profile
+- Access Log: Disabled
+- Click **Next**
+
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-18.png" alt="Virtual Server General Properties" width="525">
+
+Configure Virtual Server Identifiers.
+
+- IP Address: Etner an IP address from the floating pool, such as `10.40.14.250`.
+- Port: 443
+- Click **Next**
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-19.png" alt="Virtual Server Identifiers" width="525">
+
+Configure Virtual Server Pool.
+
+- Click **Create a New Server Pool**.
+
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-20.png" alt="Add Server Pool" width="525">
+
+Configure General Properites for the Server Pool:
+
+- Name the server pool, for example `NSX-T-MGRS-SRV-POOL`
+- Load Balancing Algorithm: ROUND_ROBIN
+- Click **Next**
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-21.png" alt="Server Pool General Properties" width="525">
+
+Configure SNAT Translation for the Server Pool:
+
+- Translation Mode: IP List
+- IP address: Enter the NSX-T Virtual Switch IP (VIP) address here, for example `10.40.14.250`.
+- Click **Next**.
+
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-22.png" alt="Server Pool SNAT Translation" width="525">  
+
+Configure Pool Members for the Server Pool:
+
+- Membership Type: Static.
+- Add all 3 NSX Managers as members, each with port 443.
+- Click **Next**.
+
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-23.png" alt="Server Pool Members" width="525">  
+
+Configure Health Monitors:
+- We will create the Health Monitors separately.
+- Click **Finish.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-24.png" alt="Health Monitors" width="525">  
+
+Back at the Server Pool screen, click **Next**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-25.png" alt="Server Pool" width="525">  
+
+Configure Load Balancing Profiles:
+- Persistence Profile: source IP: default-source-ip-lb-persistence-profile
+- Click Finish.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-26.png" alt="Load Balancing Persistence Profile" width="525">
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-27.png" alt="Load Balancing Persistence Profile" width="525"> 
+
+###<a id='s9'> Step 9: Attach the virtual server to the load balancer.
+
+Attach the virtual switch to the NSX-T load balancer.
+
+- Click on the Virtual Server and then select Load Balancers tab.
+- Click **Attach**.
+- Load Balancer: Specificy the load balancer to attach, such as `NSX-T-EXTERNAL-LB`.
+- Click OK.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-28.png" alt="Attach Load Balancer 1" width="525">  
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-29.png" alt="Attach Load Balancer 2" width="525">  
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-30.png" alt="Attach Load Balancer 2" width="525">  
+
+###<a id='s10'> Step 10: Verify the load balancer.
+
+Once the load balancer is configured, you should be able to do the following:
+
+- Ping the NSX-T load balancer VIP address from your local machine.
+- Access the NSX-T load balancer VIP address, for example `https://10.40.14.250`.
+
+<p class="note"><strong>Note:</strong> Because you selected the `default-source-ip-lb-persistence-profile`, the URL redirects to the same NSX-T Manager. Persistence is done on the source IP.</p>
+
+###<a id='s11'> Step 11: Create a new Active Health Monitor (HM).
+
+Create a new Active Health Monitor (HM) for NSX Management Cluster members. Configure the new Active Health Monitor with the Health Check protocol `LbHttpsHeathMonitor`. To do this:
+
+- Select **Load Balancers** > **Server Pools**.
+- Select the server pool previously created (for example, **NSX-T-MGRS-SRV-POOL**). 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-31.png" alt="Select Server Pool" width="525">  
+- Select the **Overview** tab
+- Click **Health Monitor** > **Edit**
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-32.png" alt="Health Monitor Edit" width="525">  
+- Click **Create a new active monitor**
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-33.png" alt="New Active HM" width="525">  
+
+Configure Monitor Properties:
+
+- Name: NSX-T-Mgr-Health-Monitor
+- Health Check Protocol: LbHttpsMonitor
+- Monitoring Port: 443
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-34.png" alt="Monitor Properties" width="525">  
+
+Configure Health Check Parameters. Configure the new Active HM with specific HTTP request fields as follows:
+
+- SSL Protocols: Select the TLS_v2 and v2 prootocols.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-35.png" alt="SSL Protocols" width="525">  
+- SSL Ciphers: Select **Balanced** (recommended)
+
+HTTP Request Configuration:
+
+- HTTP Method: GET
+- HTTP Request URL: /api/v1/reverse-proxy/node/health
+- HTTP Request Version: HTTP_VERION_1_1
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-36.png" alt="HTTP Request Configuration" width="525"> 
+
+HTTP Request Headers:
+
+- Authorization: `Basic YWRtaW46Vk13YXJlMSE=`, which is base64 encoded. 
+- Content-Type: application/json
+- Accept: application/json
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-37.png" alt="HTTP Request Headers" width="525"> 
+
+<p class="note"><strong>Note:</strong> In the example, `YWRtaW46Vk13YXJlMSE=` is the base64-encoded value of the NSX-T administrator credentials, expressed in the form 'admin-user:password'. You can use the free online service <https://www.base64encode.org/> to base64 encode your values.</p>
+
+HTTP Response Configuration:
+
+- HTTP Response Code: 200.
+- Click Finish.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-38.png" alt="Health Check Parameters" width="525"> 
+
+Lastly, back at the Health Monitors screen, specify the Active Health Monitor you just created:
+- Active Health Monitor: NSX-T-Mgr-Health-Monitor.
+- Click Finish.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-39.png" alt="Health Check Parameters" width="525"> 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-40.png" alt="Health Check Parameters" width="525"> 
+
+###<a id='s12'> Step 12: Create SNAT Rule.
+
+If your Enterprise PKS deployment uses NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX-T topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 Router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
+
+To do this you need to retrieve the IP of the T1 uplink (Tier-1 Router that connected the NSX-T LB instance). In the example below, the T1 uplink IP is `100.64.112.37/31`.
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-44.png" alt="Retrieve IP of the T1 Uplink" width="525"> 
+
+Create the following SNAT rule on the Tier-0 Router:
+
+- Priority: 2000
+- Action: SNAT
+- Source IP: 100.64.112.36/31
+- Destination IP: 10.40.206.0/25
+- Translated IP: 10.40.14.251
+- Click **Save**
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-45.png" alt="SNAT rule for Health Monitor HTTP traffic, added to Tier0 router" width="525"> 
+
+- Verify configuration of the SNAT rule and server pool health:
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-46.png" alt="Verify SNAT" width="525"> 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-47.png" alt="Verify SNAT" width="525"> 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-48.png" alt="Verify SNAT" width="525"> 
+
+###<a id='s13'> Step 13: Verify that traffic is load balanced.
+
+Verify the load balancer and that traffic is load balanced.
+
+- Confirm that the status of the Logical Switch for the load balancer is Up.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-49.png" alt="Verify LS" width="525"> 
+- Confirm that the status of the Virtual Server for the load balancer is Up.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-50.png" alt="Verify VS" width="525"> 
+- Confirm that the status of the Server Pool is Up.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-51.png" alt="Verify LS" width="525">   
+- Open an HTTPS session using multiple browser clients and confirm that traffic is load-balanced across different NSX-T Managers:
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-54.png" alt="Verify LS" width="525"> 
+
+You can use the NSX API to validate that secure HTTP requests against the new VIP address are associated with the load balancer’s Virtual Server. Relying on the SuperUser Principal Identity created as part of PKS provisioning steps, you can cURL the NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP. For example:
 
 Before load balancer provisioning is completed:
 
 ```
 curl -k -X GET "https://192.168.6.210/api/v1/trust-management/principal-identities" --cert $(pwd)/pks-nsx-t-superuser.crt --key $(pwd)/pks-nsx-t-superuser.key
-`
+```
 
 After load balancer provisioning is completed:
 
@@ -282,10 +349,13 @@ Key behavioral differences among the two API calls is the fact that the call tow
 
 Residual configuration step would be to change PKS Tile configuration for NSX-Manager IP Address to use the newly-provisioned Virtual IP Address. This configuration will enable any component internal to PKS (NCP, NSX OSB Proxy, BOSH CPI, etc…)  to use the new Load Balancer functionality.
 
+##<a id='gen-cert'> Generate a NSX-T Manager CA Certificate
 
-## Generate new NSX-T Mgr CA cert (using the external NSX-T LB VS IP)
+Generate a new NSX-T Manager CA certificate using the external NSX-T LB VS IP.
 
-1. Create the Certificate Signing Request (CSF) named nsx-crt.cnf as follows:
+###<a id='g1'> Step 1: Create the Certificate Signing Request (CSF) file named `nsx-crt.cnf`.
+
+Using the VIP as the `commonName`:
 
 ```
 [ req ]
@@ -305,7 +375,7 @@ subjectAltName = @alt_names
 DNS.1 = 10.40.14.250
 ```
 
-Or, to use an FQDN:
+Or, using an FQDN:
 
 ```
 [ req ]
@@ -327,7 +397,9 @@ DNS.2 = *.pks.vmware.local
 IP.1  = 192.168.160.100
 ```
 
-2. Generate the certificate and private key.
+###<a id='g2'> Step 2: Generate the certificate and private key.
+
+For example:
 
 ```
 export NSX_MANAGER_IP_ADDRESS=10.40.14.250
@@ -338,22 +410,24 @@ export NSX_MANAGER_COMMONNAME=10.40.14.250
 openssl req -newkey rsa:2048 -x509 -nodes -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 365
 ```
 
-3. Add the certificate to the 3 NSX-T Managers.
+###<a id='g3'> Step 3: Add the certificate to each of the NSX-T Manager nodes.
 
-- Go to one of the NSX Managers in the managment cluster.
-- Select System > Certificate.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-55.png" alt="System > Certificate" width="725"> 
-- Select Import > Import Certificate.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-56.png" alt="Import Certificate" width="725"> 
-- Name and certificate and copy it and the private key to the dialog.
-- Click Save.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-57.png" alt="Import Certificate" width="725"> 
+Add the certificate to each of the 3 NSX-T Managers. Once this is done, the same certificate is then replicated to the other NSX-T manager instances.
 
-NOTE: Once this is done, the same certificate is then replicated to the other NSX-T manager instances.
+- Go to one of the NSX Managers in the NSX-T Managment Cluster.
+- Select **System** > **Certificate**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-55.png" alt="System > Certificate" width="525"> 
+- Select **Import** > **Import Certificate**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-56.png" alt="Import Certificate" width="525"> 
+- Name: Enter a name for the certificate.
+- Certificate Contents: Copy/paste the certitificate contents to this field.
+- Priviate Key: Copy the private key to this field.
+- Click **Save**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-57.png" alt="Import Certificate" width="525"> 
 
-4. Register the certificate with NSX-T Manager appliances.
+###<a id='g4'> Step 4: Register the certificate with NSX-T Manager appliances.
 
-Repeat the following commands for each NSX-T manager instance. The CERTIFICATE_ID should be the same for all 3 NSX-T Manager instances.
+Run the following set of command for **each** NSX-T manager instance. The CERTIFICATE_ID should be the same for all 3 NSX-T Manager instances. For example:
 
 ```
 export NSX_MANAGER_IP_ADDRESS=10.40.206.2
@@ -364,35 +438,39 @@ export CERTIFICATE_ID="ea65ee14-d7d3-49c3-b656-ee0864282654"
 curl --insecure -u admin:'VMware1!' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/node/services/http?action=apply_certificate&certificate_id=$CERTIFICATE_ID"
 ```
 
-5. Verify.
+###<a id='g5'> Step 5: Verify that the certificate is being used.
 
-Proceed to the site and enter username/password.
-Double check the new cert is used by the site.
-
-Check using SSH on the NSX-T mgr node: `nsx-manager-1> get certificate api`.
-
-Now access NSX-T manager using the NSX-T LB VS IP (10.40.14.250). Verify that this is using the correct certificate.
+- Proceed to the site and enter username/password.
+- Double check the new cert is used by the site.
+- Check using SSH on the NSX-T mgr node: `nsx-manager-1> get certificate api`.
+- Access NSX-T Manager using the NSX-T load balancer VIP (for example, `10.40.14.250`).
+- Verify that this node is using the correct certificate.
 
 ## Update the NSX-T Manager Certificate for PKS and BOSH
 
+1. Log in to Ops Manager.
 1. Edit the BOSH Tile.
-1. Select the vCenter config tab.
-1. Update the NSX address field and the NSX CA Cert.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-58.png" alt="Update BOSH" width="725"> 
-1. Click Save.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-59.png" alt="Save BOSH Edits" width="725"> 
+1. Select the **vCenter config** tab.
+1. Update the following fields:
+- NSX Address: Update with the load balancer VIP 
+- NSX CA Cert: Update with the newly generated certificate
+1. Click **Save**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-58.png" alt="Update BOSH" width="525"> 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-59.png" alt="Save BOSH Edits" width="525"> 
 1. Edit the PKS tile.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-60.png" alt="Updat ePKS Tile" width="725"> 
-1. Select the Networking tab.
-1. Update the NSX Manager hostname field and the NSX Manager CA cert.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-61.png" alt="Save PKS Tile edits" width="725"> 
-1. Click Save.
-1. Click Review Pending Changes.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-62.png" alt="Review Changes" width="725"> 
-1. Click Apply Changes.
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-63.png" alt="Review Changes" width="725"> 
-1. Once successful, you should be able to see the following:
-    <img src="images/nsxt/mgmt-cluster/mgmt-cluster-65.png" alt="Review Changes" width="725"> 
+1. Select the **Networking** tab.
+1. Update the following fields:
+- NSX Manager hostname: Update with the load balancer VIP 
+- NSX Manager CA cert: Update with the newly generated certificate
+1. Click **Save**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-60.png" alt="Updat PKS Tile" width="525"> 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-61.png" alt="Save PKS Tile edits" width="525"> 
+1. At the **Installation Dashboard**, click **Review Pending Changes**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-62.png" alt="Review Changes" width="525">
+1. Verify that the **Update all clusters errand** is enabled for Enterprise PKS. 
+1. Click **Apply Changes**.
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-63.png" alt="Apply Changes" width="525"> 
+<img src="images/nsxt/mgmt-cluster/mgmt-cluster-65.png" alt="Changes Applied" width="525"> 
 
 
 
