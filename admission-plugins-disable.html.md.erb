@@ -25,6 +25,7 @@ To disable a single admission control plugin, complete the following steps:
 ##<a id='admission-plugin-disable'></a> Disabling an Orphaned Admission Control Plugin
 
 The Ops Manager UI does not let you deselect (disable) all admission control plugins. 
+
 In other words, after an admission control plugin is enabled, 
 the Ops Manager UI requires that at least one admission control plugin checkbox is selected (enabled).
 
@@ -37,26 +38,36 @@ To disable an orphaned Admission control Plugin, complete the following workflow
     1. In Ops Manager, click on the <%= vars.product_short %> tile. 
     1. Copy the BOSH deployment name including the GUID from the URL:
 
-        <img src="images/pks-guid.png" alt="PKS GUID" width="325">
+        <img src="images/pks-guid.png" alt="PKS GUID">
         <br/><br/>
         The deployment name contains "pivotal-container-service" and a unique GUID string. For example, `pivotal-container-service-4b48fc5b704d54c6c7de`.
 1. To disable the orphaned admission control plugin, run the following Ops Manager API command:
 
      ```
-     curl "https://OPS-MAN-FQDN/api/v0/deployed/products/pivotal-container-service-GUID/properties" \
+     curl -i "https://OPS-MAN-FQDN/api/v0/staged/pivotal-container-service-GUID/properties" \
      -H "Authorization: Bearer UAA-ACCESS-TOKEN" \
-     -X PUT -d '{"properties": {".properties.plan1_selector.active.admission_plugins":{"value":[]}}}' \
+     -X PUT -d '{"properties": {".properties.PLAN-NUMBER_selector.active.admission_plugins":{"value":[]}}}' \
      -H "Content-Type: application/json"
 	 ```
     Where: 
 	   * `OPS-MAN-FQDN` is the URL of your Ops Manager.
 	   * `pivotal-container-service-GUID` is the BOSH deployment name of your <%= vars.product_short %> that you retrieved earlier in this procedure.
 	   * `UAA-ACCESS-TOKEN` is the UAA token you retrieved earlier in this procedure.
+       * `PLAN-NUMBER` is the plan configuration you want to update. For example, `plan1` or `plan2`.
 
 	For example:
 	<pre class="terminal">
-	 $ curl "https<span>:</span>//pcf.example.com/api/v0/deployed/products/pivotal-container-service-4b48fc5b704d54c6c7de/properties" \
+	 $ curl -i "https<span>:</span>//pcf.example.com/api/v0/staged/products/pivotal-container-service-4b48fc5b704d54c6c7de/properties" \
      -H "Authorization: Bearer aBcdEfg0hIJKlm123.e" \
      -X PUT -d '{"properties": {".properties.plan1_selector.active.admission_plugins":{"value":[]}}}' \
      -H "Content-Type: application/json"
     </pre>
+
+1. From the output, verify that the command returns a `HTTP 200` status code.
+1. Validate your manifest change in the Ops Manager UI. Do the following:
+    1. Log in to Ops Manager.
+    1. Select **Review Pending Changes**.
+    1. On the Review Pending Changes pane, navigate to the <%= vars.product_short %> section and select **SEE CHANGES**.
+    1. Verify that the admission control plugins are displayed as removed in the **Manifest** section. For example:
+        <img src="images/admission-plugin-disable-multiple.png" alt="Manifest diff displays removed admission control plugins">
+1. Click **Apply Changes**.
