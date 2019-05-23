@@ -48,48 +48,63 @@ See the [Grant PKS Access to a User](manage-users.html#uaa-user) section of _Man
 
 1. <%= partial 'login-pks-api' %>
 
-1. Run the following command to create a cluster:
-  <pre>
-  pks create-cluster CLUSTER-NAME \
-  --external-hostname HOSTNAME \
-  --plan PLAN-NAME \
-  [--num-nodes WORKER-NODES]
-  </pre>
-  Replace the placeholder values in the command as follows:
-  * `CLUSTER-NAME`: Enter a unique name for your cluster.
-  <p class="note"><strong>Note</strong>: The <code>CLUSTER-NAME</code> must not contain special characters such as <code>&</code>. The PKS CLI does not validate the presence of special characters in the <code>CLUSTER-NAME</code> string, but cluster creation fails if one or more special characters are present.</p>
-  * `HOSTNAME`: Enter an external hostname for your cluster. You can use any fully qualified
-domain name (FQDN) or IP address you own. For example, `my-cluster.example.com` or `10.0.0.1`.
-If you created an external load balancer, use its IP address.
-  * `PLAN-NAME`: Choose a plan for your cluster. Run `pks plans` to list your available plans.
-  * (Optional) `WORKER-NODES`: Choose the number of worker nodes for the cluster.
-  <br><br>
-  For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use PersistentVolumes (PVs). For example, if you deploy across three AZs, you should have six worker nodes. For more information about PVs, see [PersistentVolumes](maintain-uptime.html#persistent-volumes) in *Maintaining Workload Uptime*. Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
-  <br><br>
-  The maximum value you can specify is configured in the **Plans** pane of the PKS tile. If you do not specify a number of worker nodes, the cluster is deployed with the default number, which is also configured in the **Plans** pane. For more information, see the *Installing PKS* topic for your IaaS, such as [Installing PKS on vSphere](installing-pks-vsphere.html#plans).
-    <br><br>
+1. To create a cluster run the following command :
+
+    ```
+    pks create-cluster CLUSTER-NAME \
+    --external-hostname HOSTNAME \
+    --plan PLAN-NAME \
+    [--num-nodes WORKER-NODES] \
+    ```
+    Where:
+    * `CLUSTER-NAME`: Enter a unique name for your cluster.
+    <p class="note"><strong>Note</strong>: The <code>CLUSTER-NAME</code> must not contain special characters such as <code>&</code>. 
+    The PKS CLI does not validate the presence of special characters in the <code>CLUSTER-NAME</code> string, 
+    but cluster creation fails if one or more special characters are present.</p>
+    * `HOSTNAME`: Enter an external hostname for your cluster. You can use any fully qualified
+    domain name (FQDN) or IP address you own. For example, `my-cluster.example.com` or `10.0.0.1`.
+    If you created an external load balancer, use its IP address.
+    * `PLAN-NAME`: Choose a plan for your cluster. Run `pks plans` to list your available plans.
+    * (Optional) `WORKER-NODES`: Choose the number of worker nodes for the cluster. 
+
     For example:
     <pre class="terminal">$ pks create-cluster my-cluster \
     --external-hostname my-cluster.example.com \
     --plan large --num-nodes 3</pre>
-  <p class="note"><strong>Note</strong>: It can take up to 30 minutes to create a cluster.</p>
 
-1. Track the cluster creation process by running `pks cluster CLUSTER-NAME`.
-Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
-  <pre class="terminal">$ pks cluster my-cluster
-  Name:                     my-cluster
-  Plan Name:                large
-  UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789
-  Last Action:              CREATE
-  Last Action State:        succeeded
-  Last Action Description:  Instance provisioning completed
-  Kubernetes Master Host:   my-cluster.example.com
-  Kubernetes Master Port:   8443
-  Worker Instances:         3
-  Kubernetes Master IP(s):  192.168.20.7
-</pre>
-  If the value for **Last Action State** is `error`, troubleshoot cluster creation by logging in to the BOSH Director and running `bosh tasks`.
-  See [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html) for more information.
+    <p class="note"><strong>Note</strong>: It can take up to 30 minutes to create a cluster.</p>  
+    For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use PersistentVolumes (PVs). For example, if you deploy across three AZs, you should have six worker nodes. For more information about PVs, see [PersistentVolumes](maintain-uptime.html#persistent-volumes) in *Maintaining Workload Uptime*. Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
+<br><br>
+    The maximum value you can specify is configured in the **Plans** pane of the <%= vars.product_tile %> tile. If you do not specify a number of worker nodes, the cluster is deployed with the default number, which is also configured in the **Plans** pane. For more information, see the *Installing <%= vars.product_short %>* topic for your IaaS, such as [Installing <%= vars.product_short %> on vSphere](installing-pks-vsphere.html#plans).
+
+1. To track cluster creation, run the following command:
+
+    ```
+    pks cluster CLUSTER-NAME
+    ```
+    Where`CLUSTER-NAME` is the unique name for your cluster.  
+<br>
+    For example:
+    <pre class="terminal">$ pks cluster my-cluster
+    Name:                     my-cluster
+    Plan Name:                large
+    UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789
+    Last Action:              CREATE
+    Last Action State:        succeeded
+    Last Action Description:  Instance provisioning completed
+    Kubernetes Master Host:   my-cluster.example.com
+    Kubernetes Master Port:   8443
+    Worker Instances:         3
+    Kubernetes Master IP(s):  192.168.20.7
+    </pre>
+1. If the **Last Action State** value is `error`, troubleshoot by performing the following procedure:
+    1. Log in to the BOSH Director.
+    1. Run the following command:
+
+        ```
+        bosh tasks
+        ```
+    For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
 
 1. Depending on your deployment:
   * For **vSphere with NSX-T**, choose one of the following:
@@ -100,13 +115,32 @@ Replace `CLUSTER-NAME` with the unique name for your cluster. For example:
   * For **GCP**, use the output from the `pks cluster` command to locate the master node IP addresses and ports, and then continue to [Step 3: Configure Load Balancer Backend](gcp-cluster-load-balancer.html#backend) in _Configuring a GCP Load Balancer for PKS Clusters_.
   <p class="note"><strong>Note</strong>: For clusters with multiple master node VMs, health checks on port 8443 are recommended.</p>
 
-1. To access your cluster, run `pks get-credentials CLUSTER-NAME`.
-This command creates a local `kubeconfig` that allows you to manage the cluster.
-For more information about the `pks get-credentials` command, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html).
+1. To access your cluster, run the following command:
 
-1. Run `kubectl cluster-info` to confirm you can access your cluster using the Kubernetes CLI.
+    ```
+    pks get-credentials CLUSTER-NAME
+    ```
+    Where `CLUSTER-NAME` is the unique name for your cluster.  
+  </br>
+    For example: 
+    <pre class="terminal">$ pks get-credentials pks-example-cluster
 
-See [Managing PKS](managing.html) for information about checking cluster health and viewing cluster logs.
+    Fetching credentials for cluster pks-example-cluster.
+    Context set for cluster pks-example-cluster.
+
+    You can now switch between clusters by using:
+    $kubectl config use-context &ltcluster-name&gt
+    </pre>
+    The `pks get-credentials` command creates a local `kubeconfig` that allows you to manage the cluster. 
+    For more information about the `pks get-credentials` command, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html).
+
+1. To confirm you can access your cluster using the Kubernetes CLI, run the following command:
+
+    ```
+    kubectl cluster-info
+    ```
+
+    See [Managing <%= vars.product_short %>](managing.html) for information about checking cluster health and viewing cluster logs.
 
 ## <a id="master-id"></a>Identify Kubernetes Cluster Master VMs
 
@@ -119,19 +153,42 @@ Use the information you locate in this procedure when configuring your load bala
 To locate the IP addresses and VM IDs for the master VMs of an existing cluster, do the following:
 
 1. <%= partial 'login-pks-api' %>
-1. To locate the cluster ID and master node IP addresses, run `pks cluster CLUSTER-NAME`. From the output of this command, record the following items:
-  * **UUID**: This value is your cluster ID.
-  * **Kubernetes Master IP(s)**: This value lists the IP addresses of all master nodes in the cluster.
-1. Gather credential and IP address information for your BOSH Director, SSH into the Ops Manager VM, and use the BOSH CLI to log in to the BOSH Director from the Ops Manager VM.
-For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html).
-1. Identify the name of your cluster deployment. For example:
-  <pre class="terminal">$ bosh -e pks deployments</pre>
+1. To locate the cluster ID and master node IP addresses, run the following command:
+
+    ```
+    pks cluster CLUSTER-NAME
+    ```
+    Where `CLUSTER-NAME` is the unique name for your cluster.  
+<br>
+    From the output of this command, record the following items:
+    * **UUID**: This value is your cluster ID.
+    * **Kubernetes Master IP(s)**: This value lists the IP addresses of all master nodes in the cluster.
+
+1. Gather credential and IP address information for your BOSH Director.
+1. To log in to the BOSH Director, perform the following:
+    1. SSH into the Ops Manager VM.
+    1. Log in to the BOSH Director by using the BOSH CLI from the Ops Manager VM.
+    
+    For information on how to complete these steps, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html)
+    .
+1. To identify the name of your cluster deployment, run the following command:
+
+    ```
+    bosh -e pks deployments
+    ````
   Your cluster deployment name begins with `service-instance` and includes the UUID you located in a previous step.
-1. Identify the master VM IDs by listing the VMs in your cluster. For example:
-   <pre class="terminal">$ bosh -e pks -d service-instance-aa1234567bc8de9f0a1c vms</pre>
-   Your master VM IDs appear in the **VM CID** column.
-1. Use the information you gathered in this procedure to configure your load balancer backend.
-For example, if you use GCP, use the master VM IDs from the previous step in [Reconfiguring a GCP Load Balancer](gcp-cluster-load-balancer.html#reconfigure).
+1. To identify the master VM IDs by listing the VMs in your cluster, run the following command:
+
+    ```
+    bosh -e pks -d CLUSTER-SI-ID vms
+    ```
+    Where `CLUSTER-SI-ID` is your cluster service instance ID which begins with `service-instance` and includes the `UUID` you previously located.  
+<br>
+    For example:
+    <pre class="terminal">$ bosh -e pks -d service-instance-aa1234567bc8de9f0a1c vms</pre>
+    Your master VM IDs are displayed in the **VM CID** column.
+1. Use the master VM IDs and other information you gathered in this procedure to configure your load balancer backend. 
+For example, if you use GCP, use the master VM IDs retrieved during the previous step in [Reconfiguring a GCP Load Balancer](gcp-cluster-load-balancer.html#reconfigure).
 
 
 ## <a id='next-steps'></a> Next Steps
