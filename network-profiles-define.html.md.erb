@@ -13,7 +13,7 @@ Network profiles let you customize NSX-T configuration parameters at the time of
 
 Profile Type 								            | Description
 --------------------------------------------------------|----------------------------
-[Load Balancer Sizing](#lb-size)						| Customize the size of the NSX-T load balancer provisioned when a Kubernetes cluster is created using <%= vars.product_short %>.
+[Load Balancer Sizing](#lb-size)						| Customize the size of the NSX-T load balancer provisioned when a Kubernetes cluster is created.
 [Custom Pod Networks](#custom-pods)	    				| Assign IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
 [Routable Pod Networks](#routable-pods) 				| Assign routable IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
 [Bootstrap Security Group for Kubernetes Master Nodes](#ns-groups)| Specify an NSX-T Namespace Group where Kubernetes master nodes will be added to during cluster creation.
@@ -21,6 +21,7 @@ Profile Type 								            | Description
 [Custom Floating IP](#floating-ip)      				| Specify a custom floating IP pool.
 [Edge Router Selection](#multi-t0)				    	| Specify the NSX-T Tier-0 router where Kubernetes node and Pod networks will be connected to.
 [DNS Configuration for Kubernetes Clusters](#dns) 		| Specify one or more DNS servers for Kubernetes clusters.
+[Configurable Nodes IP Block](#node) 					| Customize the IP addresses, subnet size, and routability for Kubernetes node networks.
 
 ## <a id="format"></a> Network Profile Format
 
@@ -74,63 +75,94 @@ Define a network profile configuration in a JSON file using the following parame
   <table>
     <th width="30%">Parameter</th>
     <th>Type</th>
+    <th>Usage</th>
     <th>Description</th>
     <tr>
-      <td>`name`</td>
+      <td>`name` </td>
       <td>String</td>
+      <td>Global</td>      
       <td>User-defined name of the network profile.</td>
     </tr>
     <tr>
-      <td>`description`</td>
+      <td>`description` </td>
       <td>String</td>
+      <td>Global</td>      
       <td>User-defined description for the network profile.</td>
     </tr>
     <tr>
       <td>`parameters` </td>
       <td>Key-Value Pair</td>
+      <td>Global</td>      
       <td>One or more name-value pairs.</td>
     </tr>
     <tr>
       <td>`lb_size` </td>
       <td>Key-Word</td>
+      <td>Load Balancer</td>      
       <td>Size of the NSX-T load balancer deployed with the Kubernetes cluster. Accepts: `small`, `medium`, or `large`.</td>
     </tr>
     <tr>
       <td>`pod_ip_block_ids` </td>
       <td>Array</td>
+      <td>Pods Networks</td>      
       <td>Pod IP Block UUIDs as defined in NSX-T; comma-separated.</td>
     </tr>
     <tr>
       <td>`pod_routable` </td>
       <td>Boolean</td>
+      <td>Pods Networks</td>      
       <td>Enable routable IP addresses. Set the parameter to `true` to assign routable IP addresses to pods. Accepts: `true` or `false`.</td>
     </tr>
     <tr>
       <td>`master_vms_nsgroup_id` </td>
       <td>UUID</td>
+      <td>Security Groups</td>      
       <td>NSGroup UUID as defined in NSX-T.</td>
     </tr>
     <tr>
       <td>`fip_pool_ids` </td>
       <td>Array</td>
+      <td>Floating IPs</td>      
       <td>Floating IP Pool UUIDs as defined in NSX-T; comma separated.</td>
     </tr>
     <tr>
       <td>`pod_subnet_prefix` </td>
       <td>Integer</td>
+      <td>Pods Networks</td>      
       <td>Prefix size of the custom Pods IP Block subnet.</td>
     </tr>
     <tr>
       <td>`t0_router_id` </td>
       <td>UUID</td>
+      <td>Multi-T0</td>   
       <td>Tenant Tier-0 router UUID as defined in NSX-T.</td>
     </tr>
     <tr>
       <td>`nodes_dns` </td>
       <td>Array</td>
+      <td>Nodes DNS</td>      
       <td>IP addresses (up to 3) for DNS server lookup by Kubernetes nodes and pods.</td>
     </tr>
+    <tr>
+      <td>`node_ip_block_ids` </td>
+      <td>Array</td>
+      <td>Nodes Networks</td>      
+      <td>Nodes IP Block UUIDs as defined in NSX-T; comma-separated.</td>
+    </tr>
+    <tr>
+      <td>`node_subnet_prefix` </td>
+      <td>Integer</td>
+      <td>Nodes Networks</td>      
+      <td>Prefix size of the custom Nodes IP Block subnet.</td>
+    </tr>
+    <tr>
+      <td>`node_routable` </td>
+      <td>Boolean</td>
+      <td>Nodes Networks</td>      
+      <td>Enable routable IP addresses. Set the parameter to `true` to assign routable IP addresses to nodes. Accepts: `true` or `false`.</td>
+    </tr>
   </table>
+
 ## <a id="creation"></a> Network Profile Creation
 
 After the network profile is defined in a JSON file, an <%= vars.product_short %> administrator can create the network profile using the PKS CLI. The Kubernetes administrator can use the network profile when creating a cluster.
@@ -146,9 +178,9 @@ This section lists and describes network profile definition for supported use ca
 When you deploy a Kubernetes cluster using <%= vars.product_short %> on NSX-T, an NSX-T load balancer is automatically provisioned. By default the size of this load balancer is small. Using a network profile, you can customize the size of the load balancer.
 For more information, see [Load Balancers in <%= vars.product_short %> Deployments on vSphere with NSX‑T](about-lb.html#with-nsx-t).
 
-NSX-T load balancers run on edge nodes. There are various form factors for edge nodes. <%= vars.product_short %> supports the large edge VM and the bare metal edge. The large VM edge node must run on Intel processors. The large load balancer requires a bare metal edge node. For more information about edge nodes, see [Scaling Load Balancer Resources](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html) in the NSX-T documentation.
+NSX-T load balancers run on edge nodes. There are various form factors for edge nodes. <%= vars.product_short %> supports the large edge VM and the bare metal edge. The large VM edge node must run on Intel processors. The large load balancer requires a bare metal edge node. For more information about edge nodes, see [Scaling Load Balancer Resources](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html) in the NSX-T documentation.
 
-The NSX-T load balancer is a logical load balancer that handles a number of functions using virtual servers and pools. For more information, see [Supported Load Balancer Features](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-91F2D574-F469-481A-AA39-CD6DBC9682CA.html) in the NSX-T documentation.
+The NSX-T load balancer is a logical load balancer that handles a number of functions using virtual servers and pools. For more information, see [Supported Load Balancer Features](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-91F2D574-F469-481A-AA39-CD6DBC9682CA.html) in the NSX-T documentation.
 
 The following virtual servers are required for <%= vars.product_short %>:
 
@@ -257,13 +289,13 @@ For example, the following network profile defines routable pod addresses from t
 }
 ```
 
-### <a id='ns-groups'></a> Bootstrap Security Group
+### <a id='ns-groups'></a> Define Security Group Namespace
 
 Most of the NSX-T virtual interface tags used by <%= vars.product_short %> are added to the Kubernetes master node or nodes during the node initialization phase of cluster provisioning. To add tags to virtual interfaces, the Kubernetes master node needs to connect to the NSX-T Manager API. Network security rules provisioned prior to cluster creation time do not allow nodes to connect to NSX-T if the rules are based on a Namespace Group (NSGroup) managed by <%= vars.product_short %>.
 
 To address this bootstrap issue, <%= vars.product_short %> exposes an optional configuration parameter in Network Profiles to systematically add Kubernetes master nodes to a pre-provisioned NSGroup. The BOSH vSphere cloud provider interface (CPI) has the ability to use the NSGroup to automatically manage members following the BOSH VM lifecycle for Kubernetes master nodes.
 
-To configure a Bootstrap Security Group, complete the following steps:
+To define a Security Group namespace, complete the following steps:
 
 1. Create the NSGroup in NSX Manager prior to provisioning a Kubernetes cluster using <%= vars.product_short %>. For more information, see [Create an NSGroup](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-718E769B-8D89-485B-8DBD-04F1F82CFE14.html) in the NSX-T documentation.
 2. Define a network profile that references the NSGroup UUID that the BOSH CPI can use to bootstrap the master node or nodes.
@@ -418,6 +450,33 @@ nodes-dns.json
 		"nodes_dns": [
 			"8.8.8.8", "192.168.115.1", "192.168.116.1"
 		]
+	}
+}
+```
+
+### <a id='nodes'></a> Configurable Node Network IP Blocks
+
+The **Nodes IP Block** is used by <%= vars.product_short %> to assign address space to Kubernetes nodes when new clusters are deployed or a cluster increases its scale. By default each Kubernetes cluster deployed by <%= vars.product_short %> is allocated a /24 subnet, which allows up to 256 IP addresses to be assigned.
+
+Using a network profile you can define one or more custom Node IP Block networks, specify the size of the nodes subnet, and specify if the network is routable.
+
+Using the `node_ip_block_ids` parameter in a network profile, you can specify one or more **Nodes IP Blocks** for the Kubernetes node networks such that if one of IP block is exhausted, an alternative IP block can be used by Kubernetes clusters to create the Nodes subnet.
+
+Depending on the size of the cluster (number of Kubernetes nodes), you can specify a subnet size using the `node_subnet_prefix` parameter that optimizes the use of network address space. This configuration is especially useful when the cluster nodes are using globally routable address space with the `node_routable` option set to "true".
+
+For example, if the <%= vars.product_short %> administrator has configured the default in the PKS tile to be a Routable network for the *Nodes IP Block**, the Kubernetes cluster administrator can deploy Kubernetes cluster in the NAT'ed mode (non-routable) by specifying a network profile with an IP block that supports the NAT'ed address range.
+
+```
+nodes-network.json
+{
+	"description": "Configurable Nodes Network IP Block",
+	"name": "network-profile_nodes-ip-block",
+	"parameters": {
+		"nodes_ip_block_ids": [
+			"2250dc43-63c8-4bb8-b8cf-c6e12ccfb7de", "3d577e5c-dcaf-4921-9458-d12b0e1318e6"
+		],
+		"node_subnet_prefix":24,
+		"node_routable":true
 	}
 }
 ```
