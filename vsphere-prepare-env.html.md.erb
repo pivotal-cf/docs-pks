@@ -15,14 +15,25 @@ required service accounts and configuring DNS for the PKS API endpoint.
 
 You must create the following service accounts in vSphere:
 
-* **Master Node Service Account**: Kubernetes master node VMs require storage permissions to create load balancers and attach persistent disks to pods.
-Creating a custom role for this service account allows vSphere to apply the same privileges to all Kubernetes master node VMs in your PKS installation.
+* **Master Node Service Account** for the Kubernetes master node VMs.
+* **BOSH/Ops Manager Service Account** for BOSH Director operations.
 
-* **BOSH/Ops Manager Service Account**: This service account allows BOSH to deploy Ops Manager to vSphere.
-You can apply privileges directly to the service account without creating a role.
-You can also apply the default [VMware Administrator System Role](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-93B962A7-93FA-4E96-B68F-AE66D3D6C663.html) to the service account to achieve the appropriate permission level.
+<p class="note warning"><strong> WARNING:</strong> The PKS Master Node and 
+BOSH/Ops Manager service accounts must be two separate accounts!</p>
 
-After you create the service accounts listed above, you must grant them privileges in vSphere.
+After creating the Master Node and OSH/Ops Manager service accounts you must grant 
+the accounts privileges in vSphere:  
+
+* **Master Node Service Account**: Kubernetes master node VMs require storage permissions to create load balancers 
+and attach persistent disks to pods. Creating a custom role for this service account allows vSphere to apply 
+the same privileges to all Kubernetes master node VMs in your <%= vars.product_short %> installation.
+
+* **BOSH/Ops Manager Service Account**: BOSH Director requires permissions to deploy Ops Manager to vSphere.
+You can apply privileges directly to this service account without creating a role.
+You can also apply the default 
+[VMware Administrator System Role](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-93B962A7-93FA-4E96-B68F-AE66D3D6C663.html) 
+to this service account to achieve the appropriate permission level.
+
 <%= vars.vm_credentials %>
 
 <p class="note"><strong>Note</strong>: If your Kubernetes clusters span
@@ -34,6 +45,7 @@ To prepare your vSphere environment, do the following:
 1. [Create the Master Node Service Account](#create-master)
 1. [Grant Storage Permissions](#addl-permissions)
 1. [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man)
+1. [Grant Permissions to the BOSH/Ops Manager Service Account](#grant-bosh-ops-man)
 1. [Configure DNS for the PKS API](#dns)
 
 ## <a id='prerequisites'></a>Prerequisites
@@ -179,205 +191,21 @@ To configure your Kubernetes master node service account using dynamic PV provis
   </table>
 
 ## <a id='create-bosh-ops-man'></a>Create the BOSH/Ops Manager Service Account
+1. From the vCenter console, create the BOSH/Ops Manager Service Account.  
+1. If you are deploying both PAS and PKS within the same vSphere environment, 
+create an additional BOSH/Ops Manager Service Account, so that there is one account for PAS and another for PKS.  
 
-1. From the vCenter console, create a service account for BOSH and Ops Manager.
+## <a id='grant-bosh-ops-man'></a>Grant Permissions to the BOSH/Ops Manager Service Account
+There are two ways to grant permissions to the BOSH/Ops Manager Service Account(s):
 
-2. Grant the permissions below to the BOSH and Ops Manager service account.
-<p class="note"><strong>Note</strong>: The privileges listed in this section describe the minimum required permissions to deploy BOSH. You can also apply the default <a href="http://pubs.vmware.com/vsphere-51/index.jsp#com.vmware.wssdk.pg.doc/PG_Authenticate_Authorize.8.6.html#1110514">VMware Administrator System Role</a> to the service account to achieve the appropriate permission level, but the default role includes more privileges than those listed below.</p>
+* Grant minimal permissions:  
+    1. Grant each BOSH/Ops Manager Service Account the minimum required permissions as described in 
+[vSphere Service Account Requirements](../../pivotalcf/om/vsphere/vsphere-service-account.html).  
+* Grant Default System Administrator permissions:  
+    1. Apply the default [VMware Administrator System Role](http://pubs.vmware.com/vsphere-51/index.jsp#com.vmware.wssdk.pg.doc/PG_Authenticate_Authorize.8.6.html#1110514) 
+to each BOSH/Ops Manager Service Account.  
 
-### <a id="root"></a>vCenter Root Privileges
-
-Grant the following privileges on the root vCenter server entity to the service account:
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-    <tr><td>Read-only</td><td>System.Anonymous</td></tr>
-    <tr><td></td><td>System.Read</td></tr>
-    <tr><td></td><td>System.View</td></tr>
-    <tr><td>Manage custom attributes</td><td>Global.ManageCustomFields</td></tr>
-</table>
-
-### <a id="datacenter"></a>vCenter Datacenter Privileges
-
-Grant the following privileges on any entities in a datacenter where you deploy PKS:
-
-#### <a id="role"></a>Role Object
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Users inherit the Read-Only role from the vCenter root level</td><td>System.Anonymous</td></tr>
-  <tr><td></td><td>System.Read</td></tr>
-  <tr><td></td><td>System.View</td></tr>
-</table>
-
-#### <a id="datastore"></a>Datastore Object
-
-Grant the following privileges must at the datacenter level to upload and delete virtual machine files:
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Allocate space</td><td>Datastore.AllocateSpace</td></tr>
-  <tr><td>Browse datastore</td><td>Datastore.Browse</td></tr>
-  <tr><td>Low level file operations</td><td>Datastore.FileManagement</td></tr>
-  <tr><td>Remove file</td><td>Datastore.DeleteFile</td></tr>
-  <tr><td>Update virtual machine files</td><td>Datastore.UpdateVirtualMachineFiles</td></tr>
-</table>
-
-#### <a id="folder"></a>Folder Object
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Delete folder</td><td>Folder.Delete</td></tr>
-  <tr><td>Create folder</td><td>Folder.Create</td></tr>
-  <tr><td>Move folder</td><td>Folder.Move</td></tr>
-  <tr><td>Rename folder</td><td>Folder.Rename</td></tr>
-</table>
-
-#### <a id="global"></a>Global Object
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Set custom attribute</td><td>Global.SetCustomField</td></tr>
-</table>
-
-##### <a id="host"></a>Host Object
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Modify cluster</td><td>Host.Inventory.EditCluster</td></tr>
-</table>
-
-#### <a id="inventory-so"></a> Inventory Service Object
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>vSphere Tagging > Create vSphere Tag</td><td>InventoryService.Tagging.CreateTag</td></tr>
-  <tr><td>vSphere Tagging > Delete vSphere Tag</td><td>InventoryService.Tagging.EditTag</td></tr>
-  <tr><td>vSphere Tagging > Edit vSphere Tag</td><td>InventoryService.Tagging.DeleteTag</td></tr>
-</table>
-
-#### <a id="network"></a>Network Object
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Assign network</td><td>Network.Assign</td></tr>
-</table>
-
-#### <a id="resource"></a>Resource Object
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Assign virtual machine to resource pool</td><td>Resource.AssignVMToPool</td></tr>
-  <tr><td>Migrate powered off virtual machine</td><td>Resource.ColdMigrate</td></tr>
-  <tr><td>Migrate powered on virtual machine</td><td>Resource.HotMigrate</td></tr>
-</table>
-
-#### <a id="vapp"></a>vApp Object
-
-Grant these privileges at the resource pool level.
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Import</td><td>VApp.Import</td></tr>
-  <tr><td>vApp application configuration</td><td>VApp.ApplicationConfig</td></tr>
-</table>
-
-#### <a id="vm"></a>Virtual Machine Object
-
-<a id='configuration'></a><strong>Configuration</strong>
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Add existing disk</td><td>VirtualMachine.Config.AddExistingDisk</td></tr>
-  <tr><td>Add new disk</td><td>VirtualMachine.Config.AddNewDisk</td></tr>
-  <tr><td>Add or remove device</td><td>VirtualMachine.Config.AddRemoveDevice</td></tr>
-  <tr><td>Advanced</td><td>VirtualMachine.Config.AdvancedConfig</td></tr>
-  <tr><td>Change CPU count</td><td>VirtualMachine.Config.CPUCount</td></tr>
-  <tr><td>Change resource</td><td>VirtualMachine.Config.Resource</td></tr>
-  <tr><td>Configure managedBy</td><td>VirtualMachine.Config.ManagedBy</td></tr>
-  <tr><td>Disk change tracking</td><td>VirtualMachine.Config.ChangeTracking</td></tr>
-  <tr><td>Disk lease</td><td>VirtualMachine.Config.DiskLease</td></tr>
-  <tr><td>Display connection settings</td><td>VirtualMachine.Config.MksControl</td></tr>
-  <tr><td>Extend virtual disk</td><td>VirtualMachine.Config.DiskExtend</td></tr>
-  <tr><td>Memory</td><td>VirtualMachine.Config.Memory</td></tr>
-  <tr><td>Modify device settings</td><td>VirtualMachine.Config.EditDevice</td></tr>
-  <tr><td>Raw device</td><td>VirtualMachine.Config.RawDevice</td></tr>
-  <tr><td>Reload from path</td><td>VirtualMachine.Config.ReloadFromPath</td></tr>
-  <tr><td>Remove disk</td><td>VirtualMachine.Config.RemoveDisk</td></tr>
-  <tr><td>Rename</td><td>VirtualMachine.Config.Rename</td></tr>
-  <tr><td>Reset guest information</td><td>VirtualMachine.Config.ResetGuestInfo</td></tr>
-  <tr><td>Set annotation</td><td>VirtualMachine.Config.Annotation</td></tr>
-  <tr><td>Settings</td><td>VirtualMachine.Config.Settings</td></tr>
-  <tr><td>Swapfile placement</td><td>VirtualMachine.Config.SwapPlacement</td></tr>
-  <tr><td>Unlock virtual machine</td><td>VirtualMachine.Config.Unlock</td></tr>
-</table>
-
-<a id='guest-operations'></a><strong>Guest Operations</strong>
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Guest Operation Program Execution</td><td>VirtualMachine.GuestOperations.Execute</td></tr>
-  <tr><td>Guest Operation Modifications</td><td>VirtualMachine.GuestOperations.Modify</td></tr>
-  <tr><td>Guest Operation Queries</td><td>VirtualMachine.GuestOperations.Query</td></tr>
-</table>
-
-<a id='interaction'></a><strong>Interaction</strong>
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Answer question</td><td>VirtualMachine.Interact.AnswerQuestion</td></tr>
-  <tr><td>Configure CD media</td><td>VirtualMachine.Interact.SetCDMedia</td></tr>
-  <tr><td>Console interaction</td><td>VirtualMachine.Interact.ConsoleInteract</td></tr>
-  <tr><td>Defragment all disks</td><td>VirtualMachine.Interact.DefragmentAllDisks</td></tr>
-  <tr><td>Device connection</td><td>VirtualMachine.Interact.DeviceConnection</td></tr>
-  <tr><td>Guest operating system management by VIX API</td><td>VirtualMachine.Interact.GuestControl</td></tr>
-  <tr><td>Power off</td><td>VirtualMachine.Interact.PowerOff</td></tr>
-  <tr><td>Power on</td><td>VirtualMachine.Interact.PowerOn</td></tr>
-  <tr><td>Reset</td><td>VirtualMachine.Interact.Reset</td></tr>
-  <tr><td>Suspend</td><td>VirtualMachine.Interact.Suspend</td></tr>
-  <tr><td>VMware Tools install</td><td>VirtualMachine.Interact.ToolsInstall</td></tr>
-</table>
-
-<a id='inventory'></a><strong>Inventory</strong>
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Create from existing</td><td>VirtualMachine.Inventory.CreateFromExisting</td></tr>
-  <tr><td>Create new</td><td>VirtualMachine.Inventory.Create</td></tr>
-  <tr><td>Move</td><td>VirtualMachine.Inventory.Move</td></tr>
-  <tr><td>Register</td><td>VirtualMachine.Inventory.Register</td></tr>
-  <tr><td>Remove</td><td>VirtualMachine.Inventory.Delete</td></tr>
-  <tr><td>Unregister</td><td>VirtualMachine.Inventory.Unregister</td></tr>
-</table>
-
-<a id="provisioning"></a><strong>Provisioning</strong>
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-  <tr><td>Allow disk access</td><td>VirtualMachine.Provisioning.DiskRandomAccess</td></tr>
-  <tr><td>Allow read-only disk access</td><td>VirtualMachine.Provisioning.DiskRandomRead</td></tr>
-  <tr><td>Allow virtual machine download</td><td>VirtualMachine.Provisioning.GetVmFiles</td></tr>
-  <tr><td>Allow virtual machine files upload</td><td>VirtualMachine.Provisioning.PutVmFiles</td></tr>
-  <tr><td>Clone template</td><td>VirtualMachine.Provisioning.CloneTemplate</td></tr>
-  <tr><td>Clone virtual machine</td><td>VirtualMachine.Provisioning.Clone</td></tr>
-  <tr><td>Customize</td><td>VirtualMachine.Provisioning.Customize</td></tr>
-  <tr><td>Deploy template</td><td>VirtualMachine.Provisioning.DeployTemplate</td></tr>
-  <tr><td>Mark as template</td><td>VirtualMachine.Provisioning.MarkAsTemplate</td></tr>
-  <tr><td>Mark as virtual machine</td><td>VirtualMachine.Provisioning.MarkAsVM</td></tr>
-  <tr><td>Modify customization specification</td><td>VirtualMachine.Provisioning.ModifyCustSpecs</td></tr>
-  <tr><td>Promote disks</td><td>VirtualMachine.Provisioning.PromoteDisks</td></tr>
-  <tr><td>Read customization specifications</td><td>VirtualMachine.Provisioning.ReadCustSpecs</td></tr>
-</table>
-
-<a id="snapshot"></a><strong>Snapshot Management</strong>
-
-<table>
-  <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-    <tr><td>Create snapshot</td><td>VirtualMachine.State.CreateSnapshot</td></tr>
-    <tr><td>Remove snapshot</td><td>VirtualMachine.State.RemoveSnapshot</td></tr>
-    <tr><td>Rename snapshot</td><td>VirtualMachine.State.RenameSnapshot</td></tr>
-    <tr><td>Revert snapshot</td><td>VirtualMachine.State.RevertToSnapshot</td></tr>
-</table>
+    <p class="note"><strong>Note</strong>: Applying the VMware Administrator System Role to the BOSH/Ops Manager Service Account grants the account more privileges than are required.</p>
 
 ## <a id='dns'></a>Configure DNS for the PKS API
 
