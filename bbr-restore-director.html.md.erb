@@ -1,0 +1,133 @@
+---
+title: Restoring the PKS BOSH Director
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to use BOSH Backup and Restore (BBR) to restore the PKS BOSH Director.
+
+To back up the PKS BOSH Director plane with BBR, see [Backing up the PKS BOSH Director](bbr-backup-director.html).
+
+## <a id="recreate-vms"></a> Recreate the BOSH Director VM
+
+In the event of losing your BOSH Director or OpsManager environment, you must recreate the BOSH Director VM before restoring the PKS BOSH Director.
+
+In a disaster recovery scenario, you can re-create the BOSH Director with your <%= vars.product_short %> OpsManager Installation settings export.
+If you followed the steps in [Step 9: Export Installation Settings](https://docs.pivotal.io/pivotalcf/2-5/customizing/backup-restore/backup-pcf-bbr.html#export) then this will have produced a `installation.zip` artifact.
+You can recreate the OpsManager environment and your PKS BOSH Director by following the steps in [Prepare to Restore](https://docs.pivotal.io/pivotalcf/2-5/customizing/backup-restore/restore-pcf-bbr.html#prepare-restore), substituting PAS for PAS.
+
+<p class="note"><strong>Note</strong>: A change in VM size or underlying hardware should not affect the ability for BBR restore data, as long as adequate storage space to restore the data exists.</p>
+
+## <a id='restore'></a> Restore the Enterprise PKS BOSH Director
+
+<p class="note"><strong>Note</strong>: The BBR restore command can take a long time to complete.
+You can run it independently of the SSH session so that the process can continue running even if
+your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you run the
+command in a <code>screen</code> or <code>tmux</code> session instead.</p>
+
+Perform the following steps to restore the PKS BOSH Director. You run these commands on your jumpbox.  You can use the optional `--debug` flag to enable debug logs. See the [BBR Logging](bbr-logging.html) topic for more information.
+
+1. Ensure the <%= vars.product_short %> BOSH Director backup artifact is in the folder from which you run BBR.
+
+1. Run the BBR restore command to restore the PKS BOSH Director:
+
+    ```
+    nohup bbr director \
+    --host BOSH-DIRECTOR-IP \
+    --username bbr \
+    --private-key-path PRIVATE-KEY-FILE \
+    restore \
+    --artifact-path PATH-TO-DIRECTOR-BACKUP
+    ```
+
+    Replace the placeholder values as follows:
+    <table>
+      <tr>
+        <th width="32%">Credential</th>
+        <th>Location</th>
+      </tr>
+      <tr>
+        <td><code>BOSH-DIRECTOR-IP</code></td>
+        <td>This is the address of the BOSH Director. If the BOSH Director is public, BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` which you can retrieve as show in [Step 4: Retrieve BOSH Director Address](https://docs.pivotal.io/pivotalcf/2-5/customizing/backup-restore/backup-pcf-bbr.html#retrieve-address).</td>
+      </tr>
+      <tr>
+        <td><code>PRIVATE-KEY-FILE</code></td>
+        <td>This is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in [Step 3: Retrieve BOSH Director Credentials](https://docs.pivotal.io/pivotalcf/2-5/customizing/backup-restore/backup-pcf-bbr.html#retrieve-credentials).</td>
+      </tr>
+      <tr>
+        <td><code>PATH-TO-DEPLOYMENT-BACKUP</code></td>
+        <td>Use the path to the PKS BOSH Director backup that you want to restore.</td>
+      </tr>
+    </table>
+<br>
+    For example:
+
+    <pre class="terminal">
+    $ nohup bbr director \
+    --target 10.0.0.5 \
+    --username bbr \
+    --private-key-path private.pem \
+    restore \
+    --artifact-path /home/10.0.0.5-abcd1234abcd1234
+    </pre>
+
+If the command fails, follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
+
+## <a id="recover-from-failing-command"></a>Recover from a Failing Command
+
+1. Ensure that you set all the parameters in the command.
+1. Ensure that the BOSH Director credentials are valid.
+1. Ensure that the jumpbox can reach the BOSH Director.
+1. Ensure the source BOSH Director backup is compatible with the target BOSH Director.
+1. If you see the error message `Directory /var/vcap/store/bbr-backup already exists on instance`,
+run the relevant commands from the [Clean up After Failed Restore](#manual-clean) section of this
+topic.
+1. See the [BBR Logging](bbr-logging.html) topic.
+
+## <a id='cancel-restore'></a>Cancel a Restore
+
+If you must cancel a restore, perform the following steps:
+
+1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
+1. Perform the procedures in the [Clean up After Failed Restore](#manual-clean) section to enable future restores. Stopping a restore can leave the system in an unusable state and prevent future restores.
+
+## <a id="manual-clean"></a>Clean up After Failed Restore
+
+If your restore process fails, then the process may leave the BBR restore folder on the instance. As a result, any subsequent restore attempts may also fail. In addition, BBR may not have run the post-restore scripts, which can leave the instance in a locked state.
+
+To resolve these issues, run the BBR cleanup script with the following command:
+
+  ```
+  nohup bbr director \
+  --host BOSH-DIRECTOR-IP \
+  --username bbr \
+  --private-key-path PRIVATE-KEY-FILE \
+  restore-cleanup
+  ```
+
+  Replace the placeholder values as follows:
+  <table>
+    <tr>
+      <th width="32%">Credential</th>
+      <th>Location</th>
+    </tr>
+    <tr>
+      <td><code>BOSH-DIRECTOR-IP</code></td>
+      <td>This is the address of the BOSH Director. If the BOSH Director is public, BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` which you can retrieve as show in [Step 4: Retrieve BOSH Director Address](https://docs.pivotal.io/pivotalcf/2-5/customizing/backup-restore/backup-pcf-bbr.html#retrieve-address).</td>
+    </tr>
+    <tr>
+      <td><code>PRIVATE-KEY-FILE</code></td>
+      <td>This is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in [Step 3: Retrieve BOSH Director Credentials](https://docs.pivotal.io/pivotalcf/2-5/customizing/backup-restore/backup-pcf-bbr.html#retrieve-credentials).</td>
+    </tr>
+  </table>
+<br>
+  For example:
+
+  <pre class="terminal">
+  $ nohup bbr director \
+  --target 10.0.0.5 \
+  --username bbr \
+  --private-key-path private.pem \
+  restore-cleanup
+  </pre>
