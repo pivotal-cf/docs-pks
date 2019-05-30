@@ -17,14 +17,107 @@ In a disaster recovery scenario, you can re-create the BOSH Director with your <
 
 To redeploy and reconfigure your Ops Manager environment and spin up a new PKS BOSH Director, run the following steps:
 
-  1. [Step 1: (Optional) Prepare Your Environment](https://docs.pivotal.io/pivotalcf/customizing/backup-restore/restore-pcf-bbr.html#-step-1:-(optional)-prepare-your-environment).
-  1. [Step 2: Deploy Ops Manager and Import Installation Settings](https://docs.pivotal.io/pivotalcf/customizing/backup-restore/restore-pcf-bbr.html#-step-2:-deploy-ops-manager-and-import-installation-settings).
-  1. [Step 3: (Optional) Configure Ops Manager for New Resources](https://docs.pivotal.io/pivotalcf/customizing/backup-restore/restore-pcf-bbr.html#-step-3:-(optional)-configure-ops-manager-for-new-resources).
-  1. [Step 4: Remove BOSH State File](https://docs.pivotal.io/pivotalcf/customizing/backup-restore/restore-pcf-bbr.html#-step-4:-remove-bosh-state-file).
-  1. [Step 5: Deploy the BOSH Director](https://docs.pivotal.io/pivotalcf/customizing/backup-restore/restore-pcf-bbr.html#-step-5:-deploy-the-bosh-director).
-  1. [Step 6: Transfer Artifacts to Jumpbox](https://docs.pivotal.io/pivotalcf/customizing/backup-restore/restore-pcf-bbr.html#-step-6:-transfer-artifacts-to-jumpbox).
+  1. [Step 1: Deploy Ops Manager](#deploy-opsmanager).
+  1. [Step 2: Import Installation Settings](#import-settings).
+  1. [Step 3: (Optional) Configure Ops Manager for New Resources](#config-new-resources).
+  1. [Step 4: Remove BOSH State File](#bosh-state).
+  1. [Step 5: Deploy the BOSH Director](#bosh-only-deploy).
+  1. [Step 6: Transfer Artifacts to Jumpbox](#artifacts-jumpbox).
 
 <p class="note"><strong>Note</strong>: A change in VM size or underlying hardware should not affect the ability for BBR restore data, as long as adequate storage space to restore the data exists.</p>
+
+### <a id='deploy-opsmanager'></a> Step 1: Deploy Ops Manager
+
+In an event of a disaster, you may lose not only your VMs and disks, but your IaaS resources as well, such as networks and load balancers.
+
+If you need to recreate your IaaS resources, prepare your environment for PCF by following the instructions specific to your IaaS in [Installing <%= vars.product_short %>](installing.html).
+
+If you recreate your IaaS resources, you must also add those resources to Ops Manager by performing the procedures in the [Step 3: (Optional) Configure Ops Manager for New Resources](#config-new-resources) section.
+
+### <a id='import-settings'></a>Step 2: Installation Settings
+
+Import your installation settings. This can be done in two ways:
+
+  1. Using the Ops Manager UI
+
+      1. Access your new Ops Manager by navigating to `YOUR-OPS-MAN-FQDN` in a browser.
+
+      1. On the **Welcome to Ops Manager** page, click **Import Existing Installation**.
+
+      1. In the import panel, perform the following tasks:
+        * Enter the **Decryption Passphrase** in use when you exported the installation settings from Ops Manager.
+        * Click **Choose File** and browse to the installation zip file that you exported in [Exporting Installation Settings](bbr-backup-director.html#export-opsman-settings).
+
+      1. Click **Import**.
+      <p class="note">
+      <strong>Note:</strong> Some browsers do not provide feedback on the status of the import process, and may appear to hang.
+      The import process takes at least 10 minutes, and takes longer the more tiles that were present on the backed-up Ops Manager.
+      </p>
+
+      1. A **Successfully imported installation** message appears upon completion.
+
+  1. Using the Ops Manager API:
+
+      ```
+      curl "https://OPS-MAN-FQDN/api/v1/installation_asset_collection \
+        -X POST \
+        -H "Authorization: Bearer UAA-ACCESS-TOKEN" \
+        -F 'installation[file]=@installation.zip' \
+        -F 'passphrase=DECRYPTION-PASSPHRASE'
+      ```
+
+      Where:
+      - `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.
+      - `UAA-ACCESS-TOKEN` is the UAA access token. For more information about how to retrieve this token, see [Using the Ops Manager API](https://docs.pivotal.io/pivotalcf/customizing/ops-man-api.html).
+      - `DECRYPTION-PASSPHRASE` is the decryption passphrase in use when you exported the installation settings from Ops Manager.
+
+      <p class="note warning">
+      <strong>WARNING:</strong> Do not click <strong>Apply Changes</strong> in Ops Manager until the instruction in Step 14: Redeploy PAS.
+      </p>
+
+### <a id="config-new-resources"></a> Step 3: (Optional) Configure Ops Manager for New Resources
+
+If you recreated IaaS resources such as networks and load balancers by following the steps in the [Deploy Ops Manager](#deploy-opsmanager) section above, perform the following steps to update Ops Manager with your new resources:
+
+1. Enable Ops Manager advanced mode. For more information, see [How to Enable Advanced Mode in the Ops Manager](https://community.pivotal.io/s/article/How-to-Enable-Advanced-Mode-in-the-Ops-Manager) in the Pivotal Knowledge Base.
+  <p class="note">
+  <strong>Note:</strong> In advanced mode Ops Manager will allow you to make changes that are normally disabled. You may see warning messages when you save changes.
+  </p>
+
+1. Navigate to the Ops Manager Installation Dashboard and click the BOSH Director tile.
+
+1. If you are using Google Cloud Platform (GCP), click **Google Config** and update:
+    1. **Project ID** to reflect the GCP project ID.
+    1. **Default Deployment Tag** to reflect the environment name.
+    1. **AuthJSON** to reflect the service account.
+
+1. Click **Create Networks** and update the network names to reflect the network names for the new environment.
+
+1. If your BOSH Director had an external hostname, you must change it in **Director Config > Director Hostname** to ensure it does not conflict with the hostname of the backed up Director.
+
+1. Ensure that there are no outstanding warning messages in the BOSH Director tile, then disable Ops Manager advanced mode. For more information, see [How to Enable Advanced Mode in the Ops Manager](https://community.pivotal.io/s/article/How-to-Enable-Advanced-Mode-in-the-Ops-Manager) in the Pivotal Knowledge Base.
+
+### <a id="bosh-state"></a> Step 4: Remove BOSH State File
+
+1. SSH into your Ops Manager VM. For more information, see the [SSH into Ops Manager](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html#ssh) section of the _Advanced Troubleshooting with the BOSH CLI_ topic.
+
+1. To delete the `/var/tempest/workspaces/default/deployments/bosh-state.json` file, run the following on the Ops Manager VM:
+
+    ```
+    sudo rm /var/tempest/workspaces/default/deployments/bosh-state.json
+    ```
+
+1. In a browser, navigate to your Ops Manager's fully-qualified domain name.
+1. Log in to Ops Manager.
+
+### <a id="bosh-only-deploy"></a> Step 5: Deploy the BOSH Director
+
+Use the Ops Manager API or the checkbox on the **Review Pending Changes** page to deploy the BOSH Director by itself.
+
+### <a id="artifacts-jumpbox"></a> Step 6: Transfer Artifacts to Jumpbox
+
+Previously, you moved the TAR and metadata files of the backup artifacts off your jumpbox to your preferred storage space. Now you must transfer those files back to your jumpbox.
+For more information on how to do this, see [Step 2: Transfer Artifacts to Jumpbox](bbr-restore-control-plane.html#artifacts-jumpbox) section of the _Restoring the PKS Control Plane_ topic.
 
 ## <a id='restore'></a> Restore the Enterprise PKS BOSH Director
 
