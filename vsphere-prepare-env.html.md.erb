@@ -5,37 +5,42 @@ owner: Ops Manager
 
 <strong><%= modified_date %></strong>
 
-Before you install Pivotal Container Service (PKS) on vSphere **without** NSX-T 
-integration, you must prepare your vSphere environment. In addition to 
-fulfilling the prerequisites specified in 
-[vSphere Prerequisites and Resource Requirements](vsphere-requirements.html),
-you must create the following two service accounts in vSphere:
+This topic describes how to prepare your vSphere environment before deploying Pivotal Container Service (PKS).
 
-* **Master Node Service Account**: You must create a service account for 
-Kubernetes cluster master VMs.
+## <a id='overview'></a>Overview
 
-* **BOSH/Ops Manager Service Account**: You must create a service account for 
-BOSH and Ops Manager.
+Before you install PKS on vSphere **without** NSX-T
+integration, you must prepare your vSphere environment by creating the
+required service accounts and configuring DNS for the PKS API endpoint.
+
+You must create the following service accounts in vSphere:
+
+* **Master Node Service Account**: Kubernetes master node VMs require storage permissions to create load balancers and attach persistent disks to pods.
+Creating a custom role for this service account allows vSphere to apply the same privileges to all Kubernetes master node VMs in your PKS installation.
+
+* **BOSH/Ops Manager Service Account**: This service account allows BOSH to deploy Ops Manager to vSphere.
+You can apply privileges directly to the service account without creating a role.
+You can also apply the default [VMware Administrator System Role](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-93B962A7-93FA-4E96-B68F-AE66D3D6C663.html) to the service account to achieve the appropriate permission level.
 
 After you create the service accounts listed above, you must grant them privileges in vSphere.
 <%= vars.vm_credentials %>
 
-For the master node service account, you can create a custom role in vSphere based on your storage configuration.
-Kubernetes master node VMs require storage permissions to create load balancers and attach persistent disks to pods.
-Creating a custom role allows vSphere to apply the same privileges to all Kubernetes master node VMs in your PKS installation.
-
-When you configure the **Kubernetes Cloud Provider** pane of the PKS tile, you enter the master node service account credentials in the **vSphere Master Credentials** fields.
-
-For more information, see the [Kubernetes Cloud Provider](installing-pks-vsphere.html#cloud-provider) section of _Installing PKS on vSphere_.
-
-For the BOSH/Ops Manager service account, you can apply privileges directly to the service account without creating a role.
-You can also apply the default [VMware Administrator System Role](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-93B962A7-93FA-4E96-B68F-AE66D3D6C663.html) to the service account to achieve the appropriate permission level.
-
-<p class="note"><strong>Note</strong>: If your Kubernetes clusters span 
-multiple vCenters, you must set the service account privileges correctly in 
+<p class="note"><strong>Note</strong>: If your Kubernetes clusters span
+multiple vCenters, you must set the service account privileges correctly in
 each vCenter.</p>
 
-## <a id="create-master"></a>Step 1: Create the Master Node Service Account
+To prepare your vSphere environment, do the following:
+
+1. [Create the Master Node Service Account](#create-master)
+1. [Grant Storage Permissions](#addl-permissions)
+1. [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man)
+1. [Configure DNS for the PKS API](#dns)
+
+## <a id='prerequisites'></a>Prerequisites
+
+Before you prepare your vSphere environment, you must fulfill the prerequisites in [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html).
+
+## <a id="create-master"></a>Create the Master Node Service Account
 
 1. From the vCenter console, create a service account for Kubernetes cluster master VMs.
 
@@ -46,7 +51,7 @@ each vCenter.</p>
       <tr><td>Virtual Machine > Configuration > Settings</td><td>VirtualMachine.Configuration.Settings</td></tr>
   </table>
 
-## <a id="addl-permissions"></a>Step 2: Grant Storage Permissions
+## <a id="addl-permissions"></a>Grant Storage Permissions
 
 Kubernetes master node VM service accounts require the following:
 
@@ -94,7 +99,7 @@ When the PVC is deleted, the statically provisioned PV is also deleted.</p>
       <tr><td></td><td>System.View</td></tr>
   </table>
 
-1. Continue to [Step 3: Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man).
+1. Continue to [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man).
 
 ### <a id="dynamic-policy"></a>Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)
 
@@ -139,7 +144,7 @@ To configure your Kubernetes master node service account using dynamic PV provis
       <tr><td></td><td>System.View</td></tr>
   </table>
 
-1. Continue to [Step 3: Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man).
+1. Continue to [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man).
 
 ###<a id="dynamic-no-policy"></a>Dynamic Volume Provisioning (without Storage Policy-Based Volume Placement)
 
@@ -173,7 +178,7 @@ To configure your Kubernetes master node service account using dynamic PV provis
       <tr><td></td><td>System.View</td></tr>
   </table>
 
-## <a id='create-bosh-ops-man'></a>Step 3: Create the BOSH/Ops Manager Service Account
+## <a id='create-bosh-ops-man'></a>Create the BOSH/Ops Manager Service Account
 
 1. From the vCenter console, create a service account for BOSH and Ops Manager.
 
@@ -269,7 +274,7 @@ Grant the following privileges must at the datacenter level to upload and delete
 
 #### <a id="vapp"></a>vApp Object
 
-Grant these privileges at the resource pool level. 
+Grant these privileges at the resource pool level.
 
 <table>
   <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
@@ -373,6 +378,14 @@ Grant these privileges at the resource pool level.
     <tr><td>Rename snapshot</td><td>VirtualMachine.State.RenameSnapshot</td></tr>
     <tr><td>Revert snapshot</td><td>VirtualMachine.State.RevertToSnapshot</td></tr>
 </table>
+
+## <a id='dns'></a>Configure DNS for the PKS API
+
+Navigate to your DNS provider and create an entry for a fully qualified domain name (FQDN) within your system domain. For example, `api.pks.example.com`.
+
+When you configure the PKS tile, enter this FQDN in the **PKS API** pane.
+
+After you deploy PKS, you map the IP address of the PKS API to this FQDN. You can then use this FQDN to access the PKS API from your local system.
 
 ## <a id="next-steps"></a>Next Steps
 
