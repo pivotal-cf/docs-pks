@@ -1,5 +1,5 @@
 ---
-title: Using Compute Profiles (vSphere Only)
+title: Using Compute Profile (vSphere Only)
 owner: PKS
 ---
 
@@ -14,7 +14,7 @@ The procedures in this topic use the PKS API.
 
 ## <a id='overview'></a> Overview
 
-Compute profiles allow you to specify which vSphere resources are used
+Compute Profile allows you to specify which vSphere resources are used
 when deploying Kubernetes clusters in a PKS deployment.
 Use this feature to control where your Kubernetes clusters
 are created within your virtual infrastructure.
@@ -264,32 +264,35 @@ If successful, the cluster creation command outputs something similar to the fol
 
 To resize an existing cluster that uses a compute profile, do the following:
 
-1. Resize the cluster by running the following command:
+1. Create a JSON file that describes the number of Kubernetes worker nodes you want:
 
+	update.json
     ```
-    pks resize CLUSTER-NAME --num-nodes NUMBER-OF-WORKER-NODES
+    {
+   		"kubernetes_worker_instances": 2
+	}
     ```
 
     Where:
-    * `CLUSTER-NAME` is the name of your cluster.
-    * `NUMBER-OF-WORKER-NODES` is the number of worker nodes you want to set for the cluster.
+    * `update.json` is the name of the JSON file for this example.
+    * `kubernetes_worker_instances` is the number of worker nodes you want to set for the cluster.    
     For more information on scaling clusters, see [Scaling Existing Clusters](scale-clusters.html).
 
 1.  Run the following command to update the cluster:
 
     ```
-    curl -s -k -X PATCH "https://$PKS-API}:9021/v1beta1/clusters/CLUSTER-NAME" \
+    curl -s -k -X PATCH "https://PKS-API:9021/v1beta1/clusters/CLUSTER-NAME" \
     -H "authorization: Bearer $YOUR-ACCESS-TOKEN" \
     -H "Content-Type: application/json" -d "@PATH-TO-CLUSTER.json"
     ```
 
     Where:
-    * `CLUSTER-NAME` is the name of the cluster that you scaled in the previous step.
     * `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`. 
+    * `CLUSTER-NAME` is the name of the cluster that you scaled in the previous step.
     * `$YOUR-ACCESS-TOKEN` is your PKS UAA admin access token specified as an environment variable. For information on how to export this token as an environment variable, see [Export PKS API Token](configure-api.html#pks-api-access).
-    * `@PATH-TO-CLUSTER.json` is the path and filename for the JSON file that you created in [Define a Compute Profile](#define).
+    * `@PATH-TO-CLUSTER.json` is the path and filename for the JSON file that you created in the previous step (`update.json`, for example).
 
-## <a id="list-clusters"></a> List Clusters with Compute Profiles
+## <a id="list-clusters"></a> List Clusters with Compute Profile
 
 When you execute the `pks clusters` command, the output does not include 
 compute profile information for clusters that use compute profiles.
@@ -308,6 +311,23 @@ as an environment variable. For information on how to export this token as an en
 
 The output includes compute profile information.
 
+## <a id="detail"></a> Get Single Cluster Detail with Compute Profile
+
+You can view compute profile information for a particular cluster by making a request to the PKS API.
+
+To get the compute profile detail for a single cluster, run the following command:
+
+```
+curl -s -k -H "authorization: Bearer $YOUR-ACCESS-TOKEN" \
+"https://PKS-API:9021/v1beta1/clusters/CLUSTER-NAME"
+```
+
+Where:
+
+- `$YOUR-ACCESS-TOKEN` is your PKS UAA admin access token specified as an environment variable. For information on how to export this token as an environment variable, see [Export PKS API Token](configure-api.html#pks-api-access).
+- `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
+- `CLUSTER-NAME` is the name of the cluster for which you are requesting compute profile details, such as `cluster1`.
+
 ## <a id="delete"></a> Delete Compute Profiles
 
 You can delete compute profiles in your PKS deployment by making a request to
@@ -321,8 +341,7 @@ To delete a compute profile, run the following command:
 
 ```
 curl -k -X DELETE  "https://PKS-API:9021/v1beta1/compute-profiles" \
--H "cache-control: no-cache" -H "authorization: Bearer $YOUR-ACCESS-TOKEN" \
--H "Content-Type: application/json"
+-H "cache-control: no-cache" -H "authorization: Bearer $YOUR-ACCESS-TOKEN"
 ```
 
 Where:
