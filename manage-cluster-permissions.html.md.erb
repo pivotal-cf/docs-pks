@@ -16,7 +16,7 @@ If you are an <%= vars.product_short %> admin user, you can do the following:
 
 + Grant user access to a cluster with a `ClusterRole` or a namespace within a cluster with a `Role`. 
 See [Grant Cluster Access to a User](#cluster-access-user) below. 
-+ Grant group access to a cluster with a `ClusterRole` to a namespace within a cluster with a `Role`. 
++ Grant LDAP group access to a cluster with a `ClusterRole`. 
 See [Grant Cluster Access to a Group](#cluster-access-group') below. 
 
 After you grant access, you can create a `ClusterRoleBinding` or a `RoleBinding` for the user you gave 
@@ -40,7 +40,7 @@ Interface (kubectl) to connect to the cluster and perform actions as configured 
 admin. Kubernetes end users cannot create, resize, or delete
 clusters.
 
-<p class='note'><strong>Note</strong>: Before you can grant cluster access to Kubernetes end users, you must enable OpenID Connect (OIDC) by selecting <strong>Enable UAA as OIDC provider</strong> in <strong>Ops Manager Installation Dashboard</strong> > <strong> <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>. Once you enable OIDC, you must run <code>pks get-credentials</code> again to update your existing kubeconfig file.</p>
+<p class='note'><strong>Note:</strong> Before you can grant cluster access to Kubernetes end users, you must enable OpenID Connect (OIDC) by selecting <strong>Enable UAA as OIDC provider</strong> in <strong>Ops Manager Installation Dashboard</strong> > <strong> <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>. Once you enable OIDC, you must run <code>pks get-credentials</code> again to update your existing kubeconfig file.</p>
 
 The following diagram outlines the workflow you use to grant cluster access to a
 user who belongs to an LDAP group:
@@ -208,44 +208,66 @@ Cluster admins can grant cluster-wide access to an LDAP group by creating a `Clu
 for that LDAP group. You can only grant access to an LDAP group if you use a LDAP identity provider for UAA.
 You can configure a LDAP identity provider in <strong>Ops Manager Installation Dashboard</strong> > <strong> <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>.
 
+<p class='note'><strong>Note:</strong> You must confirm that the group you are referencing in your <code>ClusterRoleBinding</code> has been whitelisted in the <%= vars.product_tile %> tile. To do this, review <strong>External Groups Whitelist</strong> in <strong>Ops Manager Installation Dashboard</strong> > <strong> <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>.</p>
 
+The procedure for granting cluster access to an LDAP group is similar to the procedure in [Grant Cluster Access to a User](#cluster-access-user). However, when you grant access to a LDAP group you must use `ClusterRole` and `ClusterRoleBinding`.
 
-<p class='note'><strong>Note:</strong> You must confirm that the group you are referencing in your <code>ClusterRoleBinding</code> has been whitelisted in the <%= vars.product_tile %> tile. To do so, review <strong>External Groups Whitelist</strong> in <strong>Ops Manager Installation Dashboard</strong> > <strong> <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>.</p>
+To grant cluster access to a LDAP group, follow the procedure in [Grant Cluster Access to a User](#cluster-access-user) above and do the following:
 
-To grant cluster access to a LDAP group, follow the procedure in [Grant Cluster Access to a User](#cluster-access-user) above and in the YAML file for a `ClusterRoleBinding` or a `RoleBinding`, replace the `subjects` section 
+1. In the YAML file for `Role` or `ClusterRole`, make a `ClusterRole` and omit `namespace`. 
+Use the following example as a template:
+
+    ```
+    kind: ROLE-TYPE
+    apiVersion: rbac.authorization.k8s.io/v1
+    metadata:
+      name: CLUSTER-ROLE-NAME
+    rules:
+    - apiGroups:
+      resources: RESOURCE
+      verbs: API-REQUEST-VERB
+    ```
+
+    Where:
+    * `ROLE-TYPE` is the type of role you are creating. This must be `ClusterRole`.
+    * `CLUSTER-ROLE-NAME` is the name of the `ClusterRole` you are creating. 
+    This name is created by the cluster admin.
+    * `RESOURCE` is the resource you are granting access to. It must be specified in a comma-separated array. An example resource could be `["pod-reader"]`.
+    * `API-REQUEST-VERB` is the request verb used to specify resource requests. For more information, see
+    [Determine the Request Verb](https://kubernetes.io/docs/reference/access-authn-authz/authorization/#determine-the-request-verb) in the Kubernetes documentation.
+ 
+
+1. In the YAML file for a `ClusterRoleBinding` or a `RoleBinding`, replace the `subjects` section 
 with the following: 
 
-  ```
-subjects:
-- kind: Group
-  name: NAME-OF-GROUP
-  apiGroup: rbac.authorization.k8s.io
-  ```
+    ```
+  subjects:
+  - kind: Group
+    name: NAME-OF-GROUP
+    apiGroup: rbac.authorization.k8s.io
+    ```
 
-For example:
+    Use the following example as a template:
 
-```
-kind: ROLE-BINDING-TYPE
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: ROLE-OR-CLUSTER-ROLE-BINDING-NAME
-  namespace: NAMESPACE
-subjects:
-- kind: Group
-  name: NAME-OF-GROUP
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: ROLE-TYPE
-  name: ROLE-OR-CLUSTER-ROLE-NAME
-  apiGroup: rbac.authorization.k8s.io
-```
+    ```
+    kind: ROLE-BINDING-TYPE
+    apiVersion: rbac.authorization.k8s.io/v1
+    metadata:
+      name: CLUSTER-ROLE-BINDING-NAME
+    subjects:
+    - kind: Group
+      name: NAME-OF-GROUP
+      apiGroup: rbac.authorization.k8s.io
+    roleRef:
+      kind: ROLE-TYPE
+      name: CLUSTER-ROLE-NAME
+      apiGroup: rbac.authorization.k8s.io
+    ```
 
-Where:
-
-* `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be either `RoleBinding` or `ClusterRoleBinding`.
-* `ROLE-OR-CLUSTER-ROLE-BINDING-NAME` is the name of the role binding. This is given by the cluster admin.
-* `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.
-* `NAME-OF-GROUP` is the LDAP group name. This name is case sensitive.
-* `ROLE-TYPE` is the type of role you are creating. This must be either `Role` or `ClusterRole`.
-* `ROLE-OR-CLUSTER-ROLE-NAME` is the name of your `Role` or `ClusterRole`. 
-This is given by the cluster admin.
+    Where:
+    * `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be `ClusterRoleBinding`.
+    * `CLUSTER-ROLE-BINDING-NAME` is the name of the role binding. This is given by the cluster admin.
+    * `NAME-OF-GROUP` is the LDAP group name. This name is case sensitive.
+    * `ROLE-TYPE` is the type of role you are creating. This must be `ClusterRole`.
+    * `CLUSTER-ROLE-NAME` is the name of your `ClusterRole`. 
+    This is given by the cluster admin.
