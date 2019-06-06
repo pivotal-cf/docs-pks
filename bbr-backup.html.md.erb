@@ -5,9 +5,9 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to use BOSH Backup and Restore (BBR) to back up the  <%= vars.product_full %> BOSH Director, Control Plane and its cluster deployments.
+This topic describes how to use BOSH Backup and Restore (BBR) to back up the  the <%= vars.product_full %> Control Plane and its cluster deployments.
 
-The <%= vars.product_short %> BOSH Director, Control Plane, and cluster deployments includes custom backup and restore scripts which encapsulate the correct procedure
+The BOSH Director, <%= vars.product_short %> Control Plane, and cluster deployments include custom backup and restore scripts which encapsulate the correct procedure
 for backing up and restoring the Director and Control Plane.
 
 BBR orchestrates running the backup and restore scripts and transferring the generated backup artifacts to and from a backup directory.
@@ -15,7 +15,7 @@ If configured correctly, BBR can use TLS to communicate securely with backup tar
 
 * To perform a restore of the BOSH Director, see [Restoring the <%= vars.product_short %> BOSH Director](bbr-restore-director.html).
 * To perform a restore of the PKS Control Plane, see [Restoring the <%= vars.product_short %> Control Plane](bbr-restore-control-plane.html).
-* To perform a restore of a cluster deployment, see [Restoring a Cluster](bbr-restore-cluster.html).
+* To perform a restore of a cluster deployment, see [Restoring a <%= vars.product_short %> Cluster](bbr-restore-cluster.html).
 
 To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup and Restore Release Notes](https://docs.cloudfoundry.org/bbr/bbr-rn.html).
 
@@ -23,26 +23,27 @@ To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup
 
 BBR can backup the following components:
 
-  * BOSH Director
-  * <%= vars.product_short %> control plane UAA MySQL database
-  * <%= vars.product_short %> control plane PKS API MySQL database
-  * The ETCD database of a cluster.
+* BOSH Director
+* <%= vars.product_short %> control plane UAA MySQL database
+* <%= vars.product_short %> control plane PKS API MySQL database
+* The ETCD database of a cluster.
 
 ## <a id='unsupported'></a> Unsupported Components
 
-BBR backups of the following components are not yet supported:
+BBR can not be used to back up the following components::
 
-  * Harbor tile
-  * Persistent volumes attached to nodes.
-  * Network resources e.g. Load Balancers to the cluster
+* Harbor tile
+* Persistent volumes attached to nodes.
+* Network resources e.g. Load Balancers to the cluster
 
-BBR backups of the following components have not been validated:
+BBR has not been validated for backing up the following components:
 
-  * vSphere with NSX-t Objects
+* vSphere with NSX-T Objects
 
-## <a id='prereqs'></a> Prerequisites
 
-The following steps need to be carried out in order to perform a end-to-end backup of <%= vars.product_short %>, i.e. the BOSH Director, the Control Plane and its cluster deployments.
+## <a id='connect-to-jumpbox'></a> Step 1: Setup
+
+Before using BBR you must perform the following steps:
 
 * [Verify your BBR Version](#verify-bbr-version)
 * [Download the BBR SSH Credentials](#bbr-ssh-creds)
@@ -55,16 +56,18 @@ The following steps need to be carried out in order to perform a end-to-end back
 
 ### <a id='verify-bbr-version'></a> Verify your BBR Version
 
-Before proceeding, you must verify that the installed version of BBR is compatible with this <%= vars.product_short %> release.
-For minimum version information, see the [<%= vars.product_short %> Release Notes](release-notes.html).
+Before running BBR, you must verify that the installed version of BBR is compatible with your deployment's current <%= vars.product_short %> release.
 
-To see what version of BBR you have installed, run the following command:
+1. For your current <%= vars.product_short %> release's minimum version information, see the [<%= vars.product_short %> Release Notes](release-notes.html).
 
-```
-bbr version
-```
+1. To verify the currently installed BBR version, run the following command:
 
-If you do not have BBR installed and do not meet the minimum version requirement, see [Installing BOSH Backup and Restore](bbr-install.html).
+    ```
+    bbr version
+    ```
+
+If you do not have BBR installed, or your installed version does not meet the minimum version requirement, 
+see [Installing BOSH Backup and Restore](bbr-install.html).
 
 ### <a id='bbr-ssh-creds'></a> Download the BBR SSH Credentials
 
@@ -82,33 +85,8 @@ To retrieve your **Bbr Ssh Credentials** using the Ops Manager Installation Dash
 1. Click the **Credentials** tab.
 
 1. Locate **Bbr Ssh Credentials**.
-  1. Click Link to Credentials next to it.
-  1. Copy the value of the `private_key_pem` field.
-  1. run the following command to reformat the copied value, and save it in the current directory to a file named `PRIVATE-KEY-FILE`:
-
-    ```
-    printf -- "YOUR-PRIVATE-KEY" > PRIVATE-KEY-FILE
-    ```
-    Replace the placeholder text using the information in the following table:
-    <table>
-      <tr>
-        <th width="32%">Placeholder Text</th>
-        <th>Instructions</th>
-      </tr>
-      <tr>
-        <td><code>YOUR-PRIVATE-KEY</code></td>
-        <td>This is the text of your private key.</td>
-      </tr>
-      <tr>
-        <td><code>PRIVATE-KEY-FILE</code></td>
-        <td>This is the path to the private key file you are creating.</td>
-      </tr>
-    </table>
-
-    For example:
-    <pre class="terminal">
-    $ printf --  "-----begin rsa private key----- fake key contents ----end rsa private key-----" > bbr_key.pem
-    </re>
+1. Click **Link to Credentials** next to it.
+1. Copy the `private_key_pem` field value.
 
 #### <a id='bbr-ssh-creds-via-api'></a> Ops Manager API
 
@@ -122,44 +100,21 @@ To retrieve your **Bbr Ssh Credentials** using the Ops Manager API, perform the 
     -X GET \
     -H "Authorization: Bearer UAA-ACCESS-TOKEN"
     ```
-    Replace the placeholder text using the information in the following table:
-    <table>
-      <tr>
-        <th width="32%">Placeholder Text</th>
-        <th>Instructions</th>
-      </tr>
-      <tr>
-        <td><code>OPS-MAN-FQDN</code></td>
-        <td>This is the fully-qualified domain name (FQDN) for your Ops Manager deployment.</td>
-      </tr>
-      <tr>
-        <td><code>UAA-ACCESS-TOKEN</code></td>
-        <td>This is your UAA access token.</td>
-      </tr>
-    </table>
+    Where:
+    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.
+    * `UAA-ACCESS-TOKEN` is your UAA access token.
 
 1. Copy the value of the `private_key_pem` field.
-1. Run the following command to reformat the copied value, and save it in the current directory
-to a file named `PRIVATE-KEY-FILE`:
+
+### <a id='bbr-ssh-creds-save'></a> Save the BBR SSH Credentials to file
+1. To reformat the copied `private_key_pem` value and save it to a file in the current directory, run the following command:
 
     ```
     printf -- "YOUR-PRIVATE-KEY" > PRIVATE-KEY-FILE
     ```
-    Replace the placeholder text using the information in the following table:
-    <table>
-      <tr>
-        <th width="32%">Placeholder Text</th>
-        <th>Instructions</th>
-      </tr>
-      <tr>
-        <td><code>YOUR-PRIVATE-KEY</code></td>
-        <td>This is the text of your private key.</td>
-      </tr>
-      <tr>
-        <td><code>PRIVATE-KEY-FILE</code></td>
-        <td>This is the path to the private key file you are creating.</td>
-      </tr>
-    </table>
+    Where:
+    * `YOUR-PRIVATE-KEY` is the text of your private key.
+    * `PRIVATE-KEY-FILE` is the path to the private key file you are creating.
 
     For example:
     <pre class="terminal">
@@ -182,33 +137,8 @@ To retrieve your BOSH Director credentials using the Ops Manager Installation Da
 1. Click the **Credentials** tab.
 
 1. Locate **Director Credentials**.
-  1. Click **Link to Credentials** next to it.
-  1. Copy the value of the `private_key_pem` field.
-  1. Run the following command to reformat the copied value, and save it in the current directory to a file named `PRIVATE-KEY-FILE`:
-
-    ```
-    printf -- "YOUR-PRIVATE-KEY" > PRIVATE-KEY-FILE
-    ```
-    Replace the placeholder text using the information in the following table:
-    <table>
-      <tr>
-        <th width="32%">Placeholder Text</th>
-        <th>Instructions</th>
-      </tr>
-      <tr>
-        <td><code>YOUR-PRIVATE-KEY</code></td>
-        <td>This is the text of your private key.</td>
-      </tr>
-      <tr>
-        <td><code>PRIVATE-KEY-FILE</code></td>
-        <td>This is the path to the private key file you are creating.</td>
-      </tr>
-    </table>
-
-    For example:
-    <pre class="terminal">
-    $ printf --  "-----begin rsa private key----- fake key contents ----end rsa private key-----" > bbr_key.pem
-    </re>
+1. Click **Link to Credentials** next to it.
+1. Copy the value of the `private_key_pem` field.
 
 #### <a id='bosh-creds-via-api'></a> Ops Manager API
 
@@ -222,44 +152,21 @@ To retrieve your BOSH Director credentials using the Ops Manager API, perform th
     -X GET \
     -H "Authorization: Bearer UAA-ACCESS-TOKEN"
     ```
-    Replace the placeholder text using the information in the following table:
-    <table>
-      <tr>
-        <th width="32%">Placeholder Text</th>
-        <th>Instructions</th>
-      </tr>
-      <tr>
-        <td><code>OPS-MAN-FQDN</code></td>
-        <td>This is the fully-qualified domain name (FQDN) for your Ops Manager deployment.</td>
-      </tr>
-      <tr>
-        <td><code>UAA-ACCESS-TOKEN</code></td>
-        <td>This is your UAA access token.</td>
-      </tr>
-    </table>
+    Where:
+    `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.
+    `UAA-ACCESS-TOKEN` is your UAA access token.
 
 1. Copy the value of the `private_key_pem` field.
-1. Run the following command to reformat the copied value, and save it in the current directory
-to a file named `PRIVATE-KEY-FILE`:
+
+### <a id='bosh-creds-save'></a> Save the BOSH Director Credentials to a file
+1. To reformat the copied `private_key_pem` value and save it a file in the current directory, run the following command:
 
     ```
     printf -- "YOUR-PRIVATE-KEY" > PRIVATE-KEY-FILE
     ```
-    Replace the placeholder text using the information in the following table:
-    <table>
-      <tr>
-        <th width="32%">Placeholder Text</th>
-        <th>Instructions</th>
-      </tr>
-      <tr>
-        <td><code>YOUR-PRIVATE-KEY</code></td>
-        <td>This is the text of your private key.</td>
-      </tr>
-      <tr>
-        <td><code>PRIVATE-KEY-FILE</code></td>
-        <td>This is the path to the private key file you are creating.</td>
-      </tr>
-    </table>
+    Where:
+    * `YOUR-PRIVATE-KEY` is the text of your private key.
+    * `PRIVATE-KEY-FILE` is the path to the private key file you are creating.
 
     For example:
     <pre class="terminal">
@@ -268,46 +175,42 @@ to a file named `PRIVATE-KEY-FILE`:
 
 ### <a id='cluster-creds'></a> Download the UAA Client Credentials
 
-You must use BOSH credentials that limit the scope of BBR activity to your cluster deployments.  To obtain these credentials, perform the following steps:
+To obtain BOSH credentials for your BBR operations, perform the following steps:
 
-  1. From the Ops Manager Installation Dashboard, click the **<%= vars.product_tile %>** tile.
-  1. Select the **Credentials** tab.
-  1. Navigate to **Credentials > UAA Client Credentials**.
-  1. Record the value for `uaa_client_secret`.
-  1. Record the value for `uaa_client_name`.
+1. From the Ops Manager Installation Dashboard, click the **<%= vars.product_tile %>** tile.
+1. Select the **Credentials** tab.
+1. Navigate to **Credentials > UAA Client Credentials**.
+1. Record the value for `uaa_client_secret`.
+1. Record the value for `uaa_client_name`.
+
+<p class="note"><strong>Note</strong>: You must use BOSH credentials that limit the scope of BBR activity to your cluster deployments.</p>
 
 ### <a id='bosh-address'></a> Retrieve the BOSH Director Address
 
+You access the BOSH Director using an IP address.
+
+To obtain your BOSH Director's IP address:
+
+1. Open the Ops Manager Installation Dashboard.  
+1. Select **BOSH Director > Status**.  
+1. Select the listed Director IP Address.  
+
+### <a id='bosh-address-log-in'></a> Log in to BOSH Director
 1. If you are not using the Ops Manager VM as your jumpbox, install the latest [BOSH CLI](https://bosh.io/docs/cli-v2.html#install) on your jumpbox.
-1. From the Installation Dashboard in Ops Manager, select **BOSH Director > Status** and record the IP address listed for the Director.
-You access the BOSH Director using this IP address.
+1. To log in to BOSH Director, using the IP address that you recorded above, run the following command line:
 
-1. From the command line, log into the BOSH Director, using the IP address that you recorded above,
-by running the following command:
-
-    <pre>
+    ```
     bosh -e BOSH-DIRECTOR-IP \
     --ca-cert PATH-TO-BOSH-SERVER-CERTIFICATE log-in
-    </pre>
+    ```
 
-    Replace the placeholder text using the information in the following table.
-    <table>
-      <tr>
-        <th width="32%">Placeholder Text</th>
-        <th>Instructions</th>
-      </tr>
-      <tr>
-        <td><code>BOSH-DIRECTOR-IP</code></td>
-        <td>This is the BOSH Director IP address recorded above.</td>
-      </tr>
-      <tr>
-        <td><code>PATH-TO-BOSH-SERVER-CERTIFICATE</code></td>
-        <td>This is the path to the root Certificate Authority (CA) certificate as outlined in [Download the Root CA Certificate](#root-ca-cert).</td>
-      </tr>
-    </table>
+    Where:
+    * `BOSH-DIRECTOR-IP` is the BOSH Director IP address recorded above.
+    * `PATH-TO-BOSH-SERVER-CERTIFICATE` is the path to the root Certificate Authority (CA) certificate 
+    as outlined in [Download the Root CA Certificate](#root-ca-cert).
 
-1. When prompted for **Email ()**, specify `director`.
-1. When prompted for **Password ()**, enter the **Director Credentials** that you obtained in
+1. To specify **Email**, specify `director`.
+1. To specify **Password**, enter the **Director Credentials** that you obtained in
    [Download the BOSH Director Credentials](#bosh-creds).
 
      <br>
@@ -323,23 +226,26 @@ by running the following command:
      </pre>
 
 ### <a id='root-ca-cert'></a> Download the Root CA Certificate
-To download
-the root CA certificate for your <%= vars.product_short %> deployment, perform the following steps:
+To download the root CA certificate for your <%= vars.product_short %> deployment, 
+perform the following steps:
 
-1. On the Ops Manager Installation Dashboard, in the top right corner, click your username.
+1. Open the Ops Manager Installation Dashboard
+1. In the top right corner, click your username.
 1. Navigate to **Settings** > **Advanced**.
 1. Click **Download Root CA Cert**.
 
 ### <a id='bosh-cli-creds'></a> Download the BOSH Commandline Credentials
 
-1. On the Ops Manager Installation Dashboard, click the **BOSH Director** tile.
+1. Open the Ops Manager Installation Dashboard.
+1. Click the **BOSH Director** tile.
 1. In the BOSH Director tile, click the **Credentials** tab.
-1. Navigate to **Bosh Command line Credentials** and click **Link to Credential**.
+1. Navigate to **Bosh Command line Credentials**.
+1. Click **Link to Credential**.
 1. Copy the credential value.
 
 ### <a id='cluster-deployment-name'></a> Retrieve your Cluster Deployment Name
 
-Locate and record your cluster BOSH deployment name by following the steps below.
+To locate and record your cluster's BOSH deployment name, follow the steps below.
 
 1. <%= partial 'login-pks-api' %>
 
@@ -349,10 +255,12 @@ command:
     ```
     pks cluster CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of your cluster. From the output of this command, record the
-    value of **UUID**.
+    Where `CLUSTER-NAME` is the name of your cluster. 
 
-1. From the Ops Manager Installation Dashboard, click the **BOSH Director** tile.
+1. From the output of this command, record the **UUID** value.
+
+1. Open the Ops Manager Installation Dashboard
+1. Click the **BOSH Director** tile.
 
 1. Select the **Credentials** tab.
 
@@ -367,23 +275,12 @@ command:
     ```
     BOSH-CLI-CREDENTIALS deployments | grep UUID
     ```
-    Replace the placeholder values as follows:
-    <table>
-      <tr>
-        <th width="32%">Credential</th>
-        <th>Location</th>
-      </tr>
-      <tr>
-        <td><code>BOSH-CLI-CREDENTIALS</code></td>
-        <td>This includes the full value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](bbr-backup-control-plane.html#bosh-cli-creds).</td>
-      </tr>
-      <tr>
-        <td><code>UUID</code></td>
-        <td>This is the cluster UUID that you recorded in the previous step</td>
-      </tr>
-    </table>
+    Where
+    * `BOSH-CLI-CREDENTIALS` is the full value that you copied from the BOSH Director tile 
+    in [Download the BOSH Commandline Credentials](bbr-backup-control-plane.html#bosh-cli-creds).
+    * `UUID` is the cluster UUID that you recorded in the previous step.
 
-## <a id='connect-to-jumpbox'></a> Step 1: Connect to Your Jumpbox
+## <a id='connect-to-jumpbox'></a> Step 2: Connect to Your Jumpbox
 
 You can establish a connection to your jumpbox in one of the following ways.
 
@@ -420,7 +317,7 @@ your local machine.
 backup and restore times due to network performance degradation. Because all operations must pass
 through the proxy, moving backup artifacts can be significantly slower.</p>
 
-## <a id='export-opsman-settings'></a> Step 2: Export Installation Settings
+## <a id='export-opsman-settings'></a> Step 3: Export Installation Settings
 
 Pivotal recommends that you back up your Ops Manager installation settings by exporting frequently.
 
@@ -471,7 +368,7 @@ If you want to automate the back up process, you can use the Ops Manager API to 
     </tr>
   </table>
 
-## <a id='back-up-director'></a> Step 3: Back up the <%= vars.product_short %> BOSH Director
+## <a id='back-up-director'></a> Step 4: Back up the <%= vars.product_short %> BOSH Director
 
 1. Run the BBR pre-backup check to confirm that your BOSH Director is reachable and has the correct BBR scripts:
 
@@ -563,7 +460,7 @@ PKS BOSH Director:
     see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
 
-## <a id='locate-deploy-name'></a> Step 4: Locate the <%= vars.product_short %> Deployment Name
+## <a id='locate-deploy-name'></a> Step 5: Locate the <%= vars.product_short %> Deployment Name
 
 Locate and record your <%= vars.product_short %> BOSH deployment name as follows:
 
@@ -591,7 +488,7 @@ For instructions on how to SSH into the Ops Manager VM, see [Advanced Troublesho
   `pivotal-container-service` and includes a unique identifier.
    In the example output above, the BOSH deployment name is `pivotal-container-service-51f08f6402aaa960f041`.
 
-## <a id='back-up-control-plane'></a> Step 5: Back up the <%= vars.product_short %> Control Plane
+## <a id='back-up-control-plane'></a> Step 6: Back up the <%= vars.product_short %> Control Plane
 
 1. Run the BBR pre-backup check to confirm that your BOSH Director is reachable and has a
 deployment that can be backed up:
@@ -738,7 +635,7 @@ PKS control plane:
     see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
 
-## <a id='verify-deployments'></a> Step 6: Verify your Cluster Deployments
+## <a id='verify-deployments'></a> Step 7: Verify your Cluster Deployments
 
 To verify that you can reach your PKS cluster deployments and that can be backed up, follow the steps below.
 
@@ -817,7 +714,7 @@ To verify that you can reach your PKS cluster deployments and that can be backed
         the deployments might not have the correct backup scripts, or the connection to
         the BOSH Director failed.
 
-## <a id='back-up-clusters'></a> Step 7: Back up Clusters
+## <a id='back-up-clusters'></a> Step 8: Back up Clusters
 
 When backing up your PKS cluster, you can choose to back up only one cluster or to backup all cluster deployments in scope.
 The procedures to do this are the following:
