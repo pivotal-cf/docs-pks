@@ -10,9 +10,9 @@ This topic describes how to use BOSH Backup and Restore (BBR) to restore the PKS
 
 To use BBR to restore the:
 
-* PKS BOSH Director plane, see [Restore the BOSH Director](#restore-director).
-* PKS control plane, see [Restore PKS Control Plane](#restore-control-plane).
-* PKS Clusters, see [Restore PKS Clusters](#restore-clusters).
+* PKS BOSH Director plane, see [Restore the BOSH Director](#redeploy-restore-director).
+* PKS control plane, see [Restore PKS Control Plane](#redeploy-restore-control-plane).
+* PKS Clusters, see [Restore PKS Clusters](#redeploy-restore-clusters).
 
 ## <a id="compatibility"></a> Compatibility of Restore
 
@@ -33,7 +33,6 @@ jobs in the restored environment, but cannot validate the restore beyond that.
 + **Same Cluster**: Currently, BBR supports the in-place restore of a cluster backup artifact onto the same cluster.
 Migration from one cluster to another using a BBR backup artifact has not yet been validated.
 
-
 ## <a id="prereqs"></a> Prerequisites
 
 The restore prerequisites are the same backup, please refer to [Prerequisites](bbr-backup.html#prereqs)
@@ -50,19 +49,13 @@ scp LOCAL-PATH-TO-BACKUP-ARTIFACT JUMPBOX-USER/JUMPBOX-ADDRESS
 
 If this artifact is encrypted, you must decrypt it.
 
-## <a id="recreate-vms"></a> Recreate the BOSH Director VM
+## <a id="redeploy-restore-director"></a> Restoring the BOSH Director
 
 In the event of losing your BOSH Director or Ops Manager environment, you must recreate the BOSH Director VM before restoring the PKS BOSH Director.
 
 In a disaster recovery scenario, you can re-create the BOSH Director with your <%= vars.product_short %> Ops Manager Installation settings generated in [Export Installation Settings](bbr-backup.html#export-opsman-settings).
 
-To redeploy and reconfigure your Ops Manager environment and spin up a new PKS BOSH Director, run the following steps:
-
-  1. [Deploy Ops Manager](#deploy-opsmanager).
-  1. [Import Installation Settings](#import-settings).
-  1. [(Optional) Configure Ops Manager for New Resources](#config-new-resources).
-  1. [Remove BOSH State File](#bosh-state).
-  1. [Deploy the BOSH Director](#deploy-bosh-director).
+To redeploy and restore your Ops Manager and PKS BOSH Director, run the following steps.
 
 ### <a id='deploy-opsmanager'></a> Deploy Ops Manager
 
@@ -171,8 +164,7 @@ If you recreated IaaS resources such as networks and load balancers by following
 
 Use the Ops Manager API or the checkbox on the **Review Pending Changes** page to deploy the BOSH Director by itself.
 
-
-## <a id='restore-director'></a> Restore the BOSH Director
+### <a id='restore-director'></a> Restore the BOSH Director
 
 <p class="note">
 <strong>Note</strong>: The BBR restore command can take a long time to complete.
@@ -229,7 +221,7 @@ Perform the following steps to restore the PKS BOSH Director. You run these comm
 
     If the command fails, follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
 
-## <a id='remove-disks'></a> Remove Unused Disks
+### <a id='remove-disks'></a> Remove Unused Disks
 
 <p class="note warning"><strong>WARNING:</strong> This is a destructive operation.</p>
 
@@ -239,14 +231,14 @@ You can either do this using BOSH or manually:
 * [Use BOSH To Clean Up Disks](#bosh-remove-disks)
 * [Manually Clean Up Disks](#manual-remove-disks)
 
-### <a id='bosh-remove-disks'></a> Use BOSH To Clean Up Disks
+#### <a id='bosh-remove-disks'></a> Use BOSH To Clean Up Disks
 1. To clean up disk references, run the following command:
 
     ```bash
     bosh cloud-check
     ```
 
-### <a id='manual-remove-disks'></a> Manually Clean Up Disks
+#### <a id='manual-remove-disks'></a> Manually Clean Up Disks
 
 If `bosh cloud-check` does not clean up all disk references, you must manually delete the remaining disks.
 To delete the remaining disks, perform one of the following procedures:
@@ -286,14 +278,10 @@ Replace the placeholder values as follows:
 </table>
 <br>
 
-## <a id='redeploy-control-plane'></a> Redeploy PKS
+## <a id='redeploy-restore-control-plane'></a> Restoring the PKS Control Plane
 
 Before restoring the PKS control plane, you must create the VMs that constitute the deployment by redeploying the <%= vars.product_short %> tile.
-To redeploy this, you must determine the stemcell needed by it and upload that stemcell.
-
-* [Determine the Required Stemcells](#determine-stemcell)
-* [Upload Stemcells](#upload-stemcell)
-* [Redeploy PKS](#redeploy-pks)
+To redeploy this, you must determine the stemcell needed by it and upload that stemcell and then restore the backup on top of the deployment.
 
 ### <a id='determine-stemcell'></a> Determine the Required Stemcells
 
@@ -373,7 +361,7 @@ For more information about stemcells in Ops Manager, see [Importing and Managing
 repeat the last step, running the `bosh upload-stemcell --fix PATH-TO-STEMCELL` command,
 for each stemcell that is different from the already uploaded PKS stemcell.
 
-### <a id='redeploy-pks'></a> Redeploy PKS
+### <a id='redeploy-control-plane'></a> Redeploy the PKS Control Plane
 
 1. From the Ops Manager Installation Dashboard, navigate to **Pivotal Container Service** > **Resource Config**.
 
@@ -387,14 +375,16 @@ for each stemcell that is different from the already uploaded PKS stemcell.
 
 1. Click **Apply Changes** to redeploy.
 
-## <a id='restore-control-plane'></a> Restore PKS Control Plane
+### <a id='restore-control-plane'></a> Restore the PKS Control Plane
 
 <p class="note"><strong>Note</strong>: The BBR restore command can take a long time to complete.
 You can run it independently of the SSH session so that the process can continue running even if
 your connection to the jumpbox fails. The example command uses <code>nohup</code>, but you run the
 command in a <code>screen</code> or <code>tmux</code> session instead.</p>
 
+<p>
 Perform the following steps to restore the PKS control plane. You run these commands on your jumpbox.
+</p>
 
 You can use the optional `--debug` flag to enable debug logs. See the [BBR Logging](bbr-logging.html) topic for more information.
 
@@ -463,9 +453,13 @@ nohup bbr deployment \
 If the command fails, follow the steps in <a href="#recover-from-failing-command">Recover from a Failing Command</a>
 </p>
 
-## <a id='redeploy-clusters'></a> Redeploy PKS Clusters
+## <a id='redeploy-restore-clusters'></a> Restoring PKS Clusters
 
-If you have PKS clusters provisioned by the <%= vars.product_short %> Control Plane, perform the following steps to restore them after successfully restoring the Control Plane:
+If you have PKS clusters provisioned by the <%= vars.product_short %> Control Plane, perform the following steps to restore them after successfully restoring the Control Plane.
+
+### <a id='redeploy-clusters'></a> Redeploy PKS Clusters
+
+Before restoring, you must redeploy your PKS Clusters by performing the following steps:
 
 1. Navigate to an Pivotal Container Service tile in the **Installation Dashboard**.
 1. Select the **Errands** tab.
@@ -474,9 +468,7 @@ If you have PKS clusters provisioned by the <%= vars.product_short %> Control Pl
 1. Click **Review Pending Changes**, review your changes, and then click **Apply Changes**. For more information, see [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/customizing/review-pending-changes.html).
 This will include running the **Upgrade all clusters** errand, which will redeploy the cluster instances.
 
-## <a id='restore-clusters'></a> Restore PKS Clusters
-
-Perform the steps below to restore a cluster.
+### <a id='restore-clusters'></a> Restore PKS Clusters
 
 <p class="note"><strong>Note:</strong> The BBR restore command can take a long time to complete.
 You can run it independently of an SSH session so that the process can continue running even if
@@ -494,6 +486,7 @@ This includes the cluster-deployed workloads. Persistent volumes and other IaaS 
 Backup and restore for clusters deployed on vSphere with NSX-T is not yet validated.
 </p>
 
+Perform the steps below to restore a cluster.
 
 1. Move the cluster backup artifact to a folder from which you will run the BBR restore process.
 
@@ -542,14 +535,15 @@ Backup and restore for clusters deployed on vSphere with NSX-T is not yet valida
         <td>Use the path to to your deployment backup. Make sure you have transfer your artifact into you jumpbox as described in [Transfer Artifacts to Jumpbox](#artifacts-jumpbox).</td>
       </tr>
     </table>
+    <br>
 
     For example:
     <pre class="terminal">
-    $ BOSH_CLIENT_SECRET=p455w0rd \
+    $ BOSH\_CLIENT\_SECRET=p455w0rd \
     nohup bbr deployment \
     --target bosh.example.com \
     --username admin \
-    --deployment cf-acceptance-0 \
+    --deployment service-instance\_3839394 \
     --ca-cert bosh.ca.cert \
     restore \
     --artifact-path deployment-backup
@@ -581,7 +575,7 @@ If you must cancel a restore, perform the following steps:
 
 ## <a id="manual-clean"></a>Clean up After Failed Restore
 
-If your Director or Control Plane or PKS Cluster restore process fails, then the process may leave the BBR restore folder on the target instance.
+If your Director, Control Plane or PKS Cluster restore process fails, then the process may leave the BBR restore folder on the target instance.
 As a result, any subsequent restore attempts may also fail. In addition, BBR may not have run the post-restore scripts, which can leave the instance in a locked state.
 
 ### <a id="manual-clean-director"></a>Clean up after Failed Director Restore
