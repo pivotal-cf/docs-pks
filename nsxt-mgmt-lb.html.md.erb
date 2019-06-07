@@ -9,19 +9,23 @@ This topic describes how to deploy a load balancer for the NSX-T Management Clus
 
 <p class="note"><strong>Note:</strong> The instructions provided in this topic are for NSX-T v2.4.</p>
 
-##<a id='about'></a> About the NSX Management Cluster
+##<a id='about'></a> About the NSX-T Management Cluster
 
-NSX-T v2.4 introduces a converged management and control plane that is referred to as the **NSX-T Managment Cluster**. The new deployment model delivers high hvailability of the NSX Manager UI and API, reduces the likelihood of operation failures of NSX-T, and provides API and UI clients with multiple endpoints or single VIP for high availability.
+This section describes the NSX-T Management Cluster and the external load balancer for use with <%= vars.product_short %>. 
 
-In addition to high availability, the NSX Management Cluster allows for increased processing capability and fair distribution of API load among multiple instances of management nodes. To make use of such capability, the NSX Management Cluster can be fronted by a load balancer that distributes the load among the node members of the management cluster.
+###<a id='overview'></a> Overview
 
-The diagram below shows the NSX Management Cluster using a virtual IP and a load balancer fronting the management nodes.
+NSX-T v2.4 introduces a converged management and control plane that is referred to as the **NSX-T Management Cluster**. The new deployment model delivers high availability of the NSX-T Manager node, reduces the likelihood of operation failures of NSX-T, and provides API and UI clients with multiple endpoints or a single VIP for high availability.
 
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-03d.png" alt="NSX Managment Cluster with Load Balancer" width="725">
+While using a VIP to access the NSX-T Management layer provides high-availability, it does not balance the workload. To avoid overloading a single NSX-T Manager, as may be the case when [HA VIP addressing](https://docs.vmware.com/en/VMware-Validated-Design/5.0.1/com.vmware.vvd.sddc-nsxt-domain-deploy.doc/GUID-B7019BCE-4FA1-40BB-8DC2-EE47967A47F1.html?hWord=N4IghgNiBcIGoEkAKIC+Q) is used, an NSX-T load balancer can be provisioned to allow NCP and other components orchestrated by <%= vars.product_short %> to distribute load efficiently among NSX Manager nodes.
 
-Using a NSX Management Cluster with VIP gives you high-availability. The VIP attaches to one of the NSX Manager hosts. If that host goes down, the VIP attaches to another NSX Manager host in the management cluster. Using a load balancer is for high-scale, multi-cluster environments where you need additional capacity. With a load balancer, the load is fairly distributed across all hosts in the management cluster, giving you three times the capacity.
+The diagram below shows an external load balancer fronting the NSX Manager nodes. The load balancer is deployed within the NSX-T environment and intercepts requests to the NSX-T Management Cluster. The load balancer selects one of the NSX-T Manager nodes to handle the request and rewrites the destination IP address to reflect the selection.
 
-###<a id='interactions'></a> Component Interaction with the NSX Management Cluster
+  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-03e.png" alt="NSX Managment Cluster with Load Balancer" width="725">
+
+<p class="note"><strong>Note:</strong> The load balancer VIP load balances traffic to all NSX-T Manager instances in round robin fashion. A Cluster HA VIP, on the other hand, only sends traffic one of the NSX-T Manager instances that is mapped to the Cluster IP VIP; the other NSX-T manager instances do not receive any traffic.</p>
+
+###<a id='interactions'></a> Component Interaction with the NSX-T Management Cluster
 
 Various components in an <%= vars.product_short %> deployment interact with the NSX Management Cluster.
 
@@ -36,31 +40,31 @@ Kubernetes Cluster components:
 - BOSH jobs running on Kubernetes master nodes to prepare and update Kubernetes clusters
 - NSX-T Container Plugin (NCP)
 
-The interaction of the PKS Control Plane components and the BOSH jobs with the NSX-T Management Cluster is sporadic. However, the NCP component may demand a high level of scalability for the NSX-T API processing capability of the NSX Management Cluster, and NCP is vital to the networking needs of each Kubernetes cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX-T API processing to its limits.
+The interaction of the PKS Control Plane components and the BOSH jobs with the NSX-T Management Cluster is sporadic. However, the NCP component may demand a high level of scalability for the NSX-T API processing capability of the NSX Management Cluster, and NCP is vital to the networking needs of each Kubernetes cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Kubernetes Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX-T API processing to its limits.
 
-###<a id='provisioning'></a> Load Balancer Provisioning for the NSX Management Cluster
+###<a id='provisioning'></a> Load Balancer Provisioning for the NSX-T Management Cluster
 
-While using a VIP to access the NSX-T Manager provides high-availability, it does not balance the load. To avoid overloading a single NSX-T Manager, as may be the case when HA VIP addressing is used, an NSX-T load balancer can be provisioned to allow NCP and other components orchestrated by PKS to distribute load efficiently among NSX Management Cluster nodes.
+For scalability, consider deploying a load balancer in front of the NSX-T Manager nodes. As a general rule of thumb, if you are using <%= vars.product_short %> with NSX-T to deploy more than 25 Kubernetes clusters, you should use a load balancer in front of the NSX-T Management Cluster. 
 
-The standard NSX-T topology for <%= vars.product_short %>--Tier-0 Router, Managment Cluster with Nodes, Edge Cluster with Nodes--can be enhanced to include a load balancer for the management layer. A virtual server is configured on the load balancer, and a virtual IP address is associated with the virtual server. This VIP can be used as the entry-point for PKS- and NCP-related API requests on the NSX-T Control Plane. The virtual server includes a member pool where all NSX-T Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX-T Management Cluster.
+<p class="note"><strong>Note:</strong> If you do not require scalability, you can configure a Cluster VIP to achieve HA for the NSX-T Management Cluster. See <a href="https://docs.vmware.com/en/VMware-Validated-Design/5.0.1/com.vmware.vvd.sddc-nsxt-domain-deploy.doc/GUID-B7019BCE-4FA1-40BB-8DC2-EE47967A47F1.html?hWord=N4IghgNiBcIGoEkAKIC+Q">HA VIP addressing</a>.</p>
 
-The new Load Balancer, deployed within the NSX-T environment, intercepts requests to the NSX-T Management Cluster. The virtual server selects one of the NSX-T Manager nodes to handle the request, rewrite the destination IP address to reflect the selection, and SNAT-translate the packet to a new Virtual IP Address.
+For general purposes, a small NSX-T load balancer is sufficient. However, refer to the [Scaling Load Balancer Resources](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html) to ensure that the load balancer you choose is sufficient to meet your needs.
 
-The diagram below depicts a standard NSX-T topology for <%= vars.product_short %> with a Tier-1 Router and load balancer for the NSX Management Cluster.
-
-  <img src="images/nsxt/mgmt-cluster/mgmt-cluster-02.png" alt="NSX Managment Cluster with Load Balancer" width="725">
+When provisioning the load balancer, you configure a virtual server on the load balancer, and associate a virtual IP address with the virtual server. This load balancer VIP can be used as the entry-point for PKS- and NCP-related API requests on the NSX-T Control Plane. The virtual server includes a member pool where all NSX-T Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX-T Management Cluster.
 
 ##<a id='prereqs'></a> Prerequisites for Provisioning a Load Balancer for the NSX-T Management Cluster
 
 Before you provision a load balancer for the NSX-T Management Cluster, ensure that your environment is configured as follows: 
 
-- NSX-T 2.4 is installed and configured for servicing an Enterprise PKS environment. See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
+- NSX-T 2.4 is installed and configured for servicing <%= vars.product_short %>. See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
 - Transport zone, transport node, Edge Cluster, Edge Node connectivity, and Tier-0 Router are deployed and operational with proper static routes or BGP. See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
-- Enough Edge Cluster resources to deploy a new small-size load balancer VM. 
-- A dedicated IP Address is available to be used as VIP and SNAT IP address for the new load balancer. The IP address needs to be globally routable from networks external to NSX-T. This IP address can be carved out from the standard IP Pool required by PKS.
-- A NSX-T Management Cluster with 3 nodes is provisioned with HA VIP (NSX-T Manager VIP). See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
-- A new NSX-T Manager CA certificate has been generated using the HA VIP address. Make sure the CA cert generated includes the pre-allocated IP Address mentioned above as part of the alt_names section of the certificate configuration (see image below). See <a href="./generate-nsx-ca-cert-24.html">Generating and Registering the NSX Manager Cluster Certificate for Enterprise PKS (NSX-T v2.4)</a>.
-- The new certificate is registered with NSX-T using the Cluster Certificate API. See <a href="./generate-nsx-ca-cert-24.html">Generating and Registering the NSX Manager Cluster Certificate for Enterprise PKS (NSX-T v2.4)</a>.
+- A NSX-T Management Cluster with 3 NSX Manager nodes is provisioned. See <a href="./nsxt-deploy-24.html#install-nsxt-24">Installing PKS v1.4 with NSX-T v2.4</a>.
+- Your NSX-T environment has enough Edge Cluster resources to deploy a new small-size load balancer VM. 
+- A dedicated IP Address is available to be used as the VIP and SNAT IP address for the new load balancer. The load balancer VIP address must be globally routable from networks external to NSX-T. This IP address can be carved out from the standard IP Pool required by <%= vars.product_short %> PKS.
+
+SNAT-translate the packet to a new Virtual IP Address
+
+See <a href="./generate-nsx-ca-cert-24.html">Generating and Registering the NSX Manager Cluster Certificate for Enterprise PKS (NSX-T v2.4)</a>.
 
 ##<a id='provision'></a> Provision the NSX-T Load Balancer for the Management Cluster
 
@@ -374,29 +378,13 @@ Residual configuration step would be to change PKS Tile configuration for NSX-Ma
 
 Generate a new NSX-T Manager CA certificate using the external NSX-T LB VS IP.
 
-###<a id='g1'></a> Step 1: Create the Certificate Signing Request (CSF) file named `nsx-crt.cnf`.
+###<a id='g1'></a> Step 1: Create the Certificate Signing Request (CSR) file named `nsx-crt.cnf`.
 
-Using the VIP as the `commonName`:
+There are various configurations for the CSR. Listed below are exampales for each.
 
-```
-[ req ]
-default_bits = 2048
-distinguished_name = req_distinguished_name
-req_extensions = req_ext
-prompt = no
-[ req_distinguished_name ]
-countryName = US
-stateOrProvinceName = California
-localityName = CA
-organizationName = NSX
-commonName = 10.40.14.250
-[ req_ext ]
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = 10.40.14.250
-```
+####<a id='fqdn'></a> Using a fully-qualified domain name (FQDN)
 
-Or, using an FQDN:
+Using a fully-qualified domain name (FQDN), the `commonName` is a wildcard FQDN (`*.pks.vmware.local`, for example) and the `subjectAltName` (SAN) includes the same wildcard FQDN (`*.pks.vmware.local`, for example) and the load balancer VIP (`192.168.160.100`, for example).
 
 ```
 [ req ]
@@ -409,23 +397,55 @@ countryName = US
 stateOrProvinceName = California
 localityName = CA
 organizationName = NSX
-commonName = 192.168.111.150
+commonName = *.pks.vmware.local
 [ v3_req ]
 subjectAltName = @alt_names
 [alt_names]
+DNS.1 = *.pks.vmware.local
+DNS.2  = 192.168.160.100
+```
+
+####<a id='chavip'></a> Using the Cluster HA VIP as the `commonName`
+
+If you have previously configured the [Cluster HA VIP](https://docs.vmware.com/en/VMware-Validated-Design/5.0.1/com.vmware.vvd.sddc-nsxt-domain-deploy.doc/GUID-B7019BCE-4FA1-40BB-8DC2-EE47967A47F1.html?hWord=N4IghgNiBcIGoEkAKIC+Q), an alternative approach is to use the Cluster HA VIP as the `commonName` (`10.196.188.27`, for example), and the `subjectAltName` (SAN) includes the load balancer VIP (`192.168.160.100`, for example) and all 3 of the NSX Manager IP addresses.
+
+```
+[ req ]
+default_bits = 2048
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+prompt = no
+[ req_distinguished_name ]
+countryName = US
+stateOrProvinceName = California
+localityName = CA
+organizationName = NSX
+commonName = 10.196.188.27
+[ req_ext ]
+subjectAltName = @alt_names
+[alt_names]
 DNS.1 = 192.168.160.100
-DNS.2 = *.pks.vmware.local
-IP.1  = 192.168.160.100
+DNS.1 = 10.196.188.21
+DNS.1 = 10.196.188.22
+DNS.1 = 10.196.188.23
 ```
 
 ###<a id='g2'></a> Step 2: Generate the certificate and private key.
 
+Define environment variables for the NSX_MANAGER_IP_ADDRESS and the NSX_MANAGER_COMMONNAME.
+
 For example:
 
 ```
-export NSX_MANAGER_IP_ADDRESS=10.40.14.250
-export NSX_MANAGER_COMMONNAME=10.40.14.250
+export NSX_MANAGER_IP_ADDRESS=*.pks.vmware.local
+export NSX_MANAGER_COMMONNAME=*.pks.vmware.local
 ```
+
+Where:
+- NSX_MANAGER_IP_ADDRESS is a wildcard FQDN (`*.pks.vmware.local`, for example) or all three of the NSX-T Manager IP addresses. 
+- NSX_MANAGER_COMMONNAME is a wildcard FQDN or the Cluster VIP address. 
+
+Run the following command to generate the certificate and priate key:
 
 ```
 openssl req -newkey rsa:2048 -x509 -nodes -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 365
