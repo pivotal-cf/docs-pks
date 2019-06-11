@@ -13,8 +13,8 @@ You can re-create your environment, configured with your saved <%= vars.product_
 Use BBR to restore the following:  
 
 * The BOSH Director plane, see [Restore the BOSH Director](#redeploy-restore-director).  
-* The <%= vars.product_short %> control plane, see [Restore PKS Control Plane](#redeploy-restore-control-plane).  
-* The <%= vars.product_short %> Clusters, see [Restore PKS Clusters](#redeploy-restore-clusters).  
+* The <%= vars.product_short %> control plane, see [Restore <%= vars.product_short %> Control Plane](#redeploy-restore-control-plane).  
+* The <%= vars.product_short %> Clusters, see [Restore <%= vars.product_short %> Clusters](#redeploy-restore-clusters).  
 
 ## <a id="compatibility"></a> Compatibility of Restore  
 
@@ -41,7 +41,7 @@ The steps for preparing to restore a BBR backup are the same as the BBR back up 
 <%= partial 'preparing-for-bbr' %>  
 <p>
 </p>
-### <a id="artifacts-jumpbox"></a> Transfer Artifacts to Jumpbox
+### <a id="artifacts-jumpbox"></a> Transfer Artifacts to Your Jumpbox
 
 To restore BOSH director, <%= vars.product_short %> control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jumpbox.
 
@@ -278,7 +278,7 @@ To determine which disks remain and require removal, perform one of the followin
 To delete the remaining disks, perform the following procedure:
 XXXXXX
 
-## <a id='redeploy-restore-control-plane'></a> Restore the PKS Control Plane
+## <a id='redeploy-restore-control-plane'></a> Restore the <%= vars.product_short %> Control Plane
 
 You must redeploy the <%= vars.product_short %> tile before restoring the <%= vars.product_short %> control plane. 
 By redeploying the <%= vars.product_short %> tile you create the VMs that constitute the control plane deployment.
@@ -405,9 +405,9 @@ To restore the <%= vars.product_short %> control plane perform the following ste
 </p>
 
 
-## <a id='redeploy-restore-clusters'></a> Restore PKS Clusters
-
-If you have PKS clusters provisioned by the <%= vars.product_short %> Control Plane, perform the following steps to restore them after successfully restoring the Control Plane.
+## <a id='redeploy-restore-clusters'></a> Restore <%= vars.product_short %> Clusters
+After successfully restoring the <%= vars.product_short %> Control Plane, perform the following steps to 
+restore the <%= vars.product_short %> clusters provisioned by the control plane.
 
 ### <a id='redeploy-clusters'></a> Redeploy PKS Clusters
 
@@ -501,100 +501,92 @@ If you must cancel a restore, perform the following steps:
 1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
 1. Perform the procedures in the [Clean up After Failed Restore](#manual-clean) section to enable future restores. Stopping a restore can leave the system in an unusable state and prevent future restores.
 
-## <a id="manual-clean"></a>Clean up After Failed Restore
+## <a id="manual-clean"></a>Clean Up After a Failed Restore
 
-If your Director, Control Plane or PKS Cluster restore process fails, then the process may leave the BBR restore folder on the target instance.
-As a result, any subsequent restore attempts may also fail. In addition, BBR may not have run the post-restore scripts, which can leave the instance in a locked state.
+If a BBR restore process fails, BBR may not have run the post-restore scripts, potentially leaving the instance in a locked state. 
+Additionally, the BBR restore folder may remain on the target instance and subsequent restore attempts may also fail.  
 
-### <a id="manual-clean-director"></a>Clean up after Failed Director Restore
+* To resolve issues following a failed BOSH Director restore, run the following BBR command:
 
-To resolve these issues with a failed BOSH Director restore, run the BBR cleanup script with the following command:
+    ```
+    nohup bbr director \
+    --host BOSH-DIRECTOR-IP \
+    --username bbr \
+    --private-key-path PRIVATE-KEY-FILE \
+    restore-cleanup
+    ```
 
-  ```
-  nohup bbr director \
-  --host BOSH-DIRECTOR-IP \
-  --username bbr \
-  --private-key-path PRIVATE-KEY-FILE \
-  restore-cleanup
-  ```
+    Where:  
+    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, 
+    BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` 
+    which you can retrieve as show in [Retrieve the BOSH Director Address](bbr-backup.html#bosh-address).  
+    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` 
+    as shown in [Download the BBR SSH Credentials](bbr-backup.html#bbr-ssh-creds).  
+    For example:
+    <pre class="terminal">
+    $ nohup bbr director \
+    --target 10.0.0.5 \
+    --username bbr \
+    --private-key-path private.pem \
+    restore-cleanup
+    </pre>
 
-  Replace the placeholder values as follows:
-  <table>
-    <tr>
-      <th width="32%">Credential</th>
-      <th>Location</th>
-    </tr>
-    <tr>
-      <td><code>BOSH-DIRECTOR-IP</code></td>
-      <td>This is the address of the BOSH Director. If the BOSH Director is public, BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`.
-      Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` which you can retrieve as show in [Retrieve the BOSH Director Address](bbr-backup.html#bosh-address).</td>
-    </tr>
-    <tr>
-      <td><code>PRIVATE-KEY-FILE</code></td>
-      <td>This is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in [Download the BBR SSH Credentials](bbr-backup.html#bbr-ssh-creds).</td>
-    </tr>
-  </table>
-<br>
-  For example:
+* To resolve issues following a failed control plane restore, run the following BBR command:
 
-  <pre class="terminal">
-  $ nohup bbr director \
-  --target 10.0.0.5 \
-  --username bbr \
-  --private-key-path private.pem \
-  restore-cleanup
-  </pre>
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    bbr deployment \
+    --target BOSH-TARGET \
+    --username BOSH-CLIENT \
+    --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-CA-CERT \
+    restore-cleanup
+    ```
 
-### <a id="manual-clean-control-plane"></a>Clean up after Failed Control Plane or Cluster Restore
+    Where:
+    * `BOSH-CLIENT-SECRET` is the value for `BOSH\_CLIENT\_SECRET` retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).  
+    * `BOSH-TARGET` is the value for `BOSH\_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).  
+        You must be able to reach the target address from the workstation where you run `bbr` commands.  
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).  
+    * `DEPLOYMENT-NAME` is the name retrieved in [Locate the Enterprise PKS Deployment Name](bbr-backup.html#locate-deploy-name).   
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](bbr-backup.html#root-ca-cert).  
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment pivotal-container-service-453f2f \
+    --ca-cert bosh.ca.crt \
+    restore-cleanup
+    </pre>
 
-To resolve these issues with a failed Control Plane restore, run the BBR cleanup script with the following command:
+* To resolve issues following a failed cluster restore, run the following BBR command:
 
-```
-BOSH-CLIENT-SECRET=BOSH-CLIENT-SECRET \
-bbr deployment \
---target BOSH-TARGET \
---username BOSH-CLIENT \
---deployment DEPLOYMENT-NAME \
---ca-cert PATH-TO-BOSH-CA-CERT \
-restore-cleanup
-```
-Replace the placeholder values as follows:
-<table>
-  <tr>
-    <th width="32%">Credential</th>
-    <th>Location</th>
-  </tr>
-  <tr>
-    <td><code>BOSH-CLIENT-SECRET</code></td>
-    <td>Record the value for <code>BOSH\_CLIENT\_SECRET</code> retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).</td>
-  </tr>
-  <tr>
-    <td><code>BOSH-TARGET</code></td>
-    <td>Record the value for <code>BOSH\_ENVIRONMENT</code> retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).
-    You must be able to reach the target address from the workstation where you run <code>bbr</code> commands.</td>
-  </tr>
-  <tr>
-    <td><code>BOSH-CLIENT</code></td>
-    <td>Record the value for <code>BOSH_CLIENT</code> retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).</td>
-  </tr>
-  <tr>
-    <td><code>DEPLOYMENT-NAME</code></td>
-    <td> For the Control Plane, use the name retrieved in [Locate the Enterprise PKS Deployment Name](bbr-backup.html#locate-deploy-name). For a Cluster use the BOSH deployment name that you retrieved in the [Prerequisites](bbr-backup.html#prereqs) section.</td>
-  </tr>
-  <tr>
-    <td><code>PATH-TO-BOSH-CA-CERT</code></td>
-    <td>Use the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](bbr-backup.html#root-ca-cert).</td>
-  </tr>
-</table>
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    bbr deployment \
+    --target BOSH-TARGET \
+    --username BOSH-CLIENT \
+    --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-CA-CERT \
+    restore-cleanup
+    ```
 
-For example:
-
-<pre class="terminal">
-$ BOSH_CLIENT_SECRET=p455w0rd \
-bbr deployment \
---target bosh.example.com \
---username admin \
---deployment pivotal-container-service-453f2f \
---ca-cert bosh.ca.crt \
-restore-cleanup
-</pre>
+    Where:
+    * `BOSH-CLIENT-SECRET` is the value for `BOSH\_CLIENT\_SECRET` retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).  
+    * `BOSH-TARGET` is the value for `BOSH\_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).  
+        You must be able to reach the target address from the workstation where you run `bbr` commands.  
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).  
+    * `DEPLOYMENT-NAME` is the BOSH deployment name that you retrieved in the [Prerequisites](bbr-backup.html#prereqs) section.  
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](bbr-backup.html#root-ca-cert).  
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment pivotal-container-service-453f2f \
+    --ca-cert bosh.ca.crt \
+    restore-cleanup
+    </pre>
