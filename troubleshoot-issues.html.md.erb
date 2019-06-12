@@ -299,22 +299,68 @@ For more information on monitoring the **Upgrade all clusters errand** using the
 **Explanation**
 
 During the <%= vars.product_tile %> tile upgrade process, worker nodes are cordoned and drained. This drain is dependent on Kubernetes being able to unschedule all pods. If Kubernetes is unable to unschedule a pod, then the drain hangs indefinitely.
-One reason why Kubernetes may be unable to unschedule the node is if the `PodDisruptionBudget` object has been configured in a way that allows 0 disruptions and only a single instance of the pod has been scheduled.
+Kubernetes might be unable to unschedule the node if the `PodDisruptionBudget` object has been configured to permit zero disruptions and only a single instance of the pod has been scheduled.
 
-In your spec file, the `.spec.replicas` configuration sets the total amount of replicas that are available in your application.
-`PodDisruptionBudget` objects can specifies the amount of replicas, proportional to that total, that must be available in your application, regardless of downtime. Operators can configure `PodDisruptionBudget` objects for each application using their spec file.
+In your spec file, the `.spec.replicas` configuration sets the total amount of replicas that are available in your app.
+`PodDisruptionBudget` objects specify the amount of replicas, proportional to the total, that must be available in your app, regardless of downtime. Operators can configure `PodDisruptionBudget` objects for each app using their spec file.
 
-Some apps deployed using Helm-Charts may have a default `PodDisruptionBudget` set.
+Some apps deployed using Helm charts might have a default `PodDisruptionBudget` set.
 For more information on configuring `PodDisruptionBudget` objects using a spec file, see [Specifying a PodDisruptionBudget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) in the Kubernetes documentation.
+
+If `.spec.replicas` is configured correctly, you can also configure the default node drain behavior to resolve this issue. 
 
 **Solution**
 
-Configure `.spec.replicas` to be greater than the `PodDisruptionBudget` object.
+To resolve this issue, do one of the following: 
 
-When the number of replicas configured in `.spec.replicas` is greater than the number of replicas set in the `PodDisruptionBudget` object, disruptions can occur.
-
-For more information, see [How Disruption Budgets Work](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work) in the Kubernetes documentation.
-For more information about workload capacity and uptime requirements in <%= vars.product_short %>, see [Prepare to Upgrade](upgrade-pks.html#prepare) in _Upgrading <%= vars.product_short %>_.
++ Configure `.spec.replicas` to be greater than the `PodDisruptionBudget` object.<br><br>
+    When the number of replicas configured in `.spec.replicas` is greater than the number of replicas set in the `PodDisruptionBudget` object, disruptions can occur.
+    <br><br>
+    For more information, see [How Disruption Budgets Work](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work) in the Kubernetes documentation.<br>
+    For more information about workload capacity and uptime requirements in <%= vars.product_short %>, see [Prepare to Upgrade](upgrade-pks.html#prepare) in _Upgrading <%= vars.product_short %>_.
+  
++ Configure the default node drain behavior by doing the following:
+    1. Navigate to **Ops Manager Installation** > **<%= vars.product_tile %>** > **Plans**.
+    1. Set the default node drain behavior by configuring the following fields:
+      <table class="nice">
+          <tr>
+            <th>Field</th>
+            <th>Instructions</th>
+          </tr>
+          
+          <tr>
+            <td><strong>Node Drain Timeout</strong></td>
+            <td> Enter a timeout in minutes for a node to attempt to drain pods. For example, if you want the timeout to be two minutes, enter `2`. You must enter a valid integer between 0 and 1440. If you set this value to 0, the node drain does not timeout.</td>
+          </tr>
+          
+          <tr>
+            <td><strong>Pod Shutdown Grace</strong></td>
+            <td>Enter a timeout in seconds for a node to wait before the node forces the pod to terminate. You must enter a valid integer between -1 and 86400. If you set this value to `-1`, the timeout is set to the default timeout specified by the pod.</td>
+          </tr>
+          
+          <tr>
+            <td><strong>Force node to drain even if it has running pods not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet.</strong></td>
+            <td>If you enable this configuration, the node drains when pods are not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet.</td>
+          </tr>
+          
+          <tr>
+            <td><strong>Force node to drain even if it has running DaemonSet-managed pods.</strong></td>
+            <td>If you enable this configuration, the node drains when pods are managed by a DeamonSet.</td>
+          </tr>
+          
+          <tr>
+            <td><strong>Force node to drain even if it has running running pods using emptyDir.</strong></td>
+            <td>If you enable this configuration, the node drains when pods are using a emptyDir volume.</td>
+          </tr>
+          
+          <tr>
+            <td><strong>Force node to drain even if pods are still running after timeout.</strong></td>
+            <td>If you enable this configuration, if during the timeout, pods fail to drain on the worker node, the node forces running pods to terminate and upgrade or scale continues.</td>
+          </tr>
+        </table>
+        
+        <p class="note warning"><strong>Warning:</strong> Pivotal recommends using caution when enabling <strong>Force node to drain even if pods are still running after timeout</strong>. If you do not want to kill running workloads, do not enable this configuration.</p>
+    3. Navigate to **Ops Manager Installation Dashboard** > **Review Pending Changes**, enable **Upgrade all clusters errand**, and **Apply Changes**
 
 ##<a id='kubeconfig-token-expire'></a>Cannot Authenticate to an OpenID Connect-Enabled Cluster
 
