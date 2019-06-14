@@ -8,8 +8,10 @@ To configure the UAA server, do the following:
 1. Under **PKS Cluster Refresh Token Lifetime**, enter a time in seconds for the cluster refresh token lifetime. This field defaults to `21600`.
 1. Select one of the following options:
   * To use an internal user account store for UAA, select **Internal UAA**. Click **Save** and continue to [(Optional) Monitoring](#monitoring).
-  * To use an external user account store for UAA, select **LDAP Server** and continue to [Configure LDAP as an Identity Provider](#configure-ldap).
+  * To use LDAP for UAA, select **LDAP Server** and continue to [Configure LDAP as an Identity Provider](#configure-ldap).
   <p class="note"><strong>Note</strong>: Selecting <strong>LDAP Server</strong> allows admin users to give cluster access to groups of users. For more information about performing this procedure, see <a href="manage-users.html#cluster-access-group">Grant Cluster Access to a Group</a> in <em>Managing Users in <%= vars.product_short %> with UAA</em>.</p>
+  * To use SAML for UAA, select **SAML Identity Provider** and continue to [Configure SAML as an Identity
+  Provider](#configure-saml).
 
 #### <a id="configure-ldap"></a>Configure LDAP as an Identity Provider
 
@@ -80,7 +82,49 @@ UAA can follow the external referrals, ignore them without returning errors, or 
 
 1. Click **Save**.
 
-#### <a id="configure-oidc"></a>Configure OpenID Connect
+#### <a id="configure-saml"></a>Configure SAML as an Identity Provider
+
+To integrate UAA with a SAML identity provider, configure <%= vars.product_short %>, by doing the following:
+
+1. Under **UAA**, select **SAML Identity Provider**.
+
+![SAML Fields 1](saml1.png)
+
+1. For **Provider Name**, enter a unique name you create for the Identity Provider. This name can include only alphanumeric characters, +, _, and -. You must not change this name after deployment because all external users use it to link to the provider.
+
+1. For **Display Name**, enter your provider display name. This display name appears as a link on your Pivotal login page, which you can access at `https://login.YOUR-SYSTEM-DOMAIN`. 
+
+1. Retrieve the metadata from your Identity Provider and copy it into either the **Provider Metadata** or the **Provider Metadata URL** fields, depending on whether your Identity Provider exposes a Metadata URL or not.  You can do this in either of the following ways:
+    * If your Identity Provider exposes a Metadata URL, provide the Metadata URL.
+    * Download your Identity Provider metadata and paste this XML into the **Provider Metadata** area.
+    
+    Pivotal recommends that you use the Provider Metadata URL rather than Provider Metadata because the metadata can change.
+    <p class='note'><strong>Note:</strong> You only need to select one of the above configurations. If you configure both, your Identity Provider defaults to the <strong>(OR) Provider Metadata URL</strong>.</p>
+    <%# <p class="note"><strong>Note:</strong> See <a href="../opsguide/external-user-management.html">Adding Existing SAML or LDAP Users to a PCF Deployment</a> for information about on-boarding SAML users and mapping them to PAS user roles.</p> 
+    Refer to the [Configure SAML as an Identity Provider](http://docs-pcf-staging.cfapps.io//pivotalcf/2-6/opsguide/auth-sso.html#configure-saml-for-pcf) for PAS section of this topic for more information. %>
+1. For **Name ID Format**, select the name identifier format for your SAML Identity Provider. This translates to `username` on Pivotal Cloud Foundry. The default is `Email Address`.
+
+    ![SAML Fields 2](saml2.png)
+
+1. For **Email Domain(s)**, enter a comma-separated list of the email domains for external users you want 
+to invite to Apps Manager. 
+
+1. For **First Name Attribute** and **Last Name Attribute**, enter the attribute names in your SAML database that correspond to the first and last names in each user record, for example, `first_name` and `last_name`. This field is case sensitive. 
+
+1. For **Email Attribute**, enter the attribute name in your SAML assertion that corresponds to the email address in each user record, for example, `EmailID`. This field is case sensitive. 
+
+1. For **External Groups Attribute**, enter the attribute name in your SAML database that defines the groups that a user belongs to, for example `group_memberships`. This field is case sensitive. 
+
+<%# To map the groups from the SAML assertion to admin roles in PAS, follow the instructions in the [Grant Admin Permissions to an External Group (SAML or LDAP)](../uaa/uaa-user-management.html#external-group) section of the _Creating and Managing Users with the UAA CLI (UAAC)_ topic. %>
+
+1. By default, all SAML Authentication Request from  <%= vars.product_short %> are signed. To change this, disable  **Sign Authentication Requests** and configure your Identity Provider to verify SAML authentication requests.
+
+1. To validate the signature for the incoming SAML assertions, enable **Required Signed Assertions** 
+and configure your Identity Provider to send signed SAML assertions.
+
+1. Click **Save**.
+
+#### <a id="configure-oidc"></a>(Optional) Configure OpenID Connect
 
 You can use OpenID Connect (OIDC) to instruct Kubernetes to verify end-user identities based on authentication executed by a UAA authorization server. If you enable OIDC, UAA admin users can grant cluster-wide access to Kubernetes end users. 
 
