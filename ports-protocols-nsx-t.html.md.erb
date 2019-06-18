@@ -7,86 +7,37 @@ owner: PKS
 
 This topic describes the firewall ports and protocols requirements for using Pivotal Container Service (PKS) on vSphere with NSX-T integration.
 
-In environments with strict inter-network access control policies, firewalls often require conduits to pass communication between system components on a different network or allow interfacing with external systems such as with enterprise applications or the public Internet. 
+Firewalls and security policies are used to filter traffic and limit access in environments with strict inter-network access control policies.  
 
-For PKS, we recommend that you disable security policies that filter traffic between the networks
-supporting the system. When that is not an option, refer to the following table, which identifies
-the flows between system components in a typical PKS deployment.
+Applications frequently require the ability to pass internal communication between system components on 
+different networks and require one or more conduits through the environment's firewalls. 
+Firewall conduits are also required to allow interfacing with external systems such as with 
+enterprise applications or applications and data on the public Internet.  
 
-<p class="note"><strong>Note</strong>: You must set the communication path in your firewall settings to accomodate how you elect to control what groups have access to deploy and scale PKS-deployed Kubernetes clusters in your organization. In this case, mirror the settings on the lines below for the Operator –> PKS API server.</p>
+For <%= vars.product_short %>, we recommend that you disable security policies that filter traffic between 
+the networks supporting the system. With <%= vars.product_short %> you should use one of the following methods to 
+secure the environment and grant access between system components: 
 
-| Source Component | Destination Component | Destination Protocol | Destination Port | Service |
-| --- | --- | --- | --- | --- |
-| Application User | NSX-T Load Balancers | TCP/UDP | varies | varies |
-| Application User | NSX-T Ingress Controllers | TCP/UDP | varies | varies |
-| Cloud Foundry BOSH Director | Domain Name Server | UDP | 53 | dns |
-| Cloud Foundry BOSH Director | vCenter Server | TCP | 443 | https |
-| Cloud Foundry BOSH Director | vSphere ESXI Mgmt. vmknic | TCP | 443 | https |
-| Compilation Job VMs | Domain Name Server | UDP | 53 | dns |
-| Developer | Harbor Private Image Registry | TCP | 4443 | notary |
-| Developer | Harbor Private Image Registry | TCP | 443 | https |
-| Developer | Harbor Private Image Registry | TCP | 80 | http |
-| Developer | K8s Cluster Master/Etcd Nodes | TCP | 8443 | uaa auth |
-| Developer | NSX-T Load Balancers | TCP/UDP | varies | varies |
-| Developer | NSX-T Ingress Controllers | TCP/UDP | varies | varies |
-| Domain Name Server | vCenter Server | UDP | 1433 | ms-sql-server |
-| Harbor Private Image Registry | Domain Name Server | UDP | 53 | dns |
-| Harbor Private Image Registry | Public CVE Source Database | TCP | 443 | https |
-| Harbor Private Image Registry | Public CVE Source Database | TCP | 80 | http |
-| K8s Cluster Master/Etcd Nodes | Cloud Foundry BOSH Director | TCP | 4222 | bosh nats server |
-| K8s Cluster Master/Etcd Nodes | Cloud Foundry BOSH Director | TCP | 25250 | bosh blobstore |
-| K8s Cluster Master/Etcd Nodes | Domain Name Server | UDP | 53 | dns |
-| K8s Cluster Master/Etcd Nodes | NSX Manager Server | TCP | 443 | https |
-| K8s Cluster Master/Etcd Nodes | vCenter Server | TCP | 443 | https |
-| K8s Cluster Worker Nodes | Cloud Foundry BOSH Director | TCP | 4222 | bosh nats server |
-| K8s Cluster Worker Nodes | Cloud Foundry BOSH Director | TCP | 25250 | bosh blobstore |
-| K8s Cluster Worker Nodes | Domain Name Server | UDP | 53 | dns |
-| K8s Cluster Worker Nodes | Harbor Private Image Registry | TCP | 8853 | bosh dns health |
-| K8s Cluster Worker Nodes | Harbor Private Image Registry | TCP | 443 | https |
-| K8s Cluster Worker Nodes | NSX Manager Server | TCP | 443 | https |
-| K8s Cluster Worker Nodes | vCenter Server | TCP | 443 | https |
-| NSX Controllers | Network Time Server | UDP | 123 | ntp |
-| NSX Manager Server | SFTP Backup Server | TCP | 22 | ssh |
-| Operator | Harbor Private Image Registry | TCP | 443 | https |
-| Operator | Harbor Private Image Registry | TCP | 80 | http |
-| Operator | NSX-T Load Balancers | TCP/UDP | varies | varies |
-| Operator | NSX Manager Server | TCP | 443 | https |
-| Operator | PCF Operations Manager | TCP | 22 | ssh |
-| Operator | PCF Operations Manager | TCP | 443 | https |
-| Operator | PCF Operations Manager | TCP | 80 | http |
-| Operator | PKS API Server | TCP | 8443 | uaa auth |
-| Operator | PKS API Server | TCP | 9021 | pks api server |
-| Operator | PKS API Server | TCP | 389 | LDAP Server |
-| Operator | vCenter Server | TCP | 443 | https |
-| Operator | vCenter Server | TCP | 80 | http |
-| Operator | vSphere ESXI Mgmt. vmknic | TCP | 22 | ssh |
-| PCF Operations Manager | Domain Name Server | UDP | 53 | dns |
-| PCF Operations Manager | K8s Cluster Worker Nodes | TCP | 22 | ssh |
-| PCF Operations Manager | Network Time Server | UDP | 123 | ntp |
-| PCF Operations Manager | vCenter Server | TCP | 443 | https |
-| PCF Operations Manager | vSphere ESXI Mgmt. vmknic | TCP | 443 | https |
-| PKS API Server | Domain Name Server | UDP | 53 | dns |
-| PKS API Server | K8s Cluster Master/Etcd Nodes | TCP | 8443 | uaa auth |
-| PKS API Server | NSX Manager Server | TCP | 443 | https |
-| PKS API Server | vCenter Server | TCP | 443 | https |
-| vCenter Server | Domain Name Server | UDP | 53 | dns |
-| vCenter Server | Network Time Server | UDP | 123 | ntp |
-| vCenter Server | vSphere ESXI Mgmt. vmknic | TCP | 8080 | vsanvp |
-| vCenter Server | vSphere ESXI Mgmt. vmknic | TCP | 9080 | io filter storage |
-| vCenter Server | vSphere ESXI Mgmt. vmknic | TCP | 443 | https |
-| vCenter Server | vSphere ESXI Mgmt. vmknic | TCP | 902 | ideafarm-door |
+* Enable access to applications through standard Kubernetes load-balancers and ingress
+controller types. This allows you to designate specific ports and protocols as a firewall conduit.  
+* Enable access using the NAT function offered through NSX-T. This allows you to configure external addresses and ports 
+that are automatically mapped and resolved to internal/local addresses and ports.
 
-You have the option to expose containerized applications, running in a Kubernetes cluster, for
-external consumption through various ports and methods.
+Through these methods you are able to securely:  
 
-You can enable external access to applications by way of NSX and non-NSX load balancers and
-ingress. Enabling access to applications through standard Kubernetes load-balancers and ingress
-controller types allow for specific port and protocol designations, while the NAT function offered
-through NSX-T will allow external addresses and ports to be automatically mapped and resolved to
-internal/local addresses and ports.
+* Expose Kubernetes cluster containerized applications for external consumption through various ports and methods.  
+* Enable external access to applications by way of NSX and non-NSX load balancers and ingress.  
 
 For information on ports and protocol requirements for vSphere Without NSX-T 
 see [Firewall Ports and Protocols Requirements for vSphere Without NSX-T](ports-protocols-wo-nsx-t.html)
+
+<p class="note"><strong>Note</strong>: You must set the communication path in your firewall settings to accommodate 
+how you elect to control what groups have access to deploy and scale <%= vars.product_short %>-deployed Kubernetes 
+clusters in your organization. In this case, mirror the settings on the lines below for the Operator –> PKS API server.
+</p>
+
+If you are unable to implement your security policy using the methods described above, refer to the following table, which identifies
+the flows between system components in a typical <%= vars.product_short %> deployment.
 
 ## <a id="users"></a> <%= vars.product_short %> Ports and Protocols
 
