@@ -62,5 +62,5 @@ To use Bookbinder to view your documentation, perform the following steps:
 1. Change into the `docs-book-pks` directory.
 1. Run `bundle install` to install all of the necessary gems, including Bookbinder.
 1. Build your documentation site with `bookbinder` in one of the two following ways:
-  * Run `bundle exec bookbinder watch` to build an interactive version of the documentation and navigate to `localhost:4567/runtime/pks/1-4/index.html` in a browser. (It may take a moment for the site to load at first.) This builds a site from your content repository at `docs-content`, and then watches that repository to update the site if you make any changes to the repository.
+  * Run `bundle exec bookbinder watch` to build an interactive version of the documentation and navigate to `localhost:4567/runtimes/pks/1-5/index.html` in a browser. (It may take a moment for the site to load at first.) This builds a site from your content repository at `docs-content`, and then watches that repository to update the site if you make any changes to the repository.
   * Run `bundle exec bookbinder bind local` to build a Rack web-app of the book. After the bind has completed, `cd` into the `final_app` directory and run `rackup`. Then navigate to `localhost:9292/runtime/pks/1-4/index.html` in a browser.
