@@ -48,13 +48,13 @@ To restore BOSH director, <%= vars.product_short %> control plane or cluster you
 1. To copy an artifact onto a jumpbox, run the following SCP command:
 
     ```
-    scp LOCAL-PATH-TO-BACKUP-ARTIFACT JUMPBOX-USER/JUMPBOX-ADDRESS
+    scp -r LOCAL-PATH-TO-BACKUP-ARTIFACT JUMPBOX-USER@JUMPBOX-ADDRESS:
     ```
 
     Where:  
-    * `LOCAL-PATH-TO-BACKUP-ARTIFACT` is 
-    * `JUMPBOX-USER` is 
-    * `JUMPBOX-ADDRESS` is
+    * `LOCAL-PATH-TO-BACKUP-ARTIFACT` is the path to your bbr backup artifact.
+    * `JUMPBOX-USER` is the ssh username of the jumpbox.
+    * `JUMPBOX-ADDRESS` is the IP address (or hostname) of the jumpbox.
 
 1. (Optional) Decrypt your backup artifact if the artifact is encrypted.
 
@@ -226,56 +226,32 @@ Perform the following steps to restore the BOSH Director:
     See <a href="bbr-logging.html">BBR Logging</a> for more information.
     </p>
 
-### <a id='remove-disks'></a> Remove Unused Disks
 
-<p class="note warning"><strong>WARNING:</strong> This is a destructive operation.</p>
+### <a id='remove-stale-cloud-ids'></a> Remove Stale Cloud IDs for All Deployments
 
-Leftover disk references from the previous BOSH Director will prevent the new BOSH Director from working, so they must be cleaned up after a restore.
-You can either do this using BOSH or manually:
+Once BOSH Director is restored, we will need to reconcile its internal state with the state in the IaaS.
 
-* [Use BOSH To Clean Up Disks](#bosh-remove-disks)
-* [Manually Clean Up Disks](#manual-remove-disks)
 
-#### <a id='bosh-remove-disks'></a> Use BOSH To Clean Up Disks
-1. To clean up disk references, run the following command:
+1. Find the existing deployments
 
-    ```bash
-    bosh cloud-check
+    ```
+    BOSH-CLI-CREDENTIALS bbr deployments
     ```
 
-#### <a id='manual-remove-disks'></a> Manually Clean Up Disks
+    Where:
+    * `BOSH-CLI-CREDENTIALS` is  the full value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).
 
-If `bosh cloud-check` does not clean up all disk references, you must manually delete the remaining disks. 
-First you determine the disks that should be deleted. Then delete them.  
+1. Then, for each deployment of the previous step, run the following command to reconcile the BOSH Director's internal state with the state in the IAAS:
 
-1. To determine which disks remain and require removal, perform the following procedure:
+    ```
+    BOSH-CLI-CREDENTIALS bosh -d DEPLOYMENT-NAME -n cck \
+    --resolution delete_disk_reference \
+    --resolution delete_vm_reference
+    ```
 
-    1. Target the redeployed BOSH Director using the BOSH CLI by performing the procedures in 
-    [Retrieve the BOSH Director Address](bbr-backup.html#bosh-address).
-    1. List the deployments by running the following command:
-
-        ```
-        bosh -e BOSH-DIRECTOR-IP \
-          --ca-cert PATH-TO-BOSH-SERVER-CERTIFICATE \
-        deployments
-        ```
-    1. Document the disk id's for the incomplete `bosh cloud-check` clean up.  
-
-1. To delete the disks manually:
-    1. Log in to your IaaS account.
-    1. To retrieve a list of disk IDs, run the following command:
-
-        ```
-        bosh -e BOSH-DIRECTOR-IP \
-        --ca-cert PATH-TO-BOSH-SERVER-CERTIFICATE \
-        instances --details
-        ```
-
-        Where:
-        * `BOSH-DIRECTOR-IP` is the BOSH Director IP retrieved in [Retrieve the BOSH Director Address](bbr-backup.html#bosh-address).  
-        * `PATH-TO-BOSH-SERVER-CERTIFICATE` is the path to the Certificate Authority (CA) certificate 
-        for the BOSH Director, as retrieved in [Download the Root CA Certificate](bbr-backup.html#root-ca-cert).  
-    1. To delete disks, use your IaaS-provided DevOps Management tools to delete each disk.
+    Where:
+    * `BOSH-CLI-CREDENTIALS` is  the full value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](bbr-backup.html#bosh-cli-creds).
+    * `DEPLOYMENT-NAME` is the deployment name retrieved in the previous step.
 
 ## <a id='redeploy-restore-control-plane'></a> Restore the <%= vars.product_short %> Control Plane
 
