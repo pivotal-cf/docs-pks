@@ -7,23 +7,32 @@ owner: PKS
 
 This topic describes how to install BOSH Backup and Restore (BBR).
 
-To install BBR, you copy the `bbr` executable to a jumpbox. 
+##<a id="overview"></a> Overview
 
-Once installed on your jumpbox, you can run `bbr` commands to back up and restore your <%= vars.product_short %>
+To install BBR, first validate that your jumpbox VM is a valid BOSH backup host, then copy the BBR executable to the jumpbox. 
+
+After installing BBR, you can run `bbr` commands to back up and restore your <%= vars.product_short %>
 deployment.
 
-For more information, see [Backing up the <%= vars.product_short %> Control Plane](bbr-backup.html) and [Restoring the <%= vars.product_short %> Control Plane](bbr-restore.html).
+For more information about using BOSH Backup and Restore, see:  
+
+* To perform a backup, see [Backing up <%= vars.product_short %>](bbr-backup.html).  
+* To perform a restore of the BOSH Director, see [Restore the BOSH Director](bbr-restore.html#redeploy-restore-director).  
+* To perform a restore of the <%= vars.product_short %> Control Plane, see [Restore the <%= vars.product_short %> Control Plane](bbr-restore.html#redeploy-restore-control-plane).  
+* To perform a restore of the <%= vars.product_short %> Clusters. see [Restore <%= vars.product_short %> Clusters](bbr-restore.html#redeploy-restore-clusters). 
 
 ##<a id="prerequisites"></a> Prerequisite
 
-You must have a jumpbox before you can install BBR to the jumpbox. A jumpbox is a separate, 
-hardened server on your network that provides a controlled means of access to the VMs other 
-computers on your network.
+Using BBR requires the following:  
 
-See the [jumpbox-deployment](https://github.com/cloudfoundry/jumpbox-deployment) GitHub repository for an example jumpbox deployment.
+* A jumpbox. You must have a jumpbox before you can install BBR to the jumpbox.  
+* A bbr executable file. You must have the correct BBR executable version for your PKS installation. 
 
-To find the minimum version of BBR you need to install, 
-see the [<%= vars.product_short %> Release Notes](release-notes.html).
+A jumpbox is a separate, hardened server on your network that provides a controlled means of accessing the other VMs on your network. 
+See the [jumpbox-deployment](https://github.com/cloudfoundry/jumpbox-deployment) GitHub repository for an example jumpbox deployment.  
+
+To determine the correct version of BBR for your deployment, see the [<%= vars.product_short %> Release Notes](release-notes.html).
+To download a BBR installation file, see [BOSH Backup and Restore](https://network.pivotal.io/products/p-bosh-backup-and-restore) on the Pivotal Network.   
 
 ##<a id="jumpbox-setup"></a> Step 1: Configure Your Jumpbox
 
@@ -33,29 +42,28 @@ Configure your jumpbox to meet the following requirements:
 can use the Ops Manager VM as your jumpbox.
 * Your jumpbox must have sufficient space for the backup.
 * Your jumpbox must be in the same network as the deployed VMs because BBR connects to the VMs at their private IP addresses. BBR does not support SSH gateways.
-* BBR copies the backed-up data from the VMs to the jumpbox, so you should have minimal network latency between the VMs and the jumpbox to reduce transfer times.
+* Your jumpbox should be a host with minimal network latency to the source VMs you are configuring BBR to backup.
 
 <p class="note"><strong>Note</strong>: BBR uses SSH to orchestrate the backup of your <%= vars.product_short %> instances using port 22 by default.</p>
 
 ## <a id='scp'></a>Step 2: Transfer BBR to Your Jumpbox
 
-Perform the following steps to transfer the `bbr` binary to your jumpbox:
+Copy the `bbr` executable to a local disk then upload the executable to the jumpbox:
 
-1. Download the latest [BOSH Backup and Restore release](https://network.pivotal.io/products/p-bosh-backup-and-restore) from Pivotal Network.
+1. Download the latest [BOSH Backup and Restore release](https://network.pivotal.io/products/p-bosh-backup-and-restore) from Pivotal Network.  
+1. To add executable permissions to the `bbr` binary file, run the following command:
 
-1. To add executable permissions to the `bbr` binary file, run `chmod a+x bbr`:
-	<pre class="terminal">$ chmod a+x bbr</pre>
-
+    ```
+    chmod a+x bbr
+    ```
 1. To securely copy the `bbr` binary file to your jumpbox, run the following command:
 
     ```
-    scp LOCAL-PATH-TO-BBR/bbr JUMPBOX-USER/JUMPBOX-ADDRESS
+    scp LOCAL-PATH-TO-BBR/bbr JUMPBOX-USER@JUMPBOX-ADDRESS:
     ```
 
-    If your jumpbox has access to the internet, you can instead SSH into your jumpbox and use
-    `wget`:
-    <pre class="terminal">
-    $ ssh JUMPBOX-USER/JUMPBOX-ADDRESS -i YOUR-CERTIFICATE.pem
-    $ wget BBR-RELEASE-URL
-    $ chmod a+x bbr
-    </pre>
+    Where:  
+    * `LOCAL-PATH-TO-BBR` is the path to the `bbr` binary you downloaded from Pivotal Network.
+    * `JUMPBOX-USER` is the ssh username for connecting to the jumpbox.
+    * `JUMPBOX-ADDRESS` is the IP address, or hostname, of the jumpbox.
+
