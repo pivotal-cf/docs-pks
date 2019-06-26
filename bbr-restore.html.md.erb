@@ -1,169 +1,483 @@
 ---
-title: Restoring the PKS Control Plane
+title: Restoring PKS
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to use BOSH Backup and Restore (BBR) to restore the PKS control plane.
+This topic describes how to use BOSH Backup and Restore (BBR) to restore the BOSH Director, and the <%= vars.product_full %> Control Plane and Clusters. 
 
-To back up the PKS control plane with BBR, see [Backing up the PKS Control Plane](bbr-backup.html).
+##<a id="overview"></a> Overview
 
-## <a id="compatibility"></a> Compatibility of Restore
+In the event of a disaster, you may lose your environment's VMs, disks, and your IaaS network and load balancer resources as well. 
+You can re-create your environment, configured with your saved <%= vars.product_short %> Ops Manager Installation settings, 
+using your BBR backup artifacts.  
 
-This section describes the restrictions for a backup artifact to be restorable to another
-environment.
-This section is for guidance only, and Pivotal highly recommends that operators validate their
+Before restoring using BBR:  
+
+* Review the requirements listed in [Compatibility of Restore](#compatibility).  
+* Complete all of the steps documented in [Preparing to Restore a Backup](#preparing-backup).  
+
+<br>
+Use BBR to restore the following:  
+
+* The BOSH Director plane, see [Restore the BOSH Director](#redeploy-restore-director).  
+* The <%= vars.product_short %> control plane, see [Restore <%= vars.product_short %> Control Plane](#redeploy-restore-control-plane).  
+* The <%= vars.product_short %> Clusters, see [Restore <%= vars.product_short %> Clusters](#redeploy-restore-clusters).  
+
+## <a id="compatibility"></a> Compatibility of Restore  
+
+The following are the requirements for a backup artifact to be restorable to another environment:  
+
+* **Topology**: BBR requires the BOSH topology of a deployment to be the same in the restore 
+environment as it was in the backup environment.  
+* **Naming of instance groups and jobs**: For any deployment that implements the backup and restore 
+scripts, the instance groups and jobs must have the same names.  
+* **Number of instance groups and jobs**: For instance groups and jobs that have backup and restore scripts, the same number of instances must exist.  
+
+
+Additional considerations:  
+
+* **Limited validation**: BBR puts the backed up data into the corresponding instance groups and 
+jobs in the restored environment, but cannot validate the restore beyond that.  
+* **Same Cluster**: Currently, BBR supports the in-place restore of a cluster backup artifact onto the same cluster. 
+Migration from one cluster to another using a BBR backup artifact has not yet been validated.  
+
+<p class="note"><strong>Note:</strong> This section is for guidance only. You should always validate your
 backups by using the backup artifacts in a restore.
+</p>
 
-The restrictions for a backup artifact to be restorable are the following:
+## <a id="preparing-backup"></a> Preparing to Restore a Backup
 
-+ **Topology**: BBR requires the BOSH topology of a deployment to be the same in the restore
-environment as it was in the backup environment.
-+ **Naming of instance groups and jobs**: For any deployment that implements the backup and restore
-scripts, the instance groups and jobs must have the same names.
-+ **Number of instance groups and jobs**: For instance groups and jobs that have backup and restore scripts, the same number of instances must exist..
-+ **Limited validation**: BBR puts the backed up data into the corresponding instance groups and
-jobs in the restored environment, but cannot validate the restore beyond that. For example, if the
-MySQL encryption key is different in the restore environment, the BBR restore might succeed
-although the restored MySQL database is unusable.
+The steps for preparing to restore a BBR backup are the same as the BBR back up preparation steps.  
 
-<p class="note"><strong>Note</strong>: A change in VM size or underlying hardware should not affect the ability for BBR restore data, as long as adequate storage space to restore the data exists.</p>
+<%= partial 'preparing-for-bbr' %>  
+<p>
+</p>
+### <a id="artifacts-jumpbox"></a> Transfer Artifacts to Your Jumpbox
 
-## <a id="recreate-vms"></a> Step 1: Recreate VMs
+To restore BOSH director, <%= vars.product_short %> control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jumpbox.
 
-Before restoring the PKS control plane, you must create the VMs that constitute the deployment.
+1. To copy an artifact onto a jumpbox, run the following SCP command:
 
-In a disaster recovery scenario, you can re-create the control plane with your PKS deployment
-manifest.
-If you used the `--with-manifest` flag when you ran the BBR backup command, your backup artifact
-includes a copy of your manifest.
+    ```
+    scp -r LOCAL-PATH-TO-BACKUP-ARTIFACT JUMPBOX-USER@JUMPBOX-ADDRESS:
+    ```
 
-## <a id="artifacts-jumpbox"></a> Step 2: Transfer Artifacts to Jumpbox
+    Where:  
+    * `LOCAL-PATH-TO-BACKUP-ARTIFACT` is the path to your bbr backup artifact.
+    * `JUMPBOX-USER` is the ssh username of the jumpbox.
+    * `JUMPBOX-ADDRESS` is the IP address, or hostname, of the jumpbox.
 
-Transfer your BBR backup artifact from your safe storage location to the jumpbox.
+1. (Optional) Decrypt your backup artifact if the artifact is encrypted.
 
-For example, you could run the following command to SCP the backup artifact to your jumpbox:
+## <a id="redeploy-restore-director"></a> Restore the BOSH Director
 
-```
-scp LOCAL-PATH-TO-BACKUP-ARTIFACT JUMPBOX-USER/JUMPBOX-ADDRESS
-```
+In the event of losing your BOSH Director or Ops Manager environment, you must first recreate the BOSH Director VM 
+before restoring the BOSH Director.
 
-If this artifact is encrypted, you must decrypt it.
+You can restore your BOSH Director configuration by using <%= vars.product_short %> 
+Ops Manager to restore the installation settings artifacts saved when following the [Export Installation Settings](bbr-backup.html#export-opsman-settings) backup procedure steps.
 
-## <a id='restore'></a> Step 3: Restore
+To redeploy and restore your Ops Manager and BOSH Director follow the procedures below.
 
-<p class="note"><strong>Note</strong>: The BBR restore command can take a long time to complete.
-You can run it independently of the SSH session so that the process can continue running even if
-your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you run the
-command in a <code>screen</code> or <code>tmux</code> session instead.</p>
+### <a id='deploy-opsmanager'></a> Deploy Ops Manager
 
-Perform the following steps to restore the PKS control plane. You run these commands on your jumpbox.
+In the event of a disaster, you may lose your IaaS resources. You must recreate your IaaS resources before restoring using your BBR artifacts.  
 
-You can use the optional `--debug` flag to enable debug logs. See the [BBR Logging](bbr-logging.html) topic for more information.
+1. To recreate your IaaS resources, such as networks and load balancers, prepare your 
+environment for <%= vars.product_short %> by following the installation instructions 
+specific to your IaaS in [Installing <%= vars.product_short %>](installing.html).
 
-1. Ensure the PKS deployment backup artifact is in the folder from which you run BBR.
+1. After recreating IaaS resources, you must add those resources to Ops Manager 
+by performing the procedures in the [(Optional) Configure Ops Manager for New Resources](#config-new-resources) section.
 
-1. Download the root CA certificate for your PKS deployment as follows:
-  1. On the Ops Manager Installation Dashboard, in the top right corner, click your username.
-  1. Navigate to **Settings** > **Advanced**.
-  1. Click **Download Root CA Cert**.
+### <a id='import-settings'></a>Import Installation Settings
 
-1. Locate and record your PKS BOSH deployment name as follows:
-  1. On the Ops Manager Installation Dashboard, click the Director tile.
-  1. In the Director tile, click the **Credentials** tab.
-  1. Navigate to **Bosh Commandline Credentials** and click **Link to Credential**.
-  1. Copy the credential value.
-  1. On the command line, run the following command to retrieve your PKS BOSH deployment name.
+<p class="note warning">
+<strong>WARNING:</strong> After importing installation settings, do not click <strong>Apply Changes</strong> in Ops Manager until instructed to in <a href="##redeploy-restore-control-plane">Redeploy the <%= vars.product_short %> Control Plane</a>.
+</p>
+
+You can import installation settings in two ways:
+
+* Use the Ops Manager UI:
+    1. Access your new Ops Manager by navigating to `YOUR-OPS-MAN-FQDN` in a browser.
+    1. On the **Welcome to Ops Manager** page, click **Import Existing Installation**.
+    1. In the import panel, perform the following tasks:
+        * Enter the **Decryption Passphrase** in use when you exported the installation settings from Ops Manager.
+        * Click **Choose File** and browse to the installation zip file that you exported in [Back Up Installation Settings](bbr-backup.html#export-opsman-settings).
+    1. Click **Import**.
+        <p class="note">
+        <strong>Note:</strong> Some browsers do not provide the import process' progress status, and may appear to hang.
+        The import process takes at least 10 minutes, and requires additional time for each restored Ops Manager tile.
+        </p>
+    1. **Successfully imported installation** is displayed upon successful completion of importing all installation settings.
+
+* Use the Ops Manager API:
+    1. To use the Ops Manager API to import installation settings, run the following command:
 
         ```
-        BOSH-CLI-CREDENTIALS deployments | grep pivotal-container-service
+        curl "https://OPS-MAN-FQDN/api/v1/installation_asset_collection \
+        -X POST \
+        -H "Authorization: Bearer UAA-ACCESS-TOKEN" \
+        -F 'installation[file]=@installation.zip' \
+        -F 'passphrase=DECRYPTION-PASSPHRASE'
         ```
-    
-        Where `BOSH-CLI-CREDENTIALS` includes the full value that you copied from the BOSH Director tile.
+        Where:
+        * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.  
+        * `UAA-ACCESS-TOKEN` is the UAA access token. For more information about how to retrieve this token, 
+        see [Using the Ops Manager API](https://docs.pivotal.io/pivotalcf/customizing/ops-man-api.html).  
+        * `DECRYPTION-PASSPHRASE` is the decryption passphrase in use when you exported the installation 
+        settings from Ops Manager.  
+
+
+### <a id="config-new-resources"></a> (Optional) Configure Ops Manager for New Resources
+
+If you recreated IaaS resources such as networks and load balancers by following the steps in the 
+[Deploy Ops Manager](#deploy-opsmanager) section above, perform the following steps to update Ops Manager with your new resources:
+
+1. Enable Ops Manager advanced mode. For more information, see 
+[How to Enable Advanced Mode in the Ops Manager](https://community.pivotal.io/s/article/How-to-Enable-Advanced-Mode-in-the-Ops-Manager) 
+in the Pivotal Knowledge Base.
+  <p class="note">
+  <strong>Note:</strong> Ops Manager advanced mode allows you to make changes that are normally disabled. 
+  You may see warning messages when you save changes.
+  </p>
+
+1. Navigate to the Ops Manager Installation Dashboard and click the BOSH Director tile.
+
+1. If you are using Google Cloud Platform (GCP), click **Google Config** and update:
+    1. **Project ID** to reflect the GCP project ID.
+    1. **Default Deployment Tag** to reflect the environment name.
+    1. **AuthJSON** to reflect the service account.
+
+1. Click **Create Networks** and update the network names to reflect the network names for the new environment.
+
+1. If your BOSH Director had an external hostname, you must change it in **Director Config > Director Hostname** 
+to ensure it does not conflict with the hostname of the backed up Director.
+
+1. Ensure that there are no outstanding warning messages in the BOSH Director tile, then disable Ops Manager advanced mode. 
+For more information, see [How to Enable Advanced Mode in the Ops Manager](https://community.pivotal.io/s/article/How-to-Enable-Advanced-Mode-in-the-Ops-Manager) 
+in the Pivotal Knowledge Base.
+
+<p class="note">
+<strong>Note</strong>: A change in VM size or underlying hardware should not affect the ability for BBR 
+restore data, as long as adequate storage space to restore the data exists.
+</p>
+
+### <a id="bosh-state"></a> Remove BOSH State File
+
+1. SSH into your Ops Manager VM. For more information, see the 
+[Log in to the Ops Manager VM with SSH](https://docs.pivotal.io/pivotalcf/customizing/trouble-advanced.html#ssh) 
+section of the _Advanced Troubleshooting with the BOSH CLI_ topic.
+
+1. To delete the `/var/tempest/workspaces/default/deployments/bosh-state.json` file, run the following on the Ops Manager VM:
+
+    ```bash
+    sudo rm /var/tempest/workspaces/default/deployments/bosh-state.json
+    ```
+
+1. In a browser, navigate to your Ops Manager's fully-qualified domain name.
+1. Log in to Ops Manager.
+
+### <a id="deploy-bosh-director"></a> Deploy the BOSH Director
+
+You can deploy the BOSH Director by itself in two ways:
+
+* Use the Ops Manager UI:
+    1. Open the Ops Manager Installation Dashboard.  
+    1. Click  **Review Pending Changes**.  
+    1. On the Review Pending Changes page, click the **BOSH Director** checkbox.  
+    1. Click **Apply Changes**.    
+
+* Use the Ops Manager API:
+    1. Use the Ops Manager API to deploy the BOSH Director.
+
+### <a id='restore-director'></a> Restore the BOSH Director
+
+Restore the BOSH Director by running BBR commands on you jumpbox.
+
+<p class="note">
+<strong>Note</strong>: The BBR restore command can take a long time to complete. 
+The example command in this section uses <code>nohup</code> and the restore process is run within your SSH session. 
+If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.
+</p>
+
+Perform the following steps to restore the BOSH Director:  
+
+1. Ensure the <%= vars.product_short %> BOSH Director backup artifact is in the folder from which you run BBR.
+
+1. Run the BBR restore command to restore the PKS BOSH Director:
+
+    ```
+    nohup bbr director  --host BOSH-DIRECTOR-IP \
+    --username bbr  --private-key-path PRIVATE-KEY-FILE \
+    restore \
+    --artifact-path PATH-TO-DIRECTOR-BACKUP
+    ```
+
+    Where:
+    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, BOSH-DIRECTOR-IP is a URL, 
+    such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` which you can 
+    retrieve as shown in [Retrieve the BOSH Director Address](#bosh-address).  
+    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in 
+    [Download the BBR SSH Credentials](#bbr-ssh-creds).  
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the PKS BOSH Director backup that you want to restore.  
+
+    For example:
+
+    <pre class="terminal">
+    $ nohup bbr director  --host 10.0.0.5 \
+      --username bbr  --private-key-path private.pem \
+      restore \
+      --artifact-path /home/10.0.0.5-abcd1234abcd1234
+    </pre>
+
+    If the command fails, follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
+    <p class="note"><strong>Note</strong>: You can use the optional `--debug` flag to enable debug logs. 
+    See <a href="bbr-logging.html">BBR Logging</a> for more information.
+    </p>
+
+
+### <a id='remove-stale-cloud-ids'></a> Remove All Stale Deployment Cloud IDs
+
+After BOSH Director has been restored, you must reconcile BOSH Director's internal state with the state of the IaaS.
+
+1. To determine the existing deployments in your environment, run the following command:
+
+    ```
+    BOSH-CLI-CREDENTIALS bbr deployments
+    ```
+
+    Where:
+    * `BOSH-CLI-CREDENTIALS` is the full `Bosh Commandline Credentials` value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
+
+1. To reconcile the BOSH Director's internal state with the state of a single deployment, run the following command:
+
+    ```
+    BOSH-CLI-CREDENTIALS bosh -d DEPLOYMENT-NAME -n cck \
+    --resolution delete_disk_reference \
+    --resolution delete_vm_reference
+    ```
+
+    Where:
+    * `BOSH-CLI-CREDENTIALS` is the full `Bosh Commandline Credentials` value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
+    * `DEPLOYMENT-NAME` is a deployment name retrieved in the previous step.
+1. Repeat the last command for each deployment in the IaaS.
+
+## <a id='redeploy-restore-control-plane'></a> Restore the <%= vars.product_short %> Control Plane
+
+You must redeploy the <%= vars.product_short %> tile before restoring the <%= vars.product_short %> control plane. 
+By redeploying the <%= vars.product_short %> tile you create the VMs that constitute the control plane deployment.
+
+To redeploy the <%= vars.product_short %> tile, you must determine the stemcell needed by the tile, upload that stemcell, 
+and restore the backup on top of the deployment.
+
+### <a id='determine-stemcell'></a> Determine the Required Stemcells
+
+Perform either the following procedures to determine which stemcell is used by PKS:
+
+* Review the Stemcell Librbary:
+    1. Open Ops Manager.
+    1. Click **Stemcell Library**.
+    1. Record the PKS stemcell release number from the **Staged** column.
+
+* Review a Stemcell List Using BOSH CLI:
+    1. To retrieve the stemcell release using the BOSH CLI, run the following command:
+
+        ```
+        BOSH-CLI-CREDENTIALS bosh deployments
+        ```
+        Where:
+        * `BOSH-CLI-CREDENTIALS`  is the full `Bosh Commandline Credentials` value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+
         For example:
-
         <pre class="terminal">
-        $ BOSH_CLIENT=ops_manager BOSH_CLIENT_SECRET=p455w0rd BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate BOSH_ENVIRONMENT=10.0.0.5 bosh deployments | grep pivotal-container-service
+        $ bosh deployments
+        Using environment '10.0.0.5' as user 'director' (bosh.\*.read, openid, bosh.\*.admin, bosh.read, bosh.admin)
 
-        pivotal-container-service-51f08f6402aaa960f041           backup-and-restore-sdk/1.8.0    bosh-google-kvm-ubuntu-xenial-go_agent/250.25
-        service-instance_4ffeb5b5-5182-4faa-9d92-696d97cc9ae1    bosh-dns/1.10.0                 bosh-google-kvm-ubuntu-xenial-go_agent/250.25
-        pivotal-container-service-51f08f6402aaa960f041
+        Name                                                   Release(s)                                 Stemcell(s)                                    Team(s)
+        pivotal-container-service-453f2faa3bd2e16f52b7         backup-and-restore-sdk/1.8.0               bosh-google-kvm-ubuntu-xenial-go_agent/170.15  -
+        ...
         </pre>
 
-1. In the output, look for the PKS BOSH deployment name that begins with
-  `pivotal-container-service` and includes a unique identifier. 
-   In the example output above, the BOSH deployment name is `pivotal-container-service-51f08f6402aaa960f041`.
+For more information about stemcells in Ops Manager, see [Importing and Managing Stemcells](https://docs.pivotal.io/pivotalcf/opsguide/managing-stemcells.html).
 
+### <a id='upload-stemcell'></a> Upload Stemcells
+
+1. Download the stemcell from [Pivotal Network](https://network.pivotal.io/products/stemcells).
+1. Run the following command to upload the stemcell used by PKS:
+
+    ```
+    BOSH-CLI-CREDENTIALS  bosh -d DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-SERVER-CERTIFICATE \
+    upload-stemcell \
+    --fix PATH-TO-STEMCELL
+    ```
+    Where:
+    * `BOSH-CLI-CREDENTIALS`  is the full `Bosh Commandline Credentials` value that you copied 
+    from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+    * `PATH-TO-BOSH-SERVER-CERTIFICATE` is the path to the root CA certificate that you 
+    downloaded in [Download the Root CA Certificate](#root-ca-cert).  
+    * `PATH-TO-STEMCELL` is the path to your tile's stemcell.  
+
+1. To ensure the stemcells for all of your other installed tiles have been uploaded,
+repeat the last step, running the `bosh upload-stemcell --fix PATH-TO-STEMCELL` command,
+for each required stemcell that is different from the already uploaded PKS stemcell.
+
+### <a id='redeploy-control-plane'></a> Redeploy the <%= vars.product_short %> Control Plane
+
+1. From the Ops Manager Installation Dashboard, navigate to **Pivotal Container Service** > **Resource Config**.
+
+1. Ensure that all errands needed by your system are set to run.
+
+1. Return to the Ops Manager Installation Dashboard.
+
+1. Click **Review Pending Changes**.
+
+1. Review your changes. For more information, see [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/customizing/review-pending-changes.html).
+
+1. Click **Apply Changes** to redeploy the control plane.
+
+### <a id='restore-control-plane'></a> Restore the PKS Control Plane
+
+Restore the <%= vars.product_short %> from your jumpbox.
+<p class="note">
+<strong>Note</strong>: The BBR restore command can take a long time to complete. 
+The example command in this section uses <code>nohup</code> and the restore process is run within your SSH session. 
+If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.
+</p>
+
+To restore the <%= vars.product_short %> control plane perform the following steps:
+
+1. Ensure the <%= vars.product_short %> deployment backup artifact is in the folder from which you run BBR.
 
 1. Run the BBR restore command to restore the PKS control plane:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
-    nohup bbr deployment \
-    --target BOSH-TARGET \
-    --username BOSH-CLIENT \
-    --deployment DEPLOYMENT-NAME \
+    nohup bbr deployment  --target BOSH-TARGET \
+    --username BOSH-CLIENT  --deployment DEPLOYMENT-NAME \
     --ca-cert PATH-TO-BOSH-SERVER-CERT \
     restore \
     --artifact-path PATH-TO-DEPLOYMENT-BACKUP
     ```
-    Replace the placeholder values as follows:
-    <table>
-      <tr>
-        <th width="32%">Credential</th>
-        <th>Location</th>
-      </tr>
-      <tr>
-        <td><code>BOSH-CLIENT-SECRET</code></td>
-        <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_CLIENT_SECRET</code>.</td>
-      </tr>
-      <tr>
-        <td><code>BOSH-TARGET</code></td>
-        <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_ENVIRONMENT</code>.
-        You must be able to reach the target address from the workstation where you run 
-        <code>bbr</code> commands.</td>
-      </tr>
-      <tr>
-        <td><code>BOSH-CLIENT</code></td>
-        <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_CLIENT</code>.</td>
-      </tr>
-      <tr>
-        <td><code>DEPLOYMENT-NAME</code></td>
-        <td>Use the PKS BOSH deployment name that you recorded in a previous step.</td>
-      </tr>
-      <tr>
-        <td><code>PATH-TO-BOSH-CA-CERT</code></td>
-        <td>Use the path to the root CA certificate that you downloaded in a previous step.</td>
-      </tr>
-      <tr>
-        <td><code>PATH-TO-DEPLOYMENT-BACKUP</code></td>
-        <td>Use the path to the PKS control plane backup that you want to restore.</td>
-      </tr>
-    </table>
-<br>
-    For example:
+    Where:
+    * `BOSH-CLIENT-SECRET` is the value for `BOSH\_CLIENT\_SECRET` retrieved in 
+    [Download the BOSH Commandline Credentials](#bosh-cli-creds).   
+    * `BOSH-TARGET` is the value for `BOSH\_ENVIRONMENT` retrieved in 
+    [Download the BOSH Commandline Credentials](#bosh-cli-creds). 
+    You must be able to reach the target address from the workstation where you run `bbr` commands.
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in 
+    [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+    * `DEPLOYMENT-NAME` is the deployment name retrieved in 
+    [Locate the Enterprise PKS Deployment Name](#locate-deploy-name).  
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in 
+    [Download the Root CA Certificate](#root-ca-cert).  
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the PKS control plane backup that you want to restore.  
 
+    For example:
     <pre class="terminal">
     $ BOSH_CLIENT_SECRET=p455w0rd \
+    nohup bbr deployment  --target bosh.example.com \
+    --username admin  --deployment pivotal-container-0 \
+    --ca-cert bosh.ca.crt \
+    restore \
+    --artifact-path /home/pivotal-container-service_abcd1234abcd1234abcd-abcd1234abcd1234
+    </pre>
+    If the command fails, follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
+
+    <p class="note"><strong>Note</strong>: You can use the optional `--debug` flag to enable debug logs. See the <a href="bbr-logging.html">BBR Logging</a> topic for more information.
+</p>
+
+
+## <a id='redeploy-restore-clusters'></a> Restore <%= vars.product_short %> Clusters
+After successfully restoring the <%= vars.product_short %> Control Plane, perform the following steps to 
+restore the <%= vars.product_short %> clusters provisioned by the control plane.
+
+### <a id='redeploy-clusters'></a> Redeploy PKS Clusters
+
+Before restoring, you must redeploy your PKS Clusters by performing the following steps:
+
+1. Navigate to an Pivotal Container Service tile in the **Installation Dashboard**.
+1. Select the **Errands** tab.
+1. Ensure the **Upgrade all clusters** errand is **On**.
+1. Return to the **Installation Dashboard**.
+1. Click **Review Pending Changes**, review your changes, and then click **Apply Changes**. For more information, see [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/customizing/review-pending-changes.html).
+This will include running the **Upgrade all clusters** errand, which will redeploy the cluster instances.
+
+### <a id='restore-clusters'></a> Restore Clusters
+
+Perform the steps below to restore a cluster.
+
+<p class="note"><strong>Note</strong>: The BBR restore command can take a long time to complete. 
+The example command in this section uses <code>nohup</code> and the restore process is run within your SSH session. 
+If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.</p>
+
+<p class="note warning">
+<strong>Warning:</strong> When you restore the cluster, etcd is stopped in the API server.
+During this process, only currently-deployed clusters function, and you cannot create new workloads.
+</p>
+
+<p class="note warning">
+<strong>Warning:</strong> BBR only backs up and restores the cluster etcd data.
+This includes the cluster-deployed workloads. Persistent volumes and other IaaS resources, such as load balancers of workloads, are not backed up and restored.
+Backup and restore for clusters deployed on vSphere with NSX-T is not yet validated.
+</p>
+
+1. Move the cluster backup artifact to a folder from which you will run the BBR restore process.
+
+1. SSH into your jumpbox. For more information about the jumpbox, see 
+[Configure Your Jumpbox](bbr-install.html#jumpbox-setup) in _Installing BOSH Backup and Restore_.
+
+1. Run the following command:
+
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    nohup bbr deployment  --target BOSH-TARGET \
+    --username BOSH-CLIENT  --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-SERVER-CERT \
+    restore \
+    --artifact-path PATH-TO-DEPLOYMENT-BACKUP
+    ```
+    Where:
+    * `BOSH-CLIENT-SECRET` is the `BOSH_CLIENT_SECRET` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.  
+    * `BOSH-TARGET` is the `BOSH_ENVIRONMENT` property.  This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**. 
+    You must be able to reach the target address from the workstation where you run `bbr` commands.  
+    * `BOSH-CLIENT` is the `BOSH_CLIENT` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.  
+    * `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in the 
+    [Retrieve your Cluster Deployment Name](#cluster-deployment-name) section above.
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in the [Download the Root CA Certificate](#root-ca-cert) setcion above.  
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to to your deployment backup. 
+    Make sure you have transfer your artifact into you jumpbox as described in [Transfer Artifacts to Jumpbox](#artifacts-jumpbox) above.  
+
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd \
     nohup bbr deployment \
     --target bosh.example.com \
     --username admin \
-    --deployment cf-acceptance-0 \
-    --ca-cert bosh.ca.crt \
+    --deployment service-instance\_3839394 \
+    --ca-cert bosh.ca.cert \
     restore \
-    --artifact-path /home/cf-abcd1234abcd1234abcd-abcd1234abcd1234
+    --artifact-path deployment-backup
     </pre>
 
-If the command fails, follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
+1. If the restore command fails, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+      see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command) below.
 
 ## <a id="recover-from-failing-command"></a>Recover from a Failing Command
 
 1. Ensure that you set all the parameters in the command.
 1. Ensure that the BOSH Director credentials are valid.
-1. Ensure that the specified BOSH deployment exists.
+1. Ensure that the specified BOSH deployment or Director exists.
 1. Ensure that the jumpbox can reach the BOSH Director.
-1. Ensure the source BOSH deployment is compatible with the target BOSH deployment.
+1. Ensure the source backup artifact is compatible with the target BOSH deployment or Director.
 1. If you see the error message `Directory /var/vcap/store/bbr-backup already exists on instance`,
 run the relevant commands from the [Clean up After Failed Restore](#manual-clean) section of this
 topic.
@@ -176,59 +490,92 @@ If you must cancel a restore, perform the following steps:
 1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
 1. Perform the procedures in the [Clean up After Failed Restore](#manual-clean) section to enable future restores. Stopping a restore can leave the system in an unusable state and prevent future restores.
 
-## <a id="manual-clean"></a>Clean up After Failed Restore
+## <a id="manual-clean"></a>Clean Up After a Failed Restore
 
-If your restore process fails, then the process may leave the BBR restore folder on the instance. As a result, any subsequent restore attempts may also fail. In addition, BBR may not have run the post-restore scripts, which can leave the instance in a locked state.
+If a BBR restore process fails, BBR may not have run the post-restore scripts, potentially leaving the instance in a locked state. 
+Additionally, the BBR restore folder may remain on the target instance and subsequent restore attempts may also fail.  
 
-To resolve these issues, run the BBR cleanup script with the following command:
+* To resolve issues following a failed BOSH Director restore, run the following BBR command:
 
-```
-BOSH-CLIENT-SECRET=BOSH-CLIENT-SECRET \
-bbr deployment \
---target BOSH-TARGET \
---username BOSH-CLIENT \
---deployment DEPLOYMENT-NAME \
---ca-cert PATH-TO-BOSH-CA-CERT \
-restore-cleanup
-```
-Replace the placeholder values as follows:
-<table>
-  <tr>
-    <th width="32%">Credential</th>
-    <th>Location</th>
-  </tr>
-  <tr>
-    <td><code>BOSH-CLIENT-SECRET</code></td>
-    <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_CLIENT_SECRET</code>.</td>
-  </tr>
-  <tr>
-    <td><code>BOSH-TARGET</code></td>
-    <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_ENVIRONMENT</code>.
-    You must be able to reach the target address from the workstation where you run 
-    <code>bbr</code> commands.</td>
-  </tr>
-  <tr>
-    <td><code>BOSH-CLIENT</code></td>
-    <td>In the BOSH Director tile, navigate to <strong>Credentials > Bosh Commandline Credentials</strong>. Record the value for <code>BOSH_CLIENT</code>.</td>
-  </tr>
-  <tr>
-    <td><code>DEPLOYMENT-NAME</code></td>
-    <td>Use the PKS BOSH deployment name that you recorded in a previous step.</td>
-  </tr>
-  <tr>
-    <td><code>PATH-TO-BOSH-CA-CERT</code></td>
-    <td>Use the path to the root CA certificate that you downloaded in a previous step.</td>
-  </tr>
-</table>
+    ```
+    nohup bbr director \
+    --host BOSH-DIRECTOR-IP \
+    --username bbr \
+    --private-key-path PRIVATE-KEY-FILE \
+    restore-cleanup
+    ```
 
-For example:
+    Where:  
+    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, 
+    BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` 
+    which you can retrieve as show in [Retrieve the BOSH Director Address](#bosh-address) above.  
+    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` 
+    as shown in [Download the BBR SSH Credentials](#bbr-ssh-creds) above.  
+    For example:
+    <pre class="terminal">
+    $ nohup bbr director \
+    --target 10.0.0.5 \
+    --username bbr \
+    --private-key-path private.pem \
+    restore-cleanup
+    </pre>
 
-<pre class="terminal">
-$ BOSH_CLIENT_SECRET=p455w0rd \
-bbr deployment \
---target bosh.example.com \
---username admin \
---deployment cf-acceptance-0 \
---ca-cert bosh.ca.crt \
-restore-cleanup
-</pre>
+* To resolve issues following a failed control plane restore, run the following BBR command:
+
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    bbr deployment \
+    --target BOSH-TARGET \
+    --username BOSH-CLIENT \
+    --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-CA-CERT \
+    restore-cleanup
+    ```
+
+    Where:
+    * `BOSH-CLIENT-SECRET` is the value for `BOSH\_CLIENT\_SECRET` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.  
+    * `BOSH-TARGET` is the value for `BOSH\_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.  
+        You must be able to reach the target address from the workstation where you run `bbr` commands.  
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.  
+    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Name](#cluster-deployment-name) above.   
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.  
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment pivotal-container-service-453f2f \
+    --ca-cert bosh.ca.crt \
+    restore-cleanup
+    </pre>
+
+* To resolve issues following a failed cluster restore, run the following BBR command:
+
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    bbr deployment \
+    --target BOSH-TARGET \
+    --username BOSH-CLIENT \
+    --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-CA-CERT \
+    restore-cleanup
+    ```
+
+    Where:
+    * `BOSH-CLIENT-SECRET` is the value for `BOSH\_CLIENT\_SECRET` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+    * `BOSH-TARGET` is the value for `BOSH\_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+        You must be able to reach the target address from the workstation where you run `bbr` commands.  
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Name](#cluster-deployment-name) above.   
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert).  
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment pivotal-container-service-453f2f \
+    --ca-cert bosh.ca.crt \
+    restore-cleanup
+    </pre>
