@@ -1,0 +1,422 @@
+---
+title: Deploy <%= vars.product_short %> by Using the Configuration Wizard
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+You can deploy a new <%= vars.product_full %> instance either by using the <%= vars.product_short %> Managemet Portal configuration wizard to guide you through the configuration process, or by importing an existing YAML configuration file into the YAML editor.
+
+This topic describes how to use the configuration wizard to deploy <%= vars.product_short %>. For information about how to import a YAML, see [Deploy <%= vars.product_short %> by Using a YAML Configuration File](deploy-ent-pks-yaml.html).
+
+## <a id='prereqs'></a>Prerequisites
+
+- [Deploy the <%= vars.product_full %> Management Console Appliance](deploy-console-ova.html) to vCenter Server.
+- The vCenter Server instance must be correctly configured for <%= vars.product_short %> deployment. For information about the vCenter Server requirements, see [Virtual Infrastructure Prerequisites](ova-deployment-prereqs.html#infrastructure-prereqs).
+- Depending on the type of networking to use, your infrastructure must meet the appropriate prerequisites. For information about networking prerequisites, see the following topics:
+  - [Prerequisites for an Unprepared NSX-T Data Center](ova-deployment-prereqs.html#nsxt-not-prepared-prereqs)
+  - [Prerequisites for a Prepared NSX-T Data Center](ova-deployment-prereqs.html#nsxt-prepared-prereqs)
+  - [Prerequisites for a Flannel Network](ova-deployment-prereqs.html#flannel-prereqs)
+- [Log in to <%= vars.product_short %> Management Console](deploy-console-ova.html#access-console)
+
+## <a id='connect-vc'></a>Step 0: Launch the Configuration Wizard
+
+On the VMware <%= vars.product_short %> landing page, click **Start Configuration**.
+
+To get help in the wizard at any time, click the **?** icon at the top of the page, or click the **More Info...** links in each section to see help topics relevant to that section. Click the **i** icons for tips about how to fill in specific fields.
+
+## <a id='connect-vc'></a>Step 1: Connect to vCenter Server
+
+1. Enter the IP address or FQDN for the vCenter Server instance on which to deploy <%= vars.product_short %>.
+1. Enter the vCenter Single Sign On username and password for a user account that has vSphere administrator permissions.
+1. Click **Connect**.
+1. Select the datacenter in which to deploy <%= vars.product_short %> from the drop-down menu.
+1. Click **Next** to configure networking.
+
+
+## <a id='networking'></a>Step 2: Configure Networking
+
+Provide connection information for the container networking interface to use with <%= vars.product_full %>. You can connect to an existing NSX-T Data Center network that you have already set up for use with <%= vars.product_short %> (prepared), to an existing NSX-T Data Center network that you have not set up (unprepared), or to an existing Flannel  network.</p>
+
+
+### <a id='nsxt-unprepared'></a>Configure an Unprepared NSX-T Data Center Network
+
+Provide information about an NSX-T Data Center network that you have not already configured for use with <%= vars.product_short %>.
+
+1. Select the **Use NSX-T Data Center** radio button and click **Continue**.
+1. Select the **NSX-T Data Center (Not prepared for PKS)** radio button.
+1. Configure the connection to NSX Manager.
+
+  - Enter the IP address of the NSX Manager
+  - Enter the user name and password for an NSX administrator account.
+
+1. Click **Connect**.
+1. Enter information about the uplink network.
+
+  - **Uplink CIDR**: Enter a CIDR range within the uplink subnet for the Tier 0 uplinks, for example 10.40.206.0/24.
+  - **Gateway IP**: Enter the IP address for the gateway, for example 10.40.206.125.
+  - **VLAN ID**: Enter the VLAN ID within the range 0 to 4095, for example 1206.
+  - **Edge Node 1**: Select an Edge Node from the drop-down menu, for example `nsx-edge-1`.
+  - **T0 Uplink 1 IP**: Enter the IP address of the Tier 0 uplink 1, for example 10.40.206.9.
+  - **Edge Node 2**: Select an Edge Node from the drop-down menu, for example `nsx-edge-2`.
+  - **T0 Uplink 2 IP**: Enter the IP address of the Tier 0 uplink 1, for example 10.40.206.11.
+  - **T0 HA Virtual IP**: Enter the IP address for the HA Virtual IP, for example 10.40.206.24.
+  
+1. Enter information about the network resources for the <%= vars.product_short %> deployment to use.
+
+  - **Deployment CIDR**: Enter a CIDR range to use for <%= vars.product_short %> components, for example 10.192.182.1/22.
+  - **Deployment DNS**: Enter the IP address of the DNS server to use for deploying <%= vars.product_short %> components, for example 192.168.111.155.
+  - **NTP Server**: Enter the IP address of an NTP server.
+  - **Pod IP Block CIDR**: Enter a CIDR range to use for pods, for example 11.192.182.1/31.
+  - **Node IP Block CIDR**: Enter a CIDR range to use for nodes, for example 10.192.182.1/23.
+  - **Usable range of floating IPs**: Enter the floating IP range, for example from 10.0.1.1 to 10.0.0.200. Click **Add Range** to add more IP ranges.
+1. Optionally enable the **Manage certificates manually for NSX** check box  if NSX Manager uses a custom CA certificate.
+
+  Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
+  ```
+    -----BEGIN CERTIFICATE-----
+    nsx_manager_CA_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+  If you do not select the **Manage certificates manually for NSX** check box, the management console generates a certificate for you.
+1. (Optional) Enable the **Disable SSL certificates verification** check box to allow unsecured connections to NSX Manager.
+1. Click **Next** to configure identity management.
+
+For the next steps, see [Configure Identity Management](#identity).
+
+### <a id='nsxt-prepared'></a>Configure a Prepared NSX-T Data Center Network
+
+Provide information about an NSX-T Data Center network that you have already configured for use with <%= vars.product_short %>.
+
+1. Select the **Use NSX-T Data Center** radio button and click **Continue**.
+1. Select the **NSX-T Data Center (Prepared for PKS)** radio button.
+1. Configure the connection to NSX Manager.
+
+  - Enter the IP address of the NSX Manager
+  - Enter the user name and password for an NSX administrator account.
+1. Click **Connect**.
+1. Use the drop-down menus to select existing resources for each of the following items.
+
+  - **Network for PKS Management Plane**: Select the name of the standard vSphere network (vswitch0)
+  - **Pod IP Block ID**: Select the UUID for the IP block to use for Kubernetes pods.
+  - **Node IP block ID**: Select the UUID for the IP block to use for Kubernetes nodes.
+  - **T0 Router ID**: Select the UUID for the Tier-0 Logical Router configured in NSX-T.
+  - **Floating IP Pool ID**: Select the UUID for the Floating IP Pool.
+1. Enter IP addresses for the following resources.
+
+  - **Nodes DNS**: Enter the IP address for the DNS server to use for Kubernetes nodes and pods.
+  - **Deployment DNS**: Enter the IP address for the deployment network, for example 192.168.111.155.
+  - **NTP Server**: Enter the IP address of an NTP server.
+1. (Optional) Enable the **Manage certificates manually for NSX** check box to if NSX Manager uses a custom CA certificate.
+
+  Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
+  ```
+    -----BEGIN CERTIFICATE-----
+    nsx_manager_CA_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+  If you do not select the **Manage certificates manually for NSX** check box, the management console generates a certificate for you.
+1. (Optional) Enable the **Disable SSL certificates verification** check box to allow unsecured connections to NSX Manager.
+1. Leave the **NAT Mode** toggle enabled.  
+
+  Only NAT mode is supported in this release. You cannot use the configuration wizard to deploy <%= vars.product_short %> with no-NAT mode.
+1. Click **Next** to configure identity management.
+
+For the next steps, see [Configure Identity Management](#identity).
+
+### <a id='flannel'></a>Configure a Flannel Network
+
+Provide information about a Flannel network for use with <%= vars.product_short %>.
+
+1. Select the **Flannel** radio button.
+1. Configure the Deployment Network Resource options.
+
+  - **Deployment Network**: Select a vSphere network on which to deploy <%= vars.product_short %>. 
+  - **Deploy network CIDR**: Enter a CIDR range to use for <%= vars.product_short %> components, for example 10.192.182.1/22.
+  - **Deployment network gateway IP**: Enter the IP address for the gateway for the deployment network, for example 10.0.0.1
+  - **Deployment DNS**: Enter the IP address for the deployment network DNS server, for example 192.168.111.155.
+ 
+1. Configure the Service Network Resource options.
+
+  - **Service Network**: Select a vSphere network to use as the service network
+  - **Service network CIDR**: Enter a CIDR range to use for the service network, for example 10.192.182.1/23.
+  - **Service network gateway IP**: Enter the IP address for the gateway for the service network
+  - **Service DNS**: Enter the IP address for the service network DNS server, for example 192.168.111.155
+  - **NTP Server**: Enter the IP address of an NTP server.
+
+1. Configure the Kubernetes network options.
+
+  - **Kubernetes Pod Network**: Enter a CIDR range to use for pods, for example 11.192.182.1/31.
+  - **Kubernetes Service Network**: Enter a CIDR range to use for the Kubernetes services, for example 10.192.182.1/23.
+
+1. Click **Next** to configure identity management.
+
+## <a id='identity'></a>Step 3: Configure Identity Management
+
+You can manage user access and authentication either by configuring a connection to an external Active Directory or LDAP server, or by using a local database of users. 
+
+In either case, you can use OpenID Connect (OIDC) to instruct Kubernetes to verify end-user identities based on authentication performed by a User Account and Authentication (UAA) server. Using OIDC lets you set up an external IDP, such as Okta, to authenticate users who access Kubernetes clusters with `kubectl`. If you enable OIDC, administrators can grant namespace-level or cluster-wide access to Kubernetes end users. If you do not enable OIDC, you must use service accounts to authenticate <code>kubectl</code> users.
+
+<p class="note"><strong>Note</strong>: You cannot enable OIDC if you intend to integrate <%= vars.product_short %> with VMware vRealize Operations Management Pack for Container Monitoring.
+
+### <a id='identity-db'></a>Use a Local Database 
+
+You can manage users by using a local database that is created during <%= vars.product_short %> deployment. After deployment, you can add users and groups to the database and assign roles to them in the Identity Management view of the <%= vars.product_short %> Management Console.
+
+1. Select the **Local user database** radio button.
+1. Enter an FQDN for the PKS API Server VM, for example `api.pks.example.com`.
+1. Optionally select **Configure created clusters to use UAA as the OIDC provider** to use UAA.
+1. Optionally select **Manage certificates manually for PKS API** to generate and upload your own certificates for the PKS API Server.
+
+  If you do not select this option, the management console creates auto-generated, self-signed certificates.
+
+  Enter the contents of the certificate in the **PKS API Certificate** text box:
+  ```
+    -----BEGIN CERTIFICATE-----
+    pks_api_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+
+    Enter the contents of the certificate key in the **Private Key PEM** text box:
+  ```
+    -----BEGIN PRIVATE KEY-----
+    pks_api_private_key_contents
+    -----END PRIVATE KEY-----
+    ```  
+1. Click **Next**  to configure availability zones.
+    
+For the next steps, see [Configure Availability Zones](#availability-zones).  
+
+### <a id='identity-ldap'></a>Use an External LDAP Server 
+
+Provide information about an existing external Active Directory or LDAP server.
+
+1. Select the **Remote (AD/LDAP)** radio button.
+1. For **AD/LDAP endpoint**, select **ldap** or **ldaps** from the drop-down menu and enter the IP address and port of the AD or LDAP server.
+1. Enter the username and password to use to connect to the server.
+1. Enter the remaining details for your server:
+
+  - **User search base**: Enter the location in the AD/LDAP directory tree where user search begins. For example, a domain named `cloud.example.com` might use `ou=Users,dc=example,dc=com`.
+  - **User search filter**: Enter a string to use for user search criteria. For example, the standard search filter `cn=Smith` returns all objects with a common name equal to `Smith`. Use `cn={0}` to return all LDAP objects with the same common name as the username.
+  - **LDAP referrals**: Select how to handle references to alternate locations in which AD/LDAP requests can be processed:
+  
+      - Automatically follow referrals
+      - Ignore referals
+      - Abort authentication
+     
+  - **Group search base**: Optionally enter the location in the AD/LDAP directory tree where group search begins. For example, a domain named `cloud.example.com` might use `ou=Groups,dc=example,dc=com`.
+  - **Group search filter**: Enter a string that defines AD/LDAP group search criteria, such as `member={0}`.
+  - **External groups whitelist**: Optionally enter a comma-separated list of group patterns to be populate in the user’s `id_token`.
+  - **Email Attribute**: Enter the attribute name in the AD/LDAP directory that contains user email addresses. For example, `mail`.
+  - **Email domains**: Optionally enter a comma-separated list of the email domains for external users who can receive invitations to <%= vars.product_short %>.
+  - **First name attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user first names, for example `cn`.
+  - **Last name attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user last names. for example `sn`.
+1. Enter an FQDN for the PKS API Server VM, for example `api.pks.example.com`.
+1. Optionally select **Configure created clusters to use UAA as the OIDC provider** to use UAA.
+1. Optionally select **Manage certificates manually for PKS API** to generate and upload your own certificates for the PKS API Server.
+
+  If you do not select this option, the management console creates auto-generated, self-signed certificates.
+
+  Enter the contents of the certificate in the **PKS API Certificate** text box:
+  ```
+    -----BEGIN CERTIFICATE-----
+    pks_api_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+
+    Enter the contents of the certificate key in the **Private Key PEM** text box:
+  ```
+    -----BEGIN PRIVATE KEY-----
+    pks_api_private_key_contents
+    -----END PRIVATE KEY-----
+    ```  
+1. Click **Next**  to configure availability zones.
+
+## <a id='availability-zones'></a>Step 4: Configure Availability Zones
+
+Availability zones specify the compute resources for Kubernetes cluster deployment. Availability zones are a BOSH construct, that in <%= vars.product_short %> deployments to vSphere correspond to vCenter Server clusters, host groups, and resource pools. Availability zones allow you to provide high-availability and load balancing to applications. When you run more than one instance of an application, those instances are balanced across all of the availability zones that are assigned to the application. You must configure at least one availability zone. You can configure multiple additional availability zones.
+
+1. In the **Name** field, enter a name for the availability zone.
+1. Optionally select **This is the management availability zone**.
+
+  The management availability zone is the availability zone in which to deploy the PKS Management Plane. The management plane consists of the PKS API VM, Ops Manager, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone.
+1. In the **Compute resource** tree, select clusters, host groups, or resource pools for this availability zone to use.
+1. Click **Save Availability Zone**.
+1. Optionally click **Add Availability Zone** to add another zone.
+
+  You can only select resources that are not already included in another zone. You can create multiple availability zones. 
+1. Click **Save Availability Zone** for every additional availability zone that you create.
+1. Click **Next**  to configure storage.
+
+## <a id='storage'></a>Step 5: Configure Storage
+
+Designate the datastores to use for the different types of storage required by your <%= vars.product_short %> deployment. 
+
+- Ephemeral storage is used to contain the files for ephemeral VMs that <%= vars.product_short %> creates during installation, upgrade, and operation. Ephemeral VMs are automatically created and deleted as needed.
+- Permanent storage is used for permanent <%= vars.product_short %> data. 
+- Kubernetes persistent volume storage is used to store Kubernetes persistent volumes, for use in stateful applications.
+
+You can use different datastores for the storage of permanent and ephemeral data. If you disable the permanent storage option, <%= vars.product_short %> uses the ephemeral storage for permanent data. 
+For information about when it is appropriate to share the ephemeral, permanent, and persistent volume datastores or use separate ones, see [PersistentVolume Storage Options on vSphere](../vsphere-persistent-storage.html).
+
+Datastores can only be selected if their minimum capacity is greater than 250GB. You can use VMware vSAN, Network File Share (NFS), or VMFS storage.
+
+1.  Select one or more datastores for use as ephemeral storage, or use the search field on the right to find datastores by name.
+1. Optionally enable **Specify permanent storage** to designate different datastores for ephemeral and permanent data.
+1. If you enabled permanent storage, select one or more datastores for permanent storage, or use the search field to find datastores by name.
+1. If you enabled permanent storage, select the size of the disk for persistent <%= vars.product_short %> data from the **PKS persistent disk size** drop-down menu 
+1.  Select one datastore for Kubernetes persistent volume storage, or use the search field to find datastores by name.
+1. Click **Next** to configure plans.
+
+## <a id='plans'></a>Step 6: Configure Plans
+
+A plan defines a set of resources for <%= vars.product_short %> to use when deploying Kubernetes clusters. A plan allows you to configure the numbers of master and worker nodes, the configuration of the master and worker VMs, disk sizes, availability zones for master and node VMs, and advanced settings.
+
+<%= vars.product_short %> Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can enable the plans as they are. You must enable at least one plan configuration because when you use the PKS CKI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are enabled, you cannot create Kubernetes clusters.
+
+<%= vars.product_short %> plans support privileged containers and three admission control plugins: 
+
+- For information about privileged containers and the supported admission plugins, see [Privileged mode for pods in the Kubernetes documentation](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers).
+- For information about admission plugins, see [Enabling, Disabling, and Using Admission Control Plugins for Enterprise PKS Clusters](../admission-plugins.html).
+
+1. To use the preconfigured plans as they are, click **Save Plan** for each of the `small`, `medium`, and `large` plans.
+1. Optionally use the drop-down menus and buttons to change the default configurations of the preconfigured plans.
+
+  - Enter a name and a description for the plan in the **Name** and  **Description** text boxes. 
+  - **Master/etcd node instances**: Select **1** (small), **3** (medium), or **5** (large).
+  - **Master/etcd VM type**: Select the size of the Master VM.
+  - **Master persistent disk type**: Select the size of the master persistent disk.
+  - **Master/etcd availability zones**: Enable one or more  availability zones for the master nodes.
+  - **Worker node instances**: Specify the number of worker nodes. For a small deployment, 3 is suggested.
+  - **Worker VM type**: Select a configuration for worker nodes.
+  - **Worker persistent disk type**: Select the size of the worker node persistent disk.
+  - **Worker availability zones**: Enable one or more available availability zones for the worker nodes.
+  - **Max worker node instance**: Select the maximum number of worker nodes.
+  - **Errand VM type**: Select the size of the VM to run BOSH errand tasks.
+  - **Enable privileged Containers**: Optionally enable privileged container mode. Use with caution.
+  - **Admission Plugins**: Optionally enable admission plugins. Admission plugins, provide a higher level of access control to the Kubernetes API server and should be used with caution.
+       - **`PodSecurityPolicy`** 
+       - **`DenyEscalatingExec`**
+       - **`SecurityContextDeny`**
+  
+1. Click **Save Plan** for each plan that you edit.
+1. Optionally click **Add Plan** to create a new plan, configure it as described above, and click **Save Plan**.
+1. Optionally delete any plans that you do not need.
+1. Click **Next** to configure integrations.
+
+## <a id='integrations'></a>Step 7: Configure Integrations
+
+If your infrastructure includes existing deployments of Wavefront by VMware, VMware vRealize Operations Management Pack for Container Monitoring, or VMware vRealize Log Insight, you can configure Enterprise PKS to connect to those services. You can also configure Enterprise PKS to forward logs to a Syslog server.
+
+### <a id='integrations-wavefront'></a>Configure Connection to Wavefront
+
+By connecting your <%= vars.product_short %> deployment to an existing deployment of Wavefront by VMware, you can obtain detailed metrics about Kubernetes clusters and pods. Before you configure Wavefront integration, you must have an active Wavefront account and access to a Wavefront instance. For more information, including about how to generated a Wavefront access token, see [VMware PKS Integration](https://docs.wavefront.com/pks.html) and [VMware Enterprise PKS Integration Details](https://docs.wavefront.com/integrations_pks.html) in the Wavefront by VMware documentation.
+
+1. Select the **Enable** toggle to enable a connection to Wavefront.
+1. Enter the address of your Wavefront instance in the **Wavefront URL** text box.
+1. Enter the Wavefront API token in the **Wavefront access token** text box.
+1. Enter an email address to which Wavefront sends alerts in the **Wavefront alert recipient** text box.
+1. Optionally disable **Create pre-defined Wavefront alerts when provisioning PKS**.
+1. Optionally disable **Delete pre-defined alerts when deleting PKS**.
+1. Click **Save**.
+1. Configure integations with other applications, or click **Next** to install Harbor.
+
+### <a id='integrations-vrops'></a>Configure Connection to VMware vRealize Operations Management Pack for Container Monitoring
+
+You can connect your <%= vars.product_short %> deployment to an existing instance of VMware vRealize Operations Management Pack for Container Monitoring. vRealize Operations Management Pack for Container Monitoring provides detailed monitoring of your Kubernetes clusters. vRealize Operations Management Pack for Container Monitoring must be installed, licensed, running, and available in your environment before you enable the option. For more information, see the vRealize Operations Management Pack for Container Monitoring documentation.
+
+If you enable the option to integrate <%= vars.product_short %> with VMware vRealize Operations Management Pack for Container Monitoring, the management console creates a `cAdvisor` container in your <%= vars.product_short %> deployment.
+
+1. Select the **Enable** toggle to enable a connection to vRealize Operations Management Pack for Container Monitoring.
+1. Click **Save**.
+1. Configure integations with other applications, or click **Next** to install Harbor.
+
+### <a id='integrations-vfli'></a>Configure Connection to VMware vRealize Log Insight
+
+You can configure <%= vars.product_short %> deployment so that an existing deployment of VMware vRealize Log Insight pulls logs from all BOSH jobs and containers running in the cluster, including node logs from core Kubernetes and BOSH processes, Kubernetes event logs, and POD stdout and stderr.
+
+vRealize Log Insight must be installed, licensed, running, and available in your environment before you enable the option. For instructions and additional information, see the vRealize Log Insight documentation.
+
+1. Select the **Enable** toggle to enable a connection to vRealize Log Insight.
+1. Enter the address of your vRealize Log Insight instance in the **Host** text box.
+1. Optionally disable **Enable SSL**.
+1. Optionally disable **Disable SSL certificate validation**.
+1. Click **Save**.
+1. Configure integations with other applications, or click **Next** to install Harbor.
+
+### <a id='integrations-syslog'></a>Configure Connection to Syslog
+
+1. Select the **Enable** toggle to enable a connection to Syslog.
+1. Enter the address of your Syslog server in the **Address and port** text boxes.
+1. Select **TCP**, **UDP**, or **RELP** from the **Transport protocol** drop-down menu.
+1. Optionally select **Enable TLS**.
+1. Enter a permitted peer ID. 
+1. Click **Save**.
+1. Click **Next** to install Harbor.
+
+## <a id='harbor'></a>Step 8: Configure Harbor
+
+Harbor is an enterprise-class registry server that you can use to store and distribute container images. Harbor allows you to organize image repositories in projects, and to set up role-based access control to those projects to define which users can access which repositories. Harbor also provides rule-based replication of images between registries, optionally implements Content Trust with Notary and vulnerability scanning of stored images with Clair, and provides detailed logging for project and user auditing.
+
+- Harbor provides a Notary server that allows you to implement Content Trust by signing and verifying the images in the registry. When Notary content trust is enabled, users can only push and pull images that have been signed and verified to or from the registry.
+- Harbor uses Clair to perform vulnerability and security scanning of images in the registry. You can set thresholds that prevent users from running images that exceed those vulnerability thresholds. Once an image is uploaded into the registry, Harbor uses Clair to check the various layers of the image against known vulnerability databases and reports any issues found.
+
+1. Optionally select the **Enable** toggle to deploy Harbor when you deploy <%= vars.product_short %>.
+1. Enter an FQDN for the Harbor VM, for example `harbor.pks.example.com`.
+1. Enter and confirm a password for the Harbor VM.
+1. Select the method to use for authenticating connections to Harbor.
+
+  - **Harbor internal user management**: Create a local database of users in the Harbor VM.
+  - **Log in Harbor with LDAP users**: Use AD or LDAP to manage users. You configure the connection to the LDAP server in Harbor after deployment.
+  - **UAA in Pivotal Container Service**: Use the same UAA as you use for <%= vars.product_short %>.
+1. Optionally select **Manage certificates manually for Harbor** to use custom certificates with Harbor.
+
+  To use a custom certificate:
+
+    1. Paste the contents of the server certificate PEM file in the **SSL certificate PEM** text box.
+    ```
+    -----BEGIN CERTIFICATE-----
+    ssl_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+    1. Paste the contents of the certificate key in the **SSL key PEM** text box.
+    ```
+    -----BEGIN PRIVATE KEY-----
+    ssl_private_key_contents
+    -----END PRIVATE KEY-----
+    ```
+    1. Paste the contents of the Certificate Authority (CA) file in the **Certificate Authority** text box.
+    ```
+    -----BEGIN CERTIFICATE-----
+    CA_certificate_contents
+    -----END CERTIFICATE-----
+    ``` 
+1. Select the location in which to store image repositories.
+    - **Local file system**: Stores images in the Harbor VM.
+    - **Remote NFS server**: Provide the IP address and path to an NFS share point.
+    - **AWS S3**: Provide the connection details for your Amazon S3 account.
+    - **Google Cloud Storage**: Provide the connection details for your Google Cloud Storage account.
+
+1. Select the configuration for the Harbor VM from the **VM type for harbor-app** drop-down menu.
+1. Select the size of the disk for the Harbor VM from the **Disk type for harbor-app** drop-down menu.
+1. Optionally enable Clair.
+1. Optionally enable Notary.
+1.  Click **Next** to complete the configuration wizard.
+
+## <a id='deploy'></a>Step 9: Generate Configuration File and Deploy <%= vars.product_short %>
+
+When all of the sections of the wizard are green, you can generate a YAML configuration file and deploy <%= vars.product_short %>.
+
+1. Click **Generate Configuration** to see the generated YAML file.
+1. Optionally click **Export** to save a copy of the YAML file for future use.
+1. Optionally click **Edit in Wizard** to go back to the configuration wizard and change your configuration.
+1. Optionally edit the YAML directly in the YAML editor.
+1. Click **Apply Configuration** then **Continute** to deploy <%= vars.product_short %>.
+
+## <a id='what-next'></a>What to Do Next
+
+When the deployment has completed successfully, click **Go to VMware Enterprise PKS** to monitor and manage your deployment.
+
+For information about how you can use <%= vars.product_short %> Management Console to monitor and manage your deployment, see [Monitor and Manage <%= vars.product_short %> in the Management Console](monitor-manage-console.html).
+
+If <%= vars.product_short %> fails to deploy, see [Troubleshooting](console-troubleshooting.html).
