@@ -37,12 +37,12 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/r
 
 **1.3**: The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
 
-**1.3.x-patch-releases** TThe `1.3.x-patch-releases` branch is used to work on documentation for the pre-release v1.3.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.3.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.3.x pre-release documentation.
+**1.3.x-patch-releases** The `1.3.x-patch-releases` branch is used to work on documentation for the pre-release v1.3.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.3.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.3.x pre-release documentation.
 **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
 **1.2**: The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
 
-**1.2.x-patch-releases** TThe `1.2.x-patch-releases` branch is used to work on documentation for the pre-release v1.2.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.2.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.2.x pre-release documentation.
+**1.2.x-patch-releases** The `1.2.x-patch-releases` branch is used to work on documentation for the pre-release v1.2.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.2.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.2.x pre-release documentation.
 **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
 The `1.1` branch is no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.1.pdf.
