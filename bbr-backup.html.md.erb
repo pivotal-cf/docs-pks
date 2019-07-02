@@ -7,13 +7,13 @@ owner: PKS
 
 This topic describes how to use BOSH Backup and Restore (BBR) to back up the PKS control plane.
 
-Each PKS deployment includes custom backup and restore scripts which encapsulate the correct procedure 
-for backing up and restoring the deployment. 
+Each PKS deployment includes custom backup and restore scripts which encapsulate the correct procedure
+for backing up and restoring the deployment.
 
-BBR supports backing up only deployments supplying these scripts.  
+BBR supports backing up only deployments supplying these scripts.
 
-BBR orchestrates running the backup and restore scripts and transferring the generated backup artifacts to and from a backup repository. 
-If configured correctly, BBR can use TLS to communicate securely with backup targets.  
+BBR orchestrates running the backup and restore scripts and transferring the generated backup artifacts to and from a backup repository.
+If configured correctly, BBR can use TLS to communicate securely with backup targets.
 
 To perform a restore, see [Restoring the PKS Control Plane](bbr-restore.html).
 
@@ -26,7 +26,7 @@ BBR can backup the following components:
   - PKS control plane UAA MySQL database
   - PKS control plane PKS API MySQL database
   - BOSH Director
-  - External blobstores 
+  - External blobstores
   - Kubernetes cluster etcd database
 
 ## <a id='unsupported'></a> Unsupported Components
@@ -34,8 +34,8 @@ BBR can backup the following components:
 BBR can not be used to back up the following components:
 
   - Harbor tile
-  - Cloud provider objects:  
-    * Persistent volumes  
+  - Cloud provider objects:
+    * Persistent volumes
     * Network resources
 
 ## <a id='prereqs'></a> Prerequisites
@@ -47,7 +47,7 @@ _Restoring the PKS Control Plane_.
 
 _Restoring the PKS Control Plane_.
 
-Before you begin backing up the PKS control plane, download the root CA certificate. To download 
+Before you begin backing up the PKS control plane, download the root CA certificate. To download
 the root CA certificate for your PKS deployment, perform the following steps:
 
 1. On the Ops Manager Installation Dashboard, in the top right corner, click your username.
@@ -65,47 +65,84 @@ For general information about the jumpbox, see [Installing BOSH Backup and Resto
 
 ### <a id='ssh'></a> Connect with SSH
 
-SSH into your jumpbox. If you connect to your jumpbox with SSH, you must run the BBR commands in
-the following sections from within your jumpbox.
+To connect to your jumpbox with SSH, do one of the following:
 
-### <a id='bosh-all-proxy'></a> Connect with BOSH_ALL_PROXY
-
-Set and use `BOSH_ALL_PROXY`. Using `BOSH_ALL_PROXY` opens an SSH tunnel with SOCKS5 to the
-jumpbox. This tunnel allows you to forward requests to the BOSH Director through the jumpbox from
-your local machine.
-
-Use one of the following methods to create the tunnel:
-
-* **Tunnel created by BOSH CLI**: To provide the BOSH CLI with the SSH credentials it needs to
-create the tunnel, run the following command:
++ **If you are using the Ops Manager VM as your jumpbox**, log in to the Ops Manager VM. See
+    [Log in to the Ops Manager VM with SSH](../trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
+    <br><br>
++ **If you want to connect to your jumpbox using the command line**, run the following
+ command:
 
     ```
-	 export BOSH_ALL_PROXY=ssh+socks5://jumpbox@jumpbox-ip:12345?private_key=jumpbox.key
-	 ```
-
-* **Tunnel established separately**:
-
-  1. To establish the tunnel and make it available on a local port, run the following command:
-
+    ssh -i PATH-TO-KEY USER@IP-ADDRESS
     ```
-    ssh -4 -D 12345 -fNC jumpbox@jumpbox-ip -i jumpbox.key
-    ```
-	
-  1. To provide the BOSH CLI with access to the tunnel through use of the `BOSH_ALL_PROXY`
-  environment variable, run the following command:
+    Where:
+    * `PATH-TO-KEY` is the local path to your private key for the jumpbox host.
+    * `USER` is your jumpbox username.
+    * `IP-ADDRESS` is the IP address of your jumpbox.
 
-    ```
-    export BOSH_ALL_PROXY=socks5://localhost:12345
-    ```
+<p class="note"><strong>Note:</strong> If you connect to your jumpbox with SSH, you must run the BBR commands
+  in the following sections from within your jumpbox.</p>
 
-<p class="note"><strong>Note</strong>: Using <code>BOSH_ALL_PROXY</code> can result in longer
-backup and restore times due to network performance degradation. Because all operations must pass
+
+#### <a id='bosh-all-proxy'></a> Connect with BOSH&#95;ALL&#95;PROXY
+
+You can use the `BOSH_ALL_PROXY` environment variable to open an SSH tunnel with SOCKS5 to your jumpbox.
+This tunnel enables you to forward requests from your local machine to the BOSH Director through the jumpbox.
+When `BOSH_ALL_PROXY` is set, BBR always uses its value to forward requests to the BOSH Director.
+
+<p class="note"><strong>Note:</strong> Ensure the SOCKS port is not already in use by a different tunnel or process.</p>
+
+To connect with `BOSH_ALL_PROXY`, do one of the following:
+
+* **If you want to establish the tunnel separate from the BOSH CLI, do the following:**
+    1. Establish the tunnel and make it available on a local port by running the following command:
+
+        ```
+        ssh -4 -D SOCKS-PORT -fNC JUMPBOX-NAME@IP-ADDRESS -i JUMPBOX-KEY-FILE -o ServerAliveInterval=60
+        ```
+
+        Where:
+        * `SOCKS-PORT` is your local SOCKS port.
+        * `JUMPBOX-NAME` is the name of your jumpbox.
+        * `IP-ADDRESS` is the IP address of your jumpbox.
+        * `JUMPBOX-KEY-FILE` is your local SSH private key for accessing your jumpbox.
+
+        <pre class="terminal">$ ssh -4 -D 12345 -fNC jumpbox@203.0.113.0 -i jumpbox.key -o ServerAliveInterval=60</pre>
+    1. Provide the BOSH CLI with access to the tunnel through `BOSH_ALL_PROXY` by running the following command:
+
+        ```
+        export BOSH_ALL_PROXY=socks5://localhost:SOCKS-PORT
+        ```
+
+* **If you want to establish the tunnel using the BOSH CLI, do the following:**
+    1. Provide the BOSH CLI with the necessary SSH credentials to create the
+    tunnel by running the following command:
+
+        ```
+        export BOSH_ALL_PROXY=ssh+socks5://JUMPBOX-NAME@IP-ADDRESS:SOCKS-PORT?private_key=JUMPBOX-KEY-FILE
+        ```
+
+        Where:
+        * `JUMPBOX-NAME` is the name of your jumpbox.
+        * `IP-ADDRESS` is the IP address of your jumpbox.
+        * `SOCKS-PORT` is your local SOCKS port.
+        * `JUMPBOX-KEY-FILE` is the local SSH private key for accessing the jumpbox.
+
+
+
+
+<p class="note"><strong>Note:</strong> Using <code>BOSH_ALL_PROXY</code> can result in longer
+backup and restore times because of network performance degradation. Because all operations must pass
 through the proxy, moving backup artifacts can be significantly slower.</p>
+
+<div class="note warning"><strong>Warning:</strong> In BBR v1.5.0 and earlier, the tunnel created by the BOSH CLI does not include the <code>ServerAliveInterval</code> flag. This may have result in your SSH connection timing out when transferring large artifacts. In BBR v1.5.1, the <code>ServerAliveInterval</code> flag is included. For more information, see  <a href="https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/tag/v1.5.1">bosh-backup-and-restore v1.5.1</a> on GitHub.
+</div>
 
 ## <a id='locate-deploy-name'></a> Locate and Record the PKS Deployment Name
 
 Locate and record your PKS BOSH deployment name as follows:
-  
+
 1. On the Ops Manager Installation Dashboard, click the **BOSH Director** tile.
 1. In the BOSH Director tile, click the **Credentials** tab.
 1. Navigate to **Bosh Command line Credentials** and click **Link to Credential**.
@@ -117,7 +154,7 @@ For instructions on how to SSH into the Ops Manager VM, see [Advanced Troublesho
     ```
     BOSH-CLI-CREDENTIALS deployments | grep pivotal-container-service
     ```
-    
+
     Where `BOSH-CLI-CREDENTIALS` includes the full value that you copied from the BOSH Director tile.
     For example:
 
@@ -130,7 +167,7 @@ For instructions on how to SSH into the Ops Manager VM, see [Advanced Troublesho
     </pre>
 
 1. In the output, look for the PKS BOSH deployment name that begins with
-  `pivotal-container-service` and includes a unique identifier. 
+  `pivotal-container-service` and includes a unique identifier.
    In the example output above, the BOSH deployment name is `pivotal-container-service-51f08f6402aaa960f041`.
 
 ## <a id='back-up-deployment'></a> Back up the PKS Control Plane
@@ -266,7 +303,7 @@ PKS control plane:
     </pre>
 
     <p class="note"><strong>Note</strong>: The BBR backup command can take a long time to complete.
-    You can run it independently of the SSH session so that the process can continue running even 
+    You can run it independently of the SSH session so that the process can continue running even
     if your connection to the jumpbox fails. The command above uses <code>nohup</code>, but you can
     run the command in a <code>screen</code> or <code>tmux</code> session instead.</p>
 
@@ -302,7 +339,7 @@ backups, follow the procedures in [Clean up After a Failed Backup](#manual-clean
 
 ## <a id="manual-clean"></a> Clean up After a Failed Backup
 
-If your backup process fails, it might leave the BBR backup folder on the instance, causing any 
+If your backup process fails, it might leave the BBR backup folder on the instance, causing any
 subsequent attempts to backup to fail.
 In addition, BBR might not have run the post-backup scripts, leaving the instance in a locked state.
 
