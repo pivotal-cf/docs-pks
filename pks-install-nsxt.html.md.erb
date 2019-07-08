@@ -1,11 +1,11 @@
 ---
-title: Installing and Configuring NSX-T v2.5.x for Enterprise PKS
+title: Installing and Configuring NSX-T v2.4.x for Enterprise PKS
 owner: PKS-NSXT
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic provides instructions for installing NSX-T v2.5.x for use with <%= vars.product_full %> on vSphere.
+This topic provides instructions for installing NSX-T v2.4 for use with <%= vars.product_full %> on vSphere.
 
 ##<a id='nsxt-24-prereqs'></a> Prerequisites
 
@@ -29,13 +29,13 @@ Before you begin this procedure, ensure that you have successfully completed all
   </li>
 </ul>
 
-##<a id='nsxt-25-install'></a> Installing NSX-T v2.5.x
+##<a id='nsxt-24-install'></a> Installing NSX-T v2.4
 
-To perform a new installation of NSX-T v2.5.x for <%= vars.product_short %>, complete the following steps.
+To perform a new installation of NSX-T v2.4 for Enterprise PKS v1.4, complete the following steps.
 
-###<a id='nsx-install-prepare'></a> Step 1: Prepare for Installing NSX-T v2.5.x
+###<a id='nsx-install-prepare'></a> Step 1: Prepare for Installing NSX-T v2.4
 
-[Prepare for Installing NSX-T v2.5](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-EC9633E5-3CF1-433B-B7B5-FC9BBB3EE8F0.html).
+[Prepare for Installing NSX-T v2.4](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-EC9633E5-3CF1-433B-B7B5-FC9BBB3EE8F0.html).
 
 ###<a id='nsx-install-mgmt-cluster'></a> Step 2: Deploy NSX-T Manager Appliances and Configure the NSX-T Management Cluster
 
@@ -141,3 +141,126 @@ An [NSX Transport Node](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/
 <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>VTEPS</code> IP pool that allows ESXi hosts to route and communicate with each other, as well as other Edge Transport Nodes.</p>
 
 For instructions, see [Prepare ESXi Hosts as Transport Nodes for NSX-T](./nsxt-deploy.html#prepare-esxi).
+
+##<a id='pks-install'></a> Installing Enteprise PKS 1.4 on NSX-T 2.4
+
+To perform a new installation of Enterprise PKS v1.4.1 on NSX-T v2.4, complete the following steps.
+
+###<a id='pks-install-t0'></a> Step 1: Create T0 Logical Router
+
+[NSX Tier-0 Logical Routers](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-3F163DEE-1EE6-4D80-BEBF-8D109FDB577C.html) are used to route data between the NSX-T virtual network and the physical network. 
+
+For instructions, see [Create T0 Router](nsxt-deploy.html#create-t0-router). [Create a Tier-0 Logical Router](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-7891E6E7-606D-4F79-8AB7-BC01898F9FE7.html).
+
+Make sure you use the **Advanced Networking and Security** tab in NSX Manager to create the Tier-0 Router.
+
+
+##<a id='pks-install-mgmt-plane'></a> Step 2: Create NSX-T Objects for <%= vars.product_short %> Management Plane
+
+Prepare the vSphere and NSX-T infrastructure for the <%= vars.product_short %> Management Plane where the PKS, Ops Manager, BOSH Director, and Harbor Registry VMs are deployed. This includes a vSphere resource pool for <%= vars.product_short %> management components, an NSX [Tier-1 (T1) Logical Switch](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html), and an NSX [Tier-1 Logical Router and Port](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html). 
+
+For instructions, see [Prepare <%= vars.product_short %> Management Plane](nsxt-prepare-mgmt-plane.html).
+
+If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>, create the following NAT rules on the T0 Router. For complete instructions, see [Prepare Management Plane](nsxt-prepare-mgmt-plane.html).
+
+<table>
+  <tr>
+    <th>Type</th>
+    <th>For</th>
+  </tr>
+  <tr>
+    <td>DNAT</td>
+    <td>External > Ops Manager</td>
+  </tr>
+  <tr>
+    <td>DNAT</td>
+    <td>External > Harbor (optional)</td>
+  </tr>
+  <tr>
+    <td>SNAT</td>
+    <td>PKS Management Plane > vCenter and NSX-T Manager</td>
+  </tr>
+  <tr>
+    <td>SNAT</td>
+    <td>PKS Management Plane > DNS</td>
+  </tr>
+  <tr>
+    <td>SNAT</td>
+    <td>PKS Management Plane > NTP</td>
+  </tr>
+  <tr>
+    <td>SNAT</td>
+    <td>PKS Management Plane > LDAP/AD (optional)</td>
+  </tr>
+  <tr>
+    <td>SNAT</td>
+    <td>PKS Management Plane > ESXi</td>
+  </tr>
+</table>
+
+
+###<a id='pks-install-comp-plane'></a> Step 3: Create NSX-T Objects for <%= vars.product_short %> Compute Plane
+
+Create Resource Pools for AZ-1 and AZ-2, which map to the Availability Zones you will create when you configure BOSH Director and reference when you install the <%= vars.product_tile %> tile. In addition, create SNAT rules on the T0 router:
+
+- One for K8s Master Nodes (hosting NCP) to reach the NSX-T Manager
+- One for Kubernetes Master Node Access to LDAP/AD (optional)
+
+For instructions, see [Prepare Compute Plane](nsxt-prepare-compute-plane.html).
+
+###<a id='pks-install-om'></a> Step 4: Deploy Ops Manager in the NSX-T Environment
+
+Deploy a supported version of Ops Manager on the NSX-T Management Plane network.
+
+For instructions, see <a href="vsphere-nsxt-om-deploy.html">Deploy Ops Manager on vSphere with NSX-T</a>.
+
+###<a id='pks-install-mgr-cert'></a> Step 5: Generate NSX Manager Certificate
+
+Generate the CA Cert for the NSX Manager and import the certificate to NSX Manager.
+For instructions, see <a href="generate-nsx-ca-cert.html">Generate the NSX Manager CA Cert</a>.
+
+1. [Generate and Register the NSX Manager Cluster Certificate](./generate-nsx-ca-cert-24.html) (if you have not already done so). 
+
+###<a id='pks-install-bosh'></a> Step 6: Configure BOSH Director for vSphere with NSX-T
+
+Create BOSH availability zones (AZs) that map to the Management and Compute resource pools in vSphere, and the Management and Control plane networks in NSX-T.
+For instructions, see <a href="vsphere-nsxt-om-config.html">Configure BOSH Director for vSphere with NSX-T</a>.
+
+1. [Configure BOSH Director with NSX-T for Enterprise PKS](./vsphere-nsxt-om-config.html). 
+
+###<a id='pks-install-pi-cert'></a> Step 7: Generate NSX Manager Principal Identity Certificate
+
+Generate the NSX Manager Super User Principal Identity Certificate and register it with the NSX Manager using the NSX API.
+For instructions, see <a href="generate-nsx-pi-cert.html">Generate the NSX Manager PI Cert</a>.
+
+1. [Generate and Register the NSX Manager Superuser Principal Identity Certificate and Key](./generate-nsx-pi-cert.html).
+
+###<a id='pks-install-nsxt-objects'></a> Step 8: Create NSX-T Objects for <%= vars.product_short %>
+
+Create IP blocks for the [node networks](#nodes-ip-block) and the [pod networks](#pods-ip-block). The subnets for both nodes and pods should have a size of 256 (/16). See [Plan IP Blocks](#plan-ip-blocks) and [Reserved IP Blocks](#reserved-ip-blocks) for details.
+
+In addition, create a [Floating IP Pool](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-A27DF20A-5162-40F5-B7D5-2DF8B6AE5DBE.html) from which to assign routable IP addresses to components. This network provides your load balancing address space for each Kubernetes cluster created by <%= vars.product_short %>. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services.
+
+These network objects are required to configure the <%= vars.product_tile %> tile for NSX-T networking. For instructions, see <a href="./nsxt-create-objects.html">Create NSXT Object for <%= vars.product_short %></a>.
+
+1. [Create NSX-T Objects for Enterprise PKS](nsxt-create-objects.html) using the **System** tab in NSX Manager.
+
+###<a id='pks-install-pks'></a> Step 9: Install <%= vars.product_short %> on vSphere with NSX-T
+
+At this point your NSX-T environment is prepared for <%= vars.product_short %> installation using the <%= vars.product_tile %> tile in Ops Manager. For instructions, see <a href="./installing-nsx-t.html">Installing <%= vars.product_short %> on vSphere with NSX-T</a>.
+
+1. [Install Enterprise PKS on vSphere with NSX-T v2.4](./installing-nsx-t.html).
+
+###<a id='pks-install-harbor'></a> Step 10: Install Harbor Harbor Registry for <%= vars.product_short %>
+
+The VMware Harbor Registry is recommended for <%= vars.product_short %>. Install Harbor in the NSX Management Plane with other <%= vars.product_short %> components (PKS API, Ops Manager, and BOSH). For instructions, see <a href="https://docs.vmware.com/en/VMware-Enterprise-PKS/1.4/vmware-harbor-registry/GUID-index.html">Installing Harbor Registry on vSphere with NSX-T</a> in the VMware Harbor documentation.
+
+If you are using the [NAT deployment topology](nsxt-topologies.html#topology-nat) for <%= vars.product_short %>, create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the PKS management network. See <a href="https://docs.vmware.com/en/VMware-Enterprise-PKS/1.4/vmware-harbor-registry/GUID-integrating-pks.html">Create DNAT Rule</a>.
+
+###<a id='pks-install-post'></a> Step 26: Perform Post-Installation NSX-T Configurations as Necessary
+
+Once <%= vars.product_short %> is installed, you may want to perform additional NSX-T configurations to support customization of Kubernetes clusters at deployment time, such as:
+
+- <a href="./proxies.html">Configuring an HTTP Proxy</a> to proxy outgoing HTTP/S traffic from NCP, PKS, BOSH, and Ops Manager to vSphere infrastructure components (vCenter, NSX Manager)
+- <a href="./network-profiles-define.html">Defining Network Profiles</a> to customize NSX-T networking objects, such as load balancer size, custom Pods IP Block, routable Pods IP Block, configurable CIDR range for the Pods IP Block, custom Floating IP block, and more.
+- <a href="./nsxt-multi-t0.html">Configuring Multiple Tier-0 Routers</a> to support customer/tenant isolation
