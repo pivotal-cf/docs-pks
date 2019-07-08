@@ -47,8 +47,9 @@ To create a new UAA user with <%= vars.product_short %> access, do the following
     uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD
     ```
 
-    For example:
-    <pre class="terminal">$ uaac user add cody --emails cody&#64;example.com -p password</pre>
+    For example:<pre class="terminal">$ uaac user add cody --emails cody&#64;example.com -p password</pre>
+    
+    <%= partial "uaa-sso-login" %>
 
 1. Assign a PKS cluster scope to the new user by running the following command:
 
@@ -64,43 +65,78 @@ To create a new UAA user with <%= vars.product_short %> access, do the following
 
 After you assign this scope, the user can create and manage Kubernetes clusters. For more information, see [Managing Clusters](managing-clusters.html).
 
-##<a id='external-group'></a> Grant <%= vars.product_short %> Access to an External LDAP Group
+##<a id='external-group'></a> Grant <%= vars.product_short %> Access to an External Group
 
-Connecting <%= vars.product_short %> to an LDAP external user store allows the UAA server to delegate authentication to existing enterprise user stores.
+Connecting <%= vars.product_short %> to an LDAP or SAML external user store enables the UAA server to delegate authentication to existing enterprise user stores.
 
-<p class='note'><strong>Note</strong>: When integrating with an external identity provider such as
-LDAP, authentication within the UAA becomes chained. UAA first attempts to authenticate with a
-user's credentials against the UAA user store before the external provider, LDAP. For more
-information, see <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-LDAP.md#chained-authentication">Chained Authentication</a> in the <em>User Account and Authentication LDAP Integration</em> GitHub documentation.
+<p class='note'><strong>Note:</strong> When integrating UAA with an external identity provider, authentication within UAA becomes chained. UAA first attempts to authenticate with
+user credentials against the UAA user store before the external internal provider. For more
+information about integrating LDAP, see <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-LDAP.md#chained-authentication">Chained Authentication</a> in the <em>User Account and Authentication LDAP Integration</em> GitHub documentation.
 </p>
 
 For more information about the process used by the UAA server when it attempts to authenticate a
 user through LDAP, see the [Configuring LDAP Integration with Pivotal Cloud Foundry](https://community.pivotal.io/s/article/Configuring-LDAP-Integration-with-Pivotal-Cloud-Foundry) Knowledge Base article.
 
-To grant <%= vars.product_short %> access to an external LDAP group, perform the following steps:
+To grant <%= vars.product_short %> access to an external identity provider group, do one the following procedures:
 
-1. If you are not logged in as the UAA admin, perform the steps in [Log In as a UAA Admin](#uaa-admin-login).
++ [Grant <%= vars.product_short %> Access to an External LDAP Group](#ldap)
++ [Grant <%= vars.product_short %> Access to an External SAML Group](#saml)
 
-1. To assign the `pks.clusters.manage` scope to all users in an LDAP group, run the following command:
+###<a id='ldap'></a> Grant <%= vars.product_short %> Access to an External LDAP Group
+
+To grant <%= vars.product_short %> access to an external LDAP group, do the following:
+
+1. If you are not logged in as the UAA admin, do the steps in [Log In as a UAA Admin](#uaa-admin-login).
+
+1. Assign the `pks.clusters.manage` scope to all users in an LDAP group by running the following command:
 
     ```
     uaac group map --name pks.clusters.manage GROUP-DISTINGUISHED-NAME
     ```
-    Where `GROUP-DISTINGUISHED-NAME` is the LDAP Distinguished Name (DN) for the group. For example:
-    <pre class="terminal">
-    $ uaac group map --name pks.clusters.manage cn=operators,ou=groups,dc=example,dc=com
-    </pre>
+    Where `GROUP-DISTINGUISHED-NAME` is the LDAP Distinguished Name (DN) for the group. 
+    
+    For example:
+    <pre class="terminal">$ uaac group map --name pks.clusters.manage cn=operators,ou=groups,dc=example,dc=com</pre>
+    
     For more information about LDAP DNs, see the [LDAP DNs and RDNs](https://ldap.com/ldap-dns-and-rdns/) in the LDAP documentation.
 
 1. (Optional) To assign the `pks.clusters.admin` scope to all users in an LDAP group, run the following command:
 
-    ```
+      ```
     uaac group map --name pks.clusters.admin GROUP-DISTINGUISHED-NAME
+      ```
+      Where `GROUP-DISTINGUISHED-NAME` is the LDAP DN for the group. 
+      For example:
+      <pre class="terminal">$ uaac group map --name pks.clusters.admin cn=operators,ou=groups,dc=example,dc=com</pre>
+    
+###<a id='saml'></a> Grant <%= vars.product_short %> Access to an External SAML Group
+
+To grant <%= vars.product_short %> access to an external SAML group, do the following:
+
+1. If you are not logged in as the UAA admin, do the steps in [Log In as a UAA Admin](#uaa-admin-login).
+
+1. Assign the `pks.clusters.manage` scope to all users in a SAML group by running the following command:
+
     ```
-    Where `GROUP-DISTINGUISHED-NAME` is the LDAP DN for the group. For example:
-    <pre class="terminal">
-    $ uaac group map --name pks.clusters.admin cn=operators,ou=groups,dc=example,dc=com
-    </pre>
+    uaac group map --name pks.clusters.manage SAML-GROUP --origin SAML-ORIGIN
+    ```
+    Where:
+    + `SAML-GROUP` is name of your SAML identity provider group.
+    + `SAML-ORIGIN` is the domain name for your SAML identity provider. 
+    
+    For example:
+    <pre class="terminal">$ uaac group map --name pks.clusters.manage pks-admins --origin my-sso.example.com</pre>
+    
+1. (Optional) Assign the `pks.clusters.admin` scope to all users in a SAML group by running the following command:
+
+      ```
+    uaac group map --name pks.clusters.admin SAML-GROUP --origin SAML-ORIGIN
+      ```
+      Where:
+      + `SAML-GROUP` is name of your SAML identity provider group.
+      + `SAML-ORIGIN` is the domain name for your SAML identity provider.
+      For example:
+      <pre class="terminal">$ uaac group map --name pks.clusters.admin --origin my-sso.example.com</pre>
 
 ##<a id='uaa-client'></a>Grant <%= vars.product_short %> Access to a Client
 
