@@ -33,21 +33,21 @@ The PKS API control plane VM requires more resources.
 information, see [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/customizing/review-pending-changes.html).
 1. Click **Apply Changes**.
 
-##<a id='cluster-operation-fails'></a>All Cluster Operations Fail 
+##<a id='cluster-operation-fails'></a>All Cluster Operations Fail
 
 **Symptom**
 
-All PKS CLI cluster operations fail including attempts to create or delete clusters 
+All PKS CLI cluster operations fail including attempts to create or delete clusters
 with `pks create-cluster` and `pks delete-cluster`.
 
 The output of `pks cluster CLUSTER-NAME` contains `Last Action State: error`, and
-the output of `bosh -e ENV-ALIAS -d SERVICE-INSTANCE vms` indicates that the `Process State` 
+the output of `bosh -e ENV-ALIAS -d SERVICE-INSTANCE vms` indicates that the `Process State`
 of at least one deployed node is `failing`.
 
 **Explanation**
 
-If any deployed master or worker nodes run out of disk space in `/var/vcap/store` , 
-all cluster operations such as the creation or deletion of clusters will fail. 
+If any deployed master or worker nodes run out of disk space in `/var/vcap/store` ,
+all cluster operations such as the creation or deletion of clusters will fail.
 
 **Diagnostics**
 
@@ -77,10 +77,10 @@ To confirm that there is a disk space issue, check recent BOSH activity for any 
     no space left on device
     ```
 
-1. Check the health of your deployed Kubernetes clusters by following 
+1. Check the health of your deployed Kubernetes clusters by following
 the procedure in [Verifying Deployment Health](verify-health.html).
 
-1. In the output of `bosh -e ENV-ALIAS -d SERVICE-INSTANCE vms`, 
+1. In the output of `bosh -e ENV-ALIAS -d SERVICE-INSTANCE vms`,
 look for any nodes that display `failing` as their `Process State`. For example:
 
     <pre class="terminal">
@@ -94,7 +94,7 @@ look for any nodes that display `failing` as their `Process State`. For example:
 
 1. In the <%= vars.product_short %> tile, locate the plan assigned to the failing node.
 
-1. In the plan configuration, select a larger VM type for the plan's master or worker nodes or both. 
+1. In the plan configuration, select a larger VM type for the plan's master or worker nodes or both.
 
     For more information about scaling existing clusters by changing the VM types, see
 [Scale Vertically by Changing Cluster Node VM Sizes in the PKS Tile](scale-clusters.html#scale-vertical).
@@ -108,7 +108,7 @@ In the command output, the value for **Last Action State** is `error`.
 
 **Explanation**
 
-There was an error creating the cluster. 
+There was an error creating the cluster.
 
 **Diagnostics**
 
@@ -148,7 +148,7 @@ There was an error deleting the cluster.
 
 Log in to the BOSH Director and delete the BOSH deployment manually, then retry the `pks delete-cluster` operation.
 
-1. Log in to the BOSH Director and obtain the deployment name for cluster you want to delete. 
+1. Log in to the BOSH Director and obtain the deployment name for cluster you want to delete.
 For instructions, see [Managing <%= vars.product_short %> Deployments with BOSH](manage-deployments-bosh.html).
 
 1. Run the following BOSH command:
@@ -307,14 +307,60 @@ In your spec file, the `.spec.replicas` configuration sets the total amount of r
 Some apps deployed using Helm-Charts may have a default `PodDisruptionBudget` set.
 For more information on configuring `PodDisruptionBudget` objects using a spec file, see [Specifying a PodDisruptionBudget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/) in the Kubernetes documentation.
 
+If `.spec.replicas` is configured correctly, you can also configure the default node drain behavior to prevent cluster upgrades from hanging or failing.
+
 **Solution**
 
-Configure `.spec.replicas` to be greater than the `PodDisruptionBudget` object.
+To resolve this issue, do one of the following:
 
-When the number of replicas configured in `.spec.replicas` is greater than the number of replicas set in the `PodDisruptionBudget` object, disruptions can occur.
++ Configure `.spec.replicas` to be greater than the `PodDisruptionBudget` object.<br><br>
+    When the number of replicas configured in `.spec.replicas` is greater than the number of replicas set in the `PodDisruptionBudget` object, disruptions can occur.
+    <br><br>
+    For more information, see [How Disruption Budgets Work](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work) in the Kubernetes documentation.<br>
+    For more information about workload capacity and uptime requirements in <%= vars.product_short %>, see [Prepare to Upgrade](upgrade-pks.html#prepare) in _Upgrading <%= vars.product_short %>_.
 
-For more information, see [How Disruption Budgets Work](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work) in the Kubernetes documentation.
-For more information about workload capacity and uptime requirements in <%= vars.product_short %>, see [Prepare to Upgrade](upgrade-pks.html#prepare) in _Upgrading <%= vars.product_short %>_.
++ Configure the default node drain behavior by doing the following:
+    1. Navigate to **Ops Manager Installation** > **<%= vars.product_tile %>** > **Plans**.
+    1. Set the default node drain behavior by configuring the following fields:
+      <table class="nice">
+          <tr>
+            <th>Field</th>
+            <th>Instructions</th>
+          </tr>
+
+          <tr>
+            <td><strong>Node Drain Timeout</strong></td>
+            <td> Enter a timeout in minutes for the node to drain pods. You must enter a valid integer between 0 and 1440. If you set this value to 0, the node drain does not terminate.</td>
+          </tr>
+
+          <tr>
+            <td><strong>Pod Shutdown Grace</strong></td>
+            <td>Enter a timeout in seconds for the node to wait before it forces the pod to terminate. You must enter a valid integer between -1 and 86400. If you set this value to `-1`, the timeout is set to the default timeout specified by the pod.</td>
+          </tr>
+
+          <tr>
+            <td><strong>Force node to drain even if it has running pods not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet.</strong></td>
+            <td>If you enable this configuration, the node still drains when pods are not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet.</td>
+          </tr>
+
+          <tr>
+            <td><strong>Force node to drain even if it has running DaemonSet-managed pods.</strong></td>
+            <td>If you enable this configuration, the node still drains when pods are managed by a DeamonSet.</td>
+          </tr>
+
+          <tr>
+            <td><strong>Force node to drain even if it has running running pods using emptyDir.</strong></td>
+            <td>If you enable this configuration, the node still drains when pods are using a emptyDir volume.</td>
+          </tr>
+
+          <tr>
+            <td><strong>Force node to drain even if pods are still running after timeout.</strong></td>
+            <td>If you enable this configuration, if during the timeout pods fail to drain on the worker node, the node forces running pods to terminate and the upgrade or scale continues.</td>
+          </tr>
+        </table>
+
+        <p class="note warning"><strong>Warning:</strong> If you select <strong>Force node to drain even if pods are still running after timeout</strong>, the node kills all running workloads on pods.</p>
+    3. Navigate to **Ops Manager Installation Dashboard** > **Review Pending Changes**, select **Upgrade all clusters errand**, and **Apply Changes**.
 
 ##<a id='kubeconfig-token-expire'></a>Cannot Authenticate to an OpenID Connect-Enabled Cluster
 
@@ -339,8 +385,8 @@ For more information, see [Installing the PKS CLI](installing-pks-cli.html).
     ```
     Where `CLUSTER-NAME` is the name of your cluster.
     </br>
-    </br> 
-    For example: 
+    </br>
+    For example:
 
     <pre class="terminal">$ pks get-credentials pks-example-cluster
 
@@ -350,7 +396,7 @@ For more information, see [Installing the PKS CLI](installing-pks-cli.html).
     You can now switch between clusters by using:
     $kubectl config use-context &ltcluster-name&gt
     </pre>
-    
+
     <%= partial "saml-sso-login" %>
 
 1. Connect to the cluster using kubectl.
