@@ -1,0 +1,118 @@
+---
+title: Install the NSX Manager Unified Appliance for Enterprise PKS
+owner: PKS-NSXT
+---
+
+<strong><%= modified_date %></strong>
+
+This topic provides instructions for installing NSX Edge Node VMs on vSphere for use with Enterprise PKS.
+
+##<a id='edges-about'></a> About Deploying NSX Edge Nodes for Enterprise PKS
+
+NSX Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for <%= vars.product_short %> run load balancers for PKS API traffic, Kubernetes pod load balancer services, and pod ingress controllers. See [Load Balancers in Enterprise PKS](./about-lb.html) for more information.
+
+The table below lists the maximum number of load balancers per NSX Edge Node form factor. For more information, see [Scaling Load Balancer Resources](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html) in the VMware documentation.
+
+Edge Node Type  | LB Small Max  | LB Medium Max | LB Large Max  | Supported by <%= vars.product_short %>
+----------------|---------------|---------------|---------------|-----------------
+Edge VM Small   | 0             | 0             | 0        		| No
+Edge VM Medium  | 1             | 0             | 0        		| No
+Edge VM Large   | 40            | 4             | 0        		| Yes
+Edge Bare Metal | 750           | 100           | 7        		| Yes
+
+<%= vars.product_short %> supports the NSX Edge Node large VM form factor (8 vCPU, 32 GB of RAM, 200 GB of disk space) or the bare metal Edge Node. See [NSX Edge VM System Requirements](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-22F87CA8-01A9-4F2E-B7DB-9350CA60EA4E.html) in the VMware documentation for details. Edge Node VMs can only be deployed on Intel-based ESXi hosts.
+
+The default load balancer deployed by NSX-T for an <%= vars.product_short %>-provisioned Kubernetes cluster is the small load balancer. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>. The large load balancer requires a bare metal Edge Node.
+
+<%= vars.product_short %> supports active/standby Edge Node failover and requires at least two Edge Nodes. For high-availability Edge Nodes are deployed as pairs within an Edge Cluster. The minimum number of Edge Nodes per Edge Cluster is 2; the maximum is 10. In standby mode, the standby load balancer is not available for use while the active load balancer is engaged. 
+
+The following virtual servers are required for Enterprise PKS:
+
+	- 1 TCP layer 4 virtual server for each Kubernetes service of type:LoadBalancer
+	- 2 HTTP and HTTPS layer 7 global virtual servers for Kubernetes ingress resources
+	- 1 global virtual server for the PKS API
+
+To determine the maximum number of load balancers per Edge Cluster, multiply the maximum number of load balancers for the Edge Node type by the number of Edge Nodes and divide by 2. For example, with 10 Edge VM Large nodes in an Edge Cluster, you can have up to 200 small load balancer instances (40 x 10 / 2), or up to 20 medium LB instances (4 x 10 / 2).
+
+##<a id='edge-node-install'></a> Install a Large NSX Edge Node VM Using the vSphere Client
+
+The NSX Edge Node VM is provided as an OVA file named the **NSX Edge VM** that you import into your vSphere environment and configure.
+
+Complete the following steps to [install an NSX Edge Node VM using the vSphere Client](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-AECC66D0-C968-4EF2-9CAD-7772B0245BF6.html). To install an NSX Edge Node VM using the ovftool CLI, see the [NSX-T Data Center documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-BF5EC490-CB5D-4FA9-AEC8-BB1A85E55B01.html)
+
+<p class="note"><strong>Note</strong>: Repeat the deployment and verification process for each NSX Edge Node you intend to use for <%= vars.product_short %>.</p>
+
+1. Locate the NSX-T Data Center OVA file on the VMware download portal and download it to your local machine.
+
+For example: 
+
+	- If you are installing NSX-T v2.4.x, download the file `nsx-unified-appliance-2.4.1.0.0.13716579.ova`
+
+	- If you are installing NSX-T v.2.5.x, download the file `nsx-unified-appliance-2.5.0.0.0.13716579.ova`.
+
+1. Log in to vCenter using the vSphere Client.
+
+1. In the vSphere Client, select the **Resource Pool** where you want to install NSX-T Data Center.
+
+1. Right-click and select **Deploy OVF Template** to start the installation wizard.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-01.png">
+
+1. At the **Select an OVF template** screen, select the **Local file** option, click **Choose Files** and navigate to where you downloaded the OVA file.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-02.png">
+
+1. At the **Select a name and folder** screen, enter a name for the NSX Edge VM, such as `nsx-edge-1`, and select the **Datacenter** for the VM deployment.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-03.png">
+
+1. At the **Select a compute resource** screen, select the Cluster where the NSX Edge VM will be deployed.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-04.png">
+
+1. At the **Review details** screen, verify the OVF template details.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-05.png">
+
+1. At the **Configuration** screen, select the **Large** size VM.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-06.png">
+
+<p class="note"><strong>Warning:</strong> When deploying an Edge Node VM, you must select the large size VM. This enables <%= vars.product_short %> to deploy Kubernetes clusters correctly. For more information, see <a href="./nsxt-install-edge-node-install.html#edges-about">About Deploying NSX Edge Nodes for Enterprise PKS</a>.</p>
+
+1. At the **Select storage** screen, select the **vsanDatastore** if you are using vSAN, or a dedicated datastore if you are not.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-manager-installation/nsx-manager-install-07.png">
+
+1. At the **Select networks** screen, select the **Desintation Network** for each of the Source Networks.
+
+	When deploying the Edge Node, be sure to connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment:
+
+  	* **Network 0**: For management purposes. Connect the first Edge interface to your environment's PortGroup/VLAN where your Edge Management IP can route and communicate with the NSX Manager.
+  	* **Network 1**: For TEP (Tunnel End Point). Connect the second Edge interface to your environment's PortGroup/VLAN where your GENEVE VTEPs can route and communicate with each other. Your **VTEP CIDR** should be routable to this PortGroup.
+  	* **Network 2**: For uplink connectivity to external physical router. Connect the third Edge interface to your environment's PortGroup/VLAN where your T0 uplink interface is located.
+  	* **Network 3**: Unused (select any port group)
+
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-07.png">
+
+1. At the **Customize Template** screen, configure the following settings:
+
+	- **System Root User Password** (must comply with [password strength restrictions](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-FA0ABBBD-34D8-4DA9-882D-085E7E0D269E.html))
+	- **CLI "admin" User Password** (must comply with [password strength restrictions](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-FA0ABBBD-34D8-4DA9-882D-085E7E0D269E.html))
+	- **CLI "audit" User Password** (must comply with [password strength restrictions](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-FA0ABBBD-34D8-4DA9-882D-085E7E0D269E.html))
+	- **Hostname** for the NSX Edge VM, such as `nsx-edge-1`
+	- **Default IPv4 Gateway**: The default gateway for the NSX Manager VM, such as `10.197.79.253`
+	- **Management Network IPv4 Address**: The IPv4 address for the first network interface, such as `10.197.79.143`
+	- **Managment Network Netmask**: The netmask for the first interface, such as `255.255.255.0`
+	- **DNS Server List**: One or more DNS servers, space-separted if multiple, such as `10,142.7.1 10.142.7.2`
+	- **NTP Server List**: One or more NTP servers, space-separated if multiple, such as `10.128.243.13 10.128.243.14`
+	- **Enable SSH**: Select Enable SSH (by default, this option is disabled for security reasons)
+	- **Allow root SSH logins**: Enable this option to (by default, this option is disabled for security reasons)
+
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-08.png">
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-09.png">
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-10.png">
+
+1. At the **Ready to complete** screen, verify that the OVF template specification is accurate and click **Finish** to begin the installation. 
+
+	- The installation will approximately 10 minutes to complete.
+	- Use the **Recent Tasks** panel at the bottom of the vCenter screen to view the progress of the OVA deployment.
+
+##<a id='edge-node-verify'></a> Verify NSX Edge Node VM Installation
+
+Complete all of the steps in the topic [Verify NSX VM Deployment for Enterprise PKS](./nsxt-install-verify-vm-deployment) to verify the installation of NSX Edge Node VM.
+
+

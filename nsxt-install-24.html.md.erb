@@ -35,23 +35,15 @@ To perform a new installation of NSX-T v2.4.x for Enterprise PKS v1.4, complete 
 
 ###<a id='nsx-install-prepare'></a> Step 1: Prepare for Installing NSX-T v2.4.x
 
-[Prepare for Installing NSX-T v2.4](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-EC9633E5-3CF1-433B-B7B5-FC9BBB3EE8F0.html).
+Before installing NSX-T Data Center v2.4.x, make sure your environment is prepared.
 
-###<a id='nsx-install-mgmt-cluster'></a> Step 2: Deploy NSX-T Manager Appliances and Configure the NSX-T Management Cluster
+Refer to the topic [Preparing for Installation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-EC9633E5-3CF1-433B-B7B5-FC9BBB3EE8F0.html).
 
-1. [Install the NSX Manager Unified Appliance](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-FA0ABBBD-34D8-4DA9-882D-085E7E0D269E.html) using the OVA file, for example: `nsx-unified-appliance-2.4.1.0.0.13716579.ova`.
+###<a id='nsx-install-mgmt-cluster'></a> Step 2: Install NSX-T Manager Appliances and Configure the NSX-T Management Cluster
 
-1. [Log In to the Newly Created NSX Manager](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-BF9FF9E2-47BD-466F-BDD2-8FF5145412E5.html).
+1. [Install the NSX Manager Unified Appliance for Enterprise PKS](./nsxt-install-nsx-manager) using the OVA template file.
 
-1. [Add a Compute Manager](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-D225CAFC-04D4-44A7-9A09-7C365AAFCA0E.html).
-
-1. [Deploy Two Additional NSX Manager Nodes to Form a NSX Management Cluster](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-B89F5831-62E4-4841-BFE2-3F06542D5BF5.html) Using the NSX Manager UI.
-
-1. [Configure a Virtual IP Address and Cluster Certificate for the NSX v2.4 Management Cluster](./nsxt-mgmt-vip.html). Alternatively, [Provision a Load Balancer for the NSX-T v2.4 Management Cluster](./nsxt-mgmt-lb.html).
-	
-<p class="note"><strong>Note:</strong> If you do not require scalability, configure a Cluster VIP to achieve HA for the NSX-T Management Cluster. If you need to scale, provision a load balancer for the NSX-T Management Cluster.</p>
-
-<p class="note"><strong>Note:</strong> To provision a load balancer, you will first need to deploy and configure NSX-T Edge Nodes.</p>
+1. [Deploy Two Additional NSX Manager Nodes and Form a NSX Management Cluster](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-B89F5831-62E4-4841-BFE2-3F06542D5BF5.html).
 
 ###<a id='nsx-install-edges'></a> Step 3: Deploy NSX Edge Nodes and Join Them with the Management Plane
 
@@ -65,23 +57,6 @@ NSX-T Edge Nodes run load balancers for <%= vars.product_short %> API traffic, l
 
 1. [Join Each NSX Edge Node with the Management Plane](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html).
 
-The table below lists the maximum number of load balancers per Edge Node form factor.
-
-Edge Node Type  | LB Small Max  | LB Medium Max | LB Large Max  | Supported by <%= vars.product_short %>
-----------------|---------------|---------------|---------------|-----------------
-Edge VM Small   | 0             | 0             | 0        		| No
-Edge VM Medium  | 1             | 0             | 0        		| No
-Edge VM Large   | 40            | 4             | 0        		| Yes
-Edge Bare Metal | 750           | 100           | 7        		| Yes
-
-Keep in mind the following requirements for NSX Edge Nodes with <%= vars.product_short %>:
-
-* <%= vars.product_short %> requires the NSX-T Edge Node large VM (8 vCPU and 16 GB of RAM) or the bare metal Edge Node. For more information, see <a href="./vsphere-nsxt-rpd-mpd.html">Hardware requirements for <%= vars.product_short %> on vSphere with NSX-T</a>.
-* The default load balancer deployed by NSX-T for an <%= vars.product_short %>-provisioned Kubernetes cluster is the small load balancer. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>.
-* Edge Node VMs can only be deployed on Intel-based ESXi hosts.
-* The large load balancer requires a bare metal Edge Node.
-* For high-availability Edge Nodes are deployed as pairs within an Edge Cluster. The minimum number of Edge Nodes per Edge Cluster is 2; the maximum is 10. <%= vars.product_short %> supports active/standby mode only. In standby mode, the standby LB is not available for use while the active LB is active. To determine the maximum number of load balancers per Edge Cluster, multiply the maximum number of LBs for the Edge Node type by the number of Edge Nodes and divide by 2. For example, with 10 Edge VM Large nodes in an Edge Cluster, you can have up to 200 small LB instances (40 x 10 / 2), or up to 20 medium LB instances (4 x 10 / 2).
-* <%= vars.product_short %> deploys a virtual server for each load balancer instance. For service of type load balancer, it is one virtual server per service. There are two global virtual servers deployed for ingress resources (HTTP and HTTPS). And there is one global virtual server for the PKS API. For more information, see <a href="network-profiles-define.html">Defining Network Profiles</a>.
 
 ###<a id='nsx-install-vib'></a> Step 4: Enable VIB Repository Service
 
@@ -141,3 +116,10 @@ An [NSX Transport Node](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/
 <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>VTEPS</code> IP pool that allows ESXi hosts to route and communicate with each other, as well as other Edge Transport Nodes.</p>
 
 For instructions, see [Prepare ESXi Hosts as Transport Nodes for NSX-T](./nsxt-deploy.html#prepare-esxi).
+
+###<a id='nsx-install-esxi'></a> Step 12: Configure Load Balancer or VIP for the NSX Management Cluster
+
+1. [Configure a Virtual IP Address and Cluster Certificate for the NSX v2.4 Management Cluster](./nsxt-mgmt-vip.html). Alternatively, [Provision a Load Balancer for the NSX-T v2.4 Management Cluster](./nsxt-mgmt-lb.html).
+  
+<p class="note"><strong>Note:</strong> If you do not require scalability, configure a Cluster VIP to achieve HA for the NSX-T Management Cluster. If you do need to scale, provision a load balancer for the NSX-T Management Cluster. To provision a load balancer, you will first need to deploy and configure NSX-T Edge Nodes.</p>
+
