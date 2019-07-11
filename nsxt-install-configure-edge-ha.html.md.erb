@@ -1,0 +1,81 @@
+---
+title: Create Tier-0 Router
+owner: PKS-NSXT
+---
+
+<strong><%= modified_date %></strong>
+
+This topic provides instructions for creating an NSX-T Tier-0 Logical Router for use with Enterprise PKS.
+
+##<a id='edge-ha-about'></a>About Edge Node HA
+
+Configure NSX Edge for high availability (HA) using Active/Standby mode to support failover, as shown in the following figure. For instructions, see [Configure Edge HA](nsxt-deploy.html#configure-edge-ha).
+
+<p class="note"><strong>Note</strong>: If the T0 Router is not configured for HA as decribed in <a href="nsxt-deploy.html#create-edge-ha">Configure Edge Nodes for HA</a>, failover to the standby Edge Node will not occur.</p>
+
+![NSX Edge High Availability](images/vsphere/nsxt-edge-ha.png)
+
+##<a id='edge-ha-configure'></a>Configure Edge Nodes for HA
+
+Configure <a href="nsxt-prepare-env.html#nsx-edge-ha">high-availability (HA) for NSX Edge Nodes</a>. If the T0 Router is not correctly configured for HA, failover to the standby Edge Node will not occur.
+
+Proper configuration requires two new uplinks on the T0 router: one attached to Edge TN1, and the other attached to Edge TN2. In addition, you need to create a VIP that is the IP address used for the T0 uplink defined when the T0 Router was created.
+
+  <img src="images/nsxt/nsx-misc/edge-node-ha-01.png">
+
+### Create Uplink1 for Edge-TN1
+
+On the T0 router, create the Uplink1 router port and attach it to Egde TN1. For example:
+
+* **IP Address/Mask**: For example, `10.40.206.10/25`
+* **URPF Mode**: None (optional)
+* **Transport Node**: `edge-TN1`
+* **Logical Switch**: `uplink-LS1`
+  <img src="images/nsxt/nsx-misc/edge-node-ha-02.png">
+
+### Create Uplink2 for Edge-TN2
+
+On the T0 router, create the Uplink2 router port and attach it to Egde TN2. For example:
+
+ * **IP Address/Mask**: For example, `10.40.206.9/25`
+ * **URPF Mode**: None (optional)
+ * **Transport Node**: `edge-TN2`
+ * **Logical Switch**: `uplink-LS1`
+  <img src="images/nsxt/nsx-misc/edge-node-ha-03.png">
+
+### Create HA VIP
+
+Create an HA virtual IP (VIP) address. This address is used for the T0 router uplink. External router devices, such as the physical router, peering with the T0 router must use this IP address.
+
+<p class="note"><strong>Note</strong>: The IP addresses for uplink-1, uplink-2 and HA VIP must belong to same subnet.</p>
+
+1. On the T0 router, create the HA VIP. For example:
+ * **VIP Address**: `10.40.206.24/25`
+ * **Uplinks Ports**: `Uplink-1` and `Uplink-2`
+   <img src="images/nsxt/nsx-misc/edge-node-ha-05.png">
+1. Verify creation of the HA VIP.
+   <img src="images/nsxt/nsx-misc/edge-node-ha-04.png">
+
+### Create Static Route for HA
+
+1. On the T0 router, create a static default route so that the next hop points to the physical router. For example:
+ * **Network**: `0.0.0.0/0`
+ * **Next Hop**: `10.40.206.125`
+ * **Logical Router Port**: empty
+  <img src="images/nsxt/nsx-misc/edge-node-ha-05b.png">
+1. Using vCenter, disconnect any unused vNIC interface in each Edge Node VM (this interface can cause duplicate packets.) For example, in the screenshot below, **Network adapter 4** is not being used, so it is disconnected:
+  <img src="images/nsxt/nsx-misc/edge-node-ha-06.png">
+
+<p class="note"><strong>Note:</strong> Disconnect unused vNICs to prevent the duplication of traffic from two vNICs connected to same VLAN. This can occur when you configure HA for an active/standby Edge Node pair.</p>
+
+##<a id='edge-ha-verify'></a>Verify Edge Node HA Configuration
+
+1. The T0 router should display both Edge TNs in active/standby pairing.
+  <img src="images/nsxt/nsx-misc/edge-node-ha-07.png">
+1. Run the following commands to verify HA channels:
+
+		nsx-edge-n-1> get high-availability channels
+		nsx-edge-n-1> get high-availability channels stats
+		nsx-edge-n-1> get logical-router
+		nsx-edge-n-1> get logical-router ROUTER-UUID high-availability status
+
