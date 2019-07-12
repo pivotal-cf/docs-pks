@@ -5,57 +5,85 @@ owner: PKS-NSXT
 
 <strong><%= modified_date %></strong>
 
-This topic provides instructions for creating transport zones for use with Enterprise PKS.
+This topic provides instructions for creating transport zones for use with <%= vars.product_short %>.
 
-##<a id='tep-about'></a>About Transport Zones
+##<a id='prereqs'></a> Prerequisites
 
-A transport zone is a logical construct in NSX-T that controls which hosts a logical switch can reach. It can span one or more host clusters. Transport zones dictate which hosts and, therefore, which VMs can participate in the use of a particular network. 
+Make sure you have completed [all preceding NSX-T installation tasks](./nsxt-install-config-steps.html).
+
+##<a id='tzs-about'></a>About Transport Zones
+
+In NSX-T a transport zone (TZ) is a logical construct that controls which hosts a logical switch can reach. Transport zones dictate which hosts and, therefore, which VMs can participate in the use of a particular network. 
 
 A Transport Zone defines a collection of hosts that can communicate with each other across a physical network infrastructure. This communication happens over one or more interfaces defined as Virtual Tunnel Endpoints (VTEPs).
 
-The transport nodes are the hosts running the local control plane daemons and forwarding engines implementing the NSX-T Data Center data plane. The transport nodes consists of a NSX-T Data Center Virtual Distributed Switch (N-VDS), which is responsible for switching packets according to the configuration of available network services.
+There are two types of transport zones: Overlay and VLAN. The overlay transport zone is used by both host transport nodes and NSX Edges. When a host or NSX Edge transport node is added to an overlay transport zone, an N-VDS is installed on the ESXi host or NSX Edge Node. The VLAN transport zone is used by the NSX Edge Node and ESXi host transport nodes for its VLAN uplinks. When an NSX Edge Node is added to a VLAN transport zone, a VLAN N-VDS is installed on the NSX Edge Node. 
 
-A host can serve as a transport node if it contains at least one NSX managed virtual distributed switch (N-VDS, previously known as hostswitch). When you create a host transport node and then add the node to a transport zone, NSX-T Data Center installs an N-VDS on the host. For each transport zone that the host belongs to, a separate N-VDS is installed. The N-VDS is used for attaching VMs to NSX-T Data Center logical switches and for creating NSX-T Data Center logical router uplinks and downlinks. 
+For more information, [Create Transport Zones](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html) in the NSX-T Data Center documentation.
 
+##<a id='tz-overlay'></a>Create Overlay Transport Zone 
 
-##<a id='create-tz-overlay'></a>Create Overlay Transport Zone 
+Create an Overlay Transport Zone (`TZ-OVERLAY`) for PKS control plane services and Kubernetes clusters overlay networks associated with associated with VDS `hostswitch1`.
 
-Create an [NSX Overlay Transport Zone](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-AC4A0159-DF37-47F6-A333-33C7945570D1.html) (TZ-Overlay) for <%= vars.product_short %> Control Plane services and Kubernetes Cluster deployment overlay networks. For instructions, see [Create Overlay TZ](nsxt-deploy.html#create-tz-overlay).
+1. From a browser, log in with admin privileges to an NSX Manager at https://<nsx-manager-ip-address>.
 
-Create an Overlay Transport Zone (`TZ-Overlay`) for PKS control plane services and Kubernetes clusters associated with associated with VDS `hostswitch1`.
+1. In NSX Manager, select **Fabric** > **Transport Zones** > **Add**.
 
-To create TZ-Overlay, complete this procedure: [Create Transport Zones](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html).
+1. Enter a name for the overlay transport zone, such as `TZ-OVERLAY`, and optionally a description.
 
-When creating the TZ-Overlay for <%= vars.product_short %>, refer to the following example:
+1. Enter a name for the N-VDS, such as `hostswitch1`. 
 
-  <img src="images/nsxt/nsx-misc/tz-overlay-01.png">
+1. Select a **Host Membership Criteria** (N-VDS mode). The options are Standard and Enhanced Datapath.
 
-To verify TZ-Overlay creation:
+	If the N-VDS mode is Standard, select a traffic type.
+	In the enhanced datapath mode, only specific NIC configurations are supported (ESXi hosts v6.7+). Ensure that you configure the supported NICs.
 
-1. In NSX Manager select **Fabric > Transport Zones**.
+1. For Traffic Type, select **Overlay**.
 
-1. Verify that you see the TZ-Overlay transport zone you created:
+1. (Optional) Enter one or more uplink teaming policy names.
 
-  <img src="images/nsxt/nsx-misc/tz-overlay-02.png">
+1. Click **Add**.
 
-##<a id='create-tz-vlan'></a>Step 9: Create VLAN Transport Zone 
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-tzs/create-tz-overlay.png">
 
-##<a id='nsx-vlan'></a> Step 10: Create VLAN Transport Zone
-
-Create an [NSX VLAN Transport Zone](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-AC4A0159-DF37-47F6-A333-33C7945570D1.html) (TZ-VLAN) for NSX Edge uplinks (ingress/egress) for <%= vars.product_short %>-managed Kubernetes clusters. For instructions, see [Create VLAN TZ](nsxt-deploy.html#create-tz-vlan).
+##<a id='tz-vlan'></a>Create VLAN Transport Zone 
 
 Create the VLAN Transport Zone (`TZ-VLAN`) for NSX Edge Node uplinks (ingress/egress) for <%= vars.product_short %> Kubernetes clusters associated with VDS `hostswitch2`.
 
-To create TZ-VLAN, complete this procedure: [Create Transport Zones](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html).
+1. In NSX Manager, select **Fabric** > **Transport Zones** > **Add**.
 
-When creating the TZ-VLAN for <%= vars.product_short %>, refer to the following example:
+1. Enter a name for the VLAN transport zone, such as `TZ-VLAN`, and optionally a description.
 
-  <img src="images/nsxt/nsx-misc/tz-vlan-01.png">
+1. Enter a name for the N-VDS, such as `hostswitch2`. 
 
-To verify TZ-VLAN creation:
+1. Select a **Host Membership Criteria** (N-VDS mode). The options are Standard and Enhanced Datapath.
+
+	If the N-VDS mode is Standard, select a traffic type.
+	In the enhanced datapath mode, only specific NIC configurations are supported (ESXi hosts v6.7+). Ensure that you configure the supported NICs.
+
+1. For Traffic Type, select **VLAN**.
+
+1. (Optional) Enter one or more uplink teaming policy names.
+
+1. Click **Add**.
+
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-tzs/create-tz-vlan.png">
+
+##<a id='tz-verify'></a>Verify Transport Zone Creation
+
+To verify transport zone creation:
 
 1. In NSX Manager select **Fabric > Transport Zones**.
 
-1. Verify that you see the TZ-VLAN transport zone:
+1. Verify that you see the TZ-OVERAL and TZ-VLAN transport zones you created:
 
-  <img src="images/nsxt/nsx-misc/tz-vlan-02.png">
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-tzs/create-tzs-success.png">
+
+##<a id='next'></a> Next Step
+
+[Create Edge Node Uplink Profile](./nsxt-install-create-uplink-profile).
+
+##<a id='home'></a> NSX-T Installation Instructions Home
+
+<a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
+
