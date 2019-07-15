@@ -1,0 +1,299 @@
+---
+title: Deploying and Exposing Windows Workloads (Beta)
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to deploy Windows worker pods and Windows workloads in <%= vars.product_full %>.  
+
+With <%= vars.product_short %> v1.5, developers can deploy Windows VMs and workloads to Windows worker pods. 
+This feature is in beta for <%= vars.product_short %> v1.5.0. 
+Please use the instructions at the bottom of this topic to provide feedback to the Windows product team.  
+
+<p class="note warning"> <strong>IMPORTANT: </strong> This feature is in beta and only works in vSphere with Flannel. 
+Do not enable this feature if you are using <%= vars.product_short %> 1.5 with Google Cloud Platform (GCP), 
+Azure, Amazon Web Services (AWS), or vSphere with NSX-T.
+</p>
+
+## <a id='prerequisites'></a>Prerequisites
+
+Windows worker support is only available in <%= vars.product_short %> clusters configured and deployed with Windows 
+worker-based cluster support enabled. For more information on configuring Windows worker-based clusters see 
+[Configuring Windows Worker-based Clusters (Beta)](windows-pks-beta.html). For conceptual information 
+regarding PKS clusters and pods, see [PKS Concepts](concepts.html).
+
+Your command line context must be assigned to an <%= vars.product_short %> Windows worker-based cluster to deploy 
+Windows worker VMs and Windows services.
+
+1. To determine which of your existing clusters is Windows worker-based, use the following command:  
+
+    ```
+    pks clusters
+    ```
+
+    For example:
+    <pre class='terminal'>
+    $ pks clusters
+
+    Name                Plan Name             UUID                                  Status     Action
+    windows-k8s         Plan-11-Windows-Beta  881543kd-64fg-7826-hea6-3h7g1o04kh0e  succeeded  Create
+    second-windows-k8s  Plan-11-Windows-Beta  951547dl-67kg-9631-bju8-7h9s3o98br0q  succeeded  Create
+    </pre>
+
+    Only clusters configured on Plans 11, 12, or 13 are Windows worker-based.
+
+1. To set context to your Windows worker-based cluster, run the following command:
+
+    ```
+    pks get-credentials CLUSTER-NAME
+    ```
+    Where `CLUSTER-NAME` is the name of your Windows worker-based cluster.  
+  </br>
+    For example: 
+    <pre class="terminal">$ pks get-credentials windows-k8s
+
+    Fetching credentials for cluster windows-k8s.
+    Context set for cluster windows-k8s.
+
+    You can now switch between clusters by using:
+    $kubectl config use-context &lt;cluster-name&gt;
+    </pre>
+    The `pks get-credentials` command creates a local `kubeconfig` that allows you to manage the cluster. 
+    For more information about the `pks get-credentials` command, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html). 
+
+1. To verify you have established the correct context, run the following command:
+
+    ```
+    kubectl cluster-info
+    ```
+
+1. (Optional) To review the cluster's existing pods, run the following command:  
+
+    ```
+    kubectl get pods
+    ```
+
+## <a id='deploy-pod'></a> Deploy a Windows Worker Pod
+
+You must create a deployment manifest file for your new Windows worker pod before deploying the pod.
+
+### <a id='configure-pod'></a> Configure Your Pod Deployment Manifest
+
+A pod deployment manifest is a yaml file describing the VMs to be deployed to a pod. 
+You must create a deployment manifest for your new Windows worker pod before deploying the pod.  
+
+1. To create a Windows worker deployment manifest, create a new yaml file containing the following:  
+
+    ```
+    ---
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata
+      labels:
+          app: POD-NAME
+      name: POD-NAME
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: POD-NAME
+          name: POD-NAME
+        spec:
+          containers:
+          - name: CONTAINER-NAME
+            image: CONTAINER-FILE:latest
+            env:
+            - name: PORT
+              value: "80"
+            ports:
+            - name: http
+              containerPort: 80
+          nodeSelector:
+            kubernetes.io/os: windows
+          tolerations:
+          - key: "windows"
+            operator: "Equal"
+            value: "2019"
+            effect: "NoSchedule"
+    ```
+    Where:  
+    * `POD-NAME` is your pod's name.  
+    * `CONTAINER-NAME` is your container's internal name.  
+    * `CONTAINER-FILE` is your container's filename.  
+
+    For example:  
+
+    ```
+    ---
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata
+      labels:
+          app: win-webserver
+      name: win-webserver
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: win-webserver
+          name: win-webserver
+        spec:
+          containers:
+          - name: windowswebserver
+            image: stefanscherrer/webserver-windows:latest
+            env:
+            - name: PORT
+              value: "80"
+            ports:
+            - name: http
+              containerPort: 80
+          nodeSelector:
+            kubernetes.io/os: windows
+          tolerations:
+          - key: "windows"
+            operator: "Equal"
+            value: "2019"
+            effect: "NoSchedule"
+    ```    
+
+### <a id='deploy-pod-steps'></a> Deploy the POD
+
+1. To deploy a new Windows worker pod, run the following command:
+
+    ```
+    kubectl apply -f POD-CONFIG-FILE
+    ```
+
+    Where `POD-CONFIG-FILE` is the filename of the Windows worker deployment manifest created above.  
+
+1. To confirm the new pod's status, and the creation of new Windows worker nodes, run the following commands:
+
+    ```
+    kubectl get pods
+    kubectlr get nodes -o wide
+    ```
+
+    For example:  
+    <pre class="terminal">
+    $ kubectl apply -f first-k8s.yml
+    deployment.extensions/win-webserver created
+
+    $ kubectl get pods  -o wide
+    NAME                             READY  STATUS   RESTARTS  AGE  IP            NODE                                  NOMINATED NODE   READINESS GATES
+    win-webserver-795g866cd7-58oct   1/1    Running  0         88s  10.200.42.4   0983934a-6d69-8e5g-g3k1-98r8r56l345j  &lt;none&gt;           &lt;none&gt;         
+
+    $ kubectlr get nodes -o wide
+    NAME                                    STATUS      ROLES  AGE        VERSION       INTERNAL-IP   EXTERNAL-IP    OS-IMAGE           KERNEL-VERSION      CONTAINER-RUNTIME
+    0983934a-6d69-8e5g-g3k1-98r8r56l345j    Ready    <none>   19d    v1.14.1    10.85.41.118  10.85.41.118  Windows Server 2019 Datacenter    10.0.17763.503      docker://18.9.0
+    6d69934a-7d43-9g3g-h4d1-54r9r97l395j    Ready    <none>   19d    v1.14.1    10.85.41.115  10.85.41.115  Ubuntu 16.04.6 LTS                4.15.0-50-generic   docker://18.9.0
+    7636d69a-2e75-5l0g-k6m1-76r3r37l729k    Ready    <none>   19d    v1.14.1    10.85.41.117  10.85.41.117  Windows Server 2019 Datacenter    10.0.17763.503      docker://18.9.0
+    406d694a-9g96-2d3g-f3j1-32r1r44l342x    Ready    <none>   19d    v1.14.1    10.85.41.116  10.85.41.116  Windows Server 2019 Datacenter    10.0.17763.503      docker://18.9.0
+    </pre>
+
+    In the preceding example the developer creates a new pod, verifies the creation and status of the new pod, and creation and status of new nodes. 
+
+## <a id='deploy-service'></a> Deploy a Service to a Windows Worker POD
+
+A service deployment manifest file configures how your service will run and how it will be exposed. 
+You must create a service deployment manifest before deploying a service to your Windows worker pod.  
+
+### <a id='configure-service'></a> Configure Service Manifest
+
+1. To create a Windows service deployment manifest, create a new yaml file containing the following:  
+  
+    ```
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: APP-NAME
+      labels:
+        app: APP-NAME
+    spec:
+      ports:
+        # the port that this service should serve on
+      - port: 80
+        targetPort: 80
+      selector:
+        app: APP-NAME
+      type: NodePort
+    ```
+    Where:  
+    * `APP-NAME` is your Windows service's name.  
+
+    For example: 
+
+    ```
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: win-webserver
+      labels:
+        app: win-webserver
+    spec:
+      ports:
+        # the port that this service should serve on
+      - port: 80
+        targetPort: 80
+      selector:
+        app: win-webserver
+      type: NodePort
+
+    ```
+
+### <a id='deploy-service-steps'></a> Deploy the Service
+
+1. To expose the specified service on a NodePort, run the following command:  
+
+    ```
+    kubectl apply -f SERVICE-CONFIG-FILE
+    ```
+
+    Where `SERVICE-CONFIG-FILE` is the filename of your Windows service deployment manifest created above.  
+<br>
+    For example:  
+    <pre class="terminal">
+    $ kubectl get services
+    NAME          TYPE          CLUSTER-IP      EXTERNAL-IP    PORT(S)    AGE
+    kubernetes    ClusterIP     10.100.200.1    &lt;none&gt;         443/TCP    20d
+    
+    $ kubectl apply -f first-k8s-service.yml
+    service/win-webserver created
+    
+    $ kubectl get services
+    NAME          TYPE       CLUSTER-IP        EXTERNAL-IP  PORT(S)        AGE
+    kubernetes    ClusterIP  10.100.200.1      &lt;none&gt;       443/TCP        20d
+    win-webserver NodePort   10.100.200.221    &lt;none&gt;	      80:32073/TCP   5s
+    
+    $ curl 10.85.41.118:32073
+    &lt;pre&gt;
+	    &lt;a href="License.txt">License.txt&lt;/a&gt;
+	    &lt;a href="ProgramData/">ProgramData/&lt;/a&gt;
+	    &lt;a href="Users/">Users/&lt;/a&gt;
+	    &lt;a href="WcSandboxState/">WcSandboxState/&lt;/a&gt;
+	    &lt;a href="Windows/">Windows/&lt;/a&gt;
+	    &lt;a href="var/">var/&lt;/a&gt;
+	    &lt;a href="webserver.exe">webserver.exe&lt;/a&gt;
+    &lt;/pre&gt;
+    </pre>
+    In the preceding example, the developer uses:
+    * `get services` to verify the state of existing services.  
+    * `apply` to expose a new service on a NodePort, configured as described in the service manifest.  
+    * `get services` to verify the new service is running.  
+    * `curl` to verify the new service is accessible.  
+
+## <a id='feedback'></a>Feedback
+
+We are actively looking for feedback on this beta feature. To submit feedback, send an email to pcf-windows@pivotal.io. 
+
+
+
+
+
+
+
+
