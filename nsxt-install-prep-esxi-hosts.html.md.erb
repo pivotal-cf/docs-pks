@@ -1,5 +1,5 @@
 ---
-title: Prepare ESXi Host as NSX Transport Nodes
+title: Prepare ESXi Hosts as NSX-T Transport Nodes
 owner: PKS-NSXT
 ---
 
@@ -9,17 +9,15 @@ This topic provides instructions for preparing ESXi hosts as NSX transport nodes
 
 ##<a id='prep-esxi-about'></a>About ESXi Host Preparation
 
-An [NSX Transport Node](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-FCC5390E-3489-47E8-ABE6-2F7FD43775BD.html) allows NSX Nodes to exchange traffic for virtual networks. ESXi hosts dedicated to the <%= vars.product_short %> Compute Cluster must be prepared as transport nodes. For instructions, see [Prepare Compute Cluster ESXi Hosts](nsxt-deploy.html#prepare-esxi).
+In NSX-T Data Center, a Transport Node allows nodes to exchange traffic for virtual networks. ESXi hosts dedicated to the <%= vars.product_short %> Compute Cluster must be prepared as transport nodes. 
+
+Prepare each ESXi server dedicated for the PKS Compute Cluster as a Transport Node. These instructions assume that for each participating ESXi host the ESXi hypervisor is installed and the `vmk0` is configured. In addition, each ESXi host must have at least one **free nic/vmnic** for use with NSX Host Transport Nodes that is not already in use by other vSwitches on the ESXi host. Make sure the `vmnic1` (second physical interface) of the ESXi host is not used. NSX will take ownership of it (opaque NSX vswitch will use it as uplink). 
 
 <p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>VTEPS</code> IP pool that allows ESXi hosts to route and communicate with each other, as well as other Edge Transport Nodes.</p>
 
 ##<a id='prep-esxi-configre'></a> Prepare ESXi Servers for the PKS Compute Cluster
 
-For each ESXi host in the NSX-T Fabric to be used for PKS Compute purposes, create an associated transport node. For example, if you have three ESXi hosts in the NSX-T Fabric, create three nodes named `tnode-host-1`, `tnode-host-2`, and `tnode-host-3`. Add the Overlay Transport Zone to each ESXi Host Transport Node.
-
-Prepare each ESXi server dedicated for the PKS Compute Cluster as a Transport Node. These instructions assume that for each participating ESXi host the ESXi hypervisor is installed and the `vmk0` is configured. In addition, each ESXi host must have at least one **free nic/vmnic** for use with NSX Host Transport Nodes that is not already in use by other vSwitches on the ESXi host. Make sure the `vmnic1` (second physical interface) of the ESXi host is not used. NSX will take ownership of it (opaque NSX vswitch will use it as uplink). For more information, see [Add a Hypervisor Host to the NSX-T Fabric](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.install.doc/GUID-8C0EEC08-3A63-4918-A5E2-7A94AD50B0E6.html) in the VMware NSX-T documentation. 
-
-### Add ESXi Host to NSX-T Fabric
+For each ESXi host in the NSX-T Fabric to be used for PKS Compute purposes, create an associated transport node. For example, if you have three ESXi hosts in the NSX-T Fabric, create three transport nodes. Add the Overlay Transport Zone to each ESXi Host Transport Node.
 
 Complete the following operation for each ESXi host to be used by the PKS Compute Cluster.
 
@@ -37,31 +35,45 @@ Complete the following operation for each ESXi host to be used by the PKS Comput
 
 ### Create Transport Node
 
-1. In NSX Manager, go to **Fabric > Nodes > Transport Nodes**.
-1. Click **Add** and create a new Transport Node. For example:
- * **Name**: ESXi-COMP-1-TN
- * **Node**: ESXi-COMP-1
- * **TZ**: TZ-Overlay
-  <img src="images/nsxt/nsx-misc/esxi-prep-04.png">
-1. Select the **Host Switches** tab.
-1. Configure a Host Switch. For example:
- * **Host Switch Name**: `hostswitch1`
- * **Uplink Profile**: `nsx-default-uplink-hostswitch-profile`
- * **IP Assignment**: `Use IP Pool`
- * **IP POOL**: `TEP-ESXi-POOL`
- * **Physical NICs**: `vmnic1`
-  <img src="images/nsxt/nsx-misc/esxi-prep-05.png">
+1. In NSX Manager, go to **System > Fabric > Nodes > Host Transport Nodes**.
 
+1. For the **Managed by** field, select **VMware vCenter Server App** from the dropdown menu.
+<p class="note"><strong>Note</strong>: This assumes that you configured <a href="./nsxt-install-nsx-mgmt-cluster.html#add-compute-mgr">vCenter as the Compute Manager</a>.</p>
+
+1. Expand the Cluster icon so the ESXi hosts are displayed.
+
+1. In the **NSX Configuration** column, click the **Not Configured** icon to begin the process.
+
+1. Click **Yes** to configure the ESXi host as a transport node.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-prep-esxi/config-esxi-hosts-02.png">
+
+1. Configure the ESXi host as follows:
+  * **Transport Zone**: TZ-Overlay
+  * **N-VDS Name**: `hostswitch1`
+  * **NIOC Profile**: `nsx-default-noic-hostswitch-profile`
+  * **Uplink Profile**: `nsx-default-uplink-hostswitch-profile`
+  * **LLDP Profile**: LLDP [Send Packet Disabled]
+  * **IP Assignment**: `Use IP Pool`
+  * **IP POOL**: `TEP-ESXi-POOL`
+  * **Physical NICs**: `vmnic1` and `uplink-1`
+  * **PNIC only Migration**: No
+  * Click **Finish** to create the ESXi Transport Node.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-prep-esxi/config-esxi-hosts-01.png">
+
+1. Repeat the process for each ESXi host in the vSphere Cluster dedicated for <%= vars.product_short %>.
 
 ##<a id='prep-esxi-verify'></a> Verify ESXi Host Preparation for PKS Compute Cluster
 
+1. In NSX Manager, go to **System > Fabric > Nodes > Host Transport Nodes**.
 
-1. Verify that you see the ESXi Compute Transport Node:
-  <img src="images/nsxt/nsx-misc/esxi-prep-06.png">
-1. Verify the status is `Up`.
-  <img src="images/nsxt/nsx-misc/esxi-prep-07.png">
-  <p class="note"><strong>Note</strong>: If you are using NSX-T 2.3, the status should be up. If you are using NSX-T 2.2, the status may incorrectly show as down (because the Tunnel Status is Down.) Either way, verify TEP communications as described in the next step.</p>
-1. Make sure the NSX TEP vmk is created on ESXi host and TEP to TEP communication (with Edge TN for instance) works.
+1. For the **Managed by** field, select **VMware vCenter Server App** from the dropdown menu.
+
+1. Verify that the **Node Status** is **Up** for the ESXi host.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-prep-esxi/config-esxi-hosts-03.png">
+
+1. Select the information icon for the EXSi host in the **Node Status** column. Verify that the **Tunnel Status** status is **Up**.
+
+1. Verify that the NSX TEP vmk is created on ESXi host and TEP to TEP communication (with Edge TN for instance) works.
 
 		[root@ESXi-1:~] esxcfg-vmknic -l
 
