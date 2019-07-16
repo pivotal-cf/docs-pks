@@ -1,0 +1,88 @@
+---
+title: Prepare ESXi Hosts as NSX-T Transport Nodes
+owner: PKS-NSXT
+---
+
+<strong><%= modified_date %></strong>
+
+This topic provides instructions for preparing ESXi hosts as NSX transport nodes.
+
+##<a id='prep-esxi-about'></a>About ESXi Host Preparation
+
+In NSX-T Data Center, a Transport Node allows nodes to exchange traffic for virtual networks. ESXi hosts dedicated to the <%= vars.product_short %> Compute Cluster must be prepared as transport nodes. 
+
+Prepare each ESXi server dedicated for the PKS Compute Cluster as a Transport Node. These instructions assume that for each participating ESXi host the ESXi hypervisor is installed and the `vmk0` is configured. In addition, each ESXi host must have at least one **free nic/vmnic** for use with NSX Host Transport Nodes that is not already in use by other vSwitches on the ESXi host. Make sure the `vmnic1` (second physical interface) of the ESXi host is not used. NSX will take ownership of it (opaque NSX vswitch will use it as uplink). 
+
+<p class="note"><strong>Note</strong>: The Transport Nodes must be placed on free host NICs not already used by other vSwitches on the ESXi host. Use the <code>VTEPS</code> IP pool that allows ESXi hosts to route and communicate with each other, as well as other Edge Transport Nodes.</p>
+
+##<a id='prep-esxi-configre'></a> Prepare ESXi Servers for the PKS Compute Cluster
+
+For each ESXi host in the NSX-T Fabric to be used for PKS Compute purposes, create an associated transport node. For example, if you have three ESXi hosts in the NSX-T Fabric, create three transport nodes. Add the Overlay Transport Zone to each ESXi Host Transport Node.
+
+Complete the following operation for each ESXi host to be used by the PKS Compute Cluster.
+
+1. Go to **Fabric > Nodes > Hosts**.
+1. Click **Add** and create a new host. For example:
+ * **IP Address**: 10.115.40.72
+ * **OS**: ESXi
+ * **Username**: root
+ * **Password**: PASSWORD
+  <img src="images/nsxt/nsx-misc/esxi-prep-01.png">
+1. After clicking **Save**, click **Yes** if the following invalid thumbprint message appears.
+  <img src="images/nsxt/nsx-misc/esxi-prep-02.png">
+1. NSX installs VIBs on the ESXi host. In a few moments, you should see the new defined host. Deployment status should show `NSX Installed` and Manager Connectivity should show `Up`.
+  <img src="images/nsxt/nsx-misc/esxi-prep-03.png">
+
+### Create Transport Node
+
+1. In NSX Manager, go to **System > Fabric > Nodes > Host Transport Nodes**.
+
+1. For the **Managed by** field, select **VMware vCenter Server App** from the dropdown menu.
+<p class="note"><strong>Note</strong>: This assumes that you configured <a href="./nsxt-install-nsx-mgmt-cluster.html#add-compute-mgr">vCenter as the Compute Manager</a>.</p>
+
+1. Expand the Cluster icon so the ESXi hosts are displayed.
+
+1. In the **NSX Configuration** column, click the **Not Configured** icon to begin the process.
+
+1. Click **Yes** to configure the ESXi host as a transport node.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-prep-esxi/config-esxi-hosts-02.png">
+
+1. Configure the ESXi host as follows:
+  * **Transport Zone**: TZ-Overlay
+  * **N-VDS Name**: `hostswitch1`
+  * **NIOC Profile**: `nsx-default-noic-hostswitch-profile`
+  * **Uplink Profile**: `nsx-default-uplink-hostswitch-profile`
+  * **LLDP Profile**: LLDP [Send Packet Disabled]
+  * **IP Assignment**: `Use IP Pool`
+  * **IP POOL**: `TEP-ESXi-POOL`
+  * **Physical NICs**: `vmnic1` and `uplink-1`
+  * **PNIC only Migration**: No
+  * Click **Finish** to create the ESXi Transport Node.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-prep-esxi/config-esxi-hosts-01.png">
+
+1. Repeat the process for each ESXi host in the vSphere Cluster dedicated for <%= vars.product_short %>.
+
+##<a id='prep-esxi-verify'></a> Verify ESXi Host Preparation for PKS Compute Cluster
+
+1. In NSX Manager, go to **System > Fabric > Nodes > Host Transport Nodes**.
+
+1. For the **Managed by** field, select **VMware vCenter Server App** from the dropdown menu.
+
+1. Verify that the **Node Status** is **Up** for the ESXi host.
+  <img src="images/nsxt/nsxt-data-center-installation/nsx-prep-esxi/config-esxi-hosts-03.png">
+
+1. Select the information icon for the EXSi host in the **Node Status** column. Verify that the **Tunnel Status** status is **Up**.
+
+1. Verify that the NSX TEP vmk is created on ESXi host and TEP to TEP communication (with Edge TN for instance) works.
+
+		[root@ESXi-1:~] esxcfg-vmknic -l
+
+		[root@ESXi-1:~] vmkping ++netstack=vxlan <IP of the vmk10 interface> -d -s 1500
+
+##<a id='next'></a> Next Step
+
+[Configure a Virtual IP Address for the NSX-T Management Cluster](./nsxt-mgmt-vip.html) or [Provision a Load Balancer for the NSX-T Management Cluster](./nsxt-mgmt-lb.html).
+
+##<a id='home'></a> NSX-T Installation Instructions Home
+
+<a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
