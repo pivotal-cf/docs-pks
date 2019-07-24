@@ -167,7 +167,7 @@ of the following values, contact PKS Support:
 
 ##<a id='check-poddisruptionbudget-value'></a> Check PodDisruptionBudget Value
 
-A PKS upgrade will run without ever completing if any Kubernetes app has a `PodDisruptionBudget`
+<%= vars.product_short %> upgrades can run without ever completing if any Kubernetes app has a `PodDisruptionBudget`
 with `maxUnavailable` set to `0`. To ensure that no apps have a `PodDisruptionBudget` with
 `maxUnavailable` set to `0`, perform the following steps:
 
@@ -179,3 +179,69 @@ administrator. Run the following command:
     ```
 
 1. Examine the output. Verify that no app displays `0` in the `MAX UNAVAILABLE` column.
+
+## <a id="configure-node-drain"></a> Configure Node Drain Behavior
+
+During the <%= vars.product_tile %> tile upgrade process, worker nodes are cordoned and drained.
+Workloads can prevent worker nodes from draining and cause the upgrade to fail or hang.
+To prevent hanging cluster upgrades, you can use the PKS CLI to configure the default node drain behavior.
+
+<p class="note"> You can also configure node drain behavior in the <%= vars.product_tile %> tile.
+  For information about configuring default node drain behavior in
+  the <%= vars.product_tile %> tile,
+  see <a href="./troubleshoot-issues.html#upgrade-drain-hangs">Worker Node Hangs Indefinitely</a>
+  in <i>Troubleshooting</i>.</p>
+
+To configure default node drain behavior, do the following:
+
+1. View the current node drain behavior by running the following command:
+
+    ```
+    pks cluster CLUSTER-NAME --details
+    ```
+
+    Where `CLUSTER-NAME` is the name of you cluster.
+    <br><br>
+    For example:
+    <pre class="terminal">$ pks cluster my-cluster --details <br>
+      Name:                     my-cluster
+      Plan Name:                small
+      UUID:                     f55ed6c4-c0a7-451d-b735-56c89fdb2ad7
+      Last Action:              CREATE
+      Last Action State:        succeeded
+      Last Action Description:  Instance provisioning completed
+      Kubernetes Master Host:   my-cluster.pks.local
+      Kubernetes Master Port:   8443
+      Worker Nodes:             3
+      Kubernetes Master IP(s):  10.196.219.88
+      Network Profile Name:
+      Kubernetes Settings Details:
+        Set by Cluster:
+        Kubelet Node Drain timeout (mins)            (kubelet-drain-timeout):               10
+        Kubelet Node Drain grace-period (mins)       (kubelet-drain-grace-period):          10
+        Kubelet Node Drain force                     (kubelet-drain-force):                 true
+        Set by Plan:
+        Kubelet Node Drain force-node                (kubelet-drain-force-node):            true
+        Kubelet Node Drain ignore-daemonsets         (kubelet-drain-ignore-daemonsets):     true
+        Kubelet Node Drain delete-local-data         (kubelet-drain-delete-local-data):     true
+      </pre>
+
+1. Configure the default node drain behavior by running the following command:
+
+    ```
+    pks update-cluster CLUSTER-NAME FLAG
+    ```
+
+    Where:
+    + `CLUSTER-NAME` is the name of your cluster.
+    + `FLAG` is an action flag for updating the node drain behavior.
+
+    For example:
+    <pre class="terminal">$ pks update-cluster my-cluster --kubelet-drain-timeout 1 <br>
+      Update summary for cluster my-cluster:
+      Kubelet Drain Timeout: 1
+      Are you sure you want to continue? (y/n): y
+      Use 'pks cluster my-cluster' to monitor the state of your cluster</pre>
+
+    For a list of the available action flags for setting node drain behavior,
+    see [pks update-cluster](cli/index.html#update-cluster) in _PKS CLI_.
