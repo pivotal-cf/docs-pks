@@ -73,7 +73,7 @@ To copy the certificate and key you generated to a Linux VM, follow the steps be
 
 ####<a id='variables'></a> Step 3: Export Environment Variables
 
-On the Linux VM where you created the certificate and key files, export the environment variables below. Change the `NSX_MANAGER_IP`, `NSX_MANAGER_USERNAME`, and `NSX_MANAGER_PASSWORD` values to match your environment:
+On the Linux VM where you created the certificate and key files, export the environment variables below. Change the `NSX_MANAGER_IP`, `NSX_MANAGER_USERNAME`, and `NSX_MANAGER_PASSWORD` values to match your environment. Use the NSX Management Cluster VIP or load balancer for the `NSX_MANAGER_IP`.
 
 ```
 export NSX_MANAGER="NSX_MANAGER_IP"
@@ -152,18 +152,29 @@ curl -k -X GET \
 
 ###<a id='certificate-super-user-script'></a> Option B: Generate and Register the Certificate and Key Using Scripts
 
-This option uses Bash shell scripts to generate and register the NSX Manager superuser principal identity certificate and key.
+This option uses Bash shell scripts to generate and register the NSX Manager superuser principal identity certificate and key. When you configure Enterprise PKS for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the Enterprise PKS tile.
+
 <p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the PKS client VM where you install the PKS CLI.</p>
 
 ####<a id='script-generate'></a> Step 1: Generate and Register the Certificate and Key
 
 Provided below is the `create_certificate.sh` script that generates a certificate and private key, and then uploads the certificate to the NSX Manager. Complete the following steps to run this script:
 
-1. Log in to a Linux VM in your <%= vars.product_short %> environment. For example, you can use the PKS client VM.
-1. To create an empty file for the first script, run `nano create_certificate.sh`.
-1. Copy the following script contents into `create_certificate.sh`, updating the values for the first two lines to match your environment:
-  - `NSX_MANAGER_IP`: IP address of the NSX Manager host.
+1. Log in to a Linux VM in your <%= vars.product_short %> environment.
+1. Create an empty file using `vi create_certificate.sh` or `nano create_certificate.sh`.
+1. Copy the script contents below into the file you created.
+1. Update the values for the first two lines to match your environment:
+  - `NSX_MANAGER_IP`: IP address of an NSX Manager node.
   - `NSX_MANAGER_USERNAME`: Username for NSX Manager.
+1. Save the file `create_certificate.sh`. 
+1. Run the scrit using `bash create_certificate.sh`.
+1. When prompted, enter the `NSX_MANAGER_PASSWORD` for the NSX-T user you specified in the script.
+1. Verify results:
+  - The certificate, `pks-nsx-t-superuser.crt`, and private key, `pks-nsx-t-superuser.key`, are generated in the directory where you ran the script.
+  - The `CERTIFICATE_ID` value is returned to the console.
+  - The certificate is uploaded to the NSX-T Manager node in the **System** > **Certificates** screen. 
+1. Copy the UUID that is returned or from the NSX-T UI. You need it for the second script.
+
 
     <pre class="terminal">
     <span>#</span>!/bin/bash
@@ -212,23 +223,23 @@ Provided below is the `create_certificate.sh` script that generates a certificat
         -d "$cert_request"
     </pre>
 
-1. Save the script and run `bash create_certificate.sh`.
-1. When prompted, enter the `NSX_MANAGER_PASSWORD` for the NSX user you specified in the script.
-1. Complete the following steps to verify the results of the script:
-  - The certificate, `pks-nsx-t-superuser.crt`, and private key, `pks-nsx-t-superuser.key`, are generated in the directory where you ran the script.
-  - The certificate is uploaded to the NSX Manager and the `CERTIFICATE_ID` value is returned to the console. You need this ID for the second script.
 
 #### <a id='script-register'></a> Step 2: Create and Register the Principal Identity
 
-Provided below is the `create_pi.sh` script that creates the principal identity and registers it with the NSX Manager. This script requires the `CERTIFICATE_ID` returned from the `create_certificate.sh` script.
+Provided below is the `create_pi.sh` script that creates the principal identity and registers it with the NSX-T Manager. This script requires the `CERTIFICATE_ID` returned from the `create_certificate.sh` script.
 
 <p class="note"><strong>Note</strong>: Perform these steps on the same Linux VM where you ran the <code>create_certificate.sh</code> script.</p>
 
-1. To create an empty file for the second script, run `nano create_pi.sh`.
-1. Copy the following script contents into `create_pi.sh`, updating the values for the first three lines to match your environment:
-  - `NSX_MANAGER_IP`: IP address of the NSX Manager host.
+1. Create an empty file for the script using `vi create_pi.sh` or `nano create_pi.sh`.
+1. Copy the script contents into the `create_pi.sh` file you created.
+1. Update the values for the first three lines to match your environment:
+  - `NSX_MANAGER_IP`: IP address of an NSX Manager node.
   - `NSX_MANAGER_USERNAME`: Username for NSX Manager.
   - `CERTIFICATE_ID`: Response from the `create_certificate.sh` script.
+1. Save the changes to the `create_pi.sh` script.
+1. Run the script using `bash create_pi.sh`.
+1. When prompted, enter the `NSX_MANAGER_PASSWORD` for the NSX user you specified in the script.
+1. Verify results: The principal identity is registered with the NSX-T Manager at the **System > Certificate** screen.
 
     <pre class="terminal">
     <span>#</span>!/bin/bash
@@ -271,10 +282,6 @@ Provided below is the `create_pi.sh` script that creates the principal identity 
         --key $(pwd)/"$NSX_SUPERUSER_KEY_FILE"
     </pre>
 
-1. Save the script and run `bash create_pi.sh`.
-1. When prompted, enter the `NSX_MANAGER_PASSWORD` for the NSX user you specified in the script.
-1. When you configure <%= vars.product_short %> for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the <%= vars.product_tile %> tile. For more information, see the [Networking](installing-nsx-t.html#networking) section of _Installing <%= vars.product_short %> on vSphere with NSX-T_.
-
 ##<a id='next'></a> Next Step
 
-After you complete this procedure, follow the instructions in <a href="./nsxt-create-objects.html">Creating NSX-T Objects for <%= vars.product_short %></a>.
+After you complete this procedure, follow the instructions in <a href="/installing-nsx-t.html">Installing <%= vars.product_short %> on vSphere with NSX-T</a>.
