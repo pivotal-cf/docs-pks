@@ -13,16 +13,10 @@ Before you begin this procedure, ensure that you have reviewed the following doc
 
 <ul>
   <li>
-    <a href="./vsphere-nsxt-requirements.html">vSphere with NSX-T Version Requirements</a>
+    <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install <%= vars.product_short %> on vSphere with NSX-T Data Center</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-rpd-mpd.html">Hardware Requirements for <%= vars.product_short %> on vSphere with NSX-T</a>
-  </li>
-  <li>
-    <a href="./nsxt-topologies.html">NSX-T Deployment Topologies for <%= vars.product_short %></a>
-  </li>
-  <li>
-    <a href="./nsxt-prepare-env.html">Preparing to Deploy <%= vars.product_short %> with NSX-T on vSphere</a>
+    <a href="./vsphere-nsxt-rpd-mpd.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>
   </li>
 </ul>
 
@@ -118,7 +112,25 @@ Defining a T1 router involves creating the router and attaching it to the logica
 a second port connected to logical switch defined for the <%= vars.product_short %> Management Plane. This second port will be the default gateway for all VMs connected to this LS.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-18.png">
 
-##<a id='create-dnat-om'></a>Step 4. Create DNAT Rule on T0 Router for Ops Manager
+##<a id='create-snat-infra'></a>Step 4. Create SNAT rule on T0 router for vCenter and NSX Manager
+
+Create a SNAT rule on T0 router for <%= vars.product_short %> management components to access vCenter and NSX manager. The Source NAT (SNAT) rule on the T0 allows the <%= vars.product_short %> Management VMs to communicate with your vCenter and NSX Manager environments. For example, a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
+
+<p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnets that contain your vCenter and NSX Manager IP addresses.</p>
+
+1. Select **T0 router > Services > NAT**.
+1. Click ADD and configure the SNAT rule. For example:
+   * **Priority**: 1010
+   * **Action**: SNAT
+   * **Source**: 10.0.0.0/24
+   * **Destination IP**: 10.40.206.0/24
+   * **Translated IP**: 10.40.14.2
+  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-22.png">
+1. Click **Add**.
+1. Verify SNAT rule creation.
+  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-23.png">  
+
+##<a id='create-dnat-om'></a>Step 5. Create DNAT Rule on T0 Router for Ops Manager
 
 Create a DNAT rule on the T0 Router to access the Ops Manager Web UI, which is required to deploy <%= vars.product_short %>.
 
@@ -139,76 +151,7 @@ To create a DNAT rule for Ops Manager:
 1. Verify the DNAT rule.
 	  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-21.png">
 
-##<a id='create-dnat-harbor'></a>Step 5. Create DNAT Rule on T0 Router for Harbor Registry
-
-If you are using VMware Harbor Registry with <%= vars.product_short %>, create a similar DNAT rule on T0 router to access the Harbor Web UI. This DNAT rule maps the private Harbor IP address to a routable IP address from the floating IP pool on the <%= vars.product_short %> Management network. See <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat">Create DNAT Rule</a> in the VMware Harbor Registry documentation for instructions.</p>
-
-##<a id='create-snat-infra'></a>Step 6. Create SNAT rule on T0 router for vCenter and NSX Manager
-
-Create a SNAT rule on T0 router for <%= vars.product_short %> management components to access vCenter and NSX manager. The Source NAT (SNAT) rule on the T0 allows the <%= vars.product_short %> Management VMs to communicate with your vCenter and NSX Manager environments. For example, a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
-
-<p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnets that contain your vCenter and NSX Manager IP addresses.</p>
-
-1. Select **T0 router > Services > NAT**.
-1. Click ADD and configure the SNAT rule. For example:
-   * **Priority**: 1010
-   * **Action**: SNAT
-   * **Source**: 10.0.0.0/24
-   * **Destination IP**: 10.40.206.0/24
-   * **Translated IP**: 10.40.14.2
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-22.png">
-1. Click **Add**.
-1. Verify SNAT rule creation.
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-23.png">
-
-##<a id='create-snat-etc'></a>Step 7. Create SNAT Rules on T0 Router for DNS, NTP, and LDAP/AD
-
-1. In NSX Manager, select **T0 router > Services > NAT**.
-1. Add a SNAT rule for DNS. For example:
-   * **Priority**: 1010
-   * **Action**: SNAT
-   * **Source**: 10.0.0.0/24
-   * **Destination IP**: 10.20.20.1
-   * **Translated IP**: 10.40.14.2
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-24.png">
-1. Click **Add**.
-1. Add a SNAT rule for NTP. For example:
-   * **Priority**: 1010
-   * **Action**: SNAT
-   * **Source**: 10.0.0.0/24
-   * **Destination IP**: 10.113.60.176
-   * **Translated IP**: 10.40.14.2
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-26.png">
-1. Click **Add**.
-1. Add a SNAT rule for LDAP/AD. For example:
-   * **Priority**: 1010
-   * **Action**: SNAT
-   * **Source**: 10.0.0.0/24
-   * **Destination IP**: 10.40.207.0/24
-   * **Translated IP**: 10.40.14.2
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-27.png">
-1. Click **Add**.
-1. Verify SNAT rule creation.
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-28.png">
-
-##<a id='create-snat-esxi'></a>Step 8. Create SNAT Rule on T0 Router for ESXi Hosts
-
-Create a SNAT rule on T0 router for <%= vars.product_short %> management components to access ESXi Hosts (Management IP). The Destination IP is the Management IP subnet where ESXi Hosts are networked.
-
-<p class="note"><strong>Note</strong>: Ops Manager and BOSH must use the NFCP protocol to the actual ESX hosts to which it is uploading stemcells. Specifically, <strong>Ops Manager & BOSH Director -> ESXi</strong>.</p>
-
-1. Select **T0 router > Services > NAT**.
-1. Click **Add** and configure the SNAT rule. For example:
-   * **Priority**: 1010
-   * **Action**: SNAT
-   * **Destination IP**: 10.115.40.0/24
-   * **Translated IP**: 10.40.14.2
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-29.png">
-1. Click **Add**.
-1. Verify SNAT rule creation:
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-29.png">
-
-##<a id='create-dnat-pks'></a>(Optional) Step 9. Create DNAT Rule on T0 Router for External Access to the PKS CLI
+##<a id='create-dnat-pks'></a>Step 6. Create DNAT Rule on T0 Router for External Access to the PKS CLI
 
 This DNAT rule is optional depending on whether or not you need to provide external access to the PKS CLI. If you do need to provide external access, this rule is needed for both NAT and no-NAT modes.
 
@@ -219,6 +162,10 @@ This DNAT rule is optional depending on whether or not you need to provide exter
   1. Click the **Status** tab and record the IP address assigned to the **Pivotal Container Service** job.
 1. Create a DNAT rule on the shared Tier-0 router to map an external IP from the **PKS MANAGEMENT CIDR** to the <%= vars.product_short %> endpoint. For example, a DNAT rule that maps `10.172.1.4` to `172.31.0.4`, where `172.31.0.4` is the <%= vars.product_short %> endpoint IP address on the `ls-pks-mgmt` NSX-T Logical Switch.
   <p class="note"><strong>Note</strong>: Ensure that you have no overlapping NAT rules. If your NAT rules overlap, you cannot reach <%= vars.product_short %> Management Plane from VMs in the vCenter network.</p>
+
+##<a id='create-dnat-harbor'></a>Step 7. Create DNAT Rule on T0 Router for Harbor Registry
+
+If you are using VMware Harbor Registry with <%= vars.product_short %>, create a similar DNAT rule on T0 router to access the Harbor Web UI. This DNAT rule maps the private Harbor IP address to a routable IP address from the floating IP pool on the <%= vars.product_short %> Management network. See <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat">Create DNAT Rule</a> in the VMware Harbor Registry documentation for instructions.</p>
 
 ##<a id='next'></a> Next Step
 
