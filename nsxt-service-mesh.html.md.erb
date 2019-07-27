@@ -1,0 +1,47 @@
+---
+title: Configuring NSX-T Service Mesh (BETA)
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to create multiple NSX-T Tier-0 (T0) logical routers for use with <%= vars.product_full %> multi-tenant environments.
+
+## <a id='about'></a> Feature overview
+
+Enterprise PKS support for NSX-SM is targeted the v1.5.0 release in BETA form.
+
+The recommendation is to use an Enterprise PKS 1.5 foundation deployed with Pod Security Policies (PSPs) enabled.  PSP are enabled by selecting the check box in the appropriate Plan on the Tile. In this same folder is a PSP that you can use (“psp.yaml”) for such purposes. The instructions below include information on when to use this PSP.
+
+## Instructions
+
+There is no tight integration. You need to go through the service on-boarding process using the NSX-SM web site. Go here to sign up and use the NSX-SM Service: https://console-stg.cloud.vmware.com/csp/gateway/portal/api/service-invitations?serviceInvitationLink=/csp/slc/api/service-invitations/c7371b0f-545d-4f7f-828e-b0df8d48861a
+
+Once the cluster is selected, log on to the NSX-SM web site and select the “ADD NEW” item on the home web page. The cluster on-boarding process consists of the following steps:
+
+Input the desired cluster name. The cluster name is used on NSX-SM to identify a particular cluster. It does not have to match the Enterprise PKS cluster name.
+
+Download a yaml file. The yaml file contains the deployment definition of the NSX-SM agent.
+
+Deploy the NSX-SM yaml file in the default namespace on the target Kubernetes cluster,
+
+kubectl apply -f <yaml file name>
+
+Once the NSX-SM agent is correctly started on a cluster, go back the NSX-SM web site and complete the on-boarding process by clicking on the “Install ISTIO” button in the on-boarding menu. When this operation is completed all the ISTIO components have been installed on the target cluster.
+
+The last step causes the ISTIO CNI plugin to be installed. This plug in allows ISTIO to automatically inject its Envoy “sidecar” container whenever a new POD is started.
+
+Since PSPs are enabled on the cluster, deployment of services require a few additional steps, in particular you must create and use a PSP and grant use of it to a service account. While the additional steps are typical for any cluster with PSPs enabled, the content of the PSP object itself is specific to the needs of “sidecar injection” as requested by ISTIO. Use the “psp.yaml” file in this same directory for this purpose.
+Known Issue
+When a delete cluster command is issued in Enterprise PKS, the system runs an errand to clean up the pods currently running in the cluster. ISTIO installs a few pods that have a Pod Disruption Budget that conflict with the Enterprise PKS cleanup errand. This means that the errand will run for a long time. 
+
+In Enterprise PKS v1.5 we allow the user to select a timeout for Pod Disruption Budget, therefore the errand will run up to that timeout. Prior to v1.5 the timeout was very long (approximately 24 hours) and it looked like the deleting process was hanging forever. 
+
+To avoid this problem we suggest that you first try removing the on-boarded cluster from the NSX-SM web UI. To perform this operation log on to the NSX-SM web UI and click on the name of cluster you want to remove. Near the top right corner click on: “REMOVE CLUSTER”. If this operation is successful the cluster can be safely deleted.
+
+If the operation is not successful, we suggest that you should run the following command on the cluster before attempting to delete it through Enterprise PKS: 
+
+kubectl delete namespace istio-system
+
+Add link to official NSX-SM docs?
+
