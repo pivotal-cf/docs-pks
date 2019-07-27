@@ -1,0 +1,98 @@
+---
+title: Defining Network Profiles for Edge Router Selection
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to define network profiles for Kubernetes clusters provisioned with <%= vars.product_full %> on vSphere with NSX-T.
+
+## <a id='multi-t0'></a> Edge Router Selection
+
+Using <%= vars.product_short %> on vSphere with NSX-T, you can deploy Kubernetes clusters on dedicated Tier-0 routers, creating a multi-tenant environment for each Kubernetes cluster. As shown in the diagram below, with this configuration a shared Tier-0 router hosts the PKS control plane and connects to each customer Tier-0 router using BGP. To support multi-tenancy, configure firewall rules and security settings in NSX Manager.
+
+  <img src="images/nsxt/mt0/mt0-01.png" alt="Cluster Isolation Using Multiple T0 Routers">
+
+To deploy Kubernetes clusters on tenancy-based Tier-0 router(s), follow the steps below:
+
+1. For each Kubernetes tenant, create a dedicated Tier-0 router, and configure static routes, BGP, NAT and Edge Firewall security rules as required by each tenant. For instructions, see <a href="./nsxt-multi-t0.html">Configuring Multiple Tier-0 Routers for Tenant Isolation</a>.
+2. Define a network profile per tenant that references the Tier-0 router UUID provisioned for that tenant.
+For example, the following network profiles define two tenant Tier-0 routers with a NATed topology.
+
+    ```
+    np_customer_A-NAT.json
+    {
+      "description": "network profile for Customer A",
+      "name": "network-profile-Customer-A",
+      "parameters": {
+        "lb_size": "medium",
+        "t0_router_id": "82e766f7-67f1-45b2-8023-30e2725600ba",
+        "fip_pool_ids": ["8ec655f-009a-79b7-ac22-40d37598c0ff"],
+        "pod_ip_block_ids": ["fce766f7-aaf1-49b2-d023-90e272e600ba"]
+      }
+    }
+    ```
+
+    ```
+    np_customer_B-NAT.json
+    {
+      "description": "network profile for Customer B",
+      "name": "network-profile-Customer-B",
+      "parameters": {
+        "lb_size": "small",
+        "t0_router_id": "a4e766cc-87ff-15bd-9052-a0e2425612b7",
+        "fip_pool_ids": ["4ec625f-b09b-29b4-dc24-10d37598c0d1"],
+        "pod_ip_block_ids": ["91e7a3a1-c5f1-4912-d023-90e272260090"]
+      }
+    }
+    ```
+    The following network profiles define two customer Tier-0 routers for a no-NAT topology:
+
+    ```
+    np_customer_A.json
+    {
+      "description": "network profile for Customer A",
+      "name": "network-profile-Customer-A",
+      "parameters": {
+        "lb_size": "medium",
+        "t0_router_id": "82e766f7-67f1-45b2-8023-30e2725600ba",
+        "fip_pool_ids": [
+        	"8ec655f-009a-79b7-ac22-40d37598c0ff",
+        	"7ec625f-b09b-29b4-dc24-10d37598c0e0"
+        ],
+        "pod_routable": "true",
+        "pod_ip_block_ids": [
+        	"fce766f7-aaf1-49b2-d023-90e272e600ba",
+        	"6faf46fd-ccce-4332-92d2-d918adcccce0"
+        ]
+      }
+    }
+    ```
+
+    ```
+    np_customer_B.json
+    {
+      "description": "network profile for Customer B",
+      "name": "network-profile-Customer-B",
+      "parameters": {
+        "lb_size": "small",
+        "t0_router_id": "a4e766cc-87ff-15bd-9052-a0e2425612b7",
+        "fip_pool_ids": [
+        	"4ec625f-b09b-29b4-dc24-10d37598c0d1",
+        	"6ec625f-b09b-29b4-dc24-10d37598dDd1"
+        ],
+        "pod_routable": "true",
+        "pod_ip_block_ids": [
+        	"91e7a3a1-c5f1-4912-d023-90e272260090",
+        	"6faf46fd-ccce-4332-92d2-d918adcccce0"
+        ]
+      }
+    }
+    ```
+
+    <p class="note"><strong>Note:</strong>
+    The <code>pod_routable</code> parameter controls the routing behavior of a tenant Tier-0 router.
+    If the parameter is set to <code>true</code>, the custom Pods IP Block subnet is routable and NAT is not used.
+    If <code>pod_routable</code> is not present or is set to <code>false</code>,
+    the custom Pods IP Block is not routable and the tenant Tier-0 is deployed in NAT mode.</p>
+

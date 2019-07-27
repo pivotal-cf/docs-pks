@@ -1,0 +1,40 @@
+---
+title: Defining Network Profiles for Custom Floating IP Pools
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to define network profiles for custom floating IP pools.
+
+## <a id='floating-ip'></a> Custom Floating IP Pool
+
+To deploy <%= vars.product_short %> to vSphere with NSX-T, you must define a Floating IP Pool in NSX Manager. IP addresses from the Floating IP Pool are used for SNAT IP addresses whenever a Namespace is created (NAT mode). In addition, IP addresses from the Floating IP Pool are assigned to load balancers automatically provisioned by NSX-T, including the load balancer fronting the PKS API server and load balancers for pod ingress. For more information, see the [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) section of _Planning, Preparing, and Configuring NSX-T for <%= vars.product_short %>_.
+
+You can define a network profile that specifies a custom floating IP pool to use instead of the default pool specified in the <%= vars.product_tile %> tile.
+
+To define a custom floating IP pool, follow the steps below:
+
+1. Create a floating IP pool using NSX Manager prior to provisioning a Kubernetes cluster using <%= vars.product_short %>. For more information, see [Create IP Pool](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-8639F737-1D75-4177-9D31-5F20551DEE8E.html) in the NSX-T documentation.
+2. Define a network profile that references the floating IP pool UUID that you defined. The following example defines a custom floating IP pool:
+
+```
+{
+    "name": "np-custom-fip",
+    "description": "Network Profile for Custom Floating IP Pool",
+    "parameters": {
+        "fip_pool_ids": [
+            "e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0",
+  		  	"ebe78a74-a5d5-4dde-ba76-9cf4067eee55"
+    	]
+    }
+}
+```
+
+The example above uses two floating IP pools.
+With this configuration, if the first pool of IP addresses, `e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0`, is exhausted,
+the system will use the IP addresses in the next IP pool that is listed,
+`ebe78a74-a5d5-4dde-ba76-9cf4067eee55`.
+
+<p class="note"><strong>Note:</strong> If you are using multiple Floating IP Pools within the same Tier-0 router, the Floating IP Pools cannot overlap. Overlapping Floating IP Pools are allowed across Tier-0 routers, but not within the same Tier-0 router.</p>
+
