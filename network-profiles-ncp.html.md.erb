@@ -1,0 +1,382 @@
+---
+title: Defining Network Profiles for NCP Configuration
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to define network profiles for Kubernetes clusters provisioned with <%= vars.product_full %> on vSphere with NSX-T.
+
+## <a id='ncp-about'></a> About NCP Configuration
+
+<%= vars.product_full %> embeds the [NSX Container Plug-in (NCP)](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/com.vmware.nsxt.ncp_kubernetes.doc/GUID-52A92986-0FDF-43A5-A7BB-C037889F7559.html). To customize and tune the configuation of NCP, <%= vars.product_full %> exposes a select group of `ncp.ini` parameters via network profile.
+
+## <a id='ncp-params'></a> NCP Parameters
+
+The parameter `cni_configurations` is a map with two keys: `type` and `parameters`. 
+
+Key name 		| Data type | Default value | Behavior |
+----------------|-----------|---------------|--------- |
+`type` 	 		| string 	| `nsxt` 		| Constant that only accepts `nsxt` indicating that the network profile is to be used for `ncp.ini` configuration
+`parameters` 	| map 		| 				| Map containing one or more key-values pairs (see below)
+
+
+The `parameter` map accepts the following keys:
+
+Key name 						| Data type 				| Default value   									| Behavior
+--------------------------------|---------------------------|---------------------------------------------------|--------------------------------------------------------------------
+`keep_source_ip` 				| boolean 					| none 												| Set INSERT for `x_forwarded_for`.
+`ingress_ip` 					| string 					| none 												| NCP will create an ingress virtual server with the given IP address.
+`log_settings` 					| map[string]interface{} 	| log_level: none; log_dropped_traffic: false 		| Customize loglevel; Customize if Distributed Firewall "Deny" is logged.
+`ingress_persistence_settings` 	| map[string]interface{} 	| persistence_type: none; persistence_timeout: none | Customize parameters for L7 persistence.
+`max_l4_service` 				| integer 					| none (default value in NCP code) 					| Upper limit of virtual servers per cluster (Kubernetes L4 services).
+`enable_err_crd` 				| boolean 					| false 											| Enable the NSXError custom resource definion.
+`nsx_ingress_controller` 		| boolean 					| true 												| Use NSX ingress controller.
+`nsx_lb` 						| boolean 					| true 												| Use NSX-T native load balancer.
+`l4_persistence_type` 			| string(enumeration) 		| none 												| Connection stickiness based on `source_ip` (only accepted value).
+
+
+## <a id='ncp-example'></a> Example Network Profile for NCP Configuration
+
+The following network profile is an example that illustrates the paramaters exposed for configuring `ncp.ini`. 
+
+```
+{
+  "name": "ncp_network_profile",
+  "description": "Example network profile for ncp.ini",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "keep_source_ip": true,
+           "ingress_ip": "192.168.160.212",
+           "log_settings": {           
+             "log_level": "Verbose",
+             "log_dropped_traffic": true 
+         	},
+           "ingress_persistence_settings": {
+             "persistence_type": "cookie",
+             "persistence_timeout": 1 
+            },
+           "max_l4_service": 1,
+           "enable_err_crd": true,
+           "nsx_ingress_controller": true,
+           "nsx_lb": false,
+           "l4_persistence_type": "source_ip"
+       	   }
+   		}
+   	}
+}
+ 
+## <a id='ncp-usage'></a> NCP Configuration Use Cases
+
+This section provides use cases for each of the supported `cni_configurations` parameters.
+
+### <a id='keep_source_ip'></a> Keep Source IP
+
+When NCP creates a virtual server, it will assign a new IP address. This may not be the same IP address that Kubernetes pods and services are familiar with. The `keep_source_ip` parameter lets you keep the same soure IP as the original virtual server.
+
+The `keep_source_ip` parameter type is boolean: `true` or `false`. Any other type will be rejected. Missing entry is accepted.
+
+Example network profile for `keep_source_ip`:
+
+```
+{
+  "name": "example-network-profile",
+  "description": "keep_source_ip",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "keep_source_ip": true
+         }
+     }
+  }
+}
+```
+
+### <a id='ingress_ip'></a> Ingress IP
+
+The `ingress_ip` parameter instructs NCP to create an ingress virtual server with the given IP address.
+
+The `ingress_ip` parameter type is a string that accepts any valid IP address. Missing entry is accepted.
+
+Example network profile for `ingress_ip`:
+```
+{
+  "name": "example-network-profile",
+  "description": "ingress_ip",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": "192.168.160.212"
+         }
+     }
+  }
+}
+```
+
+An invalid IP address is rejected with an invalid parameter value error. For example, the following network profile parameters cannot be parsed becase the 'ingress_ip': '192.168.460.212' address is an invalid IP address.
+
+```
+{
+  "name": "example-network-profile",
+  "description": "ingress_ip-ERROR",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": "192.168.460.212"
+         }
+     }
+  }
+}
+```
+
+The following network profile cannot be parsed because the JOSN input is invalid (not a string).
+
+```
+{
+  "name": "example-network-profile",
+  "description": "ingress_ip-ERROR",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": 192.168.160.212
+         }
+     }
+  }
+}
+```
+
+### <a id='log_settings'></a> Logging
+
+The parameter `log_settings` is a map that supports two keys: `log_level` and `log_dropped_traffic`.
+
+**log_level**
+
+The `log_level` parameter type is a string. The `log_level` value is an enumeration that supports the following values: 
+
+- "INFO"
+- "WARNING"
+- "DEBUG"
+- "ERROR"
+- "CRITICAL"
+
+Any other valie results in an error.
+
+The value is set for three ncp.ini keys: `coe.nsxlib_loglevel`, `coe.loglevel`, and `k8s.loglevel`. The default log levels for these keys are as follows:
+
+ncp.ini key 		   | Default log level
+-----------------------|-------------------
+`coe.nsxlib_loglevel`  | INFO
+`coe.loglevel` 		   | NONE 		
+`k8s.loglevel`		   | NONE
+
+**log_dropped_traffic**
+
+The `log_dropped_traffic` type is a boolean: `true` or `false`. Any other type is rejected, such as "true". Missing entry is accepted. Enabling this parameter is used used in distributed firewall configurations to log the traffic for dropped rules.
+
+Example network profile for logging:
+```
+{
+  "name": "example-network-profile",
+  "description": "log_settings",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "log_settings": {
+             "log_level": "DEBUG",
+             "log_dropped_traffic": true        
+           }
+         }
+     }
+  }
+}
+```
+
+### <a id='ingress_persistence_settings'></a> Ingress Persistence
+
+The `ingress_persistence` parameter lets you customize layer 7 persistence for Kubernetes services.
+
+The `ingress_persistence_settings` parameter is a map that supports two keys: `persistence_timeout` and `persistence_type`. These two keys are correlated and must be set/unset at the same time. If `persistence_type` and `persistence_timeout` are not both specified, the network profile fails validation.
+
+Parameter 		   		| Data type 	| Description
+------------------------|---------------|--------------------------------------------
+`persistence_type`     	| String 		| Valid values are `cookie` or `source_ip`. An empty value is not accepted.
+`persistence_timeout`  	| Integer 		| Value that is equal to `1` or larger. Empty value is not accepted. 		
+
+
+Example 1: network profile for `ingress_persistence_settings`:
+```
+{
+  "name": "example_network_profile",
+  "description": "ingress_persistence_settings",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_persistence_settings": {
+             "persistence_type": "cookie",
+             "persistence_timeout": 1
+            }
+         }
+     }
+  }
+}
+```
+
+Example 2: network profile for `ingress_persistence_settings`:
+```
+{
+  "name": "example_network_profile",
+  "description": "ingress_persistence_settings",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_persistence_settings": {
+             "persistence_type": "source_ip",
+             "persistence_timeout": 100
+            }
+         }
+     }
+  }
+}
+```
+
+### <a id='max_l4_service'></a> Max Layer 4 Service
+
+The `max_l4_service` parameter sets the upper limit for the number of virtual servers per cluster (Kubernetes layer 4 services). You can use this parameter to limit the number of virtual servers that can be created per Kubernets cluster.
+
+The `max_l4_service` data type is an integer. The value must be larger or equal to 1. Missing entry is accepted.
+
+Example 1: network profile for `max_l4_service`:
+```
+{
+  "name": "example_network_profile",
+  "description": "max_l4_service",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "max_l4_service": 1
+         }
+     }
+  }
+}
+```
+
+Example 2: network profile for `max_l4_service`:
+```
+{
+  "name": "example_network_profile",
+  "description": "max_l4_service",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "max_l4_service": 100000
+         }
+     }
+  }
+}
+```
+
+### <a id='enable_err_crd'></a> Enable Error CRD
+
+The `enable_err_crd` parameter provides a mechanism of reporting NSX backend errors to Kubernetes cluster using a [custom resource definition (CRD)](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#customresourcedefinitions).
+
+The Kubernetes resource "NSXError" is defined to hold error information. For each kubernetes resource object that has NSX backend failures, one "NSXError" object is generated with error information. There is a 'common error object' containing all cluster-wide errors.
+
+The `enable_err_crd` data type is a boolean: `true` or `false`. Missing entry is accepted. If set to `true`, you define a CRD to handle the "NSXError" comon error object.
+
+
+Example: network profile for `enable_err_crd`:
+```
+{
+  "name": "example_network_profile",
+  "description": "enable_err_crd",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "enable_err_crd": true
+         }
+     }
+  }
+}
+```
+
+### <a id='nsx_ingress_controller'></a> NSX Ingress Controller
+
+The parameter `nsx_ingress_controller` is used to disable the use of NSX-T as the ingress controller for Kubernetes pods and services.
+
+The `nsx_ingress_controller` data type is a boolean: `true` or `false`.
+
+The `nsx_ingress_controller` parameter can only be set to `false` when `nsx_lb` is also set to `false`. In other words, to set `nsx_ingress_controller` to `false`, you must also set `nsx_lb` to `false`. 
+
+Example: network profile for `nsx_ingress_controller`:
+```
+{
+  "name": "example_network_profile",
+  "description": "nsx_ingress_controller",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": false,
+         "nsx_ingress_controller": false
+      }
+    }
+  }
+}
+```
+
+### <a id='nsx_lb'></a> NSX Load Balancer
+
+The parameter `nsx_lb` is used to disable the use of NSX-T as the load balancer for Kubernetes pods and services.
+
+The `nsx_lb` data type is a boolean: `true` or `false`.
+
+The `nsx_ingress_controller` parameter can only be set to `false` when `nsx_lb` is also set to `false`.
+
+Example: network profile for `nsx_lb`:
+{
+  "name": "example_network_profile",
+  "description": "nsx_lb",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": false,
+      }
+    }
+  }
+}
+
+### <a id='l4_persistence_type'></a> Layer 4 Persistence Type
+
+The `l4_persistence_type` is used to set connection stickiness based on `source_ip`.
+
+The `l4_persistence_type` data type is string. The only accepted value is `source_ip`.
+
+```
+{
+  "name": "example_network_profile",
+  "description": "l4_persistence_type",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+        "l4_persistence_type": "source_ip"
+      }
+    }
+  }
+}
+```
+
+
