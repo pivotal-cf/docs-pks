@@ -23,8 +23,8 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/r
 | `1.3.x-patch-releases` | Enterprise PKS 1.3.x pre-release content | N/A |
 | `1.2` | Enterprise PKS 1.2.x released content | https://docs.pivotal.io/runtimes/pks/1-2/index.html |
 | `1.2.x-patch-releases` | Enterprise PKS 1.2.x pre-release content | N/A |
-| `1.1` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-1-1.pdf)) |
-| `1.0-publish` | Not in use | N/A ([PDF available](https://docs.pivotal.io/archives/pks-docs-1.0.pdf)) |
+| `1.1` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-1-1.pdf)) |
+| `1.0-publish` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-docs-1.0.pdf)) |
 | `0.8` | Not in use | N/A |
 
 **master**: The `master` branch is used to publish the pre-release v1.5 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
@@ -45,9 +45,9 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/r
 **1.2.x-patch-releases** The `1.2.x-patch-releases` branch is used to work on documentation for the pre-release v1.2.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.2.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.2.x pre-release documentation.
 **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
-The `1.1` branch is no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.1.pdf.
+The `1.1` branch is no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://resources.docs.pivotal.io/pdfs/pks-docs-1.1.pdf.
 
-The `1.0-publish` and `0.8` branches are no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://docs.pivotal.io/archives/pks-docs-1.0.pdf.
+The `1.0-publish` and `0.8` branches are no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://resources.docs.pivotal.io/pdfs/pks-docs-1.0.pdf.
 
 ## How To Use Bookbinder To View Your Documentation
 
