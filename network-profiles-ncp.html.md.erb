@@ -21,10 +21,10 @@ Key name 		| Data type | Default value | Behavior |
 `parameters` 	| map 		| 				| Map containing one or more key-values pairs (see below)
 
 
-Parameters accepts 
+The `parameter` map accepts the following keys:
 
-Key name 						| Data type 					| Default value   								| Behavior
---------------------------------|---------------------------|---------------------------------------------------|---------
+Key name 						| Data type 				| Default value   									| Behavior
+--------------------------------|---------------------------|---------------------------------------------------|--------------------------------------------------------------------
 `keep_source_ip` 				| boolean 					| none 												| Set INSERT for `x_forwarded_for`.
 `ingress_ip` 					| string 					| none 												| NCP will create an ingress virtual server with the given IP address.
 `log_settings` 					| map[string]interface{} 	| log_level: none; log_dropped_traffic: false 		| Customize loglevel; Customize if Distributed Firewall "Deny" is logged.
@@ -70,21 +70,42 @@ The following network profile is an example that illustrates the paramaters expo
  
 ## <a id='ncp-usage'></a> NCP Configuration Use Cases
 
-A new parameter is added into network profile, called "cni_configurations". It’s a map with two keys.
-
+This section provides use cases for each of the supported `cni_configurations` parameters.
 
 ### <a id='keep_source_ip'></a> Keep Source IP
 
+When NCP creates a virtual server, it will assign a new IP address. This may not be the same IP address that Kubernetes pods and services are familiar with. The `keep_source_ip` parameter lets you keep the same soure IP as the original virtual server.
 
+The `keep_source_ip` parameter type is boolean: `true` or `false`. Any other type will be rejected. Missing entry is accepted.
+
+Example network profile for `keep_source_ip`:
+
+```
+{
+  "name": "example-network-profile",
+  "description": "keep_source_ip",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "keep_source_ip": true
+         }
+     }
+  }
+}
+```
 
 ### <a id='ingress_ip'></a> Ingress IP
 
-Its type is an valid IP string, any other value type will be rejected. Invalid ip address will be rejected. Missing entry is accepted.
+The `ingress_ip` parameter instructs NCP to create an ingress virtual server with the given IP address.
 
-Success scenarios
+The `ingress_ip` parameter type is a string that accepts any valid IP address. Missing entry is accepted.
+
+Example network profile for `ingress_ip`:
+```
 {
-  "name": "hello",
-  "description": "world",
+  "name": "example-network-profile",
+  "description": "ingress_ip",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
@@ -94,14 +115,14 @@ Success scenarios
      }
   }
 }
-Result: Network profile hello successfully created
+```
 
-Failure scenarios
-Invalid ip address
-Example network profile:
+An invalid IP address is rejected with an invalid parameter value error. For example, the following network profile parameters cannot be parsed becase the 'ingress_ip': '192.168.460.212' address is an invalid IP address.
+
+```
 {
-  "name": "hello",
-  "description": "world",
+  "name": "example-network-profile",
+  "description": "ingress_ip-ERROR",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
@@ -111,13 +132,14 @@ Example network profile:
      }
   }
 }
+```
 
-Result: Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation 'ingress_ip': '192.168.460.212', expect valid ip address for ingress_ip: invalid parameter value
-Other type
-Example network profile
+The following network profile cannot be parsed because the JOSN input is invalid (not a string).
+
+```
 {
-  "name": "hello",
-  "description": "world",
+  "name": "example-network-profile",
+  "description": "ingress_ip-ERROR",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
@@ -127,128 +149,68 @@ Example network profile
      }
   }
 }
-
-Result: Error: failed to parse network profile JSON input: invalid character '.' after object key:value pair
-
+```
 
 ### <a id='log_settings'></a> Logging
 
-### log_settings
+The parameter `log_settings` is a map that supports two keys: `log_level` and `log_dropped_traffic`.
 
-Its type is map[string]interface{}, any other type will be rejected. Missing entry is accepted, empty value is accepted.
-Success scenarios
-Empty value
-Example network profile:
+**log_level**
+
+The `log_level` parameter type is a string. The `log_level` value is an enumeration that supports the following values: 
+
+- "INFO"
+- "WARNING"
+- "DEBUG"
+- "ERROR"
+- "CRITICAL"
+
+Any other valie results in an error.
+
+The value is set for three ncp.ini keys: `coe.nsxlib_loglevel`, `coe.loglevel`, and `k8s.loglevel`. The default log levels for these keys are as follows:
+
+ncp.ini key 		   | Default log level
+-----------------------|-------------------
+`coe.nsxlib_loglevel`  | INFO
+`coe.loglevel` 		   | NONE 		
+`k8s.loglevel`		   | NONE
+
+**log_dropped_traffic**
+
+The `log_dropped_traffic` type is a boolean: `true` or `false`. Any other type is rejected, such as "true". Missing entry is accepted. Enabling this parameter is used used in distributed firewall configurations to log the traffic for dropped rules.
+
+Example network profile for logging:
+```
 {
-  "name": "hello",
-  "description": "world",
+  "name": "example-network-profile",
+  "description": "log_settings",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
          "parameters": {
            "log_settings": {
+             "log_level": "DEBUG",
+             "log_dropped_traffic": true        
            }
          }
      }
   }
 }
-
-Result: Network profile hello successfully created
-Failure scenarios
-unsupported key
-Example network profile
-{
-  "name": "hello",
-  "description": "world",
-  "parameters" : {
-     "cni_configurations": {
-         "type": "nsxt",
-         "parameters": {
-           "log_settings": {
-             "log_something": "a"
-           }
-         }
-     }
-  }
-}
-
-Result: Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation 'log_settings': 'map[log_something:a]', in log_settings: log_something: unsupported parameter
-
-
-It only supports two keys: log_dropped_traffic and log_level.
-
-log_dropped_traffic
-Its type is boolean, its behavior is the same as "keep_source_ip". Missing entry is accepted.
-log_level
-Its type is string. Its value is enumeration, that takes value only from following values: "INFO,WARNING,DEBUG,ERROR,CRITICAL". Missing entry is accepted. The value will actually be set for three ncp.ini keys: coe.nsxlib_loglevel, coe.loglevel, k8s.loglevel.
-Success scenarios
-Valid string value
-Example network profile
-{
-  "name": "hello",
-  "description": "world",
-  "parameters" : {
-     "cni_configurations": {
-         "type": "nsxt",
-         "parameters": {
-           "log_settings": {
-             "log_level": "INFO"
-           }
-         }
-     }
-  }
-}
-
-Result: Network profile hello successfully created
-Failure scenarios
-Invalid string value
-{
-  "name": "hello",
-  "description": "world",
-  "parameters" : {
-     "cni_configurations": {
-         "type": "nsxt",
-         "parameters": {
-           "log_settings": {
-             "log_level": "Verbose"
-           }
-         }
-     }
-  }
-}
-
-Result: Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation 'log_settings': 'map[log_level:Verbose]', expect any value in list INFO,WARNING,DEBUG,ERROR,CRITICAL, but get Verbose: invalid parameter value
-
-Other type
-Example network profile
-{
-  "name": "hello",
-  "description": "world",
-  "parameters" : {
-     "cni_configurations": {
-         "type": "nsxt",
-         "parameters": {
-           "log_settings": {
-             "log_level": 10
-           }
-         }
-     }
-  }
-}
-
-Result: Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation 'log_settings': 'map[log_level:10]', expect string for log_level, but get int: 10: wrong parameter type
+```
 
 ### <a id='ingress_persistence_settings'></a> Ingress Persistence
 
-The `Ingress_persistence_settings` is a `map[string]interface{}` thta supports two keys: `persistence_timeout` and `persistence_type`.
+The `ingress_persistence` parameter lets you customize layer 7 persistence for Kubernetes services.
 
-These two keys are correlated thus they have to be both set/unset at the same time.
+The `ingress_persistence_settings` parameter is a map that supports two keys: `persistence_timeout` and `persistence_type`. These two keys are correlated and must be set/unset at the same time. If `persistence_type` and `persistence_timeout` are not both specified, the network profile fails validation.
 
-* `persistence_type` -- Its type is a string with valid values `cookie` or `source_ip`. An empty value is not accepted.
-* `persistence_timeout`` -- Its type is integer that is larger or equal to `1`. Empty value is not accepted.
+Parameter 		   		| Data type 	| Description
+------------------------|---------------|--------------------------------------------
+`persistence_type`     	| String 		| Valid values are `cookie` or `source_ip`. An empty value is not accepted.
+`persistence_timeout`  	| Integer 		| Value that is equal to `1` or larger. Empty value is not accepted. 		
 
-If `persistence_type` and `persistence_timeout` are not both specified, the network profile fails cni configuration parameter validation.
 
+Example 1: network profile for `ingress_persistence_settings`:
 ```
 {
   "name": "example_network_profile",
@@ -267,10 +229,11 @@ If `persistence_type` and `persistence_timeout` are not both specified, the netw
 }
 ```
 
+Example 2: network profile for `ingress_persistence_settings`:
 ```
 {
-  "name": "hello",
-  "description": "world",
+  "name": "example_network_profile",
+  "description": "ingress_persistence_settings",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
@@ -285,15 +248,17 @@ If `persistence_type` and `persistence_timeout` are not both specified, the netw
 }
 ```
 
-
 ### <a id='max_l4_service'></a> Max Layer 4 Service
 
-Its type is integer, any other type will be rejected. Value has to be larger or equal to 1. Missing entry is accepted.
+The `max_l4_service` parameter sets the upper limit for the number of virtual servers per cluster (Kubernetes layer 4 services). You can use this parameter to limit the number of virtual servers that can be created per Kubernets cluster.
 
-Example network profile:
+The `max_l4_service` data type is an integer. The value must be larger or equal to 1. Missing entry is accepted.
+
+Example 1: network profile for `max_l4_service`:
+```
 {
-  "name": "hello",
-  "description": "world",
+  "name": "example_network_profile",
+  "description": "max_l4_service",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
@@ -303,12 +268,13 @@ Example network profile:
      }
   }
 }
+```
 
-Result: Network profile hello successfully created
-Integer larger than 1
+Example 2: network profile for `max_l4_service`:
+```
 {
-  "name": "hello",
-  "description": "world",
+  "name": "example_network_profile",
+  "description": "max_l4_service",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
@@ -318,94 +284,90 @@ Integer larger than 1
      }
   }
 }
-Result: Network profile hello successfully created
-Note: there is no upper limit validation at this time.
-failure scenarios
-Integer less than 1
-Example network profile
-{
-  "name": "hello",
-  "description": "world",
-  "parameters" : {
-     "cni_configurations": {
-         "type": "nsxt",
-         "parameters": {
-           "max_l4_service": 0
-         }
-     }
-  }
-}
-Result: Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation 'max_l4_service': '0', expect positive number(>=1) for max_l4_service: invalid parameter value
-Other types
-Example network profile:
-{
-  "name": "hello",
-  "description": "world",
-  "parameters" : {
-     "cni_configurations": {
-         "type": "nsxt",
-         "parameters": {
-           "max_l4_service": "1"
-         }
-     }
-  }
-}
-Result: Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation 'max_l4_service': '1', expect integer for max_l4_service, but get string: 1: wrong parameter type
+```
 
 ### <a id='enable_err_crd'></a> Enable Error CRD
 
-## enable_err_crd
+The `enable_err_crd` parameter provides a mechanism of reporting NSX backend errors to Kubernetes cluster using a [custom resource definition (CRD)](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#customresourcedefinitions).
 
-Its type is boolean, any other type will be rejected. Missing entry is accepted.
-The same as "keep_source_ip"
+The Kubernetes resource "NSXError" is defined to hold error information. For each kubernetes resource object that has NSX backend failures, one "NSXError" object is generated with error information. There is a 'common error object' containing all cluster-wide errors.
 
+The `enable_err_crd` data type is a boolean: `true` or `false`. Missing entry is accepted. If set to `true`, you define a CRD to handle the "NSXError" comon error object.
+
+
+Example: network profile for `enable_err_crd`:
+```
+{
+  "name": "example_network_profile",
+  "description": "enable_err_crd",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "enable_err_crd": true
+         }
+     }
+  }
+}
+```
 
 ### <a id='nsx_ingress_controller'></a> NSX Ingress Controller
 
-The same as "keep_source_ip".
+The parameter `nsx_ingress_controller` is used to disable the use of NSX-T as the ingress controller for Kubernetes pods and services.
 
-Note: when nsx_lb is false, nsx_ingress_controller can only be set to false.
+The `nsx_ingress_controller` data type is a boolean: `true` or `false`.
 
-kubo@jumper:~$ cat np.json
+The `nsx_ingress_controller` parameter can only be set to `false` when `nsx_lb` is also set to `false`. In other words, to set `nsx_ingress_controller` to `false`, you must also set `nsx_lb` to `false`. 
+
+Example: network profile for `nsx_ingress_controller`:
+```
 {
-  "name": "test",
-  "description": "cni parameters",
+  "name": "example_network_profile",
+  "description": "nsx_ingress_controller",
   "parameters": {
     "cni_configurations": {
       "type": "nsxt",
       "parameters": {
          "nsx_lb": false,
-         "nsx_ingress_controller": true
+         "nsx_ingress_controller": false
+      }
+    }
+  }
+}
+```
+
+### <a id='nsx_lb'></a> NSX Load Balancer
+
+The parameter `nsx_lb` is used to disable the use of NSX-T as the load balancer for Kubernetes pods and services.
+
+The `nsx_lb` data type is a boolean: `true` or `false`.
+
+The `nsx_ingress_controller` parameter can only be set to `false` when `nsx_lb` is also set to `false`.
+
+Example: network profile for `nsx_lb`:
+{
+  "name": "example_network_profile",
+  "description": "nsx_lb",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": false,
       }
     }
   }
 }
 
-kubo@jumper:~$ pks create-network-profile np.json
-
-Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation on keys 'nsx_ingress_controller,nsx_lb': nsx_ingress_controller can only be set to false when nsx_lb is false: invalid parameter value
-
-### <a id='nsx_lb'></a> NSX Load Balancer
-
-## NSX Load Balancer
-
-The same as "keep_source_ip"
-
 ### <a id='l4_persistence_type'></a> Layer 4 Persistence Type
 
-## L4_persistence_type
+The `l4_persistence_type` is used to set connection stickiness based on `source_ip`.
 
-Its type is string, only value "source_ip" is accepted.
-Success scenarios
-kubo@jumper:~$ pks create-network-profile np.json
+The `l4_persistence_type` data type is string. The only accepted value is `source_ip`.
 
-
-Network profile test-3 successfully created
-
-kubo@jumper:~$ cat np.json
+```
 {
-  "name": "test-3",
-  "description": "cni parameters",
+  "name": "example_network_profile",
+  "description": "l4_persistence_type",
   "parameters": {
     "cni_configurations": {
       "type": "nsxt",
@@ -415,62 +377,6 @@ kubo@jumper:~$ cat np.json
     }
   }
 }
-kubo@jumper:~$ pks cluster k8s4
-
-Name:                     k8s4
-Plan Name:                small
-UUID:                     2e6a1dac-bd8b-4a4b-82b0-389c19a66834
-Last Action:              CREATE
-Last Action State:        in progress
-Last Action Description:  Instance provisioning in progress
-Kubernetes Master Host:   k8s4
-Kubernetes Master Port:   8443
-Worker Nodes:             1
-Kubernetes Master IP(s):  In Progress
-Network Profile Name:     test-3
-
-kubo@jumper:~$ pks network-profile test-3
-
-Name:         test-3
-UUID:         5a0791da-e50e-49e7-8780-ddbc1ea75926
-Description:  cni parameters
-Parameters:   {"cni_configurations":{"parameters":{"l4_persistence_type":"source_ip"},"type":"nsxt"}}
-
-kubo@jumper:~$ bosh -d service-instance_2e6a1dac-bd8b-4a4b-82b0-389c19a66834 ssh master "sudo su -c 'cat  /var/vcap/jobs/ncp/config/ncp.ini'" | grep 'l4_persistence'
-master/3cd9b504-c146-4c68-9e55-7ff1b85e30be: stdout | l4_persistence = source_ip
-
-Failure scenarios
-kubo@jumper:~$ pks create-network-profile np.json
-
-Error: The network profile parameters could not be parsed: network profile is invalid: fails cni configurations validation: failed cni configuration parameter validation 'l4_persistence_type': 'source', expect any value in list source_ip, but get source: invalid parameter value
-kubo@jumper:~$ cat np.json
-{
-  "name": "test-3",
-  "description": "cni parameters",
-  "parameters": {
-    "cni_configurations": {
-      "type": "nsxt",
-      "parameters": {
-        "l4_persistence_type": "source"
-      }
-    }
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
