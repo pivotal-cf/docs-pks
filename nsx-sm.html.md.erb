@@ -5,15 +5,19 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to use NSX-SM with <%= vars.product_short %>.
+This topic describes how to use NSX Service Mesh (NSX-SM) with <%= vars.product_short %>.
 
 ##<a id='prereqs'></a>Prerequisites
 
-This topic assumes that you have deployed <%= vars.product_short %> and provisioned a Kubernetes cluster. 
+This topic assumes that the following:
+
+* You have deployed <%= vars.product_short %>
+* You have provisioned a Kubernetes cluster where you will install NSX-SM 
+* You enabled [Pod Security Policies](./pod-security-policy.html) for the target Kubernetes cluster.
 
 ##<a id='nsx-sm-about'></a> About NSX-SM
 
-NSX-SM provides a service mesh solution for Kubernetes based on the NSX. For more information, refer to the [NSX-SM blog post](https://blogs.vmware.com/cloudnative/2018/12/10/service-mesh-cna/).
+NSX-SM provides a service mesh solution for Kubernetes based on the NSX platform. For more information, refer to the [NSX-SM blog post](https://blogs.vmware.com/cloudnative/2018/12/10/service-mesh-cna/).
 
 NSX-SM is deployed as a Pod in a Kubernetes cluster using a YAML file. The recommendation is to deploy NSX-SM in an Enterprise PKS foundation with Pod Security Policies (PSPs) enabled. PSP are enabled by selecting the check box in the appropriate Plan on the PKS tile. The instructions below include an example PSP (`psp.yaml`) you can use for this purpose.
 
@@ -36,25 +40,35 @@ NSX-SM is provided as a service through VMware Cloud Services. You need to go th
 
 ###<a id='nsx-sm-cluster'></a> Onboard a Kubernetes Cluster
 
-The cluster on-boarding process consists of the following steps:
+Complete the following steps to install NSX-SM onto a PKS-provisioned Kubernetes cluster.
 
-1. Once the cluster is selected, log on to the NSX-SM web site and select the “ADD NEW” item on the home web page. 
+1. Once the account is sucessfully created, at the NSX-SM welcome page, select the **ONBOARD CLUSTERS** item on the home web page (or click **ADD NEW** from the menu).
+  <img src="images/nsxt/nsx-sm-02.png"> 
 
-1. Input the desired cluster name. The cluster name is used by NSX-SM to identify a particular cluster. It does not have to match the Enterprise PKS cluster name.
+1. At the **Onboard Clusters** screen, enter a unique name for the target cluster. The cluster name is used by NSX-SM to identify a particular cluster. It does not have to match the Enterprise PKS cluster name.
+  <img src="images/nsxt/nsx-sm-03.png">
 
-1. Download a yaml file. The yaml file contains the deployment definition of the NSX-SM agent.
+1. Download the YAML file, which contains the deployment definition of the NSX-SM agent.
+  <img src="images/nsxt/nsx-sm-04.png">
 
-1. Deploy the NSX-SM yaml file in the default namespace on the target Kubernetes cluster:
+1. Copy the command to apply the YAML by clicking the copy icon.
+  <img src="images/nsxt/nsx-sm-05.png">
+
+1. Log in to your PKS-provisioned Kubernetes cluster and apply the NSX-SM yaml file in the default namespace using the command you copied:
 
 ```
-kubectl apply -f <yaml file name>
+kubectl apply -f nsx-sm_CLUSTER-NAME.yaml
 ```
+
+1. Click **Next**. The cluster is discovered.
+
+  <img src="images/nsxt/nsx-sm-06.png">
+
+  The YAML file deploys a Pod to the target Kubernetes cluster that includes the NSX-SM agent. If the target cluster is not discovered, click **Exit and Reload** and try again.
 
 ###<a id='nsx-sm-istio'></a> Install and Configure Istio
 
-Once the NSX-SM agent is correctly started on a cluster, go back the NSX-SM web site and complete the on-boarding process by clicking on the **Install ISTIO** button in the on-boarding menu. When this operation is completed all the ISTIO components have been installed on the target cluster.
-
-The last step causes the ISTIO CNI plugin to be installed. This plug in allows ISTIO to automatically inject its Envoy "sidecar" container whenever a new POD is started.
+Once the NSX-SM agent is correctly started on a cluster, go back the NSX-SM web site and complete the on-boarding process by clicking on the **Install ISTIO** button in the on-boarding menu. This operation installs the ISTIO components on the target cluster. Included in these components is the ISTIO CNI plugin, which allows ISTIO to automatically inject its Envoy sidecar container whenever a new Pod is started.
 
 Since PSPs are enabled on the cluster, deployment of services require a few additional steps, in particular you must create and use a PSP and grant use of it to a service account. While the additional steps are typical for any cluster with PSPs enabled, the content of the PSP object itself is specific to the needs of **sidecar injection** as requested by ISTIO. Use the following `psp.yaml` file for this purpose. For instructions on how to create the PSP, see [Enabling and Configuring Pod Security Policies](http://docs-pcf-staging.cfapps.io/pks/1-5/pod-security-policy.html).
 
@@ -111,7 +125,7 @@ spec:
 
 ###<a id='nsx-sm-istio'></a> Known Issue
 
-When a delete cluster command is issued in Enterprise PKS, the system runs an errand to clean up the pods currently running in the cluster. ISTIO installs a few pods that have a Pod Disruption Budget that conflict with the Enterprise PKS cleanup errand. This means that the errand will run for a long time. 
+When the `pks delete cluster` command is issued, the system runs an errand to clean up the pods currently running in the cluster. Istio installs a few pods that have a Pod Disruption Budget that conflict with the Enterprise PKS cleanup errand. This means that the errand will run for a long time. 
 
 In Enterprise PKS v1.5 we allow the user to select a timeout for Pod Disruption Budget, therefore the errand will run up to that timeout. Prior to v1.5 the timeout was very long (approximately 24 hours) and it looked like the deleting process was hanging forever. 
 
