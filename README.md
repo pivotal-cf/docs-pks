@@ -37,12 +37,12 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/p
 
 **1.3**: The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
 
-**1.3.x-patch-releases** The `1.3.x-patch-releases` branch is used to work on documentation for the pre-release v1.3.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.3.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.3.x pre-release documentation.
+**1.3.x-patch-releases**: The `1.3.x-patch-releases` branch is used to work on documentation for the pre-release v1.3.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.3.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.3.x pre-release documentation.
 **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
 **1.2**: The `1.2` branch is used to publish the live v1.2 version of the site. Create pull requests on `1.2` to contribute bug fixes or correct technical inaccuracies in the v1.2 documentation.
 
-**1.2.x-patch-releases** The `1.2.x-patch-releases` branch is used to work on documentation for the pre-release v1.2.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.2.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.2.x pre-release documentation.
+**1.2.x-patch-releases**: The `1.2.x-patch-releases` branch is used to work on documentation for the pre-release v1.2.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.2.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.2.x pre-release documentation.
 **This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
 The `1.1` branch is no longer maintained. A PDF of the Enterprise PKS v1.0 documentation is available at https://resources.docs.pivotal.io/pdfs/pks-docs-1.1.pdf.
@@ -63,4 +63,4 @@ To use Bookbinder to view your documentation, perform the following steps:
 1. Run `bundle install` to install all of the necessary gems, including Bookbinder.
 1. Build your documentation site with `bookbinder` in one of the two following ways:
   * Run `bundle exec bookbinder watch` to build an interactive version of the documentation and navigate to `localhost:4567/pks/1-5/index.html` in a browser. (It may take a moment for the site to load at first.) This builds a site from your content repository at `docs-content`, and then monitors that repository to update the site if you make any changes to the repository.
-  * Run `bundle exec bookbinder bind local` to build a Rack web-app of the book. After the bind has completed, `cd` into the `final_app` directory and run `rackup`. Then navigate to `localhost:9292/pks/1-4/index.html` in a browser.
+  * Run `bundle exec bookbinder bind local` to build a Rack web-app of the book. After the bind has completed, `cd` into the `final_app` directory and run `rackup`. Then navigate to `localhost:9292/pks/1-5/index.html` in a browser.
