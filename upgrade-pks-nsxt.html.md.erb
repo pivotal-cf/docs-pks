@@ -51,8 +51,8 @@ To upgrade Ops Manager, follow the upgrade checklist and procedures for the Ops 
 
 ### <a id="upgrade-pks-to-140"></a> Step 2: Upgrade to PKS v1.4.x
 
-Upgrade the PKS tile from a supported version to to PKS v1.4.x. When you upgrade the PKS tile, the target version of NCP is installed (v2.4.0 in this case). This **must** be done before you upgrade to NSX-T v2.4.x. 
- 
+Upgrade the PKS tile from a supported version to PKS v1.4.x. When you upgrade the PKS tile, the target version of NCP is installed (v2.4.0 in this case). This **must** be done before you upgrade to NSX-T v2.4.x.
+
 To upgrade the PKS tile to v1.4.x, complete the following steps.
 
 1. Download the PKS version from [Pivotal Network](https://network.pivotal.io/products/pivotal-container-service/).
@@ -111,13 +111,16 @@ To perform the upgrade, refer to [Upgrading NSX-T Data Center](https://docs.vmwa
 
 ### <a id="add-managers"></a> Step 4: Deploy Two Additional NSX Managers
 
-With NSX-T v2.4, the NSX Controller component is now part of the NSX Manager. Previously the NSX Manager was a singleton, and HA was achieved using multiple NSX Controllers. With NSX-T v2.4, since the standalone NSX Controller component is no longer used, to achieve HA you need to deploy multiple (three) NSX Managers. Refer to the [Upgrading NSX-T Data Center](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/upgrade/GUID-3B986F37-94FE-4CAC-B4AD-9B55D8FE1EC2.html) documentation for guidance on adding additional NSX Managers.
+With NSX-T v2.4, the NSX Controller component is now part of the NSX Manager. Previously the NSX Manager was a singleton, and HA was achieved using multiple NSX Controllers. With NSX-T v2.4, since the standalone NSX Controller component is no longer used, to achieve HA you need to deploy multiple (three) NSX Managers. Refer to the corresponding step in the [Installing NSX-T v2.4 Data Center](./nsxt-install-24.html#nsxt-24-install) topic.
 
-<p class="note"><strong>Note:</strong> When you add additional NSX Managers, the system prompts you to enter a Compute Manager, which is a vCenter Server. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-D225CAFC-04D4-44A7-9A09-7C365AAFCA0E.html">Add a Compute Manager</a> in the NSX-T documentation.</p> 
+<p class="note"><strong>Note:</strong> When you add additional NSX Managers, the system prompts you to enter a Compute Manager, which is a vCenter Server. Refer to the corresponding step in the topic <a href="./nsxt-install-24.html#nsxt-24-install">Installing NSX-T v2.4 Data Center</a>.</p> 
 
-### <a id="add-vip"></a> Step 5: Deploy a Load Balancer or Configure the NSX Manager VIP for the NSX Managment Cluster
+### <a id="add-vip"></a> Step 5: Configure the NSX Manager VIP for the NSX Managment Cluster or Deploy a Load Balancer
 
-Since you have deployed two additional NSX Managers (for a total of three), to support a single access point for the NSX Manager interface you need to either [Provision a Load Balancer for the NSX-T v2.4 Management Cluster](./nsxt-mgmt-lb.html), or [Assign a Virtual IP Address and Certificate to the NSX-T Management Cluster](https://docs.vmware.com/en/VMware-Validated-Design/5.0.1/com.vmware.vvd.sddc-nsxt-domain-deploy.doc/GUID-B7019BCE-4FA1-40BB-8DC2-EE47967A47F1.html?hWord=N4IghgNiBcIGoEkAKIC+Q).
+Since you have deployed two additional NSX Managers (for a total of three), to support a single access point for the NSX Manager interface you need to do one of the following: 
+
+- [Assign a Virtual IP Address and Certificate to the NSX-T Management Cluster](./nsxt-mgmt-vip.html), or
+- [Provision a Load Balancer for the NSX-T v2.4 Management Cluster](./nsxt-mgmt-lb.html)
 
 <p class="note"><strong>Note:</strong> If you need to scale, provision a load balancer for the NSX-T Management Cluster. If you do not require scalability, can configure a Cluster VIP to achieve HA for the NSX-T Management Cluster.</p>
 
@@ -125,117 +128,9 @@ Since you have deployed two additional NSX Managers (for a total of three), to s
 
 Both the BOSH Director tile and the PKS tile expect the NSX Manager CA certificate. However, the current NSX Manager CA certificate is associated with the original NSX Manager IP address. You need to generate a new NSX Manager CA cert using the load balancer or VIP address, then register this certificate with NSX-T using the appropriate API.
 
+If you have assigned a Virtual IP Address and Certificate to the NSX-T Management Cluster, see [Configure a VIP and Cluster Certificate for the NSX-T v2.4 Management Cluster](./nsxt-mgmt-vip.html) for instructions to generate, import, and register a New NSX Manager CA Cert for the VIP.
+
 If you have deployed a load balancer, see [Provision a Load Balancer for the NSX-T v2.4 Management Cluster](./nsxt-mgmt-lb.html) for instructions to generate, import, and register a New NSX Manager CA Cert for the load balancer.
-
-If you have assigned a Virtual IP Address and Certificate to the NSX-T Management Cluster, complete the following set of instructions to generate, import, and register a New NSX Manager CA Cert with the Cluster API.
-
-####<a id='generate-certificate'></a> Generate a New NSX Manager CA Certificate and Private Key
-
-To generate a new NSX Manager CA certificate and private key using the VIP address, follow the instructions below. Make sure you use the VIP address, such as `10.40.206.5`.
-
-Below is an example Certificate Signing Request (CSR) named `nsx-cert.cnf`. In this example, the IP address `10.40.206.5` is the IP address of the VIP. Substitute this IP address with the VIP you generated.
-
-```
-[ req ]
-
-default_bits = 2048
-
-distinguished_name = req_distinguished_name
-
-req_extensions = req_ext
-
-prompt = no
-
-[ req_distinguished_name ]
-
-countryName = US
-
-stateOrProvinceName = California
-
-localityName = CA
-
-organizationName = NSX
-
-commonName = 10.40.206.5
-
-[ req_ext ]
-
-subjectAltName = @alt_names
-
-
-[alt_names]
-
-DNS.1 = 10.40.206.5
-```
-
-To generate the certficate and private key using the above CSR, run the following commands:
-
-```
-# export NSX_MANAGER_IP_ADDRESS=10.40.206.5
-
-# export NSX_MANAGER_COMMONNAME=10.40.206.5
-
-# openssl req -newkey rsa:2048 -x509 -nodes \
-
-> -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
-
-> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
-
->  <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 365
-```
-
-The result is `nsx.crt` and `nsx.key`. You can verify the certificate using the command `# openssl x509 -in nsx.crt -text -noout`.
-
-####<a id='import-certificate'></a> Import the New Certificate to NSX Manager
-
-Complete the following steps to import the certificate to the NSX Manager:
-
-1. Log in to the NSX Manager UI.
-
-1. Navigate to **System > Trust > Certificates**.
-
-1. Click **Import > Import Certificate**.
-
-	<img src="images/nsxt/import-cert.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475">
-    <p class="note"><strong>Note</strong>: Make sure you select **Import Certificate** and not **Import CA Certificate**</code>.</p>
-
-1. Give the certificate a unique name, such as `NSX-API-CERT-NEW`.
-  <p class="note"><strong>Note</strong>: Use a unique name for the new certificate you import. The default NSX Manager CA certificate is typically named <code>NSX-API-CERT</code>.</p>
-
-1. Browse to and select the CA certificate and private key you generated in the previous section of steps.
-
-1. Click **Save**.
-
- 	<img src="images/nsxt/import-cert-2.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475"> 
-
-####<a id='register-certificate'></a> Register the New Certificate with NSX Manager
-
-Once you have imported the NSX Manager certificate, register this certificate with the NSX Management cluster using a cURL command against the Cluster Certificate API.
-
-First, create environment variables for the VIP address and the certificate ID. In this example, `10.40.206.5` is the VIP address. The certificate ID is obtained from the NSX Manager UI where you imported the certificate.
-
-```
-export NSX_MANAGER_IP_ADDRESS=10.40.206.5
-
-export CERTIFICATE_ID="63bb6646-052c-49df-b603-64d7e5bdb5bf"
-```
-
-Next, register the new NSX-T Manager CA cert using a cURL request to the Cluster Certificate API. Substitute `PASSWORD` with the password for NSX Manager.
-
-```
-curl --insecure -u admin:'PASSWORD' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
-```
-
-The certificate will be registered with the NSX Manager that the VIP address is associated with. 
-
-To verify, using a browser go to the VIP address of the NSX Manager. Login and check that the new cert is used by the site (accessed using the VIP address). 
-
-To further verify, SSH to each NSX Manager host and run the following two commands. All certificates returned should be the same.
-
-```
-get certificate api
-get certificate cluster
-```
 
 ### <a id="upgrade-tiles"></a> Step 7: Update the PKS and BOSH Tiles with the New NSX Manager Cluster Certficate and Load Balancer or VIP Address
 

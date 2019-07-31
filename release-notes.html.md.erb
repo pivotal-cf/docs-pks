@@ -58,7 +58,7 @@ This topic contains release notes for <%= vars.product_full %> v1.4.x.
         <td>v18.06.3-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">docker-boshrelease</a></td>
     </tr>
     <tr>
-        <td>BBR version</td>
+        <td>Backup and Restore SDK version</td>
         <td>v1.8.0</td>
     </tr>
 </table>
@@ -150,9 +150,9 @@ To upgrade, see [Upgrading <%= vars.product_short %>](upgrade-pks.html) and [Upg
 
 <p class="note breaking"><strong>Breaking change:</strong> Upgrading to Ops Manager v2.6 on vSphere requires that you set a public SSH key in the OVF template prior to the upgrade. For more information, see <a href="#no-password-om">Passwords Not Supported for Ops Manager VM on vSphere</a> in the Breaking Changes section.</p>
 
-### <a id="v1.4.1-whats-new"></a>What's New
+### <a id="v1.4.1-whats-new"></a>Features
 
-<%= vars.product_short %> v1.4.1 adds the following:
+New features and changes in this release:
 
 * Support for VMware NSX-T v2.4.1.
 For more information, see [VMware NSX-T Data Center 2.4.1 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4.1/rn/VMware-NSX-T-Data-Center-241-Release-Notes.html).
@@ -160,7 +160,7 @@ For more information, see [VMware NSX-T Data Center 2.4.1 Release Notes](https:/
 For more information, see [NSX Container Plugin 2.4 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/rn/NSX-Container-Plugin-Release-Notes.html) in the VMware documentation.
 * Support for provisioning an NSX-T load balancer in front of the NSX management cluster.
 For more information, see [Provisioning a Load Balancer for the NSX-T v2.4 Management Cluster](./nsxt-mgmt-lb.html).
-* Ability to tune NCP rate limits.
+* Ability to tune NCP rate limits. See either of the following Knowledge Base articles: [Tuning NCP parameters for increased PKS scaling](https://community.pivotal.io/s/article/tuning-ncp-parameters-for-increased-pks-scaling) or [Tuning NCP parameters for increased PKS Scaling in VMware Enterprise PKS environment (68085)](https://kb.vmware.com/s/article/68085).
 * Configurable Kubernetes service network CIDR range. For more information, see [Networking](./installing-nsx-t.html#networking)
 in _Installing Enterprise PKS on vSphere with NSX-T_.
 * Configurable node IP block. For more information, see [Defining Network Profiles](./network-profiles-define.html).
@@ -181,7 +181,7 @@ To avoid upgrade failure and errors when authenticating, add a public key to the
 
 <p class="note warning"><strong>Warning</strong>: You cannot upgrade to Ops Manager v2.6 successfully without adding a public key. If you do not add a key, Ops Manager shuts down automatically because it cannot find a key and may enter a reboot loop.</p>
 
-For more information about adding a public key to the OVF template, see [Deploy Ops Manager](https://docs.pivotal.io/pivotalcf/2-6/om/vsphere/deploy.html#deploy) in _Deploying Ops Manager on vSphere_. 
+For more information about adding a public key to the OVF template, see [Deploy Ops Manager](https://docs.pivotal.io/pivotalcf/2-6/om/vsphere/deploy.html#deploy) in _Deploying Ops Manager on vSphere_. For instructions on generating a suitable SSH key pair, refer to the article "How to generate an SSH key pair for installing Ops Manager v2.6 on vSphere" in the [Pivotal](https://community.pivotal.io/s/article/generate-an-ssh-key-pair-for-installing-ops-manager-v2-6-on-vsphere) or [VMware](https://kb.vmware.com/s/article/71143) support knowledgebases.
 
 #### <a name='log-sink-entry-change'></a> Log Sink Entry Format Change
 
@@ -230,35 +230,39 @@ If you experience this issue, delete and re-create the failed cluster.
 Follow the procedure in 
 [Cannot Re-Create a Cluster that Failed to Deploy](troubleshoot-issues.html#cluster-recreate-fails).
 
-#### <a name="not-enough-diskspace"></a> Upgrade Fails Due to Insufficient Disk Space
+#### <a name="not-enough-diskspace-1-4-1"></a> Upgrade Fails Due to Insufficient Disk Space
 
 **Symptom**
 
-The upgrade from PKS v1.3.x to v1.4.x fails with the following error in the BOSH debug log:
+The upgrade from PKS v1.3.x to <%= vars.product_short %> v1.4.x fails with the following error in the BOSH debug log:
 
-`1 of 8 pre-start scripts failed. Failed Jobs:pxc-mysql`
+```
+1 of 8 pre-start scripts failed. Failed Jobs:pxc-mysql
+```
 
-The pxc-mysql pre-start logs also includes the error message:
+The pxc-mysql pre-start logs also include the following error message:
 
-`panic: Cannot continue, insufficient disk space to complete migration`
+```
+panic: Cannot continue, insufficient disk space to complete migration
+```
 
 **Explanation**
 
-The upgrade to PKS v1.4.x includes a MySQL migration from MaridDB( Galera) to MySQL (Percona).
-This process includes a backup of existing MySQL files.
+The upgrade to <%= vars.product_short %> v1.4.x includes a MySQL migration from MaridDB to Percona.
 
-When `/var/vcap/store` does not have enough space for the backups, the PKS upgrade fails.
+When `/var/vcap/store` does not have enough space for the backup of existing MySQL files
+that happens during this migration, the <%= vars.product_short %> upgrade fails.
 
 **Workaround**
 
-Prior to upgrading to PKS v1.4.x, increase the persistent disk type configured for the PKS VM.
+Before upgrading to <%= vars.product_short %> v1.4.x, increase the persistent disk type configured for the PKS VM.
 
-1. In Ops Manager, click on the PKS tile and select **Resource Config**.
-
-1. In **Pivotal Container Service**, select a larger disk type than the currently configured by using the **Persistent Disk Type** dropdown.
-For example, if you have 10 GB currently selected, select 20 GB. 
+1. In Ops Manager, click the **Pivotal Container Service** tile.
+1. Select the **Resource Config** pane.
+1. In **Pivotal Container Service** > **Persistent Disk Type**, select a larger disk type than the currently configured disk type.
+For example, if `10 GB` is currently configured, select `20 GB`.
  
-If you experience this issue after attempting an upgrade, increase the disk store size and start the upgrade again. 
+If you experience this issue after attempting an upgrade, perform the steps above and start the upgrade again.
 
 ## <a id="v1.4.0"></a>v1.4.0
 
@@ -310,7 +314,7 @@ If you experience this issue after attempting an upgrade, increase the disk stor
         <td>v18.06.3-ce<br><a href="https://github.com/cloudfoundry-incubator/docker-boshrelease/">CFCR</a></td>
     </tr>
     <tr>
-        <td>BBR version</td>
+        <td>Backup and Restore SDK version</td>
         <td>v1.8.0</td>
     </tr>
 </table>
@@ -405,9 +409,9 @@ When upgrading to NSX-T 2.4:
 - Apply the NSX-T v2.4.0.1 hot-patch. For more information, see [KB article 67499](https://kb.vmware.com/s/article/67449) in the VMware Knowledge Base.
 - To obtain the NSX-T v2.4.0.1 hot-patch, open a support ticket with VMware Global Support Services (GSS) for NSX-T Engineering.
 
-### <a id="v1.4.0-whats-new"></a>What's New
+### <a id="v1.4.0-whats-new"></a>Features
 
-<%= vars.product_short %> v1.4.0 adds the following:
+New features and changes in this release:
 
 * Operators can configure up to ten sets of resource types, or _plans_, in the Enterprise PKS tile. All
 plans except the first can made available or unavailable to developers deploying clusters. Plan 1
@@ -544,3 +548,37 @@ For more information, see [Outbound connections in Azure](https://docs.microsoft
 **Workaround**
 
 You can manually re-attach the worker instance to the back-end pool of the Azure Standard SKU Load Balancer in your Azure console.
+
+#### <a name="not-enough-diskspace"></a> Upgrade Fails Due to Insufficient Disk Space
+
+**Symptom**
+
+The upgrade from PKS v1.3.x to <%= vars.product_short %> v1.4.x fails with the following error in the BOSH debug log:
+
+```
+1 of 8 pre-start scripts failed. Failed Jobs:pxc-mysql
+```
+
+The pxc-mysql pre-start logs also include the following error message:
+
+```
+panic: Cannot continue, insufficient disk space to complete migration
+```
+
+**Explanation**
+
+The upgrade to <%= vars.product_short %> v1.4.x includes a MySQL migration from MaridDB to Percona.
+
+When `/var/vcap/store` does not have enough space for the backup of existing MySQL files
+that happens during this migration, the <%= vars.product_short %> upgrade fails.
+
+**Workaround**
+
+Before upgrading to <%= vars.product_short %> v1.4.x, increase the persistent disk type configured for the PKS VM.
+
+1. In Ops Manager, click the **Pivotal Container Service** tile.
+1. Select the **Resource Config** pane.
+1. In **Pivotal Container Service** > **Persistent Disk Type**, select a larger disk type than the currently configured disk type.
+For example, if `10 GB` is currently configured, select `20 GB`.
+ 
+If you experience this issue after attempting an upgrade, perform the steps above and start the upgrade again.
