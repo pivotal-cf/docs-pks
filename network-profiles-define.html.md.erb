@@ -42,7 +42,7 @@ Network profiles are defined using JSON. Here is an example network profile that
 			"ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
 		],
 		"pod_subnet_prefix": 27,
-        "pod_routable": true,
+    "pod_routable": true,
 		"fip_pool_ids": [
 			"e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0",
 			"ebe78a74-a5d5-4dde-ba76-9cf4067eee55"
@@ -58,7 +58,7 @@ Network profiles are defined using JSON. Here is an example network profile that
 		"cni_configurations": {
 			"type": "nsxt",
 			"parameters": {
-				"keep_source_ip": true,
+				"x_forwarded_for": "insert",
 				"ingress_ip": "192.168.160.212",
 				"log_settings": {
 					"log_level": "Verbose",
@@ -68,11 +68,12 @@ Network profiles are defined using JSON. Here is an example network profile that
 					"persistence_type": "cookie",
 					"persistence_timeout": 1
 				},
-				"max_l4_service": 1,
+				"max_l4_lb_service": 10,
 				"enable_err_crd": true,
 				"nsx_ingress_controller": true,
 				"nsx_lb": false,
-				"l4_persistence_type": "source_ip"
+				"l4_persistence_type": "source_ip",
+        "l4_lb_algorithm": "weighted_round_robin" 
 			}
 		}
 	}
@@ -103,7 +104,7 @@ Define a network profile configuration in a JSON file using the following parame
     </tr>
     <tr>
       <td>`lb_size` </td>
-      <td>Sring</td>
+      <td>String</td>
       <td>Size of the NSX-T load balancer deployed with the Kubernetes cluster. Accepts: `small` (default), `medium`, or `large`.</td>
     </tr>
     <tr>
@@ -147,19 +148,99 @@ Define a network profile configuration in a JSON file using the following parame
       <td>String for looking up the Master Node IP.</td>
     </tr>
     <tr>
-      <td>`ingress_prefix` </td>
+      <td>`ingress_prefix`</td>
       <td>String</td>
       <td>String for ingress prefix for DNS lookup.</td>
     </tr>
     <tr>
-      <td>`single_tier_topology` </td>
+      <td>`single_tier_topology`</td>
       <td>Boolean</td>
       <td>Flag to enable a Shared T1 router. Defaut is `false`. Set to `true` to enable.</td>
     </tr>    
     <tr>
-      <td>`cni_configurations` </td>
+      <td>`cni_configurations`</td>
       <td>Map</td>
-      <td>See [Configure NCP](network-profiles-ncp.html).</td>
+      <td>Map containing two key-value pairs: `type` and `parameters`.</td>
+    </tr>    
+    <tr>
+      <td>`type`</td>
+      <td>Constant String</td>
+      <td>Only `nsxt` is accepted.</td>
+    </tr>    
+    <tr>
+      <td>`parameters`</td>
+      <td>Map</td>
+      <td>Map containing one or more key-value pairs for NCP settings.</td>
+    </tr>    
+    <tr>
+      <td>`x_forwarded_for`</td>
+      <td>String Enum</td>
+      <td>Use the same source IP for calling clients. Accepts `"insert"` and `"replace"`.</td>
+    </tr>    
+    <tr>
+      <td>`ingress_ip`</td>
+      <td>String</td>
+      <td>IP address to use for ingress controller load balancer.</td>
+    </tr>    
+    <tr>
+      <td>`log_settings`</td>
+      <td>Map</td>
+      <td>Holds parameters for configuring NCP logging.</td>
+    </tr>    
+    <tr>
+      <td>`log_level`</td>
+      <td>String Enumeration</td>
+      <td>"INFO", "WARNING", "DEBUG", "ERROR", "CRITICAL"</td>
+    </tr>    
+    <tr>
+      <td>"log_dropped_traffic"</td>
+      <td>Boolean</td>
+      <td>Default is `false`. Set to `true` to log dropped firewall traffic.</td>
+    </tr>    
+    <tr>
+      <td>`ingress_persistence_settings`</td>
+      <td>Map</td>
+      <td>Holds parameters for customizing Layer 7 persistence.</td>
+    </tr>    
+    <tr>
+      <td>`persistence_type`</td>
+      <td>String</td>
+      <td>Values are `none` or `cookie`.</td>
+    </tr>    
+    <tr>
+      <td>`persistence_timeout`</td>
+      <td>Integer</td>
+      <td>Persistence timeout interval, in seconds.</td>
+    </tr>    
+    <tr>
+      <td>`max_l4_lb_service`</td>
+      <td>Integer</td>
+      <td>Limit the maximum number of layer 4 virtual servers per cluster. Minimum is `0`.</td>
+    </tr>    
+    <tr>
+      <td>`enable_err_crd`</td>
+      <td>Boolean</td>
+      <td>Enable the NSXError custom resource definion.</td>
+    </tr>    
+    <tr>
+      <td>`nsx_ingress_controller`</td>
+      <td>Boolean</td>
+      <td>Flag to control if NCP is used as the Ingress Controller for the Kubernetes cluster.</td>
+    </tr>    
+    <tr>
+      <td>`nsx_lb`</td>
+      <td>Boolean</td>
+      <td>Flag to control if the NSX-T Load Balancer is used for the Kubernetes cluster.</td>
+    </tr>    
+    <tr>
+      <td>`l4_persistence_type`</td>
+      <td>String Enum</td>
+      <td>Connection stickiness based on `source_ip` (only accepted value).</td>
+    </tr>    
+    <tr>
+      <td>`l4_lb_algorithm`</td>
+      <td>String Enum</td>
+      <td>Specify the layer 4 load balancer behavior. Accetps `"round_robin"`, `"least_connection"`, `"ip_hash"`, `"weighted_round_robin"`. Default is round robin.</td>
     </tr>    
   </table>
 

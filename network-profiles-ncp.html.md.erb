@@ -13,28 +13,113 @@ This topic describes how to define network profiles for Kubernetes clusters prov
 
 ## <a id='ncp-params'></a> NCP Parameters
 
-The parameter `cni_configurations` is a map with two keys: `type` and `parameters`. 
+The parameter `cni_configurations` is a map with two keys: `type` and `parameters`. The following table shows the parameters for configuring NCP:
 
-Key name 						| Data type 				| Default value 									| Behavior 
---------------------------------|---------------------------|---------------------------------------------------|--------------------------------------------------------------------
-`type` 	 						| string 					| `nsxt` 											| Constant that accepts `nsxt` only; the network profile is used for `ncp.ini` configuration
-`parameters` 					| map 						| 													| Map containing one or more key-values pairs (see below)
-
-
-The `parameter` map accepts the following keys:
-
-Key name 						| Data type 				| Default value   									| Behavior
---------------------------------|---------------------------|---------------------------------------------------|--------------------------------------------------------------------
-`keep_source_ip` 				| boolean 					| none 												| Set INSERT for `x_forwarded_for`.
-`ingress_ip` 					| string 					| none 												| NCP will create an ingress virtual server with the given IP address.
-`log_settings` 					| map[string]interface{} 	| log_level: none; log_dropped_traffic: false 		| Customize loglevel; Customize if Distributed Firewall "Deny" is logged.
-`ingress_persistence_settings` 	| map[string]interface{} 	| persistence_type: none; persistence_timeout: none | Customize parameters for L7 persistence.
-`max_l4_service` 				| integer 					| none (default value in NCP code) 					| Upper limit of virtual servers per cluster (Kubernetes L4 services).
-`enable_err_crd` 				| boolean 					| false 											| Enable the NSXError custom resource definion.
-`nsx_ingress_controller` 		| boolean 					| true 												| Use NSX ingress controller.
-`nsx_lb` 						| boolean 					| true 												| Use NSX-T native load balancer.
-`l4_persistence_type` 			| string(enumeration) 		| none 												| Connection stickiness based on `source_ip` (only accepted value).
-
+  <table>
+    <th width="30%">Parameter</th>
+    <th>Type</th>
+    <th>Description</th>
+    <tr>
+      <td>`name`</td>
+      <td>String</td>
+      <td>User-defined name of the network profile.</td>
+    </tr>
+    <tr>
+      <td>`description`</td>
+      <td>String</td>
+      <td>User-defined description for the network profile.</td>
+    </tr>
+    <tr>
+      <td>`parameters`</td>
+      <td>Map</td>
+      <td>One or more name-value pairs.</td>
+    </tr>
+    <tr>
+      <td>`cni_configurations`</td>
+      <td>Map</td>
+      <td>Map containing two key-value pairs: `type` and `parameters`.</td>
+    </tr>    
+    <tr>
+      <td>`type`</td>
+      <td>Constant String</td>
+      <td>Only `nsxt` is accepted.</td>
+    </tr>    
+    <tr>
+      <td>`parameters`</td>
+      <td>Map</td>
+      <td>Map containing one or more key-value pairs for NCP settings.</td>
+    </tr>    
+    <tr>
+      <td>`x_forwarded_for`</td>
+      <td>String Enum</td>
+      <td>Use the same source IP for calling clients. Accepts `"insert"` and `"replace"`.</td>
+    </tr>    
+    <tr>
+      <td>`ingress_ip`</td>
+      <td>String</td>
+      <td>IP address to use for ingress controller load balancer.</td>
+    </tr>    
+    <tr>
+      <td>`log_settings`</td>
+      <td>Map</td>
+      <td>Holds parameters for configuring NCP logging.</td>
+    </tr>    
+    <tr>
+      <td>`log_level`</td>
+      <td>String Enumeration</td>
+      <td>"INFO", "WARNING", "DEBUG", "ERROR", "CRITICAL"</td>
+    </tr>    
+    <tr>
+      <td>"log_dropped_traffic"</td>
+      <td>Boolean</td>
+      <td>Default is `false`. Set to `true` to log dropped firewall traffic.</td>
+    </tr>    
+    <tr>
+      <td>`ingress_persistence_settings`</td>
+      <td>Map</td>
+      <td>Holds parameters for customizing Layer 7 persistence.</td>
+    </tr>    
+    <tr>
+      <td>`persistence_type`</td>
+      <td>String Enum</td>
+      <td>Values are `cookie` or `source_ip`.</td>
+    </tr>    
+    <tr>
+      <td>`persistence_timeout`</td>
+      <td>Integer</td>
+      <td>Persistence timeout interval, in seconds.</td>
+    </tr>    
+    <tr>
+      <td>`max_l4_lb_service`</td>
+      <td>Integer</td>
+      <td>Limit the maximum number of layer 4 virtual servers per cluster. Minimum is `0`.</td>
+    </tr>    
+    <tr>
+      <td>`enable_err_crd`</td>
+      <td>Boolean</td>
+      <td>Enable the NSXError custom resource definion.</td>
+    </tr>    
+    <tr>
+      <td>`nsx_ingress_controller`</td>
+      <td>Boolean</td>
+      <td>Flag to control if NCP is used as the Ingress Controller for the Kubernetes cluster.</td>
+    </tr>    
+    <tr>
+      <td>`nsx_lb`</td>
+      <td>Boolean</td>
+      <td>Flag to control if the NSX-T Load Balancer is used for the Kubernetes cluster.</td>
+    </tr>    
+    <tr>
+      <td>`l4_persistence_type`</td>
+      <td>String Enum</td>
+      <td>Connection stickiness based on `source_ip` (only accepted value).</td>
+    </tr>    
+    <tr>
+      <td>`l4_lb_algorithm`</td>
+      <td>String Enum</td>
+      <td>Specify the layer 4 load balancer behavior. Accetps `"round_robin"`, `"least_connection"`, `"ip_hash"`, `"weighted_round_robin"`. Default is round robin.</td>
+    </tr>    
+  </table>
 
 ## <a id='ncp-example'></a> Example Network Profile for NCP Configuration
 
@@ -48,10 +133,10 @@ The following network profile is an example that illustrates the paramaters expo
      "cni_configurations": {
          "type": "nsxt",
          "parameters": {
-           "keep_source_ip": true,
+           "x_forwarded_for": "replace",
            "ingress_ip": "192.168.160.212",
            "log_settings": {           
-             "log_level": "Verbose",
+             "log_level": "WARNING",
              "log_dropped_traffic": true 
          	},
            "ingress_persistence_settings": {
@@ -253,35 +338,35 @@ Example 2: network profile for `ingress_persistence_settings`:
 }
 ```
 
-### <a id='max_l4_service'></a> Max Layer 4 Service
+### <a id='max_l4_lb_service'></a> Max Layer 4 Load Balancer Service
 
 The `max_l4_service` parameter sets the upper limit for the number of virtual servers per cluster (Kubernetes layer 4 services). You can use this parameter to limit the number of virtual servers that can be created per Kubernets cluster.
 
 The `max_l4_service` data type is an integer. The value must be larger or equal to 1. Missing entry is accepted.
 
-Example 1: network profile for `max_l4_service`:
+Example 1: network profile for `max_l4_lb_service` with the minimum allowed value:
 
 ```
 {
   "name": "example_network_profile",
-  "description": "max_l4_service",
+  "description": "max_l4_lb_service",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
          "parameters": {
-           "max_l4_service": 1
+           "max_l4_service": 0
          }
      }
   }
 }
 ```
 
-Example 2: network profile for `max_l4_service`:
+Example 2: network profile for `max_l4_lb_service`:
 
 ```
 {
   "name": "example_network_profile",
-  "description": "max_l4_service",
+  "description": "max_l4_lb_service",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
@@ -319,20 +404,80 @@ Example: network profile for `enable_err_crd`:
 }
 ```
 
-### <a id='nsx_ingress_controller'></a> NSX Ingress Controller
+### <a id='nsx_lb_ingress'></a> NSX Load Balancer and NSX Ingress Controller
 
-The parameter `nsx_ingress_controller` is used to disable the use of NSX-T as the ingress controller for Kubernetes pods and services.
+The parameters `nsx_lb` and `nsx_ingress_controller` are used to control the NSX-T Load Balancer services used by Kubernetes clusters. These two flags work in conjuction with each other.
 
-The `nsx_ingress_controller` data type is a boolean: `true` or `false`.
+The NSX-T Load balancer is a logical load balancer that handles a number of functions using virtual servers and pools. For more information, see [Supported Load Balancer Features](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-91F2D574-F469-481A-AA39-CD6DBC9682CA.html) in the NSX-T documentation.
 
-The `nsx_ingress_controller` parameter can only be set to `false` when `nsx_lb` is also set to `false`. In other words, to set `nsx_ingress_controller` to `false`, you must also set `nsx_lb` to `false`. 
+By default the following virtual servers are used by <%= vars.product_short %> with NSX-T Data Center as the CNI:
 
-Example: network profile for `nsx_ingress_controller`:
+- 1 global virtual server for the Kubernetes API
+- 1 TCP layer 4 virtual server for **each** Kubernetes service of `type: LoadBalancer`
+- 2 layer 7 global virtual servers for the Kubernetes Ingress Controller (HTTP and HTTPS)
+
+The `nsx_lb` parameter is used to control if the NSX-T Load Balancer will be used in a Kubernetes cluster provisioned by PKS. The default setting is `true`. As such, when you provision a Kubernetes cluster the NSX-T Load Balacer is automatically deployed. This is the Layer 4 global virtual server that fronts the Kubernetes API server, as well as a virtual server for each Kubernetes service of [type: LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer). 
+
+The `nsx_ingress_controller` parameter is used to control if NCP is used as the Ingress Controller for the Kubernetes cluster. The default setting is `true`. As such, when you define an [ingress resoure](https://kubernetes.io/docs/concepts/services-networking/ingress/) for a Kubernetes cluster, NCP (which runs on Kubenetes worker nodes), instructs the NSX-T load balancer to provision 2 layer 7 virtual services (HTTP and HTTPS) as the [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/). NCP depends on NSX-T Load Balancer to fulfill its role as an Ingress Controller. If you set this parameter to `false`, you will need to use a third-party ingress controller, such as the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/).
+
+  <table>
+    <th>`nsx_lb` setting</th>
+    <th>"nsx_ingress_controller": true</th>
+    <th>"nsx_ingress_controller": false</th>
+    <tr>
+      <td>"nsx_lb": true</td>
+      <td>Use the NSX-T Load Balancer == YES<br>Use the NCP Ingress Controller == YES<br>This means you want to use the NSX-T Load Balancer and NCP as the Ingress Controller.<br>Default functionality</td>
+      <td>Use the NSX-T Load Balancer == YES<br>Use the NCP Ingress Controller == NO<br>This means you want to use the NSX-T Load Balancer and third-party Ingress Controller.<br>Such as [Nginx](https://kubernetes.github.io/ingress-nginx/)</td>
+    </tr>
+    <tr>
+      <td>"nsx_lb": false</td>
+      <td>Use the NSX-T Load Balancer == NO<br>Use the NCP Ingress Controller == NO<br>This is invalid because you cannot disable the NSX-T Load Balancer and use NCP as the Ingress Controller becase the latter relies on the former.<br>A network profile with this configuration will fail validation.</td>
+      <td>Use the NSX-T Load Balancer == NO<br>Use the NCP Ingress Controller == NO<br>This means you want to use a third-party load balancer and a third-party ingress controller.<br>Such as [Nginx](https://kubernetes.github.io/ingress-nginx/)</td>
+    </tr>
+  </table>
+
+The following network profile depicts the default behavior. Since this is the default behavior, there is no need to create a network profile such as this. We do so for illustration purposes.
 
 ```
 {
   "name": "example_network_profile",
-  "description": "nsx_ingress_controller",
+  "description": "nsx_lb and nsx_ingress_controller are enabled",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": true,
+         "nsx_ingress_controller": true
+      }
+    }
+  }
+}
+```
+
+The following network profile uses the NSX-T Load Balancer but disables the NCP Ingress Controller. Since `"nsx_lb": true` is the default, it is not included.
+
+```
+{
+  "name": "example_network_profile",
+  "description": "Use the nsx_lb with a 3rd party ingress controller",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": true,
+         "nsx_ingress_controller": false
+      }
+    }
+  }
+}
+```
+
+The following network profile uses a third party load balancer and a third-party ingress controller.
+
+```
+{
+  "name": "example_network_profile",
+  "description": "Use the nsx_lb with a 3rd party ingress controller",
   "parameters": {
     "cni_configurations": {
       "type": "nsxt",
@@ -345,32 +490,25 @@ Example: network profile for `nsx_ingress_controller`:
 }
 ```
 
-### <a id='nsx_lb'></a> NSX Load Balancer
-
-The parameter `nsx_lb` is used to disable the use of NSX-T as the load balancer for Kubernetes pods and services.
-
-The `nsx_lb` data type is a boolean: `true` or `false`.
-
-The `nsx_ingress_controller` parameter can only be set to `false` when `nsx_lb` is also set to `false`.
-
-Example: network profile for `nsx_lb`:
+The following network profile is invalid; you cannot disable the `nsx_lb` and stil use the NCP Ingress Controller.
 
 ```
 {
   "name": "example_network_profile",
-  "description": "nsx_lb",
+  "description": "Use the nsx_lb with a 3rd party ingress controller",
   "parameters": {
     "cni_configurations": {
       "type": "nsxt",
       "parameters": {
          "nsx_lb": false,
+         "nsx_ingress_controller": true
       }
     }
   }
 }
 ```
 
-### <a id='l4_persistence_type'></a> Layer 4 Persistence Type
+### <a id='l4_persistence_type'></a> Layer 4 Load Balancer Persistence Type
 
 The `l4_persistence_type` is used to set connection stickiness based on `source_ip`.
 
@@ -385,6 +523,29 @@ The `l4_persistence_type` data type is string. The only accepted value is `sourc
       "type": "nsxt",
       "parameters": {
         "l4_persistence_type": "source_ip"
+      }
+    }
+  }
+}
+```
+
+### <a id='l4_lb_algorithm'></a> Layer 4 Load Balancer Algorithm
+
+The `l4_lb_algorithm` is used to set the algorithm type for the layer 4 NSX-T Load Balancer service.
+
+The `l4_lb_algorithm` data type is string enum that accepts the following values: `"round_robin"` (default), `"least_connection"`, `"ip_hash"`, and `"weighted_round_robin"`.
+
+For example, the following network profile specifies the `weighted_round_robin` as the load balancer algorithm.
+
+```
+{
+  "name": "example_network_profile",
+  "description": "l4_lb_algorithm",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+        "l4_lb_algorithm": "weighted_round_robin"
       }
     }
   }
