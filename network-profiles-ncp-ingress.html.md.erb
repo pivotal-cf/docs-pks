@@ -1,0 +1,300 @@
+---
+title: Defining Network Profile for the HTTP/S Ingress Controller
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to define network profiles for Kubernetes clusters provisioned with <%= vars.product_full %> on vSphere with NSX-T.
+
+## <a id='ncp-ingress-about'></a> About the NCP Ingress Controller
+
+The [NSX-T Load Balancer](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-91F2D574-F469-481A-AA39-CD6DBC9682CA.html) is a logical load balancer that handles a number of functions using virtual servers and pools.
+
+By default the following NSX-T virtual servers are deployed by <%= vars.product_short %>:
+
+- 1 global TCP layer 4 virtual server for the Kubernetes API
+- 1 TCP layer 4 virtual server for **each** Kubernetes service of `type: LoadBalancer`
+- 2 global layer 7 virtual servers for the Kubernetes Ingress Controller (HTTP and HTTPS)
+
+The `nsx_lb` parameter is used to control if the NSX-T Load Balancer is used in a Kubernetes cluster provisioned by PKS. This includes the global TCP layer 4 virtual server that fronts the Kubernetes API server (on the master node(s)), as well as a TCP layer 4 virtual server for each Kubernetes service of [type: LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer). 
+
+The `nsx_ingress_controller` parameter is used to control if NCP is used as the Ingress Controller for the Kubernetes cluster. By default when you define an [ingress resoure](https://kubernetes.io/docs/concepts/services-networking/ingress/) for a Kubernetes cluster, NCP (which runs on Kubenetes worker nodes), instructs the NSX-T load balancer to provision 2 layer 7 virtual services (HTTP and HTTPS) as the [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/). 
+
+The `nsx_ingress_controller` parameter is subject to the `nsx_lb` parameter as described in the following table.
+
+  <table>
+    <th>`nsx_lb` setting</th>
+    <th>"nsx_ingress_controller": true (default)</th>
+    <th>"nsx_ingress_controller": false</th>
+    <tr>
+      <td>"nsx_lb": true (default)</td>
+      <td>This means you want to use the NSX-T Layer 4 Load Balancer and the NCP-provisioned Layer 7 Ingress Controller.</td>
+      <td>This means you want to use the NSX-T Layer 4 Load Balancer and a third-party Ingress Controller, such as [NGINX](https://kubernetes.github.io/ingress-nginx/).</td>
+    </tr>
+    <tr>
+      <td>"nsx_lb": false</td>
+      <td>This is an invalid configuration because you cannot disable the NSX-T Load Balancer and use NCP as the Ingress Controller. The network profile will fail validation.</td>
+      <td>This means you want to use a third-party load balancer and a third-party ingress controller.</td>
+    </tr>
+  </table>
+
+## <a id='ncp-params'></a> Ingress Parameters
+
+The following table shows the ingress parameters for configuring NCP:
+
+  <table>
+    <th width="30%">Parameter</th>
+    <th>Type</th>
+    <th>Description</th>
+    <tr>
+      <td>`name`</td>
+      <td>String</td>
+      <td>User-defined name of the network profile.</td>
+    </tr>
+    <tr>
+      <td>`description`</td>
+      <td>String</td>
+      <td>User-defined description for the network profile.</td>
+    </tr>
+    <tr>
+      <td>`parameters`</td>
+      <td>Map</td>
+      <td>One or more name-value pairs.</td>
+    </tr>
+    <tr>
+      <td>`cni_configurations`</td>
+      <td>Map</td>
+      <td>Map containing two key-value pairs: `type` and `parameters`.</td>
+    </tr>    
+    <tr>
+      <td>`type`</td>
+      <td>Constant String</td>
+      <td>Only `nsxt` is accepted.</td>
+    </tr>    
+    <tr>
+      <td>`parameters`</td>
+      <td>Map</td>
+      <td>Map containing one or more key-value pairs for NCP settings.</td>
+    </tr>
+    <tr>
+      <td>`nsx_ingress_controller`</td>
+      <td>Boolean</td>
+      <td>Flag to control if NCP is used as the Ingress Controller for the Kubernetes cluster.</td>
+    </tr>            
+    <tr>
+      <td>`ingress_ip`</td>
+      <td>String</td>
+      <td>IP address to use for ingress controller load balancer.</td>
+    </tr>    
+    <tr>
+      <td>`ingress_persistence_settings`</td>
+      <td>Map</td>
+      <td>Holds parameters for customizing Layer 7 persistence.</td>
+    </tr>    
+    <tr>
+      <td>`persistence_type`</td>
+      <td>String</td>
+      <td>Valid values are `cookie` or `source_ip`. An empty value is not accepted.</td>
+    </tr>    
+    <tr>
+      <td>`persistence_timeout`</td>
+      <td>Integer</td>
+      <td>Value that is equal to `1` or larger. Empty value is not accepted.</td>
+    </tr>    
+  </table>
+
+## <a id='ingress-example'></a> Example Network Profile for Ingress
+
+The following network profile is an example that illustrates the paramaters exposed for configuring the NSX Ingress Controller. 
+
+```
+{
+  "name": "ncp_network_profile",
+  "description": "Example network profile for ingress controller",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "nsx_ingress_controller": false,        
+           "ingress_ip": "192.168.160.212",
+           "ingress_persistence_settings": {
+             "persistence_type": "cookie",
+             "persistence_timeout": 1 
+             }
+       	   }
+   		}
+   	}
+}
+```  
+
+## <a id='nsx_ingress_controller'></a> nsx_ingress_controller
+
+NCP depends on the NSX-T Load Balancer to fulfill its role as an Ingress Controller. To use a third-party ingress controller, such as the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/), set the `nsx_ingress_controller` to `false`. 
+
+For example:
+
+```
+{
+  "name": "example_network_profile",
+  "description": "Use the nsx_lb with a 3rd party ingress controller",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": true,
+         "nsx_ingress_controller": false
+      }
+    }
+  }
+}
+```
+
+The following network profile uses a third party load balancer and a third-party ingress controller.
+
+```
+{
+  "name": "example_network_profile",
+  "description": "Use the nsx_lb with a 3rd party ingress controller",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": false,
+         "nsx_ingress_controller": false
+      }
+    }
+  }
+}
+```
+
+The following network profile is invalid; you cannot disable the `nsx_lb` and use the NCP Ingress Controller.
+
+```
+{
+  "name": "example_network_profile",
+  "description": "Use the nsx_lb with a 3rd party ingress controller",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": false,
+         "nsx_ingress_controller": true
+      }
+    }
+  }
+}
+```
+
+
+
+## <a id='ingress_ip'></a> ingress_ip
+
+The `ingress_ip` parameter instructs NCP to create an ingress virtual server with the given IP address.
+
+The `ingress_ip` parameter type is a string that accepts any valid IP address. Missing entry is accepted.
+
+Example network profile for `ingress_ip`:
+
+```
+{
+  "name": "example-network-profile",
+  "description": "ingress_ip",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": "192.168.160.212"
+         }
+     }
+  }
+}
+```
+
+An invalid IP address is rejected with an invalid parameter value error. For example, the following network profile parameters cannot be parsed becase the 'ingress_ip': '192.168.460.212' address is an invalid IP address.
+
+```
+{
+  "name": "example-network-profile",
+  "description": "ingress_ip-ERROR",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": "192.168.460.212"
+         }
+     }
+  }
+}
+```
+
+The following network profile cannot be parsed because the JOSN input is invalid (not a string).
+
+```
+{
+  "name": "example-network-profile",
+  "description": "ingress_ip-ERROR",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": 192.168.160.212
+         }
+     }
+  }
+}
+```
+
+## <a id='ingress_persistence_settings'></a> ingress_persistence_settings
+
+The `ingress_persistence` parameter lets you customize layer 7 persistence for Kubernetes services.
+
+The `ingress_persistence_settings` parameter is a map that supports two keys: `persistence_type` and `persistence_timeout`. These two keys are correlated and must be set/unset at the same time. If `persistence_type` and `persistence_timeout` are not both specified, the network profile fails validation.
+
+Parameter 		   		| Data type 	| Description
+------------------------|---------------|--------------------------------------------
+`persistence_type`     	| String 		| Valid values are `cookie` or `source_ip`. An empty value is not accepted.
+`persistence_timeout`  	| Integer 		| Value that is equal to `1` or larger. Empty value is not accepted. 		
+
+
+Example 1: network profile for `ingress_persistence_settings`:
+
+```
+{
+  "name": "example_network_profile",
+  "description": "ingress_persistence_settings",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": "192.168.160.212"       
+           "ingress_persistence_settings": {
+             "persistence_type": "cookie",
+             "persistence_timeout": 1
+            }
+         }
+     }
+  }
+}
+```
+
+Example 2: network profile for `ingress_persistence_settings`:
+
+```
+{
+  "name": "example_network_profile",
+  "description": "ingress_persistence_settings",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "ingress_ip": "192.168.160.212"         
+           "ingress_persistence_settings": {
+             "persistence_type": "source_ip",
+             "persistence_timeout": 100
+            }
+         }
+     }
+  }
+}
+```
