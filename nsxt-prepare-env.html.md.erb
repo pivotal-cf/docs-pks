@@ -1,29 +1,49 @@
 ---
-title: Preparing NSX-T for Enterprise PKS
+title: Network Planning for Installing Enterprise PKS with NSX-T
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-Before you install <%= vars.product_full %> on vSphere with NSX-T integration, you must prepare your NSX-T environment. Complete all of the steps listed in the order presented to manually create the NSX-T environment for <%= vars.product_short %>.
+Before you install <%= vars.product_full %> on vSphere with NSX-T integration, you must plan the environment as described in this topic.
 
-##<a id='plan'></a> Step 1: Plan Network Topology, Subnets, and IP Blocks
+##<a id='prerequisites'></a>Prerequisites
 
-###<a id='plan-topology'></a>Plan NSX-T Deployment Topology
+Familiarize yourself with the following VMware documentation:
 
-Review [vSphere with NSX-T Version Requirements](vsphere-nsxt-requirements.html)
-and [Hardware Requirements for <%= vars.product_short %> on vSphere with NSX-T](vsphere-nsxt-rpd-mpd.html).
+* [vSphere documentation]https://docs.vmware.com/en/VMware-vSphere/index.html) (including vCenter, vSAN, and ESXi)
+* [NSX-T Data Center documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/index.html)
+* [NSX Container Plugin (NCP) documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/com.vmware.nsxt.ncp_kubernetes.doc/GUID-FB641321-319D-41DC-9D16-37D6BA0BC0DE.html)
 
-Review the [Deployment Toplogies](nsxt-topologies.html) for <%= vars.product_short %> on vSphere with NSX-T, and the [NSX-T Data Center documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-10B1A61D-4DF2-481E-A93E-C694726393F9.html) to ensure that your chosen network topology will enable the following communications:
+Familiarize yourself with the following related documentation:
 
-* vCenter, NSX-T components, and ESXi hosts must be able to communicate with each other.
-* The BOSH Director VM must be able to communicate with vCenter and the NSX Manager.
+* [Ops Manager documentation](https://docs.pivotal.io/pcf/om/2-6/vsphere/deploy.html)
+* [BOSH documentation](https://bosh.io/docs/bosh-components/)
+* [Kubernetes documentation](https://kubernetes.io/docs/home/)
+* [Docker documentation](https://docs.docker.com/)
+
+Review the following <%= vars.product_short %> documentation:
+
+* [vSphere with NSX-T Version Requirements](vsphere-nsxt-requirements.html)
+* [Hardware Requirements for <%= vars.product_short %> on vSphere with NSX-T](vsphere-nsxt-rpd-mpd.html)
+* [Firewall Ports and Protocols Requirements for vSphere with NSX-T](http://docs-pcf-staging.cfapps.io/pks/1-5/ports-protocols-nsx-t.html)
+* [Network Objects Created by NSX-T for Enterprise PKS](http://docs-pcf-staging.cfapps.io/pks/1-5/vsphere-nsxt-cluster-objects.html)
+
+##<a id='components'></a>Understand Component Interactions
+
+<%= vars.product_short %> on vSphere with NSX-T requires the following component interactions:
+
+* vCenter, NSX-T Manager Nodes, NSX-T Edge Nodes, and ESXi hosts must be able to communicate with each other.
+* The BOSH Director VM must be able to communicate with vCenter and the NSX-T Management Cluster.
 * The BOSH Director VM must be able to communicate with all nodes in all Kubernetes clusters.
 * Each <%= vars.product_short %>-provisioned Kubernetes cluster deploys the NSX-T Node Agent and the Kube Proxy that run as BOSH-managed processes on each worker node.
+* NCP runs as a BOSH-managed process on the Kubernetes master node. In a multi-master deployment, the NCP process runs on all master nodes, but is active only on one master node. If the NCP process on an active master is unresponsive, BOSH activates another NCP process.
 
-In addition, the NSX-T Container Plugin (NCP) runs as a BOSH-managed process on the Kubernetes master node. In a multi-master <%= vars.product_short %> deployment, the NCP process runs on all master nodes. However, the process is active only on one master node. If the NCP process on an active master is unresponsive, BOSH activates another NCP process. Refer to the [NCP documentation](https://docs.vmware.com/en/VMware-NSX-T/index.html) for more information.
+##<a id='plan-topology'></a>Plan Deployment Topology
 
-###<a id='plan-cidrs'></a>Plan Network CIDRs
+Review the [Deployment Topologies](nsxt-topologies.html) for <%= vars.product_short %> on vSphere with NSX-T. The most common deployment topology is the [NAT topology](./nsxt-topologies.html#topology-nat). Decide which deployment topology you will implement, and plan accordingly. 
+
+##<a id='plan-cidrs'></a>Plan Network CIDRs
 
 Before you install <%= vars.product_short %> on vSphere with NSX-T, you should plan for the CIDRs and IP blocks that you are using in your deployment.
 
@@ -36,13 +56,13 @@ Plan for the following network CIDRs in the IPv4 address space according to the 
 * **PKS LB CIDR**: This network provides your load balancing address space for each Kubernetes cluster created by <%= vars.product_short %>. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/24` provides 256 usable IPs. This network is used when creating the `ip-pool-vips` described in [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html), or when the services are deployed. You enter this network in the
 **Floating IP Pool ID** field in the **Networking** pane of the <%= vars.product_tile %> tile.
 
-###<a id='plan-ip-blocks'></a>Plan IP Blocks
+##<a id='plan-ip-blocks'></a>Plan IP Blocks
 
 When you install <%= vars.product_short %> on NSX-T, you are required to specify the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the <%= vars.product_tile %> tile. These IDs map to the two IP blocks you must configure in NSX-T: the Pods IP Block for Kubernetes pods, and the Node IP Block for Kubernetes nodes (VMs). For more information, see the [Networking](installing-nsx-t.html#networking) section of _Installing <%= vars.product_short %> on vSphere with NSX-T Integration_.
 
   <img src="images/nsxt/nsxt-ip-blocks.png" alt="Required IP Blocks for NSX-T">
 
-####<a id='pods-ip-block'></a>Pods IP Block
+###<a id='pods-ip-block'></a>Pods IP Block
 
 Each time a Kubernetes namespace is created, a subnet from the **Pods IP Block** is allocated. The subnet size carved out from this block is /24, which means a maximum of 256 pods can be created per namespace. When a Kubernetes cluster is deployed by <%= vars.product_short %>, by default 3 namespaces are created. Often additional namespaces will be created by operators to facilitate cluster use. As a result, when creating the **Pods IP Block**, you must use a CIDR range larger than /24 to ensure that NSX has enough IP addresses to allocate for all pods. The recommended size is /16. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).
 
@@ -52,7 +72,7 @@ Each time a Kubernetes namespace is created, a subnet from the **Pods IP Block**
 After you deploy <%= vars.product_short %>, you can define a network profile that specifies a routable IP block for your pods.
 The routable IP block overrides the default non-routable <strong>Pods IP Block</strong> when a Kubernetes cluster is deployed using that network profile. For more information, see <a href="network-profiles.html#routable-pods">Routable Pods</a> in <em>Using Network Profiles (NSX-T Only)</em>.</p>
 
-####<a id='nodes-ip-block'></a>Nodes IP Block
+###<a id='nodes-ip-block'></a>Nodes IP Block
 
 Each Kubernetes cluster deployed by <%= vars.product_short %> owns a /24 subnet. To deploy multiple Kubernetes clusters, set the **Nodes IP Block ID** in the **Networking** pane of the <%= vars.product_tile %> tile to larger than /24. The recommended size is /16. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).
 
@@ -92,98 +112,15 @@ Do not use the following IP block for the Nodes IP Block:
 
   * 10.100.200.0/24
 
-##<a id='nsx-manager'></a> Step 2: Install and Configure NSX-T Data Center for Enterprise PKS
+##<a id='plan-ip-blocks'></a>Gather Other Required IP Addresses
 
-See <a href="nsxt-install-config-steps.html">Installing and Configuring NSX-T for Enterprise PKS</a>.
+To install <%= vars.product_short %> on vSphere with NSX-T, you will need to know the following:
 
-##<a id='nsx-esxi'></a> Step 3: Create NSX-T Objects for <%= vars.product_short %> Management Plane
-
-Prepare the vSphere and NSX-T infrastructure for the <%= vars.product_short %> Management Plane where the PKS, Ops Manager, BOSH Director, and Harbor Registry VMs are deployed. This includes a vSphere resource pool for <%= vars.product_short %> management components, an NSX Tier-1 (T1) Logical Switch, and an NSX Tier-1 Logical Router and Port. For instructions, see [Prepare <%= vars.product_short %> Management Plane](nsxt-prepare-mgmt-plane.html).
-
-If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>, create the following NAT rules on the T0 Router. For instructions, see [Prepare Management Plane](nsxt-prepare-mgmt-plane.html).
-
-<table>
-  <tr>
-    <th>Type</th>
-    <th>For</th>
-  </tr>
-  <tr>
-    <td>DNAT</td>
-    <td>External > Ops Manager</td>
-  </tr>
-  <tr>
-    <td>DNAT</td>
-    <td>External > Harbor (optional)</td>
-  </tr>
-  <tr>
-    <td>SNAT</td>
-    <td>PKS Management Plane > vCenter and NSX-T Manager</td>
-  </tr>
-  <tr>
-    <td>SNAT</td>
-    <td>PKS Management Plane > DNS</td>
-  </tr>
-  <tr>
-    <td>SNAT</td>
-    <td>PKS Management Plane > NTP</td>
-  </tr>
-  <tr>
-    <td>SNAT</td>
-    <td>PKS Management Plane > LDAP/AD (optional)</td>
-  </tr>
-  <tr>
-    <td>SNAT</td>
-    <td>PKS Management Plane > ESXi</td>
-  </tr>
-</table>
-
-##<a id='nsx-comp-plane'></a> Step 4: Create NSX-T Objects for <%= vars.product_short %> Compute Plane
-
-Create Resource Pools for AZ-1 and AZ-2, which map to the Availability Zones you will create when you configure BOSH Director and reference when you install the <%= vars.product_tile %> tile. In addition, create SNAT rules on the T0 router:
-
-- One for K8s Master Nodes (hosting NCP) to reach the NSX-T Manager
-- One for Kubernetes Master Node Access to LDAP/AD (optional)
-
-For instructions, see [Prepare Compute Plane](nsxt-prepare-compute-plane.html).
-
-##<a id='nsx-om'></a> Step 5: Deploy Ops Manager in the NSX-T Environment
-
-Deploy a supported version of Ops Manager on the NSX-T Management Plane network.
-For instructions, see <a href="vsphere-nsxt-om-deploy.html">Deploy Ops Manager on vSphere with NSX-T</a>.
-
-##<a id='nsx-mgr-cert'></a> Step 6: Generate NSX Manager Certificate
-
-Generate the CA Cert for the NSX Manager and import the certificate to NSX Manager.
-For instructions, see <a href="nsxt-generate-ca-cert.html">Generate the NSX Manager CA Cert</a>.
-
-##<a id='nsx-bosh'></a> Step 7: Configure BOSH Director for vSphere with NSX-T
-
-Create BOSH availability zones (AZs) that map to the Management and Compute resource pools in vSphere, and the Management and Control plane networks in NSX-T.
-For instructions, see <a href="vsphere-nsxt-om-config.html">Configure BOSH Director for vSphere with NSX-T</a>.
-
-##<a id='nsx-pi-cert'></a> Step 8: Generate NSX Manager Principal Identity Certificate
-
-Generate the NSX Manager Super User Principal Identity Certificate and register it with the NSX Manager using the NSX API.
-For instructions, see <a href="nsxt-generate-pi-cert.html">Generate the NSX Manager PI Cert</a>.
-
-##<a id='nsx-pks-obj'></a> Step 9: Create NSX-T Objects for <%= vars.product_short %>
-
-Create IP blocks for the [node networks](#nodes-ip-block) and the [pod networks](#pods-ip-block). The subnets for both nodes and pods should have a size of 256 (/16). See [Plan IP Blocks](#plan-ip-blocks) and [Reserved IP Blocks](#reserved-ip-blocks) for details.
-
-In addition, create a Floating IP Pool from which to assign routable IP addresses to components. This network provides your load balancing address space for each Kubernetes cluster created by <%= vars.product_short %>. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services.
-
-These network objects are required to configure the <%= vars.product_tile %> tile for NSX-T networking. For instructions, see <a href="./nsxt-create-objects.html">Create NSXT Object for <%= vars.product_short %></a>.
-
-##<a id='nsx-pks-install'></a> Step 10: Install <%= vars.product_short %> on vSphere with NSX-T
-
-At this point your NSX-T environment is prepared for <%= vars.product_short %> installation using the <%= vars.product_tile %> tile in Ops Manager. For instructions, see <a href="./installing-nsx-t.html">Installing <%= vars.product_short %> on vSphere with NSX-T</a>.
-
-##<a id='nsx-pks-harbor'></a> Step 11: Install Harbor Harbor Registry for <%= vars.product_short %>
-
-The VMware Harbor Registry is recommended for <%= vars.product_short %>. Install Harbor in the NSX Management Plane with other <%= vars.product_short %> components (PKS API, Ops Manager, and BOSH). For instructions, see <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html">Installing Harbor Registry on vSphere with NSX-T</a> in the VMware Harbor documentation.
-
-If you are using the [NAT deployment topology](nsxt-topologies.html#topology-nat) for <%= vars.product_short %>, create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the PKS management network. See <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat">Create DNAT Rule</a>.
-
-##<a id='nsx-pks-adv'></a> Step 12: Create Network Profiles to Customize NSX-T Networking
-
-Once <%= vars.product_short %> is installed, you may want to <a href="./network-profiles-define.html">Define Network Profiles</a> to customize NSX-T networking objects, such as load balancer size, custom Pods IP Block, routable Pods IP Block, configurable CIDR range for the Pods IP Block, custom Floating IP block, and more.
+* Subnet name where you will install <%= vars.product_short %>
+* VLAN ID for the subnet
+* CIDR for the subnet
+* Netmask for the subnet
+* Gateway for the subnet
+* DNS server for the subnet
+* NTP server for the subnet
+* IP address and CIDR you plan to use for the NSX-T Tier-0 Router 
