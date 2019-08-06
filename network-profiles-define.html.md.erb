@@ -11,19 +11,23 @@ This topic describes how to define network profiles for Kubernetes clusters prov
 
 Network profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use cases for network profiles include the following:
 
-Profile Type 								              | Description
-----------------------------------------------------------|------------------------------------------------------------------------------
-[Load Balancer Sizing](./network-profiles-lb-size.html)	  | Customize the size of the NSX-T load balancer provisioned when a Kubernetes cluster is created using <%= vars.product_short %>.
-[Custom Pod Networks](./network-profiles-pods.html)	      | Assign IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
-[Routable Pod Networks](./network-profiles-pods.html) 	  | Assign routable IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
-[Security Groups](./network-profiles-ns-groups.html)      | Specify an NSX-T Namespace Group where Kubernetes master nodes will be added to during cluster creation.
-[Pod Subnet Prefix](./network-profiles-pods.html)	 	  | Specify the size of the pod subnet.
-[Custom Floating IP](./network-profiles-fip.html)         | Specify a custom floating IP pool.
-[Edge Router Selection](./network-profiles-edge.html)	  | Specify the NSX-T Tier-0 router where Kubernetes node and Pod networks will be connected to.
-[Nodes DNS Configuration](./network-profiles-nodes.html)  | Specify one or more DNS servers for Kubernetes clusters.
-[Master Node DNS Lookup](./network-profiles-dns.html)  	  | Specify Master Node IP address or perform a DNS lookup.
-[Shared Tier-1 Toplogy](./network-profiles-shared-t1.html)| Use a single Tier-1 Router for the Kubernetes cluster
-[NCP Configuration](./network-profiles-ncp.html)  		  | Configure one or more exposed `ncp.ini` settings.
+Profile Type 								              		| Description
+----------------------------------------------------------------|------------------------------------------------------------------------------
+[Load Balancer Sizing](./network-profiles-lb-size.html)	  		| Customize the size of the NSX-T load balancer provisioned when a Kubernetes cluster is created using <%= vars.product_short %>.
+[Custom Pod Networks](./network-profiles-pods.html)	      		| Assign IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
+[Routable Pod Networks](./network-profiles-pods.html) 	  		| Assign routable IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
+[Security Groups](./network-profiles-ns-groups.html)      		| Specify an NSX-T Namespace Group where Kubernetes master nodes will be added to during cluster creation.
+[Pod Subnet Prefix](./network-profiles-pods.html)	 	      	| Specify the size of the pod subnet.
+[Custom Floating IP](./network-profiles-fip.html)         		| Specify a custom floating IP pool.
+[Edge Router Selection](./network-profiles-edge.html)	    	| Specify the NSX-T Tier-0 router where Kubernetes node and Pod networks will be connected to.
+[Nodes DNS Configuration](./network-profiles-nodes.html)  		| Specify one or more DNS servers for Kubernetes clusters.
+[Master Node DNS Lookup](./network-profiles-dns.html)  	  		| Specify Master Node IP address or perform a DNS lookup.
+[Shared Tier-1 Toplogy](./network-profiles-shared-t1.html) 		| Use a single Tier-1 Router for the Kubernetes cluster
+[Load Balancer Configuration](./network-profiles-ncp-lb.html) 	| Configure layer 4 TCP load balancer settings; use third-party load balancer.
+[Ingress Controller Configuration](./network-profiles-ncp.html) | Configure layer 7 HTTP/S ingress controller settings; use third-party ingress controller.
+[Configure DFW Section Marking](./network-profiles-ncp-dfw.html)| Configure top or bottom section markers for explicit DFW rule placement.
+[Logging and Error Handling](./network-profiles-ncp-logerr.html)| Configure NCP logging and error handling.
+
 
 ## <a id="format"></a> Network Profile Format
 
@@ -58,6 +62,8 @@ Network profiles are defined using JSON. Here is an example network profile that
 		"cni_configurations": {
 			"type": "nsxt",
 			"parameters": {
+				"nsx_lb": false,
+				"nsx_ingress_controller": true,			
 				"x_forwarded_for": "insert",
 				"ingress_ip": "192.168.160.212",
 				"log_settings": {
@@ -70,10 +76,10 @@ Network profiles are defined using JSON. Here is an example network profile that
 				},
 				"max_l4_lb_service": 10,
 				"enable_err_crd": true,
-				"nsx_ingress_controller": true,
-				"nsx_lb": false,
 				"l4_persistence_type": "source_ip",
-        "l4_lb_algorithm": "weighted_round_robin" 
+        		"l4_lb_algorithm": "weighted_round_robin",
+        		"top_firewall_section_marker":"section-id"
+        		"bottom_firewall_section_marker":"section-id"                         
 			}
 		}
 	}
@@ -108,17 +114,17 @@ Define a network profile configuration in a JSON file using the following parame
       <td>Size of the NSX-T load balancer deployed with the Kubernetes cluster. Accepts: `small` (default), `medium`, or `large`.</td>
     </tr>
     <tr>
-      <td>`pod_ip_block_ids` </td>
+      <td>`pod_ip_block_ids`</td>
       <td>String Array</td>
       <td>Pod IP Block UUIDs as defined in NSX-T; comma-separated.</td>
     </tr>
     <tr>
-      <td>`pod_subnet_prefix` </td>
+      <td>`pod_subnet_prefix`</td>
       <td>Integer</td>
       <td>Prefix size of the custom Pods IP Block subnet.</td>
     </tr>
     <tr>
-      <td>`pod_routable` </td>
+      <td>`pod_routable`</td>
       <td>Boolean</td>
       <td>Enable routable IP addresses. Set the parameter to `true` to assign routable IP addresses to pods. Default is `false`.</td>
     </tr>
@@ -128,22 +134,22 @@ Define a network profile configuration in a JSON file using the following parame
       <td>Floating IP Pool UUIDs as defined in NSX-T; comma separated.</td>
     </tr>
     <tr>
-      <td>`t0_router_id` </td>
+      <td>`t0_router_id`</td>
       <td>String</td>
       <td>Tenant Tier-0 router UUID as defined in NSX-T.</td>
     </tr>
     <tr>
-      <td>`master_vms_nsgroup_id` </td>
+      <td>`master_vms_nsgroup_id`</td>
       <td>String</td>
       <td>NSGroup UUID as defined in NSX-T.</td>
     </tr>
     <tr>
-      <td>`nodes_dns` </td>
+      <td>`nodes_dns`</td>
       <td>String Array</td>
       <td>IP addresses (up to 3) for DNS server lookup by Kubernetes nodes and pods.</td>
     </tr>
     <tr>
-      <td>`dns_lookup_mode` </td>
+      <td>`dns_lookup_mode`</td>
       <td>String</td>
       <td>String for looking up the Master Node IP.</td>
     </tr>
@@ -156,7 +162,7 @@ Define a network profile configuration in a JSON file using the following parame
       <td>`single_tier_topology`</td>
       <td>Boolean</td>
       <td>Flag to enable a Shared T1 router. Defaut is `false`. Set to `true` to enable.</td>
-    </tr>    
+    </tr> 
     <tr>
       <td>`cni_configurations`</td>
       <td>Map</td>
@@ -241,6 +247,16 @@ Define a network profile configuration in a JSON file using the following parame
       <td>`l4_lb_algorithm`</td>
       <td>String Enum</td>
       <td>Specify the layer 4 load balancer behavior. Accetps `"round_robin"`, `"least_connection"`, `"ip_hash"`, `"weighted_round_robin"`. Default is round robin.</td>
+    </tr>    
+    <tr>
+      <td>`top_firewall_section_marker`</td>
+      <td>String</td>
+      <td>UUID of the top `section-id` for the distributed firewall (DFW) section as defined in NSX-T Manager.</td>
+    </tr>    
+    <tr>
+      <td>`bottom_firewall_section_marker`</td>
+      <td>String</td>
+      <td>UUID of the bottom `section-id` for the distributed firewall (DFW) section as defined in NSX-T Manager.</td>
     </tr>    
   </table>
 

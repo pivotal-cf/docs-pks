@@ -1,0 +1,172 @@
+---
+title: Defining Network Profiles for NCP Logging and Error Handling
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to define network profiles for logging and error handling NCP configurations.
+
+## <a id='log-about'></a> About Logging and Error Handling for NCP Configurations
+
+<%= vars.product_full %> provides network profile parameters for logging and error handling related to `ncp.ini` configurations.
+
+## <a id='log-params'></a> Parameters for Logging and Error Handling
+
+The parameter `cni_configurations` is a map with two keys: `type` and `parameters`. The following table shows the parameters for configuring NCP:
+
+  <table>
+    <th width="30%">Parameter</th>
+    <th>Type</th>
+    <th>Description</th>
+    <tr>
+      <td>`name`</td>
+      <td>String</td>
+      <td>User-defined name of the network profile.</td>
+    </tr>
+    <tr>
+      <td>`description`</td>
+      <td>String</td>
+      <td>User-defined description for the network profile.</td>
+    </tr>
+    <tr>
+      <td>`parameters`</td>
+      <td>Map</td>
+      <td>One or more name-value pairs.</td>
+    </tr>
+    <tr>
+      <td>`cni_configurations`</td>
+      <td>Map</td>
+      <td>Map containing two key-value pairs: `type` and `parameters`.</td>
+    </tr>    
+    <tr>
+      <td>`type`</td>
+      <td>Constant String</td>
+      <td>Only `nsxt` is accepted.</td>
+    </tr>    
+    <tr>
+      <td>`parameters`</td>
+      <td>Map</td>
+      <td>Map containing one or more key-value pairs for NCP settings.</td>
+    </tr>    
+    <tr>
+      <td>`log_settings`</td>
+      <td>Map</td>
+      <td>Holds parameters for configuring NCP logging.</td>
+    </tr>    
+    <tr>
+      <td>`log_level`</td>
+      <td>String Enumeration</td>
+      <td>"INFO", "WARNING", "DEBUG", "ERROR", "CRITICAL"</td>
+    </tr>    
+    <tr>
+      <td>"log_dropped_traffic"</td>
+      <td>Boolean</td>
+      <td>Default is `false`. Set to `true` to log dropped firewall traffic.</td>
+    </tr>    
+    <tr>
+      <td>`enable_err_crd`</td>
+      <td>Boolean</td>
+      <td>Enable the NSXError custom resource definion.</td>
+    </tr>    
+  </table>
+
+## <a id='log-example'></a> Example Network Profile for NCP Logging and Error Handling
+
+The following network profile is an example that illustrates the paramaters exposed for NCP logging and error handling. 
+
+```
+{
+  "name": "ncp_network_profile",
+  "description": "Example network profile for NCP logging and error handling",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "log_settings": {           
+             "log_level": "WARNING",
+             "log_dropped_traffic": true 
+         	},
+           "enable_err_crd": true,
+       	   }
+   		}
+   	}
+}
+```
+
+## <a id='log_settings'></a> log_settings
+
+The parameter `log_settings` is a map that supports two keys: `log_level` and `log_dropped_traffic`.
+
+## <a id='log_level'></a> log_level
+
+The `log_level` parameter type is a string. The `log_level` value is an enumeration that supports the following values: 
+
+- "INFO"
+- "WARNING"
+- "DEBUG"
+- "ERROR"
+- "CRITICAL"
+
+Any other valie results in an error.
+
+The value is set for three ncp.ini keys: `coe.nsxlib_loglevel`, `coe.loglevel`, and `k8s.loglevel`. The default log levels for these keys are as follows:
+
+ncp.ini key 		   | Default log level
+-----------------------|-------------------
+`coe.nsxlib_loglevel`  | INFO
+`coe.loglevel` 		   | NONE 		
+`k8s.loglevel`		   | NONE
+
+
+## <a id='log_dropped_traffic'></a> log_dropped_traffic
+
+The `log_dropped_traffic` type is a boolean: `true` or `false`. Any other type is rejected, such as "true". Missing entry is accepted. Enabling this parameter is used used in distributed firewall configurations to log the traffic for dropped rules.
+
+Example network profile for logging:
+
+```
+{
+  "name": "example-network-profile",
+  "description": "log_settings",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "log_settings": {
+             "log_level": "DEBUG",
+             "log_dropped_traffic": true        
+           }
+         }
+     }
+  }
+}
+```
+
+## <a id='enable_err_crd'></a> enable_err_crd
+
+The `enable_err_crd` parameter provides a mechanism of reporting NSX backend errors to Kubernetes cluster using a [custom resource definition (CRD)](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#customresourcedefinitions).
+
+The Kubernetes resource "NSXError" is defined to hold error information. For each kubernetes resource object that has NSX backend failures, one "NSXError" object is generated with error information. There is a 'common error object' containing all cluster-wide errors.
+
+The `enable_err_crd` data type is a boolean: `true` or `false`. Missing entry is accepted. If set to `true`, you define a CRD to handle the "NSXError" comon error object.
+
+Example: network profile for `enable_err_crd`:
+
+```
+{
+  "name": "example_network_profile",
+  "description": "enable_err_crd",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "enable_err_crd": true
+         }
+     }
+  }
+}
+```
+
+
+
