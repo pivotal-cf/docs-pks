@@ -8,308 +8,181 @@ topictype: vspherewithnsxtupgrade
 
 This topic explains how to upgrade <%= vars.product_full %> for environments using vSphere with NSX-T.
 
-## <a id="before"></a>Before You Upgrade
+## <a id="overview"></a>Overview
 
-This section describes the activities you must perform before upgrading <%= vars.product_short %>.
+The supported upgrade paths to <%= vars.product_short %> v1.5.0 are from <%= vars.product_short %> v1.4.1 and later.
+<%= vars.product_short %> v1.5.0 is compatible with  Ops Manager <%= vars.ops_man_version_2_5 %> or  Ops Manager <%= vars.ops_man_version_2_6 %>.
 
-### <a id="compatiblity-chart"></a>Consult Compatibility Charts
+<p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version. <%= vars.product_short %> includes the compatible Kubernetes version.</p>
 
-For information about <%= vars.product_short %> with NSX-T and Ops Manager compatibility, see the [<%= vars.product_short %> Release Notes](release-notes.html).
+Before you begin the upgrade, follow the procedures in the [Prerequisites](#before) section to plan and prepare your upgrade.
+
+After you complete the prerequisite steps, continue to the procedures in the [During the Upgrade](#upgrade) section. These steps guide you through the process of upgrading the <%= vars.product_tile %> tile, upgrading Ops Manager, importing an updated stemcell, and applying the changes to your deployment.
+
+After you complete the upgrade, follow the procedures in the [After the Upgrade](#after-upgrade) section to verify that your upgraded <%= vars.product_short %> deployment is running properly.
+
+## <a id="before"></a>Prerequisites
+
+Before you upgrade <%= vars.product_short %>, you must do the following:
+
+1. [Determine Your Upgrade Path](#upgrade-path)
+1. [Prepare to Upgrade](#prepare)
 
 ### <a id="upgrade-path"></a> Determine Your Upgrade Path
 
-For information about the supported upgrade path, see the [Upgrade Path](release-notes.html#v1.5.0-upgrade) section of the _<%= vars.product_short %> Release Notes_.
+Use the following table to determine your upgrade path to <%= vars.product_short %> v1.5.
+
+<table>
+<tr>
+  <th>Target Ops Manager version</th>
+  <th>Upgrade path</th>
+</tr>
+<tr>
+  <td>v2.5</td>
+  <td>
+    <ol>
+      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_5 %>.</li>
+      <li>Upgrade to <%= vars.product_short %> v1.5.</li>
+      <li>Upgrade to NSX-T Data Center v2.5.</li>      
+    </ol>
+  </td>
+</tr>
+<tr>
+  <td>v2.6</td>
+  <td>
+    <ol>
+      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_6 %>.</li>
+      <li>Upgrade to <%= vars.product_short %> v1.5.</li>
+      <li>Upgrade to NSX-T Data Center v2.5.</li>            
+    </ol>
+  </td>
+</tr>
+</table>
 
 ### <a id="prepare"></a>Prepare to Upgrade
 
-If you have not already, complete all of the steps in the [Upgrade Preparation Checklist for <%= vars.product_short %> v1.5](checklist.html).
+If you have not already, complete all of the steps in the
+[Upgrade Preparation Checklist for <%= vars.product_short %> v1.5](./checklist.html).
 
 ## <a id="upgrade"></a> During the Upgrade
 
-This section describes the steps required to upgrade to <%= vars.product_short %> v1.5 and NSX-T v2.4.
+This section describes the steps required to upgrade to <%= vars.product_short %> v1.5:
 
-### <a id="upgrade-opsman"></a> Step 1: Upgrade to Ops Manager v2.4.3+
+1. [Upgrade to Ops Manager <%= vars.ops_man_version_2_5_short %> or <%= vars.ops_man_version_2_6_short %>](#upgrade-opsman)
+1. [Upgrade to <%= vars.product_short %> v1.5](#upgrade-tile)
+1. [Download and Import the Stemcell](#stemcell)
+1. [Verify Errand Configuration](#errands)
+1. [Apply Changes to the <%= vars.product_tile %> Tile](#apply-changes)
 
-Before you upgrade to <%= vars.product_short %> v1.5.0, you must upgrade to Ops Manager v2.4.3 or later. For more information, see the [<%= vars.product_short %> Release Notes](release-notes.html).
+### <a id="upgrade-opsman"></a>Upgrade Ops Manager to <%= vars.ops_man_version_2_5_short %> or <%= vars.ops_man_version_2_6_short %>
 
-To upgrade Ops Manager, follow the procedures detailed in [Upgrade Ops Manager and Installed Products to v2.4](https://docs.pivotal.io/pivotalcf/2-4/customizing/upgrading-pcf.html#upgrade_ops).
+Before you upgrade to <%= vars.product_short %> v1.5, you must upgrade to Ops Manager <%= vars.ops_man_version_2_5 %> or <%= vars.ops_man_version_2_6 %>.
 
-### <a id="upgrade-pks-to-150"></a> Step 2: Upgrade to <%= vars.product_short %> v1.5.0
+To upgrade Ops Manager, do the following:
 
-Upgrade the <%= vars.product_short %> tile from a supported version to <%= vars.product_short %> v1.5.0. When you upgrade the <%= vars.product_short %> tile, the target version of NCP is installed (v2.4.0 in this case). This **must** be done before you upgrade to NSX-T v2.4.x. 
- 
-To upgrade the <%= vars.product_short %> tile to v1.5.0, complete the following steps.
+1. Complete the procedures in [Upgrade Ops Manager and Installed Products to v2.5](https://docs.pivotal.io/pivotalcf/2-5/customizing/upgrading-pcf.html#upgrade_ops)
+or [Upgrade Ops Manager and Installed Products to v2.6](https://docs.pivotal.io/pivotalcf/2-6/customizing/upgrading-pcf.html#upgrade_ops).
 
-1. Download the <%= vars.product_short %> version from [Pivotal Network](https://network.pivotal.io/products/pivotal-container-service/).
+1. <%= partial 'add-clusters-workloads' %>
 
-1. Navigate to the Ops Manager Installation Dashboard and click **Import a Product**.
+### <a id="upgrade-tile"></a>Upgrade <%= vars.product_short %> to v1.5
 
-1. Browse to the <%= vars.product_short %> product file and select it. Uploading the file takes several minutes.
-  <img src="images/upgrade-nsxt-2.png" alt="Upload <%= vars.product_short %> product file to Ops Manager">
+To upgrade to <%= vars.product_short %> v1.5, follow the same Ops Manager process that you use to install the tile for the first time.
 
-1. Under the **Import a Product** button, click **+** next to **<%= vars.product_tile %>**. This adds the tile to your staging area.<br><br>
-  <img src="images/upgrade-nsxt-3.png" alt="Import the <%= vars.product_short %> product file">
+Your configuration settings migrate to the new version automatically. Follow the steps below to perform an upgrade.
 
-1. Import the required [Xenial stemcell](https://docs.pivotal.io/pivotalcf/stemcells/#xenial) for <%= vars.product_short %> v1.5.0 (250.25 or later).
-  * On the <%= vars.product_tile %> tile, click on the **Missing stemcell** link.
-  * In the **Stemcell Library**, locate **<%= vars.product_tile %>** and note the required stemcell version.
-  * Visit the [Stemcells for PCF (Ubuntu Xenial)](https://network.pivotal.io/products/stemcells-ubuntu-xenial/) page on Pivotal Network,
-and download the required stemcell version for vSphere.
- * Return to the **Installation Dashboard** in Ops Manager, and click on **Stemcell Library**.
- * On the **Stemcell Library** page, click **Import Stemcell** and select the stemcell file you downloaded from Pivotal Network.
- * Select the <%= vars.product_tile %> product and click **Apply Stemcell to Products**.
- * Verify that Ops Manager successfully applied the stemcell.
+1. Review the [Release Notes](release-notes.html) for the version you are upgrading to.
+
+1. Download the desired version of the product from [Pivotal Network](https://network.pivotal.io/products/pivotal-container-service/).
+
+1. Navigate to the Ops Manager Installation Dashboard and click **Import a Product** to upload the product file.
+
+1. Under the **Import a Product** button, click **+** next to **<%= vars.product_tile %>**. This adds the tile to your staging area.
+
+### <a id="stemcell"></a>Download and Import the Stemcell
+
+<%= vars.product_short %> v1.5 uses a [Xenial stemcell](https://docs.pivotal.io/pivotalcf/stemcells/#xenial). 
+
+If Ops Manager does not have the Xenial stemcell required for <%= vars.product_short %>, the <%= vars.product_tile %> tile displays the message **Missing stemcell**.
+
+<p class="note"><strong>Note:</strong> If the <b>Stemcell Library</b> in Ops Manager already has a compatible Xenial stemcell,
+  the <b>Missing stemcell</b> link does not appear. You do not need to download or import a new stemcell and can skip this step.</p>
+
+To download and import a new Xenial stemcell, follow the steps below:
+
+1. On the <%= vars.product_tile %> tile, click the **Missing stemcell** link.
+
+    <img src="images/missing_stemcell.png" alt="Verify stemcell assignment">
+
+1. In the **Stemcell Library**, locate the **<%= vars.product_tile %>** tile and note the required stemcell version.
+
+1. Navigate to the [Stemcells for PCF (Ubuntu Xenial)](https://network.pivotal.io/products/stemcells-ubuntu-xenial/) page on Pivotal Network
+and download the required stemcell version for your IaaS.
+
+1. Return to the **Installation Dashboard** in Ops Manager and click **Stemcell Library**.
+
+1. On the **Stemcell Library** page, click **Import Stemcell** and select the stemcell file you downloaded from Pivotal Network.
+
+1. Select the <%= vars.product_tile %> tile and click **Apply Stemcell to Products**.
+
+1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for <%= vars.product_tile %>.
+
+1. Select the **Installation Dashboard** link to return to the Installation Dashboard.
+
+### <a id="errands"></a>Verify Errand Configuration
+
+To verify that errands are configured correctly in the <%= vars.product_tile %> tile, do the following:
+
+1. Click the newly-added **<%= vars.product_tile %>** tile.
+
+1. Click **Errands**.
+
+1. Under **Post-Deploy Errands**, configure **Upgrade all clusters errand**:
+  * If you want to upgrade the <%= vars.product_tile %> tile and all your existing Kubernetes clusters simultaneously,
+  verify that **Upgrade all clusters errand** is set to **Default (On)**.
+  The errand upgrades a single Kubernetes cluster at a time.
+  Upgrading <%= vars.product_short %>-deployed Kubernetes clusters can temporarily interrupt the service
+  as described in [Service Interruptions](interruptions.html).
+  * If you want to upgrade the <%= vars.product_tile %> tile only and
+  then upgrade your existing Kubernetes clusters separately, disable **Upgrade all clusters errand**.
+  For more information, see [Upgrading Clusters](upgrade-clusters.html).
+  <p class="note warning"><strong>Warning:</strong> If you upgrade the <%= vars.product_tile %> tile
+  or update your tile configuration, with <strong>Upgrade all clusters errand</strong> disabled,
+  you must upgrade all your Kubernetes clusters before the next upgrade or configuration update.</p>
+
+1. Under **Post-Deploy Errands**, set the **Run smoke tests** errand to **On**. The errand uses the <%= vars.product_short %> Command Line Interface (PKS CLI) to create a Kubernetes cluster and then delete it. If the creation or deletion fails, the errand fails and the installation of the <%= vars.product_tile %> tile is aborted.
+
+1. Click **Save**.
+
+1. Review the other configuration panes. Click **Save** on any panes where you make changes.
+    <p class="note"><strong>Note:</strong> When you upgrade <%= vars.product_short %>, you must place singleton jobs in the AZ you selected when you first installed the <%= vars.product_tile %> tile. You cannot move singleton jobs to another AZ.</p>
+
+### <a id="apply-changes"></a>Apply Changes to the <%= vars.product_tile %> Tile
+
+Perform the following steps to complete the upgrade of the <%= vars.product_tile %> tile:
 
 1. Return to the **Installation Dashboard** in Ops Manager.
 
 1. Click **Review Pending Changes**.
-   For more information about this Ops Manager page, see
+     For more information about this Ops Manager page, see
     [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/2-3/customizing/review-pending-changes.html).
 
-1. In the <%= vars.product_tile %> tile, click **Errands**.
-
-1. Under **Post-Deploy Errands**, verify that the listed errands are configured as follows:
-  * **NSX-T Validation errand**: Set to **On**.
-  * **Upgrade all clusters errand**: Choose one of the options below.
-      * If you want to upgrade the <%= vars.product_tile %> tile and all your existing Kubernetes clusters simultaneously,
-      verify that **Upgrade all clusters errand** is set to **Default (On)**.
-      * If you want to upgrade the <%= vars.product_tile %> tile only and
-      then upgrade your existing Kubernetes clusters separately, disable **Upgrade all clusters errand**.
-      For more information, see [Upgrading Clusters](upgrade-clusters.html).
-  * **Create pre-defined Wavefront alerts errand**: Set to **Default (Off)**.
-  * **Run smoke tests**: Set to **On**. The errand uses the <%= vars.product_short %> Command Line Interface (<%= vars.product_short %> CLI) to create a Kubernetes cluster and then delete it. If the creation or deletion fails, the errand fails and the installation of the <%= vars.product_tile %> tile is aborted.
-
-1. Click **Apply Changes** to deploy the <%= vars.product_short %> 1.5.0 tile.
-
-### <a id="upgrade-nsxt"></a> Step 3: Upgrade from NSX-T v2.3.1 to NSX-T v2.4
-
-Upgrade NSX-T from v2.3.1 to v2.4.0.1 or later. See the **Upgrade Path** section of the [Release Notes](./release-notes.html) for information on obtaining the NSX-T 2.4.0.1 hot-patch.  
-
-<p class="note"><strong>Note:</strong> When upgrading NSX-T, at the stage that the ESXi Transport Nodes ("Hosts") are upgraded, you may want to 
-    control the order in which the hosts are upgraded. Because only hosts in maintenance mode are upgraded, you can control the order in which hosts are upgraded by
-    placing the hosts in maintenance mode one at a time and upgrading.</p>
-
-<p class="note"><strong>Note:</strong> Once you upgrade to NSX-T 2.4, the T0 router(s) and all other management plane objects 
-      can be seen only from the <em>Advanced Networking Configuration</em> tab. They will not be migrated to the new Policy UI.</p>
-
-<p class="note"><strong>Note:</strong> There are architectural changes in NSX 2.4. 
-      Prior to the upgrade the NSX Controller was distributed across multiple NSX Controller VMs.
-      After the NSX-T upgrade has completed, you will have a single NSX-T Manager node, and 
-      the NSX Controller will be a component of the NSX Manager. The NSX Controller VMs will remain present but unused.</p>
-
-1. Confirm your vSphere installation is on the supported version and patch version. 
-Refer to the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&175=&1=)
-for NSX-T v2.4 and vSphere v6.5 and v6.7.
-
-1. (Optional) To upgrade your EXSi Transport Node (TN) hosts in a specific order, perform the following:
-    1. In vCenter, put the first EXSi TN host into maintenance mode. 
-    1. Create the host group for that ESXi host.
-    1. Upgrade only this host group by following the NSX-T Data Center upgrade steps described below.
-    1. Remove the host from maintenance mode. 
-    1. Repeat this process for all ESXi TN hosts.
-
-1. To perform the upgrade, refer to [Upgrading NSX-T Data Center](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/upgrade/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) in the VMware documentation.
-
-
-1. (Optional) To remove the unused NSX Controller VMs perform the following:
-    1. Power off the NSX Controllers. 
-    1. Delete the unused NSX Controller VMs. For more information, 
-      see [Delete NSX Controllers](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/upgrade/GUID-D946F58F-BFB2-4F8E-A979-4C07393299E8.html") 
-      in the NSX-T documentation.
-
-1. To verify that your <%= vars.product_short %> environment is functioning properly perform the following:
-    1. Log in to <%= vars.product_short %>.
-    1. Create a small test cluster. 
-    1. If the test cluster cannot be created, troubleshoot the upgrade before proceeding. For more information, see 
-    [Troubleshooting Upgrade Failures](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/upgrade/GUID-260D52CB-1B88-4138-A853-0293A7A3B077.html#GUID-260D52CB-1B88-4138-A853-0293A7A3B077)
-    in the NSX-T documentation.
-
-### <a id="add-managers"></a> Step 4: Deploy Two Additional NSX Managers
-
-With NSX-T v2.4, the NSX Controller component is now part of the NSX Manager. Previously the NSX Manager was a singleton, and HA was achieved using multiple NSX Controllers. With NSX-T v2.4, since the standalone NSX Controller component is no longer used, to achieve HA you need to deploy multiple (three) NSX Managers. Refer to the [Upgrading NSX-T Data Center](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/upgrade/GUID-3B986F37-94FE-4CAC-B4AD-9B55D8FE1EC2.html) documentation for guidance on adding additional NSX Managers.
-
-<p class="note"><strong>Note:</strong> When you add additional NSX Managers, the system prompts you to enter a Compute Manager, which is a vCenter Server. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-D225CAFC-04D4-44A7-9A09-7C365AAFCA0E.html">Add a Compute Manager</a> in the NSX-T documentation.</p> 
-
-### <a id="add-vip"></a> Step 5: Configure the NSX Manager VIP
-
-Since you have deployed two additional NSX Managers (for a total of three), you need create a virtual IP address that can be used as a single endpoint to access the NSX Management cluster.
-
-To create a VIP for the NSX Management cluster:
-
-- Log in to the NSX Manager interface.
-- Go to **System** > **Overview**.
-- Select **Virtual IP** > **Edit**.
-- Enter a publicly routable IP address, such as `10.40.206.5`.
-- Click **Save**.
-
-At this point in time, you can connect to any NSX-T manager using its own IP address, or use the VIP to connect to NSX-T Manager. Both methods work. However, note that the VIP is associated with a single NSX Manager. To determine which NSX Manager the VIP is associated with, select the Virtual IP.
-
-  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-05.png" alt="VIP Association">
-
-### <a id="nsx-cert"></a> Step 6: Generate, Import, and Register a New NSX Manager CA Cert with the Cluster API
-
-Both the BOSH Director tile and the <%= vars.product_short %> tile expect the NSX Manager CA certificate. However, the current NSX Manager CA certificate is associated with the original NSX Manager IP address. You need to generate a new NSX Manager CA cert using the VIP address, then register this certificate with NSX-T using the Cluster Certificate API.
-
-####<a id='generate-certificate'></a> Generate a New NSX Manager CA Certificate and Private Key
-
-To generate a new NSX Manager CA certificate and private key using the VIP address, follow the instructions below. Make sure you use the VIP address, such as `10.40.206.5`.
-
-Below is an example Certificate Signing Request (CSR) named `nsx-cert.cnf`. In this example, the IP address `10.40.206.5` is the IP address of the VIP. Substitute this IP address with the VIP you generated.
-
-```
-[ req ]
-
-default_bits = 2048
-
-distinguished_name = req_distinguished_name
-
-req_extensions = req_ext
-
-prompt = no
-
-[ req_distinguished_name ]
-
-countryName = US
-
-stateOrProvinceName = California
-
-localityName = CA
-
-organizationName = NSX
-
-commonName = 10.40.206.5
-
-[ req_ext ]
-
-subjectAltName = @alt_names
-
-
-[alt_names]
-
-DNS.1 = 10.40.206.5
-```
-
-To generate the certificate and private key using the above CSR, run the following commands:
-
-```
-# export NSX_MANAGER_IP_ADDRESS=10.40.206.5
-
-# export NSX_MANAGER_COMMONNAME=10.40.206.5
-
-# openssl req -newkey rsa:2048 -x509 -nodes \
-
-> -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
-
-> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
-
->  <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 365
-```
-
-The result is `nsx.crt` and `nsx.key`. You can verify the certificate using the command `# openssl x509 -in nsx.crt -text -noout`.
-
-####<a id='import-certificate'></a> Import the New Certificate to NSX Manager
-
-Complete the following steps to import the certificate to the NSX Manager:
-
-1. Log in to the NSX Manager UI.
-
-1. Navigate to **System > Trust > Certificates**.
-
-1. Click **Import > Import Certificate**.
-
-	<img src="images/nsxt/import-cert.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475">
-    <p class="note"><strong>Note</strong>: Make sure you select **Import Certificate** and not **Import CA Certificate**</code>.</p>
-
-1. Give the certificate a unique name, such as `NSX-API-CERT-NEW`.
-  <p class="note"><strong>Note</strong>: Use a unique name for the new certificate you import. The default NSX Manager CA certificate is typically named <code>NSX-API-CERT</code>.</p>
-
-1. Browse to and select the CA certificate and private key you generated in the previous section of steps.
-
-1. Click **Save**.
-
- 	<img src="images/nsxt/import-cert-2.png" alt="Import the NSX Manager CA certificate to the NSX Manager" width="475"> 
-
-####<a id='register-certificate'></a> Register the New Certificate with NSX Manager
-
-Once you have imported the NSX Manager certificate, register this certificate with the NSX Management cluster using a cURL command against the Cluster Certificate API.
-
-First, create environment variables for the VIP address and the certificate ID. In this example, `10.40.206.5` is the VIP address. The certificate ID is obtained from the NSX Manager UI where you imported the certificate.
-
-```
-export NSX_MANAGER_IP_ADDRESS=10.40.206.5
-
-export CERTIFICATE_ID="63bb6646-052c-49df-b603-64d7e5bdb5bf"
-```
-
-Next, register the new NSX-T Manager CA cert using a cURL request to the Cluster Certificate API. Substitute `PASSWORD` with the password for NSX Manager.
-
-```
-curl --insecure -u admin:'PASSWORD' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
-```
-
-The certificate will be registered with the NSX Manager that the VIP address is associated with. 
-
-To verify, using a browser go to the VIP address of the NSX Manager. Login and check that the new cert is used by the site (accessed using the VIP address). 
-
-To further verify, SSH to each NSX Manager host and run the following two commands. All certificates returned should be the same.
-
-```
-get certificate api
-get certificate cluster
-```
-
-### <a id="upgrade-tiles"></a> Step 7: Update the <%= vars.product_short %> and BOSH Tiles with the New NSX Manager Cluster Certificate and VIP Address
-
-The last procedure in the upgrade process is to modify the BOSH Tile and the <%= vars.product_short %> Tile with the new VIP address for the NSX Manager and the new NSX-T Manager CA cert (using VIP info). Apply the changes and ensure that the **Upgrade all clusters errand** is selected, then deploy <%= vars.product_short %>.
-
-To update the BOSH tile:
-
-1. Log into Ops Manager. 
-1. In the BOSH Director tile, select the **vCenter Configuration** tab.
-1. In the **NSX Address** field, enter the VIP address for the NSX Management Cluster.
-1. In the **NSX CA Cert** field, enter the new CA certificate for the NSX Management Cluster that uses the VIP address.
-1. Save the BOSH tile changes.
-  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-08.png" alt="Update BOSH with VIP and Cert"> 
-
-To update the <%= vars.product_short %> tile:
-
-1. Log into Ops Manager. 
-1. In the <%= vars.product_short %> tile, select the **Networking** tab.
-1. In the **NSX Manager hostname** field, enter the VIP address for the NSX Management Cluster.
-1. In the **NSX Manager CA Cert** field, enter the new CA certificate for the NSX Management Cluster (that uses the VIP address).
-1. Save the <%= vars.product_short %> tile changes.
-  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-09.png" alt="Update <%= vars.product_short %> with VIP and Cert"> 
-
-### <a id="upgrade-k8s"></a> Step 8: Upgrade all Kubernetes Clusters
-
-Once you have updated the <%= vars.product_short %> and BOSH tiles, apply the changes. Be sure to run the "Upgrade all [Kubernetes] clusters errand". Doing so will allow NCP configurations on all Kubernetes clusters to be updated with the new NSX-T Management Cluster VIP and CA certificate.
-
-To complete the upgrade:
-
-1. Go to the **Installation Dashboard** in Ops Manager.
-1. Click **Review Pending Changes.**
-1. Expand the **Errands** list for <%= vars.product_short %>.
-1. Ensure that the **Upgrade all clusters errand** is selected.
 1. Click **Apply Changes**.
-  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-10.png" alt="Upgrade all Kubernetes clusters"> 
 
-### <a id="verify-ncp"></a> Step 9: Verify the Upgrade
+1. (Optional) To monitor the progress of the **Upgrade all clusters errand** using the BOSH CLI, do the following:
+      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your <%= vars.product_short %> deployment. For more information, see [Managing <%= vars.product_short %> Deployments with BOSH](manage-deployments-bosh.html).
+      1. Run `bosh -e MY-ENVIRONMENT tasks`.
+      1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
+      1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
 
-Once the upgrade is complete, verify that NCP configuration is automatically updated with the new VIP (instead of individual NSX-T Manager node IP address).
+## <a id="after-upgrade"></a>After the Upgrade
 
-To do this, run a command similar to the following for each Kubernetes cluster (service-instance_UUID):
+After you complete the upgrade to <%= vars.product_short %> v1.5, complete the following verifications and upgrades:
 
-```
-bosh ssh master/0 -d service-instance_d9b662d0-23e1-4239-b641-ed20ee62e692
-```
+- [Update PKS and Kubernetes CLIs](#update-clis)
+- [Verify the Upgrade](#verify-upgrade)
 
-Note the "nsx_api_managers" address. It should be the VIP.
-
-## <a id="post-upgrade"></a> After the Upgrade
-
-After you complete the upgrade to <%= vars.product_short %> v1.5.x and NSX-T v2.4, complete the following verifications and upgrades.
-
-### <a id="update-clis"></a> Update PKS and Kubernetes CLIs
+### <a id="update-clis"></a>Update PKS and Kubernetes CLIs
 
 Update the PKS and Kubernetes CLIs on any local machine
 where you run commands that interact with your upgraded version of <%= vars.product_short %>.
@@ -323,12 +196,47 @@ For more information about installing the CLIs, see the following topics:
 
 * [Installing the Kubernetes CLI](installing-kubectl-cli.html)
 
-### <a id="verify"></a> Verify Deployment Health
+### <a id="verify-upgrade"></a>Verify the Upgrade
 
-After you apply changes to the <%= vars.product_tile %> tile and the upgrade is complete,
-verify that your Kubernetes environment is healthy and confirm that NCP is
-running on the master node VM.
+After you apply changes to the <%= vars.product_tile %> tile and the upgrade is complete, perform the following steps:
 
-To verify the health of your Kubernetes environment and NCP, see [Verifying
-Deployment Health](verify-health.html).
+1. Verify that your Kubernetes environment is healthy. To verify the health of your Kubernetes environment, see [Verifying
+Deployment Health](verify-health.html#k8s).
 
+1. <%= partial 'add-clusters-workloads' %>
+
+## <a id="upgrade-nsxt"></a> Upgrade NSX-T Data Center
+
+Upgrade NSX-T from v2.4 to v2.5. See the [Release Notes](./release-notes.html) supported versions.  
+
+1. Confirm that your vSphere v6.5 or v6.7 installation is on the supported version and patch for NSX-T v2.5. 
+  - Refer to the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&175=&1=).
+  - If necessary, update to the required vSphere version or patch before proceeding with the upgrade of NSX-T.
+
+1. To perform the upgrade, refer to the [NSX-T Data Center Upgrade Guide](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/index.html) in the VMware documentation.
+
+1. If you made any architectural changes to your NSX-T environment that affect Enterprise PKS, such as adding a [VIP address](./nsxt-install-mgmt-vip.html) or [load balancer](./nsxt-install-mgmt-lb.html) for the NSX-T Management Cluster, update the PKS and BOSH tile with the new information, specifically:
+
+-  In the BOSH Director tile, select the **vCenter Configuration** tab and update the following:
+  - The **NSX Address** field
+  - The **NSX CA Cert** field
+  - Save the BOSH tile changes.
+  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-08.png" alt="Update BOSH with VIP and Cert"> 
+
+- In the PKS tile, select the **Networking** tab and update the following: 
+  - The **NSX Manager hostname** field
+  - The **NSX Manager CA Cert** field 
+  - Save the PKS tile changes
+  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-09.png" alt="Update <%= vars.product_short %> with VIP and Cert"> 
+
+1. If you made changes to the BOSH or PKS tiles:
+  - Go to the **Installation Dashboard** in Ops Manager.
+  - Click **Review Pending Changes.**
+  - Expand the **Errands** list for <%= vars.product_short %>.
+  - Ensure that the **Upgrade all clusters errand** is selected.
+  - Click **Apply Changes**.
+  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-10.png" alt="Upgrade all Kubernetes clusters"> 
+
+1. Verify the Upgrade of NSX-T Data Center.
+
+  After you apply changes to the <%= vars.product_tile %> tile and the upgrade is complete, verify that your Kubernetes environment is healthy. To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html#k8s).
