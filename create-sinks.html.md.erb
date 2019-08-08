@@ -41,18 +41,20 @@ and <a href="installing-pks-cli.html">Installing the PKS CLI</a>.
 
 ## <a id='define-resource'></a>Create Sinks
 
-You can create log sinks for clusters and namespaces and metric sinks for clusters.
+You can create log and metric sinks for clusters and namespaces.
 
 * If you want to create a `ClusterLogSink`, see
-[ClusterLogSink Resources](#define-cluster-sink), below.
+[ClusterLogSink Resources](#define-cluster-log-sink) below.
 * If you want to create a `LogSink`, see
-[Log Sink Resources](#define-namespace-sink), below.
+[LogSink Resources](#define-namespace-log-sink) below.
 * If you want to create a `ClusterMetricSink`, see
-[ClusterMetricSink Resources](#define-metric-sink), below.
+[ClusterMetricSink Resources](#define-cluster-metric-sink) below.
+* If you want to create a `MetricSink`, see
+[MetricSink Resources](#define-namespace-metric-sink) below.
 
 <p class="note"><strong>Note:</strong> Log sinks created in <%= vars.product_short %> do not support UDP connections.</p>
 
-### <a id='define-cluster-sink'></a>ClusterLogSink Resources
+### <a id='define-cluster-log-sink'></a>ClusterLogSink Resources
 
 `ClusterLogSink` resources enable you to capture logs from your clusters.
 
@@ -62,14 +64,11 @@ To create and manage `ClusterLogSink` resources, you can:
 * [Create a Syslog ClusterLogSink Resource with YAML and kubectl](#syslog-cluster-sink)
 * [Create a Webhook ClusterLogSink Resource with YAML and kubectl](#webhook-cluster-sink)
 
-<p class="note"><strong>Note</strong>: <%= vars.product_short %> requires a secure connection be used 
-for log forwarding. To forward logs using an unsecured connection, see 
-<a href="#unsecured-sink-configuration">Unsecured LogSink and ClusterLogSink Log Forwarding</a>, below.<br>
-</p>
+<p class="note"><strong>Note:</strong> <%= vars.product_short %> requires a secure connection
+for log forwarding. To forward logs using an unsecured connection, see
+<a href="#unsecured-sink-configuration">Unsecured ClusterLogSink and LogSink Log Forwarding</a> below.</p>
 
 #### <a id='cluster-sink-pks'></a> Create ClusterLogSink Resource with the PKS CLI
-
-<p class="note">The sink commands are deprecated in the PKS-CLI. They are to be removed in the next version of <%= vars.product_short %></p>
 
 To create and apply a log sink to a cluster, run the following command:
 
@@ -82,6 +81,9 @@ Where:
 * `CLUSTER-NAME` is the name of your cluster.
 * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.
 * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.
+
+<p class="note"><strong>Note:</strong> The sink commands, such as <code>pks create-sink</code> and <code>pks delete-sink</code>,
+are deprecated in the PKS CLI. The PKS CLI v1.6 removes these commands.</p>
 
 For example:
 
@@ -136,8 +138,7 @@ To define a syslog `ClusterLogSink` resource with YAML and `kubectl`, perform th
     * `YOUR-SINK` is a name you choose for your sink.
     * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.
     * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.
-
-  <p class="note"><strong>Note:</strong> <code>enable_tls</code> must be <code>true</code>.</p>
+    <p class="note"><strong>Note:</strong> <code>enable_tls</code> must be <code>true</code>.</p>
 
 1. Save the YAML file with an appropriate file name. For example, `my-cluster-sink.yml`.
 
@@ -186,16 +187,11 @@ To define a webhook `ClusterLogSink` resource with YAML and `kubectl`, perform t
     $ kubectl apply -f my-cluster-sink.yml
     </pre>
 
-### <a id='define-namespace-sink'></a> LogSink Resources
+### <a id='define-namespace-log-sink'></a> LogSink Resources
 
 A `LogSink` resource filters logs by namespace within a cluster.
 
-Currently, you can use only `kubectl` to create and manage namespace sinks.
-
-<p class="note"><strong>Note</strong>: <%= vars.product_short %> requires a secure connection be used 
-for log forwarding. To forward logs using an unsecured connection, see 
-<a href="#unsecured-sink-configuration">Unsecured LogSink and ClusterLogSink Log Forwarding</a>, below.<br>
-</p>
+You can use only `kubectl` to create and manage log sinks for namespaces.
 
 #### <a id='sink-kubectl'></a> Create a LogSink Resource with YAML and kubectl
 
@@ -220,8 +216,7 @@ To define a `LogSink` resource with YAML and `kubectl`, perform the following st
     * `YOUR-NAMESPACE` is the name of your namespace.
     * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.
     * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.
-
-  <p class="note"><strong>Note:</strong> <code>enable_tls</code> must be <code>true</code>.</p>
+    <p class="note"><strong>Note:</strong> <code>enable_tls</code> must be <code>true</code>.</p>
   
 1. Save the YAML file with an appropriate file name. For example, `my-namespace-sink.yml`.
 
@@ -236,7 +231,19 @@ To define a `LogSink` resource with YAML and `kubectl`, perform the following st
   $ kubectl apply -f my-namespace-sink.yml
   </pre>
 
-### <a id='define-metric-sink'></a> ClusterMetricSink Resources
+### <a id='unsecured-sink-configuration'></a>Unsecured ClusterLogSink and LogSink Log Forwarding
+
+By default, <%= vars.product_short %> requires a secure connection for `ClusterLogSink` and `LogSink` log forwarding.
+To forward `ClusterLogSink` and `LogSink` logs using an unsecured connection, you must first disable log forwarding validation.
+
+1. To disable sink forwarding validation, run the following command:
+
+    ```
+    kubectl delete validatingwebhookconfigurations validator.pksapi.io
+    ```
+<p class="note warning"><strong>Warning:</strong> Disabling secure log forwarding is not recommended.</p>
+
+### <a id='define-cluster-metric-sink'></a> ClusterMetricSink Resources
 
 A `ClusterMetricSink` resource collects metrics from a cluster using the [Kubernetes Input Plugin]
 (https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kubernetes) and writes them to one or more outputs
@@ -245,7 +252,7 @@ For a list of supported metrics and output plugins,
 see [Metrics](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kubernetes#metrics)
 and [Output Plugins](https://github.com/influxdata/telegraf#output-plugins) in the telegraf GitHub repository.
 
-Currently, you can use only `kubectl` to create and manage metric sinks for clusters.
+You can use only `kubectl` to create and manage metric sinks for clusters.
 
 #### <a id='default'></a> Create a ClusterMetricSink Resource with YAML and kubectl
 
@@ -298,7 +305,13 @@ To define a `ClusterMetricSink` resource with YAML and `kubectl`, perform the fo
   $ kubectl apply -f my-cluster-metric-sink.yml
   </pre>
 
-#### <a id='default'></a> Create a MetricSink Resource with YAML and kubectl
+### <a id='define-namespace-metric-sink'></a> MetricSink Resources
+
+A `MetricSink` resource collects metrics from a namespace within a cluster.
+
+You can use only `kubectl` to create and manage metric sinks for namespaces.
+
+#### <a id='metric-sink'></a> Create a MetricSink Resource with YAML and kubectl
 
 To define a `MetricSink` resource with YAML and `kubectl`, perform the following steps:
 
@@ -348,18 +361,6 @@ To define a `MetricSink` resource with YAML and `kubectl`, perform the following
   <pre class='terminal'>
   $ kubectl apply -f my-metric-sink.yml
   </pre>
-
-### <a id='unsecured-sink-configuration'></a>Unsecured LogSink and ClusterLogSink Log Forwarding
-
-By default, <%= vars.product_short %> requires a secure connection be used for LogSink and ClusterLogSink log forwarding. 
-To forward LogSink and ClusterLogSink logs using an unsecured connection, you must first disable log forwarding validation.  
-
-1. To disable sink forwarding validation, run the following command:    
-
-    ```
-    kubectl delete validatingwebhookconfigurations validator.pksapi.io
-    ```
-<p class="note warning"><strong>Warning:</strong> Disabling secured log forwarding is not secure.</p>
 
 ## <a id='list-sinks'></a> List Sinks
 
