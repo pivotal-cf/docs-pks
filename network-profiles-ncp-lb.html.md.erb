@@ -13,13 +13,15 @@ The [NSX-T Load Balancer](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.
 
 By default the following NSX-T virtual servers are deployed by <%= vars.product_short %>:
 
-- 1 global TCP layer 4 virtual server for the Kubernetes API
+- 1 per cluster TCP layer 4 virtual server for the Kubernetes API server
 - 1 TCP layer 4 virtual server for **each** Kubernetes service of `type: LoadBalancer`
-- 2 global layer 7 virtual servers for the Kubernetes Ingress Controller (HTTP and HTTPS)
+- 2 per cluster layer 7 virtual servers for the Kubernetes Ingress Controller (HTTP and HTTPS)
 
-The `nsx_lb` parameter is used to control if the NSX-T Load Balancer is used in a Kubernetes cluster provisioned by PKS. This includes the global TCP layer 4 virtual server that fronts the Kubernetes API server (on the master node(s)), as well as a TCP layer 4 virtual server for each Kubernetes service of [type: LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer). 
+The TCP layer 4 virtual server that fronts the Kubernetes API server is always created, and it is not controlled by the parameters exposed in the network profile. 
 
-The `nsx_ingress_controller` parameter is used to control if NCP is used as the Ingress Controller for the Kubernetes cluster. By default when you define an [ingress resoure](https://kubernetes.io/docs/concepts/services-networking/ingress/) for a Kubernetes cluster, NCP (which runs on Kubenetes worker nodes), instructs the NSX-T load balancer to provision 2 layer 7 virtual services (HTTP and HTTPS) as the [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/). 
+The `nsx_lb` parameter is used to control the TCP layer 4 virtual server that is provisioned for each Kubernetes service of [type: LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer). 
+
+The `nsx_ingress_controller` parameter is used to control if NCP is used as the Ingress Controller for the Kubernetes cluster. By default when you define an [ingress resoure](https://kubernetes.io/docs/concepts/services-networking/ingress/) for a Kubernetes cluster, NCP instructs the NSX-T load balancer to provision 2 layer 7 virtual services (HTTP and HTTPS) as the [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/). 
 
 The `nsx_ingress_controller` parameter is subject to the `nsx_lb` parameter as described in the following table.
 
@@ -44,24 +46,6 @@ The `nsx_ingress_controller` parameter is subject to the `nsx_lb` parameter as d
 The following table shows the parameters for configuring the NSX-T Load Balancer:
 
   <table>
-    <th width="30%">Parameter</th>
-    <th>Type</th>
-    <th>Description</th>
-    <tr>
-      <td>`name`</td>
-      <td>String</td>
-      <td>User-defined name of the network profile.</td>
-    </tr>
-    <tr>
-      <td>`description`</td>
-      <td>String</td>
-      <td>User-defined description for the network profile.</td>
-    </tr>
-    <tr>
-      <td>`parameters`</td>
-      <td>Map</td>
-      <td>One or more name-value pairs.</td>
-    </tr>
     <tr>
       <td>`cni_configurations`</td>
       <td>Map</td>
@@ -85,12 +69,12 @@ The following table shows the parameters for configuring the NSX-T Load Balancer
     <tr>
       <td>`x_forwarded_for`</td>
       <td>String Enum</td>
-      <td>Use to preserve the client's source IP address. Default is none. Accepts `"insert"` and `"replace"`.</td>
+      <td>Sets the original client source IP in the request header. Default is none. Accepts `"insert"` and `"replace"`.</td>
     </tr>    
     <tr>
       <td>`max_l4_lb_service`</td>
       <td>Integer</td>
-      <td>Limit the maximum number of layer 4 virtual servers per cluster. Minimum is `0`.</td>
+      <td>Limit the maximum number of layer 4 virtual servers per cluster. Minimum is `1`.</td>
     </tr>        
     <tr>
       <td>`l4_persistence_type`</td>
@@ -127,7 +111,7 @@ The following network profile is an example that illustrates the parameters expo
 }
 ```
 
-## <a id='nsx_lb'></a> nsx_lb
+## <a id='nsx_lb'></a> NSX Load Balancer
 
 The `nsx_lb` flag gives you the choice to of deploying the NSX-T Load Balancer or a third-party load balancer, such as Ngnix. The `nsx_lb` parameter maps to the `use_native_loadbalancer` parameter in NCP.ini. The default setting is `true`. To use a third party load balancer, set this parameter to false.
 
@@ -151,9 +135,9 @@ For example:
 
 Since the `nsx_ingress_controller` is a component of the NSX-T Load Balancer, if you choose to use a third-party load balancer (`nsx_lb: false`), you must also explicitly disble the `nsx_ingress_controller`. See [Defining Network Profile for the HTTP/S Ingress Controller](./network-profiles-ncp-ingress.html). 
 
-## <a id='x_forwarded_for'></a> x_forwarded_for
+## <a id='x_forwarded_for'></a> Keep Source IP Address
 
-When the NSX-T Load Balancer creates a virtual server, it will assign a new IP address. This may not be the same IP address that Kubernetes pods and services are familiar with. The `x_forwarded_for` parameter lets you keep the same soure IP as the original virtual server.
+When the NSX-T Load Balancer creates a virtual server, it will assign a new IP address. This may not be the same IP address that Kubernetes pods and services are familiar with. The `x_forwarded_for` parameter lets you set the original client source IP in HTTP request header, because the source IP in the packet will be changed to the IP address of the virtual server after it passes through the virtual server.
 
 The `x_forwarded_for` parameter type is String that accepts `"insert"` and `"replace"`. Any other type will be rejected. Missing entry is accepted.
 
@@ -172,7 +156,7 @@ The `x_forwarded_for` parameter type is String that accepts `"insert"` and `"rep
 }
 ```
 
-## <a id='max_l4_lb_service'></a> max_l4_lb_service
+## <a id='max_l4_lb_service'></a> Max Number of Layer 4 Load Balancer Virtual Servers
 
 The default NSX-T Load Balancer behavior is that auto-scaling is unlimited. This means that the number of layer 4 virtual servers that can be deployed is governed only by the capacity of the Edge Cluster where the load balancer service is deployed. As a result, in theory it is possible for a single Kubernetes cluster to use up all of the layer 4 virtual servers that the Edge Cluster can support.
 
@@ -197,7 +181,7 @@ For example, the following network profile uses the `max_l4_lb_service` paramete
 }
 ```
 
-## <a id='l4_persistence_type'></a> l4_persistence_type
+## <a id='l4_persistence_type'></a> Layer 4 Persistence Type
 
 The `l4_persistence_type` is used to set connection stickiness based on `source_ip`.
 
@@ -218,7 +202,7 @@ The `l4_persistence_type` data type is string. The only accepted value is `sourc
 }
 ```
 
-## <a id='l4_lb_algorithm'></a> l4_lb_algorithm
+## <a id='l4_lb_algorithm'></a> Layer 4 Load Balancer Algorithm
 
 The `l4_lb_algorithm` is used to set the algorithm type for the layer 4 NSX-T Load Balancer service.
 

@@ -11,19 +11,19 @@ This topic describes how to define network profiles for Kubernetes clusters prov
 
 Network profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use cases for network profiles include the following:
 
-Profile Type 								              		                  | Description
+Profile Type 								              		| Description
 ----------------------------------------------------------------|------------------------------------------------------------------------------
-[Load Balancer Sizing](./network-profiles-lb-size.html)	  		  | Customize the size of the NSX-T load balancer provisioned when a Kubernetes cluster is created using <%= vars.product_short %>.
-[Custom Pod Networks](./network-profiles-pods.html)	      		  | Assign IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
-[Routable Pod Networks](./network-profiles-pods.html) 	  		  | Assign routable IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
-[Security Groups](./network-profiles-ns-groups.html)      		  | Specify an NSX-T Namespace Group where Kubernetes master nodes will be added to during cluster creation.
-[Pod Subnet Prefix](./network-profiles-pods.html)	 	      	    | Specify the size of the pod subnet.
-[Custom Floating IP](./network-profiles-fip.html)         		  | Specify a custom floating IP pool.
-[Edge Router Selection](./network-profiles-edge.html)	    	    | Specify the NSX-T Tier-0 router where Kubernetes node and Pod networks will be connected to.
-[Nodes DNS Configuration](./network-profiles-nodes.html)  		  | Specify one or more DNS servers for Kubernetes clusters.
-[Master Node DNS Lookup](./network-profiles-dns.html)  	  		  | Specify Master Node IP address or perform a DNS lookup.
-[Shared Tier-1 Toplogy](./network-profiles-shared-t1.html) 		  | Use a single Tier-1 Router for the Kubernetes cluster
-[Load Balancer Configuration](./network-profiles-ncp-lb.html) 	| Configure layer 4 TCP load balancer settings; use third-party load balancer.
+[Load Balancer Sizing](./network-profiles-lb-size.html)	  		| Customize the size of the NSX-T load balancer service that is created when a Kubernetes cluster is provisioned.
+[Custom Pod Networks](./network-profiles-pods.html) 			| Assign IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
+[Routable Pod Networks](./network-profiles-pods.html) 			| Assign routable IP addresses from a dedicated IP block to pods in your Kubernetes cluster.
+[Security Groups](./network-profiles-ns-groups.html) 			| Specify an NSX-T Namespace Group where Kubernetes master nodes will be added to during cluster creation.
+[Pod Subnet Prefix](./network-profiles-pods.html)	 	      	| Specify the size of the pod subnet.
+[Custom Floating IP](./network-profiles-fip.html)         		| Specify a custom floating IP pool.
+[Edge Router Selection](./network-profiles-edge.html)	    	| Specify the NSX-T Tier-0 router where Kubernetes node and Pod networks will be connected to.
+[Nodes DNS Configuration](./network-profiles-nodes.html)  		| Specify one or more DNS servers for Kubernetes clusters.
+[DNS Lookup of Pre-Provisioned IPs](./network-profiles-dns.html)| Specify Master Node IP address or perform a DNS lookup.
+[Shared Tier-1 Toplogy](./network-profiles-shared-t1.html) 		| Use a single Tier-1 Router for the provisioned Kubernetes cluster.
+[Load Balancer Configuration](./network-profiles-ncp-lb.html)	| Configure layer 4 TCP load balancer settings; use third-party load balancer.
 [Ingress Configuration](./network-profiles-ncp-ingress.html)    | Configure layer 7 HTTP/S ingress controller settings; use third-party ingress controller.
 [FW Section Marking](./network-profiles-ncp-dfw.html)           | Configure top or bottom section markers for explicit DFW rule placement.
 [Logging and Error Handling](./network-profiles-ncp-logerr.html)| Configure NCP logging and error handling.
@@ -33,29 +33,26 @@ Profile Type 								              		                  | Description
 
 Network profiles are defined using JSON. Here is an example network profile that includes all available parameters.
 
-<p class="note"><strong>Note:</strong> This example network profile is for illustration purposes only. It is not intended to be used as a template for network profile defition.</p>
+<p class="note"><strong>Note:</strong> This example network profile is for illustration purposes only. It is not intended to be used as a template for network profile definition.</p>
 
 ```
 {
-	"name": "example-uber-network-profile",
-	"description": "Network Profile with Example Data for All Available Parameters -- FOR ILLUSTRATION PURPOSES ONLY",
+	"name": "example-network-profile",
+	"description": "Example Network Profile with All Available Parameters -- FOR ILLUSTRATION PURPOSES ONLY",
 	"parameters": {
 		"lb_size": "large",
 		"pod_ip_block_ids": [
 			"ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-			"ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
-		],
+			"ebe78a74-a5d5-4dde-ba76-9cf4067eee56" ],
 		"pod_subnet_prefix": 27,
-    "pod_routable": true,
+    	"pod_routable": true,
 		"fip_pool_ids": [
 			"e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0",
-			"ebe78a74-a5d5-4dde-ba76-9cf4067eee55"
-		],
+			"ebe78a74-a5d5-4dde-ba76-9cf4067eee55" ],
 		"t0_router_id": "5a7a82b2-37e2-4d73-9cb1-97a8329e1a90",
 		"master_vms_nsgroup_id": "9b8d535a-d3b6-4735-9fd0-56305c4a5293",
-        "nodes_dns": [
-            "8.8.8.8", "192.168.115.1", "192.168.116.1"
-        ],		
+    	"nodes_dns": [
+      		"8.8.8.8", "192.168.115.1", "192.168.116.1" ],		
 		"dns_lookup_mode": "API_INGRESS",
 		"ingress_prefix": "ingress",
 		"single_tier_topology": true,
@@ -67,171 +64,194 @@ Network profiles are defined using JSON. Here is an example network profile that
 				"x_forwarded_for": "insert",
 				"ingress_ip": "192.168.160.212",
 				"log_settings": {
-					"log_level": "Verbose",
-					"log_dropped_traffic": true
-				},
+					"log_level": "DEBUG",
+					"log_dropped_traffic": true },
 				"ingress_persistence_settings": {
 					"persistence_type": "cookie",
-					"persistence_timeout": 1
-				},
+					"persistence_timeout": 1 },
 				"max_l4_lb_service": 10,
-				"enable_err_crd": true,
 				"l4_persistence_type": "source_ip",
-        "l4_lb_algorithm": "weighted_round_robin",
-        "top_firewall_section_marker":"section-id"
-        "bottom_firewall_section_marker":"section-id"                         
+        		"l4_lb_algorithm": "weighted_round_robin",
+        		"top_firewall_section_marker":"section-id",
+        		"bottom_firewall_section_marker":"section-id"                         
 			}
 		}
 	}
 }
 ```
 
+<p class="note"><strong>WARNING:</strong> None of the parameters defined under `cni_configurations` can be updated.</p>
+
 ## <a id="params"></a> Network Profile Parameters
 
 Define a network profile configuration in a JSON file using the following parameters:
+
   <table>
     <th width="30%">Parameter</th>
     <th>Type</th>
     <th>Description</th>
+    <th>Notes</th>    
     <tr>
       <td>`name`</td>
       <td>String</td>
-      <td>User-defined name of the network profile.</td>
+      <td>Name of the network profile.</td>
+      <td>User-defined</td>      
     </tr>
     <tr>
       <td>`description`</td>
       <td>String</td>
-      <td>User-defined description for the network profile.</td>
+      <td>Description of the network profile.</td>
+      <td>Optional</td>      
     </tr>
     <tr>
       <td>`parameters` </td>
       <td>Map</td>
       <td>One or more name-value pairs.</td>
+      <td></td>      
     </tr>
     <tr>
       <td>`lb_size` </td>
       <td>String</td>
-      <td>Size of the NSX-T load balancer deployed with the Kubernetes cluster. Accepts: `small` (default), `medium`, or `large`.</td>
+      <td>Specify the size of the NSX-T load balancer service for the Kubernetes clusters. Accepts: `small`, `medium`, and `large`.</td>
+      <td>Default is `small`.</td>      
     </tr>
     <tr>
       <td>`pod_ip_block_ids`</td>
-      <td>String Array</td>
-      <td>Pod IP Block UUIDs as defined in NSX-T; comma-separated.</td>
+      <td>String</td>
+      <td>Array of Pod IP Block UUIDs as defined in NSX-T.</td>
+      <td>Comma-separated</td>      
     </tr>
     <tr>
       <td>`pod_subnet_prefix`</td>
       <td>Integer</td>
       <td>Prefix size of the custom Pods IP Block subnet.</td>
+      <td></td>      
     </tr>
     <tr>
       <td>`pod_routable`</td>
       <td>Boolean</td>
-      <td>Enable routable IP addresses. Set the parameter to `true` to assign routable IP addresses to pods. Default is `false`.</td>
+      <td>Assign routable IP addresses to Pods. Set to `true` to enable.</td>
+      <td>Default is `false`.</td>      
     </tr>
     <tr>
-      <td>`fip_pool_ids` </td>
-      <td>String Array</td>
-      <td>Floating IP Pool UUIDs as defined in NSX-T; comma separated.</td>
+      <td>`fip_pool_ids`</td>
+      <td>String</td>
+      <td>Array of floating IP pool UUIDs as defined in NSX-T.</td>
+      <td>Comma-separated</td>      
     </tr>
     <tr>
       <td>`t0_router_id`</td>
       <td>String</td>
       <td>Tenant Tier-0 router UUID as defined in NSX-T.</td>
+      <td></td>      
     </tr>
     <tr>
       <td>`master_vms_nsgroup_id`</td>
       <td>String</td>
       <td>NSGroup UUID as defined in NSX-T.</td>
+      <td></td>      
     </tr>
     <tr>
       <td>`nodes_dns`</td>
-      <td>String Array</td>
-      <td>IP addresses (up to 3) for DNS server lookup by Kubernetes nodes and pods.</td>
+      <td>String</td>
+      <td>Array of IP addresses for DNS server lookup of Kubernetes Nodes and Pods.</td>
+      <td>Comma-separated; up to 3</td>      
     </tr>
     <tr>
       <td>`dns_lookup_mode`</td>
       <td>String</td>
-      <td>String for looking up the Master Node IP.</td>
+      <td>DNS lookup mode for Kubernetes API load balancer and ingress controller.</td>
+      <td>Accepted values: `API` and `API_INGRESS`.</td>      
     </tr>
     <tr>
       <td>`ingress_prefix`</td>
       <td>String</td>
-      <td>String for ingress prefix for DNS lookup.</td>
+      <td>Ingress controller hostname prefix for DNS lookup.</td>
+      <td></td>      
     </tr>
     <tr>
       <td>`single_tier_topology`</td>
       <td>Boolean</td>
-      <td>Flag to enable a Shared T1 router. Defaut is `false`. Set to `true` to enable.</td>
+      <td>Flag to enable a Shared T1 router. Set to `true` to enable.</td>
+      <td>Default is `false`.</td>      
     </tr> 
     <tr>
       <td>`cni_configurations`</td>
       <td>Map</td>
       <td>Map containing two key-value pairs: `type` and `parameters`.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`type`</td>
-      <td>Constant String</td>
-      <td>Only `nsxt` is accepted.</td>
+      <td>String</td>
+      <td>Only the constant value `nsxt` is accepted.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`parameters`</td>
       <td>Map</td>
       <td>Map containing one or more key-value pairs for NCP settings.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`x_forwarded_for`</td>
-      <td>String Enum</td>
-      <td>Use the same source IP for calling clients. Accepts `"insert"` and `"replace"`.</td>
+      <td>String</td>
+      <td>Use the same source IP for calling clients.</td>
+      <td>Accepts `"insert"` and `"replace"`.</td>      
     </tr>    
     <tr>
       <td>`ingress_ip`</td>
       <td>String</td>
-      <td>IP address to use for ingress controller load balancer.</td>
+      <td>IP address to use for the ingress controller.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`log_settings`</td>
       <td>Map</td>
-      <td>Holds parameters for configuring NCP logging.</td>
+      <td>Parameters for configuring NCP logging.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`log_level`</td>
-      <td>String Enumeration</td>
-      <td>"INFO", "WARNING", "DEBUG", "ERROR", "CRITICAL"</td>
+      <td>String</td>
+      <td>Specify the log level for `log_settings`.</td>
+      <td>Accepted values: "INFO", "WARNING", "DEBUG", "ERROR", and "CRITICAL".
     </tr>    
     <tr>
       <td>"log_dropped_traffic"</td>
       <td>Boolean</td>
-      <td>Default is `false`. Set to `true` to log dropped firewall traffic.</td>
+      <td>Log dropped firewall traffic. Set to `true` to enable.</td>
+      <td>Default is `false`.</td>      
     </tr>    
     <tr>
       <td>`ingress_persistence_settings`</td>
       <td>Map</td>
-      <td>Holds parameters for customizing Layer 7 persistence.</td>
+      <td>Parameters for customizing Layer 7 persistence.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`persistence_type`</td>
       <td>String</td>
-      <td>Values are `none` or `cookie`.</td>
+      <td>Specify the ingress persistence type.</td>
+      <td>Accepted values: `none` or `cookie`.</td>      
     </tr>    
     <tr>
       <td>`persistence_timeout`</td>
       <td>Integer</td>
-      <td>Persistence timeout interval, in seconds.</td>
+      <td>Persistence timeout interval.</td>
+      <td>In seconds.</td>      
     </tr>    
     <tr>
       <td>`max_l4_lb_service`</td>
       <td>Integer</td>
-      <td>Limit the maximum number of layer 4 virtual servers per cluster. Minimum is `0`.</td>
-    </tr>    
-    <tr>
-      <td>`enable_err_crd`</td>
-      <td>Boolean</td>
-      <td>Enable the NSXError custom resource definion.</td>
+      <td>Limit the maximum number of layer 4 virtual servers per cluster.</td>
+      <td>Minimum is `1`.</td>      
     </tr>    
     <tr>
       <td>`nsx_ingress_controller`</td>
       <td>Boolean</td>
       <td>Flag to control if NCP is used as the Ingress Controller for the Kubernetes cluster.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`nsx_lb`</td>
@@ -240,23 +260,27 @@ Define a network profile configuration in a JSON file using the following parame
     </tr>    
     <tr>
       <td>`l4_persistence_type`</td>
-      <td>String Enum</td>
+      <td>String</td>
       <td>Connection stickiness based on `source_ip` (only accepted value).</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`l4_lb_algorithm`</td>
-      <td>String Enum</td>
-      <td>Specify the layer 4 load balancer behavior. Accetps `"round_robin"`, `"least_connection"`, `"ip_hash"`, `"weighted_round_robin"`. Default is round robin.</td>
+      <td>String</td>
+      <td>Specify the layer 4 load balancer behavior; default is round robin.</td>
+      <td>Accepts `"round_robin"`, `"least_connection"`, `"ip_hash"`, `"weighted_round_robin"`.</td>      
     </tr>    
     <tr>
       <td>`top_firewall_section_marker`</td>
       <td>String</td>
-      <td>UUID of the top `section-id` for the distributed firewall (DFW) section as defined in NSX-T Manager.</td>
+      <td>UUID of the top `section-id` for the distributed firewall (DFW) section as defined in NSX-T.</td>
+      <td></td>      
     </tr>    
     <tr>
       <td>`bottom_firewall_section_marker`</td>
       <td>String</td>
-      <td>UUID of the bottom `section-id` for the distributed firewall (DFW) section as defined in NSX-T Manager.</td>
+      <td>UUID of the bottom `section-id` for the distributed firewall (DFW) section as defined in NSX-T.</td>
+      <td></td>      
     </tr>    
   </table>
 

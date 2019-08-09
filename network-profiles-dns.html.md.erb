@@ -1,44 +1,52 @@
 ---
-title: Defining Network Profile for DNS Lookup of Master Node Load Balancer IP Address
+title: Defining Network Profile for DNS Lookup of Pre-Provisioned IP Addresses
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to define network profile for performing DNS lookup of the Master node(s) load balancer IP address.
+This topic describes how to define network profile for performing DNS lookup of the pre-provisioned IP addresses for the Kubernetes API load balancer and ingress controller.
 
-## <a id='about'></a> About DNS Lookup of Load Balancer and Ingress IPs
+## <a id='about'></a> About DNS Lookup of Pre-Provisioned IP Addresses
 
-In an Enterprise PKS environment on NSX-T, when you provision a Kubernetes cluster using the command `pks create-cluster`, the system creates a layer 4 NSX-T Load Balancer for the Kubernetes API master node(s). In addition, if you define an ingress resource, NCP creates two layer 7 virtual servers (HTTP and HTTPS) as the Ingress Controller for inbound traffic to Kubernetes pods. The IP addresses that are assigned to these two are derived from the floating IP pool. They are not known in advance, and you have to wait for the IP addresses to be allocated from the Floating IP Pool to know what they are. 
+In an Enterprise PKS environment on NSX-T, when you provision a Kubernetes cluster using the command `pks create-cluster`, NSX-T creates a layer 4 load balancer that fronts the Kubernetes API server running on the master node(s). In addition, NCP creates two layer 7 virtual servers (HTTP and HTTPS) as the ingress controller for inbound traffic to Kubernetes pods.
 
-The network profile for DNS lookup of the master node IP address and ingress controller addresses this limitation by allowing you to look up the IP addresses from a DNS server using the FQDN. In this way you can tell PKS what IP addresses to use for these resources when the cluster is created, and be able to have DNS records for them so FQDNs can be used.
+The IP addresses that are assigned to the API load balancer and ingress controller are derived from the floating IP pool in NSX-T. These IP addresses are not known in advance, and you have to wait for the IP addresses to be allocated to know what they are so you can update your DNS records. 
 
-You can define a network profile to specify an FQDN that will be used for the Kubernetes master node(s) load balancer and an FQDN that will be used for the ingress controller, in which case PKS will perform a DNS lookup for the pre-provisioned IP addresses; in the case of the ingress controller, the DNS prefix is specified in a network profile. A byproduct of this feature is that you can specify on the command line a fixed IP address that will be used for the Kubernetes master node(s) load balancer.
+If you want to pre-provision these IP addresses, you define a network profile to lookup the IP addresses for these components from your DNS server. In this way you can tell PKS what IP addresses to use for these resources when the cluster is created, and be able to have DNS records for them so FQDNs can be used.
 
-## <a id='dns-lookup-lb'></a> Performing DNS Lookup of the Load Balancer Fronting the Kubernetes API Server Using Network Profile
+## <a id="params"></a> DNS Lookup Parameters
 
-To perform a lookup of the Kubernetes master node(s) IP and the ingress controller, use a network profile.
+Using the `dns_lookup_mode` parameter, you can define a network profile to specify the lookup mode: `API` or `API_INGRESS`. If the mode is `API`, PKS will perform a lookup of the pre-provisioned IP address for the Kubernetes API load balancer. If the mode is `API_INGRESS`, PKS will perform a lookup of the pre-provisioned IP addresses for the Kubernetes API load balancer and the ingress controller.
 
-The following network profile, api.json, triggers a DNS lookup for the Kubernetes master node(s) IP address.
+The IP addresses used must come from the floating IP pool. The floating IP pool, if not specified in the network profile, will come from the PKS tile configuration.
+
+The DNS lookup, whether for the Kubernetes master(s) load balancer or the ingress controller, is performed in the Kubernetes master VM using the DNS server(s) configured in the PKS tile or the `nodes_dns` field in the network profile.
+
+## <a id='dns-lookup-lb'></a> Example API Load Balancer Lookup
+
+The following network profile, api.json, triggers a DNS lookup for the Kubernetes master node(s) IP address. In this example, a custom floating IP pool is specified, and DNS servers. If these parameters are not specified, the values in the PKS tile are used.
 
 ```
 {
-    "name": "api",
-    "description": "Network profile using API mode",
+    "name": "example-network-profile",
+    "description": "Network profile using API lookup mode",
     "parameters": {
-        "fip_pool_ids": [
-            "ENTER-FIP-POOL-ID1",
-            "ENTER-FIP-POOL-ID2"
+      "nodes_dns": [
+        "8.8.8.8", "192.168.115.1", "192.168.116.1"
+        ],		    
+      "fip_pool_ids": [
+        "ENTER-FIP-POOL-ID1",
+        "ENTER-FIP-POOL-ID2" 
         ],
-        "dns_lookup_mode": "API"
+      "dns_lookup_mode": "API"
     }
 }
 ```
 
 ## <a id='dns-lookup-ingress'></a> Performing DNS Lookup of the Ingress Controller Using Network Profile
 
-
-The following example network profile, api_ingress.json, triggers a DNS lookup for the Kubernetes master node(s) IP address.
+The following example network profile, api_ingress.json, triggers a DNS lookup for the Kubernetes master node(s) IP address and the ingress controller IP address.
 
 ```
 {
@@ -57,10 +65,19 @@ The following example network profile, api_ingress.json, triggers a DNS lookup f
 
 ## <a id='command-line'></a> Setting the Master Node IP Address on the Command Line
 
-To test the assignment of a fixed IP address for the Kubernetes master node(s), you pass in the IP address using `-e` flag in the pks cluster creation operation. For example:
+As an alternative to DNS lookup, you can specify a fixed IP address in the command line so that it will be used for the Kubernetes master node(s) load balancer. 
+
+Previously, to create a cluster, you were required to specify an external hostname for the cluster. For example:
 
 ```
-pks create-cluster test-cluster -p small -e 192.168.160.20
+pks create-cluster my-cluster --external-hostname example.hostname --plan small
+``
+
+Now you can specify the IP address for the load balancer that fronts the Kubernetes master node(s) using the `--external-hostname` or `-e` flag. For example:
+
+```
+pks create-cluster my-cluster -e 192.168.160.20 -p small
 ```
  
-Where the IP address belongs to a valid Floating IP pool created in NSX-T.
+The IP address you use must belong to a valid floating IP pool created in NSX-T.
+
