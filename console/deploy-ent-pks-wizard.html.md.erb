@@ -46,7 +46,7 @@ Provide connection information for the container networking interface to use wit
 
 Provide information about an NSX-T Data Center network that you have not already configured for use with <%= vars.product_short %>.
 
-1. Select the **Use NSX-T Data Center** radio button and click **Continue**.
+1. Select the **Use NSX-T Data Center** radio button.
 1. Select the **NSX-T Data Center (Not prepared for PKS)** radio button.
 1. Configure the connection to NSX Manager.
 	* Enter the IP address of the NSX Manager.
@@ -67,6 +67,7 @@ Provide information about an NSX-T Data Center network that you have not already
 	*  **NTP Server**: Enter the IP address of an NTP server.
 	* **Pod IP Block CIDR**: Enter a CIDR range to use for pods, for example 11.192.182.1/31.
 	* **Node IP Block CIDR**: Enter a CIDR range to use for nodes, for example 10.192.182.1/23.
+	* **Nodes DNS**: Enter the Domain Name Server used by the Kubernetes nodes.
 	* **Usable range of floating IPs**: Enter the floating IP range, for example from 10.0.1.1 to 10.0.0.200. Click **Add Range** to add more IP ranges.
 1. Optionally enable the **Manage certificates manually for NSX** check box  if NSX Manager uses a custom CA certificate.
 <br>
@@ -87,7 +88,7 @@ For the next steps, see [Configure Identity Management](#identity).
 
 Provide information about an NSX-T Data Center network that you have already configured for use with <%= vars.product_short %>.
 
-1. Select the **Use NSX-T Data Center** radio button and click **Continue**.
+1. Select the **Use NSX-T Data Center** radio button.
 1. Select the **NSX-T Data Center (Prepared for PKS)** radio button.
 1. Configure the connection to NSX Manager.
 	*  Enter the IP address of the NSX Manager.
@@ -145,9 +146,9 @@ Provide information about a Flannel network for use with <%= vars.product_short 
 
 ## <a id='identity'></a>Step 3: Configure Identity Management
 
-You can manage user access and authentication either by by using a [local database of users](#identity-db) or by configuring a connection to an [external Active Directory or LDAP server](#identity-ldap). 
+You can manage user access and authentication by using a [local database of users](#identity-db) or by configuring a connection to an [external Active Directory or LDAP server](#identity-ldap) or [SAML identity provider](#identity-saml). 
 
-In either case, you can use OpenID Connect (OIDC) to instruct Kubernetes to verify end-user identities based on authentication performed by a User Account and Authentication (UAA) server. Using OIDC lets you set up an external IDP, such as Okta, to authenticate users who access Kubernetes clusters with `kubectl`. If you enable OIDC, administrators can grant namespace-level or cluster-wide access to Kubernetes end users. If you do not enable OIDC, you must use service accounts to authenticate <code>kubectl</code> users.
+However you manage identities, you can use OpenID Connect (OIDC) to instruct Kubernetes to verify end-user identities based on authentication performed by a User Account and Authentication (UAA) server. Using OIDC lets you set up an external IDP, such as Okta, to authenticate users who access Kubernetes clusters with `kubectl`. If you enable OIDC, administrators can grant namespace-level or cluster-wide access to Kubernetes end users. If you do not enable OIDC, you must use service accounts to authenticate <code>kubectl</code> users.
 
 <p class="note"><strong>Note</strong>: You cannot enable OIDC if you intend to integrate <%= vars.product_short %> with VMware vRealize Operations Management Pack for Container Monitoring.</p>
 
@@ -157,28 +158,8 @@ You can manage users by using a local database that is created during <%= vars.p
 
 1. Select the **Local user database** radio button.
 1. Enter an FQDN for the PKS API Server VM, for example `api.pks.example.com`.
-1. Optionally select **Configure created clusters to use UAA as the OIDC provider** to use UAA.
-1. Optionally select **Manage certificates manually for PKS API** to generate and upload your own certificates for the PKS API Server.
-<br>
-If you do not select this option, the management console creates auto-generated, self-signed certificates.
-<br>
-  1. Enter the contents of the certificate in the **PKS API Certificate** text box:
-<br>
-```
------BEGIN CERTIFICATE-----
-pks_api_certificate_contents
------END CERTIFICATE-----
-```
-  1. Enter the contents of the certificate key in the **Private Key PEM** text box:
-<br>
-```
------BEGIN PRIVATE KEY-----
-pks_api_private_key_contents
------END PRIVATE KEY-----
-```
-1. Click **Next**  to configure availability zones.
-    
-For the next steps, see [Configure Availability Zones](#availability-zones).  
+
+For the next steps, see [Optionally Configure UAA and Custom Certificates](#uaa-certs).  
 
 ### <a id='identity-ldap'></a>Use an External LDAP Server 
 
@@ -202,7 +183,62 @@ Provide information about an existing external Active Directory or LDAP server.
 	* **First name attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user first names, for example `cn`.
 	* **Last name attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user last names. for example `sn`.
 1. Enter an FQDN for the PKS API Server VM, for example `api.pks.example.com`.
+
+For the next steps, see [Optionally Configure UAA and Custom Certificates](#uaa-certs).
+
+### <a id='identity-saml'></a>Use a SAML Identity Provider
+
+You can configure <%= vars.product_short %> so that Kubernetes authenticates users against a SAML identity provider. Before you configure a SAML identity provider, you must configure your identity provider to designate <%= vars.product_short %> as a service provider. For information about how to configure Okta and Azure Active Directory, see the following topics:
+
+- [Configuring Okta as a SAML Identity Provider](../okta-sso-config.html)
+- [Configuring Azure Active Directory as a SAML Identity Provider](../azure-ad-sso-config.html)
+
+After you have configured your identity provider, enter information about the provider in <%= vars.product_short %> Management Console.
+
+1. Select the **SAML Identity Provider** radio button.
+1. For **Provider name**, enter a unique name you create for the Identity Provider. 
+
+  This name can include only alphanumeric characters, `+`, `_`, and `-`. You must not change this name after deployment because all external users use it to link to the provider.
+1. For **Display name**, enter a display name for your provider. 
+
+  The display name appears as a link on your login page.
+1. Enter the metadata from your identity provider either as XML or as a URL.
+
+  - Download your identity provider metadata and paste the XML into **Provider Metadata**.
+  - If your identity provider exposes a metadata URL, enter it in **Metadata URL**.
+1. For **Name ID format**, select the name identifier format for your SAML identity provider. 
+
+  This translates to `username` on Enterprise PKS. The default is `Email Address`.
+1. For **First name attribute** and **Last name attribute**, enter the attribute names in your SAML database that correspond to the first and last names in each user record.
+
+  These fields are case sensitive.
+  
+1. For **Email Attribute**, enter the attribute name in your SAML assertion that corresponds to the email address in each user record, for example, `EmailID`.
+
+   This field is case sensitive.
+1. For **External groups attribute**, enter the attribute name in your SAML database for your user groups.
+
+   This field is case sensitive. To map the groups from the SAML assertion to admin roles in <%= vars.product_short %>, see [Grant Enterprise PKS Access to an External LDAP Group](../manage-users.html#external-group).
+1. By default, all SAML authentication requests from <%= vars.product_short %> are signed, but you can optionally disable **Sign Authentication Requests**.
+
+   If you disable this option, you must configure your identity provider to verify SAML authentication requests.
+1. To validate the signature for the incoming SAML assertions, enable **Required Signed Assertions**.
+
+   If you enable this option, you must configure your Identity Provider to send signed SAML assertions.
+1. For **Signature Algorithm**, choose an algorithm from the drop down to use for signed requests and assertions.
+
+   The default value is SHA256.
+1. Enter an FQDN for the PKS API Server VM, for example `api.pks.example.com`.
+
+For the next steps, see [Optionally Configure UAA and Custom Certificates](#uaa-certs).
+
+### <a id='uaa-certs'></a>Optionally Configure UAA and Custom Certificates
+
 1. Optionally select **Configure created clusters to use UAA as the OIDC provider** to use UAA.
+  - **UAA OIDC Groups Claim**: Sets the `--oidc-groups-claim` flag on the kube-api server. Enter the name of your groups claim. This is used to set a user’s group in the JSON Web Token (JWT) claim. The default value is `roles`.
+  - **UAA OIDC Groups Prefix**: Sets the `--oidc-groups-prefix` flag. Enter a prefix for your groups claim. This prevents conflicts with existing names. For example, if you enter the prefix `oidc:`, UAA creates a group name like `oidc:developers`.
+  - **UAA OIDC Username Claim**: Sets the `--oidc-username-claim` flag. Enter the name of your username claim. This is used to set a user’s username in the JWT claim. The default value is `user_name`. Depending on your provider, admins can enter claims besides user_name`, such as `email` or `name`.
+  - **UAA OIDC Username Prefix**: Sets the `--oidc-username-prefix` flag. Enter a prefix for your username claim. This prevents conflicts with existing names. For example, if you enter the prefix oidc:, UAA creates a username like oidc:admin.
 1. Optionally select **Manage certificates manually for PKS API** to generate and upload your own certificates for the PKS API Server.
 <br>
 If you do not select this option, the management console creates auto-generated, self-signed certificates.
@@ -230,7 +266,7 @@ Availability zones specify the compute resources for Kubernetes cluster deployme
 1. In the **Name** field, enter a name for the availability zone.
 1. Optionally select **This is the management availability zone**.
 <br>
-The management availability zone is the availability zone in which to deploy the PKS Management Plane. The management plane consists of the PKS API VM, Ops Manager, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone.
+The management availability zone is the availability zone in which to deploy the PKS Management Plane. The management plane consists of the PKS API VM, Ops Manager, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, <%= vars.product_short %> Management Console selects the first one.
 1. In the **Compute resource** tree, select clusters, host groups, or resource pools for this availability zone to use.
 1. Click **Save Availability Zone**.
 1. Optionally click **Add Availability Zone** to add another zone.
@@ -285,6 +321,13 @@ A plan defines a set of resources for <%= vars.product_short %> to use when depl
        - **`PodSecurityPolicy`** 
        - **`DenyEscalatingExec`**
        - **`SecurityContextDeny`**
+	* **Node Drain Timeout**: Enter the timeout in minutes for the node to drain pods. If you set this value to 0, the node drain does not terminate.
+	* To configure when the node drains, optionally enable the following:
+       - **Force node to drain even if it has running pods not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or Stateful Set**
+       - **Force node to drain even if it has running DaemonSet managed pods**
+       - **Force node to drain even if it has running pods using emptyDir**
+       - **Force node to drain even if pods are still running after timeout**
+	* **Pod Shutdown Grace Period**: Enter a timeout in seconds for the node to wait before it forces the pod to terminate. If you set this value to -1, the default timeout is set to the one specified by the pod.
 1. Click **Save Plan** for each plan that you edit.
 1. Optionally click **Add Plan** to create a new plan, configure it as described above, and click **Save Plan**.
 1. Optionally delete any plans that you do not need.
@@ -329,6 +372,8 @@ vRealize Log Insight must be installed, licensed, running, and available in your
 1. Optionally disable **Disable SSL certificate validation**.
 1. Click **Save**.
 1. Configure integations with other applications, or click **Next** to install Harbor.
+
+<p class="note"><strong>Note</strong>: If you enable integration with vRealize Log Insight, <%= vars.product_short %> Management Console generates a unique vRealize Log Insight agent ID for the appliance. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the appliance. For information about how to obtain the agent ID, see <a href="console-troubleshooting.html#log-insight">Obtain the VMware vRealize Log Insight Agent ID for <%= vars.product_short %> Management Console</a> in <i>Troubleshooting <%= vars.product_short %> Management Console</i>. </p>
 
 ### <a id='integrations-syslog'></a>Configure Connection to Syslog
 
@@ -399,10 +444,23 @@ To use a custom certificate:
 1. Select the configuration for the Harbor VM from the **VM type for harbor-app** drop-down menu.
 1. Select the size of the disk for the Harbor VM from the **Disk type for harbor-app** drop-down menu.
 1. Optionally enable Clair.
+   - In the **Updater interval (Hours)** field, specify when Clair will update its CVE databases for the registered sources. When the updater interval expires, Clair will update its CVE databases. The default updater interval is 0, which means Clair will never update its CVE databases. If you set the updater interval to 24, Clair updates its CVE databases every 24 hours. 
+   - In the **HTTP Proxy** field, enter the URL to proxy HTTP traffic to the Clair service. For example: `http://my.proxy.com:3128`.
+   - In the **HTTPS Proxy** field, enter the URL to proxy HTTPS traffic to the Clair service. For example: `http://my.proxy.com:3128`.
 1. Optionally enable Notary.
-1.  Click **Next** to complete the configuration wizard.
+1. Click **Next** to complete the configuration wizard.
 
-## <a id='deploy'></a>Step 9: Generate Configuration File and Deploy <%= vars.product_short %>
+## <a id='ceip-telemetry'></a>Step 9: Configure CEIP and Telemetry
+
+VMware's Customer Experience Improvement Program (CEIP) and the Pivotal Telemetry Program provide VMware and Pivotal with information to improve their products and services, fix problems, and advise you on how best to deploy and use our products. As part of the CEIP and Telemetry programs, VMware and Pivotal collect technical information about your organization's use of <%= vars.product_short %> Management Console.
+
+1. Select your level of participation in the CEIP and Telemetry programs:
+  - No participation
+  - Standard, anonymous participation
+  - Enhanced participation which allows VMware and Pivotal to identify you and if necessary provide support
+2. Optionally tell us how you intend to use <%= vars.product_short %>  Management Console.
+
+## <a id='deploy'></a>Step 10: Generate Configuration File and Deploy <%= vars.product_short %>
 
 When all of the sections of the wizard are green, you can generate a YAML configuration file and deploy <%= vars.product_short %>.
 
