@@ -9,149 +9,169 @@ Prepare the vSphere and NSX-T infrastructure for the <%= vars.product_short %> M
 
 ##<a id='prerequisites'></a>Prerequisites
 
-Before you begin this procedure, ensure that you have reviewed the following documentation for installing <%= vars.product_short %> on vSphere with NSX-T:
+Before you begin this procedure, make sure you have completed the following prerequisites for installing <%= vars.product_short %> on vSphere with NSX-T:
 
 <ul>
   <li>
     <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install <%= vars.product_short %> on vSphere with NSX-T Data Center</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-rpd-mpd.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>
+    <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>
   </li>
 </ul>
 
-In addition, ensure that you have successfully deployed NSX-T for <%= vars.product_short %>. For more information, see <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
-
 ##<a id='about'></a> About the <%= vars.product_short %> Management Plane
 
-The <%= vars.product_short %> Management Plane is the network for <%= vars.product_short %> Management components, including PKS, Ops Manager, and BOSH Director. The <%= vars.product_short %> Management Plane includes a vSphere resource pool for Management Plane components, as well as a NSX Tier-1 Logical Switch, Tier-1 Logical Router, and Router Port, as well as NSX NAT rules.
+The <%= vars.product_short %> Management Plane is the network for PKS Management Plane components, including the PKS API Server, Ops Manager, BOSH Director, and Harbor Registry. The <%= vars.product_short %> Management Plane includes a vSphere resource pool for Management Plane components, as well as a NSX Tier-1 Logical Switch, Tier-1 Logical Router, and Router Port, and NSX-T NAT rules on the Tier-0 Router.
 
-If you are using either the the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a> or the <a href="nsxt-topologies.html#topology-no-nat-logical-switch">No-NAT with Logical Switch deployment topology</a>, create a [Tier-1 (T1) Logical Switch](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-23194F9A-416A-40EA-B9F7-346B391C3EF8.html), and a [Tier-1 Logical Router and Port](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html). Link the T1 logical router to the T0 logical router, and select the Edge Cluster defined for <%= vars.product_short %>. Enable route advertisement for the T1 Logical Router and advertise All NSX connected routes for the <%= vars.product_short %> Management Plane VMs (PKS, Ops Manager, and BOSH Director).
+For all types of <a href="nsxt-topologies.html#topology-nat">NSX-T deployment topologies</a>, create a Tier-1 (T1) Logical Switch and a Tier-1 Logical Router and Port. Enable route advertisement for the T1 Logical Router and advertise All NSX connected routes for the Management Plane VMs. Lastly, link the Tier-1 Router to the Tier-0 Router. 
 
-If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>, create the following NAT rules on the T0 Router.
+If you are using the <a href="nsxt-topologies.html#topology-nat">NAT Topology</a>, you will also need to create the following NAT rules on the Tier-0 Router:
 
-* Destination NAT (DNAT) rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the <%= vars.product_short %> Management logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
-* (Optional) Destination NAT (DNAT) rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Harbor on the <%= vars.product_short %> Management logical switch. For example, a DNAT rule that maps `10.172.1.3` to `172.31.0.3`, where `172.31.0.3` is the IP address you assign to Harbor when connected to `ls-pks-mgmt`.
 * Source NAT (SNAT) rule to allow the PKS Management VMs to communicate with your vCenter and NSX Manager environments. For example, an SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
-* SNAT rule for <%= vars.product_short %> management components to access ESXi Hosts.
-* (Optional) SNAT rules for access to other management servers, such as DNS, NTP, and LDAP/AD.
+* Destination NAT (DNAT) rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the Management Plane logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
+* Destination NAT (DNAT) rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Harbor on the Management Plane logical switch. For example, a DNAT rule that maps `10.172.1.3` to `172.31.0.3`, where `172.31.0.3` is the IP address you assign to Harbor when connected to `ls-pks-mgmt`.
 
-Lastly, for both NAT and no-NAT mode, if you want developers to be able to access the PKS API (that is, use the PKS CLI) from their workstations or laptops, you must share the PKS API endpoint to allow your organization to use the API to create, update, and delete clusters. For more information, see [Creating Clusters](create-cluster.html).
+Lastly, if you want to provide users with remote access to the PKS CLI, you will need to define a DNAT rule that maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy the PKS API Server on the Management Plane logical switch. This rule lets developers use the PKS CLI remotely from their workstations or laptops. Such a rule is needed for both NAT and No-NAT topologies.  
 
-Developers should use the DNAT IP address when logging in with the PKS CLI. For more information, see [Using <%= vars.product_short %>](using.html). To create this DNAT rule, see [Create DNAT Rule on T0 Router for External Access to the PKS CLI](#create-dnat-pks).
-
-##<a id='create-rp'></a>Step 1. Create vSphere Resource Pool for the <%= vars.product_short %> Management Plane
+##<a id='create-rp'></a>Step 1. Create vSphere Resource Pool for the Management Plane
 
 1. Log in to vCenter for your vSphere environment.
 1. Select **Compute Cluster > New Resource Pool**.
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-01.png">
 1. Name the resource pool, such as `RP-MGMT-PKS`.
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-02.png">
-1. Click **OK**
+1. Click **OK**.
 1. Verify resource pool creation.
-  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-03.png">
 
-##<a id='create-ls'></a>Step 2. Create NSX-T Logical Switch for the <%= vars.product_short %> Management Plane
+##<a id='create-ls'></a>Step 2. Create NSX-T Logical Switch for the Management Plane
 
 1. In NSX Manager, select **Switching > Add**.
-1. Create a new logical switch. For example:
+1. Create a new logical switch.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-04.png">
 1. Click **Add**.
 1. Verify logical switch creation.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-05.png">
 
-##<a id='create-rp'></a>Step 3. Create NSX-T Tier-1 Router for the <%= vars.product_short %> Management Plane
+##<a id='create-rp'></a>Step 3. Create NSX-T Tier-1 Router for the Management Plane
 
-Defining a T1 router involves creating the router and attaching it to the logical switch, creating a router port, and advertising the routes.
+Defining a Tier-1 Router involves creating the router and attaching it to the logical switch, creating a router port, and advertising the routes.
 
-### Create T1 Router
+### Create Tier-1 Router
 
 1. In NSX Manager, select **Routing > Add > Tier-1 Router**.
+
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-06.png">
-1. Configure the T1 router. For example:
+
+1. Configure the Tier-1 Router.
+
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-07.png">
+
 1. Click **Add**.
-1. Verify T1 router creation.
+
+1. Verify Tier-1 Router creation.
+
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-08.png">
 
-### Create T1 Router Port
+### Create Tier-1 Router Port
 
-1. Select the T1 router you created.
+1. Select the Tier-1 Router you created.
+
 1. Select **Configuration > Router Ports**.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-09.png">
-1. Click **Add** and configure the T1 router port. For example:
+
+1. Click **Add** and configure the Tier-1 Router Port.
   * **Name**: `T1-MGMT-PKS-PORT`
-  * **Logical Switch**: `select LS-MGMT-PKS`
-  * **IP Address/mask**: `10.0.0.1/24`
+  * **Logical Switch**: Select `LS-MGMT-PKS` from the menu list
+  * **IP Address/mask**: `10.0.0.1/24` (for example)
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-10.png">
+
 1. Click **Add**.
-1. Verify T1 router port creation.
+
+1. Verify Tier-1 Router Port creation.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-11.png">
 
-### Advertise the T1 Routes
+### Advertise the Tier-1 Routes
 
-1. Select the T1 router > Routing > Route Advertisement.
+1. Select the Tier-1 Router > Routing > Route Advertisement.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-12.png">
-1. Advertise the T1 route as follows:
+1. Advertise the Tier-1 routes as follows:
    * **Status**: enabled
    * **Advertise all NSX connected routes**: yes
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-13.png">
-1. Click **Save**.s
+1. Click **Save**.
 1. Verify route advertisement.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-14.png">
 
-### Verify T1 Router
+### Verify the Tier-1 Router Configuration
 
-1. Select the **T1 Router > Overview**.
+1. Select the **Tier-1 Router > Overview** screen and verify the configuration of the Tier-1 Router.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-15.png">
-1. Select **Tier-0 Connection > Connect**, then select the T0 router and click **Connect**.
+
+##<a id='connect-Ts'></a>Step 4. Connect the Tier-1 Router to the Tier-0 Router
+
+Connect the Tier-1 router to the Tier-0 router and verify router-to-router connectivity.
+
+1. At the **Tier-1 Router > Overview** screen, select the option **Tier-0 Connection > Connect**.
+
+1. At the **Connect to Tier-0 Router**, select the Tier-0 Router and click **Connect**.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-16.png">
-1. Verify connectivity between T1 and T0 routers.
+
+1. Verify connectivity between the Tier-1 and Tier-0 Routers.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-17.png">
-1. Select the **T1 router > Router ports**. The T1 router created for the <%= vars.product_short %> Management Plane should have 2 ports: one connected to the T0 router, and
-a second port connected to logical switch defined for the <%= vars.product_short %> Management Plane. This second port will be the default gateway for all VMs connected to this LS.
+
+1. Select the **Tier-1 Router > Configuration > Router ports**.
+
+  The Tier-1 Router created for the Management Plane should have 2 port connections: one connected to the Tier-0 router, and a second port connected to the logical switch defined for the Management Plane. This second port is the default gateway for all VMs connected to this logical switch.
+  
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-18.png">
 
-##<a id='create-snat-infra'></a>Step 4. Create SNAT rule on T0 router for vCenter and NSX Manager
+##<a id='snat-mgmt'></a>Step 5. Create SNAT Rule on the Tier-0 Router for vCenter and NSX Manager
 
-Create a SNAT rule on T0 router for <%= vars.product_short %> management components to access vCenter and NSX manager. The Source NAT (SNAT) rule on the T0 allows the <%= vars.product_short %> Management VMs to communicate with your vCenter and NSX Manager environments. For example, a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
+Create a Source NAT (SNAT) rule on the Tier-0 Router for <%= vars.product_short %> management components to access vCenter and NSX manager. The SNAT rule on the Tier-0 Router allows the Management Plane VMs to communicate with the vCenter and NSX-T Management environments. For example, create a SNAT rule that maps `172.31.0.0/24` to `10.172.1.1`, where `10.172.1.1` is a routable IP address from your **PKS MANAGEMENT CIDR**.
 
 <p class="note"><strong>Note</strong>: Limit the Destination CIDR for the SNAT rules to the subnets that contain your vCenter and NSX Manager IP addresses.</p>
 
-1. Select **T0 router > Services > NAT**.
-1. Click ADD and configure the SNAT rule. For example:
-   * **Priority**: 1010
-   * **Action**: SNAT
-   * **Source**: 10.0.0.0/24
-   * **Destination IP**: 10.40.206.0/24
-   * **Translated IP**: 10.40.14.2
+1. Select **Tier-0 Router > Services > NAT**.
+1. Click ADD and configure the SNAT rule:
+   * **Priority**: `1010` (for example)
+   * **Action**: `SNAT`
+   * **Source**: `10.0.0.0/24` (for example)
+   * **Destination IP**: `10.40.206.0/24` (for example)
+   * **Translated IP**: `10.40.14.2` (for example)
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-22.png">
+
 1. Click **Add**.
+
 1. Verify SNAT rule creation.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-23.png">  
 
-##<a id='create-dnat-om'></a>Step 5. Create DNAT Rule on T0 Router for Ops Manager
+##<a id='dnat-om'></a>Step 6. Create DNAT Rule on the Tier-0 Router for Ops Manager
 
 Create a DNAT rule on the T0 Router to access the Ops Manager Web UI, which is required to deploy <%= vars.product_short %>.
 
-The Destination NAT (DNAT) rule on the T0 maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the <%= vars.product_short %> Management logical switch that you created on the T0 router. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
+The Destination NAT (DNAT) rule on the Tier-0 Router maps an external IP address from the **PKS MANAGEMENT CIDR** to the IP where you deploy Ops Manager on the Management Plane logical switch. For example, a DNAT rule that maps `10.172.1.2` to `172.31.0.2`, where `172.31.0.2` is the IP address you assign to Ops Manager when connected to `ls-pks-mgmt`.
 
 To create a DNAT rule for Ops Manager:
 
-1. In NSX Manager, select **Routing > Routers**.
+1. In the NSX-T Manager interface, select **Routing > Routers**.
 1. Select the **T0 Router > Services > NAT**.
   <img src="images/nsxt/mgmt-plane/create-mgmt-plane-19.png">
-1. Add and configure a DNAT rule with the routable IP address as the destination and the internal IP address for Ops Manager as the translated IP. For example:
-   * **Priority**: 1000
-   * **Action**: DNAT
-   * **Destination IP**: 10.40.14.1
-   * **Translated IP**: 10.0.0.2
+1. Add and configure a DNAT rule with the routable IP address as the destination and the internal IP address for Ops Manager as the translated IP:
+   * **Priority**: `1000` (for example)
+   * **Action**: DNAT (for example)
+   * **Destination IP**: `10.40.14.1` (for example)
+   * **Translated IP**: `10.0.0.2` (for example)
 	  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-20.png">
 1. Click **Add**.
-1. Verify the DNAT rule.
+1. Verify the DNAT rule you defined.
 	  <img src="images/nsxt/mgmt-plane/create-mgmt-plane-21.png">
 
-##<a id='create-dnat-pks'></a>Step 6. Create DNAT Rule on T0 Router for External Access to the PKS CLI
+##<a id='dnat-harbor'></a>Step 7. Create DNAT on the Tier-0 Router for Harbor Registry
+
+If you are using VMware Harbor Registry with <%= vars.product_short %>, create a DNAT rule on the Tier-0 router to access the Harbor Web UI. This DNAT rule maps the private Harbor IP address to a routable IP address from the floating IP pool on the <%= vars.product_short %> Management network. 
+
+See <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat">Create DNAT Rule</a> in the VMware Harbor Registry documentation for instructions.</p>
+
+##<a id='create-dnat-pks'></a>Step 8. Create DNAT Rule on T0 Router for External Access to the PKS CLI
 
 This DNAT rule is optional depending on whether or not you need to provide external access to the PKS CLI. If you do need to provide external access, this rule is needed for both NAT and no-NAT modes.
 
@@ -162,10 +182,6 @@ This DNAT rule is optional depending on whether or not you need to provide exter
   1. Click the **Status** tab and record the IP address assigned to the **Pivotal Container Service** job.
 1. Create a DNAT rule on the shared Tier-0 router to map an external IP from the **PKS MANAGEMENT CIDR** to the <%= vars.product_short %> endpoint. For example, a DNAT rule that maps `10.172.1.4` to `172.31.0.4`, where `172.31.0.4` is the <%= vars.product_short %> endpoint IP address on the `ls-pks-mgmt` NSX-T Logical Switch.
   <p class="note"><strong>Note</strong>: Ensure that you have no overlapping NAT rules. If your NAT rules overlap, you cannot reach <%= vars.product_short %> Management Plane from VMs in the vCenter network.</p>
-
-##<a id='create-dnat-harbor'></a>Step 7. Create DNAT Rule on T0 Router for Harbor Registry
-
-If you are using VMware Harbor Registry with <%= vars.product_short %>, create a similar DNAT rule on T0 router to access the Harbor Web UI. This DNAT rule maps the private Harbor IP address to a routable IP address from the floating IP pool on the <%= vars.product_short %> Management network. See <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#create-dnat">Create DNAT Rule</a> in the VMware Harbor Registry documentation for instructions.</p>
 
 ##<a id='next'></a> Next Step
 
