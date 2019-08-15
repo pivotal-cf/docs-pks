@@ -1,17 +1,20 @@
-A plan defines a set of resource types used for deploying a cluster. You must first activate and configure <strong>Plan 1</strong>, and afterwards you can activate up to nine additional, optional, plans.  
+<% if current_page.data.windowsbeta == true %>
+A plan defines a set of resource types used for deploying a cluster.  
 
-<% if current_page.data.windowsbeta == "true" %>
-A plan defines a set of resource types used for deploying a cluster. 
-To deploy Windows worker-based clusters, you must activate and configure either Plan 11, 12, or 13.  
+To deploy a Windows worker-based cluster, you must activate and configure either Plan 11, 12, or 13.  
 
 <p class="note"><strong>Note</strong>: Before configuring your Windows worker plan, you must first activate and configure <strong>Plan 1</strong>.
-See [Plans]() in _Installing PKS_ for more information.  
+See <a href="installing-pks-vsphere.html#plans">Plans</a> in <i>Installing Enterprise PKS on vSphere</i> for more information.  
 </p>
 <% else %>
-A plan defines a set of resource types used for deploying a cluster. You must first activate and configure <strong>Plan 1</strong>, 
+A plan defines a set of resource types used for deploying a cluster.  
+
+You must first activate and configure <strong>Plan 1</strong>, 
 and afterwards you can activate up to twelve additional, optional, plans.  
 
-<p class="note"><strong>Note</strong>: Plans 11, 12 and 13 support only Windows worker-based clusters on vSphere with Flannel.  
+<p class="note"><strong>Note</strong>: Plans 11, 12 and 13 support only Windows worker-based clusters on vSphere with Flannel. 
+To configure a Windows worker plan see <a href="windows-pks-beta.html#plans">Plans</a> in <i>Configuring Windows Worker-Based 
+Clusters (Beta)</i> for more information.    
 </p>
 <% end %>
 
@@ -20,19 +23,16 @@ To activate and configure a plan, perform the following steps:
 1. Click the plan that you want to activate.
 
 1. Select **Active** to activate the plan and make it available to developers deploying clusters.<br>
+<% if current_page.data.windowsbeta == true %>
+  ![Plan pane configuration](images/plan11.png)
+<% else %>
   ![Plan pane configuration](images/plan1.png)
+<% end %>
 1. Under **Name**, provide a unique name for the plan.
 1. Under **Description**, edit the description as needed.
 The plan description appears in the Services Marketplace, which developers can access by using the PKS CLI.
-<% if current_page.data.windowsbeta == "true" %>
-1. Verify that  **Set to Windows** is selected under **WorkerOS (Linux by Default)**. 
-The **WorkerOS (Linux by Default)** option is available only on Plans 11, 12 and 13.
-<% end %>
-<% if current_page.data.windowsbeta == "true" %>
-1. Verify that  **Set to Windows** is selected under **WorkerOS (Linux by Default)**. 
-The **WorkerOS (Linux by Default)** option is available only on Plans 11, 12 and 13.
-<% else %>
-1. Windows Workers are only supported on vSphere without NSX-T. Only select **Enable Windows Workers** when deploying a Windows worker-based cluster on vSphere without NSX-T.
+<% if current_page.data.windowsbeta == true %>
+1. For Windows worker-based clusters, verify that  **Set to Windows** is selected under **WorkerOS (Linux by Default)**. 
 <% end %>
 1. Under **Master/ETCD Node Instances**, select the default number of Kubernetes master/etcd nodes to provision for each cluster.
   You can enter <code>1</code>, <code>3</code>, or <code>5</code>.
@@ -62,14 +62,15 @@ Kubernetes worker node VMs that <%= vars.product_short %> can deploy for each cl
   <br><br>
   If you later reconfigure the plan to adjust the default number of worker nodes, the existing clusters that have been created from that plan are not automatically upgraded with the new default number of worker nodes.
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker node VMs. For more information, including worker node VM customization options, see the [Worker Node VM Number and Size](vm-sizing.html#worker-sizing) section of _VM Sizing for <%= vars.product_short %> Clusters_.
-    <p class="note"><strong>Note</strong>: If you install <%= vars.product_short %> in an NSX-T environment, we recommend that you select a <strong>Worker VM Type</strong> with a minimum disk size of 16&nbsp;GB. The disk space provided by the default <code>medium</code> Worker VM Type is insufficient for <%= vars.product_short %> with NSX-T.</p>
+    <p class="note"><strong>Note</strong>: If you install <%= vars.product_short %> in an NSX-T environment, we recommend that you select a <strong>Worker VM Type</strong> with a minimum disk size of 16&nbsp;GB. 
+      The disk space provided by the default <code>medium</code> Worker VM Type is insufficient for <%= vars.product_short %> with NSX-T.</p>
+<% if current_page.data.windowsbeta == true %>
+1. For Windows worker-based clusters the **Worker Persistent Disk Type** configuration is ignored. 
+BOSH does not support persistent disks for Windows VMs. 
+If specifying <strong>Worker Persistent Disk Type</strong> on a Windows worker is a requirement for you, 
+submit feedback by sending an email to <a href="mail:pcf-windows@pivotal.io">pcf-windows@pivotal.io</a>.
+<% else %>
 1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker node VMs.
-
-<% if current_page.data.iaas == "vSphere" %>
-<p class="note"><strong>Note</strong>: BOSH does not support persistent disks for Windows VMs. 
-    If specifying <strong>Worker Persistent Disk Type</strong> on a Windows worker is a requirement for you, 
-    submit feedback by sending an email to <a href="mail:pcf-windows@pivotal.io">pcf-windows@pivotal.io</a>.
-</p>
 <% end %>
 
 1. Under **Worker Availability Zones**, select one or more AZs for the Kubernetes worker nodes. <%= vars.product_short %> deploys worker nodes equally across the AZs you select.
@@ -80,24 +81,25 @@ Kubernetes worker node VMs that <%= vars.product_short %> can deploy for each cl
 1. Under **Errand VM Type**, select the size of the VM that contains the errand. The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
 1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to add custom workloads to each cluster in this plan. You can specify multiple files using `---` as a separator. For more information, see [Adding Custom Workloads](custom-workloads.html).
   ![Plan pane configuration](images/plan3.png)
-
-1. (Optional) To allow users to create pods with privileged containers, select the **Allow Privileged** option. 
-For more information, see [Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers) 
-in the Kubernetes documentation.
-<% if current_page.data.iaas == "vSphere" %>
-<p class="note"><strong>Note</strong>: Windows in Kubernetes does not support privileged containers. 
-  For Windows worker-based clusters the **Allow Privileged** configuration is ignored. 
+<% if current_page.data.windowsbeta == true %>
+1. For Windows worker-based clusters the **Allow Privileged** configuration is ignored. 
+Windows in Kubernetes does not support privileged containers. 
 See <a href="https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#feature-restrictions">Feature Restrictions</a> 
 in the Kubernetes documentation for additional information.
 </p>
+<% else %>
+1. (Optional) To allow users to create pods with privileged containers, select the **Allow Privileged** option. 
+For more information, see [Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers) 
+in the Kubernetes documentation.
 <% end %>
-1. (Optional) Enable or disable one or more admission controller plugins: **PodSecurityPolicy**, **DenyEscalatingExec**, and **SecurityContextDeny**. See [Admission Plugins](./admission-plugins.html) for more information.
-<% if current_page.data.iaas == "vSphere" %>
-<p class="note"><strong>Note</strong>: Windows in Kubernetes does not support **Admission Plugins** features. 
-  For Windows worker-based clusters the **PodSecurityPolicy**, **DenyEscalatingExec**, and 
+<% if current_page.data.windowsbeta == true %>
+1. For Windows worker-based clusters the **PodSecurityPolicy**, **DenyEscalatingExec**, and 
 **SecurityContextDeny** configuration settings are ignored. 
+Windows in Kubernetes does not support **Admission Plugins** features. 
 See <a href="https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#api">API</a> 
 in the Kubernetes documentation for additional information.</p>
+<% else %>
+1. (Optional) Enable or disable one or more admission controller plugins: **PodSecurityPolicy**, **DenyEscalatingExec**, and **SecurityContextDeny**. See [Admission Plugins](./admission-plugins.html) for more information.
 <% end %>
 
     ![Node Drain Timeout fields](images/node-drain.png)
@@ -118,8 +120,10 @@ in the Kubernetes documentation for additional information.</p>
 
 1. Click **Save**.
 
+<% if current_page.data.windowsbeta != true %>
 To deactivate a plan, perform the following steps:
 
 1. Click the plan that you want to deactivate.
 1. Select **Inactive**.
 1. Click **Save**.
+<% end %>
