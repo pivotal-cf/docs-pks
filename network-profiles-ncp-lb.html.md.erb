@@ -26,18 +26,18 @@ The `nsx_ingress_controller` parameter is used to control if NCP is used as the 
 The `nsx_ingress_controller` parameter is subject to the `nsx_lb` parameter as described in the following table.
 
   <table>
-    <th>`nsx_lb` setting</th>
-    <th>"nsx_ingress_controller": true (default)</th>
-    <th>"nsx_ingress_controller": false</th>
+    <th>nsx_lb setting</th>
+    <th>nsx_ingress_controller: true</th>
+    <th>nsx_ingress_controller: false</th>
     <tr>
-      <td>"nsx_lb": true (default)</td>
-      <td>This means you want to use the NSX-T Layer 4 Load Balancer and the NCP-provisioned Layer 7 Ingress Controller.</td>
-      <td>This means you want to use the NSX-T Layer 4 Load Balancer and a third-party Ingress Controller, such as [NGINX](https://kubernetes.github.io/ingress-nginx/).</td>
+      <td>nsx_lb: true</td>
+      <td>Use the NSX-T Layer 4 LoadBalancer and the NCP-provisioned Layer 7 Ingress Controller.</td>
+      <td>Use the NSX-T Layer 4 LoadBalancer and a third-party Ingress Controller, such as [NGINX](https://kubernetes.github.io/ingress-nginx/).</td>
     </tr>
     <tr>
-      <td>"nsx_lb": false</td>
-      <td>This is an invalid configuration because you cannot disable the NSX-T Load Balancer and use NCP as the Ingress Controller. The network profile will fail validation.</td>
-      <td>This means you want to use a third-party load balancer and a third-party ingress controller.</td>
+      <td>nsx_lb: false</td>
+      <td>Invalid configuration. You cannot disable the NSX-T Load Balancer and use NCP as the Ingress Controller. The network profile will fail validation.</td>
+      <td>Use a third-party load balancer and a third-party ingress controller.</td>
     </tr>
   </table>
 
@@ -68,7 +68,7 @@ The following table shows the parameters for configuring the NSX-T Load Balancer
     </tr>         
     <tr>
       <td>`x_forwarded_for`</td>
-      <td>String Enum</td>
+      <td>String</td>
       <td>Sets the original client source IP in the request header. Default is none. Accepts `"insert"` and `"replace"`.</td>
     </tr>    
     <tr>
@@ -78,12 +78,12 @@ The following table shows the parameters for configuring the NSX-T Load Balancer
     </tr>        
     <tr>
       <td>`l4_persistence_type`</td>
-      <td>String Enum</td>
+      <td>String</td>
       <td>Connection stickiness based on `source_ip` (only accepted value).</td>
     </tr>    
     <tr>
       <td>`l4_lb_algorithm`</td>
-      <td>String Enum</td>
+      <td>String</td>
       <td>Specify the layer 4 load balancer behavior. Accepts `"round_robin"` (default), `"least_connection"`, `"ip_hash"`, `"weighted_round_robin"`.</td>
     </tr>    
   </table>
@@ -113,7 +113,7 @@ The following network profile is an example that illustrates the parameters expo
 
 ## <a id='nsx_lb'></a> NSX Load Balancer
 
-The `nsx_lb` flag gives you the choice to of deploying the NSX-T Load Balancer or a third-party load balancer, such as Ngnix. The `nsx_lb` parameter maps to the `use_native_loadbalancer` parameter in NCP.ini. The default setting is `true`. To use a third party load balancer, set this parameter to false.
+The `nsx_lb` flag gives you the choice to of deploying the NSX-T Load Balancer or a third-party load balancer, such as Nginx. The `nsx_lb` parameter maps to the `use_native_loadbalancer` parameter in NCP.ini. The default setting is `true`. To use a third party load balancer, set this parameter to false.
 
 For example:
 
@@ -133,23 +133,46 @@ For example:
 }
 ```
 
-Since the `nsx_ingress_controller` is a component of the NSX-T Load Balancer, if you choose to use a third-party load balancer (`nsx_lb: false`), you must also explicitly disble the `nsx_ingress_controller`. See [Defining Network Profile for the HTTP/S Ingress Controller](./network-profiles-ncp-ingress.html). 
+Since the `nsx_ingress_controller` is a component of the NSX-T Load Balancer, if you choose to use a third-party load balancer (`nsx_lb: false`), you must also explicitly disable the `nsx_ingress_controller`. See [Defining Network Profile for the HTTP/S Ingress Controller](./network-profiles-ncp-ingress.html). 
 
-## <a id='x_forwarded_for'></a> Keep Source IP Address
+## <a id='x_forwarded_for'></a> Set Client Source IP Address
 
-When the NSX-T Load Balancer creates a virtual server, it will assign a new IP address. This may not be the same IP address that Kubernetes pods and services are familiar with. The `x_forwarded_for` parameter lets you set the original client source IP in HTTP request header, because the source IP in the packet will be changed to the IP address of the virtual server after it passes through the virtual server.
+The [X-Forwarded-For](https://en.wikipedia.org/wiki/X-Forwarded-For) HTTP header field is used to identify the originating IP address of a client connecting to a web server through an HTTP proxy or load balancer.
+
+In network profile, the `x_forwarded_for` parameter can be enabled to ensure that the client IP address will be set in the HTTP request header. The `x_forwarded_for` parameter is useful in situations where it is important to know the source IP address of the client request, such as for auditing purposes.
 
 The `x_forwarded_for` parameter type is String that accepts `"insert"` and `"replace"`. Any other type will be rejected. Missing entry is accepted.
+
+If set to "insert", the client source IP will be appended (comma separated) to the existing set of client source IP addresses. If set to "replace", any existing client source IP address will be replaced with the current client source IP address. 
+
+In the following example network profile, the source IP address of the client will be appended to the existing set of client source IP addresses.
 
 ```
 {
   "name": "example-network-profile",
-  "description": "x_forwarded_for",
+  "description": "x_forwarded_for insert",
   "parameters" : {
      "cni_configurations": {
          "type": "nsxt",
          "parameters": {
            "x_forwarded_for": "insert"
+      }
+    }
+  }
+}
+```
+
+In the following example network, the existing source IP address of the client will replace all other client source IP entries.
+
+```
+{
+  "name": "example-network-profile",
+  "description": "x_forwarded_for replace",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "x_forwarded_for": "replace"
       }
     }
   }
