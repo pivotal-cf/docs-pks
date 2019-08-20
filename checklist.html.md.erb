@@ -105,7 +105,7 @@ If you are upgrading <%= vars.product_short %> for environments using vSphere wi
   information, see the <a href="./nsxt-prepare-env.html#nsx-edge-ha">Configure NSX Edge for High Availability (HA)</a>
 section of <em>Preparing NSX-T Before Deploying <%= vars.product_short %></em>.</p>
 
-##<a id='clean-up'></a>Clean Up Failed Kubernetes Clusters
+##<a id='clean-up'></a> Clean Up Failed Kubernetes Clusters
 
 Clean up previous failed attempts to delete PKS clusters with the PKS Command Line Interface
 (PKS CLI) by performing the following steps:
@@ -246,3 +246,27 @@ To configure default node drain behavior, do the following:
 
     For a list of the available action flags for setting node drain behavior,
     see [pks update-cluster](cli/index.html#update-cluster) in _PKS CLI_.
+
+##<a id='review-azure-worker-role-persmission'></a> Add permission to the role used by the Worker Node Managed Identity
+
+As part of the kubernetes 1.14.5, the worker node requires a Virtual Machine - Read Only permission to be added to the Worker Node Managed Identity. To add the permission do the following :
+
+1. Use the azure-cli to list the roles :
+
+    ```
+    az role definition list --custom-role-only true -o json
+    ```
+
+1. Get the output of the required role by filtering the list with the `roleName` key.
+
+    ```
+    az role definition list --custom-role-only true -o json | jq -r '.[] | select(.roleName=="PKS worker")'
+    ```
+
+1. Copy the json to a file and add the permission `"Microsoft.Compute/virtualMachines/read"` to the `Actions` tab. Save your template as `pks_worker_role.json`.
+
+1. Update the role by:
+
+    ```
+    az role definition update --role-definition pks_worker_role.json
+    ```
