@@ -16,7 +16,9 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/p
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `master` | Enterprise PKS 1.5 released content | https://docs.pivotal.io/pks/1-5/index.html |
+| `1.6` | Enterprise PKS 1.6 pre-release content | https://docs.pivotal.io/pks/1-6/index.html |
+| `1.5` | Enterprise PKS 1.5 released content | https://docs.pivotal.io/pks/1-5/index.html |
+| `1.5.x-patch-releases` | Enterprise PKS 1.5.x pre-release content | N/A |
 | `1.4` | Enterprise PKS 1.4.x released content | https://docs.pivotal.io/pks/1-4/index.html |
 | `1.4.x-patch-releases` | Enterprise PKS 1.4.x pre-release content | N/A |
 | `1.3` | Enterprise PKS 1.3.x released content | https://docs.pivotal.io/pks/1-3/index.html |
@@ -27,7 +29,12 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/p
 | `1.0-publish` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-docs-1.0.pdf)) |
 | `0.8` | Not in use | N/A |
 
-**master**: The `master` branch is used to publish the released v1.5 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
+**1.6**: The `1.6` branch is used to publish the pre-release v1.6 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.6 documentation.
+
+**1.5**: The `1.5` branch is used to publish the live v1.5 version of the site. Create pull requests on `1.5` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
+
+**1.5.x-patch-releases**: The `1.5.x-patch-releases` branch is used to work on documentation for the pre-release v1.5.x version of Enterprise PKS. This branch publishes to an internal staging site only. Create pull requests on `1.5.x-patch-releases` to contribute content or correct technical inaccuracies in the v1.5.x pre-release documentation.
+**This documentation requires validation. Contact #pcf-docs on Pivotal Slack for access.**
 
 **1.4**: The `1.4` branch is used to publish the live v1.4 version of the site. Create pull requests on `1.4` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
 
