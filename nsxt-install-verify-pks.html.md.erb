@@ -8,12 +8,9 @@ owner: PKS-NSXT
 This topic provides general instructions for verifying the installation of an NSX&#x2011;T VM, either an NSX&#x2011;T 
 Manager VM or an NSX&#x2011;T Edge Node VM, that you have deployed for use with Enterprise PKS.
 
-##<a id='om-login'></a> Log In to Ops Manager
+##<a id='prerequsisites'></a> Prerequisites
 
-To verify the installation of an NSX&#x2011;T Manager or Edge Node VM, complete the following steps:
-
-1. SSH to the Ops Manager VM.
-
+The following procedures must be executed from an SSH session into your Ops Manager. 
 For information about creating an SSH key pair, see 
 [Generate an SSH key pair for installing Ops Manager v2.6 on vSphere](https://community.pivotal.io/s/article/generate-an-ssh-key-pair-for-installing-ops-manager-v2-6-on-vsphere) 
 in the Pivotal knowledge base or 
@@ -25,7 +22,7 @@ in the VMware support knowledge base.
 You will manage your environment using the Pivotal Container Service Command Line Interface (PKS CLI) and 
 the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and Kubernetes CLIs.  
 
-1. To copy CLIs to your Ops Manager using SCP (PSCP in this case), run the following commands:  
+1. To copy CLIs to your Ops Manager using SCP, run the following PSCP commands:  
 
     ```
     pscp c:\temp\pks-linux-amd64-PKS-VERSION ubuntu@IP-ADDRESS:/home/ubuntu/pks
@@ -77,7 +74,13 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
     $ sudo mv kubectl-linux-amd64-1.14.5 /usr/local/bin/kubectl
     </pre>
 
-##<a id='uaac-install'></a> Install UAAC and Configure UAA
+##<a id='uaac-manage'></a> Manage User Accounts Using UAA
+
+You will manage accounts and authentication using User Account and Authentication (UAA) and the UAA Command Line Interface (UAAC). 
+
+####<a id='uaac-install'></a> Install UAAC and Configure UAA
+
+Complete the following steps to deploy UAAC and UAA.  
 
 1. To install UAAC, run the following commands:  
 
@@ -94,51 +97,59 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
     ```
 
 1. To add PKS API hostname and IP address to a DNS server, complete the following steps:  
-    1. Get the PKS API Hostname from the PKS tile > PKS API module.
-    1. Get the IP address from vSphere.
-    1. Add the IP address and the PKS API Hostname to the /etc/hosts file.
+    1. Retrieve the DNS server IP address from vSphere.  
+    1. Retrieve the PKS API Hostname from the **PKS tile** > **PKS API** > **API Hostname (FQDN)**.  
+    1. Add the DNS server IP address and the PKS API Hostname to the `/etc/hosts` file using the following format:  
 
-    For example:
-    <pre class="terminal">
-    $ vi /etc/hosts
+        ```
+        IP-ADDRESS HOSTNAME
+        ```  
 
-    127.0.0.1 localhost
-    ...
-    10.0.0.7 api.pks.vsphere.local
-    </pre>
+        Where:  
+        * `IP-ADDRESS` is the DNS Server IP Address.  
+        * `PKS-HOSTNAME` is the PKS API Hostname.  
 
-1. To target PKS using UAAC, run the following command:  
+        For example:
+        <pre class="terminal">
+        $ vi /etc/hosts
+
+        127.0.0.1 localhost
+        ...
+        10.0.0.7 api.pks.vsphere.local
+        </pre>
+
+1. To target PKS, run the following UAAC command:  
 
     ```
     uaac target https://PKS-HOSTNAME:8443 --skip-ssl-validation
     ```
 
-1. To fetch the UAA admin token, run the following commands:  
-
-    1. Retrieve the token from Ops Manager: PKS Tile > Credentials > Pks Uaa Management Admin Client.  
-    1. Click on Link to Credential, copy the secret value.  
-    1. To set the UAA target, run the following command:  
-
-        ```
-        uaac target https://api.comet.pks.local:8443 --skip-ssl-validation
-        ```
-
-    1. To apply the token to UAA, run the following command:  
-
-        ```
-        uaac token client get admin -s SECRET
-        ```
-
-        Where `SECRET` is the secret copied in the preceding step.
-  
+    Where `PKS-HOSTNAME` is the PKS API Hostname.  
+<br>
     For example:
-    
     <pre class="terminal">
-    $ uaac target https://api.comet.pks.local:8443 --skip-ssl-validation
+    uaac target https://api.comet.pks.local:8443 --skip-ssl-validation
     Unknown key: Max-Age = 86400
 
     Target: https://api.comet.pks.local:8443
+    </pre>
 
+1. To retrieve the UAA admin secret, complete the following steps:  
+
+    1. Retrieve the token from Ops Manager: **PKS Tile** > **Credentials** > **Pks Uaa Management Admin Client**.  
+    1. Click **Link to Credential**.  
+    1. Copy the `secret` value.   
+
+1. To fetch the UAA admin token, run the following command:  
+
+    ```
+    uaac token client get admin -s SECRET
+    ```
+
+    Where `SECRET` is the secret copied in the preceding step.
+<br><br>
+    For example:
+    <pre class="terminal">
     $ uaac token client get admin -s syMZA-FUlvdEXgXrgI-SDmkUVuP5rlzA
     Unknown key: Max-Age = 86400
 
@@ -147,14 +158,15 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
     Context: admin, from client admin
     </pre>
 
-##<a id='users-add'></a> Add PKS Users to UAA 
+####<a id='users-add'></a> Add PKS Admin Users to UAA 
+
+Complete the following steps to add the pks-admin and k8s-admin admin accounts to UAA. 
 
 1. To add the PKS Admin user to UAA, run the following commands:
 
     ```
     uaac user add pks-admin --emails ADMIN-EMAIL-ADDRESS -p PASSWORD
     uaac member add pks.clusters.admin pks-admin
-
     ```
 
     Where:
@@ -191,20 +203,23 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
     </pre>
 
 
-##<a id='pks-login'></a> Log In to PKS 
+####<a id='pks-login'></a> Log In to PKS 
+
+Validate the new UAA admin account by logging in to PKS.  
 
 1. To login to PKS as `pks-admin` run the following command:  
 
     ```
-    pks login -a "api.pks.vsphere.local" -u "pks-admin" -p "PASSWORD" -k
+    pks login -a "PKS-HOSTNAME" -u "pks-admin" -p "PASSWORD" -k
     ```
 
-    Where:
+    Where:  
+    * `PKS-HOSTNAME` is the PKS API Hostname.
     * `PASSWORD` is the password for the user account.  
 
     For example:
     <pre class="terminal">
-    $ pks login -a "api.pks.vsphere.local" -u "pks-admin" -p "aZ1by2cX3d4!" -k
+    $ pks login -a "api.pks.vsphere.local" -u "pks-admin" -p "aE1ry2cJ3d2!" -k
 
     API Endpoint: api.pks.vsphere.local
     User: pks-admin
@@ -214,15 +229,16 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
 1. To login to PKS as `k8s-admin` run the following command: 
 
     ```
-    pks login -a "api.pks.vsphere.local" -u "k8s-admin" -p "PASSWORD" -k
+    pks login -a "PKS-HOSTNAME" -u "k8s-admin" -p "PASSWORD" -k
     ```
 
     Where:  
+    * `PKS-HOSTNAME` is the PKS API Hostname.
     * `PASSWORD` is the password for the user account.
 
     For example:
     <pre class="terminal">
-    $ pks login -a "api.pks.vsphere.local" -u "k8s-admin" -p "VMware1!" -k
+    $ pks login -a "api.comet.pks.local" -u "k8s-admin" -p "rtXare1!" -k
     
     API Endpoint: api.comet.pks.local
     User: k8s-admin
@@ -234,40 +250,50 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
 ###<a id='bosh-alias'></a> Create a BOSH Alias 
 
 1. To create a BOSH alias, complete one of the following:  
-    * To create a BOSH alias using command line credentials, complete the following:  
-        1. Go to BOSH Director tile > Credentials > Bosh Commandline Credentials.
-        1. Copy the string `bosh_commandline_credentials`.  
-        1. To create a Bash alias run the following command:
+    * To create a BOSH alias using the `alias` command, complete the following:  
+        1. Go to **BOSH Director tile** > **Credentials** > **Bosh Commandline Credentials**.
+        1. Click **Link to Credential**.
+        1. Copy the `credential` string, including the surrounding double quotes.  
+        1. To create a BOSH alias run the following command:
 
             ```
-            alias bosh="BOSH_CLIENT=ops_manager BOSH\_CLIENT\_SECRET=BOSH-CLI-SECRET  
-            BOSH\_CA\_CERT=ROOT-CERT-LOC 
-            BOSH\_ENVIRONMENT=BOSH-CLI-IP bosh "  
+            alias bosh=CREDENTIAL-STRING  
             ```
             Where:
-            * 
-            * `BOSH-CLI-SECRET` is your secret from the BOSH command line credentials.  
-            * `ROOT-CERT-LOC` is the Root CA Certificate path.  
-            * `BOSH-CLI-IP` is the ip from the BOSH command line credentials.  
+            * `CREDENTIAL-STRING` is the entire `credential` string from the **Bosh Commandline Credentials**, including the surrounding double quotes.  
 
             For example:
             <pre class="terminal">
-            $ alias bosh="BOSH\_CLIENT=ops\_manager BOSH\_CLIENT\_SECRET=sLa1it#ned^&erc! BOSH\_CA\_CERT=/var/tempest/workspaces/default/root\_ca\_certificate BOSH\_ENVIRONMENT=ip-from-bosh\_commandline\_credentials bosh "<br><pre>
-    * To create a BOSH alias using `source`, complete the following:  
-        1. Create a file named `bosh_evn.sh` with the following content: 
+            $ alias bosh="BOSH\_CLIENT=ops\_manager BOSH\_CLIENT\_SECRET=sLa1it#ned^&erc! BOSH\_CA\_CERT=/var/tempest/workspaces/default/root\_ca\_certificate BOSH\_ENVIRONMENT=ip-from-bosh\_commandline\_credentials bosh "
+            <pre>
+    * To create a BOSH alias using the `source` command, complete the following:  
+        1. Go to **BOSH Director tile** > **Credentials** > **Bosh Commandline Credentials**.
+        1. Click **Link to Credential**.
+        1. Copy the `credential` string content.   
+        1. Create a file named `bosh_evn.sh` with the following modified `credential` string content:  
 
             ```
-            export BOSH_CLIENT=ops_manager
-            export BOSH_CLIENT_SECRET=BOSH-CLI-SECRET
-            export BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate
-            export BOSH_ENVIRONMENT=IP-ADDRESS-OF-BOSH
+            export BOSH_CLIENT=BOSH-CLIENT
+            export BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET
+            export BOSH_CA_CERT=BOSH-CA-CERT
+            export BOSH_ENVIRONMENT=BOSH-ENVIRONMENT-IP
             alias om=om-linux
             ```
   
             Where:  
-            * `BOSH-CLI-SECRET` is your secret from the BOSH command line credentials.  
-            * `ROOT-CERT-LOC` is the Root CA Certificate path.  
-            * `IP-ADDRESS-OF-BOSH` is the BOSH IP Address.  
+            * `BOSH-CLIENT` is the `BOSH_CLIENT` value from the BOSH command line credentials.  
+            * `BOSH-CLIENT-SECRET` is the `BOSH_CLIENT_SECRET` value from the BOSH command line credentials.  
+            * `BOSH-CA-CERT` is the `BOSH_CA_CERT` path value from the BOSH command line credentials.  
+            * `IP-ADDRESS-OF-BOSH` is the `BOSH_ENVIRONMENT` IP Address value from the BOSH command line credentials.  
+
+            For example:  
+
+            ```
+            export BOSH_CLIENT=ops_manager 
+            export BOSH_CLIENT_SECRET=sgEMsM_BpoQw5IhrIeIX1JBExPR6LcgR 
+            export BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate 
+            export BOSH_ENVIRONMENT=10.0.16.5 
+            ```
         1. Run the following command:  
 
             ```
@@ -296,7 +322,7 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
     bosh releases
     ```
 
-####<a id='bosh-alias'></a> SSH to a Node 
+####<a id='bosh-alias'></a> Use BOSH to SSH to a Node 
 1. To SSH to a Kubernetes node, run the following command:
 
     ```
@@ -312,8 +338,8 @@ the Kubernetes CLI (kubectl). Complete the following steps to deploy the PKS and
     $ bosh ssh -d 'service-instance\_9dd62330-fcea-469f-a50d-27c746622662' master/b1f99643-6905-4427-a01c-c26fc9101d40
     </pre>
 
-####<a id='bosh-delete'></a> Delete a Kubernetes Cluster 
-This may be needed if a Kubernetes cluster fails to deploy, and you can't delete it using the PKS CLI.  
+####<a id='bosh-delete'></a> Use BOSH to Delete a Kubernetes Cluster 
+If you want to delete a Kubernetes cluster that failed to deploy, and you can't delete it using the PKS CLI, you can delete the cluster using BOSH.  
 
 1. To delete a Kubernetes cluster, run the following command:  
 
@@ -329,6 +355,8 @@ This may be needed if a Kubernetes cluster fails to deploy, and you can't delete
     </pre>
 
 ##<a id='k8s-creds'></a> Manage a Kubernetes Cluster using PKS and Kubernetes
+
+You can manage your Kubernetes clusters using both PKS and Kubernetes command line commands.
 
 ####<a id='cluster-creds'></a> Retrieve Cluster Credentials
 
@@ -348,15 +376,9 @@ This may be needed if a Kubernetes cluster fails to deploy, and you can't delete
     ls -l ~/.kube/config
     ```
 
-####<a id='k8s-list-nodes'></a> List Kubernetes Cluster Nodes
+####<a id='k8s-creds'></a> Connect to Kubernetes Cluster 
 
-1. To list the cluster nodes of the currently connected Kubernetes cluster, run the following command:  
-
-    ```
-    kubectl get nodes
-    ```
-
-##<a id='k8s-creds'></a> Connect to Kubernetes Cluster 
+You must first connect to a Kubernetes cluster to be able to manage the cluster using Kubernetes CLI commands.
 
 1. Retrieve your Kubernetes cluster credentials. For more information, see [Retrieve Cluster Credentials](#cluster-creds) above.  
 1. Verify that the Kubernetes configuration file exists. For more information, see [Validate the Kubernetes Configuration File](k8s-config-file) above.   
@@ -392,7 +414,17 @@ This may be needed if a Kubernetes cluster fails to deploy, and you can't delete
     ```
 
 1. To confirm your connection list your cluster nodes. For more information see 
-[List Kubernetes Cluster Nodes](#k8s-list-nodes) above.
+[List Kubernetes Cluster Nodes](#k8s-list-nodes) below.
+
+
+####<a id='k8s-list-nodes'></a> List Kubernetes Cluster Nodes
+
+1. To list the cluster nodes of the currently connected Kubernetes cluster, run the following command:  
+
+    ```
+    kubectl get nodes
+    ```
+
 
 ##<a id='hello-world'></a> Deploy a Hello World Cluster 
 
