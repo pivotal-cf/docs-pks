@@ -250,25 +250,30 @@ To configure default node drain behavior, do the following:
     For a list of the available action flags for setting node drain behavior,
     see [pks update-cluster](cli/index.html#update-cluster) in _PKS CLI_.
 
-##<a id='review-azure-worker-role-persmission'></a> Add permission to the role used by the Worker Node Managed Identity
+##<a id='review-azure-worker-role-persmission'></a> Update Your Role Definition for the Worker Node Managed Identity on Azure
 
-As part of the kubernetes 1.14.5, the worker node requires a Virtual Machine - Read Only permission to be added to the Worker Node Managed Identity. To add the permission do the following :
+As of Kubernetes v1.14.5, if you are running PKS on Azure,
+you must add the `"Microsoft.Compute/virtualMachines/read"` action to the worker node managed identity.
 
-1. Use the azure-cli to list the roles :
+To add the action, do the following:
 
-    ```
+1. List your roles using the Azure CLI. For example:
+
+    <pre class="terminal">
     az role definition list --custom-role-only true -o json
-    ```
+    </pre>
 
-1. Get the output of the required role by filtering the list with the `roleName` key.
+1. Retrieve the definition of the `"PKS worker"` role using the `roleName` key. For example:
 
-    ```
+    <pre class="terminal">
     az role definition list --custom-role-only true -o json | jq -r '.[] | select(.roleName=="PKS worker")'
-    ```
+    </pre>
 
-1. Copy the json to a file and add the permission `"Microsoft.Compute/virtualMachines/read"` to the `Actions` tab. Save your template as `pks_worker_role.json`.
+1. Copy the JSON to a file and add `"Microsoft.Compute/virtualMachines/read"` under `Actions`.
 
-1. Update the role by:
+1. Save your template as `pks_worker_role.json`.
+
+1. Update the role:
 
     ```
     az role definition update --role-definition pks_worker_role.json
