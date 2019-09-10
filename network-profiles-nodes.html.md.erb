@@ -1,31 +1,43 @@
 ---
-title: Defining Network Profiles for Nodes DNS
+title: Customizing Node Networks
 owner: PKS
 ---
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to define network profiles for Kubernetes clusters provisioned with <%= vars.product_full %> on vSphere with NSX-T.
+This topic describes how to define network profiles for customizing Kubernetes node networks provisioned with <%= vars.product_full %> on vSphere with NSX-T.
 
-## <a id='dns'></a> DNS Configuration for Kubernetes Clusters
+### <a id='nodes'></a> Configurable Node Network IP Blocks
 
-You can specify multiple DNS entries in a Network Profile to override the **Nodes DNS** parameter configured in the PKS tile. In a multi-tenant environment, for example, each tenant can have a different set of DNS servers to do a DNS lookup.
+The **Nodes IP Block** is used by <%= vars.product_short %> to assign address space to Kubernetes nodes when new clusters are deployed or a cluster increases its scale. By default each Kubernetes cluster deployed by <%= vars.product_short %> is allocated a /24 subnet, which allows up to 256 IP addresses to be assigned.
 
-Using a network profile, you can define one or more DNS servers for use with Kubernetes clusters. Elements in the `nodes_dns` field of a network profile override the DNS server that is configured in the Networking section of the <%= vars.product_tile %> tile. For more information, see [Networking](installing-nsx-t.html#networking).
+Using a network profile you can define one or more custom Node IP Block networks, specify the size of the nodes subnet, and specify if the network is routable.
 
-The `nodes_dns` field accepts an array with up to three elements. Each element must be a valid IP address of a DNS server. If you are deploying <%= vars.product_short %> in a multi-tenant environment with multiple Tier-0 routers and a single PKS foundation (installation) shared across all the tenants, or if you have shared services that can be accessed by all Kubernetes clusters deployed across multiple Tier-0 routers, the first DNS server entered should be a shared DNS server. Subsequent DNS entries in the Network Profile can be specific to the tenant.
+Using the `node_ip_block_ids` parameter in a network profile, you can specify one or more **Nodes IP Blocks** for the Kubernetes node networks such that if one of IP block is exhausted, an alternative IP block can be used by Kubernetes clusters to create the Nodes subnet.
 
-The following example network profile, `nodes-dns.json`, demonstrates the configuration of the `nodes_dns` parameter with 3 DNS servers. Each entry is the IP address of a DNS server, with the first entry being a public DNS server.
+<p class="note"><strong>Note:</strong> Specifying a new node subnet for an existing cluster is not supported. In other words, you cannot autoscale the node network for an existing cluster. For any new clusters created using a network profile with <code>node_ip_block_ids</code> configured, Enterprise PKS automatically creates a node subnet from one of the IP blocks that is available.</p>
+
+The `node_routable`	boolean lets you specify if the Node network is routable or non-routable. This is the equivalent of enabling or disabling NAT mode in the PKS tile. If `"node_routable":false`, the Node network uses NAT mode. In this case you must make sure that Kubernetes nodes have access to BOSH and other PKS control plane components. See <a href="./nsxt-prepare-mgmt-plane.html">Creating the Enterprise PKS Management Plane</a> for more information. If `"node_routable":true`, the IP address space must be an externally routable address block.
+
+<p class="note"><strong>Note:</strong> The default routable setting for the Node network is determined based on the selection made in the PKS tile. If <strong>NAT mode</strong> is selected, the Node network is non-routable. To override the default selection, provide the <code>node_routable</code> parameter in the network profile.</p>
+
+Depending on the size of the cluster (number of Kubernetes nodes), you can specify a subnet size using the `node_subnet_prefix` parameter that optimizes the use of network address space. This configuration is especially useful when the cluster nodes are using globally routable address space with the `node_routable` option set to "true".
+
+For example, if the <%= vars.product_short %> administrator has configured the default in the PKS tile to be a Routable network for the *Nodes IP Block**, the Kubernetes cluster administrator can deploy Kubernetes cluster in the NAT'ed mode (non-routable) by specifying a network profile with an IP block that supports the NAT'ed address range.
+
+<p class="note"><strong>Note:</strong> The default size of the Node network is /24. If you want to use a different size, you must specify the <code>node_subnet_prefix</code> size.</p>
 
 ```
-nodes-dns.json
+nodes-network.json
 {
-	"description": "Overwrite Nodes DNS Entry",
-	"name": "nodes_dns_multiple",
+	"description": "Configurable Nodes Network IP Block",
+	"name": "network-profile_nodes-ip-block",
 	"parameters": {
-		"nodes_dns": [
-			"8.8.8.8", "192.168.115.1", "192.168.116.1"
-		]
+		"node_ip_block_ids": [
+			"2250dc43-63c8-4bb8-b8cf-c6e12ccfb7de", "3d577e5c-dcaf-4921-9458-d12b0e1318e6"
+		],
+		"node_routable":true,
+		"node_subnet_prefix":20
 	}
 }
 ```
