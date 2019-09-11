@@ -10,8 +10,8 @@ for installing <%= vars.product_full %> on vSphere with NSX-T.
 
 ##<a id='nsx-mgr-cert-about'></a> Overview
 
-The NSX Manager certificate is an IP-based, self-signed certificate you create and register with the NSX Manager. 
-The NSX Manager certificate is used to authenticate <%= vars.product_short %> with NSX Manager 
+The NSX Manager CA certificate is an IP-based, self-signed certificate you create and register with the NSX Manager. 
+The NSX Manager CA certificate is used to authenticate <%= vars.product_short %> with NSX Manager 
 during <%= vars.product_short %> installation on vSphere with NSX-T.  
 
 Both the BOSH Director and <%= vars.product_short %> tiles require the NSX Manager CA certificate when on vSphere with NSX-T. 
@@ -26,12 +26,12 @@ You must generate a valid self-signed certificate.
 You can use either of the following methods to generate your NSX Manager CA certificate:  
 
 * [Generate the NSX-T Root CA Certificate using the Cluster Virtual IP](#vip)  
-* [Generate the NSX-T Root CA Certificate using the Load Balancer IP](lb)  
+* [Generate the NSX-T Root CA Certificate using the Load Balancer IP](#lb)  
 
 You can then register the generated certificate with the NSX Manager using the NSX API:  
 
 * [Register the Cluster Virtual IP NSX-T Root CA Certificate](#vip-register)  
-* [Register the  Load Balancer IP NSX-T Root CA Certificate](lb-register)  
+* [Register the  Load Balancer IP NSX-T Root CA Certificate](#lb-register)  
 
 <p class="note"><strong>Note</strong>: The following instructions are specific to NSX-T v2.4.1.</p>
 
@@ -43,19 +43,17 @@ ensure you have successfully completed all of the following steps:
 * [Preparing to Install <%= vars.product_short %> on vSphere with NSX-T Data Center](vsphere-nsxt-index-prepare.html)  
 * [Hardware Requirements for <%= vars.product_short %> on vSphere with NSX-T](vsphere-nsxt-rpd-mpd.html)  
 * [Creating the <%= vars.product_short %> Management Plane](nsxt-prepare-mgmt-plane.html)  
-* [Create <%= vars.product_short %> Compute Plane](nsxt-prepare-compute-plane.html)  
+* [Creating <%= vars.product_short %> Compute Plane](nsxt-prepare-compute-plane.html)  
 * [Deploying Ops Manager with NSX-T for <%= vars.product_short %>](vsphere-nsxt-om-deploy.html) 
 
 Before configuring your BOSH and PKS Tiles with your NSX Manager CA certificate,
-ensure you have successfully completed the steps in:  
-
-* [Install <%= vars.product_short %>](installing-nsx-t.html#install) in _Installing Enterprise PKS on vSphere with NSX-T_.   
+ensure you have successfully completed the steps in [Install <%= vars.product_short %>](installing-nsx-t.html#install) in _Installing Enterprise PKS on vSphere with NSX-T_.   
 
 For configuration information, see the [Networking](installing-nsx-t.html#networking) section of _Installing <%= vars.product_short %> on vSphere with NSX-T_.
 
 ##<a id="vip"></a> Generate the NSX-T Root CA Certificate using the Cluster Virtual IP
 
-The NSX-T Management Cluster is comprised of three NSX-T Manager nodes. You can configure NSX-T Manager user interface and API 
+The NSX-T Management Cluster is comprised of three NSX-T Manager nodes. You can configure the NSX-T Manager user interface and API 
 to support a single access point by assigning a virtual IP address (VIP) to the NSX-T Management Cluster.  
 
 ![NSX-T Root CA Cert Configuration Using VIP](images/nsxt/mgmt-cluster/mgmt-cluster-01b.png)
@@ -68,7 +66,7 @@ To generate an NSX-T Management Cluster root CA certificate using your NSX Manag
 
 ###<a id="vip1"></a> Configure a VIP for the NSX-T Management Cluster  
 
-The NSX-T Management Cluster Virtual IP IP address is used to configure the NSX-T Management Cluster certificate. 
+The NSX-T Management Cluster VIP IP address is used to configure the NSX-T Management Cluster certificate. 
 
 1. To support a single access point for the NSX Manager API, complete the steps in 
 [Assign a Virtual IP Address to the NSX-T Management Cluster](./nsxt-install-mgmt-vip.html).  
@@ -88,7 +86,7 @@ To define the Certificate Signing Request, complete the following steps:
     req_extensions = req_ext
     prompt = no
     [ req_distinguished_name ]
-    countryName = COUNTRY
+    countryName = COUNTRY-INIT
     stateOrProvinceName = STATE
     localityName = STATE-INIT
     organizationName = NSX
@@ -100,10 +98,10 @@ To define the Certificate Signing Request, complete the following steps:
     ```
 
     Where:  
-    * `COUNTRY` are the initials for your corporation's country of origin.  
+    * `COUNTRY-INIT` are the initials for your corporation's country of origin.  
     * `STATE` is your corporation's state or province.  
     * `STATE-INIT` are the initials for your corporation's state or province.  
-    * `IP-ADDRESS` is your Management Cluster VIP IP address
+    * `IP-ADDRESS` is your Management Cluster VIP IP address.
 
     For example:  
 
@@ -140,8 +138,8 @@ To use your new CSR to generate a certificate and private key, complete the foll
     export NSX_MANAGER_COMMONNAME=IP-ADDRESS
     ```
 
-    Where: `IP-ADDRESS` is your Management Cluster VIP IP Address
-
+    Where: `IP-ADDRESS` is your Management Cluster VIP IP Address.  
+<br>
     For example:
     <pre class="terminal">
     $ export NSX\_MANAGER\_IP\_ADDRESS=10.40.206.5
@@ -184,7 +182,7 @@ To register the Cluster Virtual IP NSX-T Root CA certificate, complete the follo
 
 To import the certificate to the NSX Manager, complete the following steps:
 
-1. Log in to the NSX Manager UI using the VIP address.
+1. Log in to the NSX Manager UI using the VIP IP address.
 
 1. Navigate to **System** > **Certificates**.  
 
@@ -208,7 +206,7 @@ should be "off" because you are using the certificate with NSX Manager appliance
 
 1. Click **Import**.
 
-1. To verify your configuration has replicated to all NSX-T Manager instances,perform the following:   
+1. To verify your configuration has replicated to all NSX-T Manager instances, perform the following steps:   
     1. Log in to each individual NSX Manager node.  
     1. On each node, navigate to the **System** > **Certificates** screen.   
     1. Confirm that the certificate has replicated to the NSX-T Manager instance.  
@@ -229,7 +227,7 @@ you used to import the certificate and copy the UUID.
     ```
   <br>
     Where:  
-    * `IP-ADDRESS` is the VIP address.  
+    * `IP-ADDRESS` is the VIP IP address.  
     * `CERTIFICATE-ID` is the certificate UUID.  
 
     For example:  
@@ -252,7 +250,7 @@ you used to import the certificate and copy the UUID.
       "certificate_id": "63bb6646-052c-49df-b603-64d7e5bdb5bf"
     }
     </pre>
-1. Verify that the APU request response contains the certificate UUID.
+1. Verify that the API request response contains the certificate UUID.
 
 ###<a id='vip6'></a> Verify the VIP Certificate
 
@@ -269,7 +267,7 @@ To verify the VIP certificate has been registered with the NSX Manager, perform 
     get certificate cluster
     ```
 
-    All returned certificates should be the certificate you generated when performing the steps above.
+1. Confirm all returned certificates are the certificate you generated when performing the steps above.
 
 ###<a id='vip7'></a> Add the VIP Certificate to BOSH and PKS Tiles
 
@@ -278,7 +276,7 @@ To add the VIP Certificate to BOSH and PKS Tiles, complete the steps in
 
 ##<a id="lb"></a> Generate the NSX-T Root CA Certificate using the Load Balancer IP
 
-The NSX-T Management Cluster comprises three NSX-T Manager Nodes.  
+The NSX-T Management Cluster is comprised of three NSX-T Manager Nodes.  
 
 ![NSX-T Root CA Cert Configuration Using LB IP](images/nsxt/mgmt-cluster/mgmt-cluster-01.png)  
 
@@ -325,10 +323,10 @@ To define the Certificate Signing Request for a load balancer in front of the ma
     ```
 
     Where:  
-    * `COUNTRY` are the initials for your corporation's country of origin.  
+    * `COUNTRY-INIT` are the initials for your corporation's country of origin.  
     * `STATE` is your corporation's state or province.  
     * `STATE-INIT` are the initials for your corporation's state or province.  
-    * `IP-ADDRESS` is your load balancer's IP address 
+    * `IP-ADDRESS` is your load balancer's IP address. 
 
     For example:
 
@@ -360,7 +358,7 @@ To define the Certificate Signing Request for a load balancer in front of the ma
     ```
   <br>
     Where:  
-    * `IP-ADDRESS` is the VIP address.  
+    * `IP-ADDRESS` is the VIP IP address.  
     * `CERTIFICATE-ID` is the certificate UUID.  
 
     For example:  
@@ -390,7 +388,8 @@ To define the Certificate Signing Request for a load balancer in front of the ma
 
     ```
     openssl x509 -in nsx.crt -text -noout`
-    ```
+    ```  
+
 ##<a id="lb-register"></a> Register the Load Balancer IP NSX-T Root CA Certificate
 
 To register the load balancer IP NSX-T root CA certificate, complete the following:
@@ -398,13 +397,13 @@ To register the load balancer IP NSX-T root CA certificate, complete the followi
 * [Import the CA Certificate to All Three NSX Managers](#lb4)  
 * [Register the Load Balancer Certificate with All Three NSX-T Manager Appliances](#lb5)  
 * [Verify the Load Balancer Certificate](#lb6)
-* [Add the VIP Certificate to BOSH and PKS Tiles](lb7)
+* [Add the VIP Certificate to BOSH and PKS Tiles](#lb7)
 
 ###<a id='lb4'></a> Import the CA Certificate to All Three NSX Managers
 
 Complete the following steps to import the certificate to the NSX Manager:
 
-1. Log in to the NSX Manager UI using the VIP address.
+1. Log in to the NSX Manager UI using the VIP IP address.
 
 1. Navigate to **System** > **Certificates**.
 <br>
@@ -446,7 +445,7 @@ import the certificate and copy the UUID.
     ```
 
     Where:  
-    * `IP-ADDRESS` is the IP address of one of the NSX-Manager.  
+    * `IP-ADDRESS` is the IP address of one of the NSX-Manager nodes.  
     * `CERTIFICATE-ID` is the certificate UUID.  
 
     For example:  
@@ -474,12 +473,12 @@ import the certificate and copy the UUID.
     }    
     </pre>
 
-1. Verify that the APU request response contains the certificate UUID.
+1. Verify that the API request response contains the certificate UUID.
 
 1. Repeat the preceding registration steps for the other two NSX Manager nodes.
 
     <p class="note"><strong>Note</strong>: When repeating the steps for the other NSX Manager nodes, 
-    <code>NSX\_MANAGER\_IP\_ADDRESS</code> will be different for each node. The <code>CERTIFICATE\_ID</code> 
+    <code>NSX_MANAGER_IP_ADDRESS</code> will be different for each node. The <code>CERTIFICATE_ID</code> 
     should be identical for all of the NSX Manager nodes.
     </p>
 
@@ -497,10 +496,10 @@ import the certificate and copy the UUID.
         get certificate cluster
         ```
 
-    1. Confirm the returned certificates are the certificate you generated when performing the steps above.
+    1. Confirm the returned certificate is the certificate you generated when performing the steps above.
 
 1. Access the NSX-T Manager using the NSX-T Load Balancer IP address.  
-1. Confirm the returned certificates are the certificate you generated when performing the steps above.
+1. Confirm the returned certificate is the certificate you generated when performing the steps above.
     ![Load Balancer Certificate](images/nsxt/mgmt-cluster/mgmt-cluster-69.png)
 
 ###<a id='lb7'></a> Add the VIP Certificate to BOSH and PKS Tiles
@@ -514,10 +513,10 @@ Both the BOSH Director and PKS tiles must be configured with the NSX Manager CA 
 during <%= vars.product_short %> installation on vSphere with NSX-T. 
 The following are examples of properly configured BOSH Director and PKS tile certificate settings.  
 
-* BOSH Director tile NSX Manager CA certificate configuration
+* BOSH Director tile NSX Manager CA certificate configuration:  
     ![NSX-T Root CA certificate configuration in BOSH tile](images/nsxt/nsx-ca-cert-bosh.png)
 
-* PKS tile NSX Manager CA certificate configuration
+* PKS tile NSX Manager CA certificate configuration:  
     ![NSX-T Root CA certificate configuration in PKS tile](images/nsxt/nsx-ca-cert.png)
     <p class="note"><strong>Note</strong>: The <strong>Disable SSL certificate verification</strong> option disables NSX Manager CA certificate validation. 
       If you disable SSL certificate verification, insecure mode takes precedence regardless of whether the <strong>NSX Manager CA Cert</strong> field is populated.
@@ -530,7 +529,7 @@ The following are examples of properly configured BOSH Director and PKS tile cer
 1. Select the BOSH Tile.
 1. Select the **vCenter config** tab.
     ![Update BOSH](images/nsxt/mgmt-cluster/mgmt-cluster-58.png)
-1. Update the **NSX Address** field with the load balancer VIP Address.  
+1. Update the **NSX Address** field with the load balancer VIP IP address.  
 1. Update the **NSX CA Cert** field with the newly generated certificate.  
 1. Click **Save**.
     ![Save BOSH Edits](images/nsxt/mgmt-cluster/mgmt-cluster-59.png)
@@ -541,7 +540,7 @@ The following are examples of properly configured BOSH Director and PKS tile cer
 1. Select the PKS tile.
 1. Select the **Networking** tab.
     ![Update PKS Tile](images/nsxt/mgmt-cluster/mgmt-cluster-60.png)
-1. Update the **NSX Manager hostname** field with the load balancer VIP.  
+1. Update the **NSX Manager hostname** field with the load balancer VIP IP address.  
 1. Update the **NSX Manager CA cert** field with the newly generated certificate.  
 1. Click **Save**.
     ![Save PKS Tile edits](images/nsxt/mgmt-cluster/mgmt-cluster-61.png)
