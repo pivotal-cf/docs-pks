@@ -23,7 +23,7 @@ The IP addresses used must come from the floating IP pool. The floating IP pool,
 
 The DNS lookup, whether for the Kubernetes master(s) load balancer or the ingress controller, is performed in the Kubernetes master VM using the DNS server(s) configured in the PKS tile or the `nodes_dns` field in the network profile.
 
-<p class="note"><strong>Note:</strong> Kubernetes ingress controllers can be configured on the host or path. For more information, refer to the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Kubernetes ingress documentation</a>. The current implementation of the DNS lookup feature for ingress controllers only support the PATH capability.</p>
+<p class="note"><strong>Note:</strong> Kubernetes ingress can be configured on the host or path. For more information, refer to the <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/">Kubernetes ingress documentation</a>. <%= vars.product_short %> supports DNS lookup on the ingress path only.</p>
 
 ## <a id='dns-lookup-lb'></a> Example API Load Balancer Lookup
 
@@ -65,16 +65,6 @@ The following example network profile, api_ingress.json, triggers a DNS lookup f
 }
 ```
 
-## <a id='dns-workflow'></a> Workflow for Implementing DNS Lookup
-
-Consider the following workflow when implementing DNS lookup for the Kubernetes API server, the ingress controller, or both.
-
-1. Choose a valid IP address for the Kubernetes API server load balancer and for the ingress controller. Each IP address should be allocated from the floating IP pool configured for <%= vars.product_short %>, either in the PKS Tile or a custom floating IP pool using a network profile.
-1. Create a DNS record (A-Record) with the IPs and FQDNs for the Kubernetes API server and ingress controller.
-1. Provision a Kubernetes cluster using a network profile set with `dns_lookup_mode` (API or API_INGRESS) and the FQDN specified for the API Server in the CLI with `-e` option, or the ingress controller prefix set in the network profile.
-1. At runtime, PKS does a lookup based on the PKS Tile configuration or the Node DNS configured in the Network Profile to assign the specified IPs to the API and Ingress Controller, the assignment happens only when the allocation from the floating IP Pool succeeds.
-1. If the IP address cannot be allocated, cluster creation fails.
-
 ## <a id='command-line'></a> Setting the Master Node IP Address on the Command Line
 
 As an alternative to DNS lookup, you can specify a fixed IP address in the command line so that it will be used for the Kubernetes master node(s) load balancer. 
@@ -93,3 +83,14 @@ $ pks create-cluster my-cluster -e 192.168.160.20 -p small
  
 The IP address that you use must belong to a valid floating IP pool created in NSX-T.
 
+## <a id='dns-workflow'></a> Workflow for Implementing DNS Lookup
+
+Once DNS lookup is implemented, during cluster creation <%= vars.product_short %> performs a DNS lookup of the IP address for the Kubernetes API server load balancer and for the ingress controller based on records in the Node DNS server specified in the PKS Tile or configured in a network profile. IP address assignment occurs only when the allocation from the floating IP Pool succeeds. If the IP address cannot be allocated from the floating IP pool, cluster creation fails.
+
+To support the expected behavior, use the following workflow when implementing DNS lookup for the Kubernetes API server, the ingress controller, or both.
+
+1. Choose a valid IP address for the Kubernetes API server load balancer and for the ingress controller. Each IP address should be allocated from the floating IP pool configured for <%= vars.product_short %>, either in the PKS Tile or a custom floating IP pool using a network profile.
+1. Create a DNS record (A-Record) with the IP addresses and FQDNs for the Kubernetes API server load balancer and ingress controller.
+1. Create a network profile with `dns_lookup_mode` (API or API_INGRESS) and the FQDN specified for the API Server in the CLI with `-e` option, or the ingress controller prefix set in the network profile.
+1. Provision a Kubernetes cluster using the network profile defined with `dns_lookup_mode` (API or API_INGRESS).
+1. Test `dns_lookup_mode` and verify the expected behavior.
