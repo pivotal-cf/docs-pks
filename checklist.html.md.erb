@@ -16,7 +16,7 @@ If you are upgrading <%= vars.product_short %> for environments using vSphere wi
 
 ##<a id='backup'></a>Back Up Your <%= vars.product_short %> Deployment
 
-We recommend backing up your <%= vars.product_short %> deployment before upgrading, to restore in case of failure.
+We recommend backing up your <%= vars.product_short %> deployment before upgrading.
 
 **If you are upgrading <%= vars.product_short %> for environments using vSphere with NSX-T**, back up your environment
 using the procedures in the following topics:
@@ -44,7 +44,7 @@ If you want to enable PSPs for a new or existing cluster,
 you must define the necessary RBAC objects in a role and role binding
 and PSP before you deploy the cluster. If you do not define these objects
 users will not be able to access the Kubernetes cluster after deployment.
-See [Enabling PSPs](./pod-security-policy.html#psp-enable) for more information
+See [Enabling PSPs](./pod-security-policy.html#psp-enable) for more information.
 
  <%= vars.product_short %> provides a PSP named `pks-restricted` that you use.
 You can define your own PSPs or use one of the cluster roles already in the system.
@@ -250,26 +250,34 @@ To configure default node drain behavior, do the following:
     For a list of the available action flags for setting node drain behavior,
     see [pks update-cluster](cli/index.html#update-cluster) in _PKS CLI_.
 
-##<a id='review-azure-worker-role-persmission'></a> Add permission to the role used by the Worker Node Managed Identity
+##<a id='update-azure-worker-role'></a> Update Your Role for the Worker Node Managed Identity on Azure
 
-As part of the kubernetes 1.14.5, the worker node requires a Virtual Machine - Read Only permission to be added to the Worker Node Managed Identity. To add the permission do the following :
+As of Kubernetes v1.14.5, if you are running <%= vars.product_short %> on Azure,
+you must add the `"Microsoft.Compute/virtualMachines/read"` action to the worker node managed identity.
 
-1. Use the azure-cli to list the roles :
+To add the `"Microsoft.Compute/virtualMachines/read"` action, do the following:
 
-    ```
-    az role definition list --custom-role-only true -o json
-    ```
+1. List your roles using the Azure CLI. For example:
 
-1. Get the output of the required role by filtering the list with the `roleName` key.
+    <pre class="terminal">
+    $ az role definition list --custom-role-only true -o json
+    </pre>
 
-    ```
-    az role definition list --custom-role-only true -o json | jq -r '.[] | select(.roleName=="PKS worker")'
-    ```
+1. Retrieve the definition of the `"PKS worker"` role using the `roleName` key. For example:
 
-1. Copy the json to a file and add the permission `"Microsoft.Compute/virtualMachines/read"` to the `Actions` tab. Save your template as `pks_worker_role.json`.
+    <pre class="terminal">
+    $ az role definition list --custom-role-only true -o json | jq -r '.[] | select(.roleName=="PKS worker")'
+    </pre>
 
-1. Update the role by:
+1. Copy the JSON to a file and add `"Microsoft.Compute/virtualMachines/read"` under `"Actions"`.
+
+1. Save your template as `pks_worker_role.json`.
+
+1. Update the role:
 
     ```
     az role definition update --role-definition pks_worker_role.json
     ```
+
+For more information about creating managed identities for <%= vars.product_short %>,
+see [Creating Managed Identities in Azure for <%= vars.product_short %>](azure-managed-identities.html).

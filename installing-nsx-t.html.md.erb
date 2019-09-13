@@ -61,14 +61,16 @@ Perform the following steps:
 
 1. Click **Assign AZs and Networks**.
 
-1. Select the availability zone (AZ) where you want to deploy the PKS API VM as a singleton job.
-  <p class="note"><strong>Note</strong>: You must select an additional AZ for balancing other jobs before clicking <strong>Save</strong>, but this selection has no effect in the current version of <%= vars.product_short %>.</p>
+1. Under **Place singleton jobs in**, select the availability zone (AZ) where you want to deploy the PKS API VM as a singleton job. 
 
     ![Assign AZs and Networks pane in Ops Manager](images/azs-networks.png)
 
+1. Under **Balance other jobs in**, select the AZ for balancing other jobs.  
+    <p class="note"><strong>Note</strong>: You must specify the <strong>Balance other jobs in</strong> AZ, but the selection has no effect in the current version of <%= vars.product_short %>.
+    </p>
 1. Under **Network**, select the PKS Management Network linked to the `ls-pks-mgmt` NSX-T logical switch you created in the [Create Networks Page](vsphere-nsxt-om-config.html#create-networks) step of _Configuring BOSH Director with NSX-T for <%= vars.product_short %>_. This will provide network placement for the PKS API VM.
 1. Under **Service Network**, your selection depends on whether you are installing a new <%= vars.product_short %> deployment or upgrading from a previous version of <%= vars.product_short %>.
-  * If you are deploying <%= vars.product_short %> with NSX-T for the first time, select the PKS Management Network you specified in the **Network** field. 
+  * If you are deploying <%= vars.product_short %> with NSX-T for the first time, select the PKS Management Network that you specified in the **Network** field. 
   You do not need to create or define a service network because <%= vars.product_short %> creates the service network for you during the installation process. 
   * If you are upgrading from a previous version of <%= vars.product_short %>, then select the **Service Network** linked to the `ls-pks-service` NSX-T logical switch that <%= vars.product_short %> created for you during installation. The service network provides network placement for existing on-demand Kubernetes cluster service instances that were created by the <%= vars.product_short %> broker.
 1. Click **Save**.
@@ -142,13 +144,17 @@ To configure when post-deploy and pre-delete errands for <%= vars.product_short 
 
 For more information about errands and their configuration state, see [Managing Errands in Ops Manager](https://docs.pivotal.io/pivotalcf/customizing/managing_errands.html).
 
-<p class="note warning"><strong>WARNING</strong>: Because <%= vars.product_short %> uses floating stemcells, updating the <%= vars.product_tile %> tile with a new stemcell triggers the rolling of every VM in each cluster. Also, updating other product tiles in your deployment with a new stemcell causes the <%= vars.product_tile %> tile to roll VMs. This rolling is enabled by the <strong>Upgrade all clusters errand</strong>. We recommend that you keep this errand turned on because automatic rolling of VMs ensures that all deployed cluster VMs are patched. However, automatic rolling can cause downtime in your deployment.</p>
+<p class="note warning"><strong>Warning:</strong> If <strong>Upgrade all clusters errand</strong> is enabled, updating the <%= vars.product_tile %> tile with a new Linux stemcell triggers the rolling of every Linux VM in each Kubernetes cluster. This automatic rolling ensures that all your Linux VMs are patched. To avoid workload downtime, use the resource configuration recommended in <a href="understanding-upgrades.html#upgrade-all">What Happens During <%= vars.product_short %> Upgrades</a> and <a href="maintain-uptime.html">Maintaining Workload Uptime</a>.</p>
 
 ###<a id='resource-config'></a> (Optional) Resource Config
 
-Edit other resources used by the **Pivotal Container Service** job.
+To modify the resource usage of <%= vars.product_short %> and specify your PKS API load balancer, follow the steps below:
+
+1. Select **Resource Config**.
+    ![Resource pane configuration](images/resources-vsphere.png)
+1. (Optional) Edit other resources used by the **Pivotal Container Service** job.
 The **Pivotal Container Service** job requires a VM with the following minimum
-resources:
+resources:  
   <table>
     <tr>
       <th>CPU</th>
@@ -161,9 +167,10 @@ resources:
       <td>29&nbsp;GB</td>
     </tr>
   </table>
-
-![Resource pane configuration](images/resources-vsphere.png)
-<p class="note"><strong>Note</strong>: The automatic <b>VM Type</b> value matches the minimum recommended size for the <b>Pivotal Container Service</b> job. If you experience timeouts or slowness when interacting with the PKS API, select a <strong>VM Type</strong> with greater CPU and memory resources.</p>
+    <p class="note"><strong>Note</strong>: The automatic <b>VM Type</b> value matches the minimum recommended size for the <b>Pivotal Container Service</b> job. If you experience timeouts or slowness when interacting with the PKS API, select a <strong>VM Type</strong> with greater CPU and memory resources.</p>
+1. (Optional) In the **Load Balancers** column, enter the name of your PKS API load balancer.  
+    <%= partial 'lb-resource-config' %>
+1. (Optional) If you do not use a NAT instance, select **Internet Connected** to allow component instances direct access to the internet.  
 
 ## <a id='apply-changes'></a> Step 3: Apply Changes
 
