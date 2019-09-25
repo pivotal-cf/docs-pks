@@ -28,7 +28,7 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/p
 
 **1.6**: The `1.6` branch is used to publish the pre-release v1.6 version of the site. Create pull requests on `1.6` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.6 documentation.
 
-**1.5**: The `1.5` branch is used to publish the live v1.5 version of the site. Create pull requests on `master` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
+**1.5**: The `1.5` branch is used to publish the live v1.5 version of the site. Create pull requests on `1.5` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
 
 **1.4**: The `1.4` branch is used to publish the live v1.4 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
 
