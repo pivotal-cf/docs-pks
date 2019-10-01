@@ -5,29 +5,37 @@ owner: PKS
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to review your VM resource usage and quotas in <%= vars.product_full %> 
-using the  <%= vars.product_short %>  API.  
-
-Your <%= vars.product_short %> administrator might set maximum VM memory and vCPU count limits on your VM instances. 
-This quota limitation is based on the total allocated size of the VM instances you create, not their actual utilization. 
-
-By using the  PKS API, you can determine the size limitations that 
-your administrator has assigned to you and your current usage. 
-    
 <%= partial 'beta-component' %>
 
+This topic describes how to review your resource usage 
+and quotas in <%= vars.product_full %> using 
+the <%= vars.product_short %> API.  
+
+## <a id="overview"></a> Overview
+
+Your <%= vars.product_short %> administrator might set a limit on
+the number of clusters you can provision and  
+the resources, such as amount of memory and number of CPUs, 
+that are allocated in total to any clusters you create and workloads you deploy. 
+
+The resource quota limitations are based on the total allocated size 
+of the VM instances you create, not their actual utilization. 
+
+By using the PKS API, you can determine the size and number of cluster 
+limitations that your administrator has assigned to you and your current usage. 
+    
 ## <a id='set-token'></a> Set up Your API Access Token
 
-The <%= vars.product_short %> Quota and Resource API commands in this topic use an 
-access token environment variable.
+The curl commands in this topic use an access token environment variable to 
+authenticate to the PKS API endpoints.
 
 <%= partial 'create-auth-token-var' %>
 
 ## <a id='quota-dev'></a> View Quotas
 
-The PKS API `quotas` command reports your resource utilization quota as JSON.
+The PKS API `quotas` endpoint returns your resource usage and cluster quota in the JSON format.
 
-To view your resource quota, run the following command:
+To view your resource and cluster quota, run the following command:
 
 ```
 curl -k -H "Authorization: Bearer $YOUR-ACCESS-TOKEN" \
@@ -40,11 +48,27 @@ Where:
 * `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
 * `USER-ID` is your <%= vars.product_short %> user ID.
 
+For example:
+<pre class="terminal">
+$ user=exampleuser
+$ pks login -a pks.my.lab -u $user -p 'psswrdabc123...!' -k; export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+$ curl -k -H "Authorization: Bearer $TOKEN" \
+https&#58;//example.com&#58;9021/v1beta1/quotas/$user 
+{
+  "owner":"cody",
+  "limit":{
+      "cpu":2,
+      "memory":1.0,
+      "cluster": 6
+  }
+}
+</pre>
+
 ## <a id='usage-dev'></a> View Usage
 
-The PKS API `usages` command reports your resource utilization as JSON.
+The PKS API `usages` endpoint reports your actual resource usage in the JSON format.
 
-To view your current allocated resource utilization, run the following command:
+To view your current allocated resource usage, run the following command:
 
 ```
 curl -k -H "Authorization: Bearer $YOUR-ACCESS-TOKEN" \
@@ -56,3 +80,32 @@ Where:
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
 * `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
 * `USER-ID` is your <%= vars.product_short %> user ID.
+
+For example:
+<pre class="terminal">
+$ user=exampleuser
+$ pks login -a pks.my.lab -u $user -p 'psswrdabc123...!' -k; export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+$ curl -k -H "Authorization: Bearer $TOKEN" \
+https&#58;//example.com&#58;9021/v1beta1/usages
+[
+  {
+    "owner": "cody",
+    "totals": {
+      "cpu": 2,
+      "memory": 1,
+      "cluster": 2
+    },
+  }
+]
+</pre>
+
+## <a id="error"></a> Error Message When You Exceed Cluster Quota
+
+If you exceed your set cluster creation quota, then 
+the following error message 
+appears when you attempt to create a cluster.
+
+<pre class="terminal">
+Error: You do not have enough privileges to perform this action. 
+Please contact the PKS administrator.
+</pre>

@@ -7,21 +7,28 @@ owner: PKS
 
 <%= partial 'beta-component' %>
 
-This topic describes how to control and view the usage of 
+This topic describes how to restrict and review the usage of 
 <%= vars.product_full %> resources by <%= vars.product_short %> users.
 
 ## <a id="overview"></a> Overview
 
-You manage resources in <%= vars.product_short %> 
-by setting quotas for users with the PKS API.
-
 As a <%= vars.product_short %> administrator, 
-you can set a limit on each user's total VM resource allocation.  
+you can set a limit on each user's total resource allocation
+within <%= vars.product_short %>.
 
-The quotas API endpoint allows you to restrict 
-a user's total allocated VM memory size and CPU count. 
-You can also review existing quota settings for a specific user 
-and review their overall resource usage.
+You manage resources in <%= vars.product_short %> 
+by defining quotas for individual users with the PKS API.
+
+The `quotas` API endpoint allows you to restrict 
+the total amount of memory and number of CPUs 
+that a user can allocate in total across their deployed clusters
+and workloads.
+
+In addition, you can limit the total number of clusters 
+a user can provision within <%= vars.product_short %>. 
+
+To review overall resource usage and for individual users, 
+you access the PKS API `/usages` endpoint.
 
 <p class="note"><strong>Note</strong>: 
 Quota settings affect only non-admin user accounts. 
@@ -30,7 +37,7 @@ A quota applied to an admin user account is ignored.</p>
 ## <a id='quota-admin'></a> Set up Your API Access Token
 
 The curl commands in this topic use an access token environment variable to 
-authenticate into the PKS API quotas and usages endpoints.
+authenticate to the PKS API endpoints.
 
 <%= partial 'create-auth-token-var' %>
 
@@ -164,6 +171,8 @@ $ curl -k -X DELETE -H "Authorization: Bearer $TOKEN" https&#58;//example.com&#5
 
 The PKS API `quotas` endpoint reports resource utilization quotas as JSON.
 
+### <a id='view-quotas-by-user'></a> View Quotas for a Single User
+
 To list the resource quota restrictions currently applied to a single user, run the following command:
 
 ```
@@ -187,13 +196,15 @@ https&#58;//example.com&#58;9021/v1beta1/quotas/$user
   "owner":"cody",
   "limit":{
       "cpu":2,
-      "memory":1.0
+      "memory":1.0,
+      "cluster": 6
   }
 }
 </pre>
 
+### <a id='view-quotas-by-user'></a> View All Quotas
 
-To list all current resource quota restrictions, run the following command:
+To list all current resource and cluster quota restrictions, run the following command:
 
 ```
 curl -k -H "Authorization: Bearer $YOUR_ACCESS_TOKEN" \
@@ -216,27 +227,31 @@ https&#58;//example.com&#58;9021/v1beta1/quotas
     "owner":"cody",
     "limit":{
         "cpu":2,
-        "memory":1.0
+        "memory":1.0,
+        "cluster": 6
     }
   }
 ]
 </pre>
 
-##<a id="error"></a> Error Message When User Exceeds Quota
+## <a id="error"></a> Error Message When User Exceeds Cluster Quota
 
-If a user exceeds their set quota, the following error message appears when they attempt 
-to create a cluster or specify new resources for a cluster.
+If a user exceeds their set cluster creation quota, then 
+the following error message 
+appears when they attempt to create a cluster.
 
 <pre class="terminal">
 Error: You do not have enough privileges to perform this action. 
 Please contact the PKS administrator.
 </pre>
 
-## <a id='utilization-view-admin'></a> View Usage
+## <a id='usage-view-admin'></a> View Usage
 
-The PKS API `usages` endpoint returns resource utilization per user in the JSON format.
+The PKS API `usages` endpoint returns resource usage per user in the JSON format.
 
-To list the current resource utilization for a single user, run the following command:
+### <a id='view-single-user'></a> View Resource Usage by User
+
+To list the current resource usage of a single user, run the following command:
 
 ```
 curl -k -H "Authorization: Bearer $YOUR_ACCESS_TOKEN" https://PKS-API:9021/v1beta1/usages/USER-ID
@@ -248,7 +263,9 @@ Where:
 * `PKS-API` is the FQDN of your PKS API endpoint.
 * `USER-ID` is the user account ID whose resource utilization you want to view.  
 
-To list the current resource utilization for all users, run the following command:
+### <a id='view-all-usage'></a> View All Resource Usage
+
+To list the current resource utilization for all users and clusters, run the following command:
 
 ```
 curl -k -H "Authorization: Bearer $YOUR_ACCESS_TOKEN" \
@@ -271,7 +288,8 @@ https&#58;//example.com&#58;9021/v1beta1/usages
     "owner": "cody",
     "totals": {
       "cpu": 20,
-      "memory": 52
+      "memory": 52,
+      "cluster": 2
     },
     "clusters": [
       {
