@@ -41,10 +41,8 @@ You can create log and metric sinks for clusters and namespaces.
 
 * If you want to create a `ClusterLogSink` or `LogSink`, see
 [ClusterLogSink and LogSink Resources](#define-log-sinks) below.
-* If you want to create a `ClusterMetricSink`, see
-[ClusterMetricSink Resources](#define-cluster-metric-sink) below.
-* If you want to create a `MetricSink`, see
-[MetricSink Resources](#define-metric-sink) below.
+* If you want to create a `ClusterMetricSink` or `MetricSink`, see
+[ClusterMetricSink Resources](#define-metric-sinks) below.
 
 <p class="note"><strong>Note:</strong> Log sinks created in <%= vars.product_short %> do not support UDP connections.</p>
 
@@ -95,9 +93,9 @@ To define a syslog `ClusterLogSink` or `LogSink` resource, perform the following
 1. Apply the `ClusterLogSink` or `LogSink` resource to your cluster by running the following command:
 
     ```
-    kubectl apply -f MY-SINK.yml
+    kubectl apply -f YOUR-SINK.yml
     ```
-    Where `MY-SINK.yml` is the name of your YAML file.
+    Where `YOUR-SINK.yml` is the name of your YAML file.
     For example:
     <pre class='terminal'>
     $ kubectl apply -f my-cluster-sink.yml
@@ -136,9 +134,9 @@ To define a webhook `ClusterLogSink` or `LogSink` resource, perform the followin
 1. Apply the `ClusterLogSink` or `LogSink` resource to your cluster by running the following command:
 
     ```
-    kubectl apply -f MY-SINK.yml
+    kubectl apply -f YOUR-SINK.yml
     ```
-    Where `MY-SINK.yml` is the name of your YAML file.
+    Where `YOUR-SINK.yml` is the name of your YAML file.
     For example:
     <pre class='terminal'>
     $ kubectl apply -f my-cluster-sink.yml
@@ -195,44 +193,54 @@ perform the following steps:
 1. Apply the `ClusterLogSink` or `LogSink` resource to your cluster by running the following command:
 
     ```
-    kubectl apply -f MY-SINK.yml
+    kubectl apply -f YOUR-SINK.yml
     ```
-    Where `MY-SINK.yml` is the name of your YAML file.
+    Where `YOUR-SINK.yml` is the name of your YAML file.
     For example:
     <pre class='terminal'>
     $ kubectl apply -f my-cluster-sink.yml
     </pre>
 
-### <a id='define-cluster-metric-sink'></a> ClusterMetricSink Resources
+### <a id='define-metric-sinks'></a> ClusterMetricSink and MetricSink Resources
 
 A `ClusterMetricSink` resource collects metrics from a cluster using the [Kubernetes Input Plugin]
 (https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kubernetes) and writes them to one or more outputs
 that you specify in your `ClusterMetricSink` configuration.
-For a list of supported metrics and output plugins,
-see [Metrics](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kubernetes#metrics)
-and [Output Plugins](https://github.com/influxdata/telegraf#output-plugins) in the telegraf GitHub repository.
 
-#### <a id='default'></a> Create a ClusterMetricSink Resource
+A `MetricSink` resource collects metrics from a namespace within a cluster using
+`prometheus.io/scrape` annotations set to `true`
+and writes them to one or more outputs
+that you specify in your `MetricSink` configuration.
 
-To define a `ClusterMetricSink` resource, perform the following steps:
+For a list of supported output plugins,
+see [Output Plugins](https://github.com/influxdata/telegraf#output-plugins) in the telegraf GitHub repository.
+
+#### <a id='telegraf-plugins'></a> Create a ClusterMetricSink or MetricSink Resource
+
+To define a `ClusterMetricSink` or `MetricSink` resource, perform the following steps:
 
 1. Create a YAML file in the following format:
 
     ```
     apiVersion: pksapi.io/v1beta1
-    kind: ClusterMetricSink
+    kind: YOUR-SINK-RESOURCE
     metadata:
       name: YOUR-SINK
+      namespace: YOUR-NAMESPACE
     spec:
       inputs:
       outputs:
       - type: YOUR-OUTPUT-PLUGIN
     ```
   Where:
+    * `YOUR-SINK-RESOURCE` is the sink resource you want to create.
+    This must be either `ClusterMetricSink` or `MetricSink`. For information about these sink resources, see [Overview](#overview).
     * `YOUR-SINK` is a name you choose for your sink.
+    * `YOUR-NAMESPACE` is the name of your namespace.
+    This line is omitted when creating `ClusterMetricSink`.
     * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.
     <p class="note"><strong>Note:</strong> You can leave the <code>inputs</code> field blank.
-    This field is configured to include metrics from the Kubelet by default.</p>
+    For <code>ClusterMetricSink</code>, this field is configured to include metrics from the kubelet by default. For <code>MetricSink</code>, the field includes all <code>prometheus.io/scrape</code> annotations set to <code>true</code> by default.</p>
 
     For example:
 
@@ -252,72 +260,15 @@ To define a `ClusterMetricSink` resource, perform the following steps:
 
 1. Save the YAML file with an appropriate filename. For example, `my-cluster-metric-sink.yml`.
 
-1. Apply the `ClusterMetricSink` resource to your cluster by running the following command:
+1. Apply the `ClusterMetricSink` or `MetricSink` resource to your cluster by running the following command:
 
     ```
-    kubectl apply -f MY-SINK.yml
+    kubectl apply -f YOUR-SINK.yml
     ```
-  Where `MY-SINK.yml` is the name of your YAML file.
+  Where `YOUR-SINK.yml` is the name of your YAML file.
   For example:
   <pre class='terminal'>
   $ kubectl apply -f my-cluster-metric-sink.yml
-  </pre>
-
-### <a id='define-metric-sink'></a> MetricSink Resources
-
-A `MetricSink` resource collects metrics from a namespace within a cluster.
-
-#### <a id='metric-sink'></a> Create a MetricSink Resource
-
-To define a `MetricSink` resource, perform the following steps:
-
-1. Create a YAML file in the following format:
-
-    ```
-    apiVersion: pksapi.io/v1beta1
-    kind: MetricSink
-    metadata:
-      name: YOUR-SINK
-      namespace: YOUR-NAMESPACE
-    spec:
-      inputs:
-      outputs:
-      - type: YOUR-OUTPUT-PLUGIN
-    ```
-  Where:
-    * `YOUR-SINK` is a name you choose for your sink.
-    * `YOUR-NAMESPACE` is the name of your namespace.
-    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.
-    <p class="note"><strong>Note:</strong> You can leave the <code>inputs</code> field blank.
-    This field is configured to include all <code>prometheus.io/scrape</code> annotations set to <code>true</code> by default.</p>
-
-    For example:
-
-    ```
-    apiVersion: pksapi.io/v1beta1
-    kind: MetricSink
-    metadata:
-      name: http
-    spec:
-      inputs:
-      outputs:
-      - type: http
-        url: https:example.com
-        method: POST
-        data_format: json
-    ```
-
-1. Save the YAML file with an appropriate filename. For example, `my-metric-sink.yml`.
-
-1. Apply the `MetricSink` resource to your cluster by running the following command:
-
-    ```
-    kubectl apply -f MY-SINK.yml
-    ```
-  Where `MY-SINK.yml` is the name of your YAML file.
-  For example:
-  <pre class='terminal'>
-  $ kubectl apply -f my-metric-sink.yml
   </pre>
 
 ## <a id='list-sinks'></a> List Sinks
