@@ -1,0 +1,102 @@
+---
+title: Setting up custom CA certificates for a private Docker registry when creating a cluster
+owner: PKS
+---
+
+This topic describes how to set up custom CA certificates for a private Docker registrty when creating or updating a cluster in <%= vars.product_full %>.
+
+
+## <a id="overview"></a>Overview
+
+
+<%= vars.product_full %> allows you to use private registries for storing docker images. You can now authenticate to your private registry using ssl certificates.
+This enables you to use [Docker with SSL certificates](https://docs.docker.com/registry/insecure/#use-self-signed-certificates)
+
+You can also add new registry along with certificate to an existing cluster, if need be.
+
+## <a id="Steps to add custom ca certs"></a> Overview
+
+## <a id='set-token'></a> Set up Your API Access Token
+
+The curl commands in this topic use an access token environment variable to
+authenticate to the PKS API endpoints.
+
+<%= partial 'create-auth-token-var' %>
+
+## <a id='quota-dev'></a> Create a Cluster with Custom CA Certificates
+
+The PKS API `create-cluster` endpoint allows you to pass one or many custom CA certs as a list of key value pairs, where the key is a domain name and value is it's certificate
+
+To create cluster with custom ca certs, run the following command:
+
+```
+curl -X POST \
+  https://PKS-API:9021/v1/clusters \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer $YOUR-ACCESS-TOKEN' \
+  -H 'Content-Type: application/json' \
+  -H 'Host: PKS-API:9021' \
+  -d '{
+  "name": "<CLUSTER-NAME>",
+  "plan_name": "<PLAN-NAME>",
+  "parameters": {
+    "kubernetes_master_host": "<KUBERNETES-MASTER-HOST>",
+    "custom_ca_certs": [
+      {
+        "domain_name": "<DOMAIN-NAME-1>",
+        "ca_cert": "<CERTFICATE-1>"
+      }
+    ]
+  }
+}
+'
+
+```
+
+Where:
+
+* `YOUR-ACCESS-TOKEN` is your access token environment variable.
+* `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
+* `CLUSTER-NAME` is your Cluster name
+* `PLAN-NAME` is your plan name
+* `KUBERNETES-MASTER-HOST` is your Kubernetes master host
+* `DOMAIN-NAME-1` is a docker regsistry url. (This can also include wildcard. eg. *.docker.com)
+* `CERTFICATE-1` is the CA Certficate that corresponds to `DOMAIN-NAME-1`
+
+
+## <a id='quota-dev'></a> Update a Cluster with Custom CA Certificates
+
+The PKS API `update-cluster` endpoint allows you to pass one or many custom CA certs as a list of key value pairs, where the key is a domain name and value is it's certificate
+
+To update cluster with custom ca certs, run the following command:
+
+```
+curl -X PATCH \
+  https://PKS-API:9021/v1/clusters/<CLUSTER-NAME> \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer $YOUR-ACCESS-TOKEN' \
+  -H 'Content-Type: application/json' \
+  -H 'Host: PKS-API:9021' \
+  -d '{
+        "custom_ca_certs": [
+          {
+            "domain_name": "<DOMAIN-NAME-1>",
+            "ca_cert": "<CERTFICATE-1>"
+          }
+        ]
+      }'
+
+```
+
+Where:
+
+* `YOUR-ACCESS-TOKEN` is your access token environment variable.
+* `PKS-API` is the FQDN of your PKS API endpoint. For example, `api.pks.example.com`.
+* `CLUSTER-NAME` is your Cluster name
+* `DOMAIN-NAME-1` is a docker regsistry url. (This can also include wildcard. eg. *.docker.com)
+* `CERTFICATE-1` is the CA Certficate that corresponds to `DOMAIN-NAME-1`
+
+<p class="note">
+When a certificate entry is passed for existing domain, it is overridden with new value. Otherwise, a new entry is created with the new domain name and it's corresponding certificate.
+There currently isn't a way to remove an existing certificate for a domain.
+</p>
