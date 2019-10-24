@@ -13,6 +13,18 @@ This topic describes how to create multiple NSX-T Tier-0 (T0) logical routers fo
 
   <img src="images/nsxt/mt0/mt0-01.png" alt="Multi-T0 Router">
 
+## <a id="implementation"></a> Implementation Details
+
+Multiple Tier-0 routers for tenant isolation requires custom NSX-T configuration as described in this documentation.
+
+Once NSX-T is configured, Multi-T0 is implemented using network profile. Each tenant has a dedicated network profile. See [Configuring Edge Router Selection for Multi-T0](https://docs.pivotal.io/pks/1-5/network-profiles-index.html) for details.
+
+You have two options for configuring the Shared Tier-0 router to exchange PKS control plane routes with each Tenant Tier-0 router:
+- Using Static Routes
+- Using Border Gateway Protocol (BGP)
+
+If you are using Static Routes between Tier-0 routers, you must implement the [Shared Tier-1 topology](https://docs.pivotal.io/pks/1-5/network-profiles-shared-t1.html). If you are are using BGP, the use of a Shared Tier-1 toplogy is recommended but not required. The Shared-T0 and Tenant-T0 are interconnected through a LS (Logical Switch). The LS can be configured as TZ-Overlay or TZ-Vlan.
+
 ## <a id="prereqs"></a> Prerequisites
 
 To implement Multi-T0, verify the following prerequisites:
@@ -21,7 +33,7 @@ To implement Multi-T0, verify the following prerequisites:
 * Supported version of VMware NSX-T Data Center is installed. See <a href="./vsphere-nsxt-requirements.html#pks-with-nsx-t">vSphere with NSX-T Version Requirements</a>.
 * If you are using NAT mode for the Shared Tier-0 router, review [Considerations for NAT Topology on Shared Tier-0](#consider-nat-shared) and [Considerations for NAT Topology on Tenant Tier-0](#consider-nat-tenant) before proceeding.
 
-## <a id="base-config"></a> Base Configuration
+## <a id="base-config"></a> Part I: Base Configuration
 
 ### <a id="edge-nodes"></a>Step 1: Plan and Provision Additional NSX Edge Nodes for Each Multi-T0 Router
 
@@ -151,7 +163,21 @@ The end result is two NO_SNAT rules on each Tenant Tier-0 router that bypass the
 
 ![NO_SNAT Example 2](images/nsxt/mt0/snat-01.png)
 
-### <a id="bgp"></a>Step 10: Configure BGP on Each Tenant Tier-0 Router
+## <a id="control-plane-config"></a> Part II: Control Plane Route Configuration
+
+As depicted in the diagram below, there are two options for configuring the Shared Tier-0 router to exchange PKS control plane routes with each Tenant Tier-0 router:
+- Using Static Routes
+- Using Border Gateway Protocol (BGP)
+
+  <img src="images/nsxt/mt0/pks-multi-t0.png" alt="Routing Options between Tier-0 Routers">
+
+Which approach you choose typically depends on your underlying toplogy. If you are using No NAT mode you may want to consider using BGP. If you are using NAT mode you may want to consider using static routes.
+
+### <a id="bgp"></a>Option A: BGP Configuration
+
+This section provides instructions for configuring BGP between the Shared Tier-0 and Tenant Tier-0 routers.
+
+#### <a id="bgp"></a>Step 1: Configure BGP on Each Tenant Tier-0 Router
 
 The Border Gateway Protocol (BGP) is used for route redistribution and filtering across all Tier-0 routers. BGP allows the Shared Tier-0 router to dynamically discover the location of Kubernetes clusters (Node networks) deployed on each Tenant Tier-0 router.
 
@@ -163,13 +189,13 @@ Failover of a logical router is triggered when the router is losing all of its B
 
 ![Tier-0 HA](images/nsxt/mt0/Tier-0-HA.png)
 
-You must configure BGP routing on each Tier-0 router. The steps that follow are for each Tenant Tier-0 router. The instructions for the Shared Tier-0 are provided in subsequent steps. As a prerequisite, assign a unique Autonomous System Number to each Tier-0 router. Each AS number you assign must be private within the range `64512-65534`. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-4BC07C6A-DC62-496B-A6A9-7219ACF5AC7B.html">Configure BGP on a Tier-0 Logical Router</a> in the NSX-T documentation.
+You must configure BGP routing on each Tier-0 router. The steps that follow are for each Tenant Tier-0 router. The instructions for the Shared Tier-0 are provided in subsequent steps. As a prerequisite, assign a unique Autonomous System Number to each Tier-0 router. Each AS number you assign must be private within the range `64512-65534`. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/administration/GUID-4BC07C6A-DC62-496B-A6A9-7219ACF5AC7B.html">Configure BGP on a Tier-0 Logical Router</a> in the NSX-T documentation.
 
 <p class="note"><strong>Note</strong>: To configure BGP for the Tenant Tier-0, you will need to use the Shared Tier-0 AS number. As such, identify the AS numbers you will use for the Tenant and Shared Tier-0 routers before proceeding.</p>
 
 ![BGP for Multi-T0](images/nsxt/mt0/bgp-01.png)
 
-#### <a id="bgp-as-config"></a>Configure BGP AS Number
+##### <a id="bgp-as-config"></a>Configure BGP AS Number
 
 Once you have chosen the AS number for the Tenant Tier-0 router, configure BGP with the chosen AS number as follows:
 
@@ -180,7 +206,7 @@ Once you have chosen the AS number for the Tenant Tier-0 router, configure BGP w
 1. Click on the `enabled` slider to activate BGP.
 1. Lastly, disable the ECMP slider.
 
-#### <a id="bgp-route-tenant"></a>Configure BGP Route Distribution
+##### <a id="bgp-route-tenant"></a>Configure BGP Route Distribution
 
 To configure BGP route distribution for each Tenant Tier-0 router, follow the steps below:
 
@@ -191,7 +217,7 @@ To configure BGP route distribution for each Tenant Tier-0 router, follow the st
 	1. **Name**: NSX Static Route Redistribution
 	1. **Sources**: Select **Static**, **NSX Static**, and **NSX Connected**
 
-#### <a id="ip-prefix-tenant"></a>Configure IP Prefix Lists
+##### <a id="ip-prefix-tenant"></a>Configure IP Prefix Lists
 
 In this step you define an **IP Prefix List** for each Tenant Tier-0 router to advertise any Kubernetes node network of standard prefix size /24, as specified by the less-than-or-equal-to (le) and greater-than-or-equal-to (ge) modifiers in the configuration. The CIDR range to use for the definition of the list entry is represented by the Nodes IP Block network, for example `30.0.0.0/16`.
 
@@ -207,7 +233,7 @@ To configure an IP Prefix List for each Tenant Tier-0 router, follow the steps b
 	1. Click **Add** and create a **Deny** rule that denies everything else on the network `0.0.0.0/0`.
 	![IP Prefix Example 2](images/nsxt/mt0/ip-prefix-01.png)
 
-#### <a id="bgp-peer-tenant"></a>Configure BGP Peer
+##### <a id="bgp-peer-tenant"></a>Configure BGP Peer
 
 To configure BGP peering for each Tenant Tier-0 router, follow the steps below:
 
@@ -225,21 +251,21 @@ To configure BGP peering for each Tenant Tier-0 router, follow the steps below:
 		1. Enter the Shared Tier-0 AS number.
 		1. After creating the BGP neighbor, select **Edit** and click **Enable BGP**.
 
-### <a id="bgp-shared"></a>Step 11: Configure BGP on the Shared Tier-0 Router
+#### <a id="bgp-shared"></a>Step 2: Configure BGP on the Shared Tier-0 Router
 
 The configuration of BGP on the Shared Tier-0 is similar to the BGP configuration each Tenant Tier-0, with the exception of the IP Prefix list that permits traffic to the PKS management network where PKS, BOSH, and Ops Manager are located.
 
 As with each Tenant Tier-0 router, you will need to assign a unique private AS number within the private range `64512-65534` to the Shared Tier-0 router. Once the AS number is assigned, use NSX Manager to configure the following BGP rules for the Shared Tier-0 router.
 
-#### <a id="bgp-as-config"></a>Configure BGP AS Number
+##### <a id="bgp-as-config"></a>Configure BGP AS Number
 
 To configure BGP on the Shared Tier-0 with the AS number, complete the corresponding set of instructions in the tenant BGP section above.
 
-#### <a id="bgp-route-shared"></a>Configure BGP Route Distribution
+##### <a id="bgp-route-shared"></a>Configure BGP Route Distribution
 
 To configure BGP route distribution for the Shared Tier-0 router, complete the corresponding set of instructions in the BGP tenant section above.
 
-#### <a id="ip-prefix-shared"></a>Configure IP Prefix Lists
+##### <a id="ip-prefix-shared"></a>Configure IP Prefix Lists
 
 To configure IP prefix lists for each Tenant Tier-0 router, follow the steps below:
 
@@ -252,7 +278,7 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 	1. Click **Add** and create a **Deny** rule that denies everything else on the network `0.0.0.0/0`.
   ![IP Prefix Lists](images/nsxt/mt0/ip-prefix-03.png)
 
-#### <a id="bgp-peer-shared"></a>Configure BGP Peer
+##### <a id="bgp-peer-shared"></a>Configure BGP Peer
 
 1. In NSX Manager, select the Tenant Tier-0 router.
 1. Go to **Routing** > **BGP**.
@@ -270,24 +296,174 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 
 <p class="note"><strong>Note</strong>: You must repeat this step for each Tenant Tier-0 router you want to peer with the Shared Tier-0 router.</p>
 
-### <a id="test"></a>Step 12: Test the Base Configuration
+### <a id="static-routes"></a> Option B: Static Route Configuration
+
+Using static routes between the Shared Tier-0 router and Tenant Tier-0 router(s) is an alternative to using BGP. Static route configuration for Multi Tier-0 deployments requires the following:
+
+- 2 uplink router ports on the Shared-T0 and 1 HA VIP (for T0 inter-connections)
+- 2 uplink router ports on the Tenant-T0 and 1 HA VIP (for T0 interconnections) 
+- 1 logical switch with VLAN-TZ (or OVERLAY-TZ) to connect these 4 uplinks
+
+If you are using NAT Topology: 
+- 1 routable IP must be allocated per tenant (Tenant SNAT IP `TS_IP`):
+- The TS_IP will be used as a SNAT translated IP on Tenant-T0 (or Shared-T0 depending on where the customer wants to apply it) and will allow connectivity between vCenter/NSX-T manager and the Kubernetes nodes (master nodes especially)
+- The TS_IP must be reachable by vCenter and NSX-T manager
+- The TS_IP must be routed to the Shared-T0 (i.e Shared-T0 must be the next hop to reach this IP)
+
+In a static route configuration, each tenant must have its own:
+
+- Node IP block
+- POD IP block
+- PKS floating IP pool
+- Tenant routable IP
+
+#### <a id="static-requirements"></a> Requirements for Tier-0 Static Routes
+
+For static route configuration between Shared Tier-0 and Tenant Tier-0 routers, the following requirements must be met:
+
+* 1 dedicated Node IP Block per tenant (and this IP Block is not overlapped with other resources in the NSX-T environment - i.e IPs in this IP Block are not used by other VMs IN the NSX-T enviroment (it can be used outside of the NSX-T environment if the PKS/NSX-T topology is NAT mode).
+
+  * We assume here that PKS management plane and all tenants K8s nodes have plain IP connectivity (even through the Shared-T0 - Tenant-T0 link). They talk to each other without the need of any SNAT operations in the middle. This requirement is easy to meet (note that to meet this requirement, some NO_NAT rules must be applied at the Shared-T0 and Tenant-T0 levels. Those NO_NAT rules are detailed in this confluence page).
+
+* PKS/NSX-T NAT Topology only: 1 routable IP address (preferably should not belong to PKS floating IP Pool - but if it is, then mark it as allocated using NSX-T mgr REST API to prevent any duplicate IP) must be allocated (for the SNAT on Tenant T0) per Tenant:
+
+  * This routable IP must be reachable from vCenter and NSX-T mgr
+  * This routable IP must be routed to the Shared T0 (i.e: to reach this IP, send the packet to Shared T0)
+  * Basically, this routable IP address allows the K8s nodes (from Tenant) to talk to vCenter and NSX-T manager!
+  * Let's call it "Tenant routable IP".
+
+* Although not required, it is recommened that each Tier-0 router is in its own NSX-T edge cluster for the followign reasons:
+
+  * Independant upgrade per Edge Node VM
+  * Load Balancer scalability (which is bound to total number of edge nodes in the Edge Cluster)
+
+#### <a id="static-shared-t0-uplinks"></a> Configure 2 Uplink Router Ports on the Shared Tier-0 Router
+
+On the Shared T0 router, configure 2 new uplink router ports for each Tenant T0. These uplink router ports are used for Shared-T0 to Tenant-T0 communication where PKS Management Plane taffic will travel. Two router ports are used to handle failover of the Edge Node. Each uplink port is bound to a different Edge Node.
+
+For example:
+
+  <img src="images/nsxt/mt0/static-01.png" alt="Shared Tier-0 Router Ports">
+
+<p class="note"><strong>Note</strong>: In a Multi Tier-0 environment, each Shared Tier-0 router will have a minimum of 4 uplink ports: 2 uplink router ports for cluster traffic (previously configured during installation of NSX-T for PKS), and 2 uplink ports for inter-T0 traffic. Each additional Tenant Tier-0 router requires 2 more uplink ports on the Shared Tier-0 router.</p>
+
+#### <a id="static-shared-t0-ha-vip"></a> Configure 2 HA VIP Addresses for the Shared Tier-0 Uplinks
+
+For example:
+
+  <img src="images/nsxt/mt0/static-02.png" alt="Shared Tier-0 Router HA VIPs">
+
+#### <a id="static-tenant-t0-uplinks"></a> Configure 2 Uplink Router Ports on Each Tenant Tier-0 Router
+
+On each Tenant Tier 0 router, configure 2 new uplink router ports. These uplink ports will be used for Shared-T0 to Tenant-T0 communication where PKS Management Plane taffic will travel. Two router ports are used to handle failover of the Edge Node. Each uplink port is bound to a different Edge Node.
+
+For example:
+
+  <img src="images/nsxt/mt0/static-03.png" alt="Tenant Tier-0 Router Ports">
+
+<p class="note"><strong>Note</strong>: In a Multi Tier-0 environment, each Tenant Tier-0 router will have a minimum of 4 uplink ports: 2 uplink router ports for cluster traffic (previously configured during creation of the Tenant Tier-0 router), and 2 uplink ports for inter-T0 traffic.</p>
+
+#### <a id="static-tenant-t0-ha-vip"></a> Configure 2 HA VIP Addresses for the Tenant Tier-0 Uplinks
+
+For example:
+
+  <img src="images/nsxt/mt0/static-04.png" alt="Tenant Tier-0 Router HA VIPs">
+
+<p class="note"><strong>Note</strong>: In a Multi Tier-0 environment, each Tenant Tier-0 router will have a minimum of 4 uplink ports: 2 uplink router ports for cluster traffic (previously configured during creation of the Tenant Tier-0 router), and 2 uplink ports for Inter-T0 traffic.</p>
+
+#### <a id="static-inter-t0-ls"></a> Configure a Logical Switch for Inter Tier-0 Communication
+
+For Enterprise PKS to function, the following traffic flow is required:
+
+* BOSH Director to Kubernetes worker nodes (where the BOSH Agent runs)
+* Kubernetes master node (where NCP runs) to NSX-T Manager
+* Kubernetes master node (where the Hatchway storage plugin runs) to vCenter
+
+To enable this flow of traffic, configure an Inter-Tier-0 logical switch that connects the uplink ports on the Tier-0 routers. You can use a VLAN or OVERLAY transport zone for this purpose. 
+
+Once you have configured the Inter-Tier-0 logical switch, verify that you can ping each of the Inter-T0 IP addresses, including the HA VIP for the Inter-T0 connection. 
+
+<p class="note"><strong>Note</strong>: Once the Inter-Tier-0 logical swtich is created, do not change any attributes thereafter, otherwise you will break the Inter-T0 connectivity.</p>
+
+#### <a id="static-shared-t0-routes"></a> Configure 2 Static Routes on the Shared Tier-0 Router
+
+Static routes are created on Shared-T0 to route PKS management traffic.
+
+For example, on the Shared-T0, create the following static route:
+
+```
+10.199.41.120/32 via 14.24.34.6
+192.170.0.0/16 via 14.24.34.6
+```
+
+  <img src="images/nsxt/mt0/static-05.png" alt="Shared-T0 Static Routes">
+
+Where:
+
+* 10.199.41.120 is the Tenant routable IP mentioned above (1 IP must be allocated per tenant)
+* 10.0.0.0/24 is the PKS management plane subnet
+* 10.199.17.0/24 is the subnet containing vCenter and NSX-T mgr.
+
+#### <a id="static-tenant-t0-routes"></a> Configure 2 Static Routes on the Shared Tier-0 Router
+
+Static routes are created on each Tenant-T0 to route properly PKS management traffic.
+
+For example, on the Tenant-T0, create the following static routes:
+
+```
+10.0.0.0/24 via 14.24.34.5
+10.199.17.0/24 via 14.24.34.5
+```
+
+  <img src="images/nsxt/mt0/static-07.png" alt="Tenant-T0 Static Routes">
+
+#### <a id="static-nat"></a>Configure NAT Rules
+
+1. On the Shared Tier-0 router, configure 1 NAT rule as follows:
+
+  - Action: `NO_SNAT` 
+  - Source IP: `10.0.0.0/24` (for example, which is the PKS Management Plane Subnet) 
+  - Destination IP: `192.170.0.0/16` (for example, which is the Tenant Node IP Block)
+
+    <img src="images/nsxt/mt0/static-06.png" alt="Shared T0 NAT Rule">
+
+1. On the Tenant Tier-0 router, configure 2 NAT rules as follows at the TOP of the NAT table:
+
+**Rule 1**
+
+  - Action: NO_SNAT 
+  - Source IP: `192.170.0.0/16` (for example, which is the Tenant Node IP Block) 
+  - Destination IP: `10.0.0.0/24` (for example, which is the PKS Management Plane Subnet)
+
+** Rule 2**
+
+  - Action: SNAT
+  - Source IP: `192.170.0.0/16` (for example, which is the Tenant Node IP Block)
+  - Destination IP: `10.199.17.0/24` (for example, which is vCenter and NSX-T Manager Subnet) 
+  - Translated IP: `10.199.41.120` (routable IP mentioned above
+
+    <img src="images/nsxt/mt0/static-06.png" alt="Tenant T0 NAT Rules">
+
+<p class="note"><strong>Note</strong>: Both NAT rules in the Tenant Tier-0 router MUST be placed at the TOP of the NAT rules table because once a Kubernetes cluster is provisioned, PKS automatically creates the following SNAT rule with pirority set to 1024: Action: `SNAT` | Source IP: `192.170.0.0/24` | Destination IP: `Any` | Translated IP: `10.199.41.27` (1 IP address picked from the PKS floating IP pool).</p>
+
+## <a id="test"></a>Part III: Test the Base Configuration
 
 Perform the following validation checks for all Tier-0 routers. You should perform the validation checks on the Shared Tier-0 first followed by each Tenant Tier-0 router. For each Tier-0, the validation should alternate among checking for the BGP summary and the router Routing Table.
 
-#### Shared Tier-0 Validation
+### <a id="test-shared-t0"></a>Shared Tier-0 Validation
 
 Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router. To verify BGP Peering.
 
 - In NSX Manager, select the Shared Tier-0 router and choose **Actions** > **Generate BGP Summary**.
 - Validate that the Shared Tier-0 router has one active peer connection to each Tenant Tier-0 router.
 
-Verify that the Shared Tier-0 routing table includes all BGP routes to each Shared Tier-0.
+Verify that the Shared Tier-0 routing table includes all Static or BGP routes to each Shared Tier-0.
 
 - In NSX Manager, select **Networking** > **Routers** > **Routing**.
 - Select the Shared Tier-0 router and choose **Actions** > **Download Routing Table**.
 - Download the routing table for the Shared Tier-0 and verify the routes.
 
-#### Tenant Tier-0 Validation
+### <a id="test-tenant-t0"></a>Tenant Tier-0 Validation
 
 Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router. To verify BGP Peering.
 
@@ -303,7 +479,7 @@ Verify that the T0 routing table for each Tenant Tier-0 includes all BGP routes 
 
 <p class="note"><strong>Note</strong>: At this point, the Shared Tier-0 has no BGP routes because you have not deployed any Kubernetes clusters. The Shared Tier-0 will show BGP routes when you deploy Kubernetes clusters to the Tenant Tier-0 routers. Each Tenant Tier-0 router shows a BGP exported route that makes each Tenant Tier-0 router aware of the PKS management network and other external networks where NSX-T and vCenter are deployed.</p>
 
-## <a id="security-config"></a> Security Configuration
+## <a id="security-config"></a> Part IV: Security Configuration
 
 In a multi-T0 environment, you can secure two types of traffic:
 
@@ -338,7 +514,7 @@ Lastly, define an IP Set for the the Inter-T0 CIDR created during the base confi
 
 #### <a id="edge-firewall"></a>Step 2: Create Edge Firewall
 
-NSX-T Data Center uses Edge Firewall sections and rules to specify traffic handling in and out of the network. A firewall section is a collection of firewall rules. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-22DF2616-8B3F-4E13-8116-B7501D2A8E6D.html">About Firewall Rules</a> in the NSX-T documentation.
+NSX-T Data Center uses Edge Firewall sections and rules to specify traffic handling in and out of the network. A firewall section is a collection of firewall rules. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/administration/GUID-22DF2616-8B3F-4E13-8116-B7501D2A8E6D.html">About Firewall Rules</a> in the NSX-T documentation.
 
 For each Tenant Tier-0 router, create an Edge Firewall and section as follows:
 
