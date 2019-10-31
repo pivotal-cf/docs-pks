@@ -80,8 +80,10 @@ Kubernetes worker node VMs that <%= vars.product_short %> can deploy for each cl
   <br><br>
   If you later reconfigure the plan to adjust the default number of worker nodes, the existing clusters that have been created from that plan are not automatically upgraded with the new default number of worker nodes.
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker node VMs. For more information, including worker node VM customization options, see the [Worker Node VM Number and Size](vm-sizing.html#worker-sizing) section of _VM Sizing for <%= vars.product_short %> Clusters_.
+<% if current_page.data.iaas == "vSphere-NSX-T" %>
     <p class="note"><strong>Note</strong>: If you install <%= vars.product_short %> in an NSX-T environment, we recommend that you select a <strong>Worker VM Type</strong> with a minimum disk size of 16&nbsp;GB. 
       The disk space provided by the default <code>medium</code> Worker VM Type is insufficient for <%= vars.product_short %> with NSX-T.</p>
+<% end %>
 <% if current_page.data.windowsbeta == true %>
     <p class="note"><strong>Note:</strong> BOSH does not support persistent disks for Windows VMs. 
     If specifying **Worker Persistent Disk Type** on a Windows worker is a requirement for you, 
@@ -97,6 +99,11 @@ Kubernetes worker node VMs that <%= vars.product_short %> can deploy for each cl
 ![Plan pane configuration, part two](images/plan2b.png)
 1. Under **Kubelet customization - eviction-hard**, enter threshold limits that Kubelet can use to evict pods when they exceed the limit. Enter limits in the format `EVICTION-SIGNAL=QUANTITY`. For example, `memory.available=100Mi, nodefs.available=10%, nodefs.inodesFree=5%`. For more information about eviction thresholds, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/out-of-resource/#hard-eviction-thresholds).
   <p class="note warning"><strong>WARNING</strong>: Use the Kubelet customization fields with caution. If you enter values that are invalid or that exceed the limits the system supports, Kubelet might fail to start. If Kubelet fails to start, you cannot create clusters.</p>
+<% if current_page.data.windowsbeta == true %>
+1. Under **Kubelet customization - Windows pause image location**, enter the location of your Windows pause image. 
+You must configure this field if you want to deploy Windows pods in an air-gapped environment. 
+By default, <%= vars.product_short %> pulls the pause image from `mcr.microsoft.com/k8s/core/pause:1.2.0`.
+<% end %>
 1. Under **Errand VM Type**, select the size of the VM that contains the errand. The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
 1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to add custom workloads to each cluster in this plan. You can specify multiple files using `---` as a separator. For more information, see [Adding Custom Workloads](custom-workloads.html).
 <% if current_page.data.windowsbeta == true %>
@@ -120,7 +127,7 @@ in the Kubernetes documentation for additional information.</p>
 1. (Optional) Enable or disable one or more admission controller plugins: **PodSecurityPolicy**, **DenyEscalatingExec**, and **SecurityContextDeny**. See [Admission Plugins](./admission-plugins.html) for more information.
 <% end %>
 <% if current_page.data.windowsbeta != true %>
-1. (Optional) Under **Node Drain Timeout(mins)**, enter the timeout in minutes for the node to drain pods. If you set this value to 0, the node drain does not terminate.
+1. (Optional) Under **Node Drain Timeout(mins)**, enter the timeout in minutes for the node to drain pods. If you set this value to `0`, the node drain does not terminate.
     ![Node Drain Timeout fields](images/node-drain.png)
 1. (Optional) Under **Pod Shutdown Grace Period (seconds)**, enter a timeout in seconds for the node to wait before it forces the pod to terminate. If you set this value to `-1`, the default timeout is set to the one specified by the pod.
 
@@ -131,7 +138,7 @@ in the Kubernetes documentation for additional information.</p>
     * **Force node to drain even if pods are still running after timeout.**
 
     <p class="note warning"><strong>Warning:</strong> If you select <strong>Force node to drain even if pods are still running after timeout</strong>, the node kills all running workloads on pods.
-    Before enabling this configuration, set <strong>Node Drain Timeout</strong> to greater than 0.</p>
+    Before enabling this configuration, set <strong>Node Drain Timeout</strong> to a value greater than <code>0</code>.</p>
 
     For more information about configuring default node drain behavior, see [Worker Node Hangs Indefinitely](./troubleshoot-issues.html#upgrade-drain-hangs) in _Troubleshooting_.
 <% end %>
