@@ -45,7 +45,13 @@ Provide connection information for the container networking interface to use wit
 - **Bring your own topology**: Deploy <%= vars.product_short %> to an existing NSX-T Data Center network that you have fully configured yourself. See [Configure a Bring Your Own Topology Deployment to NSX-T Data Center](#nsxt-byot) below for instructions.
 - **Flannel**: Deploy <%= vars.product_short %> to a Flannel network that <%= vars.product_short %> Management Console provisions for you. See [Configure a Flannel Network](#flannel) below for instructions.
 
-<p class="note"><strong>Important</strong>: You cannot change the type of networking after the deployment.</p>
+<p class="note"><strong>Important</strong>: 
+
+<ul>
+<li>You cannot change the type of networking after you deploy <%= vars.product_short %>.</li>
+<li>You cannot configure plans to use Windows worker nodes with NSX-T Data Center networking in this release. You can currently only use Windows worker nodes if you implement Flannel networking.</li>
+</ul>
+</p>
 
 ### <a id='nsxt-automated-nat'></a>Configure an Automated NAT Deployment to NSX-T Data Center
 
@@ -341,7 +347,18 @@ You can use VMware vSAN, Network File Share (NFS), or VMFS storage for ephemeral
 
 ## <a id='plans'></a>Step 6: Configure Plans
 
-A plan is a cluster configuration template that defines the set of resources for <%= vars.product_short %> to use when deploying Kubernetes clusters. A plan allows you to configure the numbers of master and worker nodes, the configuration of the master and worker VMs, disk sizes, availability zones for master and node VMs, and advanced settings.
+A plan is a cluster configuration template that defines the set of resources for <%= vars.product_short %> to use when deploying Kubernetes clusters. A plan allows you to configure the numbers of master and worker nodes, select between Linux and Windows OS for worker nodes, specify the configuration of the master and worker VMs, set disk sizes, select availability zones for master and node VMs, and configure advanced settings.
+
+<p class="note warning"><strong>Notes about Windows Worker Nodes</strong>: 
+
+In this release, using Windows worker nodes is a beta feature and is intended for evaluation and test purposes only. Using Windows worker nodes is subject to the following limitations and requires additional configuration after you deploy <%= vars.product_short %>:
+<ul>
+<li>You can only use Windows worker nodes if you implement Flannel networking. You cannot use Windows worker nodes with NSX-T Data Center networking.</li>
+<li>You can create a maximum of 3 plans that implement Windows worker nodes in a given <%= vars.product_short %> deployment.</li>
+<li>If you use Windows worker nodes, certain options are not available, and the default values of other options change. See the option descriptions below for more information.</li>
+<li>If you use Windows worker nodes, after you deploy <%= vars.product_short %>, you must use Operations Manager to manually install a Windows Server Stemcell in BOSH. For information about how to install a Windows Server Stemcell and other steps to perform after you deploy <%= vars.product_short %> with Windows worker nodes, see <a href="./console-windows-workers.html">Enable Plans with Windows Worker Nodes</a>.</li>
+</ul>
+</p>
 
 <%= vars.product_short %> Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can enable the plans as they are. You must enable at least one plan configuration because when you use the PKS CKI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are enabled, you cannot create Kubernetes clusters.
 
@@ -349,31 +366,36 @@ A plan is a cluster configuration template that defines the set of resources for
 
 1. To use the preconfigured plans as they are, click **Save Plan** for each of the `small`, `medium`, and `large` plans.
 1. Optionally use the drop-down menus and buttons to change the default configurations of the preconfigured plans.
+	* If you are deploying <%= vars.product_short %> to a Flannel network, for **Choose the worker OS type**, select **Linux** or **Windows**.
 	* Enter a name and a description for the plan in the **Name** and  **Description** text boxes.
-	* **Master/etcd node instances**: Select **1** (small), **3** (medium), or **5** (large).
-	* **Master persistent disk size**: Select the size of the master persistent disk.
-	* **Master/etcd availability zones**: Enable one or more  availability zones for the master nodes.
-	* **Master/etcd VM type**: Select the size of the Master VM.
-	* **Worker node instances**: Specify the number of worker nodes. For a small deployment, 3 is suggested.
-	* **Worker persistent disk size**: Select the size of the worker node persistent disk.
-	* **Worker availability zones**: Enable one or more available availability zones for the worker nodes.
-	* **Worker VM type**: Select a configuration for worker nodes.
-	* **Max worker node instances**: Select the maximum number of worker nodes.
-	* **Errand VM type**: Select the size of the VM to run BOSH errand tasks.
-	* **Enable privileged Containers**: Optionally enable privileged container mode. Use with caution.
+	* **Master/etcd Node Instances**: Select **1** (small), **3** (medium), or **5** (large).
+	* **Master Persistent Disk Size**: Select the size of the master persistent disk.
+	* **Master/etcd Availability Zones**: Enable one or more  availability zones for the master nodes.
+	* **Master/etcd VM Type**: Select the size of the Master VM. If you use Windows worker nodes, this option defaults to **large.disk**.
+	* **Worker Node Instances**: Specify the number of worker nodes. For a small deployment, 3 is suggested.
+	* **Worker Persistent Disk Size**: Select the size of the worker node persistent disk.
+	* **Worker Availability Zones**: Enable one or more available availability zones for the worker nodes.
+	* **Worker VM Type**: Select a configuration for worker nodes.  If you use Windows worker nodes, this option defaults to **large.disk**.
+	* **Max Worker Node Instances**: Select the maximum number of worker nodes.
+	* **Errand VM Type**: Select the size of the VM to run BOSH errand tasks.
+	* **Enable Privileged Containers**: Optionally enable privileged container mode. Use with caution. If you use Windows worker nodes, this option is not available.
 	* **Admission Plugins**: Optionally enable admission plugins. Admission plugins, provide a higher level of access control to the Kubernetes API server and should be used with caution.
        - **`PodSecurityPolicy`** 
-       - **`DenyEscalatingExec`**
+       - **`DenyEscalatingExec`**. If you use Windows worker nodes, this option is not available.
        - **`SecurityContextDeny`**
-	* **Node Drain Timeout**: Enter the timeout in minutes for the node to drain pods. If you set this value to 0, the node drain does not terminate.
-	* To configure when the node drains, optionally enable the following:
+	* **Node Drain Timeout**: Enter the timeout in minutes for the node to drain pods. If you set this value to 0, the node drain does not terminate. If you use Windows worker nodes, the node drain options are not available.
+	
+	   To configure when the nodes drain, optionally enable the following:
+	   
        - **Force node to drain even if it has running pods not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or Stateful Set**
        - **Force node to drain even if it has running DaemonSet managed pods**
        - **Force node to drain even if it has running pods using emptyDir**
        - **Force node to drain even if pods are still running after timeout**
-	* **Pod Shutdown Grace Period**: Enter a timeout in seconds for the node to wait before it forces the pod to terminate. If you set this value to -1, the default timeout is set to the one specified by the pod.
+	* **Pod Shutdown Grace Period**: Enter a timeout in seconds for the node to wait before it forces the pod to terminate. If you set this value to -1, the default timeout is set to the one specified by the pod. If you use Windows worker nodes, this option is not available.
 1. Click **Save Plan** for each plan that you edit.
 1. Optionally click **Add Plan** to create a new plan, configure it as described above, and click **Save Plan**.
+
+   You can create a maximum of 10 Linux plans and a maximum of 3 Windows plans. 
 1. Optionally delete any plans that you do not need.
 1. Click **Next** to configure integrations.
 
@@ -521,8 +543,10 @@ When all of the sections of the wizard are green, you can generate a YAML config
 
 ## <a id='next-steps'></a>Next Steps
 
+For information about how you can use <%= vars.product_short %> Management Console to monitor and manage your deployment, see [Monitor and Manage <%= vars.product_short %> in the Management Console](monitor-manage-console.html).
+
 You can now access the <%= vars.product_short %> control plane and begin deploying Kubernetes clusters.
 
-For information about how you can use <%= vars.product_short %> Management Console to monitor and manage your deployment, see [Monitor and Manage <%= vars.product_short %> in the Management Console](monitor-manage-console.html).
+<p class="note"><strong>Important</strong>: If you deployed <%= vars.product_short %> with plans that use Windows worker nodes, see <a href="./console-windows-workers.html">Enable Plans with Windows Worker Nodes</a> for information about how to install a Windows Server stemcell and other necessary configuration actions that you must perform. Plans that use Linux worker nodes are available immediately, but plans that use Windows worker nodes are ignored until you install the Windows Server stemcell.</p>
 
 If <%= vars.product_short %> fails to deploy, see [Troubleshooting](console-troubleshooting.html).
