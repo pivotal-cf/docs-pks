@@ -1,0 +1,114 @@
+---
+title: Ingress Scaling (NSX-T only)
+owner: PKS-NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how clusters managers and users can monitor the health status of the NSX-T load balancer and scale ingress. 
+
+<p class="note"><strong>Note:</strong> This feature requires NCPv v2.5.1 or later.</p>
+
+## <a id='ingress-scaling-about'></a>About Ingress Scaling
+
+This feature gives you the ability to scale out L7 load balancers created in NSX-T for ingress. Currently, for each PKS cluster there are 2 virtual servers (http/https) attached to the cluster load balancer to perform ingress routing. These virtual servers for ingress are subject to various limits and users weren’t able to scale their ingress.
+
+This feature introduces 2 new CRDS to aid scale out: nsxLoadBalancerMonitors and LoadBalancers.
+
+## <a id='nsxLoadBalancerMonitors'></a>nsxLoadBalancerMonitors CRD
+
+The nsxLoadBalancerMonitors CRD provides monitoring of traffic, usage and health score information about the NSX-T loadbalancer. 
+
+For each loadbalancer created, a corresponding nsxLoadBalancerMonitor object is created by NCP:
+- Load balancer service created by default for the Kubernetes master node(s) 
+- Layer 4 auto-scaled load balancer creates for service resources
+- Layer 7 ingress load balancer scaled by user
+
+Health score reflect the current performance of the loadBalancer, if the health score is poor, user need to take the corresponding strategy to scale out and replace the services, or to contact infra admin. 
+The statistics is showing the real-time connections amount and throughput of virtual servers
+
+## <a id='nsxLoadBalancerMonitors-example'></a>nsxLoadBalancerMonitors Example
+
+```
+# kubectl get nsxloadbalancermonitor lbs-1
+apiVersion: vmware.com/v1alpha1
+kind: NSXLoadBalancerMonitor
+metadata:
+ name: lbs-1 # name matches the name of LB service 
+health:
+ - servicePressureIndex: 70,WARM
+ metrics:
+  cpuUsagePercentage: 70
+  poolmemberUsagePercentage: 80
+ - infraPressureIndex: 90,HIGH
+ metrics:
+  cpuUsagePercentage: 70
+  lbServiceUsagePercentage: 90
+  memoryUsagePercentage: 90
+  poolmemberUsagePercentage: 20
+ traffic:
+  - bytesInRate: 0
+  bytesOutRate: 0
+  currentSessionRate: 0
+  ipAddress: 4.4.4.4
+  maxSessions: 0
+  virtualServerName: vs_1
+  packetsInRate: 0
+  packetsOutRate: 0
+  protocol: TCP
+  totalSessions: 0
+ usage:
+  currentServerPoolCount: 2010
+  currentVirtualServerCount: 2000
+```
+
+## <a id='nsxLoadBalancerMonitors-actions'></a>NsxLoadBalancerMonitor Actions
+
+Based on the health score the user can decide what action to take.
+
+LBS Health Temperature | Infrastructure Health Temperature | Cluster Manager | Infrastrcture Admin
+-----------------------|-----------------------------------|-----------------|--------------------
+LOW                    | LOW                               | NONE            | NONE
+LOW                    | HIGH                              | Alert admin     | Move the LBS from the CRITICAL edge node to another node
+HIGH                   | LOW                               | Increase the size of the LBS, Or Create a new LBS using LB CRD and move some service from the CRITICAL LBS | NONE
+HIGH                   | HIGH                              | 1) Alert admin to resolve infra health score; 2) Resolve the LBS health score | Move the LBS from the CRITICAL edge node to another node
+
+## <a id='LoadBalancer'></a>LoadBalancer CRD
+
+Provides a way to scale out loadbalancer for ingress routing. Users can monitor nsxLoadBalancerMonitor object for the loadbalancer health and use LoadBalancer CRD to create a new loadbalancer. Users can annotate K8S ingress resource with the newly created LoadBalancer information and NCP would attach ingress rules to the scaled out loadbalancer.
+
+## <a id='LoadBalancer-example'></a>LoadBalancer Example
+
+```
+# kubectl get nsxloadbalancermonitor lbs-1
+
+apiVersion: vmware.com/v1alpha1
+kind: NSXLoadBalancerMonitor
+metadata:
+ name: lbs-1  # name matches the name of LB service
+health:
+ - servicePressureIndex: 70,WARM
+ metrics:
+  cpuUsagePercentage: 70
+  poolmemberUsagePercentage: 80
+ - infraPressureIndex: 90,HIGH
+ metrics:
+  cpuUsagePercentage: 70
+  lbServiceUsagePercentage: 90
+  memoryUsagePercentage: 90 
+  poolmemberUsagePercentage: 20
+ traffic:
+ - bytesInRate: 0
+  bytesOutRate: 0
+  currentSessionRate: 0
+  ipAddress: 4.4.4.4
+  maxSessions: 0
+  virtualServerName: vs_1
+  packetsInRate: 0
+  packetsOutRate: 0
+  protocol: TCP
+  totalSessions: 0
+ usage:
+  currentServerPoolCount: 2010
+  currentVirtualServerCount: 2000
+```
