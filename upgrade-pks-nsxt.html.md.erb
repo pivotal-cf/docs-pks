@@ -6,14 +6,12 @@ topictype: vspherewithnsxtupgrade
 
 This topic explains how to upgrade <%= vars.product_full %> for environments using vSphere with NSX-T.
 
-<p class="note warning"><strong>Warning:</strong> Each Kubernetes cluster contains a NSX-T Container Plug-in (NCP) which provides integration between NSX-T and Kubernetes. Before upgrading the clusters, the clusters contain NCP version 2.4.x, which is not compatible with NSX-T v2.5, hence, you cannot upgrade NSX-T v2.4.x to NSX-T v2.5 before upgrading all of your Kubernetes clusters first. Upgrading all your clusters results in the NCP component being upgraded to NCP v2.5, which is compatible with both NSX-T 2.4.x and NSX-T v2.5.x. After you complete the upgrade of all Kubernetes clusters managed by <%= vars.product_short %>, you can upgrade to NSX-T v2.5. Any cluster that is not on upgraded before upgrading to NSX-T v2.5 will be orphaned and inoperable.</p>
+<p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version. <%= vars.product_short %> includes the compatible Kubernetes version.</p>
 
 ## <a id="overview"></a>Overview
 
 The supported upgrade paths to <%= vars.product_short %> v1.6.0 are from <%= vars.product_short %> v1.5.0 and later.
 <%= vars.product_short %> v1.6.0 is compatible with  Ops Manager <%= vars.ops_man_version_2_6 %> or  Ops Manager <%= vars.ops_man_version_2_7 %>.
-
-<p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version. <%= vars.product_short %> includes the compatible Kubernetes version.</p>
 
 Before you begin the upgrade, follow the procedures in the [Prerequisites](#before) section to plan and prepare your upgrade.
 
@@ -35,29 +33,45 @@ Use the following table to determine your upgrade path to <%= vars.product_short
 <table>
 <tr>
   <th>Target Ops Manager version</th>
-  <th>Upgrade path</th>
-</tr>
+  <th>Upgrade Path for NSX-T v2.4</th>
+  <th>Upgrade Path for NSX-T v2.5</th>
 <tr>
   <td>v2.6</td>
   <td>
     <ol>
+      <li>Upgrade to NSX-T Data Center v2.4.3</li>
       <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_6 %>.</li>
       <li>Upgrade to <%= vars.product_short %> v1.6.</li>
       <li>Upgrade to NSX-T Data Center v2.5.</li>      
     </ol>
   </td>
+  <td>
+ <ol>
+       
+      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_6 %>.</li>
+      <li>Upgrade to <%= vars.product_short %> v1.6.</li>
+    </td>
 </tr>
 <tr>
   <td>v2.7</td>
   <td>
     <ol>
+      <li>Upgrade to NSX-T Data Center v2.4.3</li>
       <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_7 %>.</li>
       <li>Upgrade to <%= vars.product_short %> v1.6.</li>
       <li>Upgrade to NSX-T Data Center v2.5.</li>            
     </ol>
-  </td>
+      </td>
+<td>
+       <ol>
+      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_7 %>.</li>
+      <li>Upgrade to <%= vars.product_short %> v1.6.</li>
+</ol>
+</td>
 </tr>
 </table>
+
+<p class="note warning"><strong>Warning:</strong> Each Kubernetes cluster contains a NSX-T Container Plug-in (NCP), which provides integration between NSX-T and Kubernetes. If you are using NSX-T Data Center v2.4.x, you cannot upgrade NSX-T v2.4.x to NSX-T v2.5 until you upgrade all of the Kubernetes clusters managed by <%= vars.product_short %>. Upgrading all clusters results in the NCP component being upgraded to NCP v2.5, which is compatible with both NSX-T v2.4.x and NSX-T v2.5.x. After you complete the upgrade of all Kubernetes clusters, you can upgrade to NSX-T v2.5. Any cluster that is not upgraded to <%= vars.product_short %> v1.6 before upgrading to NSX-T v2.5 will be orphaned and inoperable.</p>
 
 ### <a id="prepare"></a>Prepare to Upgrade
 
@@ -115,7 +129,7 @@ To download and import a new Xenial stemcell, follow the steps below:
 
 1. In the **Stemcell Library**, locate the **<%= vars.product_tile %>** tile and note the required stemcell version.
 
-1. Navigate to the [Stemcells for PCF (Ubuntu Xenial)](https://network.pivotal.io/products/stemcells-ubuntu-xenial/) page on Pivotal Network
+1. Navigate to the [Pivotal Stemcells (Ubuntu Xenial)](https://network.pivotal.io/products/stemcells-ubuntu-xenial/) page on Pivotal Network
 and download the required stemcell version for your IaaS.
 
 1. Return to the **Installation Dashboard** in Ops Manager and click **Stemcell Library**.
@@ -127,30 +141,6 @@ and download the required stemcell version for your IaaS.
 1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for <%= vars.product_tile %>.
 
 1. Select the **Installation Dashboard** link to return to the Installation Dashboard.
-
-###<a id='configure-max-in-flight'></a> (Optional) Configure Worker VM Max in Flight
-
-<%= vars.product_short %> includes the **Worker VM Max in Flight** setting to
- control the maximum number of cluster node instances simultaneously provisioned, 
-per AZ, during cluster creation and upgrade. 
-
-Prior to <%= vars.product_short %> v1.6 the default **Worker VM Max in Flight** value was `1`, 
-and by default, node instances were created and upgraded serially. 
-With <%= vars.product_short %> v1.6 the **Worker VM Max in Flight** default value 
-has been increased from `1` to `4`, allowing up to four node instances to be created simultaneously.  
-
-The new **Worker VM Max in Flight** default value is applied during <%= vars.product_short %> installation and not during <%= vars.product_short %> upgrade.
-The existing value configured for this field in <%= vars.product_short %> v1.5.x persists in the initial configuration of the <%= vars.product_short %> v1.6 tile.
-
-If you want to enable accelerated cluster provisioning during 
-cluster upgrades, you can manually increase your **Worker VM Max in Flight**.
-
-<p class="note warning"><strong>Warning:</strong> Increasing the value of <strong>Worker VM Max in Flight</strong> can cause workload downtime during upgrade if your <%= vars.product_short %> deployment contains any clusters with a smaller number of node instances than <strong>Worker VM Max in Flight</strong>.</p>
-
-For information about configuring **Worker VM Max in Flight**, see the _PKS API_ section of the installation topic of [Installing Enterprise PKS on vSphere with NSX-T](./installing-nsx-t.html#pks-api).
-
-For information about upgrading multiple node instances in parallel, see 
-[Upgrade Multiple Kubernetes Clusters](upgrade-clusters.html#upgrade-clusters-multi) in _Upgrading Clusters_.
 
 ### <a id="host-monitoring"></a> (Optional) Configure Host Monitoring
 
@@ -192,13 +182,7 @@ To set your participation level to **None**:
 1. Click **Save**.
 
 For more information about configuring your participation level, see the _CEIP and Telemetry_
-section of the installation topic for your IaaS:
-
-  * [Installing Enterprise PKS on vSphere](./installing-pks-vsphere.html#telemetry)
-  * [Installing Enterprise PKS on vSphere with NSX-T](./installing-nsx-t.html#telemetry)
-  * [Installing Enterprise PKS on AWS](./installing-pks-aws.html#telemetry)
-  * [Installing Enterprise PKS on Azure](./installing-pks-azure.html#telemetry)
-  * [Installing Enterprise PKS on GCP](./installing-pks-gcp.html#telemetry)
+section of [Installing Enterprise PKS on vSphere with NSX-T](./installing-nsx-t.html#telemetry).
 
 ### <a id="errands"></a>Verify Errand Configuration
 
@@ -211,9 +195,10 @@ To verify that errands are configured correctly in the <%= vars.product_tile %> 
 1. Under **Post-Deploy Errands**, configure **Upgrade all clusters errand**:
   * If you want to upgrade the <%= vars.product_tile %> tile and all your existing Kubernetes clusters simultaneously,
   verify that **Upgrade all clusters errand** is set to **Default (On)**.
-  The errand upgrades a single Kubernetes cluster at a time.
+  The errand upgrades all clusters, one Kubernetes cluster at a time.
   Upgrading <%= vars.product_short %>-deployed Kubernetes clusters can temporarily interrupt the service
   as described in [Service Interruptions](interruptions.html).
+  <p class="note"><strong>Note:</strong> If you are upgrading <%= vars.product_short %> on NSX-T v2.4.3, you should select the **Upgrade all clusters errand** or plan to upgrade all clusters individually prior to upgrading to NSX-T v2.5.</p>
   * If you want to upgrade the <%= vars.product_tile %> tile only and
   then upgrade your existing Kubernetes clusters separately, disable **Upgrade all clusters errand**.
   For more information, see [Upgrading Clusters](upgrade-clusters.html).
@@ -276,14 +261,14 @@ Deployment Health](verify-health.html#k8s).
 
 1. <%= partial 'add-clusters-workloads' %>
 
-## <a id="upgrade-nsxt"></a> Upgrade NSX-T Data Center
+## <a id="upgrade-nsxt"></a> Upgrade NSX-T Data Center v2.4.3 to v2.5
 
-<p class="note warning"><strong>Warning:</strong> Each Kubernetes cluster contains a NSX-T Container Plug-in (NCP) which provides integration between NSX-T and Kubernetes. Before upgrading the clusters, the clusters will contains NCP version 2.4.x which is not compatible with NSX-T v2.5, hence, you cannot upgrade NSX-T v2.4.x to NSX-T v2.5 before upgrading all of your Kubernetes clusters. Upgrading all your clusters will result in the NCP component being upgraded to NCP v2.5 which will be compatible with both NSX-T 2.4.x and NSX-T v2.5.x. Once you complete the upgrade of all Kubernetes clusters managed by <%= vars.product_short %>, you may upgrade to NSX-T v2.5. Any cluster that is not on upgraded before upgrading to NSX-T v2.5 will be orphaned and inoperable.</p>
+<p class="note warning"><strong>Warning:</strong> Each Kubernetes cluster contains a NSX-T Container Plug-in (NCP), which provides integration between NSX-T and Kubernetes. If you are using NSX-T Data Center v2.4.x, you cannot upgrade NSX-T v2.4.x to NSX-T v2.5 until you upgrade all of the Kubernetes clusters managed by <%= vars.product_short %>. Upgrading all clusters results in the NCP component being upgraded to NCP v2.5, which is compatible with both NSX-T v2.4.x and NSX-T v2.5.x. After you complete the upgrade of all Kubernetes clusters, you can upgrade to NSX-T v2.5. Any cluster that is not upgraded to <%= vars.product_short %> v1.6 before upgrading to NSX-T v2.5 will be orphaned and inoperable.</p>
 
-1. You cannot upgrade to NSX-T v2.5.x until you have upgraded all Kubernetes clusters to NCP 2.5. The workflow is as follows:
+1. You cannot upgrade to NSX-T v2.5.x until you have upgraded all Kubernetes clusters to NCP v2.5. The workflow is as follows:
   - Upgrade the PKS tile from v1.5.0 or later to v1.6.
-  - Upgrade all Kubernetes clusters to NCP 2.5 (using the "Upgrade all clusters errand" or individually)
-  - Upgrade to NSX-T 2.5.x (only after all Kubernetes clusters have been upgraded)
+  - Upgrade all Kubernetes clusters to NCP v2.5, either using the **Upgrade all clusters errand** or individually.
+  - Upgrade to NSX-T v2.5.x only after all Kubernetes clusters have been upgraded.
 
 1. Upgrade NSX-T from v2.4 to v2.5. See the [Release Notes](./release-notes.html) supported versions.  
 
@@ -293,21 +278,19 @@ Deployment Health](verify-health.html#k8s).
 
 1. To perform the upgrade, refer to the [NSX-T Data Center Upgrade Guide](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/index.html) in the VMware documentation.
 
-1. If you made any architectural changes to your NSX-T environment that affect Enterprise PKS, such as adding a [VIP address](./nsxt-install-mgmt-vip.html) or [load balancer](./nsxt-install-mgmt-lb.html) for the NSX-T Management Cluster, update the PKS and BOSH tile with the new information, specifically:
+1. If you made any architectural changes to your NSX-T environment that affect <%= vars.product_short %>, such as adding a [VIP address](./nsxt-install-mgmt-vip.html) or [load balancer](./nsxt-install-mgmt-lb.html) for the NSX-T Management Cluster, update the PKS and BOSH Director tile with the new information, specifically:
+  -  In the BOSH Director tile, select the **vCenter Configuration** tab and update the following:
+     - The **NSX Address** field
+     - The **NSX CA Cert** field
+     - Save the BOSH tile changes.
+     <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-08.png" alt="Update BOSH with VIP and Cert"> 
+  - In the PKS tile, select the **Networking** tab and update the following: 
+     - The **NSX Manager hostname** field
+     - The **NSX Manager CA Cert** field 
+     - Save the PKS tile changes
+     <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-09.png" alt="Update <%= vars.product_short %> with VIP and Cert"> 
 
--  In the BOSH Director tile, select the **vCenter Configuration** tab and update the following:
-  - The **NSX Address** field
-  - The **NSX CA Cert** field
-  - Save the BOSH tile changes.
-  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-08.png" alt="Update BOSH with VIP and Cert"> 
-
-- In the PKS tile, select the **Networking** tab and update the following: 
-  - The **NSX Manager hostname** field
-  - The **NSX Manager CA Cert** field 
-  - Save the PKS tile changes
-  <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-09.png" alt="Update <%= vars.product_short %> with VIP and Cert"> 
-
-1. If you made changes to the BOSH or PKS tiles:
+1. If you made changes to the BOSH Director or PKS tiles:
   - Go to the **Installation Dashboard** in Ops Manager.
   - Click **Review Pending Changes.**
   - Expand the **Errands** list for <%= vars.product_short %>.
@@ -315,6 +298,6 @@ Deployment Health](verify-health.html#k8s).
   - Click **Apply Changes**.
   <img src="images/nsxt/nsx-upgrade/nsx_24_upgrade-10.png" alt="Upgrade all Kubernetes clusters"> 
 
-1. Verify the Upgrade of NSX-T Data Center.
+1. Verify the upgrade of NSX-T Data Center.
 
   After you apply changes to the <%= vars.product_tile %> tile and the upgrade is complete, verify that your Kubernetes environment is healthy. To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html#k8s).
