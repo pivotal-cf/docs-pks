@@ -1,38 +1,63 @@
 ---
-title: Ingress Scaling (NSX-T only)
+title: Scaling Ingress Resources (NSX-T only)
 owner: PKS-NSX-T
 ---
 
-This topic describes how clusters managers and users can monitor the health status of the NSX-T load balancer and scale ingress. 
+This topic describes how to monitor the health status of the NSX-T load balancer and scale ingress resources. 
 
-<p class="note"><strong>Note:</strong> This feature requires NCPv v2.5.1 or later.</p>
+<p class="note"><strong>Note:</strong> This feature requires NCP v2.5.1 or later.</p>
 
-## <a id='ingress-scaling-about'></a>About Ingress Scaling
+## <a id='ingress-scaling-about'></a>About Load Balancer Monitoring and Ingress Scaling
 
-This feature gives you the ability to scale out L7 load balancers created in NSX-T for ingress. Currently, for each PKS cluster there are 2 virtual servers (http/https) attached to the cluster load balancer to perform ingress routing. These virtual servers for ingress are subject to various limits and users weren’t able to scale their ingress.
+For each Kubernetes cluster provisioned by Enterprise PKS with NSX-T, there are 2 layer 7 virtual servers (HTTP and HTTPS) attached to the cluster load balancer service that perform ingress routing. 
 
-This feature introduces 2 new CRDS to aid scale out: nsxLoadBalancerMonitors and LoadBalancers.
+Using [custom resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#custom-resources), Enterprise PKS v1.6 gives you the ability to monitor the state of the NSX-T load balancer service and scale the virtual servers created for ingress. 
 
-## <a id='nsxLoadBalancerMonitors'></a>nsxLoadBalancerMonitors CRD
+## <a id='nsxLoadBalancerMonitors'></a>Monitoring the NSX-T Load Balancer Service
 
-The nsxLoadBalancerMonitors CRD provides monitoring of traffic, usage and health score information about the NSX-T loadbalancer. 
+You can use the NSXLoadBalancerMonitor CRD to monitor the NSX-T load balancer service, including traffic, usage and health score information. 
 
-For each loadbalancer created, a corresponding nsxLoadBalancerMonitor object is created by NCP:
-- Load balancer service created by default for the Kubernetes master node(s) 
-- Layer 4 auto-scaled load balancer creates for service resources
-- Layer 7 ingress load balancer scaled by user
+For each virtual server created by the NSX-T load balancer service, NCP (by way of the CRD) creates a corresponding NSXLoadBalancerMonitor object:
+- 1 layer 4 load balancer created by default for the Kubernetes master node(s) 
+- 1 layer 4 auto-scaled load balancer created for **each** service resource
+- 2 layer 7 ingress load balancers which can be scaled by user as described below
 
-Health score reflect the current performance of the loadBalancer, if the health score is poor, user need to take the corresponding strategy to scale out and replace the services, or to contact infra admin. 
-The statistics is showing the real-time connections amount and throughput of virtual servers
+For each type of load balancer, the NSXLoadBalancerMonitor returns statistics showing the number of connections and throughput of the virtual servers. In addition, a **health score** is calculated that reflects the current performance of that load balancer.
 
-## <a id='nsxLoadBalancerMonitors-example'></a>nsxLoadBalancerMonitors Example
+If the health score is poor for one of the layer 4 load balancers, you can use a network profile to [increase the size of the NSX-T load balancer service](./network-profiles-ncp-lb.html).
+
+If the Health Score is poor for the layer 7 ingress load balancers, you can use the [LoadBalancer CRD](./nsxt-ingress-scale.html#LoadBalancer) to manually scale ingress.
+
+Refer to the [NSXLoadBalancerMonitor Actions table](./nsxt-ingress-scale.html#nsxLoadBalancerMonitors-actions) for details you can take based on the results of the NSXLoadBalancerMonitor.
+
+## <a id='nsxLoadBalancerMonitors-commands'></a>Using the NSXLoadBalancerMonitor CRD
+
+kubectl get nsxlbmonitors to get all health monitors, kubectl describe nsxlbmonitor <lb-uuid>  to check health state of one lb
+
+To run the NSXLoadBalancerMonitor CRD, issue the following set of `kubectl` commands.
+
+Issue the following command to get the name of the NSX-T load balancer service deployed for the cluster:
+
+```
+kubectl get nsxloadbalancermonitors
+```
+
+Issue the following command to view statistics, throughput, and health score for all virtual servers deployed by a specific load balancer service:
+
+```
+kubectl get nsxloadbalancermonitor NAME-OF-LOAD-BALANCER-SERVICE
+```
+
+## <a id='nsxLoadBalancerMonitors-example'></a>Example Results Returned by the NSXLoadBalancerMonitor CRD
+
+The following examples shows the results returns for an example NSX-T load balancer service named `lbs-1`. 
 
 ```
 # kubectl get nsxloadbalancermonitor lbs-1
 apiVersion: vmware.com/v1alpha1
 kind: NSXLoadBalancerMonitor
 metadata:
- name: lbs-1 # name matches the name of LB service 
+ name: lbs-1                              # name matches the name of LB service 
 health:
  - servicePressureIndex: 70,WARM
  metrics:
@@ -60,53 +85,70 @@ health:
   currentVirtualServerCount: 2000
 ```
 
-## <a id='nsxLoadBalancerMonitors-actions'></a>NsxLoadBalancerMonitor Actions
+## <a id='nsxLoadBalancerMonitors-actions'></a>NSXLoadBalancerMonitor Actions
 
-Based on the health score the user can decide what action to take.
+The NSXLoadBalancerMonitor CRD returns two health scores:
+- `servicePressureIndex` which represents an overall health score for the NSX-T load balancer service
+- `infraPressureIndex` which represents the heath score of the NSX-T Edge Node that is running the load balancer and associated virtual servers
 
-LBS Health Temperature | Infrastructure Health Temperature | Cluster Manager | Infrastrcture Admin
------------------------|-----------------------------------|-----------------|--------------------
-LOW                    | LOW                               | NONE            | NONE
-LOW                    | HIGH                              | Alert admin     | Move the LBS from the CRITICAL edge node to another node
-HIGH                   | LOW                               | Increase the size of the LBS, Or Create a new LBS using LB CRD and move some service from the CRITICAL LBS | NONE
-HIGH                   | HIGH                              | 1) Alert admin to resolve infra health score; 2) Resolve the LBS health score | Move the LBS from the CRITICAL edge node to another node
+Based on the health score the user can decide what action to take. The table below summarizes the actions that you can take based on the health scores.
 
-## <a id='LoadBalancer'></a>LoadBalancer CRD
+servicePressureIndex | infraPressureIndex | Cluster Manager  | Infrastructure Admin
+---------------------|--------------------|------------------|--------------------
+LOW or WARM          | LOW or WARM        | NONE             | NONE
+LOW or WARM          | HIGH               | Alert infra admin| Move the LBS from the CRITICAL Edge Node to another Edge Node.
+HIGH                 | LOW or WARM        | Resolve the LBS health score by [scaling the ingress LB](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [network profile](./network-profiles-ncp-lb.html). | NONE 
+HIGH                 | HIGH               | Alert infra admin; Resolve the LBS health score by [scaling the ingress LB](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [network profile](./network-profiles-ncp-lb.html). | Move the LBS from the CRITICAL Edge Node to another Edge Node.
 
-Provides a way to scale out loadbalancer for ingress routing. Users can monitor nsxLoadBalancerMonitor object for the loadbalancer health and use LoadBalancer CRD to create a new loadbalancer. Users can annotate K8S ingress resource with the newly created LoadBalancer information and NCP would attach ingress rules to the scaled out loadbalancer.
+## <a id='LoadBalancer'></a>Scaling Ingress Using the LoadBalancer CRD
 
-## <a id='LoadBalancer-example'></a>LoadBalancer Example
+The LoadBalancer CRD provides you with an interactive method to scale the load balancer for ingress routing. After you have used the NSXLoadBalancerMonitor CRD to check the health status of the load balancer service, you can use the LoadBalancer CRD to create a new ingress load balancer. Then you annotate the Kubernetes K8S ingress resource with the newly created ingress load balancer. NCP will attach the ingress rules to the scaled out load balancer.
+
+## <a id='LoadBalancer-example'></a>LoadBalancer CRD Example
+
+The following example creates a new ingress load balancer.
 
 ```
-# kubectl get nsxloadbalancermonitor lbs-1
-
+# kubectl apply –f lb.yaml
 apiVersion: vmware.com/v1alpha1
-kind: NSXLoadBalancerMonitor
+kind: LoadBalancer
 metadata:
- name: lbs-1  # name matches the name of LB service
-health:
- - servicePressureIndex: 70,WARM
- metrics:
-  cpuUsagePercentage: 70
-  poolmemberUsagePercentage: 80
- - infraPressureIndex: 90,HIGH
- metrics:
-  cpuUsagePercentage: 70
-  lbServiceUsagePercentage: 90
-  memoryUsagePercentage: 90 
-  poolmemberUsagePercentage: 20
- traffic:
- - bytesInRate: 0
-  bytesOutRate: 0
-  currentSessionRate: 0
-  ipAddress: 4.4.4.4
-  maxSessions: 0
-  virtualServerName: vs_1
-  packetsInRate: 0
-  packetsOutRate: 0
-  protocol: TCP
-  totalSessions: 0
- usage:
-  currentServerPoolCount: 2010
-  currentVirtualServerCount: 2000
+  name: cluster1_lbs0                     # display name of the loadBalancer
+spec:
+  httpConfig:                             # optional config to support http/https route on the loadBalancer. Set as httpConfig: {} to apply default settings
+    virtualIP:                            # optional, defaults to auto_allocate     
+    port: 233                             # optional, defaults to 80
+    tls:
+      port: 2333                          # optional, defaults to 443
+      secretName: default_secret          # optional, defaults to nil
+      secretNamespace: default            # optional, defaults to nil
+    xForwardedFor: INSERT                 # optional, available values are INSERT, REPLACE, defaults to nil
+    affinity:
+      type: source_ip                     # optional, available values are sourceIP, cookie 
+      timeout: 100                        # optional, defaults to 10800
+  size: MEDIUM                            # optional, defaults to SMALL
+  virtualNetwork: virtualnetwork1         # optional, defaults to nil
+status:
+  httpVirtualIP: <realized external ip>   # auto-allocated or user desired external ip for http/https virtual server
+```
+
+The following example annotates the Kubernetes ingress resource with the newly created ingress load balancer.
+
+```
+# kubectl apply –f ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: svc-ingress1
+  annotations:
+    ncp/loadbalancer: cluster1_lbs0       # loadbalancer-name-that-you-gave-in-crd  
+spec:
+  rules:
+  - host: test.com
+    http:
+      paths:
+      - path: /testpath
+          backend:
+            serviceName: svc1
+            servicePort: 80
 ```
