@@ -1,0 +1,43 @@
+---
+title: Ingress Support for URL Rewrite (NSX-T only)
+owner: PKS-NSX-T
+---
+
+This topic describes how to perform URL rewrite for Kubernetes ingress resources.
+
+## <a id='url-rewrite-about'></a>About Support for URL Rewrite for Ingress Resources
+
+Enterpise PKS with NSX-T supports URL path rewrite using NCP v2.5.1 and later. 
+
+All the ingress paths will be rewritten to the provided value. If an ingress has annotation `ingress.kubernetes.io/rewrite-target: /` and has path `/tea`, for example, the URI `/tea` will be rewritten to `/` before the request is sent to the backend service. Numbered capture groups are supported.
+
+## <a id='url-rewrite-example'></a>URL Rewrite Example
+
+The following example shows how to implement URL rewrite.
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cafe-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nsx"
+    ncp/use-regex: "True"
+    #/tea/cup will be rewritten to /cup before sending request to endpoint
+    ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - host: cafe.example.com
+    http:
+      paths:
+      - path: /tea/(.*)
+        backend:
+          serviceName: tea-svc
+          servicePort: 80
+      - path: /coffee/(.*)
+        backend:
+          serviceName: coffee-svc
+          servicePort: 80
+```          
+
+
