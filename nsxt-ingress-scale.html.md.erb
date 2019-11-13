@@ -17,22 +17,20 @@ Using [custom resources](https://kubernetes.io/docs/concepts/extend-kubernetes/a
 
 You can use the NSXLoadBalancerMonitor CRD to monitor the NSX-T load balancer service, including traffic, usage and health score information. 
 
-For each virtual server created by the NSX-T load balancer service, NCP (by way of the CRD) creates a corresponding NSXLoadBalancerMonitor object:
+For each load balancer service created by the NSX-T load balancer, NCP (by way of the CRD) creates a corresponding NSXLoadBalancerMonitor object:
 - 1 layer 4 load balancer created by default for the Kubernetes master node(s) 
 - 1 layer 4 auto-scaled load balancer created for **each** service resource
-- 2 layer 7 ingress load balancers which can be scaled by user as described below
+- 2 layer 7 ingress load balancers which can be [interactively scaled](./nsxt-ingress-scale.html#LoadBalancer)
 
 For each type of load balancer, the NSXLoadBalancerMonitor returns statistics showing the number of connections and throughput of the virtual servers. In addition, a **health score** is calculated that reflects the current performance of that load balancer.
 
 If the health score is poor for one of the layer 4 load balancers, you can use a network profile to [increase the size of the NSX-T load balancer service](./network-profiles-ncp-lb.html).
 
-If the Health Score is poor for the layer 7 ingress load balancers, you can use the [LoadBalancer CRD](./nsxt-ingress-scale.html#LoadBalancer) to manually scale ingress.
+If the health score is poor for the layer 7 ingress load balancers, you can use the [LoadBalancer CRD](./nsxt-ingress-scale.html#LoadBalancer) to manually scale ingress.
 
 Refer to the [NSXLoadBalancerMonitor Actions table](./nsxt-ingress-scale.html#nsxLoadBalancerMonitors-actions) for details you can take based on the results of the NSXLoadBalancerMonitor.
 
 ## <a id='nsxLoadBalancerMonitors-commands'></a>Using the NSXLoadBalancerMonitor CRD
-
-kubectl get nsxlbmonitors to get all health monitors, kubectl describe nsxlbmonitor <lb-uuid>  to check health state of one lb
 
 To run the NSXLoadBalancerMonitor CRD, issue the following set of `kubectl` commands.
 
@@ -45,7 +43,7 @@ kubectl get nsxloadbalancermonitors
 Issue the following command to view statistics, throughput, and health score for all virtual servers deployed by a specific load balancer service:
 
 ```
-kubectl get nsxloadbalancermonitor NAME-OF-LOAD-BALANCER-SERVICE
+kubectl describe nsxloadbalancermonitor NAME-OF-LOAD-BALANCER-SERVICE
 ```
 
 ## <a id='nsxLoadBalancerMonitors-example'></a>Example Results Returned by the NSXLoadBalancerMonitor CRD
@@ -53,7 +51,7 @@ kubectl get nsxloadbalancermonitor NAME-OF-LOAD-BALANCER-SERVICE
 The following examples shows the results returns for an example NSX-T load balancer service named `lbs-1`. 
 
 ```
-# kubectl get nsxloadbalancermonitor lbs-1
+# kubectl describe nsxloadbalancermonitor lbs-1
 apiVersion: vmware.com/v1alpha1
 kind: NSXLoadBalancerMonitor
 metadata:
@@ -115,7 +113,7 @@ kind: LoadBalancer
 metadata:
   name: cluster1_lbs0                     # display name of the loadBalancer
 spec:
-  httpConfig:                             # optional config to support http/https route on the loadBalancer. Set as httpConfig: {} to apply default settings
+  httpConfig:                             # optional config to support http/https route on the loadBalancer. Set as httpConfig: {} to apply default settings.
     virtualIP:                            # optional, defaults to auto_allocate     
     port: 233                             # optional, defaults to 80
     tls:
@@ -141,7 +139,7 @@ kind: Ingress
 metadata:
   name: svc-ingress1
   annotations:
-    ncp/loadbalancer: cluster1_lbs0       # loadbalancer-name-that-you-gave-in-crd  
+    nsx/loadbalancer: cluster1_lbs0       # loadbalancer-name-that-you-gave-in-crd  
 spec:
   rules:
   - host: test.com
