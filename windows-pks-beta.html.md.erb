@@ -68,11 +68,49 @@ vSphere stemcell 2019.7 or later for Windows Server version 2019.
 
 1. To create a Windows worker-based cluster follow the steps in [Creating Clusters](create-cluster.html).
 
-### <a id='windows-pause-internetless'></a> Prepare a Windows Pause Image for an Internetless Environment
+## <a id='windows-pause-internetless'></a> Prepare a Windows Pause Image for an Internetless Environment
 
-User has to manually configure the private registry with the corresponding Microsoft base image before deploying a Windows pod.
-On a Windows Server 2019 machine with Docker installed, configure the Docker daemon to allow non-redistributable artifacts to be pushed to your private registry.
-docker pull mcr.microsoft.com/k8s/core/pause:1.2.0
-docker tag mcr.microsoft.com/k8s/core/pause:1.2.0 my.private.registry/windows/pause:1.2.0
-docker push my.private.registry/windows/pause:1.2.0
+During a Kubernetes pod deployment the Kubernetes Kubelet deploys a pause container.  
 
+During Windows worker-based pod deployment, Kubelet fetches a Windows container image from a Docker registry 
+and deploys the fetched image. 
+By default <%= vars.product_short %> is configured to fetch the Windows container image from the 
+Microsoft Docker registry because only Microsoft can distribute Windows container base images.
+
+The default <%= vars.product_short %> configuration does not support deploying Windows worker-based 
+clusters in an internet-less environment because the Microsoft Docker registry is not accessible 
+from within the environment.  
+
+If your <%= vars.product_short %> installation is in an internet-less environment 
+you must place a Windows container image in an accessible Docker registry and configure 
+<%= vars.product_short %> to fetch the Windows container image from that registry.  
+the Microsoft Docker registry is not accessible and 
+
+To prepare a Windows pause image for an internet-less environment, perform the following:
+
+1. Create an accessible Windows Server 2019 machine in your environment.  
+1. Install Docker on this Windows Server 2019 machine.  
+1. Configure the machine's Docker daemon to allow non-redistributable artifacts to be pushed to your private registry.  
+1. Open a command line on the Windows machine.
+1. To download a Windows container image from the Microsoft Docker registry, run the following command:
+
+    ```
+    docker pull mcr.microsoft.com/k8s/core/pause:1.2.0
+    ```
+
+1. To tag the Windows container image, run the following command:
+
+    ```
+    docker tag mcr.microsoft.com/k8s/core/pause:1.2.0 my.private.registry/windows/pause:1.2.0
+    ```
+
+1. To upload the Windows container image to your accessible private registry, run the following command:
+
+    ```
+    docker push my.private.registry/windows/pause:1.2.0
+    ```
+
+Configure the <%= vars.product_tile %> tile with the URI of your private registry-hosted Windows container 
+image after uploading it to the registry. 
+For more information about configuring the <%= vars.product_tile %> tile's 
+**Kubelet customization - Windows pause image location** field, see [Plans](#plans), above.
