@@ -1,36 +1,32 @@
 ---
-title: Viewing the Health Status of Cluster Networking Objects (NSX-T only)
+title: Viewing and Troubleshooting the Health Status of Cluster Network Objects (NSX-T only)
 owner: PKS-NSX-T
 ---
 
 This topic describes how cluster managers and users can troubleshoot NSX-T networking errors using the `kubectl nsxerrors` command.
 
-## <a id='nsxerrors-about'></a>About the nsxerrors CRD
+## <a id='nsxerrors-about'></a>About the NSX Errors CRD
 
-This feature gives you the ability to know the errors related to NSX-T when users deploy and expose apps in the Kubernetes cluster. Previously, NSX-T errors were only logged in NCP logs in Master VM which cluster users do not have access to. This feature improves visibility and troubleshooting experience for cluster managers and users.
+The NSX Errors CRD gives you the ability to view errors related to NSX-T that may occur when applications are deployed to a PKS-provisioned Kubernetes cluster. Previously, NSX-T errors were logged in NCP logs on the master nodes, which cluster users do not have access to. The NSX Errors CRD improves visibility and troubleshooting for cluster managers and users.
 
-The feature introduces a new CRD: nsxerrors (`kubectl nsxerrors`). A new `nsxerror`vobject is created per Kubernetes resource which encounters an NSX error during realization. The Kubernetes resource is also annotated with the nsxerror object name. The
-nsxerror object is deleted once NSX error is resolved and Kubernetes resource is realized.
+The NSX Errors CRD creates a `nsxerror` object for each Kubernetes resource that encounters an NSX error during attempted creation. In addition, the Kubernetes resource is annotated with the `nsxerror` object name. The NSX Error CRD provides the command `kubectl nsxerrors` that lets you view the NSX errors encountered during resource creation. The `nsxerror` object is deleted once the NSX error is resolved and the Kubernetes resource is successfully created. 
 
-### <a id='nsxerrors-reported'></a>nsxerrors Reported
+## <a id='nsxerrors-reported'></a>Errors Reported by the NSX Errors CRD
 
-The following errors are reported by the nsxerror CRD:
+The following errors are reported by the NSX Errors CRD:
 
-* Autoscaler failed to allocate additional LBS due to Edge limit
-* Number of pool exceed LBS limit
-* Number of pool members exceed LBS limit & Edge node limit
-* Floating IP exhausted when exposing LB type service
-* Pod IP Block exhausted
-* Low IP allocations available warning
-* NSX manager unavailable
-* NSX manager rate limit exceeded
+* Auto-scaler failed to allocate additional load balancer service due to Edge Node limit
+* Number of pools exceed the load balancer service limit
+* Number of pool members exceed the the load balancer service and Edge Node limit
+* Floating IP pool is exhausted when exposing the load balancer type service
+* Pod IP Block is exhausted
+* The number of available IP allocations is low
+* The NSX manager is unavailable
+* The NSX manager rate limit is exceeded
 
-### <a id='nsxerrors-example'></a>nsxerrors Example
+### <a id='nsxerrors-example'></a>NSX Errors CRD Example
 
-
-#### Ingress Rule Example 1
-
-To illustrate how the nsxerrors CRD works and can be used, consider the following example where the NSX autoscaler failed to allocate additional load balancer services due to Edge Cluster limits reached (the number of virtual switeches exceed load balancer service limits with auto-scaling enabled).
+To illustrate how the NSX Errors CRD works and can be used, consider the following example: the NSX auto-scaler fails to allocate additional load balancer services due to Edge Node limits reached. In this case, the number of virtual switches exceed load balancer service limits with auto-scaling enabled.
 
 The resource is fetched by name to check its status.
 
@@ -39,7 +35,7 @@ The resource is fetched by name to check its status.
 test-svc-3     LoadBalancer 10.104.236.243   <pending> 80:32095/TCP,8080:32664/TCP   4
 ```
 
-The status is pending so we look at the annotations. The `ncp/error` `nsxerror` annotations are visible.
+The status is pending so we look at the annotations. The `ncp/error` and `nsxerror` annotations are visible.
 
 ```
 # kubectl get svc test-svc-3 –o yaml
