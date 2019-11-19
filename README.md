@@ -46,6 +46,8 @@ source for this page in GitHub" at the bottom of the topic to locate the source 
 
 **1.3.x-patch-releases**: The `1.3.x-patch-releases` branch is used to publish the 1.3 site including information included for unreleased patches. Create pull requests on `1.3.x-patch-releases` to contribute to documentation for unreleased 1.3 patches.
 
+**1.3**: The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
+
 The `1.2` branch is no longer maintained. A PDF of the Enterprise PKS v1.2 documentation is available at https://resources.docs.pivotal.io/pdfs/pks-docs-1.2.pdf.
 
 The `1.1` branch is no longer maintained. A PDF of the Enterprise PKS v1.1 documentation is available at https://resources.docs.pivotal.io/pdfs/pks-docs-1.1.pdf.
