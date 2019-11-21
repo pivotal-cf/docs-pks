@@ -47,14 +47,24 @@ Failed to retrieve current K8s Cluster Volumes. cannot get namespaces of cluster
 
 **Cause**
 
-In a single tier0 topology, <%= vars.product_short %> Management Console is deployed to the same infrastructure network as vSphere and NSX-T Data Center. In a multiple-tier0 topology, due to tenant isolation, the infrastructure network is not routable to tenant tier0 uplink networks. In a multiple-tier0 topology, data from the Kubernetes API is exposed by floating IP addresses on tenant tier0 routers. Consequently, the management console cannot always retrieve cluster data from the Kubernetes API because the connectivity to tenant floating IP addresses in a multiple-tier0 topology is dependent on how your network is configured. 
+In a single tier0 topology, <%= vars.product_short %> Management Console is deployed to the same infrastructure network as vSphere and NSX-T Data Center. In a multiple-tier0 topology, due to tenant isolation, the infrastructure network is not routable to tenant tier0 uplink networks. In a multiple-tier0 topology, data from the Kubernetes API is exposed by floating IP addresses on tenant tier0 routers. Consequently, the management console cannot retrieve cluster data from the Kubernetes API because it is not on the same network as the tenants.
 
 **Solution**
 
-Make sure that the <%= vars.product_short %> Management Console can connect to tenant floating IP addresses: 
+Make sure that the <%= vars.product_short %> Management Console can connect to tenant floating IP addresses. 
 
-- Configure a route from the management console appliance VM to the network CIDR of the tenant floating IPs.
-- Create a VM to serve as a gateway that can reach the tenant's floating IPs.
+
+1. Connect to the management console VM by using `ssh`. 
+1. Configure a route on the management console appliance VM.
+
+   For example, run the following command:
+   
+   `route add -net <destination_subnet> gw <gateway_address>`
+
+   - **Destination subnet**: The network CIDR of the tenant floating IP addresses.
+   - **Gateway**: A VM that can reach the tenant floating IP addresses and the management console.
+
+Because the gateway can reach both the management console and the tenant floating IP addresses, the management console can reach the tenants and retrieve cluster data from the Kubernetes API.
 
 ## <a id='log-insight'></a>Obtain the vRealize Log Insight Agent ID for <%= vars.product_short %> Management Console 
 
