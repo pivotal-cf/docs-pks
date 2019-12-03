@@ -16,7 +16,7 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/p
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.6` | Enterprise PKS 1.6 pre-release content | https://docs.pivotal.io/pks/1-5/index.html |
+| `1.6` | Enterprise PKS 1.6 pre-release content | https://docs.pivotal.io/pks/1-6/index.html |
 | `1.5` | Enterprise PKS 1.5 released content | https://docs.pivotal.io/pks/1-5/index.html |
 | `1.4` | Enterprise PKS 1.4.x released content | https://docs.pivotal.io/pks/1-4/index.html |
 | `1.3` | Enterprise PKS 1.3.x released content | https://docs.pivotal.io/pks/1-3/index.html |
