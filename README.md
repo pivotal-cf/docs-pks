@@ -22,7 +22,8 @@ source for this page in GitHub" at the bottom of the topic to locate the source 
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.6` | Enterprise PKS 1.6 pre-release content | https://docs.pivotal.io/pks/1-6/index.html |
+| `1.7` | Enterprise PKS 1.7 pre-release content | N/A |
+| `1.6` | Enterprise PKS 1.6 released content    | https://docs.pivotal.io/pks/1-6/index.html |
 | `1.5` | Enterprise PKS 1.5 released content    | https://docs.pivotal.io/pks/1-5/index.html |
 | `1.4` | Enterprise PKS 1.4 released content    | https://docs.pivotal.io/pks/1-4/index.html |
 | `1.3` | Enterprise PKS 1.3 released content    | https://docs.pivotal.io/pks/1-3/index.html |
@@ -32,7 +33,9 @@ source for this page in GitHub" at the bottom of the topic to locate the source 
 | `0.8` | Not in use | N/A|
 | `pks-patches` | Staging site for not-yet-released Enterprise PKS patches. | Publishes to an internal staging site only. |
 
-**1.6**: The `1.6` branch is used to publish the pre-release v1.6 version of the site. Create pull requests on `1.6` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.6 documentation.
+**1.7**: The `1.7` branch is used to publish the pre-release v1.7 version of the site. Create pull requests on `1.7` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.7 documentation.
+
+**1.6**: The `1.6` branch is used to publish the live v1.6 version of the site. Create pull requests on `1.6` to contribute bug fixes or correct technical inaccuracies in the v1.6 documentation.
 
 **1.5**: The `1.5` branch is used to publish the live v1.5 version of the site. Create pull requests on `1.5` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
 
