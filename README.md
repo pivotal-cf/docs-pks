@@ -17,10 +17,10 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/p
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
 | `1.7` | Enterprise PKS 1.7 pre-release content | N/A |
-| `1.6` | Enterprise PKS 1.6 released content | https://docs.pivotal.io/pks/1-6/index.html |
-| `1.5` | Enterprise PKS 1.5 released content | https://docs.pivotal.io/pks/1-5/index.html |
-| `1.4` | Enterprise PKS 1.4 released content | https://docs.pivotal.io/pks/1-4/index.html |
-| `1.3` | Enterprise PKS 1.3 released content | https://docs.pivotal.io/pks/1-3/index.html |
+| `1.6` | Enterprise PKS 1.6 released content    | https://docs.pivotal.io/pks/1-6/index.html |
+| `1.5` | Enterprise PKS 1.5 released content    | https://docs.pivotal.io/pks/1-5/index.html |
+| `1.4` | Enterprise PKS 1.4 released content    | https://docs.pivotal.io/pks/1-4/index.html |
+| `1.3` | Enterprise PKS 1.3 released content    | https://docs.pivotal.io/pks/1-3/index.html |
 | `1.2` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-1-2.pdf)) |
 | `1.1` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-1-1.pdf)) |
 | `1.0-publish` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-docs-1.0.pdf)) |
@@ -33,11 +33,15 @@ Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/p
 
 **1.5**: The `1.5` branch is used to publish the live v1.5 version of the site. Create pull requests on `1.5` to contribute bug fixes or correct technical inaccuracies in the v1.5 documentation.
 
-**1.4**: The `1.4` branch is used to publish the live v1.4 version of the site. Create pull requests on `1.4` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
+**1.5.x-patch-releases**: The `1.5.x-patch-releases` branch is used to publish the 1.5 site including information included for unreleased patches. Create pull requests on `1.5.x-patch-releases` to contribute to documentation for unreleased 1.5 patches.
+
+**1.4**: The `1.4` branch is used to publish the live v1.4 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
+
+**1.4.x-patch-releases**: The `1.4.x-patch-releases` branch is used to publish the 1.4 site including information included for unreleased patches. Create pull requests on `1.4.x-patch-releases` to contribute to documentation for unreleased 1.4 patches.
 
 **1.3**: The `1.3` branch is used to publish the live v1.3 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.3 documentation.
 
-**pks-patches**: The `pks-patches` branch is a used to build a staging site for work-in-progress doc updates related to patch releases. For example, Enterprise PKS v1.4.1. 
+**1.3.x-patch-releases**: The `1.3.x-patch-releases` branch is used to publish the 1.3 site including information included for unreleased patches. Create pull requests on `1.3.x-patch-releases` to contribute to documentation for unreleased 1.3 patches.
 
 The `1.2` branch is no longer maintained. A PDF of the Enterprise PKS v1.2 documentation is available at https://resources.docs.pivotal.io/pdfs/pks-docs-1.2.pdf.
 
