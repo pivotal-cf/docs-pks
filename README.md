@@ -35,7 +35,7 @@ Every topic in the [PKS documentation site](https://docs-pks.cfapps.io) has a co
 
 **1.5.x-patch-releases**: The `1.5.x-patch-releases` branch is used to publish the 1.5 site including information included for unreleased patches. Create pull requests on `1.5.x-patch-releases` to contribute to documentation for unreleased 1.5 patches.
 
-**1.4**: The `1.4` branch is used to publish the live v1.4 version of the site. Create pull requests on `1.3` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
+**1.4**: The `1.4` branch is used to publish the live v1.4 version of the site. Create pull requests on `1.4` to contribute bug fixes or correct technical inaccuracies in the v1.4 documentation.
 
 **1.4.x-patch-releases**: The `1.4.x-patch-releases` branch is used to publish the 1.4 site including information included for unreleased patches. Create pull requests on `1.4.x-patch-releases` to contribute to documentation for unreleased 1.4 patches.
 
