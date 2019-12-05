@@ -1,0 +1,125 @@
+The following table describes the Ingress Controller configuration parameters:
+
+<% if current_page.data.lbtype == "layer4controller" %>
+  <table>
+    <th width="30%">Parameter</th>
+<% end %>
+<% if current_page.data.lbtype == "layer7controller" %>
+  <table>
+    <th width="40%">Parameter</th>
+<% end %>
+    <th>Type</th>
+    <th>Description</th>
+    <tr>
+      <td><code>name</code></td>
+      <td>String</td>
+      <td>User-defined name of the network profile.</td>
+    </tr>
+    <tr>
+      <td><code>description</code></td>
+      <td>String</td>
+      <td>User-defined description for the network profile.</td>
+    </tr>
+    <tr>
+      <td><code>parameters</code></td>
+      <td>Map</td>
+      <td>One or more name-value pairs.</td>
+    </tr>
+    <tr>
+      <td><code>cni\_configurations</code></td>
+      <td>Map</td>
+      <td>Map containing two key-value pairs: <code>type</code> and <code>parameters</code>.</td>
+    </tr>
+    <tr>
+      <td><code>type</code></td>
+      <td>Constant String</td>
+      <td>Only <code>nsxt</code> is accepted.</td>
+    </tr>
+    <tr>
+      <td><code>parameters</code></td>
+      <td>Map</td>
+      <td>Map containing one or more key-value pairs for NCP settings.</td>
+    </tr>
+    <tr>
+      <td><code>nsx\_lb</code></td>
+      <td>Boolean</td>
+      <td>Flag to control if the NSX-T Load Balancer is used for the Kubernetes cluster.</td>
+    </tr>
+<% if current_page.data.lbtype == "layer4controller" %>
+    <tr>
+      <td><code>x\_forwarded\_for</code></td>
+      <td>String</td>
+      <td>Sets the original client source IP in the request header. Default is none. Accepts <code>"insert"</code> and 
+        <code>"replace"</code>.</td>
+    </tr>
+    <tr>
+      <td><code>max\_l4\_lb\_service</code></td>
+      <td>Integer</td>
+      <td>Limit the maximum number of layer 4 virtual servers per cluster. Minimum is <code>1</code>.</td>
+    </tr>
+    <tr>
+      <td><code>l4\_persistence\_type</code></td>
+      <td>String</td>
+      <td>Connection stickiness based on <code>source\_ip</code> (only accepted value).</td>
+    </tr>
+    <tr>
+      <td><code>l4\_lb\_algorithm</code></td>
+      <td>String</td>
+      <td>Specify the layer 4 load balancer behavior. Accepts <code>"round\_robin"</code> (default), 
+        <code>"least\_connection"</code>, <code>"ip\_hash"</code>, <code>"weighted\_round\_robin"</code>.</td>
+    </tr>
+<% end %>
+<% if current_page.data.lbtype == "layer7controller" %>
+    <tr>
+      <td><code>nsx\_ingress\_controller</code></td>
+      <td>Boolean</td>
+      <td>Flag to control if NCP is used as the Ingress Controller for the Kubernetes cluster.</td>
+    </tr>
+    <tr>
+      <td><code>ingress\_ip</code></td>
+      <td>String</td>
+      <td>IP address to use for ingress controller load balancer.</td>
+    </tr>
+    <tr>
+      <td><code>ingress\_persistence\_settings</code></td>
+      <td>Map</td>
+      <td>Holds parameters for customizing Layer 7 persistence.</td>
+    </tr>
+    <tr>
+      <td><code>persistence\_type</code></td>
+      <td>String</td>
+      <td>Valid values are <code>cookie</code> or <code>source\_ip</code>. An empty value is not accepted.</td>
+    </tr>
+    <tr>
+      <td><code>persistence\_timeout</code></td>
+      <td>Integer</td>
+      <td>Value that is equal to <code>1</code> or larger. Empty value is not accepted.</td>
+    </tr>
+<% end %>
+  </table>
+
+The `nsx_lb` parameter is used to control the TCP layer 4 virtual server that is provisioned for each Kubernetes service of 
+[type: LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer). 
+
+The `nsx_ingress_controller` parameter is used to control if NCP is used as the Ingress Controller for the Kubernetes cluster. 
+By default when you define an [ingress resource](https://kubernetes.io/docs/concepts/services-networking/ingress/) 
+for a Kubernetes cluster, NCP instructs the NSX-T load balancer to provision 2 layer 7 virtual services (HTTP and HTTPS) as the 
+[Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/). 
+
+The `nsx_ingress_controller` parameter is subject to the `nsx_lb` parameter as described in the following table:
+
+  <table>
+    <th width="20%">nsx\_lb setting</th>
+    <th width="40%">nsx\_ingress\_controller: <code>true</code></th>
+    <th width="40%">nsx\_ingress\_controller:&nbsp;<code>false</code></th>
+    <tr>
+      <td>nsx\_lb: <code>true</code></td>
+      <td>Use the NSX-T Layer 4 LoadBalancer and the NCP-provisioned Layer 7 Ingress Controller.</td>
+      <td>Use the NSX-T Layer 4 LoadBalancer and a third-party Ingress Controller, such as [NGINX](https://kubernetes.github.io/ingress-nginx/).</td>
+    </tr>
+    <tr>
+      <td>nsx\_lb: <code>false</code></td>
+      <td>Invalid configuration. You cannot disable the NSX-T Load Balancer and use NCP as the Ingress Controller. The network profile will fail validation.</td>
+      <td>Use a third-party load balancer and a third-party ingress controller.</td>
+    </tr>
+  </table>

@@ -1,6 +1,7 @@
 ---
-title: Scaling Ingress Resources (NSX-T only)
+title: Configuring Layer 7 Ingress Resources (NSX-T only)
 owner: PKS-NSX-T
+lbtype: layer7
 ---
 
 This topic describes how to scale ingress resources. 
@@ -9,13 +10,7 @@ This topic describes how to scale ingress resources.
 
 ## <a id='ingress-scaling-about'></a> Overview
 
-For each Kubernetes cluster provisioned by Enterprise PKS with NSX-T, there are 2 layer 7 virtual servers 
-(HTTP and HTTPS) attached to the cluster load balancer service that perform ingress routing. 
-
-Using [custom resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#custom-resources), 
-Enterprise PKS v1.6 gives you the ability to scale the virtual servers created for ingress.  
-
-You can use the LoadBalancer CRD to scale the load balancer for ingress routing.  
+<%= partial 'nsx-t-ingress-lb-overview' %>
 
 ### <a id='nsxLoadBalancerMonitors-actions'></a> Determine Your Load Balancer's Status
 
@@ -26,21 +21,6 @@ The NSXLoadBalancerMonitor CRD returns two health scores for the current perform
 - `servicePressureIndex` which represents an overall health score for the NSX-T load balancer service.  
 - `infraPressureIndex` which represents the heath score of the NSX-T Edge Node that is running 
 the load balancer and associated virtual servers.  
-
-If the health score is poor for one of the layer 4 load balancers, you can use a network profile to 
-[increase the size of the NSX-T load balancer service](./network-profiles-ncp-lb.html).  
-
-If the health score is poor for the layer 7 ingress load balancers, you can use the 
-[LoadBalancer CRD](#LoadBalancer) to manually scale ingress.  
-
-Based on the health score the user can decide what action to take. The table below summarizes the actions that you can take based on the health scores.
-
-servicePressureIndex | infraPressureIndex | Cluster Manager  | Infrastructure Admin
----------------------|--------------------|------------------|--------------------
-LOW or WARM          | LOW or WARM        | NONE             | NONE
-LOW or WARM          | HIGH               | Alert infra admin| Move the LBS from the CRITICAL Edge Node to another Edge Node.
-HIGH                 | LOW or WARM        | Resolve the LBS health score by [scaling the ingress LB](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [network profile](./network-profiles-ncp-lb.html). | NONE 
-HIGH                 | HIGH               | Alert infra admin; Resolve the LBS health score by [scaling the ingress LB](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [network profile](./network-profiles-ncp-lb.html). | Move the LBS from the CRITICAL Edge Node to another Edge Node.  
 
 For more information about monitoring using the NSXLoadBalancerMonitor CRD see [Monitoring Ingress Resources (NSX-T only)](nsxt-ingress-monitor.html).  
 
@@ -89,7 +69,8 @@ NCP will attach the ingress rules to the scaled out load balancer.
     * `PORT` (Optional) is the port. Defaults to `80`.  
     * `TLS-PORT` (Optional) is the TLS port. Defaults to `443`.  
     * `SECRET-NAME` (Optional) is the TLS secret name. Defaults to `nil`.  
-    * `SECRET-NAMESPACE` (Optional) is the TLS secret namespace. Defaults to `nil`.  
+    * `SECRET-NAMESPACE` (Optional) is the TLS secret namespace. Defaults to `nil`. 
+    You must deploy the the new ingress load balancer in the same namesapce where you deploy the ingress resource. 
     * `FORWARD-TYPE` (Optional) is the forward type. Supported values are: `INSERT` and `REPLACE`. Defaults to `nil`.  
     * `IP-SOURCE` (Optional) is the source IP. Supported values are: `sourceIP` and `cookie`.  
     * `TIMEOUT` (Optional) is the connection timeout. Defaults to `10800`.  
@@ -105,7 +86,8 @@ NCP will attach the ingress rules to the scaled out load balancer.
 
     Where `YAML-FILE` is the filename of a the load balancer configuration YAML file.    
 <br>
-    For example:  
+    For example: 
+
     <pre class="terminal">
     \# kubectl apply –f lb.yaml
     apiVersion: vmware.com/v1alpha1
@@ -129,9 +111,7 @@ NCP will attach the ingress rules to the scaled out load balancer.
     status:
       httpVirtualIP: &lt;realized external ip&gt;  
     </pre>
-<p class="note"><strong>Note:</strong> You must deploy the the new ingress load 
-balancer in the same namesapce where you deploy the ingress resource.
-</p>
+<br>    
 1. To configure a Kubernetes ingress resource with the new ingress load balancer, configure a new YAML file as follows:
 
     ```

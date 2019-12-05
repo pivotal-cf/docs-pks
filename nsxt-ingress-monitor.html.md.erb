@@ -1,0 +1,123 @@
+---
+title: Monitoring Ingress Resources (NSX-T only)
+owner: PKS-NSX-T
+lbtype: monitor
+---
+
+This topic describes how to monitor the health status of the NSX-T ingress load balancer resources. 
+
+<p class="note"><strong>Note:</strong> This feature requires NCP v2.5.1 or later.</p>
+
+## <a id='ingress-scaling-about'></a> Overview
+
+<%= partial 'nsx-t-ingress-lb-overview' %>
+
+## <a id='nsxLoadBalancerMonitors'></a> Monitor the NSX-T Load Balancer Service
+
+You can use the NSXLoadBalancerMonitor CRD to monitor the NSX-T load balancer service, 
+including traffic, usage and health score information. 
+
+The NSXLoadBalancerMonitor returns statistics showing the number of 
+connections and throughput of the virtual servers for each type of load balancer.  
+
+In addition to connections and throughput statistics the NSXLoadBalancerMonitor CRD returns 
+two health scores for the current performance of load balancers:
+
+- `servicePressureIndex` which represents an overall health score for the NSX-T load balancer service.  
+- `infraPressureIndex` which represents the heath score of the NSX-T Edge Node that is running the load balancer and associated virtual servers.  
+
+Based on the health score the user can decide what action to take:  
+
+* If the health score is poor for one of the layer 4 load balancers, you can use a network profile to 
+increase the size of the NSX-T load balancer service. 
+For more information see [Configuring the TCP Ingress Controller Network Profile (NSX-T only)](./network-profiles-ncp-lb.html).  
+* If the health score is poor for the layer 7 ingress load balancers, you can use the 
+[LoadBalancer CRD](nsxt-ingress-scale.html#LoadBalancer) to manually scale ingress.  
+
+The table below summarizes the actions that you can take based on the health scores.
+
+servicePressureIndex | infraPressureIndex | Cluster Manager  | Infrastructure Admin
+---------------------|--------------------|------------------|--------------------
+LOW or WARM          | LOW or WARM        | NONE             | NONE
+LOW or WARM          | HIGH               | Alert infra admin| Move the LBS from the CRITICAL Edge Node to another Edge Node.
+HIGH                 | LOW or WARM        | Resolve the LBS health score by [scaling the ingress LB](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [network profile](./network-profiles-ncp-lb.html). | NONE 
+HIGH                 | HIGH               | Alert infra admin; Resolve the LBS health score by [scaling the ingress LB](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [network profile](./network-profiles-ncp-lb.html). | Move the LBS from the CRITICAL Edge Node to another Edge Node.  
+ 
+
+### <a id='nsxLoadBalancerMonitors-commands'></a> Monitor Your NSX-T Load Balancer Service Using the NSXLoadBalancerMonitor CRD
+
+To monitor your NSX-T Load Balancer Service using the NSXLoadBalancerMonitor CRD, complete the following procedure.
+
+1. To view the NSXLoadBalancerMonitor CRD, run the following command:
+
+    ```
+    kubectl get crd
+    ```
+
+1. To determine the UUID of the NSX-T load balancer deployed for the cluster, run the following command:
+
+    ```
+    kubectl get nsxlbmonitors
+    ```
+
+1. To view statistics, throughput, and health score for all virtual servers deployed by a specific load balancer service, run the following command:
+
+    ```
+    kubectl describe nsxlbmonitors UUID-OF-LOAD-BALANCER
+    ```
+
+    Where `UUID-OF-LOAD-BALANCER` is your load balancer's UUID.  
+<br>
+    For example:   
+
+    <pre class="terminal">
+    $ kubectl describe nsxlbmonitor f61a8cec-28eb-4b0c-bf4a-906f3ce2d8e6
+    Name:         f61a8cec-28eb-4b0c-bf4a-906f3ce2d8e6
+    Namespace:
+    Labels:       &lt;none&gt;
+    Annotations:  &lt;none&gt;
+    API Version:  vmware.com/v1alpha1
+    Health:
+      Metrics:
+        Cpu Usage Percentage:         0
+        Poolmember Usage Percentage:  1
+      Service Pressure Index:         0,LOW
+      Infra Pressure Index:           0,LOW
+      Metrics:
+        Cpu Usage Percentage:         0
+        Lb Service Usage Percentage:  0
+        Memory Usage Percentage:      0
+        Poolmember Usage Percentage:  0
+    Kind:                             NSXLoadBalancerMonitor
+    Metadata:
+      Creation Timestamp:  2019-11-13T19:37:10Z
+      Generation:          914
+      Resource Version:    17139
+      Self Link:           /apis/vmware.com/v1alpha1/nsxlbmonitors/f61a8cec-28eb-4b0c-bf4a-906f3ce2d8e6
+      UID:                 f56d3cf5-748d-44c3-8026-c6c569fde954
+    Traffic:
+      Bytes In Rate:         0
+      Bytes Out Rate:        0
+      Current Session Rate:  0
+      Ip Address:            192.168.160.102
+      Max Sessions:          0
+      Packets In Rate:       0
+      Packets Out Rate:      0
+      Protocol:              TCP
+      Total Sessions:        0
+      Virtual Server Name:   pks-042bccde-2197-4e06-863e-55129bf2e195-http
+      Bytes In Rate:         0
+      Bytes Out Rate:        0
+      Current Session Rate:  0
+      Ip Address:            192.168.160.102
+      Max Sessions:          0
+      Packets In Rate:       0
+      Packets Out Rate:      0
+      Protocol:              TCP
+      Total Sessions:        0
+      Virtual Server Name:   pks-042bccde-2197-4e06-863e-55129bf2e195-https_terminated
+    Usage:
+      Current Server Pool Count:     1
+      Current Virtual Server Count:  3
+    Events:                          &lt;none&gt;
+    </pre>
