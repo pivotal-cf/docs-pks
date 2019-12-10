@@ -68,18 +68,16 @@ vSphere stemcell 2019.7 or later for Windows Server version 2019.
 
 ## <a id='windows-pause-internetless'></a> Prepare a Windows Pause Image for an Internetless Environment
 
-During a Kubernetes pod deployment the Kubernetes Kubelet deploys a pause container. 
-For Windows worker-based pod deployment, Kubelet fetches a Windows container image from a Docker registry 
-and deploys the fetched image. The Windows container image is typically fetched from the 
-Microsoft Docker registry because only Microsoft can distribute Windows container base images.  
+Kubelet deploys a Windows container image fetched from a Docker registry while deploying a Windows pod.  
 
-This default <%= vars.product_short %> configuration does not support deploying Windows worker-based 
-clusters in an internetless environment because the Microsoft Docker registry is not accessible 
-from within the environment.  
+Microsoft restricts distribution of Windows container base images and the
+fetched Windows container image is typically pulled from the 
+Microsoft Docker registry. 
+This deployment workflow does not support deploying Windows pods in an air-gapped, internetless environment.  
 
-If your <%= vars.product_short %> installation is in an internetless environment 
-you must place a Windows container image in an accessible Docker registry and configure 
-<%= vars.product_short %> to fetch the Windows container image from that registry.  
+To deploy Windows pods in an internetless environment 
+you must have a Windows container image in a Docker registry accessible from your 
+<%= vars.product_short %> environment.  
 
 To prepare a Windows pause image for an internetless environment, perform the following:
 
@@ -96,16 +94,31 @@ To prepare a Windows pause image for an internetless environment, perform the fo
 1. To tag the Windows container image, run the following command:
 
     ```
-    docker tag mcr.microsoft.com/k8s/core/pause:1.2.0 my.private.registry/windows/pause:1.2.0
+    docker tag mcr.microsoft.com/k8s/core/pause:1.2.0  REGISTRY-ROOT/windows/pause:1.2.0
     ```
+
+    Where `REGISTRY-ROOT` is your private registry's URI.   
 
 1. To upload the Windows container image to your accessible private registry, run the following command:
 
     ```
-    docker push my.private.registry/windows/pause:1.2.0
+    docker push  PAUSE-IMAGE-URI
     ```
 
-Configure the <%= vars.product_tile %> tile with the URI of your private registry-hosted Windows container 
-image after uploading it to the registry. 
-For more information about configuring the <%= vars.product_tile %> tile's 
-**Kubelet customization - Windows pause image location** field, see [Plans](#plans), above.
+    Where `PAUSE-IMAGE-URI` is the URI to the Windows pause image in your private registry. 
+    Your pause image URI should follow the pattern: `my.private.registry/windows/pause:1.2.0`.
+
+To configure <%= vars.product_short %> to fetch your accessible Windows container image when 
+deploying Windows pods, perform the following:
+
+1. Open the <%= vars.product_tile %> tile.  
+1. Click the Windows worker Plan that you want to configure to use your accessible private registry.  
+1. Modify the **Kubelet customization - Windows pause image location** property to be your pause image URI.  
+<br>
+    For example: 
+
+    ```
+    my.private.registry/windows/pause:1.2.0
+    ```
+
+1. Click **Save**.  
