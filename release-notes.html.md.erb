@@ -577,18 +577,25 @@ For instructions on resolving this issue, see
 
 #### <a id="1-6-0-windows-cluster-upgrade-failure"></a> Windows Worker Clusters Fail to Upgrade to v1.6 
 
-**Symptom**
+**Symptoms**
 
 During your upgrade from <%= vars.product_short %> v1.5 to <%= vars.product_short %> v1.6 
-all of your Windows worker clusters fail to upgrade. The command line error: 
-"_**Failed jobs: docker-windows**_", and the logged error: "_**\docker\dockerd.exe: Access is denied**_"
-are recorded for each attempted Windows worker upgrade.  
+a Windows worker VM fails to upgrade, as evidenced by:
+
+- The command line outputs an error `Failed jobs: docker-windows`.
+- The Windows worker VM disappears from the output of `kubectl get nodes`.
+- The command line shows the status `failed` and the action `UPGRADE` for the cluster that contains the worker.
+- The log shows an entry `\docker\dockerd.exe: Access is denied`.
 
 **Explanation** 
 
-The name of the Docker service changed from `docker` to `docker-windows` between v1.5 and v1.6, 
+Between PKS v1.5 and v1.6, the name of the Docker service changed from `docker` to `docker-windows`, 
 but your environment continues to use the old Docker service name and paths. 
-The incompatible service name and pathing causes your Windows cluster upgrades to fail. 
+The incompatible service name and pathing causes a Windows worker upgrade to fail.
+
+If your cluster has multiple Windows workers, this issue does not incur downtime .
+Before BOSH attempts to upgrade a Windows worker, it moves the worker's apps to other Windows workers in the cluster.
+When the upgrade fails, BOSH stops the cluster upgrade process and the other Windows workers continue running at the earlier version.
 
 **Workaround**
 
