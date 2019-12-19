@@ -197,8 +197,6 @@ For <%= vars.product_short %> installations on vSphere or on vSphere with NSX-T 
 
 The supported upgrade paths to <%= vars.product_short %> v1.6.0 are from <%= vars.product_short %> v1.5.0 and later.
 
-<p class="note"><strong>Note:</strong> Windows worker support is BETA. There is no upgrade support from PKS v1.5 to v1.6 for Windows worker nodes.</p>
-
 ### <a id='1-6-0-breaking-changes'></a>Breaking Changes
 
 <%= vars.product_short %> v1.6.0 has the following breaking changes:
@@ -240,6 +238,34 @@ For example, instead of `https://YOUR-PKS-API-FQDN:9021/v1beta1/quotas`, use `ht
 ###<a id='1-6-0-known-issues'></a> Known Issues
 
 <%= vars.product_short %> v1.6.0 has the following known issues.
+
+#### <a id='1-6-0-tls-kube-cert'></a> Your Kubernetes API Server CA Certificate Expires Unless You Regenerate It
+
+**Symptom**
+
+Your Kubernetes API server's `tls-kubernetes-2018` certificate is a one-year certificate
+instead of a four-year certificate.
+
+**Explanation**
+
+When you upgraded from PKS v1.2.7 to PKS v1.3.1, the upgrade process extended the lifespan of all PKS CA certificates to four years, except for the Kubernetes API server's `tls-kubernetes-2018` certificate.  The `tls-kubernetes-2018` certificate remained a one-year certificate.
+
+Unless you regenerate the `tls-kubernetes-2018` certificate it retains its one-year lifespan, even through subsequent <%= vars.product_short %> upgrades.
+
+**Workaround**
+
+If you have not already done so, you should replace the Kubernetes API server's one-year `tls-kubernetes-2018` certificate before it expires.
+For information about generating and applying a new four-year `tls-kubernetes-2018` certificate, see
+[How to regenerate tls-kubernetes-2018 certificate when it is not regenerated in the upgrade to PKS v1.3.x]
+(https://community.pivotal.io/s/article/How-to-regenerate-tls-kubernetes-2018-certificate-when-it-was-not-regenerated-in-the-upgrade-to-PKS-v1-3-x) in the Pivotal Knowledge Base.
+
+#### <a id="1-6-0-win-k8s-version"></a> Cluster Upgrade Does Not Upgrade Kubernetes Version on Windows Workers
+
+When PKS clusters are upgraded, Windows worker nodes in the cluster do not upgrade their Kubernetes version.  The master and Linux worker nodes in the cluster do upgrade their Kubernetes version as expected.
+
+When the Kubernetes version of a Windows worker does not exactly match the version of the master node, the cluster still functions. [`kube-apiserver`](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/) has no restriction on lagging patch bumps.
+
+PKS clusters upgrade manually with the `pks upgrade-cluster` command, or automatically with PKS upgrades when the **Upgrade all clusters** errand is set to **Default (On)** in the PKS tile **Errands** pane.
 
 #### <a id="1-6-0-network-profile"></a>Network profile for "pks update-cluster" does not use the defaults from the original cluster manifest
 
@@ -500,31 +526,43 @@ For instructions on resolving this issue, see
 [UAA authentication tab in PKS 1.6 fails to save with error “URI::InvalidURIError bad URI(is not URI?):LDAP URLs” (76495)]
 (https://kb.vmware.com/s/article/76495) in the Pivotal Support Knowledge Base.
 
-#### <a id="1-6-0-windows-cluster-upgrade-failure"></a> Your <%= vars.product_short %> Windows Worker Clusters Fail to Upgrade from v1.5 to v1.6 
+#### <a id="1-6-0-windows-cluster-upgrade-failure"></a> Windows Worker Clusters Fail to Upgrade to v1.6 
 
-**Symptom**
+**Symptoms**
 
 During your upgrade from <%= vars.product_short %> v1.5 to <%= vars.product_short %> v1.6 
-all of your Windows Worker clusters fail to upgrade to v1.6.
+a Windows worker VM fails to upgrade, as evidenced by:
+
+- The command line outputs an error `Failed jobs: docker-windows`.
+- The Windows worker VM disappears from the output of `kubectl get nodes`.
+- The command line shows the status `failed` and the action `UPGRADE` for the cluster that contains the worker.
+- The log shows an entry `\docker\dockerd.exe: Access is denied`.
 
 **Explanation** 
 
-The name of the docker service changed from `docker` to `docker-windows` between v1.5 and v1.6, 
-but your existing Windows stemcell continues to use the old docker service name and paths. 
-The incompatible service name and pathing causes your Windows cluster upgrades to fail. 
+Between PKS v1.5 and v1.6, the name of the Docker service changed from `docker` to `docker-windows`, 
+but your environment continues to use the old Docker service name and paths. 
+The incompatible service name and pathing causes a Windows worker upgrade to fail.
+
+If your cluster has multiple Windows workers, this issue does not incur downtime .
+Before BOSH attempts to upgrade a Windows worker, it moves the worker's apps to other Windows workers in the cluster.
+When the upgrade fails, BOSH stops the cluster upgrade process and the other Windows workers continue running at the earlier version.
 
 **Workaround**
 
-After upgrading to <%= vars.product_short %> v1.6 and your Windows Worker clusters have failed to upgrade, complete the following steps:
+After upgrading to <%= vars.product_short %> v1.6 and your Windows worker clusters have failed to upgrade, 
+complete the following steps:
 
-1. Create a new Windows 2019 stemcell for vSphere using the current version of Stembuild. 
-To create a Windows 2019 stemcell, complete the procedures in 
-[Creating a Windows Stemcell for vSphere Manually](https://docs.pivotal.io/platform/application-service-windows/2-7/create-vsphere-stemcell-manually.html) 
-or [Creating a Windows Stemcell for vSphere Using stembuild (Beta)](https://docs.pivotal.io/platform/application-service-windows/2-7/create-vsphere-stemcell-automatically.html).
-1. Upload your new stemcell to your <%= vars.product_tile %> tile.  
-1. Delete your existing Windows clusters. For information about deleting clusters see [Deleting Clusters](delete-cluster.html).   
-1. Redeploy your Windows clusters. For information about deploying clusters see [Creating Clusters](create-cluster.html).  
-      
+1. Upload a vSphere stemcell v2019.8 or later for Windows Server version 2019 to your <%= vars.product_tile %> tile.  
+1. To upgrade your Windows worker clusters, perform one of the following:
+    * Enable the **Upgrade all clusters errand** setting and deploy the PKS tile. 
+    For more information about configuring the **Upgrade all clusters errand** and deploying the <%= vars.product_tile %> tile, see 
+    [Modify Errand Configuration in the <%= vars.product_tile %> Tile](upgrade-clusters.html#disable-errand) 
+    in _Upgrading Clusters_.
+    * Run `pks upgrade-cluster` or `pks upgrade-clusters` on your failed Windows worker cluster(s). 
+    For more information about upgrading specific <%= vars.product_short %> clusters, see [Upgrade Clusters](upgrade-clusters.html#upgrade-clusters) 
+    in _Upgrading Clusters_.  
+    
 ## <a id="management-console-1.6.0-rev3"></a> <%= vars.product_short %> Management Console 1.6.0-rev.3
 
 **Release Date**: December 19, 2019
