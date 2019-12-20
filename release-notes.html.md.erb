@@ -155,10 +155,10 @@ see the following:
 
 ### <a id="1-5-1-known-issues"></a> Known Issues
 
-For information about known issues in <%= vars.product_short %> v1.5.x,
-see the following:
+Enterprise PKS v1.5.1 has the following known issues, which also apply to v1.5.0:
 
-* [Known Issues in <%= vars.product_short %> v1.5.0](#1-5-0-known-issues)
+* [Your Kubernetes API Server CA Certificate Is Only a One-Year Certificate](#1-5-0-tls-kube-cert)  
+* [Cluster Upgrade Does Not Upgrade Kubernetes Version on Windows Workers](#1-5-0-win-k8s-version) 
 
 ### <a id="1-5-1-console-1-0-0-known-issues"></a> Enterprise PKS Management Console Known Issues
 
@@ -401,6 +401,18 @@ For more information, see [Upgrading <%= vars.product_short %>](upgrade-pks.html
 
 <%= vars.product_short %> v1.5.0 has the following breaking changes:
 
+#### <a id='1-5-0-volume-data-loss'></a> Persistent Volume Data Loss with Worker Reboot
+
+With old versions of Ops Manager, PKS worker nodes with persistent disk volumes may get stuck in a startup state and lose data when they are rebooted manually from the dashboard or automatically by vSphere HA.
+
+This issue is fixed in the following Ops Manager versions:
+
+- v2.7.6+
+- v2.6.16+
+- v2.5.24+
+
+For all PKS installations that host workers using persistent volumes, Pivotal recommends upgrading to one of the Ops Manager versions above.
+
 #### <a id='1-5-0-nsxt-2-5-0'></a> Announcing Support for NSX-T v2.5.0 with a Known Issue and KB Article
 
 <%= vars.product_short %> v1.5 supports NSX-T v2.5. Before upgrading to NSX-T v2.5, note the following:
@@ -476,6 +488,34 @@ see [Creating Sink Resources](create-sinks.html).
 ### <a id="1-5-0-known-issues"></a> Known Issues
 
 <%= vars.product_short %> v1.5.0 has the following known issues:
+
+#### <a id='1-5-0-tls-kube-cert'></a> Your Kubernetes API Server CA Certificate Expires Unless You Regenerate It
+
+**Symptom**
+
+Your Kubernetes API server's `tls-kubernetes-2018` certificate is a one-year certificate
+instead of a four-year certificate.
+
+**Explanation**
+
+When you upgraded from PKS v1.2.7 to PKS v1.3.1, the upgrade process extended the lifespan of all PKS CA certificates to four years, except for the Kubernetes API server's `tls-kubernetes-2018` certificate.  The `tls-kubernetes-2018` certificate remained a one-year certificate.
+
+Unless you regenerate the `tls-kubernetes-2018` certificate it retains its one-year lifespan, even through subsequent <%= vars.product_short %> upgrades.
+
+**Workaround**
+
+If you have not already done so, you should replace the Kubernetes API server's one-year `tls-kubernetes-2018` certificate before it expires.
+For information about generating and applying a new four-year `tls-kubernetes-2018` certificate, see
+[How to regenerate tls-kubernetes-2018 certificate when it is not regenerated in the upgrade to PKS v1.3.x]
+(https://community.pivotal.io/s/article/How-to-regenerate-tls-kubernetes-2018-certificate-when-it-was-not-regenerated-in-the-upgrade-to-PKS-v1-3-x) in the Pivotal Knowledge Base.
+
+#### <a id="1-5-0-win-k8s-version"></a> Cluster Upgrade Does Not Upgrade Kubernetes Version on Windows Workers
+
+When PKS clusters are upgraded, Windows worker nodes in the cluster do not upgrade their Kubernetes version.  The master and Linux worker nodes in the cluster do upgrade their Kubernetes version as expected.
+
+When the Kubernetes version of a Windows worker does not exactly match the version of the master node, the cluster still functions. [`kube-apiserver`](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/) has no restriction on lagging patch bumps.
+
+PKS clusters upgrade manually with the `pks upgrade-cluster` command, or automatically with PKS upgrades when the **Upgrade all clusters** errand is set to **Default (On)** in the PKS tile **Errands** pane.
 
 #### <a id='1-5-0-ncp-flapping'></a> NCP Flapping is Observed When Resizing the Number of Worker Nodes in Large Clusters 
 
@@ -753,6 +793,23 @@ For instructions on upgrading kubernetes clusters, see
 [Running 'pks resize cluster-name' returns an error following PKS tile upgrade, stating that 'The service broker has been updated']
 (https://community.pivotal.io/s/article/Running-pks-resize-cluster-name-returns-error-on-cluster-name-following-PKS-tile-upgrade) 
 in the Pivotal Support Knowledge Base.  
+
+#### <a id="1-5-0-ldap-verifier"></a> Saving UAA Tab Settings Fails With Error: 'InvalidURIError bad URI'
+
+**Symptom**
+
+When you save your UAA tab with **LDAP Server** selected and multiple LDAP servers specified, 
+you receive the error: `URI::InvalidURIError bad URI(is not URI?):LDAP URLs`.
+
+**Explanation** 
+
+When you are using Ops Manager 2.7 and configure the UAA tab with multiple LDAP servers your settings will fail to validate.
+
+**Workaround**
+
+For instructions on resolving this issue, see 
+[UAA authentication tab in PKS 1.6 fails to save with error “URI::InvalidURIError bad URI(is not URI?):LDAP URLs” (76495)]
+(https://kb.vmware.com/s/article/76495) in the Pivotal Support Knowledge Base.
 
 ### <a id="1-5-0-management-console-0-9-known-issues"></a> Enterprise PKS Management Console Known Issues
 
