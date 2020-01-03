@@ -1,29 +1,77 @@
 ---
-title: Enterprise PKS Cluster Management
+title: Enterprise PKS Architecture
 owner: PKS
 ---
 
 This topic describes how <%= vars.product_full %> manages the deployment of Kubernetes clusters.
 
-##<a id="overview"></a>Overview
+##<a id="overview"></a><a id="architecture-overview"></a><%= vars.product_short %> Overview
 
-Users interact with <%= vars.product_short %> and <%= vars.product_short %>-deployed Kubernetes clusters in two ways:
+An <%= vars.product_short %> installation consists of the following components:
+  
+* One PKS Control Plane VM to orchestrate cluster management.  
+* One or more PKS Database VMs to store Control Plane information.  
+* One Ops Manager VM to manage Kubernetes clusters.  
+* One PKS API load balancer.  
+* Kubernetes clusters and load balancers to host workloads.  
 
-* Deploying Kubernetes clusters with BOSH and managing their lifecycle.
-These tasks are performed using the PKS Command Line Interface (PKS CLI) and the PKS control plane.
-* Deploying and managing container-based workloads on Kubernetes clusters.
-These tasks are performed using the Kubernetes CLI, `kubectl`.
+####Standard and High Availability Modes
+
+<%= vars.product_short %> can be configured in either Standard or High Availability modes.  
+
+* In Standard Mode the PKS Control Plane uses a single database VM.
+* In High Availability Mode the PKS Control Plane uses a 3-node database cluster.  
+
+<br>
+The following illustrates the interaction between <%= vars.product_short %> components.
+
+**Standard Mode**
+<%= image_tag('images/pks-overview.png') %>
+
+<br>
+**High Availability Mode**
+<%= image_tag('images/pks-overview-ha.png') %>
 
 ##<a id="cluster-management"></a>Cluster Lifecycle Management
 
 The PKS control plane enables users to deploy and manage Kubernetes clusters.
 
-For communicating with the PKS control plane, <%= vars.product_short %> provides a command line interface, the PKS CLI.
-See [Installing the PKS CLI](installing-pks-cli.html) for installation instructions.
+####<a id="overview-interaction"></a>Interaction Overview
+
+Users interact with <%= vars.product_short %> and <%= vars.product_short %>-deployed Kubernetes clusters in the following ways:
+
+* Deploying and Managing Kubernetes Clusters
+<br>
+    For communicating with the PKS control plane, <%= vars.product_short %> provides the 
+    PKS Command Line Interface (PKS CLI). 
+    Deploying and managing Kubernetes clusters with BOSH are both 
+    performed using PKS CLI and the PKS control plane. 
+<br>
+* Deploying and Managing Workloads
+<br>
+    Deploying and managing container-based workloads on Kubernetes clusters is 
+    performed using the Kubernetes CLI, `kubectl`.
+
+The PKS CLI communicates with the PKS API via the PKS API Load Balancer. 
+The PKS API Load Balancer is used for AWS, GCP, and vSphere without NSX-T deployments. 
+If <%= vars.product_short %> is deployed on vSphere with NSX-T, a DNAT rule is configured 
+for the PKS API host so that it is accessible. 
+
+For instructions on installing the PKS CLI, see [Installing the PKS CLI](installing-pks-cli.html).
+
+For information about enabling the PKS API on vSphere with NSX-T, see the 
+[Share the PKS API Endpoint](installing-nsx-t.html#retrieve-endpoint) section in 
+_Installing <%= vars.product_short %> on vSphere with NSX-T Integration_.
+
 
 ###<a id="control-plane"></a>PKS Control Plane Overview
 
-The PKS control plane manages the lifecycle of Kubernetes clusters deployed using <%= vars.product_short %>.
+The PKS control plane manages the lifecycle of Kubernetes clusters deployed using <%= vars.product_short %>. 
+PKS control plane services are hosted across 2 VMs:  
+
+* The `pivotal-container-service` VM hosts the PKS API, UAA, Billing, and Telemetry services.  
+* The `pks-db` VM hosts the MySQL, proxy, and other data-related services.  
+
 The control plane allows users to do the following through the PKS CLI:
 
 * View cluster plans
@@ -39,17 +87,13 @@ For more information, see [Upgrade Kubernetes Clusters](upgrade-pks.html#upgrade
 
 ###<a id="architecture"></a>PKS Control Plane Architecture
 
-The PKS control plane is deployed on a single VM that includes the following components:
+The PKS control plane includes the following components:
 
-* The PKS API server
-* The PKS Broker
-* A User Account and Authentication (UAA) server
+* User Account and Authentication (UAA) server
+* PKS API server
+* PKS Broker
 
-The following illustration shows how these components interact:
-
-<%= image_tag('images/pks-overview.png') %>
-
-The PKS API Load Balancer is used for AWS, GCP, and vSphere without NSX-T deployments. If <%= vars.product_short %> is deployed on vSphere with NSX-T, a DNAT rule is configured for the PKS API host so that it is accessible. For more information, see the [Share the PKS API Endpoint](installing-nsx-t.html#retrieve-endpoint) section in _Installing <%= vars.product_short %> on vSphere with NSX-T Integration_.
+All PKS control plane components are deployed to a single VM.  
 
 ####<a id="uaa"></a>UAA
 
@@ -76,6 +120,18 @@ The PKS Broker consists of an [On-Demand Service Broker](https://docs.pivotal.io
 For <%= vars.product_short %> deployments on vSphere with NSX-T, there is an additional component, the <%= vars.product_short %> NSX-T Proxy Broker.
 The PKS API communicates with the PKS NSX-T Proxy Broker, which in turn communicates with the NSX Manager to provision the Node Networking resources.
 The PKS NSX-T Proxy Broker then forwards the request to the On-Demand Service Broker to deploy the cluster.
+
+###<a id="overview-sql"></a>PKS Database Overview
+<%= vars.product_short %> and <%= vars.product_short %>-deployed Kubernetes cluster data 
+is persisted by the following services:
+
+* PKS API
+* UAA
+* Billing
+* Telemetry
+
+By default <%= vars.product_short %> creates a single `pks-db` MySQL node for the data-related services. 
+When <%= vars.product_short %> is configured for high availability the PKS database uses a 3-node MySQL cluster.
 
 ##<a id="workload-management"></a>Cluster Workload Management
 
