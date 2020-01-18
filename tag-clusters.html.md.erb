@@ -1,0 +1,176 @@
+---
+title: Tagging Clusters
+owner: PKS
+---
+
+This topic explains how to tag new and existing clusters using the PKS CLI.
+
+## <a id='overview'></a>Overview
+IaaSes provide the ability for customers to "tag" VMs, databases and other resources with custom labels and metadata values. 
+Apply one or more tags to your clusters to simplify organizing, managing, searching for, and filtering resources within your IaaS-provided management console and other tools.  
+
+If your <%= vars.product_short %> deployment is on **Azure**: You can use the PKS CLI to tag clusters by following the steps in 
+[Tag Your Clusters Using the PKS CLI](#tagging-cli), below.  
+
+If your <%= vars.product_short %> deployment is on **AWS**, **GCP**, **vSphere** or **vSphere with NSX-T**, 
+you can tag your clusters using your IaaS-provided management console.  
+
+<p class="note"><strong>Note</strong>: <%= vars.product_short %> supports tagging on Azure only.
+</p>
+
+<p class="note"><strong>Note</strong>: <%= vars.product_short %> Cluster tagging requires Ops Manager v2.8.0 or later.
+</p>
+
+## <a id='tagging-cli'></a>Tag Your Clusters as They Are Created 
+
+To apply tags to your cluster's VMs, include the `--tags` parameter in your 
+`pks create-cluster` command line, 
+and specify the desired tags as a comma-delimited list of `key:value` pairs. 
+
+```
+pks create-cluster CLUSTER-NAME --tags "TAGS"
+```
+
+Where:  
+
+* `CLUSTER-NAME` is the name of the cluster to create.  
+* `TAGS` is a comma-delimited list of `key:value` pairs to apply to the cluster.  
+
+For example:  
+
+<pre class="terminal">
+$ pks create-cluster my-cluster --tags "status:billable"
+$ pks create-cluster my-cluster --tags "status:non-billable,region:northwest"
+$ pks create-cluster my-cluster --tags "client:example.com, costcenter:pettycash"
+</pre>
+
+## <a id='tagging-cli'></a>Tag Your Existing Clusters 
+
+To apply tags to your existing cluster's VMs, run the `pks update-cluster` command line, 
+and specify the `--tags` parameter and a comma-delimited list of `key:value` pairs of the tags to apply to the cluster. 
+
+```
+pks update-cluster CLUSTER-NAME --tags "TAGS"
+```
+
+Where:  
+
+* `CLUSTER-NAME` is the name of the cluster to tag.  
+* `TAGS` is a comma-delimited list of `key:value` pairs.  
+
+For example:  
+
+<pre class="terminal">
+$ pks update-cluster my-cluster --tags "client:tinymegacorp"
+$ pks update-cluster my-cluster --tags "client:example.com,costcenter:pettycash"
+$ pks update-cluster my-cluster --tags "status:non-billable, region:northwest"
+</pre>
+
+### <a id='modify-tags'></a>Modify Existing Tags
+
+You can also use `pks update-cluster` to modify your cluster's existing tags. 
+When you modify tags using `pks update-cluster` all of the cluster's 
+existing tags are completely overwritten and replaced with the specified set of tags.  
+
+To modify your cluster's tags using `pks update-cluster --tags`, do one of the following:  
+
+* To add a new tag to your cluster you must both specify the new tag, and re-specify the complete 
+list of all of the cluster's existing tags.  
+* To modify an existing tag you must re-specify the complete 
+list of all of the cluster's existing tags, modified with the desired changes. 
+* To remove an existing tag from your cluster you must re-specify the complete 
+list of all of the cluster's existing tags without the item to be removed.  
+
+<p class="note"><strong>Note:</strong> To determine a cluster's existing 
+tags use <code>pks cluster</code>. 
+For information on <code>pks cluster</code> see <a href="#tagging-review">Review Your Tags</a>, below.
+</p>
+
+#### <a id='tagging-cli'></a>Remove All Tags From Your Cluster
+
+To remove all tags from your cluster's VMs, run `pks update-cluster --tags` on your command line, 
+and specify an empty list of tags. 
+
+```
+pks update-cluster CLUSTER-NAME --tags ""
+```
+
+Where `CLUSTER-NAME` is the cluster to remove tags from.  
+
+
+## <a id='tagging-review'></a>Review Your Tags
+
+To review the tags applied to a cluster, run `pks cluster`. 
+
+For example:
+<pre class="terminal">$ pks cluster my-cluster
+Name:                     my-cluster
+Plan Name:                large
+UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789
+Last Action:              CREATE
+Last Action State:        succeeded
+Last Action Description:  Instance provisioning completed
+Kubernetes Master Host:   my-cluster.example.com
+Kubernetes Master Port:   8443
+Worker Instances:         3
+Kubernetes Master IP(s):  192.168.20.7
+Tags:                     client:tinymegacorp,costcenter:pettycash
+</pre>
+
+The `pks cluster` function returns only the custom tags you've applied to 
+the cluster using the PKS CLI. 
+To display all of the tags applied to your cluster VMs use your IaaS-provided management console.   
+
+<p class="note"><strong>Note:</strong> 
+Do not use the IaaS-provided management console to modify your custom tags. 
+Custom tag alterations you've applied via the management console will be overwritten
+when you next run <code>pks update-cluster</code>.
+</p>
+
+## <a id='tagging-rules'></a>Tagging Rules
+
+The tagging you apply should adhere to the following rules:
+
+* Tag names and values should not include either `"`, `:` or `,`. 
+* Tag names and values must adhere to the tagging rules of the IaaS hosting your <%= vars.product_short %> environment. 
+* Surrounding double quotes are required if there are one or more spaces in your tag list, such as a space after a comma delimiter.  
+
+For information about Azure tagging rules see [Use tags to organize your Azure resources]
+(https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.  
+
+<%#= 
+<br>For information about tagging rules see the following: 
+<table>
+    <tr>
+        <th>IaaS</th>
+        <th>Tagging Rule Documentation</th>
+    </tr>
+    <tr>
+        <td>Azure</td>
+        <td>See <a href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources">Use tags to organize your Azure resources</a> in the Azure documentation.</td>
+    </tr>
+    <tr>
+        <td>AWS</td>
+        <td>See <a href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html">User-Defined Tag Restrictions</a> in the AWS documentation.</td>
+    </tr>
+    <tr>
+        <td>GCP</td>
+        <td>See <a href="https://cloud.google.com/blog/products/gcp/labelling-and-grouping-your-google-cloud-platform-resources">Labelling and grouping your Google Cloud Platform resources</a> in the GCP documentation.</td>
+    </tr>
+</table>
+%>
+
+### <a id='tagging-max'></a>Maximum Number of Tags
+
+Every IaaS has a specified maximum number of tags that can be applied to a VM. 
+In addition to the custom tags you apply to your cluster, <%= vars.product_short %> applies ten default system tags to the cluster. 
+The total of the number of custom tags you apply to a cluster plus the number of 
+default tags applied by <%= vars.product_short %> 
+should not exceed the tagging maximum specified by your IaaS.  
+
+For example: Azure limits tagging to a maximum of 50 tags per entity. 
+Therefore, if your <%= vars.product_short %> 
+environment is hosted on Azure, apply fewer than 40 custom tags to your clusters.  
+
+For information about Azure tagging limits see [Use tags to organize your Azure resources]
+(https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.  
