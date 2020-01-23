@@ -1,0 +1,61 @@
+---
+title: Monitor and Manage Clusters, Nodes, and Namespaces in the Management Console
+owner: PKS
+---
+
+You can find general information about your deployment, and information about all of the clusters and nodes running it, in the **Enterprise PKS** view of <%= vars.product_short %> Management Console.
+
+### <a id='cluster-status'></a>Obtain Cluster Information
+
+1. Go to the Enterprise PKS view of the management console.
+1. Select the **Clusters** tab to see detailed information about all of the clusters running in this instance.   
+    ![All clusters](images/summary-clusters.png)
+    [View a larger version of this image](images/summary-clusters.png)
+1. Select a cluster.
+<br>
+On the **Summary** tab for the cluster, you see general information about that cluster, as well as networking, and the nodes in that cluster.   
+  * In the Cluster Overview panel, select the Availability Zone links to be taken the vSphere cluster, host group, or resource pool that contains the cluster.
+  * In the Networking panel, select the links to be taken to each of the different components that comprise the network stack for the cluster.
+  * In the Nodes panel, expand **Masters** and **Workers** and select the VM links to go to those VMs in the vSphere inventory.
+    ![Overview of an individual cluster](images/individual-cluster.png)
+    [View a larger version of this image](images/individual-cluster.png) 
+1. Select the **Nodes** tab to see details of all of the nodes that are running in that cluster.
+    ![All nodes in an individual cluster](images/cluster-nodes.png)
+    [View a larger version of this image](images/cluster-nodes.png) 
+1. Select the **Namespaces** tab to see the status and networking details of all of the namespaces that are running in that cluster.
+    ![All namespaces in an individual cluster](images/cluster-namespaces.png)
+    [View a larger version of this image](images/cluster-namespaces.png) 
+
+### <a id='kubernetes-dashboard'></a>Connect to Clusters in Kubernetes Dashboard
+1. Go to the Enterprise PKS view of the management console.
+1. Select the **Clusters** tab for your Enterprise PKS instance.
+1. Select a cluster. 
+1. Select **Open Kubenetes Dashboard** for instructions about how to access the cluster by using Kubernetes Dashboard.
+    ![Connect to a cluster in K8S Dashboard](images/dashboard.png)
+    [View a larger version of this image](images/dashboard.png) 
+
+### <a id='kubectl'></a>Connect to Clusters with kubectl
+
+1. Go to the Enterprise PKS view of the management console.
+1. Select the **Clusters** tab for your Enterprise PKS instance.
+1. Select a cluster. 
+1. Select **Access Cluster** for instructions about how to access the cluster by using `kubectl`.
+    ![Connect to a cluster in K8S Dashboard](images/kubectl.png)
+    [View a larger version of this image](images/kubectl.png) 
+1. Click **Email** to send the instructions to users who need to use `kubectl` to connect to this cluster.
+
+### <a id='node-status'></a>Obtain Node Information
+
+1. Go to the Enterprise PKS view of the management console.
+1. Select the **Nodes** tab to see detailed information about all of the nodes running in this instance.  
+
+    This tab shows the general status, type, name, IP, and availability zone for all of the nodes that are running in your Enterprise PKS instance.
+
+    ![All nodes](images/summary-nodes.png)
+    [View a larger version of this image](images/summary-nodes.png)
+1. Click the links in the Kubernetes Clusters columns to go the **Summary** tab of that cluster.
+    ![Go to a node's cluster](images/node-cluster-link.png)
+    [View a larger version of this image](images/node-cluster-link.png) 
+1. Click the links in the VM Name column to be taken to the node VMs in the vSphere inventory.
+    ![Go to a node VM](images/node-vm-link.png)
+    [View a larger version of this image](images/node-vm-link.png)
