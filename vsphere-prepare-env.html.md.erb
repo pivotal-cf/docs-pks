@@ -46,16 +46,10 @@ To prepare your vSphere environment, do the following:
 1. [Grant Storage Permissions](#addl-permissions)
 1. [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man)
 1. [Grant Permissions to the BOSH/Ops Manager Service Account](#grant-bosh-ops-man)
-1. [Configure DNS for the PKS API](#dns)
-
+1. [Configure DNS for the PKS API](#dns)  
 <br>
-For information about vSphere virtual machine permissions, see 
-[Virtual Machine Configuration Privileges](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-FEAB5DF5-F7A2-412D-BF3D-7420A355AE8F.html) 
-in the _VMWare Docs_ documentation.
 
-For information about the vSphere virtual machine permissions API, see 
-[ReconfigVM_Task(reconfigure)](https://code.vmware.com/apis/358/vsphere/doc/vim.VirtualMachine.html) 
-in the _vSphere Web Services API_ documentation.
+<p class="note"><strong>Note</strong>: The following procedures document configuring vSphere Web Services API v6.7 permissions. For configuring vSphere Web Services API v6.5 permissions, see <a href="https://docs.pivotal.io/pks/1-5/vsphere-prepare-env.html">Creating Dedicated Users and Roles for vSphere (Optional)</a> in the <%= vars.product_short %> v1.5 documentation.</p>
 
 ## <a id='prerequisites'></a>Prerequisites
 
@@ -63,13 +57,22 @@ Before you prepare your vSphere environment, fulfill the prerequisites in [vSphe
 
 ## <a id="create-master"></a>Create the Master Node User Account
 
+**Virtual Machine Configuration** privileges control the ability to configure virtual machine options and devices.
+
 1. From the vCenter console, create a user account for Kubernetes cluster master VMs.
 
 1. Grant the following **Virtual Machine Object** privileges to the user account:
+
   <table>
     <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-      <tr><td>Virtual Machine > Configuration > Advanced</td><td>VirtualMachine.Configuration.Advanced</td></tr>
-      <tr><td>Virtual Machine > Configuration > Settings</td><td>VirtualMachine.Configuration.Settings</td></tr>
+      <tr>
+        <td>Virtual Machine > Advanced configuration</td>
+        <td>VirtualMachine.Config.AdvancedConfig</td>
+      </tr>
+      <tr>
+        <td>Virtual Machine > Change Settings</td>
+        <td>VirtualMachine.Config.Settings</td>
+      </tr>
   </table>
 
 ## <a id="addl-permissions"></a>Grant Storage Permissions
@@ -85,24 +88,65 @@ Grant these permissions to the master node user account based on your storage co
 * [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
 * [Dynamic Persistent Volume Provisioning (without Storage Policy-Based Volume Placement)](#dynamic-no-policy)
 
-For more information about vSphere storage configurations, see [vSphere Storage for Kubernetes](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/index.html) in the VMware vSphere documentation.
+**Virtual Machine Configuration** privileges control the ability to configure virtual machine options and devices. 
+For information about **Virtual Machine Configuration** see [Virtual Machine Configuration Privileges](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-FEAB5DF5-F7A2-412D-BF3D-7420A355AE8F.html) 
+ in the VMware vSphere documentation.  
+
+**Datastore** privileges control the ability to browse, manage, and allocate space on datastores. 
+For information about **Datastore** see [Datastore Privileges]
+(https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-B2426ACC-D73F-4732-8BBC-DE9B1B2263D9.html) 
+ in the VMware vSphere documentation. 
+
+ **Resource** privileges control the creation and management of resource pools, 
+ as well as the migration of virtual machines. 
+ For information about **Resource** see [Resource Privileges]
+(https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-7BA4AE08-233C-4FF3-9A78-5B4BD4A6E28D.html) 
+ in the VMware vSphere documentation. 
+
+**Storage Views** privileges control privileges for Storage Monitoring Service APIs. 
+**Starting with vSphere 6.0, storage views are deprecated and these privileges no longer apply to them.** 
+For information about **Storage Views** see [Storage Views Privileges]
+(https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-DB976EAC-6F7E-4954-ABF4-2EAD5B6A68C0.html)
+in the VMware vSphere documentation. 
+For more information about vSphere storage configurations, see 
+[vSphere Storage for Kubernetes](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/index.html)
+in the VMware vSphere documentation.  
+
+For information about the vSphere virtual machine permissions API, see 
+[ReconfigVM_Task(reconfigure)](https://code.vmware.com/apis/358/vsphere/doc/vim.VirtualMachine.html) 
+in the _vSphere Web Services API_ documentation.  
 
 ### <a id="static-only"></a>Static Only Persistent Volume Provisioning
 
 To configure your Kubernetes master node user account using static only Persistent Volume (PV) provisioning, do the following:
 
-1. Create a custom role that allows the service account to manage Kubernetes node VMs. Give this role a name. For example, `manage-k8s-node-vms`. For more information about custom roles in vCenter, see [Create a Custom Role](https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-41E5E52E-A95B-4E81-9724-6AD6800BEF78.html) in the VMware vSphere documentation.
-  1. Grant the following privileges at the **VM Folder** level using either the vCenter UI or API:
+1. Create a custom role that allows the service account to manage Kubernetes node VMs. 
+For more information about custom roles in vCenter, see [Create a Custom Role](https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-41E5E52E-A95B-4E81-9724-6AD6800BEF78.html) in the VMware vSphere documentation.  
+    1. Give this role a name. For example, `manage-k8s-node-vms`. 
+    1. Grant the following privileges at the **VM Folder** level using either the vCenter UI or API:
     <table>
       <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-        <tr><td>Virtual Machine > Configuration > Add existing disk</td><td>VirtualMachine.Config.AddExistingDisk</td></tr>
-        <tr><td>Virtual Machine > Configuration > Add new disk</td><td>VirtualMachine.Config.AddNewDisk</td></tr>
-        <tr><td>Virtual Machine > Configuration > Add or remove device</td><td>VirtualMachine.Config.AddRemoveDevice</td></tr>
-        <tr><td>Virtual Machine > Configuration > Remove disk</td><td>VirtualMachine.Config.RemoveDisk</td></tr>
+        <tr>
+          <td>Virtual Machine > Add existing disk</td>
+          <td>VirtualMachine.Config.AddExistingDisk</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Add new disk</td>
+          <td>VirtualMachine.Config.AddNewDisk</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Add or remove device</td>
+          <td>VirtualMachine.Config.AddRemoveDevice</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Remove disk</td>
+          <td>VirtualMachine.Config.RemoveDisk</td>
+        </tr>
     </table>
+
     1. Select the **Propagate to Child Objects** checkbox.
 
-1. (Optional) Create a custom role that allows the user account to manage Kubernetes volumes. Give this role a name. For example, `manage-k8s-volumes`.
+1. (Optional) Create a custom role that allows the user account to manage Kubernetes volumes. 
   <p class="note"><strong>Note</strong>: This role is required if you create a Persistent Volume Claim (PVC) to bind with a statically provisioned PV, and the reclaim policy is set to delete.
 When the PVC is deleted, the statically provisioned PV is also deleted.</p>
     1. Give this role a name. For example, `manage-k8s-volumes`.
@@ -118,6 +162,8 @@ When the PVC is deleted, the statically provisioned PV is also deleted.</p>
     1. Clear the **Propagate to Child Objects** checkbox.
 
 1. Grant the service account the existing **Read-only** role. This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
+This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** 
+and **Datastore Storage Folder** levels:
   <table>
     <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
       <tr><td>Read-only</td><td>System.Anonymous</td></tr>
@@ -131,8 +177,10 @@ When the PVC is deleted, the statically provisioned PV is also deleted.</p>
 
 To configure your Kubernetes master node user account using dynamic PV provisioning **with** storage policy-based placement, do the following:
 
-1. Create a custom role that allows the user account to manage Kubernetes node VMs. Give this role a name. For example, `manage-k8s-node-vms`. For more information about custom roles in vCenter, see [Create a Custom Role](https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-41E5E52E-A95B-4E81-9724-6AD6800BEF78.html) in the VMware vSphere documentation.
-  1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:
+1. Create a custom role that allows the user account to manage Kubernetes node VMs. 
+For more information about custom roles in vCenter, see [Create a Custom Role](https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-41E5E52E-A95B-4E81-9724-6AD6800BEF78.html) in the VMware vSphere documentation.
+    1. Give this role a name. For example, `manage-k8s-node-vms`. 
+    1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:
     <table>
       <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
         <tr>
@@ -185,15 +233,19 @@ To configure your Kubernetes master node user account using dynamic PV provision
 
   1. Clear the **Propagate to Child Objects** checkbox.
 
-1. Create a custom role that allows the user account to read the Kubernetes storage profile. Give this role a name. For example, `k8s-system-read-and-spbm-profile-view`.
-  1. Grant the following privilege at the **vCenter** level using either the vCenter UI or API:
+1. Create a custom role that allows the user account to read the Kubernetes storage profile. 
+    1. Give this role a name. For example, `k8s-system-read-and-spbm-profile-view`.
+    1. Grant the following privilege at the **vCenter** level using either the vCenter UI or API:
   <table>
     <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-      <tr><td>Profile-driven storage view</td><td>StorageProfile.View</td></tr>
+      <tr><td><strong>Profile-driven storage view</td><td>StorageProfile.View</td></tr>
   </table>
+
   1. Clear the **Propagate to Child Objects** checkbox.
 
-1. Grant the user account the existing **Read-only** role. This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
+1. Grant the user account the existing **Read-only** role. 
+This role includes the following privileges at the **vCenter, Datacenter, 
+Datastore Cluster,** and **Datastore Storage Folder** levels:
   <table>
     <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
       <tr><td>Read-only</td><td>System.Anonymous</td></tr>
@@ -207,15 +259,31 @@ To configure your Kubernetes master node user account using dynamic PV provision
 
 To configure your Kubernetes master node user account using dynamic PV provisioning **without** storage policy-based placement, do the following:
 
-1. Create a custom role that allows the user account to manage Kubernetes node VMs. Give this role a name. For example, `manage-k8s-node-vms`. For more information about custom roles in vCenter, see [Create a Custom Role](https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-41E5E52E-A95B-4E81-9724-6AD6800BEF78.html) in the VMware vSphere documentation.
-  1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:
+1. Create a custom role that allows the user account to manage Kubernetes node VMs. 
+For more information about custom roles in vCenter, see [Create a Custom Role](https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-41E5E52E-A95B-4E81-9724-6AD6800BEF78.html) in the VMware vSphere documentation.
+
+    1. Give this role a name. For example, `manage-k8s-node-vms`.  
+    1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:
     <table>
       <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-        <tr><td>Virtual Machine > Configuration > Add existing disk</td><td>VirtualMachine.Config.AddExistingDisk</td></tr>
-        <tr><td>Virtual Machine > Configuration > Add new disk</td><td>VirtualMachine.Config.AddNewDisk</td></tr>
-        <tr><td>Virtual Machine > Configuration > Add or remove device</td><td>VirtualMachine.Config.AddRemoveDevice</td></tr>
-        <tr><td>Virtual Machine > Configuration > Remove disk</td><td>VirtualMachine.Config.RemoveDisk</td></tr>
+        <tr>
+          <td>Virtual Machine > Add existing disk</td>
+          <td>VirtualMachine.Config.AddExistingDisk</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Add new disk</td>
+          <td>VirtualMachine.Config.AddNewDisk</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Add or remove device</td>
+          <td>VirtualMachine.Config.AddRemoveDevice</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Remove disk</td>
+          <td>VirtualMachine.Config.RemoveDisk</td>
+        </tr>
     </table>
+
     1. Select the **Propagate to Child Objects** checkbox.
 
 1. Create a custom role that allows the user account to manage Kubernetes volumes. 
@@ -235,7 +303,8 @@ To configure your Kubernetes master node user account using dynamic PV provision
 
     1. Clear the **Propagate to Child Objects** checkbox.
 
-1. Grant the user account the existing **Read-only** role. This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
+1. Grant the user account the existing **Read-only** role. 
+This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
   <table>
     <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
       <tr><td>Read-only</td><td>System.Anonymous</td></tr>
