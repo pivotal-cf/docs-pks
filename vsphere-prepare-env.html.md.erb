@@ -48,6 +48,15 @@ To prepare your vSphere environment, do the following:
 1. [Grant Permissions to the BOSH/Ops Manager Service Account](#grant-bosh-ops-man)
 1. [Configure DNS for the PKS API](#dns)
 
+<br>
+For information about vSphere virtual machine permissions, see 
+[Virtual Machine Configuration Privileges](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.security.doc/GUID-FEAB5DF5-F7A2-412D-BF3D-7420A355AE8F.html) 
+in the _VMWare Docs_ documentation.
+
+For information about the vSphere virtual machine permissions API, see 
+[ReconfigVM_Task(reconfigure)](https://code.vmware.com/apis/358/vsphere/doc/vim.VirtualMachine.html) 
+in the _vSphere Web Services API_ documentation.
+
 ## <a id='prerequisites'></a>Prerequisites
 
 Before you prepare your vSphere environment, fulfill the prerequisites in [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html).
@@ -96,12 +105,17 @@ To configure your Kubernetes master node user account using static only Persiste
 1. (Optional) Create a custom role that allows the user account to manage Kubernetes volumes. Give this role a name. For example, `manage-k8s-volumes`.
   <p class="note"><strong>Note</strong>: This role is required if you create a Persistent Volume Claim (PVC) to bind with a statically provisioned PV, and the reclaim policy is set to delete.
 When the PVC is deleted, the statically provisioned PV is also deleted.</p>
-  1. Grant the following privilege at the **Datastore** level using either the vCenter UI or API:
-  <table>
-    <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-      <tr><td>Datastore > Low level file operations</td><td>Datastore.FileManagement</td></tr>
-  </table>
-  1. Clear the **Propagate to Child Objects** checkbox.
+    1. Give this role a name. For example, `manage-k8s-volumes`.
+    1. Grant the following privilege at the **Datastore** level using either the vCenter UI or API:
+    <table>
+      <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
+        <tr>
+          <td>Datastore > Low level file operations</td>
+          <td>Datastore.FileManagement</td>
+        </tr>
+    </table>
+
+    1. Clear the **Propagate to Child Objects** checkbox.
 
 1. Grant the service account the existing **Read-only** role. This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
   <table>
@@ -121,23 +135,54 @@ To configure your Kubernetes master node user account using dynamic PV provision
   1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:
     <table>
       <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-        <tr><td>Virtual Machine > Resource > Assign virtual machine to resource pool</td><td>Resource.AssignVMToPool</td></tr>
-        <tr><td>Virtual Machine > Configuration > Add existing disk</td><td>VirtualMachine.Config.AddExistingDisk</td></tr>
-        <tr><td>Virtual Machine > Configuration > Add new disk</td><td>VirtualMachine.Config.AddNewDisk</td></tr>
-        <tr><td>Virtual Machine > Configuration > Add or remove device</td><td>VirtualMachine.Config.AddRemoveDevice</td></tr>
-        <tr><td>Virtual Machine > Configuration > Remove disk</td><td>VirtualMachine.Config.RemoveDisk</td></tr>
-        <tr><td>Virtual Machine > Inventory > Create new</td><td>VirtualMachine.Inventory.Create</td></tr>
-        <tr><td>Virtual Machine > Inventory > Remove</td><td>VirtualMachine.Inventory.Delete</td></tr>
+        <tr>
+          <td>Resource > Assign virtual machine to resource pool</td>
+          <td>Resource.AssignVMToPool</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Add existing disk</td>
+          <td>VirtualMachine.Config.AddExistingDisk</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Add new disk</td>
+          <td>VirtualMachine.Config.AddNewDisk</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Add or remove device</td>
+          <td>VirtualMachine.Config.AddRemoveDevice</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Remove disk</td>
+          <td>VirtualMachine.Config.RemoveDisk</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Create new</td>
+          <td>VirtualMachine.Inventory.Create</td>
+        </tr>
+        <tr>
+          <td>Virtual Machine > Remove</td>
+          <td>VirtualMachine.Inventory.Remove</td>
+      </tr>
     </table>
-    1. Select the **Propagate to Child Objects** checkbox.
 
-1. Create a custom role that allows the user account to manage Kubernetes volumes. Give this role a name. For example, `manage-k8s-volumes`.
-  1. Grant the following privilege at the **Datastore** level using either the vCenter UI or API:
-  <table>
-    <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-      <tr><td>Datastore > Allocate space</td><td>Datastore.AllocateSpace</td></tr>
-      <tr><td>Datastore > Low level file operations</td><td>Datastore.FileManagement</td></tr>
-  </table>
+  1. Select the **Propagate to Child Objects** checkbox.
+
+1. Create a custom role that allows the user account to manage Kubernetes volumes. 
+
+    1. Give this role a name. For example, `manage-k8s-volumes`.
+    1. Grant the following privileges using either the vCenter UI or API:
+    <table>
+      <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
+        <tr>
+          <td>Datastore > Allocate space</td>
+          <td>Datastore.AllocateSpace</td>
+        </tr>
+        <tr>
+          <td>Datastore > Low level file operations</td>
+          <td>Datastore.FileManagement</td>
+        </tr>
+    </table>
+
   1. Clear the **Propagate to Child Objects** checkbox.
 
 1. Create a custom role that allows the user account to read the Kubernetes storage profile. Give this role a name. For example, `k8s-system-read-and-spbm-profile-view`.
@@ -173,14 +218,22 @@ To configure your Kubernetes master node user account using dynamic PV provision
     </table>
     1. Select the **Propagate to Child Objects** checkbox.
 
-1. Create a custom role that allows the user account to manage Kubernetes volumes. Give this role a name. For example, `manage-k8s-volumes`.
-  1. Grant the following privilege at the **Datastore** level using either the vCenter UI or API:
-  <table>
-    <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
-      <tr><td>Datastore > Allocate space</td><td>Datastore.AllocateSpace</td></tr>
-      <tr><td>Datastore > Low level file operations</td><td>Datastore.FileManagement</td></tr>
-  </table>
-  1. Clear the **Propagate to Child Objects** checkbox.
+1. Create a custom role that allows the user account to manage Kubernetes volumes. 
+    1. Give this role a name. For example, `manage-k8s-volumes`.
+    1. Grant the following privileges using either the vCenter UI or API:
+    <table>
+      <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
+        <tr>
+          <td>Datastore > Allocate space</td>
+          <td>Datastore.AllocateSpace</td>
+        </tr>
+        <tr>
+          <td>Datastore > Low level file operations</td>
+          <td>Datastore.FileManagement</td>
+        </tr>
+    </table>
+
+    1. Clear the **Propagate to Child Objects** checkbox.
 
 1. Grant the user account the existing **Read-only** role. This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
   <table>
