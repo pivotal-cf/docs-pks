@@ -4,24 +4,30 @@ owner: PKS
 ---
 
 This topic describes how sinks are implemented in <%= vars.product_full %> workloads.
+
 ## <a id="overview"></a> Overview
+
 <%= vars.product_short %>  provides the following types of sinks for collecting logs and metrics:
 
 * Log sinks for monitoring your cluster logs.
 * Metric sinks for monitoring your cluster metrics.
 
 <%= vars.product_short %> clusters include an observability manager that manages
-log sink and metric sink configurations within a cluster. 
+log sink and metric sink configurations within a cluster.
 
 The following diagram details <%= vars.product_short %> observability manager architecture:
 
 <a href="images/manager-architecture.png" target="_blank" id="sink-diagram"><img src="images/manager-architecture.png" alt="Observability Manager architecture in PKS"></a>
 <%#= original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %>
 
-If you want to use sinks, you must select **Enable Log Sink Resources** or **Enable Metric Sink Resources** in the <%= vars.product_tile %> tile. If you want to forward additional infrastructure metrics, you must also select **Enable Node Exporter on workers**. When you select these fields, Ops Manager requests that BOSH enable the observability manager with these configurations. 
+If you want to use sinks, you must select **Enable Log Sink Resources** or **Enable Metric Sink Resources** in the <%= vars.product_tile %> tile.
+To forward additional infrastructure metrics,
+you must also select **Enable Node Exporter on workers**.
+When you select these fields,
+Ops Manager requests that BOSH enable the observability manager with these configurations.
 
-For more information about enabling log sinks and metrics sinks, see [(Optional) Logging](./installing-pks-gcp.html#syslog) in the _Installing_ topic for your IaaS. 
-  
+For more information about enabling log sinks and metrics sinks, see [(Optional) Logging](./installing-pks-vsphere.html#syslog) in the _Installing_ topic for your IaaS. 
+
 ## <a id="sink-architecture"></a> Log Sink Architecture
 
 The <%= vars.product_short %> log sink aggregates workload logs and forwards them to a common log destination.
@@ -31,13 +37,13 @@ The following diagram details <%= vars.product_short %> log sink architecture:
 <a href="images/log-architecture.png" target="_blank" id="sink-diagram"><img src="images/log-architecture.png" alt="Log sink architecture in PKS"></a>
 <%#= original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %>
 
-Logs are monitored and aggregated by a set of fluent-bit daemons running as a pod on a single node. 
+Logs are monitored and aggregated by a Fluent Bit `DaemonSet` running as a pod on each worker node.
 
-An event-controller collects Kubernetes API events and sends them to a second fluent-bit daemon pod for aggregation.
+An event-controller collects Kubernetes API events and sends them to a second Fluent Bit daemon pod for aggregation.
 
 All aggregated log entries are marshaled to a common log destination.
 
-<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the fluent-bit pods are refreshed with new sink information.</p>
+<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Fluent Bit pods are refreshed with new sink information.</p>
 
 ## <a id="metric-sink-architecture"></a> Metric Sink Architecture
 
@@ -54,8 +60,8 @@ Workload metrics are monitored by a set of third-party plugins. The plugins forw
 
 A pair of kubelets monitors Kubernetes and forwards Kubernetes metrics to a pair of Telegraph service pods. 
 
-If Node Exporter is enabled on the worker nodes in the <%= vars.product_tile %> tile, a Node Exporter deamonset will be included in all clusters. This exposes a wide variety of node metrics. 
-For more information about these metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) repository in GitHub.
+If Node Exporter is enabled on the worker nodes in the <%= vars.product_tile %> tile, a Node Exporter `DaemonSet` is included in all clusters.
+For more information about Node Exporter metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) repository in GitHub.
 
 To define the collected unstructured metrics, a metric-controller monitors Kubernetes for custom resource definitions and forwards those definitions 
 to the Telegraph services.
