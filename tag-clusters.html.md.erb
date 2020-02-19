@@ -9,7 +9,8 @@ This topic explains how to tag new and existing clusters using the PKS CLI.
 IaaSes provide the ability for customers to "tag" VMs, databases and other resources with custom labels and metadata values. 
 Apply one or more tags to your clusters to simplify organizing, managing, searching for, and filtering resources within your IaaS-provided management console and other tools.  
 
-If your <%= vars.product_short %> deployment is on **Azure**, **vSphere**, or **vSphere with NSX-T**: You can use the PKS CLI to tag clusters by following the steps in 
+If your <%= vars.product_short %> deployment is on **Azure**, or **vSphere**, including **vSphere with NSX-T**: 
+You can use the PKS CLI to tag clusters by following the steps in 
 [Tag Your Clusters as They Are Created](#tagging-cli), below.  
 
 If your <%= vars.product_short %> deployment is on **AWS**, or **GCP**, 
@@ -41,7 +42,7 @@ $ pks create-cluster my-cluster --tags "status:non-billable,region:northwest"
 $ pks create-cluster my-cluster --tags "client:example.com, costcenter:pettycash"
 </pre>
 
-## <a id='tagging-cli'></a>Tag Your Existing Clusters 
+## <a id='tagging-cli-existing'></a>Tag Your Existing Clusters 
 
 To apply tags to your existing cluster's VMs, run the `pks update-cluster` command line, 
 and specify the `--tags` parameter and a comma-delimited list of `key:value` pairs of the tags to apply to the cluster. 
@@ -93,7 +94,7 @@ For information on `pks cluster` [Review Your Tags](#tagging-review), below.
     ```
     Where `TAGS` is a comma-delimited list of revised `key:value` pairs.
 
-#### <a id='tagging-cli'></a>Remove All Tags From Your Cluster
+#### <a id='modify-existing-tags-remove'></a>Remove All Tags From Your Cluster
 
 To remove all of your cluster’s existing tags do the following:
 
@@ -136,37 +137,20 @@ Custom tag alterations you've applied via the management console will be overwri
 when you next run <code>pks update-cluster</code>.
 </p>
 
-
-## <a id='tagging-limitations'></a>Tagging Limitations
-
-The following are the known `pks cli` IaaS Tagging limitations.
-
-### <a id='tagging-rules'></a>Tagging Rules
+## <a id='tagging-rules'></a>Tagging Rules
 
 The tagging you apply must adhere to the following rules:
 
 * Tag names and values should not include either `"`, `:` or `,`. 
 * Surrounding double quotes are required if there are one or more spaces in your tag list, such as a space after a comma delimiter.  
 * Tag names and values must adhere to the tagging rules of the IaaS hosting your <%= vars.product_short %> environment.  
-* Do not apply more tags than are permitted by your hosting IaaS.  
 
-    <p class="note"><strong>Note:</strong> 
-In addition to the custom tags you apply to your cluster, <%= vars.product_short %> applies ten default system tags to the cluster. 
-The total of the number of custom tags you apply to a cluster plus the number of 
-default tags applied by <%= vars.product_short %> 
-should not exceed the tagging maximum specified by your IaaS.  
-<br><br>
-For example: Azure limits tagging to a maximum of 50 tags per entity. 
-Therefore, if your <%= vars.product_short %> 
-environment is hosted on Azure, apply fewer than 40 custom tags to your clusters.  
-</p>
-
-
+<br>
 For information about IaaS-specific tagging rules see the following:  
 
 * Azure: See [Use tags to organize your Azure resources]
 (https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.  
-* vSphere and vSphere with NSX-T: See [vSphere Tags and Attributes]
+* vSphere: See [vSphere Tags and Attributes]
 (https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.vcenterhost.doc/GUID-E8E854DD-AA97-4E0C-8419-CE84F93C4058.html) in the vSphere documentation. 
 <%#= 
 <br>For information about tagging rules see the following: 
@@ -190,20 +174,44 @@ For information about IaaS-specific tagging rules see the following:
 </table>
 %>  
 
-#### <a id='tagging-iaas-specific-limitations'></a>IaaS-Specific Tagging Limitations
 
-The following are the known IaaS-specific `pks update-cluster` IaaS Tagging limitations:
+## <a id='tagging-limitations'></a>Tagging Limitations
 
-* **Azure**: `pks update-cluster` must apply IaaS Tagging using the Azure CPI. 
+The tagging you apply must consider the following limitations:  
+
+* The maximum number of custom tags you can apply to a cluster is 10 less than the tagging maximum stated by your IaaS. 
+For example: Azure limits tagging to a maximum of 50 tags per entity. 
+Therefore, if your <%= vars.product_short %> environment is hosted on Azure, 
+apply fewer than 40 custom tags to your clusters.  
+    <p class="note"><strong>Note:</strong>
+<%= vars.product_short %> applies 10 default system IaaS tags to a cluster in addition 
+to the custom tags you specify.
+</p>
+
+#### <a id='tagging-limitations-azure'></a>Azure-Specific Tagging Limitations
+
+The following are the known Azure-specific IaaS Tagging limitations:
+
+* `pks update-cluster` must apply IaaS Tagging using the Azure CPI. 
     * `pks update-cluster` cannot remove tags from your IaaS due to an 
 issue in the Azure CPI for Bosh which prevents removing tagging from the IaaS.  
 <br>
         To remove tags on Azure do the following:  
         1. Perform the removal steps described in [Modify Existing Tags](#modify-tags) above.
         1. Remove unwanted tags through the Azure portal.  
-<br>
-* **vSphere** and **vSphere with NSX-T**: `pks update-cluster` must apply IaaS Tagging using the vSphere CPI.  
+
+For information about additional Azure-specific tagging limitations see [Use tags to organize your Azure resources]
+(https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.  
+
+#### <a id='tagging-limitations-vsphere'></a>vSphere-Specific Tagging Limitations
+
+The following are the known vSphere-specific IaaS Tagging limitations:
+
+* `pks update-cluster` must apply IaaS Tagging using the vSphere CPI.  
     * Managing IaaS Tagging using the vSphere CPI has the following limitations:  
         * The vSphere CPI applies tagging to entities as vSphere Custom Attributes.  
         * The vSphere CPI applies vSphere Custom Attributes to VMs only. Disks and other resources are not tagged.  
         * A vSphere Custom Attribute applied to one vm is also visible on all other vms, but as an empty property.   
+
+For information about additional vSphere-specific tagging limitations see [vSphere Tags and Attributes]
+(https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.vcenterhost.doc/GUID-E8E854DD-AA97-4E0C-8419-CE84F93C4058.html) in the vSphere documentation. 
