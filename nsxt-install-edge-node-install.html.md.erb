@@ -1,5 +1,5 @@
 ---
-title: Install NSX Edge Nodes for Enterprise PKS
+title: Installing NSX Edge Nodes for Enterprise PKS
 owner: PKS-NSXT
 ---
 
@@ -13,27 +13,35 @@ Make sure you have completed [all preceding NSX-T installation tasks](./nsxt-ins
 
 NSX Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for <%= vars.product_short %> run load balancers for PKS API traffic, Kubernetes pod load balancer services, and pod ingress controllers. See [Load Balancers in Enterprise PKS](./about-lb.html) for more information.
 
-<%= vars.product_short %> supports the NSX Edge Node large VM form factor (8 vCPU, 32 GB of RAM, 200 GB of disk space) and the bare metal Edge Node. The Edge Node VM can only be deployed on Intel-based ESXi hosts. See [NSX Edge VM System Requirements](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-22F87CA8-01A9-4F2E-B7DB-9350CA60EA4E.html) in the NSX-T Data Center documentation. 
+<%= vars.product_short %> supports the NSX Edge Node 
+`medium` (4 vCPU, 8 GB of RAM, 200 GB of disk space), and
+`large` (8 vCPU, 32 GB of RAM, 200 GB of disk space) VM form factors, 
+and the bare metal Edge Node. 
+The Edge Node VM can only be deployed on Intel-based ESXi hosts. See [NSX Edge VM System Requirements](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-22F87CA8-01A9-4F2E-B7DB-9350CA60EA4E.html) in the NSX-T Data Center documentation. 
 
 For high-availability Edge Nodes are deployed as pairs within an Edge Cluster. The minimum number of Edge Nodes per Edge Cluster is 2; the maximum is 10. In NAT mode, <%= vars.product_short %> supports active/standby Edge Node failover. In standby mode, the standby load balancer is not available for use while the active load balancer is engaged. If No NAT mode is used, active/active can be used. 
 
-The default size of the load balancer deployed by NSX-T for a Kubernetes cluster is small. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>. 
+The default size of the load balancer deployed by NSX-T for a Kubernetes cluster is `small`. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>. 
 
 In NSX-T a load balancer is deployed on the Edge Nodes as a virtual server. The following virtual servers are required for <%= vars.product_short %>:
 
-- 1 TCP layer 4 virtual server for each Kubernetes service of type:LoadBalancer
+- 1 TCP layer 4 virtual server for each Kubernetes service of type:`LoadBalancer`
 - 2 layer 7 global virtual servers for Kubernetes pod ingress resources (HTTP and HTTPS)
 - 1 global virtual server for the PKS API
 
-To determine the maximum number of load balancers per Edge Cluster, multiply the maximum number of load balancers for the Edge Node type by the number of Edge Nodes and divide by 2. For example, with 10 Large VM Edge Nodes in an Edge Cluster, you can have up to 200 small load balancer instances (40 x 10/2), or up to 20 medium LB instances (4 x 10/2). See [Scaling Load Balancer Resources](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html) in the NSX-T Data Center documentation for more information.
+To determine the maximum number of load balancers per Edge Cluster, multiply the maximum number of load balancers for the Edge Node type by the number of Edge Nodes and divide by 2. For example, with 10 `large` VM Edge Nodes in an Edge Cluster, you can have up to 200 `small` load balancer instances (40 x 10/2), or up to 20 `medium` LB instances (4 x 10/2). See [Scaling Load Balancer Resources](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html) in the NSX-T Data Center documentation for more information.
 
-<p class="note"><strong>Note:</strong> Because of the load balancer requirements for <%= vars.product_short %>, you cannot use the small or medium Edge Node VM because these form factors do not support a sufficient number of virtual servers. You must install a large size Edge Node VM or the bare metal Edge Node for <%= vars.product_short %>.</p>
+<p class="note"><strong>Note:</strong> Because of the load balancer requirements for <%= vars.product_short %>, 
+  you cannot use the <code>small</code> Edge Node VM because this form factor does not support 
+  a sufficient number of virtual servers. 
+  You must install either a <code>medium</code> or <code>large</code> size Edge Node VM or the bare metal Edge Node for <%= vars.product_short %>.
+</p>
 
-##<a id='edge-node-install'></a> Install a NSX Edge Node Large VM Using the vSphere Client
+##<a id='edge-node-install'></a> Install a Medium or Large NSX Edge Node VM Using the vSphere Client
 
 The NSX Edge Node VM is provided as an OVA file named the **NSX Edge VM** that you import into your vSphere environment and configure.
 
-Complete the following steps to install an NSX Edge Node Large VM using the vSphere Client. To install an NSX Edge Node VM using the ovftool CLI, see the [NSX-T Data Center documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-BF5EC490-CB5D-4FA9-AEC8-BB1A85E55B01.html)
+Complete the following steps to install a `medium` or `large` NSX Edge Node VM using the vSphere Client. To install an NSX Edge Node VM using the ovftool CLI, see the [NSX-T Data Center documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/installation/GUID-BF5EC490-CB5D-4FA9-AEC8-BB1A85E55B01.html)
 
 <p class="note"><strong>Note</strong>: Repeat the deployment and verification process for each NSX Edge Node you intend to use for <%= vars.product_short %>.</p>
 
@@ -67,8 +75,8 @@ Complete the following steps to install an NSX Edge Node Large VM using the vSph
 1. At the **Review details** screen, verify the OVF template details and click **Next**.
   <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-05.png">
 
-1. At the **Configuration** screen, select the **Large** size VM and click **Next**.
-  <p class="note"><strong>Warning:</strong> You must select the large size Edge Node VM. See <a href="./nsxt-install-edge-node-install.html#edge-nodes-about">About Deploying NSX-T Edge Nodes for Enterprise PKS</a>.</p>
+1. At the **Configuration** screen, select either **Medium** or **Large** size VM and click **Next**.
+  <p class="note"><strong>Warning:</strong> You must select either **Medium** or  <strong>Large</strong> size Edge Node VM. See <a href="./nsxt-install-edge-node-install.html#edge-nodes-about">About Deploying NSX-T Edge Nodes for Enterprise PKS</a>.</p>
   <img src="images/nsxt/nsxt-data-center-installation/nsx-edge-installation/nsx-edge-install-06.png">
 
 1. At the **Select storage** screen:
