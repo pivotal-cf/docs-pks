@@ -5,7 +5,7 @@ owner: PKS
 
 This topic describes how to verify the health of your <%= vars.product_full %> deployment.
 
-## <a id="k8s"></a>Verify Kubernetes Health
+## <a id="k8s"></a>Verify Kubernetes Cluster Health
 
 Verify the health of your Kubernetes environment by following the steps below:
 
@@ -85,7 +85,7 @@ Verify the health of your Kubernetes environment by following the steps below:
 
     In the example above, `service-instance_8de000ff-a87a-4930-81ba-106d42c2471e` is the Kubernetes deployment name.
 
-    <p class="note"><strong>Note</strong>: If you have deployed multiple Kubernetes clusters, determine the UUID using <code>pks clusters</code>, then match that UUID with the Kubernetes cluster deployment you are targeting.</p>
+    <p class="note"><strong>Note</strong>: If you have deployed multiple Kubernetes clusters, determine the UUID using <code>pks clusters</code> and then match that UUID with the Kubernetes cluster deployment you are targeting.</p>
 
 1. To assess the status of the VMs comprising the target Kubernetes cluster, run the following command:
 
@@ -189,25 +189,24 @@ command for each deployment:
 
 ## <a id="ncp"></a>Verify NCP Health (NSX-T Only)
 
-NCP runs as a BOSH host process.
+NSX Container Plugin (NCP) runs as a BOSH host process.
 Each Kubernetes master node VM has one running NCP process. If your cluster has
 multiple master nodes, one NCP process is active while the others are on standby.
 
-Verify NCP health by following the steps below:
+To verify the `ncp` process is running, do the following:
 
-1. Perform the steps in [Verify Kubernetes Health](#k8s) to view the VMs and processes for your target Kubernetes cluster.
-
-1. To verify the `ncp` process is `running`, re-run the `bosh instances` command on the master node:
+1. Run `bosh instances` in your <%= vars.product_short %> environment:
 
     ```
-    bosh -d K8-DEPLOYMENT instances --ps
+    bosh -e ENVIRONMENT -d K8-DEPLOYMENT instances --ps
     ```
-    Where `K8-DEPLOYMENT` is the name of your Kubernetes cluster deployment. Kubernetes cluster deployment names
+    Where:
+    * `ENVIRONMENT` is the alias you set for your BOSH Director.
+    * `K8-DEPLOYMENT` is the name of your Kubernetes cluster deployment. Kubernetes cluster deployment names
     begin with `service-instance` and include a unique BOSH-generated identifier.
-    <br><br>
-    For example:
 
-    <pre class="terminal">$ bosh -d service-instance&#95;8de000ff-a87a-4930-81ba-106d42c2471e instances --ps
+    For example:
+    <pre class="terminal">$ bosh -e pks -d service-instance&#95;8de000ff-a87a-4930-81ba-106d42c2471e instances --ps
     Using environment '30.0.0.10' as client 'ops_manager'
 
     Task 678. Done
@@ -228,40 +227,26 @@ Verify NCP health by following the steps below:
     ~                                                  ncp                              running        -       -
     ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -</pre>
 
-1. To SSH into the Kubernetes master node VM, run the following command:
+**Alternatively:**
+
+1. SSH into your target Kubernetes master node VM:
 
     ```
     bosh -e ENVIRONMENT -d K8-DEPLOYMENT ssh master/VM-ID
     ```
     Where:
-    * `ENVIRONMENT` is the alias you set for your BOSH Director. For more information, see
-    [Using BOSH Diagnostic Commands in <%= vars.product_short %>](diagnostic-tools.html).
-    * `K8-DEPLOYMENT` is the name of your Kubernetes cluster deployment.
+    * `ENVIRONMENT` is the alias you set for your BOSH Director.
+    * `K8-DEPLOYMENT` is the name of your Kubernetes cluster deployment. Kubernetes cluster deployment names
+    begin with `service-instance` and include a unique BOSH-generated identifier.
     * `VM-ID` is your Kubernetes master node VM ID. This is a unique BOSH-generated identifier.
-    <br><br>
+
     For example:
     <pre class="terminal">$ bosh -e pks -d service-instance&#95;8de000ff-a87a-4930-81ba-106d42c2471e ssh master/b6d3c263-1682-4c79-a9ab-35939127dedb</pre>
 
-1. To verify the `ncp` process is `running`, run the following command from the master node VM:
+1. From the master node VM, run `monit summary`.
+1. (Optional) To check if the `ncp` process on your target master node is active or on standby, run `/var/vcap/jobs/ncp/bin/nsxcli -c get ncp-master status`.
+This applies only to multi-master clusters.
 
-    ```
-    monit summary
-    ```
-
-1. To check if the NCP process is active or on standby, run the following command:
-
-    ```
-    /var/vcap/jobs/ncp/bin/nsxcli -c get ncp-master status
-    ```
-
-1. To restart the NCP process, run the following command:
-
-    ```
-    monit restart ncp
-    ```
-
-1. To verify that the NCP process restarts successfully, run the following command:
-
-    ```
-    monit summary
-    ```
+For information about troubleshooting NCP,
+see [NSX-T NCP troubleshooting and debug logging](https://kb.vmware.com/s/article/67651)
+in the VMware Knowledge Base.
