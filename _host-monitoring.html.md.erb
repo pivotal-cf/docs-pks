@@ -7,17 +7,16 @@ monitoring host VMs in your <%= vars.product_short %> deployment.
 In this pane, you can configure <%= vars.product_short %> to
 forward logs from your BOSH-deployed VMs to a syslog endpoint as well as
 configure transport of multiple metric sources.
-These settings are not visible to Kubernetes cluster users.
 
 ![Host Monitoring pane](images/host-monitoring.png)
 
 To configure host monitoring in the <%= vars.product_tile %> tile, do the following:
 
-* To configure Syslog for BOSH-deployed VMs, see [Syslog](#host-syslog).
+* If you want to configure Syslog for BOSH-deployed VMs, see [Syslog](#host-syslog).
 <% if current_page.data.iaas == "vSphere" || current_page.data.iaas == "vSphere-NSX-T" %>
-* To configure VMware vRealize Log Insight Integration, see [VMware vRealize Log Insight Integration](#vrealize-logs).
+* If you want to configure VMware vRealize Log Insight Integration, see [VMware vRealize Log Insight Integration](#vrealize-logs).
 <% end %>
-* To configure the Telegraf agent, see [Telegraf](#telegraf).
+* If you want to configure the Telegraf agent, see [Telegraf](#telegraf).
 
 ####<a id='host-syslog'></a> Syslog
 
@@ -45,8 +44,50 @@ To configure host monitoring in the <%= vars.product_tile %> tile, do the follow
 
 ####<a id='telegraf'></a> Telegraf
 
-In **Host Monitoring**, you can configure the Telegraf agent to collect metrics from several sources
-and send those metrics to a monitoring service, such as Wavefront or Datadog.
+The Telegraf agent collects metrics from your <%= vars.product_short %> deployment
+and sends them to a monitoring service, such as Wavefront or Datadog.
+
+In **Host Monitoring**, you can configure the Telegraf agent to collect metrics
+from one or more of the following sources:
+
+<table class="nice">
+  <col width="30%">
+  <col width="70%">
+  <tr>
+    <th>Metric source</th>
+    <th>Description</th>
+    </tr>
+    <tr>
+      <td>
+        <strong>PKS API</strong>
+      </td>
+      <td>
+        This includes metrics from Node Exporter<sup>&#42;</sup> on the PKS API VM.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Master nodes</strong>
+      </td>
+      <td>
+        This includes metrics from Node Exporter<sup>&#42;</sup> on master nodes,
+        Kubernetes API server, Kubernetes controller manager, and etcd.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Worker nodes</strong>
+      </td>
+      <td>
+        This includes metrics from Node Exporter<sup>&#42;</sup> on worker nodes and kubelet.
+      </td>
+    </tr>
+</table>
+
+<sup>&#42;</sup> In <%= vars.product_short %>, you can use Node Exporter on worker and master nodes as well as on the PKS API VM.
+<%= vars.product_short %> enables Node Exporter only on <em>localhost</em> of these VMs.
+For a list of the metrics Node Exporter collects in <%= vars.product_short %>,
+see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) GitHub repository.
 
 To configure <%= vars.product_short %> to use Telegraf for metric collection:
 
@@ -68,40 +109,39 @@ For instructions, see [Create a Configuration File](./monitor-etcd.html#toml).
       </tr>
       <tr>
         <td>
-          <strong>Enable node exporter on PKS API</strong>
+          <strong>Enable Node Exporter on PKS API</strong>
         </td>
         <td>
-            Select if you want to send node exporter metrics from the PKS API VM to your monitoring service.
+          Select if you want to send Node Exporter metrics from the PKS API VM to your monitoring service.
         </td>
-       </tr>
-       <tr>
-          <td>
-            <strong>Enable node exporter on master</strong>
-           </td>
-          <td>
-            Select if you want to send node exporter metrics from Kubernetes master nodes to your monitoring service.
-            <%= vars.product_short %> enables node exporter on the <em>localhost</em> of each master node VM.
-          </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Enable Node Exporter on master</strong>
+        </td>
+        <td>
+          Select if you want to send Node Exporter metrics from Kubernetes master nodes to your monitoring service.
+        </td>
       </tr>
       <tr>
         <td>
           <strong>Include etcd metrics</strong>
         </td>
         <td>
-          Select if you want to send etcd server and debug metrics to your monitoring service.
+          Select if you want to send etcd server and debugging metrics to your monitoring service.
         </td>
       </tr>
       <tr>
         <td>
-          <strong>Enable node exporter on worker</strong>
+          <strong>Enable Node Exporter on worker</strong>
         </td>
         <td>
-          Select if you want to send node exporter metrics from Kubernetes worker nodes to your monitoring service.
+          Select if you want to send Node Exporter metrics from Kubernetes worker nodes to your monitoring service.
         </td>
       </tr>
       <tr>
         <td>
-            <strong>Include Kubernetes Controller Manager metrics</strong>
+          <strong>Include Kubernetes controller manager metrics</strong>
         </td>
         <td>
           Select if you want to send <code>kube-controller-manager</code> metrics to your monitoring service.
@@ -110,25 +150,25 @@ For instructions, see [Create a Configuration File](./monitor-etcd.html#toml).
       </tr>
       <tr>
         <td>
-            <strong>Include Kubernetes API Server metrics</strong>
+          <strong>Include Kubernetes API server metrics</strong>
         </td>
         <td>
-            Select if you want to send <code>kube-apiserver</code> metrics to your monitoring service.
+          Select if you want to send <code>kube-apiserver</code> metrics to your monitoring service.
         </td>
       </tr>
       <tr>
         <td>
-            <strong>Include kubelet metrics</strong>
+          <strong>Include kubelet metrics</strong>
         </td>
         <td>
-            Select if you want to send <code>kubelet</code> metrics to your monitoring service.
-            This collects <code>kubelet</code> metrics for all workloads running in all Kubernetes clusters.<br>
-            If you enable <strong>Include kubelet metrics</strong>, be prepared for a high volume of metrics.
+          Select if you want to send <code>kubelet</code> metrics to your monitoring service.
+          This collects <code>kubelet</code> metrics for all workloads running in all your Kubernetes clusters.<br>
+          If you enable <strong>Include kubelet metrics</strong>, be prepared for a high volume of metrics.
         </td>
       </tr>
     </table>
 
-1. In **Setup Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents of the configuration file
+1. In **Set Up Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents of the configuration file
     that you created above.
 
 1. Click **Save**.
