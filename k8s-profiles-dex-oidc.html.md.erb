@@ -1,0 +1,344 @@
+---
+title: Add an OIDC Provider
+owner: PKS
+---
+
+Currently, the PKS deployment supports only a single IDP which can be
+configured on the tile itself, and all the resulting clusters use the
+same IDP configuration as specified in the tile.
+
+In PKS 1.7, we addressed this issue through a **kubernetes-profile**
+A.K.A **k8s profile**. Creating a k8s profile with the OIDC setup and
+then using that profile to create a cluster will allow the cluster to
+leverage a separate IDP than the one specified in the tile, if any.
+
+For more information and other uses of Kubernetes profiles, see [Using Kubernetes Profiles](./k8s-profiles.html).
+
+## <a id='overview'></a>Overview
+
+In this example we will be using
+[dex](https://github.com/dexidp/dex) configured with LDAP as
+the OIDC provider. We will deploy dex as a pod on a cluster and then
+expose that endpoint via a public IP address which we will use to create
+the kubernetes profile.
+
+## <a id='dex'></a>Create and Use a Kubernetes Profile for OIDC
+
+### <a id='dex'></a>Set Up Dex Workload
+
+1.  Create a cluster in pks for installing dex as a pod:
+
+    ```
+    $./pks create-cluster dex -p small -e dex.cluster.com
+    ```
+
+1.  Get the IP address of k8s master and add it to your /etc/hosts
+
+    ```
+    $ pks cluster dex-cluster
+    PKS Version:             1.7.0-build.11
+    Name:                    dex
+    K8s Version:             1.15.5
+    Plan Name:               small
+
+    UUID:                    dbe1d880-478f-4d0d-bb2e-0da3d9641f0d
+    Last Action:             CREATE
+    Last Action State:       succeeded
+    Last Action Description: Instance provisioning completed
+    Kubernetes Master Host:  dex.cluster.com
+    Kubernetes Master Port:  8443
+    Worker Nodes:            1
+    Kubernetes Master IP(s): 10.0.11.11
+    Network Profile Name:
+    Kubernetes Profile Name:
+    Tags:
+    ```
+    
+1. Populate your `~/.kube/config` with context for dex:
+
+    ```
+    $ pks get-credentials dex
+    ```
+
+1. Switch to the admin context of the dex cluster:
+
+    ```
+    $ kubectl config use-context dex
+    ```
+
+1.  Follow [the steps](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#deploying-dex-on-kubernetes)
+    to deploy a dex workload on a kubernetes cluster.
+    * This [example YAML file](https://github.com/pivotal-cf/kubo-odb-ci/blob/master/specs/dex.yml)
+    creates a dex deployment which talks to an LDAP server
+    for the purposes of authentication and authorization.
+
+### <a id='prep'></a>Prepare Deployment
+
+1.  Add the /etc/hosts entry for the public IP and the hostname
+    dex.example.com on your local workstation. This would be eventually
+    used to get the token used to access a cluster.
+    
+    ```
+    10.0.11.11 dex.cluster.com
+    ```
+
+1.  Generate TLS assets for the dex deployment as mentioned
+    [*here*](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#generate-tls-assets).
+
+1.  Add the generated TLS assets to the cluster as a secret using the
+    commands mentioned under [this
+    section](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#create-cluster-secrets).
+
+### <a id='deploy'></a>Deploy and Expose dex
+
+1.  On a kubernetes cluster, deploy dex as a deployment using the
+    reference YAML file mentioned above.
+
+1.  Once the deployment succeeds, expose the dex deployment as a service:
+
+    ```
+    $ kubectl expose deployment dex --type=LoadBalancer --name=dex-service
+    > service/dex-service exposed
+    ```
+
+1.  This should create a dex service with a public IP which can be used
+    as the oidc issuer URL. You can retrieve the IP address by running:
+    
+    ```
+    $kubectl get services dex-service
+    ```
+
+1.  Add the IP of the dex-service to your /etc/hosts:
+
+    ```
+    35.222.29.10 dex.example.com
+    ```
+    * Ensure that you map it to dex.example.com since that is what the dex
+binary expects as issuer\_url as well as for TLS handshakes.
+    * For this example, we specifically have the issuer URL set up as
+    [https://dex.example.com:32000](https://dex.example.com:32000).
+
+### <a id='connect'></a>Connect kube-api-server to the dex Server
+
+1.  Create a k8s-profile similar to the one mentioned below.
+You can set the `oidc-issuer-url` as [https://dex.example.com](https://dex.example.com).
+
+  * The kubernetes profile to apply custom OIDC setup looks like this:
+    ```
+    $ cat /tmp/profile.json
+    {
+       "name": "oidc-config",
+       "description": "Kubernetes profile with OIDC configuration",
+       "customizations": [
+          {
+             "component": "kube-apiserver",
+             "arguments": {
+                "oidc-client-id": "example-app",
+                "oidc-issuer-url": "https://dex.example.com:32000",
+                "oidc-username-claim": "email"
+             },
+             "file-arguments": {
+                "oidc-ca-file": "/tmp/oidc-ca.pem"
+             }
+          }
+       ]
+    }
+    ```
+    
+As shown in the profile above, the OIDC flags should be setup under the
+component “kube-apiserver”. From the list of the officially supported
+flags for kube-apiserver, the following are the ones specific to OIDC
+setup:
+
+  - oidc-issuer-url
+  - oidc-client-id
+  - oidc-username-claim
+  - oidc-groups-claim
+  - oidc-ca-file
+
+The description for each of the above listed flags can be found in the
+[*kube apiserver
+documentation*](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/).
+
+The **oidc-ca-file **flag requires a path to the actual file system on
+the disk. To support that, we include the flag under the
+**file\_arguments **block. While creating the kubernetes profile, the
+value for the **oidc-ca-file** flag should be a path to a file on the
+local filesystem which contains the CA Certificate. The command **pks
+create-kubernetes-profile** takes care of reading the file and sending
+the contents over to the API server.
+
+For example, in the example shown above, the file-path
+**/tmp/oidc-ca.pem **points to a file on the local file system which was
+used to create the profile.
+
+1.  Create the profile using the following command:
+
+$ pks create-kubernetes-profile /tmp/profile.json
+
+1.  Create a cluster using the k8s profile created above
+2.  $ pks create-cluster cluster-with-custom-oidc -e c.example.com -p
+    small --kubernetes-profile oid-config
+
+1.   The cluster should be setup with the custom OIDC settings from the
+    profile.
+
+## <a id='test'></a>Test Cluster Access
+
+To test access to the newly created cluster, we will use an example app
+to generate an ID token. The example app is available at [*this
+link*](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster).
+Remember that this is an example application and in real-world
+scenarios, this can be replaced by a full fledged application like
+[*Gangway*](https://github.com/heptiolabs/gangway).
+
+1.  Run the dex example app:
+
+./bin/example-app --issuer https://dex.example.com:32000
+--issuer-root-ca /tmp/ca.pem
+
+1.  The aforementioned example app only provides the **email **scope,
+    hence we set the **oidc-username-claim **flag to email while
+    creating the profile.
+
+1.  To fetch the token, use the information provided[* here
+    *](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster)to
+    generate the ID token. (Login using ‘Log in with Email’ option and
+    enter email as ‘[*admin@example.com*](mailto:admin@example.com)’ and
+    password as ‘password’.
+
+![](dex-test-app.png)
+
+1.  You should get a page with the id\_token, refresh\_token and
+    access\_token. 
+
+![](dex-test-output.png)
+
+Once the token is generated, create a kube-config using the cluster and
+token details as below. Setup a context for the user. pk
+
+$ cat \~/.kube/config
+
+apiVersion: v1
+
+clusters:
+
+\- cluster:
+
+certificate-authority-data: dhsfkjhfjhsfjksfh...kjshfjkshfgk
+
+server: https://c.example.com:8443
+
+name: cluster-with-custom-oidc
+
+contexts:
+
+\- context:
+
+cluster: cluster-with-custom-oidc
+
+user: admin
+
+name: cluster-with-custom-oidc-ldap
+
+\- context:
+
+cluster: cluster-with-custom-oidc
+
+user: alana
+
+name: cluster-with-custom-oidc-ldap-alana
+
+current-context: cluster-with-custom-oidc-ldap-alana
+
+kind: Config
+
+preferences: {}
+
+users:
+
+\- name: admin
+
+user:
+
+token: eyJhbGciOiJSUzI1NiIsI...kjhfksjfhdk
+
+\- name: alana
+
+user:
+
+token: eyJhbGciOiJSUzI1NiIsIm….jsfdhjfshd
+
+1.  Setup RBAC permissions for the
+    [*alana@test.com*](mailto:alana@test.com) user to access services
+    and pods etc. 
+
+<!-- end list -->
+
+1.  > Setup a role for the user in the default namespace
+
+> 
+
+> apiVersion: rbac.authorization.k8s.io/v1
+
+> kind: ClusterRole
+
+> metadata:
+
+>   namespace: default
+
+>   name: pod-reader-clusterRolebinding
+
+> rules:
+
+> \- apiGroups: \[""\] \# "" indicates the core API group
+
+>   resources: \["pods", "services"\]
+
+>   verbs: \["get", "watch", "list"\]
+
+1.  > Setup a rolebinding for the user
+
+> 
+
+> apiVersion: rbac.authorization.k8s.io/v1
+
+> \# This role binding allows "alana@test.com" to read pods in the
+> "default" namespace.
+
+> kind: ClusterRoleBinding
+
+> metadata:
+
+>   name: read-pods-clusterRolebinding
+
+>   namespace: default
+
+> subjects:
+
+> \- kind: User
+
+>   name: alana@test.com \# Name is case sensitive
+
+>   apiGroup: rbac.authorization.k8s.io
+
+> roleRef:
+
+>   kind: ClusterRole \#this must be Role or ClusterRole
+
+>   name: pod-reader-clusterRolebinding \# this must match the name of
+> the Role or ClusterRole you wish to bind to
+
+>   apiGroup: rbac.authorization.k8s.io
+
+> 
+
+1.  > This should allow \`alana\` to \`kubectl get pods\`. 
+
+2.  > If this succeeds you are now using the oidc-connect via the
+    > oidc-provider dex.
+
+> 
+
+>
+
