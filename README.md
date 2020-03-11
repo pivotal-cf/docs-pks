@@ -1,7 +1,6 @@
-# Enterprise Pivotal Container Service (Enterprise PKS) Documentation
+# VMware Enterprise PKS Documentation
 
-This repository contains the content for the documentation for Enterprise Pivotal Container Service
-(Enterprise PKS).
+This repository contains the content for the documentation for Enterprise PKS.
 
 The content in this repository publishes to the Enterprise PKS documentation site at
 https://docs.pivotal.io/pks/index.html.
