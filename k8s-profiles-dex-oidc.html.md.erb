@@ -123,222 +123,153 @@ binary expects as issuer\_url as well as for TLS handshakes.
 1.  Create a k8s-profile similar to the one mentioned below.
 You can set the `oidc-issuer-url` as [https://dex.example.com](https://dex.example.com).
 
-  * The kubernetes profile to apply custom OIDC setup looks like this:
-    ```
-    $ cat /tmp/profile.json
-    {
-       "name": "oidc-config",
-       "description": "Kubernetes profile with OIDC configuration",
-       "customizations": [
-          {
-             "component": "kube-apiserver",
-             "arguments": {
-                "oidc-client-id": "example-app",
-                "oidc-issuer-url": "https://dex.example.com:32000",
-                "oidc-username-claim": "email"
-             },
-             "file-arguments": {
-                "oidc-ca-file": "/tmp/oidc-ca.pem"
-             }
-          }
-       ]
-    }
-    ```
+    The kubernetes profile to apply custom OIDC setup looks like this:
+
+      ```
+      $ cat /tmp/profile.json
+      {
+         "name": "oidc-config",
+         "description": "Kubernetes profile with OIDC configuration",
+         "customizations": [
+            {
+               "component": "kube-apiserver",
+               "arguments": {
+                  "oidc-client-id": "example-app",
+                  "oidc-issuer-url": "https://dex.example.com:32000",
+                  "oidc-username-claim": "email"
+               },
+               "file-arguments": {
+                  "oidc-ca-file": "/tmp/oidc-ca.pem"
+               }
+            }
+         ]
+      }
+      ```
+      In the profile above, the OIDC flags should be set up under the
+  component `kube-apiserver`.
+  From the list of the officially supported flags for kube-apiserver, the following are specific to OIDC:
+    - oidc-issuer-url
+    - oidc-client-id
+    - oidc-username-claim
+    - oidc-groups-claim
+    - oidc-ca-file
     
-As shown in the profile above, the OIDC flags should be setup under the
-component “kube-apiserver”. From the list of the officially supported
-flags for kube-apiserver, the following are the ones specific to OIDC
-setup:
+    The description for each of the above listed flags can be found in the
+    [kube-apiserver documentation](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/).
 
-  - oidc-issuer-url
-  - oidc-client-id
-  - oidc-username-claim
-  - oidc-groups-claim
-  - oidc-ca-file
+    The `oidc-ca-file` flag requires a path to the actual file system on the disk.
+    To support that, we include the flag under the `file_arguments` block.
+    While creating the kubernetes profile, the value for the `oidc-ca-file` flag should be a path to a file on the local filesystem which contains the CA Certificate.
+    The command `pks create-kubernetes-profile` takes care of reading the file and sending the contents over to the API server.
 
-The description for each of the above listed flags can be found in the
-[*kube apiserver
-documentation*](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/).
+    For example, in the example shown above, the file-path `/tmp/oidc-ca.pem` points to a file on the local file system which was used to create the profile.
 
-The **oidc-ca-file **flag requires a path to the actual file system on
-the disk. To support that, we include the flag under the
-**file\_arguments **block. While creating the kubernetes profile, the
-value for the **oidc-ca-file** flag should be a path to a file on the
-local filesystem which contains the CA Certificate. The command **pks
-create-kubernetes-profile** takes care of reading the file and sending
-the contents over to the API server.
+1.  Create the profile:
 
-For example, in the example shown above, the file-path
-**/tmp/oidc-ca.pem **points to a file on the local file system which was
-used to create the profile.
+  ```
+  $ pks create-kubernetes-profile /tmp/profile.json
+  ```
+  
+1.  Create a cluster using the k8s profile created above:
 
-1.  Create the profile using the following command:
+  ```
+  $ pks create-cluster cluster-with-custom-oidc -e c.example.com -p
+      small --kubernetes-profile oid-config
+  ```
 
-$ pks create-kubernetes-profile /tmp/profile.json
-
-1.  Create a cluster using the k8s profile created above
-2.  $ pks create-cluster cluster-with-custom-oidc -e c.example.com -p
-    small --kubernetes-profile oid-config
-
-1.   The cluster should be setup with the custom OIDC settings from the
-    profile.
+The cluster should have custom OIDC settings from the profile.
 
 ## <a id='test'></a>Test Cluster Access
 
 To test access to the newly created cluster, we will use an example app
-to generate an ID token. The example app is available at [*this
-link*](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster).
+to generate an ID token. The example app is available in the [Logging into the cluster](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster) documentation in the dex repo.
 Remember that this is an example application and in real-world
-scenarios, this can be replaced by a full fledged application like
-[*Gangway*](https://github.com/heptiolabs/gangway).
+scenarios, this can be replaced by a full-fledged application like
+[Gangway](https://github.com/heptiolabs/gangway).
 
 1.  Run the dex example app:
 
-./bin/example-app --issuer https://dex.example.com:32000
---issuer-root-ca /tmp/ca.pem
+    ```
+    ./bin/example-app --issuer https://dex.example.com:32000
+    --issuer-root-ca /tmp/ca.pem
+    ```
+    - The aforementioned example app only provides the `email` scope,
+      hence we set the `oidc-username-claim` flag to `email` while
+      creating the profile.
 
-1.  The aforementioned example app only provides the **email **scope,
-    hence we set the **oidc-username-claim **flag to email while
-    creating the profile.
+1. To fetch the token, use the information provided [here](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster) to generate the ID token.
 
-1.  To fetch the token, use the information provided[* here
-    *](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster)to
-    generate the ID token. (Login using ‘Log in with Email’ option and
-    enter email as ‘[*admin@example.com*](mailto:admin@example.com)’ and
-    password as ‘password’.
-
-![](dex-test-app.png)
+1. Log in using ‘Log in with Email’ option and enter email as `admin@example.com’ and password as `password`.
+  ![](dex-test-app.png)
 
 1.  You should get a page with the id\_token, refresh\_token and
     access\_token. 
+    ![](dex-test-output.png)
 
-![](dex-test-output.png)
+1. Once the token is generated, create a `kube-config` using the cluster and token details as below. Set up a context for the user:
 
-Once the token is generated, create a kube-config using the cluster and
-token details as below. Setup a context for the user. pk
+    ```
+    $ cat ~/.kube/config
+    apiVersion: v1
+    clusters:
+    - cluster:
+        certificate-authority-data: dhsfkjhfjhsfjksfh...kjshfjkshfgk
+        server: https://c.example.com:8443
+      name: cluster-with-custom-oidc
+    contexts:
+    - context:
+        cluster: cluster-with-custom-oidc
+        user: admin
+      name: cluster-with-custom-oidc-ldap
+    - context:
+        cluster: cluster-with-custom-oidc
+        user: alana
+      name: cluster-with-custom-oidc-ldap-alana
+    current-context: cluster-with-custom-oidc-ldap-alana
+    kind: Config
+    preferences: {}
+    users:
+    - name: admin
+      user:
+        token: eyJhbGciOiJSUzI1NiIsI...kjhfksjfhdk
+    - name: alana
+      user:
+        token: eyJhbGciOiJSUzI1NiIsIm….jsfdhjfshd
+    ```
 
-$ cat \~/.kube/config
+1.  Set up RBAC permissions for the `alana@test.com` user to access services and pods etc.
+Start by setting up a role for the user in the default namespace:
 
-apiVersion: v1
+    ```
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      namespace: default
+      name: pod-reader-clusterRolebinding
+    rules:
+    - apiGroups: [""] # "" indicates the core API group
+      resources: ["pods", "services"]
+      verbs: ["get", "watch", "list"]
+    ```
 
-clusters:
+1. Set up a rolebinding for the user:
 
-\- cluster:
+    ```
+    apiVersion: rbac.authorization.k8s.io/v1
+    # This role binding allows "alana@test.com" to read pods in the "default" namespace.
+    kind: ClusterRoleBinding
+    metadata:
+      name: read-pods-clusterRolebinding
+      namespace: default
+    subjects:
+    - kind: User
+      name: alana@test.com # Name is case sensitive
+      apiGroup: rbac.authorization.k8s.io
+    roleRef:
+      kind: ClusterRole #this must be Role or ClusterRole
+      name: pod-reader-clusterRolebinding # this must match the name of the Role or ClusterRole you wish to bind to
+      apiGroup: rbac.authorization.k8s.io
+    ```
 
-certificate-authority-data: dhsfkjhfjhsfjksfh...kjshfjkshfgk
-
-server: https://c.example.com:8443
-
-name: cluster-with-custom-oidc
-
-contexts:
-
-\- context:
-
-cluster: cluster-with-custom-oidc
-
-user: admin
-
-name: cluster-with-custom-oidc-ldap
-
-\- context:
-
-cluster: cluster-with-custom-oidc
-
-user: alana
-
-name: cluster-with-custom-oidc-ldap-alana
-
-current-context: cluster-with-custom-oidc-ldap-alana
-
-kind: Config
-
-preferences: {}
-
-users:
-
-\- name: admin
-
-user:
-
-token: eyJhbGciOiJSUzI1NiIsI...kjhfksjfhdk
-
-\- name: alana
-
-user:
-
-token: eyJhbGciOiJSUzI1NiIsIm….jsfdhjfshd
-
-1.  Setup RBAC permissions for the
-    [*alana@test.com*](mailto:alana@test.com) user to access services
-    and pods etc. 
-
-<!-- end list -->
-
-1.  > Setup a role for the user in the default namespace
-
-> 
-
-> apiVersion: rbac.authorization.k8s.io/v1
-
-> kind: ClusterRole
-
-> metadata:
-
->   namespace: default
-
->   name: pod-reader-clusterRolebinding
-
-> rules:
-
-> \- apiGroups: \[""\] \# "" indicates the core API group
-
->   resources: \["pods", "services"\]
-
->   verbs: \["get", "watch", "list"\]
-
-1.  > Setup a rolebinding for the user
-
-> 
-
-> apiVersion: rbac.authorization.k8s.io/v1
-
-> \# This role binding allows "alana@test.com" to read pods in the
-> "default" namespace.
-
-> kind: ClusterRoleBinding
-
-> metadata:
-
->   name: read-pods-clusterRolebinding
-
->   namespace: default
-
-> subjects:
-
-> \- kind: User
-
->   name: alana@test.com \# Name is case sensitive
-
->   apiGroup: rbac.authorization.k8s.io
-
-> roleRef:
-
->   kind: ClusterRole \#this must be Role or ClusterRole
-
->   name: pod-reader-clusterRolebinding \# this must match the name of
-> the Role or ClusterRole you wish to bind to
-
->   apiGroup: rbac.authorization.k8s.io
-
-> 
-
-1.  > This should allow \`alana\` to \`kubectl get pods\`. 
-
-2.  > If this succeeds you are now using the oidc-connect via the
-    > oidc-provider dex.
-
-> 
-
->
-
+If the user `alana` can successfully run `kubectl get pods`,
+this shows that the cluster is using oidc-connect via the oidc-provider dex.
