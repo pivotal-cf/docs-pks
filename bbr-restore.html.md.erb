@@ -193,7 +193,7 @@ You can deploy the BOSH Director by itself in two ways:
 
 ### <a id='restore-director'></a> Restore the BOSH Director
 
-Restore the BOSH Director by running BBR commands on you jumpbox.
+Restore the BOSH Director by running BBR commands on your jumpbox.
 
 <p class="note">
 <strong>Note</strong>: The BBR restore command can take a long time to complete. 
@@ -232,7 +232,7 @@ Perform the following steps to restore the BOSH Director:
       --artifact-path /home/10.0.0.5-abcd1234abcd1234
     </pre>
 
-    If the command fails, follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
+    If the command fails, follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command).
     <p class="note"><strong>Note</strong>: You can use the optional <code>--debug</code> flag to enable debug logs.
     See <a href="bbr-logging.html">BBR Logging</a> for more information.
     </p>
@@ -266,11 +266,15 @@ After BOSH Director has been restored, you must reconcile BOSH Director's intern
 
 ## <a id='redeploy-restore-control-plane'></a> Restore the <%= vars.product_short %> Control Plane
 
-You must redeploy the <%= vars.product_short %> tile before restoring the <%= vars.product_short %> control plane. 
-By redeploying the <%= vars.product_short %> tile you create the VMs that constitute the control plane deployment.
+You must redeploy the <%= vars.product_tile %> tile before restoring the <%= vars.product_short %> control plane. 
+By redeploying the <%= vars.product_tile %> tile you create the VMs that constitute the control plane deployment.
 
-To redeploy the <%= vars.product_short %> tile, you must determine the stemcell needed by the tile, upload that stemcell, 
-and restore the backup on top of the deployment.
+To redeploy the <%= vars.product_tile %> tile, do the following:  
+
+* [Determine the Required Stemcell](#determine-stemcell) needed by the tile.  
+* Upload that stemcell as described in [Upload Stemcells](#upload-stemcell).  
+* [Redeploy the <%= vars.product_short %> Control Plane](#redeploy-control-plane).  
+* [Restore the PKS Control Plane](#restore-control-plane) from a BBR backup on top of the deployment.  
 
 ### <a id='determine-stemcell'></a> Determine the Required Stemcell
 
@@ -308,6 +312,8 @@ For more information about stemcells in Ops Manager, see [Importing and Managing
 
 ### <a id='upload-stemcell'></a> Upload Stemcells
 
+To upload the stemcell used by your <%= vars.product_tile %> tile:  
+
 1. Download the stemcell from [VMware Tanzu Network](https://network.pivotal.io/products/stemcells).
 1. Run the following command to upload the stemcell used by PKS:
 
@@ -330,6 +336,8 @@ for each required stemcell that is different from the already uploaded PKS stemc
 
 ### <a id='redeploy-control-plane'></a> Redeploy the <%= vars.product_short %> Control Plane
 
+To redeploy your <%= vars.product_tile %> tile's control plane:  
+
 1. From the Ops Manager Installation Dashboard, navigate to **VMware Enterprise PKS** > **Resource Config**.
 
 1. Ensure both **Instances** > **<%= vars.control_plane %>** and 
@@ -350,13 +358,7 @@ when the backup you are restoring was created.
 
 ### <a id='restore-control-plane'></a> Restore the PKS Control Plane
 
-Restore the <%= vars.product_short %> from your jumpbox.
-<p class="note">
-<strong>Note</strong>: The BBR restore command can take a long time to complete. 
-The example command in this section uses <code>nohup</code> and the restore process is run within your SSH session. 
-If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
-run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.
-</p>
+Restore the <%= vars.product_short %> control plane by running BBR commands on your jumpbox.  
 
 To restore the <%= vars.product_short %> control plane perform the following steps:
 
@@ -395,21 +397,31 @@ To restore the <%= vars.product_short %> control plane perform the following ste
     restore \
     --artifact-path /home/pivotal-container-service_abcd1234abcd1234abcd-abcd1234abcd1234
     </pre>
-    If the command fails, follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
+    <p class="note">
+    <strong>Note</strong>: The BBR restore command can take a long time to complete. 
+    The command above uses <code>nohup</code> and the restore process is run within your SSH session. 
+    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+    run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.
+    </p>
+1. If your <%= vars.product_short %> control plane restore fails, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+      see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.  
 
-    <p class="note"><strong>Note</strong>: You can use the optional <code>--debug</code> flag to enable debug logs. See the <a href="bbr-logging.html">BBR Logging</a> topic for more information.
-</p>
-
+    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
 
 ## <a id='redeploy-restore-clusters'></a> Restore <%= vars.product_short %> Clusters
 After successfully restoring the <%= vars.product_short %> Control Plane, perform the following steps to 
-restore the <%= vars.product_short %> clusters provisioned by the control plane.
+restore the <%= vars.product_short %> clusters provisioned by the control plane:
+
+* [Redeploy PKS Clusters](#redeploy-clusters)  
+* [Restore Clusters](#restore-clusters)  
 
 ### <a id='redeploy-clusters'></a> Redeploy PKS Clusters
 
 Before restoring, you must redeploy your PKS Clusters by performing the following steps:
 
-1. Navigate to the <%= vars.product_short %> tile in the **Installation Dashboard**.
+1. Navigate to the <%= vars.product_tile %> tile in the **Installation Dashboard**.
 1. Select the **Errands** tab.
 1. Ensure the **Upgrade all clusters** errand is **On**.
 1. Return to the **Installation Dashboard**.
@@ -418,12 +430,7 @@ This will include running the **Upgrade all clusters** errand, which will redepl
 
 ### <a id='restore-clusters'></a> Restore Clusters
 
-Perform the steps below to restore a cluster.
-
-<p class="note"><strong>Note</strong>: The BBR restore command can take a long time to complete. 
-The example command in this section uses <code>nohup</code> and the restore process is run within your SSH session. 
-If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
-run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.</p>
+After redeploying your PKS clusters, restore your clusters from a BBR backup by running the BOSH `restore` command from your jumpbox.   
 
 <p class="note warning">
 <strong>Warning:</strong> When you restore the cluster, etcd is stopped in the API server.
@@ -435,6 +442,8 @@ During this process, only currently-deployed clusters function, and you cannot c
 This includes the cluster-deployed workloads. Persistent volumes and other IaaS resources, such as load balancers of workloads, are not backed up and restored.
 Backup and restore for clusters deployed on vSphere with NSX-T is not yet validated.
 </p>
+
+To restore a cluster:  
 
 1. Move the cluster backup artifact to a folder from which you will run the BBR restore process.
 
@@ -460,7 +469,7 @@ Backup and restore for clusters deployed on vSphere with NSX-T is not yet valida
     [Retrieve your Cluster Deployment Name](#cluster-deployment-name) section above.
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in the [Download the Root CA Certificate](#root-ca-cert) section above.  
     * `PATH-TO-DEPLOYMENT-BACKUP` is the path to to your deployment backup. 
-    Make sure you have transfer your artifact into you jumpbox as described in [Transfer Artifacts to Jumpbox](#artifacts-jumpbox) above.  
+    Make sure you have transfer your artifact into your jumpbox as described in [Transfer Artifacts to Jumpbox](#artifacts-jumpbox) above.  
 
     For example:
     <pre class="terminal">
@@ -473,13 +482,22 @@ Backup and restore for clusters deployed on vSphere with NSX-T is not yet valida
     restore \
     --artifact-path deployment-backup
     </pre>
-
-1. If the restore command fails, do one or more of the following:
+    <p class="note">
+    <strong>Note</strong>: The BBR restore command can take a long time to complete. 
+    The BBR restore command above uses <code>nohup</code> and the restore process is run within your SSH session. 
+    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+    run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.
+</p>
+1. If your <%= vars.product_short %> cluster restore fails, do one or more of the following:
     * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
       see [BBR Logging](bbr-logging.html).
-    * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command) below.
+    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.  
 
-## <a id="recover-from-failing-command"></a>Recover from a Failing Command
+    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
+
+## <a id="recover-from-failing-command"></a>Resolve a Failing BBR Restore Command
+
+To resolve a failing BBR restore command:
 
 1. Ensure that you set all the parameters in the command.
 1. Ensure that the BOSH Director credentials are valid.
