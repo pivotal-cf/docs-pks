@@ -5,8 +5,9 @@ owner: PKS
 
 The <%= vars.product_short %> tile > **UAA** pane configures a default Identity Provider (IDP) for all the clusters that <%= vars.k8s_runtime_abbr %> creates.
 
-This topic explains how you can override this default IDP and apply custom IDPs to the clusters, using a Kubernetes profile.
-The Kubernetes profile deploys a [dex](https://github.com/dexidp/dex) OIDC connector as a service pod on the cluster, for cluster authentication and authorization.
+This topic explains how you can use a Kubernetes profile to override this default IDP.
+The Kubernetes profile applies a custom OIDC-compatible IDP to a cluster by deploying an OIDC connector as a service pod on the cluster.
+This example Kubernetes profile deploys a [dex](https://github.com/dexidp/dex) as an OIDC provider, but you can use any OIDC service.
 
 For more information and other uses of Kubernetes profiles, see [Using Kubernetes Profiles](./k8s-profiles.html).
 
@@ -26,7 +27,7 @@ To configure a custom OIDC provider for <%= vars.k8s_runtime_abbr %> clusters, y
 1. Create a cluster in <%= vars.k8s_runtime_abbr %> for installing dex as a pod:
 
     ```
-    $ pks create-cluster dex -p small -e dex.example.com
+    $ pks create-cluster dex -p small -e cluster.com
     ```
 
 1. Run `pks cluster` for the cluster, and record its `Kubernetes Master IP` address:
@@ -42,7 +43,7 @@ To configure a custom OIDC provider for <%= vars.k8s_runtime_abbr %> clusters, y
     Last Action:             CREATE
     Last Action State:       succeeded
     Last Action Description: Instance provisioning completed
-    Kubernetes Master Host:  dex.example.com
+    Kubernetes Master Host:  cluster.com
     Kubernetes Master Port:  8443
     Worker Nodes:            1
     Kubernetes Master IP(s): 10.0.11.11
@@ -59,7 +60,7 @@ To configure a custom OIDC provider for <%= vars.k8s_runtime_abbr %> clusters, y
     $ pks get-credentials dex
     ```
 
-1. Switch to the admin context of the dex cluster:
+1. Switch to the `admin` context of the dex cluster:
 
     ```
     $ kubectl config use-context dex
@@ -185,45 +186,47 @@ In real-world scenarios, you can replace the example app with a full-fledged app
 
 1. To fetch the token, use the information provided [here](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster) to generate the ID token.
 
-1. Log in using the **Log in with Email** option and enter email as `admin@example.com` and password as `password`.
+1. Log in using the **Log in with Email** option and enter the email and password of an account in your OIDC IDP.
+This example uses email `alana@test.com` and password `password`.
   ![Test app pane: 'Authenticate for' field, 'Extra scopes' field, 'Connector ID' field, 'Request offline access' checkbox, and 'Login' button](dex-test-app.png)
 
-1. A page appears listing the `id_token`, `access_token` and `refresh_token`. 
+1. A page appears listing the ID Token, Access Token, Refresh Token, ID Token Issuer (`iss` claim), and other information.
     ![Page lists: 'ID Token' with cert, 'Access Token' with token, 'Claims' with access structure for user 'alana', and 'Refresh Token' token string](dex-test-output.png)
 
-1. Once the token is generated, create a `kube-config` file that sets up a context for the user with the cluster and token details retrieved using the example app:
+1. Once the token is generated, edit your `.kube/config` file to add a new context for the test user, and include `cluster.server` and `user.token` values retrieved using the example app:
 
     ```
     $ cat ~/.kube/config
     apiVersion: v1
     clusters:
     - cluster:
-        certificate-authority-data: dhsfkjhfjhsfjksfh...kjshfjkshfgk
-        server: https://c.example.com:8443
-      name: cluster-with-custom-oidc
+        certificate-authority-data: CA-CERT
+        server: ISSUER
+      name: TEST-CLUSTER
     contexts:
+    - [EXISTING-CONTEXTS]
     - context:
-        cluster: cluster-with-custom-oidc
-        user: admin
-      name: cluster-with-custom-oidc-ldap
-    - context:
-        cluster: cluster-with-custom-oidc
-        user: alana
-      name: cluster-with-custom-oidc-ldap-alana
-    current-context: cluster-with-custom-oidc-ldap-alana
+        cluster: TEST-CLUSTER
+        user: TEST-USER
+      name: TEST-CONTEXT
+    current-context: TEST-CONTEXT
     kind: Config
     preferences: {}
     users:
-    - name: admin
+    - [EXISTING-USERS]
+    - name: TEST-USER
       user:
-        token: eyJhbGciOiJSUzI1NiIsI...kjhfksjfhdk
-    - name: alana
-      user:
-        token: eyJhbGciOiJSUzI1NiIsIm….jsfdhjfshd
+        token: ID-TOKEN
     ```
+    Where:
+    * `CA` is your CA certificate
+    * `ISSUER` is the address of the OIDC service, such as `https://dex.example.com:32000`
+    * `TEST-CLUSTER` is the name of the test cluster, such as `cluster-with-custom-oidc`
+    * `TEST-USER` is the test account username, such as `alana`
+    * `TEST-CONTEXT` is a name you create for the new context, such as `cluster-with-custom-oidc-ldap-alana`
+    * `ID-TOKEN` is the ID Token retrieved by the `example-app` app above
 
-1. Set up RBAC permissions for the `alana@test.com` user to access services and pods etc.
-Start by setting up a role for the user in the default namespace:
+1. Create a `ClusterRole` YAML file that grants permissions to access services and pods in the `default` namespace:
 
     ```
     apiVersion: rbac.authorization.k8s.io/v1
@@ -237,7 +240,13 @@ Start by setting up a role for the user in the default namespace:
       verbs: ["get", "watch", "list"]
     ```
 
-1. Set up a `ClusterRoleBinding` for the user:
+1. Run `kubectl apply` or `kubectl create` to pass the `ClusterRole` spec file to the kube controller:
+
+    ```
+    kubectl apply -f ClusterRole.yml
+    ```
+
+1. Create a `ClusterRoleBinding` YAML file that applies the `ClusterRole` role to the test user:
 
     ```
     apiVersion: rbac.authorization.k8s.io/v1
@@ -256,5 +265,10 @@ Start by setting up a role for the user in the default namespace:
       apiGroup: rbac.authorization.k8s.io
     ```
 
-If the user `alana` can successfully run `kubectl get pods`,
-this shows that the cluster is using oidc-connect via the oidc-provider dex.
+1. Run `kubectl apply` or `kubectl create` to pass the `ClusterRoleBinding` spec file to the kube controller:
+
+    ```
+    kubectl apply -f ClusterRoleBinding.yml
+    ```
+
+If the test user `alana` can run `kubectl get pods`, then the cluster is authenticating her successfully by connecting via OIDC to the dex OIDC provider.
