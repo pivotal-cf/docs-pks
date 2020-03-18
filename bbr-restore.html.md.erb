@@ -409,27 +409,95 @@ To restore the <%= vars.product_short %> control plane:
 
     Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
 
-## <a id='redeploy-restore-clusters'></a> Restore <%= vars.product_short %> Clusters
-After successfully restoring the <%= vars.product_short %> Control Plane, perform the following steps to 
-restore the <%= vars.product_short %> clusters provisioned by the control plane:
+## <a id='redeploy-restore-clusters'></a> Restore PKS-Provisioned Clusters
 
-* [Redeploy PKS Clusters](#redeploy-clusters)  
-* [Restore Clusters](#restore-clusters)  
+After restoring the <%= vars.product_short %> control plane,
+perform the following steps to restore your Kubernetes clusters provisioned by the control plane.
 
-### <a id='redeploy-clusters'></a> Redeploy PKS Clusters
+### <a id='redeploy-clusters'></a> Redeploy Clusters
 
-Before restoring, you must redeploy your PKS Clusters by performing the following steps:
+Before restoring your PKS-provisioned clusters, you must redeploy them.
+To redeploy PKS-provisioned clusters:
 
-1. Navigate to the <%= vars.product_tile %> tile in the **Installation Dashboard**.
-1. Select the **Errands** tab.
+* If you want to redeploy all clusters simultaneously,
+see [Redeploy All Clusters](#redeploy-all-clusters).
+* If you want to redeploy one cluster at a time,
+see [Redeploy a Single Cluster](#redeploy-single-cluster).
+
+#### <a id='redeploy-all-clusters'></a> Redeploy All Clusters
+
+To redeploy all clusters:
+
+1. In Ops Manager, navigate to the **<%= vars.product_short %>** tile.
+1. Click **Errands**.
 1. Ensure the **Upgrade all clusters** errand is **On**.
+This errand redeploys all your PKS-provisioned clusters.
 1. Return to the **Installation Dashboard**.
-1. Click **Review Pending Changes**, review your changes, and then click **Apply Changes**. For more information, see [Reviewing Pending Product Changes](https://docs.pivotal.io/pivotalcf/2-6/customizing/review-pending-changes.html).
-This will include running the **Upgrade all clusters** errand, which will redeploy the cluster instances.
+1. Click **Review Pending Changes**, review your changes, and then click **Apply Changes**.
+For more information, see [Reviewing Pending Product Changes](https://docs.pivotal.io/platform/2-8/customizing/review-pending-changes.html).
+
+#### <a id='redeploy-single-cluster'></a> Redeploy a Single Cluster
+
+If you want do redeploy one cluster at a time,
+you can use either the PKS CLI or the BOSH CLI.
+
+* To redeploy a PKS-provisioned cluster through the PKS CLI:
+    1. Identify the names of your PKS-provisioned clusters:
+
+        ```
+        pks clusters
+        ```
+    1. For each cluster you want to redeploy, run the following command:
+
+        ```
+        pks upgrade-cluster CLUSTER-NAME
+        ```
+        Where `CLUSTER-NAME` is the name of your Kubernetes cluster.
+        For more information, see [Upgrade Clusters](upgrade-clusters.html#upgrade-clusters).
+
+* To redeploy a PKS-provisioned cluster through the BOSH CLI:
+    1. Identify the names of your cluster deployments:
+
+        ```
+        bosh deployments
+        ```
+        <p class="note"><strong>Note:</strong> Cluster deployment names start with <code>service-instance_</code>.</p>
+    1. For each cluster you want to redeploy, do the following:
+        1. Download the cluster deployment manifest:
+
+            ```
+            bosh -d DEPLOYMENT-NAME manifest > /tmp/YOUR-DEPLOYMENT-MANIFEST.yml
+            ```
+            Where:
+            * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.
+            * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.
+        1. Deploy the cluster:
+
+            ```
+            bosh -d DEPLOYMENT-NAME deploy YOUR-DEPLOYMENT-MANIFEST.yml
+            ```
+            Where:
+            * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.
+            * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.
+        1. Run all errands needed for your cluster:
+
+            ```
+            bosh run-errand -d DEPLOYMENT-NAME ERRAND-NAME
+            ```
+
+            Where:
+            * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.
+            * `ERRAND-NAME` is the name of the errand you want to run.
+
+            For example:
+
+            <pre class="terminal">
+            bosh run-errand -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e apply-addons
+            </pre>
 
 ### <a id='restore-clusters'></a> Restore Clusters
 
-After redeploying your PKS clusters, restore your clusters from a BBR backup by running the BOSH `restore` command from your jumpbox.   
+After redeploying your PKS-provisioned clusters, restore the clusters by running the BOSH `restore` command from your jumpbox.
 
 <p class="note warning">
 <strong>Warning:</strong> When you restore the cluster, etcd is stopped in the API server.
