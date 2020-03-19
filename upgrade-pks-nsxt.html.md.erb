@@ -4,104 +4,82 @@ owner: PKS
 topictype: vspherewithnsxtupgrade
 ---
 
-This topic explains how to upgrade <%= vars.product_full %> for environments using vSphere with NSX-T.
+This topic explains how to upgrade <%= vars.product_full %> from v1.6 to v1.7 on vSphere with NSX-T integration.
 
 <p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version. <%= vars.product_short %> includes the compatible Kubernetes version.</p>
 
 ## <a id="overview"></a>Overview
 
-The supported upgrade paths to <%= vars.product_short %> v1.6.0 are from <%= vars.product_short %> v1.5.0 and later.
-<%= vars.product_short %> v1.6.0 is compatible with  Ops Manager <%= vars.ops_man_version_2_6 %> or  Ops Manager <%= vars.ops_man_version_2_7 %>.
+Before you upgrade, follow the procedures in [Prepare to Upgrade](#prepare) below to plan and prepare your upgrade.
 
-Before you begin the upgrade, follow the procedures in the [Prerequisites](#before) section to plan and prepare your upgrade.
+After you complete the prerequisite steps, continue to the procedures in [Perform the Upgrade](#upgrade) below.
+These steps guide you through the process of upgrading Ops Manager and the <%= vars.product_tile %> tile, importing an updated stemcell, and applying the changes to your deployment.
 
-After you complete the prerequisite steps, continue to the procedures in the [During the Upgrade](#upgrade) section. These steps guide you through the process of upgrading the <%= vars.product_tile %> tile, upgrading Ops Manager, importing an updated stemcell, and applying the changes to your deployment.
+After you complete the upgrade, follow the procedures in [After the Upgrade](#after-upgrade) below to verify that your upgraded <%= vars.product_short %> deployment is running properly.
 
-After you complete the upgrade, follow the procedures in the [After the Upgrade](#after-upgrade) section to verify that your upgraded <%= vars.product_short %> deployment is running properly.
+### <a id="upgrade-path"></a>Upgrade Path
 
-## <a id="upgrade-path"></a>Step One: Determine Your Upgrade Path
-
-Use the following table to determine your upgrade path to <%= vars.product_short %> v1.6.
+The table below shows your upgrade path to <%= vars.product_short %> v1.7 with NSX-T v.2.4 and v2.5.
 
 <table>
 <tr>
-  <th>Target Ops Manager version</th>
   <th>Upgrade Path for NSX-T v2.4</th>
   <th>Upgrade Path for NSX-T v2.5</th>
 <tr>
-  <td>v2.6</td>
   <td>
     <ol>
-      <li>Upgrade to NSX-T Data Center v2.4.3</li>
-      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_6 %>.</li>
-      <li>Upgrade to <%= vars.product_short %> v1.6.</li>
+      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_7_short %>.</li>
+      <li>Upgrade to <%= vars.product_short %> v1.7.</li>
       <li>Upgrade to NSX-T Data Center v2.5.</li>      
     </ol>
   </td>
   <td>
  <ol>
        
-      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_6 %>.</li>
-      <li>Upgrade to <%= vars.product_short %> v1.6.</li>
+      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_7_short %>.</li>
+      <li>Upgrade to <%= vars.product_short %> v1.7.</li>
     </td>
-</tr>
-<tr>
-  <td>v2.7</td>
-  <td>
-    <ol>
-      <li>Upgrade to NSX-T Data Center v2.4.3</li>
-      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_7 %>.</li>
-      <li>Upgrade to <%= vars.product_short %> v1.6.</li>
-      <li>Upgrade to NSX-T Data Center v2.5.</li>            
-    </ol>
-      </td>
-<td>
-       <ol>
-      <li>Upgrade to Ops Manager <%= vars.ops_man_version_2_7 %>.</li>
-      <li>Upgrade to <%= vars.product_short %> v1.6.</li>
-</ol>
-</td>
 </tr>
 </table>
 
-## <a id="prepare"></a>Step Two: Prepare to Upgrade
+To see a list of NSX-T 2.4 and 2.5 versions compatible with <%= vars.product_short %> v1.7,
+consult [Product Snapshot](release-notes.html) in _Release Notes_ for <%= vars.product_short %> v1.7.
+
+## <a id="prepare"></a>Prepare to Upgrade
 
 If you have not already, complete all of the steps in the
-[Upgrade Preparation Checklist for <%= vars.product_short %> v1.6](./checklist.html).
+[Upgrade Preparation Checklist for <%= vars.product_short %> v1.7](./checklist.html).
 
-Review new features that are available in <%= vars.product_short %> v1.6 
-by reading the [Release Notes](./release-notes.html). In particular, 
-review the new [networking-related features](./release-notes.html#nsx-t-features) 
-that are available for NSX-T deployments.
+## <a id="upgrade"></a>Perform the Upgrade
 
-## <a id="upgrade"></a>Step Three: Perform the Upgrade
+This section describes the steps required to upgrade to <%= vars.product_short %> v1.7:
 
-This section describes the steps required to upgrade to <%= vars.product_short %> v1.6:
-
-1. Review the [Release Notes](./release-notes.html) for the supported software versions.
-1. [Upgrade to Ops Manager <%= vars.ops_man_version_2_6_short %> or <%= vars.ops_man_version_2_7_short %>](#upgrade-opsman)
-1. [Upgrade to <%= vars.product_short %> v1.6](#upgrade-tile)
+1. [Upgrade to Ops Manager <%= vars.ops_man_version_2_7_short %>](#upgrade-opsman)
+1. [Upgrade to <%= vars.product_short %> v1.7](#upgrade-tile)
 1. [Download and Import the Stemcell](#stemcell)
 1. [Verify Errand Configuration](#errands)
+1. [Verify Resource Config Configuration](#resource-config)
+1. [Verify Remaining Configurations](#final-review)
 1. [Apply Changes to the <%= vars.product_tile %> Tile](#apply-changes)
-1. Upgrade your Kubernetes clusters by selecting the **Upgrade all clusters errand** in Ops Manager, or by using the PKS CLI as described in [Upgrading Clusters](./upgrade-clusters.html#upgrade-clusters).
-<p class="note"><strong>Note:</strong> This operation updates the Kubernetes clusters to the version of Kubernetes that is included with with <%= vars.product_short %> v1.6, and updates your Kubernetes clusters to the version of NCP that is included with <%= vars.product_short %> v1.6.</p>
-1. (Recommended) If you are running NSX-T v2.4.3, upgrade to v2.5.x.
 
-### <a id="upgrade-opsman"></a>Upgrade Ops Manager to <%= vars.ops_man_version_2_6_short %> or <%= vars.ops_man_version_2_7_short %>
+### <a id="upgrade-opsman"></a>Upgrade Ops Manager to <%= vars.ops_man_version_2_7_short %>
 
-Before you upgrade to <%= vars.product_short %> v1.6, you must upgrade to Ops Manager <%= vars.ops_man_version_2_6 %> or <%= vars.ops_man_version_2_7 %>.
+Each version of <%= vars.product_short %> is compatible with multiple versions of Ops Manager.
+For <%= vars.product_short %> v1.7, the minimum Ops Manager version you need to upgrade to is v2.7.6.
 
-To upgrade Ops Manager, do the following:
+To determine Ops Manager compatibility and, if necessary, upgrade Ops Manager:
 
-1. Complete the procedures in [Upgrade Ops Manager and Installed Products to v2.6](https://docs.pivotal.io/pivotalcf/2-6/customizing/upgrading-pcf.html#upgrade_ops)
-or [Upgrade Ops Manager and Installed Products to v2.7](https://docs.pivotal.io/platform/2-7/customizing/upgrading-pcf.html#upgrade_ops).
+1. See [<%= vars.product_network %>](https://network.pivotal.io/products/pivotal-container-service) to determine
+if your Ops Manager version is compatible with <%= vars.product_short %> v1.7.
+1. If your Ops Manager version is not compatible with <%= vars.product_short %> v1.7,
+follow the steps below.
+1. Upgrade Ops Manager. For instructions, see [Import Installation to Ops Manager v2.7 VM](https://docs.pivotal.io/pivotalcf/2-7/customizing/upgrading-pcf.html#upgrade).
 
 1. <%= partial 'add-clusters-workloads' %>
 
-### <a id="upgrade-tile"></a>Upgrade <%= vars.product_short %> to v1.6
+### <a id="upgrade-tile"></a>Upgrade <%= vars.product_short %> to v1.7
 
-To upgrade to <%= vars.product_short %> v1.6, follow the same Ops Manager process that you use to install the tile for the first time.
+To upgrade to <%= vars.product_short %> v1.7, follow the same Ops Manager process that you use to install the tile for the first time.
 
 Your configuration settings migrate to the new version automatically. Follow the steps below to perform an upgrade.
 
@@ -115,11 +93,9 @@ Your configuration settings migrate to the new version automatically. Follow the
 
 ### <a id="stemcell"></a>Download and Import the Stemcell
 
-<%= vars.product_short %> v1.6 requires a [Xenial stemcell](https://docs.pivotal.io/pivotalcf/2-6/stemcells/#xenial).
+<%= vars.product_short %> v1.7 requires a Xenial stemcell.
 
 If Ops Manager does not have the Xenial stemcell required for <%= vars.product_short %>, the <%= vars.product_tile %> tile displays the message **Missing stemcell**.
-
-<p class="note"><strong>Note:</strong> If the <strong>Stemcell Library</strong> in Ops Manager already has a compatible Xenial stemcell, the <strong>Missing stemcell</strong> link does not appear. You do not need to download or import a new stemcell and can skip this step.</p>
 
 To download and import a new Xenial stemcell, follow the steps below:
 
@@ -140,7 +116,7 @@ and download the required stemcell version for your IaaS.
 
 1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for <%= vars.product_tile %>.
 
-1. Select the **Installation Dashboard** link to return to the Installation Dashboard.
+1. Return to the **Installation Dashboard**.
 
 ### <a id="errands"></a>Verify Errand Configuration
 
@@ -212,7 +188,7 @@ Perform the following steps to complete the upgrade of the <%= vars.product_tile
 
 1. Click **Review Pending Changes**.
      For more information about this Ops Manager page, see
-    [Reviewing Pending Product Changes](https://docs.pivotal.io/platform/2-7/customizing/review-pending-changes.html).
+    [Reviewing Pending Product Changes](https://docs.pivotal.io/platform/customizing/review-pending-changes.html).
 
 1. Click **Apply Changes**.
 
@@ -222,12 +198,14 @@ Perform the following steps to complete the upgrade of the <%= vars.product_tile
       1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
       1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
 
-## <a id="after-upgrade"></a>Step Four: After the Upgrade
+## <a id="after-upgrade"></a>After the Upgrade
 
-After you complete the upgrade to <%= vars.product_short %> v1.6, complete the following verifications and upgrades:
+After you complete the upgrade to <%= vars.product_short %> v1.7, complete the following verifications and upgrades:
 
 - [Update PKS and Kubernetes CLIs](#update-clis)
 - [Verify the Upgrade](#verify-upgrade)
+- [(Optional) Reduce PKS DB Ephemeral Disk Size](#reduce-ephemeral-size)
+- [(Recommended) Upgrade NSX-T Data Center v2.4.3 to v2.5](#upgrade-nsxt)
 
 ### <a id="update-clis"></a>Update PKS and Kubernetes CLIs
 
@@ -274,11 +252,15 @@ To return the **PKS DB** ephemeral disk to a smaller size, do the following:
 
 <%= partial 'scale-to-ha-upgrade' %>
 
-## <a id="upgrade-nsxt"></a>Step Five: Upgrade NSX-T Data Center v2.4.3 to v2.5
+### <a id="upgrade-nsxt"></a>(Recommended) Upgrade NSX-T Data Center v2.4.3 to v2.5
 
 If you are using NSX-T v2.4.3, <%= vars.recommended_by %> recommends that you upgrade to NSX-T v2.5.
+For a list of NSX-T 2.5 versions compatible with <%= vars.product_short %> v1.7,
+see [Product Snapshot](release-notes.html) in _Release Notes_ for <%= vars.product_short %> v1.7.
 
-1. Confirm that you have upgraded all PKS-provisioned Kubernetes clusters to PKS v1.6 using **Upgrade all clusters errand** in Ops Manager or using the PKS CLI.
+1. Confirm that you have upgraded all PKS-provisioned Kubernetes clusters to PKS v1.7 using **Upgrade all clusters errand** in Ops Manager or using the PKS CLI.
+
+    <p class="note"><strong>Note:</strong> This updates your Kubernetes clusters to the version of Kubernetes and version of NCP that are included with <%= vars.product_short %> v1.7.</p>
 
 1. Confirm that your vSphere v6.5 or v6.7 installation is on the supported version and patch for NSX-T v2.5. 
   - Refer to the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&175=&1=).
