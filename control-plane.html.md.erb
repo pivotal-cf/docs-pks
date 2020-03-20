@@ -7,62 +7,39 @@ This topic describes how <%= vars.product_full %> manages the deployment of Kube
 
 ##<a id="overview"></a><%= vars.product_short %> Overview
 
-An <%= vars.product_short %> installation consists of the following components:
-  
-* <%= vars.control_plane %> VM
-* <%= vars.control_plane_db %> VM
-* Ops Manager VM  
+An <%= vars.product_short %> environment consists of the following components:
+
 * PKS API Load Balancer  
-* Kubernetes clusters and load balancers to host workloads  
+* The PKS Control Plane  
+    * <%= vars.control_plane %> VM  
+    * <%= vars.control_plane_db %> VM  
+    * Ops Manager VM  
+    * BOSH VM  
+* Workload clusters 
+    * Load balancers
+    * Kubernetes clusters to host workloads 
+
+<%= vars.product_short %> administrators use the PKS Control Plane to 
+deploy and manage Kubernetes clusters.  
 
 The following illustrates the interaction between <%= vars.product_short %> components:  
 <br>
 <%= image_tag('images/pks-overview.png') %>
 <%# Image source: https://docs.google.com/drawings/d/1EJfnaupkCal2_R_eDUWXOt4fiRmNKrUPft3cv4mgDr4/edit %>
 
-BOSH, accessed through the Ops Manager VM, deploys and manages Kubernetes clusters. 
-Administrators use the PKS Command Line Interface (PKS CLI) to direct BOSH 
-from their local workstations. The PKS CLI directs BOSH using the PKS API hosted 
-on the <%= vars.control_plane %> VM or VMs.  
-
-The <%= vars.control_plane_db %>, hosted on the <%= vars.control_plane_db %> VM or VMs, stores PKS Control Plane information. 
+Administrators access the PKS Control Plane 
+through the PKS Command Line Interface (PKS CLI) installed on their local workstations. 
+Within the PKS Control Plane the PKS API and PKS Broker use BOSH to execute the requested cluster management functions. 
+For information about the PKS Control Plane, see [PKS Control Plane Overview](#control-plane) below. 
+For instructions on installing the PKS CLI, see [Installing the PKS CLI](installing-pks-cli.html).  
 
 Kubernetes deploys and manages workloads on Kubernetes clusters.
 Administrators use the  Kubernetes CLI, `kubectl`, to direct Kubernetes 
-from their local workstations.
+from their local workstations. 
+For information about `kubectl`, see [Overview of kubectl]
+(https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.  
 
-####Standard and High Availability Modes
-
-<%= vars.product_short %> can be configured in either Standard or High Availability (Beta) modes.
-
-* In Standard Mode, the <%= vars.control_plane_db %> is hosted on a single database VM.
-* In High Availability (Beta) Mode, the <%= vars.control_plane_db %> is hosted in a three-node MySQL cluster.
-
-<br>
-The following illustrates the interaction between <%= vars.product_short %> components in High Availability Mode:
-<%= image_tag('images/pks-overview-ha.png') %>
-<%# Image source: https://docs.google.com/drawings/d/1hTTmoBpkcjvZJTwlwsXMy9fn91x3KGfIeM4_dzIrW60/edit %>
-
-#### <a id='windows-ha'></a>Windows Worker-Based Kubernetes Cluster High Availability
-
-The following illustrates the interaction between the 
-<%= vars.product_short %> Management Plane and Windows worker-based Kubernetes clusters:
-<%= image_tag('images/pks-overview-windows-ha-linux-workers.png') %>
-<%# Image source: https://docs.google.com/drawings/d/1ec0T8iZx3P8Uf-dxnl1dLesuvtabTwapXClf2kxZ3qA/edit %>
-To configure <%= vars.product_short %> Windows worker-based clusters for high availability, set these fields in the **Plan** pane as described in [Plans](windows-pks-beta.html#plans) in _Configuring Windows Worker-Based Kubernetes Clusters (Beta)_:
-
-* **Enable HA Linux workers**
-* **Master/ETCD Node Instances**
-* **Worker Node Instances**
-
-##<a id="cluster-management"></a>Cluster Lifecycle Management
-
-The PKS Control Plane enables users to deploy and manage Kubernetes clusters.  
-
-Administrators use the PKS Command Line Interface (PKS CLI) on their local workstations 
-to access the PKS Control Plane. For instructions on installing the PKS CLI, see [Installing the PKS CLI](installing-pks-cli.html).  
-
-###<a id="control-plane"></a>PKS Control Plane Overview
+##<a id="cluster-management"></a><a id="control-plane"></a>PKS Control Plane Overview
 
 The PKS Control Plane manages the lifecycle of Kubernetes clusters deployed 
 using <%= vars.product_short %>. 
@@ -82,13 +59,14 @@ For more information, see [Upgrade Kubernetes Clusters](upgrade-pks.html#upgrade
 
 ###<a id="architecture"></a>PKS Control Plane Architecture
 
-PKS Control Plane is hosted on a single or a group of <%= vars.control_plane %> VMs.
+PKS Control Plane is hosted on a pair VMs, or optionally on a pair of highly available VM groups.
 The component hosts the following services:
 
 * User Account and Authentication (UAA)  
 * PKS API  
 * PKS Broker
-* Billing and Telemetry  
+* Billing and Telemetry 
+* PKS Database 
 
 The following sections describe UAA, PKS API, and PKS Broker services,
 the primary services hosted on the <%= vars.control_plane %> VM.
@@ -126,13 +104,10 @@ For <%= vars.product_short %> deployments on vSphere with NSX-T, there is an add
 The PKS API communicates with the PKS NSX-T Proxy Broker, which in turn communicates with the NSX Manager to provision the Node Networking resources.
 The PKS NSX-T Proxy Broker then forwards the request to the On-Demand Service Broker to deploy the cluster.
 
-###<a id="overview-sql"></a>PKS Database Overview
+####<a id="overview-sql"></a>PKS Database
 
 By default, the PKS Database is hosted on `pks-db`, the single-node <%= vars.control_plane_db %> VM, 
-which hosts the MySQL, proxy, and other data-related services. 
-
-When <%= vars.product_short %> is configured for High Availability Mode (Beta),
-the <%= vars.control_plane_db %> is a three-node MySQL cluster.  
+which hosts the MySQL, proxy, and other data-related services.  
 
 PKS Control Plane data is persisted to the <%= vars.control_plane_db %> 
 for the following services:
@@ -143,6 +118,29 @@ for the following services:
 * Telemetry
 
 
-##<a id="workload-management"></a>Cluster Workload Management
+####The PKS Control Plane High Availability Mode
 
-<%= vars.product_short %> users manage their container-based workloads on Kubernetes clusters through `kubectl`. For more information about `kubectl`, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.
+The PKS Control Plane can be configured in either Standard or High Availability (Beta) modes.
+
+* In Standard Mode, the the <%= vars.control_plane %> and the <%= vars.control_plane_db %> 
+are hosted on a pair of dedicated VMs.
+* In High Availability (Beta) Mode, 
+the <%= vars.control_plane %> is hosted on two or more VMs in a group, 
+and the <%= vars.control_plane_db %> is hosted in a three-node MySQL cluster.
+
+<br>
+The following illustrates the interaction between <%= vars.product_short %> components in High Availability Mode:
+<%= image_tag('images/pks-overview-ha.png') %>
+<%# Image source: https://docs.google.com/drawings/d/1hTTmoBpkcjvZJTwlwsXMy9fn91x3KGfIeM4_dzIrW60/edit %>
+
+#### <a id='windows-ha'></a>Windows Worker-Based Kubernetes Cluster High Availability
+
+The following illustrates the interaction between the 
+<%= vars.product_short %> Management Plane and Windows worker-based Kubernetes clusters:
+<%= image_tag('images/pks-overview-windows-ha-linux-workers.png') %>
+<%# Image source: https://docs.google.com/drawings/d/1ec0T8iZx3P8Uf-dxnl1dLesuvtabTwapXClf2kxZ3qA/edit %>
+To configure <%= vars.product_short %> Windows worker-based clusters for high availability, set these fields in the **Plan** pane as described in [Plans](windows-pks-beta.html#plans) in _Configuring Windows Worker-Based Kubernetes Clusters (Beta)_:
+
+* **Enable HA Linux workers**
+* **Master/ETCD Node Instances**
+* **Worker Node Instances**
