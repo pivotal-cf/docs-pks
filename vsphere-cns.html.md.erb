@@ -6,84 +6,69 @@ owner: PKS
 This topic explains how to integrate Cloud Native Storage (CNS) with <%= vars.product_full %> with a Cloud Storage Interface (CSI).
 This integration enables <%= vars.k8s_runtime_abbr %> clusters to use external container storage.
 
-CNS makes external storage for Kubernetes clusters fully automated, scalable, and visible within vCenter.
+External container CNS for Kubernetes clusters is fully automated, scalable, and visible within vCenter.
 For more information, see [Introducing Cloud Native Storage for vSphere](https://blogs.vmware.com/virtualblocks/2019/08/14/introducing-cloud-native-storage-for-vsphere/) in the VMware _Virtual Blocks_ blog.
 
-## <a id=''></a>Terminology
+## <a id='prereq'></a>Prerequisites for CNS with PKS
     
-- VCP : In-Tree cloud provider that contains storage bits to
-  provision PVC into vSphere disks
-- CSI : External container storage Interface for K8s clusters
+- vSphere v6.7U3 or later
+  - `vsphere67u3` downloads: [server](https://buildweb.eng.vmware.com/ob/14320388/), [vcenter](https://buildweb.eng.vmware.com/ob/14367737/)
+  - [vSphere definition](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere)
+- NSX-T version compatible with vSphere version above
+  - NSX-T v2.4.0 and above are compatible with vSphere v6.7U3
+  - See the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&1=&175=) for other version compatibilities
+- A Virtual Cloud Provider (VCP) that:
+   - Is [in-tree](https://cloud-provider-vsphere.sigs.k8s.io/concepts/in_tree_vs_out_of_tree.html) / Kubernetes native
+   - Has storage space to provision persistent volume claims (PVCs) into vSphere disks
+- PKS v1.7 or later
+  - Support upgrading virtual hardware version on Kubernetes cluster VMs
 
-## <a id=''></a>Prerequisites for CNS with PKS
-    
-- IaaS
+## <a id='access'></a>Configure Component Access
 
-  - [vSphere](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere "vSphere is the product name of the two core components of the VMware Software Defined Datacenter (SDDC) stack, they are vCenter and ESXi. Each is discussed below in detail.") 6.7U3
-    (or later) is a prerequisite for using CSI
-    : <https://buildweb.eng.vmware.com/ob/14367737/>  and 
-     <https://buildweb.eng.vmware.com/ob/14320388/>
-  - As a result, NSX-T that can be used on such an IaaS is 2.4.0
-    and above
-    : <https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&1=&175=>
-    
-- Firewall & Network Requirements
-      
-  - All PKS k8s cluster worker VM will need access to VC
-    Management Plane. VCP might only require master node's
-    access but since CSI components are installed on k8s
-    workers, workers too will need access to Management plane to
-    provision disks
-  - Additionally all pods running CSI components will need
-    access to management plane through pod network: 
+1. Configure your firewalls and networks to enable Kubernetes component access to vCenter and your VCP control plane as follows:
+  - Can access vCenter:
+      - All pods in the `kube-system` namespace must be able to access vCenter
+  - Can access the VCP control plane:
+      - Cluster master nodes
+      - Cluster worker nodes, so their CSI components can provision their disks
+      - All pods running CSI components, with VCP access through the pod network
 
-    - PODs in kube-system namespace MUST be able to access vCenter
+1. In the PKS tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode.
 
-      Once CSI is installed in the K8s cluster, you will see these PODs in the kube-system namespace:
+1. Check that all pods can access vCenter.
+Once CSI is installed in the Kubernetes cluster, you will see these PODs in the kube-system namespace:
 
-      <pre class="terminal">
-      **kubectl
-      get pod -n kube-system -o wide**  
-      NAME                                    READY   STATUS    RESTARTS  
-      AGE     IP             NODE                                   NOMINATED
-      NODE   READINESS GATES  
-      vsphere-csi-controller-0                5/5     Running   5         
-      24h     172.16.30.3    c4e3819f-00fc-457b-beda-26fbdd589c53  
-      \<none\>           \<none  
-      vsphere-csi-node-64dmx                  3/3     Running   3         
-      24h     172.16.30.9    c9b4f441-4c08-43cf-bb17-8be80ed676a4  
-      \<none\>           \<none\>  
-      vsphere-csi-node-6bp4x                  3/3     Running   0         
-      5h15m   172.16.30.13   80dc0ceb-d460-4538-99b6-d7d8eacc4b74  
-      \<none\>           \<none\>  
-      vsphere-csi-node-92tvh                  3/3     Running   3         
-      5h21m   172.16.30.11   651bfb0d-084d-481f-98f6-f811284676ef  
-      \<none\>           \<none\>  
-      vsphere-csi-node-l4v2q                  3/3     Running   0         
-      4h33m   172.16.30.17   9233bd53-7e94-4b94-a197-f459ccdc25dd  
-      \<none\>           \<none\>  
-      vsphere-csi-node-nnldx                  3/3     Running   3         
-      24h     172.16.30.8    c4e3819f-00fc-457b-beda-26fbdd589c53  
-      \<none\>           \<none\>  
-      vsphere-csi-node-pw7hw                  3/3     Running   3         
-      5h18m   172.16.30.12   1b84ae77-45bf-4fa1-9f0b-cbc13bb75894  
-      \<none\>           \<none\> 
-      </pre> 
-          All these PODs must be able to access vCenter.
+    <pre class="terminal">
+    &gt; kubectl get pod -n kube-system -o wide
+    NAME                     READY   STATUS   RESTARTS  AGE     IP             NODE                                   NOMINATED
+    NODE   READINESS GATES  
+    vsphere-csi-controller-0 5/5     Running  5         
+    24h     172.16.30.3    c4e3819f-00fc-457b-beda-26fbdd589c53  
+    <none>           <none> 
+    vsphere-csi-node-64dmx   3/3     Running  3         
+    24h     172.16.30.9    c9b4f441-4c08-43cf-bb17-8be80ed676a4  
+    <none>           <none>  
+    vsphere-csi-node-6bp4x   3/3     Running  0         
+    5h15m   172.16.30.13   80dc0ceb-d460-4538-99b6-d7d8eacc4b74  
+    <none>           <none>  
+    vsphere-csi-node-92tvh   3/3     Running  3         
+    5h21m   172.16.30.11   651bfb0d-084d-481f-98f6-f811284676ef  
+    <none>           <none>  
+    vsphere-csi-node-l4v2q   3/3     Running  0         
+    4h33m   172.16.30.17   9233bd53-7e94-4b94-a197-f459ccdc25dd  
+    <none>           <none>  
+    vsphere-csi-node-nnldx   3/3     Running  3         
+    24h     172.16.30.8    c4e3819f-00fc-457b-beda-26fbdd589c53  
+    <none>           <none>  
+    vsphere-csi-node-pw7hw   3/3     Running  3         
+    5h18m   172.16.30.12   1b84ae77-45bf-4fa1-9f0b-cbc13bb75894  
+    <none>           <none> 
+    </pre> 
 
-          What is means is the Floating IP allocated to the SNAT rule for this
-          namespace in the T0 (or T1 if shared T1 model is used) MUST be able to
-          reach vCenter.
-
-- PKS Version
-    
-  - PKS 1.7+  (support upgrading virtual hardware version on K8S
-            cluster VMs)
-
-- PKS Clusters/Plan 
-    
-  - Privileged mode allowed on containers (Why? Tushar to find
-            out and update. )
+    All these pods must be able to access vCenter.
+    This means that the Floating IP allocated to the SNAT rule for this
+    namespace in the T0 (or T1 if shared T1 model is used) must be able to
+    reach vCenter.
 
 ## <a id=''></a>Manually Installing CSI on a PKS Cluster
 
@@ -115,14 +100,14 @@ Create the following file anywhere in your system:
   ```
 
 <pre class="terminal">
-\> kubectl create secret generic vsphere-config-secret
+&gt; kubectl create secret generic vsphere-config-secret
 --from-file=csi-vsphere.conf --namespace=kube-system
 secret/vsphere-config-secret created  
 </pre>
   
 Check:  
 <pre class="terminal">
-\> kubectl
+&gt; kubectl
 get secret/vsphere-config-secret -n kube-system**  
 NAME                    TYPE     DATA   AGE  
 vsphere-config-secret   Opaque   1      37s
@@ -178,7 +163,7 @@ roleRef:
 ```
 
 <pre class="terminal">
-\> kubectl apply -f vsphere-csi-controller-rbac.yaml  
+&gt; kubectl apply -f vsphere-csi-controller-rbac.yaml  
 serviceaccount/vsphere-csi-controller created  
 [*clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role*](http://clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role) created  
 [*clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding*](http://clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding) created
@@ -190,7 +175,7 @@ serviceaccount/vsphere-csi-controller created
 a final YAML)
 
 <pre class="terminal">
-\> kubectl apply -f vsphere-csi-controller-ss-data-1.yaml  
+&gt; kubectl apply -f vsphere-csi-controller-ss-data-1.yaml  
 statefulset.apps/vsphere-csi-controller created  
 [*csidriver.storage.k8s.io/csi.vsphere.vmware.com*](http://csidriver.storage.k8s.io/csi.vsphere.vmware.com) created  
 
@@ -198,24 +183,24 @@ statefulset.apps/vsphere-csi-controller created
 
 [*vsphere-csi-node-ds-data.yaml*](https://confluence.eng.vmware.com/download/attachments/586132395/vsphere-csi-node-ds-data.yaml?version=1&modificationDate=1583374769000&api=v2)
 
-\> kubectl apply -f vsphere-csi-node-ds-data.yaml 
+&gt; kubectl apply -f vsphere-csi-node-ds-data.yaml 
 daemonset.apps/vsphere-csi-node created
 </pre>
 
 ### <a id=''></a>Step 5: Verify that CSI has been successfully deployed
 
 <pre class="terminal">
-\> kubectl get statefulset --namespace=kube-system 
+&gt; kubectl get statefulset --namespace=kube-system 
   
 NAME                     READY   AGE
 
-\> kubectl get daemonsets vsphere-csi-node --namespace=kube-system  
+&gt; kubectl get daemonsets vsphere-csi-node --namespace=kube-system  
 NAME               DESIRED   CURRENT   READY   UP-TO-DATE  
 AVAILABLE   NODE SELECTOR   AGE  
 vsphere-csi-node   3         3         3       3           
-3           \<none\>          13m
+3           <none>          13m
 
-\> kubectl get pods --namespace=kube-system  
+&gt; kubectl get pods --namespace=kube-system  
 NAME                                    READY   STATUS    RESTARTS  
 AGE  
 coredns-6f9bcd8956-9x7wn                1/1     Running   0         
@@ -241,17 +226,17 @@ vsphere-csi-node-pdbb5                  3/3     Running  
 ### <a id=''></a>Step 6: Verify that the CSI Custom Resource Definitions are working
 
 <pre class="terminal">
-\> kubectl get CSINode 
+&gt; kubectl get CSINode 
 NAME                                   CREATED AT  
 3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b   2020-03-05T22:29:00Z  
 c4e3819f-00fc-457b-beda-26fbdd589c53   2020-03-05T22:28:57Z  
 c9b4f441-4c08-43cf-bb17-8be80ed676a4   2020-03-05T22:29:00Z
 
-\> kubectl describe CSINode  
+&gt; kubectl describe CSINode  
 Name:         3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
 Namespace:      
-Labels:       \<none\>  
-Annotations:  \<none\>  
+Labels:       <none>  
+Annotations:  <none>  
 API
 Version:  [*storage.k8s.io/v1beta1*](http://storage.k8s.io/v1beta1)  
 Kind:         CSINode  
@@ -272,12 +257,12 @@ Spec:
 Name:           [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
     Node ID:        3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
     Topology Keys:  \<nil\>  
-Events:             \<none\>  
+Events:             <none>  
 
 Name:         c4e3819f-00fc-457b-beda-26fbdd589c53  
 Namespace:      
-Labels:       \<none\>  
-Annotations:  \<none\>  
+Labels:       <none>  
+Annotations:  <none>  
 API
 Version:  [*storage.k8s.io/v1beta1*](http://storage.k8s.io/v1beta1)  
 Kind:         CSINode  
@@ -298,12 +283,12 @@ Spec:
 Name:           [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/ 
     Node ID:        c4e3819f-00fc-457b-beda-26fbdd589c53  
     Topology Keys:  \<nil\>  
-Events:             \<none\>  
+Events:             <none>  
 
 Name:         c9b4f441-4c08-43cf-bb17-8be80ed676a4  
 Namespace:      
-Labels:       \<none\>  
-Annotations:  \<none\>  
+Labels:       <none>  
+Annotations:  <none>  
 API
 Version:  [*storage.k8s.io/v1beta1*](http://storage.k8s.io/v1beta1)  
 Kind:         CSINode  
@@ -324,20 +309,20 @@ Spec:
 Name:           [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
     Node ID:        c9b4f441-4c08-43cf-bb17-8be80ed676a4  
     Topology Keys:  \<nil\>  
-Events:             \<none\>
+Events:             <none>
 </pre>
 
 <pre class="terminal">
-\> kubectl get csidrivers
+&gt; kubectl get csidrivers
 NAME                     CREATED AT  
 [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
 2020-03-05T22:28:21Z
 
-\> kubectl describe csidrivers
+&gt; kubectl describe csidrivers
 
 Name:         [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
 Namespace:      
-Labels:       \<none\>  
+Labels:       <none>  
 Annotations:  [*kubectl.kubernetes.io/last-applied-configuration*](http://kubectl.kubernetes.io/last-applied-configuration):  
                
 {"apiVersion":"storage.k8s.io/v1beta1","kind":"CSIDriver","metadata":{"annotations":{},"name":"csi.vsphere.vmware.com"},"spec":{"attachReq...  
@@ -353,13 +338,13 @@ Metadata:
 Spec:  
   Attach Required:    true  
   Pod Info On Mount:  false  
-Events:               \<none\>
+Events:               <none>
 </pre>
 
 ### <a id=''></a>Step 7: Verify ProviderID has been added the nodes
     
 <pre class="terminal">  
-  \> kubectl describe nodes | grep "ProviderID"**  
+  &gt; kubectl describe nodes | grep "ProviderID"**  
   ProviderID:                  [*vsphere://421025c3-0ce4-8cff-8229-1a2ec0bf2d97*](vsphere://421025c3-0ce4-8cff-8229-1a2ec0bf2d97)  
   ProviderID:                  [*vsphere://42109234-71ec-3f26-5ddd-9c97c5a02fe9*](vsphere://42109234-71ec-3f26-5ddd-9c97c5a02fe9)  
   ProviderID:                  [*vsphere://4210ecc1-e7d8-a130-19e5-f20804b5b36e*](vsphere://4210ecc1-e7d8-a130-19e5-f20804b5b36e)  
