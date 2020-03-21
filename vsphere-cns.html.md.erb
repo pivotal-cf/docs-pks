@@ -6,8 +6,15 @@ owner: PKS
 This topic explains how to integrate Cloud Native Storage (CNS) with <%= vars.product_full %> with a Cloud Storage Interface (CSI).
 This integration enables <%= vars.k8s_runtime_abbr %> clusters to use external container storage.
 
+## <a id='overview'></a>Overview
+
 External container CNS for Kubernetes clusters is fully automated, scalable, and visible within vCenter.
 For more information, see [Introducing Cloud Native Storage for vSphere](https://blogs.vmware.com/virtualblocks/2019/08/14/introducing-cloud-native-storage-for-vsphere/) in the VMware _Virtual Blocks_ blog.
+
+There are two ways to deploy CSI with on <%= vars.product_short %> clusters:
+
+- [Automated Installation of CSI on PKS Clusters](#auto) 
+- [Manually Install CSI on a PKS Cluster](#manual)
 
 ## <a id='prereq'></a>Prerequisites for CNS with PKS
     
@@ -23,7 +30,7 @@ For more information, see [Introducing Cloud Native Storage for vSphere](https:/
 - PKS v1.7 or later
   - Support upgrading virtual hardware version on Kubernetes cluster VMs
 
-## <a id='access'></a>Configure Component Access
+### <a id='access'></a>Configure Component Access
 
 1. Configure your firewalls and networks to enable Kubernetes component access to vCenter and your VCP control plane as follows:
   - Can access vCenter:
@@ -35,7 +42,166 @@ For more information, see [Introducing Cloud Native Storage for vSphere](https:/
 
 1. In the PKS tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode.
 
-1. Check that all pods can access vCenter.
+## <a id='auto'></a>Automated Installation of CSI on PKS Clusters
+
+To automatically deploy CSI on a Kubernetes cluster upon creation, we can use the <%= vars.k8s_runtime_abbr %> Plan Add-ons capability:
+
+1. Obtain `csi-vsphere.conf` by running the command:
+  `cat csi-vsphere.conf | base64 -w0`
+  
+1. Create the YAML file for a secret.
+  - As a template, use the [Secret Manifest](#secret-template) template below.
+
+1. In the <%= vars.k8s_runtime_abbr %> tile, select a **Plan**
+  ![PKS tile Plan pane](images/vsphere/plan-addons.png)
+
+1. In the **(Optional) Add-ons** field, paste the entire contents of the four YAML files defined below, separated by '---':
+  - [`secret.yaml`](#secret-template)
+  - [`vsphere-csi-controller-rbac.yaml`](#rbac-template)
+  - [`vsphere-csi-controller-ss-data-1.yaml`](#ss-template)
+  - [`vsphere-csi-node-ds-data.yaml`](#daemonset-template)
+
+    <p class="note"><strong>Note:</strong> If needed, you also paste in the Storage Class YAML that will be used as default for CSI.
+    For example, the contents of <code>cassandra-storageclass.yaml</code> used below.
+    
+    This should give something like the [Add-ons Code](#addons-template) below.
+
+1. In Ops Manager, click **Apply Changes** to create the new plan.
+
+1. Deploy a new PKS cluster using the plan. For example, with a plan configured with is **Name** as `plan-csi`:
+
+    ```
+    pks create-cluster pks-cluster-1-shared-t1i-csi --external-hostname
+    pks-cluster-1-shared-t1-csi --plan plan-csi --num-nodes 3
+    --network-profile single-tier-profile
+    ```
+
+## <a id='manual'></a>Manually Install CSI on a PKS Cluster
+
+### <a id='create-cluster'></a>Step 1: Create a PKS cluster
+
+1. Create a PKS cluster:
+
+    ```
+    pks create-cluster pks-cluster-5-shared-t1 --external-hostname
+    pks-cluster-5-shared-t1 --plan large --num-nodes 3 --network-profile
+    single-tier-profile
+    ```
+
+1. Make sure all VMs in the K8s cluster have HW version 15
+
+    ![VM Instance Summary pane in vCenter](images/vsphere/vm-cns.png)
+
+### <a id='create-secret'></a>Step 2: Create a CSI Secret
+
+1. Create the following configuration file `csi-vsphere.conf` anywhere in your system:
+
+    ```
+    csi-vsphere.conf
+    [Global]
+    cluster-id = "pks-cluster-5-shared-t1"
+
+    [VirtualCenter "10.1.1.1"]
+    insecure-flag = "true"
+    user = "administrator@vsphere.local"
+    password = "VMware1!"
+    port = "443"
+    datacenters = "vSAN_Datacenter"
+    ```
+
+1. Create a secret based on the configuration file:
+
+    <pre class="terminal">
+    &gt; kubectl create secret generic vsphere-config-secret \
+    --from-file=csi-vsphere.conf --namespace=kube-system
+    secret/vsphere-config-secret created  
+    </pre>
+
+1. Check that the secret exists:
+
+    <pre class="terminal">
+    &gt; kubectl get secret/vsphere-config-secret -n kube-system
+    NAME                    TYPE     DATA   AGE  
+    vsphere-config-secret   Opaque   1      37s
+    </pre>
+
+### <a id='create-rbac'></a>Step 3: Create RBAC for CSI Access
+
+1. Create a manifest `vsphere-csi-controller-rbac.yaml` that defines role-based access control (RBAC) of the CSI with a `ServiceAccount`, `ClusterRole`, and `ClusterRoleBinding`.
+  - As a template, use the [RBAC Manifest](#rbac-template) template below.
+
+1. Create the RBAC objects:
+
+    <pre class="terminal">
+    &gt; kubectl apply -f vsphere-csi-controller-rbac.yaml  
+    serviceaccount/vsphere-csi-controller created
+    clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role created
+    clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding created
+    </pre>
+
+### <a id='create-driver'></a>Step 4: Install the vSphere CSI driver
+
+1. Create a manifest `vsphere-csi-controller-ss-data.yaml` that defines `StatefulSet` and `CSIDriver` objects for installing the CSI controller.
+  - As a template, use the [CSI Driver Manifest](#driver-template) template below.
+
+1. Create the CSI driver objects:
+
+    <pre class="terminal">
+    &gt; kubectl apply -f vsphere-csi-controller-ss-data-1.yaml  
+    statefulset.apps/vsphere-csi-controller created  
+    csidriver.storage.k8s.io/csi.vsphere.vmware.com created  
+    </pre>
+
+1. Create a manifest `vsphere-csi-node-ds-data.yaml` that defines the `DaemonSet` for the CSI controller.
+  - As a template, use the [DaemonSet Manifest](#daemonset-template) template below.
+
+1. Create the DaemonSet:
+
+    <pre class="terminal">
+    &gt; kubectl apply -f vsphere-csi-node-ds-data.yaml 
+    daemonset.apps/vsphere-csi-node created
+    </pre>
+
+## <a id='verify'></a>Verify a CSI Installation
+
+### <a id='deploy-success'></a>Verify that CSI has been successfully deployed
+
+<pre class="terminal">
+&gt; kubectl get statefulset --namespace=kube-system 
+  
+NAME                     READY   AGE
+
+&gt; kubectl get daemonsets vsphere-csi-node --namespace=kube-system  
+NAME               DESIRED   CURRENT   READY   UP-TO-DATE  
+AVAILABLE   NODE SELECTOR   AGE  
+vsphere-csi-node   3         3         3       3           
+3           <none>          13m
+
+&gt; kubectl get pods --namespace=kube-system  
+NAME                                    READY   STATUS    RESTARTS  
+AGE  
+coredns-6f9bcd8956-9x7wn                1/1     Running   0         
+22h  
+coredns-6f9bcd8956-clksx                1/1     Running   0         
+53m  
+coredns-6f9bcd8956-rjmfl                1/1     Running   0         
+22h  
+kubernetes-dashboard-5fc4ccc79f-kwnd4   1/1     Running   0         
+22h  
+metrics-server-7f85c59675-vz4bs         1/1     Running   0         
+22h  
+vsphere-csi-controller-0                5/5     Running   0         
+14m  
+vsphere-csi-node-64dmx                  3/3     Running   0         
+13m  
+vsphere-csi-node-nnldx                  3/3     Running   0         
+13m  
+vsphere-csi-node-pdbb5                  3/3     Running   0         
+13m
+</pre>
+
+### <a id='pod-access'></a>Verify that All Pods can Access vCenter
+
 Once CSI is installed in the Kubernetes cluster, you will see these PODs in the kube-system namespace:
 
     <pre class="terminal">
@@ -69,53 +235,178 @@ Once CSI is installed in the Kubernetes cluster, you will see these PODs in the 
     This means that the Floating IP allocated to the SNAT rule for this
     namespace in the T0 (or T1 if shared T1 model is used) must be able to
     reach vCenter.
-
-## <a id=''></a>Manually Installing CSI on a PKS Cluster
-
-There are two ways to deploy CSI with Ent PKS - 1) Manually deploying. 
     
-### <a id=''></a>Step 1: create a PKS cluster
-
-```
-pks create-cluster pks-cluster-5-shared-t1 --external-hostname
-pks-cluster-5-shared-t1 --plan large --num-nodes 3 --network-profile
-single-tier-profile
-```
-
-### <a id=''></a>Step 2: Create a CSI secret
-
-Create the following file anywhere in your system:
-
-  ```
-  csi-vsphere.conf
-  \[Global\]
-  cluster-id = "pks-cluster-5-shared-t1"
-
-  \[VirtualCenter "10.1.1.1"\]
-  insecure-flag = "true"
-  user = "administrator@vsphere.local"
-  password = "VMware1\!"
-  port = "443"
-  datacenters = "vSAN\_Datacenter"
-  ```
+### <a id='resource-defs'></a>Verify that the CSI Custom Resource Definitions are working
 
 <pre class="terminal">
-&gt; kubectl create secret generic vsphere-config-secret
---from-file=csi-vsphere.conf --namespace=kube-system
-secret/vsphere-config-secret created  
+&gt; kubectl get CSINode 
+NAME                                   CREATED AT  
+3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b   2020-03-05T22:29:00Z  
+c4e3819f-00fc-457b-beda-26fbdd589c53   2020-03-05T22:28:57Z  
+c9b4f441-4c08-43cf-bb17-8be80ed676a4   2020-03-05T22:29:00Z
+
+&gt; kubectl describe CSINode  
+Name:         3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
+Namespace:      
+Labels:       <none>  
+Annotations:  <none>  
+API
+Version:  [storage.k8s.io/v1beta1](http://storage.k8s.io/v1beta1)  
+Kind:         CSINode  
+Metadata:  
+  Creation Timestamp:  2020-03-05T22:29:00Z  
+  Owner References:  
+    API Version:     v1  
+    Kind:            Node  
+    Name:            3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
+    UID:             2ab6f1cb-a2f7-41a9-87b8-4197177c6b70  
+  Resource Version:  153666  
+  Self Link:        
+/apis/[storage.k8s.io/v1beta1/csinodes/3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b](http://storage.k8s.io/v1beta1/csinodes/3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b)  
+  UID:               79144892-45b3-4fa7-8242-a2468993260a  
+Spec:  
+  Drivers:  
+   
+Name:           [csi.vsphere.vmware.com](http://csi.vsphere.vmware.com/)  
+    Node ID:        3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
+    Topology Keys:  <nil>  
+Events:             <none>  
+
+Name:         c4e3819f-00fc-457b-beda-26fbdd589c53  
+Namespace:      
+Labels:       <none>  
+Annotations:  <none>  
+API
+Version:  [storage.k8s.io/v1beta1](http://storage.k8s.io/v1beta1)  
+Kind:         CSINode  
+Metadata:  
+  Creation Timestamp:  2020-03-05T22:28:57Z  
+  Owner References:  
+    API Version:     v1  
+    Kind:            Node  
+    Name:            c4e3819f-00fc-457b-beda-26fbdd589c53  
+    UID:             442cdc30-2e2b-4e7f-ac2b-17e667f18688  
+  Resource Version:  153646  
+  Self Link:        
+/apis/[storage.k8s.io/v1beta1/csinodes/c4e3819f-00fc-457b-beda-26fbdd589c53](http://storage.k8s.io/v1beta1/csinodes/c4e3819f-00fc-457b-beda-26fbdd589c53)  
+  UID:               acbc421b-cf7f-415d-bc10-1316b28dbd47  
+Spec:  
+  Drivers:  
+   
+Name:           [csi.vsphere.vmware.com](http://csi.vsphere.vmware.com/ 
+    Node ID:        c4e3819f-00fc-457b-beda-26fbdd589c53  
+    Topology Keys:  <nil>  
+Events:             <none>  
+
+Name:         c9b4f441-4c08-43cf-bb17-8be80ed676a4  
+Namespace:      
+Labels:       <none>  
+Annotations:  <none>  
+API
+Version:  [storage.k8s.io/v1beta1](http://storage.k8s.io/v1beta1)  
+Kind:         CSINode  
+Metadata:  
+  Creation Timestamp:  2020-03-05T22:29:00Z  
+  Owner References:  
+    API Version:     v1  
+    Kind:            Node  
+    Name:            c9b4f441-4c08-43cf-bb17-8be80ed676a4  
+    UID:             c4d8e053-8a3f-466e-bd1f-d491f58cabc8  
+  Resource Version:  153663  
+  Self Link:        
+/apis/[storage.k8s.io/v1beta1/csinodes/c9b4f441-4c08-43cf-bb17-8be80ed676a4](http://storage.k8s.io/v1beta1/csinodes/c9b4f441-4c08-43cf-bb17-8be80ed676a4)  
+  UID:               69958fca-95ac-4e70-b690-af81c2434fc5  
+Spec:  
+  Drivers:  
+   
+Name:           [csi.vsphere.vmware.com](http://csi.vsphere.vmware.com/)  
+    Node ID:        c9b4f441-4c08-43cf-bb17-8be80ed676a4  
+    Topology Keys:  <nil>  
+Events:             <none>
 </pre>
-  
-Check:  
+
 <pre class="terminal">
-&gt; kubectl
-get secret/vsphere-config-secret -n kube-system**  
-NAME                    TYPE     DATA   AGE  
-vsphere-config-secret   Opaque   1      37s
+&gt; kubectl get csidrivers
+NAME                     CREATED AT  
+[csi.vsphere.vmware.com](http://csi.vsphere.vmware.com/)  
+2020-03-05T22:28:21Z
+
+&gt; kubectl describe csidrivers
+
+Name:         [csi.vsphere.vmware.com](http://csi.vsphere.vmware.com/)  
+Namespace:      
+Labels:       <none>  
+Annotations:  [kubectl.kubernetes.io/last-applied-configuration](http://kubectl.kubernetes.io/last-applied-configuration):  
+               
+{"apiVersion":"storage.k8s.io/v1beta1","kind":"CSIDriver","metadata":{"annotations":{},"name":"csi.vsphere.vmware.com"},"spec":{"attachReq...  
+API
+Version:  [storage.k8s.io/v1beta1](http://storage.k8s.io/v1beta1)  
+Kind:         CSIDriver  
+Metadata:  
+  Creation Timestamp:  2020-03-05T22:28:21Z  
+  Resource Version:    153505  
+  Self Link:          
+/apis/[storage.k8s.io/v1beta1/csidrivers/csi.vsphere.vmware.com](http://storage.k8s.io/v1beta1/csidrivers/csi.vsphere.vmware.com)  
+  UID:                 906e512c-c897-40cb-8c97-9975fce2fcf8  
+Spec:  
+  Attach Required:    true  
+  Pod Info On Mount:  false  
+Events:               <none>
 </pre>
 
-### <a id=''></a>Step 3: Create Roles, ServiceAccount and ClusterRoleBinding
+### <a id='provider-id'></a>Verify ProviderID has been Added to Nodes
+    
+<pre class="terminal">  
+  &gt; kubectl describe nodes | grep "ProviderID"**  
+  ProviderID:                  [vsphere://421025c3-0ce4-8cff-8229-1a2ec0bf2d97](vsphere://421025c3-0ce4-8cff-8229-1a2ec0bf2d97)  
+  ProviderID:                  [vsphere://42109234-71ec-3f26-5ddd-9c97c5a02fe9](vsphere://42109234-71ec-3f26-5ddd-9c97c5a02fe9)  
+  ProviderID:                  [vsphere://4210ecc1-e7d8-a130-19e5-f20804b5b36e](vsphere://4210ecc1-e7d8-a130-19e5-f20804b5b36e)  
+</pre>
 
-Use the manifest below:
+### <a id='create-storage'></a>Create a vSphere Storage Class
+    
+Create the following YAML:
+
+  ```
+  cassandra-storageclass.yaml
+  apiVersion: [storage.k8s.io/v1](http://storage.k8s.io/v1)  
+  kind: StorageClass  
+  metadata:  
+    name: demo-sts-sc  
+    annotations:  
+      [storageclass.kubernetes.io/is-default-class](http://storageclass.kubernetes.io/is-default-class):
+  "true"  
+  provisioner: [csi.vsphere.vmware.com](http://csi.vsphere.vmware.com/)  
+  parameters:  
+    datastoreurl:
+  "[ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/](ds://confluence.eng.vmware.com/vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/)"
+  ```
+
+Note: the datastoreurl can be found here:
+
+![vSAN Datastore Summary pane in vCenter](images/vsphere/datastore.png)
+
+## <a id='templates'></a>Configuration File Templates
+
+### <a id='secret-template'></a>Secret
+
+Define a secret with a `secret.yaml` file that looks like this:
+
+```
+secret.yaml
+apiVersion: v1    
+kind: Secret
+metadata:
+  name: vsphere-config-secret
+  namespace: kube-system
+type: Opaque
+data:
+csi-vsphere.conf: W0dsb2JhbF0KY2x1c3Rlci1pZCA9ICJwa3MtY2x1c3Rlci01LXNoYXJlZC10MSIKCltWaXJ0dWFsQ2VudGVyICIxMC4xOTkuMT........
+```
+
+### <a id='rbac-template'></a>RBAC Manifest
+
+Define RBAC for CSI with a `vsphere-csi-controller-rbac.yaml` file that looks like this:
 
 ```
 kind: ServiceAccount
@@ -162,264 +453,563 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
-<pre class="terminal">
-&gt; kubectl apply -f vsphere-csi-controller-rbac.yaml  
-serviceaccount/vsphere-csi-controller created  
-[*clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role*](http://clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role) created  
-[*clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding*](http://clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding) created
-</pre>
+### <a id='driver-template'></a>CSI Driver Manifest
 
-### <a id=''></a>Step 4: Install the vSphere CSI driver
+Define a CSI driver with a `vsphere-csi-controller-ss-data-1.yaml` file that looks like this:
 
-[*vsphere-csi-controller-ss-data.yaml*](https://confluence.eng.vmware.com/download/attachments/586132395/vsphere-csi-controller-ss-data.yaml?version=1&modificationDate=1583374769000&api=v2) (Not
-a final YAML)
-
-<pre class="terminal">
-&gt; kubectl apply -f vsphere-csi-controller-ss-data-1.yaml  
-statefulset.apps/vsphere-csi-controller created  
-[*csidriver.storage.k8s.io/csi.vsphere.vmware.com*](http://csidriver.storage.k8s.io/csi.vsphere.vmware.com) created  
-
-
-
-[*vsphere-csi-node-ds-data.yaml*](https://confluence.eng.vmware.com/download/attachments/586132395/vsphere-csi-node-ds-data.yaml?version=1&modificationDate=1583374769000&api=v2)
-
-&gt; kubectl apply -f vsphere-csi-node-ds-data.yaml 
-daemonset.apps/vsphere-csi-node created
-</pre>
-
-### <a id=''></a>Step 5: Verify that CSI has been successfully deployed
-
-<pre class="terminal">
-&gt; kubectl get statefulset --namespace=kube-system 
-  
-NAME                     READY   AGE
-
-&gt; kubectl get daemonsets vsphere-csi-node --namespace=kube-system  
-NAME               DESIRED   CURRENT   READY   UP-TO-DATE  
-AVAILABLE   NODE SELECTOR   AGE  
-vsphere-csi-node   3         3         3       3           
-3           <none>          13m
-
-&gt; kubectl get pods --namespace=kube-system  
-NAME                                    READY   STATUS    RESTARTS  
-AGE  
-coredns-6f9bcd8956-9x7wn                1/1     Running   0         
-22h  
-coredns-6f9bcd8956-clksx                1/1     Running   0         
-53m  
-coredns-6f9bcd8956-rjmfl                1/1     Running   0         
-22h  
-kubernetes-dashboard-5fc4ccc79f-kwnd4   1/1     Running   0         
-22h  
-metrics-server-7f85c59675-vz4bs         1/1     Running   0         
-22h  
-vsphere-csi-controller-0                5/5     Running   0         
-14m  
-vsphere-csi-node-64dmx                  3/3     Running   0         
-13m  
-vsphere-csi-node-nnldx                  3/3     Running   0         
-13m  
-vsphere-csi-node-pdbb5                  3/3     Running   0         
-13m
-</pre>
-
-### <a id=''></a>Step 6: Verify that the CSI Custom Resource Definitions are working
-
-<pre class="terminal">
-&gt; kubectl get CSINode 
-NAME                                   CREATED AT  
-3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b   2020-03-05T22:29:00Z  
-c4e3819f-00fc-457b-beda-26fbdd589c53   2020-03-05T22:28:57Z  
-c9b4f441-4c08-43cf-bb17-8be80ed676a4   2020-03-05T22:29:00Z
-
-&gt; kubectl describe CSINode  
-Name:         3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
-Namespace:      
-Labels:       <none>  
-Annotations:  <none>  
-API
-Version:  [*storage.k8s.io/v1beta1*](http://storage.k8s.io/v1beta1)  
-Kind:         CSINode  
-Metadata:  
-  Creation Timestamp:  2020-03-05T22:29:00Z  
-  Owner References:  
-    API Version:     v1  
-    Kind:            Node  
-    Name:            3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
-    UID:             2ab6f1cb-a2f7-41a9-87b8-4197177c6b70  
-  Resource Version:  153666  
-  Self Link:        
-/apis/[*storage.k8s.io/v1beta1/csinodes/3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b*](http://storage.k8s.io/v1beta1/csinodes/3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b)  
-  UID:               79144892-45b3-4fa7-8242-a2468993260a  
-Spec:  
-  Drivers:  
-   
-Name:           [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
-    Node ID:        3a0ea98b-879e-4f7a-abbd-e3ad426c8a1b  
-    Topology Keys:  \<nil\>  
-Events:             <none>  
-
-Name:         c4e3819f-00fc-457b-beda-26fbdd589c53  
-Namespace:      
-Labels:       <none>  
-Annotations:  <none>  
-API
-Version:  [*storage.k8s.io/v1beta1*](http://storage.k8s.io/v1beta1)  
-Kind:         CSINode  
-Metadata:  
-  Creation Timestamp:  2020-03-05T22:28:57Z  
-  Owner References:  
-    API Version:     v1  
-    Kind:            Node  
-    Name:            c4e3819f-00fc-457b-beda-26fbdd589c53  
-    UID:             442cdc30-2e2b-4e7f-ac2b-17e667f18688  
-  Resource Version:  153646  
-  Self Link:        
-/apis/[*storage.k8s.io/v1beta1/csinodes/c4e3819f-00fc-457b-beda-26fbdd589c53*](http://storage.k8s.io/v1beta1/csinodes/c4e3819f-00fc-457b-beda-26fbdd589c53)  
-  UID:               acbc421b-cf7f-415d-bc10-1316b28dbd47  
-Spec:  
-  Drivers:  
-   
-Name:           [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/ 
-    Node ID:        c4e3819f-00fc-457b-beda-26fbdd589c53  
-    Topology Keys:  \<nil\>  
-Events:             <none>  
-
-Name:         c9b4f441-4c08-43cf-bb17-8be80ed676a4  
-Namespace:      
-Labels:       <none>  
-Annotations:  <none>  
-API
-Version:  [*storage.k8s.io/v1beta1*](http://storage.k8s.io/v1beta1)  
-Kind:         CSINode  
-Metadata:  
-  Creation Timestamp:  2020-03-05T22:29:00Z  
-  Owner References:  
-    API Version:     v1  
-    Kind:            Node  
-    Name:            c9b4f441-4c08-43cf-bb17-8be80ed676a4  
-    UID:             c4d8e053-8a3f-466e-bd1f-d491f58cabc8  
-  Resource Version:  153663  
-  Self Link:        
-/apis/[*storage.k8s.io/v1beta1/csinodes/c9b4f441-4c08-43cf-bb17-8be80ed676a4*](http://storage.k8s.io/v1beta1/csinodes/c9b4f441-4c08-43cf-bb17-8be80ed676a4)  
-  UID:               69958fca-95ac-4e70-b690-af81c2434fc5  
-Spec:  
-  Drivers:  
-   
-Name:           [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
-    Node ID:        c9b4f441-4c08-43cf-bb17-8be80ed676a4  
-    Topology Keys:  \<nil\>  
-Events:             <none>
-</pre>
-
-<pre class="terminal">
-&gt; kubectl get csidrivers
-NAME                     CREATED AT  
-[*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
-2020-03-05T22:28:21Z
-
-&gt; kubectl describe csidrivers
-
-Name:         [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
-Namespace:      
-Labels:       <none>  
-Annotations:  [*kubectl.kubernetes.io/last-applied-configuration*](http://kubectl.kubernetes.io/last-applied-configuration):  
-               
-{"apiVersion":"storage.k8s.io/v1beta1","kind":"CSIDriver","metadata":{"annotations":{},"name":"csi.vsphere.vmware.com"},"spec":{"attachReq...  
-API
-Version:  [*storage.k8s.io/v1beta1*](http://storage.k8s.io/v1beta1)  
-Kind:         CSIDriver  
-Metadata:  
-  Creation Timestamp:  2020-03-05T22:28:21Z  
-  Resource Version:    153505  
-  Self Link:          
-/apis/[*storage.k8s.io/v1beta1/csidrivers/csi.vsphere.vmware.com*](http://storage.k8s.io/v1beta1/csidrivers/csi.vsphere.vmware.com)  
-  UID:                 906e512c-c897-40cb-8c97-9975fce2fcf8  
-Spec:  
-  Attach Required:    true  
-  Pod Info On Mount:  false  
-Events:               <none>
-</pre>
-
-### <a id=''></a>Step 7: Verify ProviderID has been added the nodes
-    
-<pre class="terminal">  
-  &gt; kubectl describe nodes | grep "ProviderID"**  
-  ProviderID:                  [*vsphere://421025c3-0ce4-8cff-8229-1a2ec0bf2d97*](vsphere://421025c3-0ce4-8cff-8229-1a2ec0bf2d97)  
-  ProviderID:                  [*vsphere://42109234-71ec-3f26-5ddd-9c97c5a02fe9*](vsphere://42109234-71ec-3f26-5ddd-9c97c5a02fe9)  
-  ProviderID:                  [*vsphere://4210ecc1-e7d8-a130-19e5-f20804b5b36e*](vsphere://4210ecc1-e7d8-a130-19e5-f20804b5b36e)  
-</pre>
-
-### <a id=''></a>Step 8: Create a vSphere storage class
-    
-Create the following YAML:
-
-  ```
-  cassandra-storageclass.yaml
-  apiVersion: [*storage.k8s.io/v1*](http://storage.k8s.io/v1)  
-  kind: StorageClass  
-  metadata:  
-    name: demo-sts-sc  
-    annotations:  
-      [*storageclass.kubernetes.io/is-default-class*](http://storageclass.kubernetes.io/is-default-class):
-  "true"  
-  provisioner: [*csi.vsphere.vmware.com*](http://csi.vsphere.vmware.com/)  
-  parameters:  
-    datastoreurl:
-  "[*ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/*](ds://confluence.eng.vmware.com/vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/)"
+```
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: vsphere-csi-controller
+  namespace: kube-system
+spec:
+  serviceName: vsphere-csi-controller
+  replicas: 1
+  updateStrategy:
+    type: "RollingUpdate"
+  selector:
+    matchLabels:
+      app: vsphere-csi-controller
+  template:
+    metadata:
+      labels:
+        app: vsphere-csi-controller
+        role: vsphere-csi
+    spec:
+      serviceAccountName: vsphere-csi-controller
+      dnsPolicy: "Default"
+      containers:
+        - name: csi-attacher
+          image: quay.io/k8scsi/csi-attacher:v1.1.1
+          args:
+            - "--v=4"
+            - "--timeout=300s"
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+        - name: vsphere-csi-controller
+          image: gcr.io/cloud-provider-vsphere/csi/release/driver:v1.0.2
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "rm -rf /var/vcap/data/csi/sockets/pluginproxy/csi.vsphere.vmware.com"]
+          args:
+            - "--v=4"
+          imagePullPolicy: "Always"
+          env:
+            - name: CSI_ENDPOINT
+              value: unix:///var/vcap/data/csi/sockets/pluginproxy/csi.sock
+            - name: X_CSI_MODE
+              value: "controller"
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf"
+          volumeMounts:
+            - mountPath: /etc/cloud
+              name: vsphere-config-volume
+              readOnly: true
+            - mountPath: /var/vcap/data/csi/sockets/pluginproxy/
+              name: socket-dir
+          ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+        - name: liveness-probe
+          image: quay.io/k8scsi/livenessprobe:v1.1.0
+          args:
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /var/vcap/data/csi/sockets/pluginproxy/csi.sock
+          volumeMounts:
+            - mountPath: /var/vcap/data/csi/sockets/pluginproxy/
+              name: socket-dir
+        - name: vsphere-syncer
+          image: gcr.io/cloud-provider-vsphere/csi/release/syncer:v1.0.2
+          args:
+            - "--v=2"
+          imagePullPolicy: "Always"
+          env:
+            - name: FULL_SYNC_INTERVAL_MINUTES
+              value: "30"
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf"
+          volumeMounts:
+            - mountPath: /etc/cloud
+              name: vsphere-config-volume
+              readOnly: true
+        - name: csi-provisioner
+          image: quay.io/k8scsi/csi-provisioner:v1.2.2
+          args:
+            - "--v=4"
+            - "--timeout=300s"
+            - "--csi-address=$(ADDRESS)"
+            - "--feature-gates=Topology=true"
+            - "--strict-topology"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+      volumes:
+        - name: vsphere-config-volume
+          secret:
+            secretName: vsphere-config-secret
+        - name: socket-dir
+          hostPath:
+            path: /var/vcap/data/csi/sockets/pluginproxy/csi.vsphere.vmware.com
+            type: DirectoryOrCreate
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: CSIDriver
+metadata:
+  name: csi.vsphere.vmware.com
+spec:
+  attachRequired: true
+  podInfoOnMount: false
   ```
 
-Note: the datastoreurl can be found here:
+### <a id='daemonset-template'></a>DaemonSet Manifest
 
-## <a id=''></a>Automated Installation of CSI on PKS Clusters
+Define a DaemonSet with a `vsphere-csi-node-ds-data` file that looks like this:
 
-To automate the deployment of CSI on the K8s cluster at creation
-    time, we can use the PKS Plan Adds-on capability.
+```
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: vsphere-csi-node
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: vsphere-csi-node
+  updateStrategy:
+    type: "RollingUpdate"
+  template:
+    metadata:
+      labels:
+        app: vsphere-csi-node
+        role: vsphere-csi
+    spec:
+      dnsPolicy: "Default"
+      containers:
+        - name: node-driver-registrar
+          image: quay.io/k8scsi/csi-node-driver-registrar:v1.1.0
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "rm -rf /registration/csi.vsphere.vmware.com /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com-reg.sock"]
+          args:
+            - "--v=5"
+            - "--csi-address=$(ADDRESS)"
+            - "--kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: DRIVER_REG_SOCK_PATH
+              value: /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com/csi.sock
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+        - name: vsphere-csi-node
+          image: gcr.io/cloud-provider-vsphere/csi/release/driver:v1.0.2
+          imagePullPolicy: "Always"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+            - name: X_CSI_MODE
+              value: "node"
+            - name: X_CSI_SPEC_REQ_VALIDATION
+              value: "false"
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf" # here csi-vsphere.conf is the name of the file used for creating secret using "--from-file" flag
+          args:
+            - "--v=4"
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          volumeMounts:
+            - name: vsphere-config-volume
+              mountPath: /etc/cloud
+              readOnly: true
+            - name: plugin-dir
+              mountPath: /csi
+            - name: pods-mount-dir
+              mountPath: /var/vcap/data/kubelet
+              # needed so that any mounts setup inside this container are
+              # propagated back to the host machine.
+              mountPropagation: "Bidirectional"
+            - name: device-dir
+              mountPath: /dev
+          ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+        - name: liveness-probe
+          image: quay.io/k8scsi/livenessprobe:v1.1.0
+          args:
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+      volumes:
+        - name: vsphere-config-volume
+          secret:
+            secretName: vsphere-config-secret
+        - name: registration-dir
+          hostPath:
+            path: /var/vcap/data/kubelet/plugins_registry
+            type: DirectoryOrCreate
+        - name: plugin-dir
+          hostPath:
+            path: /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com
+            type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: /var/vcap/data/kubelet
+            type: Directory
+        - name: device-dir
+          hostPath:
+            path: /dev
+```
 
-Follow the steps below:
+### <a id='addons-template'></a>Add-ons Code
 
-  - obtain `csi-vsphere.conf` by running the command:
-  `cat csi-vsphere.conf | base64 -w0`
-  
-  - create the secret YAML file:
+To configure a plan that creates clusters with CSI automatically, paste code like below into the plan **(Optional) Add-ons** field in the Ops Manager <%= vars.product_full %> tile.
+This code appends all the content of the files defined above, separated by `---`:
 
-  ```
-  secret.yaml
-  apiVersion: v1    
-  kind: Secret
-  metadata:
-    name: vsphere-config-secret
-    namespace: kube-system
-  type: Opaque
-  data:
-  csi-vsphere.conf: W0dsb2JhbF0KY2x1c3Rlci1pZCA9ICJwa3MtY2x1c3Rlci01LXNoYXJlZC10MSIKCltWaXJ0dWFsQ2VudGVyICIxMC4xOTkuMT........
-  ```
+  - [`secret.yaml`](#secret-template)
+  - [`vsphere-csi-controller-rbac.yaml`](#rbac-template)
+  - [`vsphere-csi-controller-ss-data-1.yaml`](#ss-template)
+  - [`vsphere-csi-node-ds-data.yaml`](#daemonset-template)
 
-  - select a PKS Plan and populate the Adds-on field with all the
-        YAML:
+```
+apiVersion: v1    
+kind: Secret
+metadata:
+  name: vsphere-config-secret
+  namespace: kube-system
+type: Opaque
+data:
+  csi-vsphere.conf: W0dsb2JhbF0KY2x1c3Rlci1pZCA9ICJwa3MtY2x1c3Rlci01LXNoYXJlZC10MSIKCltWaXJ0dWFsQ2VudGVyICIxMC4xOTkuMTcuODQiXQppbnNlY3VyZS1mbGFnID0gInRydWUiCnVzZXIgPSAiYWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2FsIgpwYXNzd29yZCA9ICJWTXdhcmUxISIKcG
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: vsphere-csi-controller
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vsphere-csi-controller-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "persistentvolumeclaims", "pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["csinodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["get", "list", "watch", "update"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vsphere-csi-controller-binding
+subjects:
+  - kind: ServiceAccount
+    name: vsphere-csi-controller
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: vsphere-csi-controller-role
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: vsphere-csi-controller
+  namespace: kube-system
+spec:
+  serviceName: vsphere-csi-controller
+  replicas: 1
+  updateStrategy:
+    type: "RollingUpdate"
+  selector:
+    matchLabels:
+      app: vsphere-csi-controller
+  template:
+    metadata:
+      labels:
+        app: vsphere-csi-controller
+        role: vsphere-csi
+    spec:
+      serviceAccountName: vsphere-csi-controller
+      dnsPolicy: "Default"
+      containers:
+        - name: csi-attacher
+          image: quay.io/k8scsi/csi-attacher:v1.1.1
+          args:
+            - "--v=4"
+            - "--timeout=300s"
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+        - name: vsphere-csi-controller
+          image: gcr.io/cloud-provider-vsphere/csi/release/driver:v1.0.2
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "rm -rf /var/vcap/data/csi/sockets/pluginproxy/csi.vsphere.vmware.com"]
+          args:
+            - "--v=4"
+          imagePullPolicy: "Always"
+          env:
+            - name: CSI_ENDPOINT
+              value: unix:///var/vcap/data/csi/sockets/pluginproxy/csi.sock
+            - name: X_CSI_MODE
+              value: "controller"
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf"
+          volumeMounts:
+            - mountPath: /etc/cloud
+              name: vsphere-config-volume
+              readOnly: true
+            - mountPath: /var/vcap/data/csi/sockets/pluginproxy/
+              name: socket-dir
+          ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+        - name: liveness-probe
+          image: quay.io/k8scsi/livenessprobe:v1.1.0
+          args:
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /var/vcap/data/csi/sockets/pluginproxy/csi.sock
+          volumeMounts:
+            - mountPath: /var/vcap/data/csi/sockets/pluginproxy/
+              name: socket-dir
+        - name: vsphere-syncer
+          image: gcr.io/cloud-provider-vsphere/csi/release/syncer:v1.0.2
+          args:
+            - "--v=2"
+          imagePullPolicy: "Always"
+          env:
+            - name: FULL_SYNC_INTERVAL_MINUTES
+              value: "30"
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf"
+          volumeMounts:
+            - mountPath: /etc/cloud
+              name: vsphere-config-volume
+              readOnly: true
+        - name: csi-provisioner
+          image: quay.io/k8scsi/csi-provisioner:v1.2.2
+          args:
+            - "--v=4"
+            - "--timeout=300s"
+            - "--csi-address=$(ADDRESS)"
+            - "--feature-gates=Topology=true"
+            - "--strict-topology"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+      volumes:
+        - name: vsphere-config-volume
+          secret:
+            secretName: vsphere-config-secret
+        - name: socket-dir
+          hostPath:
+            path: /var/vcap/data/csi/sockets/pluginproxy/csi.vsphere.vmware.com
+            type: DirectoryOrCreate
+---
+apiVersion: storage.k8s.io/v1beta1
+kind: CSIDriver
+metadata:
+  name: csi.vsphere.vmware.com
+spec:
+  attachRequired: true
+  podInfoOnMount: false
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: vsphere-csi-node
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: vsphere-csi-node
+  updateStrategy:
+    type: "RollingUpdate"
+  template:
+    metadata:
+      labels:
+        app: vsphere-csi-node
+        role: vsphere-csi
+    spec:
+      dnsPolicy: "Default"
+      containers:
+        - name: node-driver-registrar
+          image: quay.io/k8scsi/csi-node-driver-registrar:v1.1.0
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "rm -rf /registration/csi.vsphere.vmware.com /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com-reg.sock"]
+          args:
+            - "--v=5"
+            - "--csi-address=$(ADDRESS)"
+            - "--kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: DRIVER_REG_SOCK_PATH
+              value: /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com/csi.sock
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+        - name: vsphere-csi-node
+          image: gcr.io/cloud-provider-vsphere/csi/release/driver:v1.0.2
+          imagePullPolicy: "Always"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+            - name: X_CSI_MODE
+              value: "node"
+            - name: X_CSI_SPEC_REQ_VALIDATION
+              value: "false"
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf" # here csi-vsphere.conf is the name of the file used for creating secret using "--from-file" flag
+          args:
+            - "--v=4"
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          volumeMounts:
+            - name: vsphere-config-volume
+              mountPath: /etc/cloud
+              readOnly: true
+            - name: plugin-dir
+              mountPath: /csi
+            - name: pods-mount-dir
+              mountPath: /var/vcap/data/kubelet
+              # needed so that any mounts setup inside this container are
+              # propagated back to the host machine.
+              mountPropagation: "Bidirectional"
+            - name: device-dir
+              mountPath: /dev
+          ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+        - name: liveness-probe
+          image: quay.io/k8scsi/livenessprobe:v1.1.0
+          args:
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+      volumes:
+        - name: vsphere-config-volume
+          secret:
+            secretName: vsphere-config-secret
+        - name: registration-dir
+          hostPath:
+            path: /var/vcap/data/kubelet/plugins_registry
+            type: DirectoryOrCreate
+        - name: plugin-dir
+          hostPath:
+            path: /var/vcap/data/kubelet/plugins_registry/csi.vsphere.vmware.com
+            type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: /var/vcap/data/kubelet
+            type: Directory
+        - name: device-dir
+          hostPath:
+            path: /dev
+```
 
-in the adds-on field, copy/paste the following YAML files (separated by
-'—'):
-
-    - secret.yaml
-    - vsphere-csi-controller-rbac.yaml
-    - vsphere-csi-controller-ss-data-1.yaml
-    - vsphere-csi-node-ds-data.yaml
-
-This should give something like:
-
-[*pks-plan-addson.yaml*](https://confluence.eng.vmware.com/download/attachments/586132395/pks-plan-addson.yaml?version=1&modificationDate=1583949395000&api=v2)
-
-  Note: If needed, you can even add the Storage Class YAML (the one that will be
-    used as default for CSI - for instance cassandra-storageclass.yaml, the
-    one used in this page) in this PKS plan adds-on field.
-
-That's all. Apply the changes on Ops mgr and then deploy a new K8s
-cluster using this PKS plan.
-
-For instance, the PKS plan I created was named 'plan-csi' and the way to
-create a K8s cluster using this plan is:
-
-`pks create-cluster pks-cluster-1-shared-t1i-csi --external-hostname
-pks-cluster-1-shared-t1-csi --plan plan-csi --num-nodes 3
---network-profile single-tier-profile`
