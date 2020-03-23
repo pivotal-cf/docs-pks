@@ -17,30 +17,27 @@ There are two ways to deploy CSI with on <%= vars.product_short %> clusters:
 - [Manually Install CSI on a PKS Cluster](#manual)
 
 ## <a id='prereq'></a>Prerequisites for CNS with PKS
-    
-- vSphere v6.7U3 or later
+
+- **vSphere** v6.7U3 or later
   - `vsphere67u3` downloads: [server](https://buildweb.eng.vmware.com/ob/14320388/), [vcenter](https://buildweb.eng.vmware.com/ob/14367737/)
   - [vSphere definition](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere)
-- NSX-T version compatible with vSphere version above
+- **NSX-T** version compatible with vSphere version above
   - NSX-T v2.4.0 and above are compatible with vSphere v6.7U3
   - See the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&1=&175=) for other version compatibilities
-- A Virtual Cloud Provider (VCP) that:
+- A **Virtual Cloud Provider** (VCP) that:
    - Is [in-tree](https://cloud-provider-vsphere.sigs.k8s.io/concepts/in_tree_vs_out_of_tree.html) / Kubernetes native
    - Has storage space to provision persistent volume claims (PVCs) into vSphere disks
-- PKS v1.7 or later
+- **PKS** v1.7 or later
   - Support upgrading virtual hardware version on Kubernetes cluster VMs
-
-### <a id='access'></a>Configure Component Access
-
-1. Configure your firewalls and networks to enable Kubernetes component access to vCenter and your VCP control plane as follows:
-  - Can access vCenter:
-      - All pods in the `kube-system` namespace must be able to access vCenter
-  - Can access the VCP control plane:
+- **Firewall and network configuration**:
+  - Enable the following components to access the VCP control plane:
       - Cluster master nodes
       - Cluster worker nodes, so their CSI components can provision their disks
       - All pods running CSI components, with VCP access through the pod network
+  - Enable all pods in the `kube-system` namespace to access vCenter
+- **PKS plan configuration**:
+  - In the PKS tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode
 
-1. In the PKS tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode.
 
 ## <a id='auto'></a>Automated Installation of CSI on PKS Clusters
 
@@ -48,23 +45,21 @@ To automatically deploy CSI on a Kubernetes cluster upon creation, we can use th
 
 1. Obtain `csi-vsphere.conf` by running the command:
   `cat csi-vsphere.conf | base64 -w0`
-  
-1. Create the YAML file for a secret.
-  - As a template, use the [Secret Manifest](#secret-template) template below.
+
+1. Create YAML files based for the four manifest examples listed below:
+  - Secret manifest [`secret.yaml`](#secret-template)
+  - Role-Based Access Control (RBAC) manifest [`vsphere-csi-controller-rbac.yaml`](#rbac-template)
+  - CSI Driver Manifest [`vsphere-csi-controller-ss-data-1.yaml`](#ss-template)
+  - DaemonSet Manifest [`vsphere-csi-node-ds-data.yaml`](#daemonset-template)
 
 1. In the <%= vars.k8s_runtime_abbr %> tile, select a **Plan**
   ![PKS tile Plan pane](images/vsphere/plan-addons.png)
 
-1. In the **(Optional) Add-ons** field, paste the entire contents of the four YAML files defined below, separated by '---':
-  - [`secret.yaml`](#secret-template)
-  - [`vsphere-csi-controller-rbac.yaml`](#rbac-template)
-  - [`vsphere-csi-controller-ss-data-1.yaml`](#ss-template)
-  - [`vsphere-csi-node-ds-data.yaml`](#daemonset-template)
+1. In the **(Optional) Add-ons** field, paste the entire contents of the four YAML files you created, separated by '---'.
+This should give something like the [Add-ons Code](#addons-template) below.
 
-    <p class="note"><strong>Note:</strong> If needed, you also paste in the Storage Class YAML that will be used as default for CSI.
+    <p class="note"><strong>Note:</strong> If needed, you can also paste in the Storage Class YAML that will be used as default for CSI.
     For example, the contents of <code>cassandra-storageclass.yaml</code> used below.
-    
-    This should give something like the [Add-ons Code](#addons-template) below.
 
 1. In Ops Manager, click **Apply Changes** to create the new plan.
 
@@ -75,6 +70,9 @@ To automatically deploy CSI on a Kubernetes cluster upon creation, we can use th
     pks-cluster-1-shared-t1-csi --plan plan-csi --num-nodes 3
     --network-profile single-tier-profile
     ```
+
+1. Verify that CNS works for the cluster by following the [Verify a CSI Installation](#verify) steps below.
+
 
 ## <a id='manual'></a>Manually Install CSI on a PKS Cluster
 
@@ -162,9 +160,12 @@ To automatically deploy CSI on a Kubernetes cluster upon creation, we can use th
     daemonset.apps/vsphere-csi-node created
     </pre>
 
+1. Verify that CNS works for the cluster by following the [Verify a CSI Installation](#verify) steps below.
+
+
 ## <a id='verify'></a>Verify a CSI Installation
 
-### <a id='deploy-success'></a>Verify that CSI has been successfully deployed
+### <a id='deploy-success'></a>Verify that CSI Deployed Successfully
 
 <pre class="terminal">
 &gt; kubectl get statefulset --namespace=kube-system 
@@ -200,43 +201,43 @@ vsphere-csi-node-pdbb5                  3/3     Running  
 13m
 </pre>
 
-### <a id='pod-access'></a>Verify that All Pods can Access vCenter
+### <a id='pod-access'></a>Verify that All Pods Can Access vCenter
 
 Once CSI is installed in the Kubernetes cluster, you will see these PODs in the kube-system namespace:
 
-    <pre class="terminal">
-    &gt; kubectl get pod -n kube-system -o wide
-    NAME                     READY   STATUS   RESTARTS  AGE     IP             NODE                                   NOMINATED
-    NODE   READINESS GATES  
-    vsphere-csi-controller-0 5/5     Running  5         
-    24h     172.16.30.3    c4e3819f-00fc-457b-beda-26fbdd589c53  
-    <none>           <none> 
-    vsphere-csi-node-64dmx   3/3     Running  3         
-    24h     172.16.30.9    c9b4f441-4c08-43cf-bb17-8be80ed676a4  
-    <none>           <none>  
-    vsphere-csi-node-6bp4x   3/3     Running  0         
-    5h15m   172.16.30.13   80dc0ceb-d460-4538-99b6-d7d8eacc4b74  
-    <none>           <none>  
-    vsphere-csi-node-92tvh   3/3     Running  3         
-    5h21m   172.16.30.11   651bfb0d-084d-481f-98f6-f811284676ef  
-    <none>           <none>  
-    vsphere-csi-node-l4v2q   3/3     Running  0         
-    4h33m   172.16.30.17   9233bd53-7e94-4b94-a197-f459ccdc25dd  
-    <none>           <none>  
-    vsphere-csi-node-nnldx   3/3     Running  3         
-    24h     172.16.30.8    c4e3819f-00fc-457b-beda-26fbdd589c53  
-    <none>           <none>  
-    vsphere-csi-node-pw7hw   3/3     Running  3         
-    5h18m   172.16.30.12   1b84ae77-45bf-4fa1-9f0b-cbc13bb75894  
-    <none>           <none> 
-    </pre> 
+<pre class="terminal">
+&gt; kubectl get pod -n kube-system -o wide
+NAME                     READY   STATUS   RESTARTS  AGE     IP             NODE                                   NOMINATED
+NODE   READINESS GATES
+vsphere-csi-controller-0 5/5     Running  5         
+24h     172.16.30.3    c4e3819f-00fc-457b-beda-26fbdd589c53  
+<none>           <none>
+vsphere-csi-node-64dmx   3/3     Running  3         
+24h     172.16.30.9    c9b4f441-4c08-43cf-bb17-8be80ed676a4  
+<none>           <none>
+vsphere-csi-node-6bp4x   3/3     Running  0         
+5h15m   172.16.30.13   80dc0ceb-d460-4538-99b6-d7d8eacc4b74  
+<none>           <none>
+vsphere-csi-node-92tvh   3/3     Running  3         
+5h21m   172.16.30.11   651bfb0d-084d-481f-98f6-f811284676ef  
+<none>           <none>
+vsphere-csi-node-l4v2q   3/3     Running  0         
+4h33m   172.16.30.17   9233bd53-7e94-4b94-a197-f459ccdc25dd  
+<none>           <none>
+vsphere-csi-node-nnldx   3/3     Running  3         
+24h     172.16.30.8    c4e3819f-00fc-457b-beda-26fbdd589c53  
+<none>           <none>
+vsphere-csi-node-pw7hw   3/3     Running  3         
+5h18m   172.16.30.12   1b84ae77-45bf-4fa1-9f0b-cbc13bb75894  
+<none>           <none>
+</pre>
 
-    All these pods must be able to access vCenter.
-    This means that the Floating IP allocated to the SNAT rule for this
-    namespace in the T0 (or T1 if shared T1 model is used) must be able to
-    reach vCenter.
+All these pods must be able to access vCenter.
+This means that the Floating IP allocated to the SNAT rule for this
+namespace in the T0 (or T1 if shared T1 model is used) must be able to
+reach vCenter.
     
-### <a id='resource-defs'></a>Verify that the CSI Custom Resource Definitions are working
+### <a id='resource-defs'></a>Verify that CSI Custom Resource Definitions are Working
 
 <pre class="terminal">
 &gt; kubectl get CSINode 
@@ -354,7 +355,7 @@ Spec:
 Events:               <none>
 </pre>
 
-### <a id='provider-id'></a>Verify ProviderID has been Added to Nodes
+### <a id='provider-id'></a>Verify that ProviderID was Added to Nodes
     
 <pre class="terminal">  
   &gt; kubectl describe nodes | grep "ProviderID"**  
