@@ -532,8 +532,8 @@ To restore a cluster:
     * `BOSH-TARGET` is the `BOSH_ENVIRONMENT` property.  This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**. 
     You must be able to reach the target address from the workstation where you run `bbr` commands.  
     * `BOSH-CLIENT` is the `BOSH_CLIENT` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.  
-    * `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in the 
-    [Retrieve your Cluster Deployment Name](#cluster-deployment-name) section above.
+    * `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in 
+    [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in the [Download the Root CA Certificate](#root-ca-cert) section above.  
     * `PATH-TO-DEPLOYMENT-BACKUP` is the path to to your deployment backup. 
     Make sure you have transfer your artifact into your jumpbox as described in [Transfer Artifacts to Jumpbox](#artifacts-jumpbox) above.  
@@ -555,12 +555,81 @@ To restore a cluster:
     If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
     run separately from your SSH session and will continue to run, even if your SSH connection to the jumpbox fails.
 </p>
+1. To cancel a running `bbr restore`, see [Cancel a Restore](#cancel-restore) below.
 1. If your <%= vars.product_short %> cluster restore fails, do one or more of the following:
     * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
       see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.  
 
     Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
+
+## <a id='register-nodes'></a>  Register Restored Worker VMs
+
+After restoring a Kubernetes cluster, 
+you must register all of the cluster's worker nodes with their master nodes. 
+To register cluster worker nodes, complete the following:  
+
+1. [Delete Nodes](#delete-nodes)
+1. [Restart kubelet](#restart-kubelet)  
+
+### <a id='delete-nodes'></a> Delete Nodes
+
+To delete a cluster's restored nodes:  
+
+1. To determine your cluster's namespace, run the following command:
+
+    ```
+    kubectl get all --all-namespaces
+    ```
+
+1. To retrieve the list of worker nodes in the cluster, run the following command:  
+
+    ```
+    kubectl get nodes -o wide
+    ```
+    Document the worker node names listed in the `NAME` column. 
+    The worker nodes should all be listed with a status of `NotReady`.  
+1. To delete a node, run the following:  
+
+    ```
+    kubectl delete node NODE-NAME
+    ```
+    Where `NODE-NAME` is a node `NAME` returned by the `kubectl get nodes` command.  
+
+1. Repeat the preceding `kubectl delete node` step for each of your cluster's nodes.
+
+### <a id='restart-kubelet'></a> Restart kubelet
+
+To restart `kubelet` on your worker node VMs:  
+
+1. To restart `kubelet` on your cluster's worker node VMs:  
+    * To restart `kubelet` on all of the VMs with a single command, run the following command:
+
+        ```
+        bosh ssh -d DEPLOYMENT-NAME -c 'sudo /var/vcap/bosh/bin/monit restart kubelet'
+        ```
+        Where `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in 
+        [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.  
+<br>
+        Ignore the errors returned by BOSH's attempts to run `monit restart kubelet` 
+        on the master nodes in your cluster. 
+        `kubelet` does not run on master nodes.  
+<br>
+<%#    * To restart `kubelet` on individual worker node VMs, run the following command for each worker node:
+
+        ```
+        bosh ssh -d DEPLOYMENT-NAME -c 'sudo /var/vcap/bosh/bin/monit restart kubelet'
+        ```
+        Where `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in 
+        [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.  %>
+
+1. To confirm all worker nodes in your cluster have been restored to a `Ready` state, 
+run the following command:
+
+    ```
+    kubectl get nodes -o wide
+    ```
+
 
 ## <a id="recover-from-failing-command"></a>Resolve a Failing BBR Restore Command
 
@@ -660,7 +729,7 @@ Additionally, the BBR restore folder may remain on the target instance and subse
     * `BOSH-TARGET` is the value for `BOSH_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
         You must be able to reach the target address from the workstation where you run `bbr` commands.
     * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
-    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Name](#cluster-deployment-name) above.   
+    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.   
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert).  
     For example:
     <pre class="terminal">
