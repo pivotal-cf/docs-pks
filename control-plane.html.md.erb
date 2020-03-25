@@ -49,16 +49,23 @@ The control plane provides the following via the PKS API:
 In addition, the PKS Control Plane can upgrade all existing clusters using the **Upgrade all clusters** BOSH errand.
 For more information, see [Upgrade Kubernetes Clusters](upgrade-pks.html#upgrade-instances) in _Upgrading <%= vars.product_short %>_.
 
-###<a id="architecture"></a>PKS Control Plane Architecture
+PKS Control Plane is hosted on a pair of VM groups:
 
-PKS Control Plane is hosted on a pair VMs, or optionally on a pair of highly available VM groups.
-The component hosts the following services:
+* [<%= vars.control_plane %> VM Group](#pks-api-vm)
+* [<%= vars.control_plane_db %> VM Cluster](#pks-db-vm)
+
+###<a id="pks-api-vm"></a><%= vars.control_plane %> VM Group
+
+The <%= vars.control_plane %> VM Group consists of one or more VMs.  
+
+The <%= vars.control_plane %> VM Group's instances host the following services:
 
 * User Account and Authentication (UAA)  
 * PKS API  
 * PKS Broker
 * Billing and Telemetry 
-* PKS Database 
+
+By default, the `pivotal-container-service` VM is the only VM in the <%= vars.control_plane %> VM Group.   
 
 The following sections describe UAA, PKS API, and PKS Broker services,
 the primary services hosted on the <%= vars.control_plane %> VM.
@@ -96,27 +103,28 @@ For <%= vars.product_short %> deployments on vSphere with NSX-T, there is an add
 The PKS API communicates with the PKS NSX-T Proxy Broker, which in turn communicates with the NSX Manager to provision the Node Networking resources.
 The PKS NSX-T Proxy Broker then forwards the request to the On-Demand Service Broker to deploy the cluster.
 
-####<a id="overview-sql"></a>PKS Database
+###<a id="pks-db-vm"></a><%= vars.control_plane_db %> VM Cluster
 
-By default, the PKS Database is hosted on `pks-db`, the single-node <%= vars.control_plane_db %> VM, 
-which hosts the MySQL, proxy, and other data-related services.  
+The <%= vars.control_plane_db %> VM Cluster consists of one or three VMs.  
 
-PKS Control Plane data is persisted to the <%= vars.control_plane_db %> 
-for the following services:
+The <%= vars.control_plane_db %> VM Cluster hosts MySQL, proxy, and other data-related services. 
+These data-related functions persist PKS Control Plane data for the the following services:
 
 * PKS API
 * UAA
 * Billing
 * Telemetry
 
-####The PKS Control Plane High Availability Mode (Beta)
+By default, the `pks-db` VM is the only VM in the <%= vars.control_plane_db %> VM Cluster.  
+
+##<a id="overview-ha"></a>The PKS Control Plane High Availability Mode (Beta)
 
 The PKS Control Plane can be configured in either standard or high availability (beta) modes.
 
 * In standard mode, the <%= vars.control_plane %> and the <%= vars.control_plane_db %> 
 are hosted on a pair of dedicated VMs.
 * In high availability mode (beta), 
-the <%= vars.control_plane %> is hosted on two or more VMs in a group, 
+the <%= vars.control_plane %> is hosted in a group of two or more VMs, 
 and the <%= vars.control_plane_db %> is hosted in a three-node MySQL cluster.
 <p class="note warning"><strong>Warning:</strong> High availability mode is a beta feature.
 	Do not scale your <strong>PKS API</strong> or <strong>PKS Database</strong>
@@ -126,7 +134,13 @@ The following illustrates the interaction between <%= vars.product_short %> comp
 <%= image_tag('images/pks-overview-ha.png') %>
 <%# Image source: https://docs.google.com/drawings/d/1hTTmoBpkcjvZJTwlwsXMy9fn91x3KGfIeM4_dzIrW60/edit %>
 
-#### <a id='windows-ha'></a>Windows Worker-Based Kubernetes Cluster High Availability
+#### <a id='windows-ha'></a>Windows Worker-Based Kubernetes Cluster (Beta) High Availability
+
+Windows worker-based cluster (beta) Linux nodes can be configured in either standard or high availability modes.
+
+* In standard mode, a single Master/etcd node and a single Linux worker manage a cluster's Windows Kubernetes VMs.  
+* In high availability mode, 
+multiple Master/etcd and Linux worker nodes manage a cluster's Windows Kubernetes VMs.  
 
 The following illustrates the interaction between the 
 <%= vars.product_short %> Management Plane and Windows worker-based Kubernetes clusters:
