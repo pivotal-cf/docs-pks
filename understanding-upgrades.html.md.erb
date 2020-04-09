@@ -1,62 +1,150 @@
 ---
-title: Enterprise PKS Upgrades
+title: About Enterprise PKS Upgrades
 owner: PKS
 ---
 
-This topic compares full vs. tile-only <%= vars.product_short %> upgrades and explains what happens when the <%= vars.product_short %> control plane upgrades.
-It also explains how to perform a tile-only upgrade and what its limitations are.
+This topic provides conceptual information about <%= vars.product_short %> upgrades,
+including upgrading the PKS control plane and PKS-provisioned Kubernetes clusters.
+
+For step-by-step instructions on upgrading <%= vars.product_short %>
+and PKS-provisioned Kubernetes clusters, see:
+
+* [Upgrading Enterprise PKS](upgrade-pks.html)
+* [Upgrading Enterprise PKS with NSX-T](upgrade-pks-nsxt.html)
+* [Upgrading Clusters](upgrade-clusters.html)
 
 ## <a id="overview"></a>Overview
 
-An <%= vars.product_short %> upgrade modifies the version of the <%= vars.product_tile %> tile and automatically migrates your configuration settings into the new tile version.
+An <%= vars.product_short %> upgrade modifies the version of <%= vars.product_short %>,
+for example, from v1.6.x to v1.7.0 or from v1.7.0 to v1.7.1.
 
-By default, an <%= vars.product_short %> upgrade performs a _full upgrade_, which upgrades the control plane VMs and all <%= vars.product_short %>-provisioned Kubernetes clusters.
-You can optionally perform a _tile-only_ upgrade, which upgrades the control plane VMs only.
-With a tile-only upgrade, you must upgrade your <%= vars.product_short %>-provisioned Kubernetes clusters later.
+By default, <%= vars.product_short %> is set to perform a full upgrade,
+which upgrades both the PKS control plane and all PKS-provisioned Kubernetes clusters.
 
-For information about upgrading <%= vars.product_short %>, see [Upgrading <%= vars.product_short %>](upgrade-pks.html). 
-For information about upgrading <%= vars.product_short %> Kubernetes clusters, see [Upgrading Clusters](upgrade-clusters.html).  
+However, you can choose to upgrade <%= vars.product_short %> in two phases
+by upgrading the PKS control plane first and
+then upgrading your PKS-provisioned Kubernetes clusters later.
 
-## <a id="types"></a>Full vs Tile-Only Upgrades
+Both the full upgrade and the PKS control plane upgrade are performed
+through the <%= vars.product_tile %> tile only.
+When upgrading PKS-provisioned Kubernetes clusters, you can use either the <%= vars.product_tile %> tile or the PKS CLI.
+See the table below.
 
-There are two types of <%= vars.product_short %> upgrades:
+<table>
+<col width="50%">
+<col width="25%">
+<col width="25%">
+  <tr>
+    <th rowspan=2>Upgrade type</th>
+    <th colspan=2 style="text-align:center">Upgrade method</th>
+  </tr>
+  <tr>
+    <th>PKS Tile</th>
+    <th>PKS CLI</th>
+  </tr>
+  <tr>
+    <td>Full PKS upgrade</td>
+    <td>&#10004;</td>
+    <td>&#10006;</td>
+  </tr>
+  <tr>
+    <td>PKS control plane only</td>
+    <td>&#10004;</td>
+    <td>&#10006;</td>
+  </tr>
+  <tr>
+    <td>Kubernetes clusters only</td>
+    <td>&#10004;</td>
+    <td>&#10004;</td>
+  </tr>
+</table>
 
-* **Full Upgrade** upgrades the <%= vars.product_tile %> control plane and all <%= vars.product_short %>-provisioned Kubernetes clusters.
-  - This is the default behavior of the <%= vars.product_tile %> tile.
+Typically, if you choose to upgrade PKS-provisioned Kubernetes clusters only,
+you will upgrade them through the PKS CLI.
 
-* **Tile-Only Upgrade** upgrades only the <%= vars.product_tile %> control plane.
+## <a id=""></a> Deciding Between Full and Two-Phase Upgrade
 
-### <a id="choice"></a> Choosing Full or Tile-Only Upgrade
+When deciding whether to perform the default full upgrade or
+to upgrade the PKS control plane and PKS-provisioned Kubernetes clusters separately,
+consider your organization needs.
 
-Before you click **Apply Changes** to deploy an <%= vars.product_short %> upgrade, you can choose in the **Errands** pane whether or not to also upgrade all clusters:
+For example, if your organization runs PKS-provisioned Kubernetes clusters
+in both development and production environments and you want to upgrade
+only one environment first, you can achieve your goal by
+upgrading the PKS control plane and PKS-provisioned Kubernetes separately
+instead of performing a full upgrade.
 
-* Enable the **Upgrade all clusters errand** checkbox to perform a full upgrade.
-* Disable the **Upgrade all clusters errand** checkbox to upgrade the tile and control plane only.
-  - See the [Tile-Only Upgrade](#tile-only) instructions below for how to perform a tile-only <%= vars.product_tile %> upgrade.
-  - **Limitations** After performing a tile-only upgrade, 
-  you cannot perform another <%= vars.product_tile %> tile upgrade 
-  until you have upgraded your Kubernetes clusters to the current <%= vars.product_short %> version.  
+Examples of other advantages of
+upgrading <%= vars.product_short %> in two phases include:
 
-## <a id="what-happens"></a> What Happens During Upgrade
+* Faster <%= vars.product_tile %> tile upgrades.
+If you have a large number of clusters in your <%= vars.product_short %> deployment,
+performing a full upgrade can significantly increase the amount of time required to
+upgrade the <%= vars.product_tile %> tile.
 
-During a <%= vars.product_short %> control plane upgrade to v1.7, the <%= vars.product_tile %> tile does the following:
+* More granular control over cluster upgrades.
+In addition to enabling you to upgrade subsets of clusters,
+the PKS CLI supports upgrading each cluster individually.
 
-1. **Creates MySQL VM (First-time v1.7 Upgrade Only)**: When you first upgrade from <%= vars.product_short %> v1.6 to v1.7, the upgrade process creates the <%= vars.control_plane_db %> VM, a new dedicated MySQL VM.
-  - This MySQL VM resides alongside the <%= vars.control_plane %> VM on the PKS Control Plane.
-  - The upgrade process then migrates the PKS v1.6 MySQL data from the <%= vars.control_plane %> VM onto the new dedicated MySQL VM.
+* Not a monolithic upgrade.
+This helps to isolate the root cause of an error when troubleshooting upgrades
+and reduce the number of upgrade failures.
+For example, when a cluster-related upgrade error occurs during a full upgrade,
+the entire <%= vars.product_tile %> tile upgrade may fail.
+
+<p class="note warning"><strong>Warning:</strong> If you disable the default full upgrade
+and upgrade only the PKS control plane,
+you must upgrade all your PKS-provisioned Kubernetes clusters before the next <%= vars.product_tile %> tile
+upgrade. Disabling the default full upgrade
+and upgrading only the PKS control plane cause the PKS version
+tagged in your Kubernetes clusters to fall behind the <%= vars.product_tile %> tile version.
+If your PKS-provisioned Kubernetes clusters fall more than one version behind the tile,
+<%= vars.product_short %> cannot upgrade the clusters.</p>
+
+## <a id="what-happens"></a> What Happens During Full PKS and PKS Control Plane Upgrades
+
+You can perform full PKS upgrades and PKS control plane upgrades only
+through the <%= vars.product_tile %> tile.
+
+After you add a new <%= vars.product_tile %> tile version to your staging area
+on the Ops Manager Installation Dashboard,
+Ops Manager automatically migrates your configuration settings into the new tile version.
+
+For more information, see:
+
+* [Full PKS Upgrades](#full-upgrades)
+* [PKS Control Plane Upgrades](#control-plane-upgrades)
+
+### <a name="full-upgrades"></a>Full PKS Upgrades
+
+During a **full PKS upgrade**,
+the <%= vars.product_tile %> tile does the following:
+
+1. (Only in v1.7) Creates MySQL VM. When you first upgrade from <%= vars.product_short %> v1.6 to v1.7,
+the upgrade process creates the <%= vars.control_plane_db %> VM, a new dedicated MySQL VM.
+  - This MySQL VM resides alongside the <%= vars.control_plane %> VM on the PKS control plane.
+  - The upgrade process then migrates the PKS v1.6 MySQL data from the <%= vars.control_plane %> VM to the new dedicated MySQL VM.
   - Subsequent <%= vars.product_short %> upgrades, from earlier to later patch versions of PKS v1.7, do not include this step.
 
-1. **Recreates the Control Plane VMs** which host the PKS API and UAA servers.
-  * If the <%= vars.product_short %> installation is not scaled for high availability (beta), this control plane recreation causes temporary outages as described in [Non-HA Control Plane Outages](#outages), below.
+1. Upgrades the PKS control plane, which hosts the PKS API and UAA servers.
+If <%= vars.product_short %> is not scaled for high availability (beta),
+this control plane upgrade causes temporary outages as described in [Non-HA Control Plane Outages](#outages) below.
+1. Upgrades PKS-provisioned Kubernetes clusters.
+  * Upgrading PKS-provisioned Kubernetes clusters is controlled by the **Upgrade all clusters errand** in the <%= vars.product_tile %> tile.
+  * The cluster upgrade process recreates all clusters, which may cause cluster outages.
+  For more information, see [What Happens During Cluster Upgrades](#cluster-upgrades) below.
 
-1. **(Optional) Upgrades Clusters**
-  * Upgrading <%= vars.product_short %> only upgrades its Kubernetes clusters if the **Upgrade all clusters errand** checkbox is enabled in the **Errands** pane.
-  * The cluster upgrade process recreates all clusters, which may cause cluster outages.  
-  For more information, see the [What Happens During Cluster Upgrades](./upgrade-clusters.html#what) section of the _Upgrading Clusters_ topic.
+### <a name="control-plane-upgrades"></a>PKS Control Plane Upgrades
+
+When upgrading the **PKS control plane only**,
+the <%= vars.product_tile %> tile follows the process described in
+[Full PKS Upgrades](#full-upgrades) above, step 1 and 2.
+It does not upgrade PKS-provisioned Kubernetes clusters, step 3.
 
 ### <a id="outages"></a> Non-HA Control Plane Outages
 
-When the <%= vars.product_short %> control plane is not scaled for high availability (beta), upgrading it temporarily interrupts the following:
+When the <%= vars.product_short %> control plane is not scaled for high availability (beta),
+upgrading it temporarily interrupts the following:
 
   * Logging in to the PKS CLI and using all `pks` commands
   * Using the PKS API to retrieve information about clusters
@@ -64,12 +152,11 @@ When the <%= vars.product_short %> control plane is not scaled for high availabi
   * Using the PKS API to resize clusters
 
 Recreating the PKS API server does not affect the Kubernetes clusters themselves.
-
-  * During PKS control plane upgrade, you can still interact with clusters and their workloads using the Kubernetes Command Line Interface, `kubectl`.
+During a PKS control plane upgrade, you can still interact with clusters and their workloads using the Kubernetes Command Line Interface, `kubectl`.
 
 For more information about the PKS control plane and high availability (beta), see [PKS Control Plane Overview](control-plane.html#control-plane) in _<%= vars.product_short %> Architecture_.
 
-### <a id="canary"></a>Canary Instances
+### <a name="canary"></a>Canary Instances
 
 The <%= vars.product_tile %> tile is a BOSH deployment.
 
@@ -79,52 +166,75 @@ If the canary instance encounters an error, the upgrade stops running and other 
 
 The <%= vars.product_tile %> tile uses one canary instance when deploying or upgrading <%= vars.product_short %>.
 
-##<a id="tile-only"></a> Tile-Only Upgrade
+## <a id="cluster-upgrades"></a>What Happens During Cluster Upgrades
 
-To perform a tile-only <%= vars.product_tile %> upgrade, in order to upgrade your control plane without upgrading your clusters yet, do the following:
+Upgrading PKS-provisioned Kubernetes clusters
+updates their Kubernetes version to the version
+included with the <%= vars.product_tile %> tile.
+It also updates the PKS version tagged in your clusters
+to the <%= vars.product_tile %> tile version.
 
-  1. Review [Limitations](#limitations).
-  1. Complete the steps listed in [Prerequisites](#prerequisites).
-  1. Complete the steps listed in [Disable Errand and Apply Changes](#modify-apply).
+You can upgrade PKS-provisioned Kubernetes clusters either through the <%= vars.product_tile %> tile
+or the PKS CLI. See the table below.
 
-  <p class="note"><strong>Note:</strong> Tile-only upgrades cause the <%= vars.k8s_runtime_abbr %> version tagged in Kubernetes clusters to fall behind the <%= vars.product_short %> tile version.
-    If the clusters fall more than one version behind the tile,
-    <%= vars.product_short %> cannot upgrade the clusters.</p>
+<table>
+<col width="50%">
+<col width="50%">
+  <tr>
+    <th>This method</th>
+    <th>Upgrades</th>
+  </tr>
+  <tr>
+    <td>The <strong>Upgrade all clusters errand</strong> in<br>
+    the <strong><%= vars.product_tile %></strong> tile > <strong>Errands</strong></td>
+    <td>All clusters. Clusters are upgraded serially.</td>
+  </tr>
+  <tr>
+    <td><code>pks upgrade-cluster</code></td>
+    <td>One cluster.</td>
+  </tr>
+  <tr>
+    <td><code>pks upgrade-clusters</code></td>
+    <td>Multiple clusters. Clusters are upgraded serially or in parallel.</td>
+  </tr>
+</table>
 
-###<a id='limitations'></a> Limitations
+During an upgrade of PKS-provisioned clusters,
+<%= vars.product_short %> recreates your clusters.
+This includes includes the following stages for each cluster you upgrade:
 
-After performing a tile-only <%= vars.product_tile %> upgrade, 
-you cannot perform another <%= vars.product_tile %> upgrade until you upgrade your clusters.  
+1. Master nodes are recreated.
+1. Worker nodes are recreated.
 
-To simultaneously upgrade your <%= vars.product_tile %>
-tile and existing Kubernetes clusters,
-do not disable **Upgrade all clusters errand** in the <%= vars.product_tile %> tile.
+Depending on your cluster configuration,
+these recreations may cause [Master Nodes Outage](#master) or [Worker Nodes Outage](#worker)
+as described below.
 
-###<a id='prerequisites'></a>Prerequisites
+###<a name="master"></a>Master Nodes Outage
 
-Before performing a tile-only <%= vars.product_tile %> upgrade, you must do the following:
+When <%= vars.product_short %> upgrades a single-master cluster,
+you cannot interact with your cluster, use `kubectl`, or push new workloads.
 
-* Install the PKS command line interface (CLI) v1.7. For more information, see [Installing the PKS CLI](installing-pks-cli.html).
-1. Download the new <%= vars.product_short %> product file from [VMware Tanzu Network](https://network.pivotal.io/products/pivotal-container-service) and import it into the Ops Manager **Installation Dashboard**.
-* Log in to <%= vars.product_short %> using `pks login`. For more information, see [Logging in to <%= vars.product_short %>](login.html).
+To avoid this loss of functionality,
+<%= vars.recommended_by %> recommends using multi-master clusters.
 
-###<a id='errand-apply'></a> Disable Errand and Apply Changes
+###<a name="worker"></a>Worker Nodes Outage
 
-To perform the tile-only <%= vars.product_short %> upgrade:
+When <%= vars.product_short %> upgrades a worker node,
+the node stops running containers.
+If your workloads run on a single node, they will experience downtime.
 
-1. In the <%= vars.product_short %> tile, navigate to the **Errands** pane.
-1. Disable **Upgrade all clusters errand** and click **Save**.
-1. Return to the Ops Manager **Installation Dashboard** and click **Review Pending Changes**.
-1. Select <%= vars.product_short %> and any other products that you want to deploy and click **Apply Changes**.
+To avoid downtime for stateless workloads,
+<%= vars.recommended_by %> recommends using at least one worker node
+per availability zone (AZ).
+For stateful workloads, <%= vars.recommended_by %> recommends
+using a minimum of two worker nodes per AZ.
 
-##<a id="after"></a> After a Tile-Only Upgrade
-
-All changes applied to the <%= vars.product_tile %> tile, including upgrades and configuration changes,
-must be propagated to your Kubernetes clusters before the next tile upgrade.
-Therefore, if you perform a tile-only <%= vars.product_tile %> upgrade, you must upgrade all your Kubernetes clusters
-before the next <%= vars.product_tile %> tile upgrade.
-
-After a tile-only upgrade, you can use the PKS CLI commands `pks upgrade-cluster` and `pks upgrade-clusters` to upgrade Kubernetes clusters individually, in groups, or in groups with specified canary clusters.
-See [Upgrading Clusters](upgrade-clusters.html#upgrade-clusters) for instructions.
-
-<p class="note"><strong>Note:</strong> If clusters fall more than one previously-installed <%= vars.k8s_runtime_abbr %> version behind the current <%= vars.product_short %> tile version, subsequent cluster upgrade attempts will fail.
+<p class="note"><strong>Note:</strong> When the <strong>Upgrade all clusters errand</strong>
+is enabled in the <%= vars.product_tile %> tile, updating the tile with
+a new Linux or Windows stemcell rolls every Linux or Windows VM in each Kubernetes cluster.
+This automatic rolling ensures that all your VMs are patched.
+To avoid workload downtime, use the resource configuration recommended
+in <a href="#master">Master Nodes Outage</a>
+and <a href="#worker">Worker Nodes Outage</a> above and
+in <a href="./maintain-uptime.html">Maintaining Workload Uptime</a>.</p>
