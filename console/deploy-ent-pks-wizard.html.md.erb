@@ -83,7 +83,7 @@ Provide information about an NSX-T Data Center network that you have not already
 	* **Pod IP Block CIDR**: Enter a CIDR range to use for pods, with a maximum suffix of 24. For example 11.192.183.1/22.
 	* **Node IP Block CIDR**: Enter a CIDR range to use for nodes, with a maximum suffix of 22. For example 11.192.184.1/22.
 	* **Nodes DNS**: Enter the Domain Name Server used by the Kubernetes nodes.
-	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment. You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Enterprise PKS](deploy).
 	* **Usable range of floating IPs**: Enter the floating IP range, for example **From** 192.168.160.100 **To** 192.168.160.199. Click **Add Range** to add more IP ranges.
 1. Optionally enable **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
 
@@ -126,7 +126,7 @@ Provide information about an NSX-T Data Center network that you have already ful
 	* **Nodes DNS**: Enter the IP address for the DNS server to use for Kubernetes nodes and pods.
 	* **Deployment DNS**: Enter the IP address for the DNS server to use for the PKS control plane VMs, for example 192.168.111.155.
 	* **NTP Server**: Enter the IP address of an NTP server.
-	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Enterprise PKS](deploy).
     
     ![Bring your own topology network configuration](images/byot-network.png)
 1. Optionally disable **NAT Mode** to implement a routable (No-NAT) topology.
@@ -165,7 +165,7 @@ Provide networking information so that <%= vars.product_short %> Management Cons
 	* **Deployment Network CIDR**: Enter a CIDR range to use for <%= vars.product_short %> components, for example 10.192.182.1/22.
 	* **Deployment Network Gateway IP**: Enter the IP address for the gateway for the deployment network, for example 10.192.182.1.
 	* **Deployment DNS**: Enter the IP address for the deployment network DNS server, for example 192.168.111.155.
-	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Enterprise PKS](deploy).
     
     ![Flannel network configuration](images/flannel-network.png)
 1. Configure the Service Network Resource options.
@@ -173,7 +173,7 @@ Provide networking information so that <%= vars.product_short %> Management Cons
 	* **Service Network CIDR**: Enter a CIDR range to use for the service network, for example 10.192.182.1/23.
 	* **Service Network Gateway IP**: Enter the IP address for the gateway for the service network.
 	* **Service DNS**: Enter the IP address for the service network DNS server, for example 192.168.111.155.
-	* **Service Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify the reserved IP range after the initial deployment.
+	* **Service Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify the reserved IP range after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Enterprise PKS](deploy).
 	* **NTP Server**: Enter the IP address of an NTP server.
     
     ![Flannel service network configuration](images/flannel-service-network.png)
@@ -625,7 +625,19 @@ When all of the sections of the wizard are green, you can generate a YAML config
 
     ![Generate Enterprise PKS configuration](images/generate-config.png)
 1. Optionally click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`. 
-1. Optionally edit the YAML directly in the YAML editor.
+1. Optionally edit the YAML directly in the YAML editor to specify an FQDN address for the Ops Manager VM.<br>To specify an FQDN address for the Ops Manager VM, update the YAML as follows: 
+
+	1. Locate the `ntp_servers:` entry in the YAML file.
+	1. Create a new line under `ntp_servers:`, and add a row for the Ops Manager VM FQDN:<pre>opsman_fqdn: "myopsman.example.com"</pre>
+	1. Make sure that the FQDN is mapped to the following IP address:
+    	- For NSX-T deployments map it to the first address in the floating IP range.
+    	- For Flannel deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.
+1. Optionally edit the YAML directly in the YAML editor to specify additional reserved IP ranges in the deployment network or service network.<br>No VMs will be deployed in the reserved ranges that you specify. To specify additional reserved IP ranges, update the YAML as follows:
+
+	1. Locate the `active_t0_edge_node_ip:` entry in the YAML file.
+	1. Create a new line under `active_t0_edge_node_ip:`, and two rows for  reserved IP ranges in the deployment and service networks:
+	   - Deployment network:<pre>additional_dep_reserved_ip_range: "172.16.100.2,172.16.100.3-172.16.100.10"</pre>
+	   - Service network:<pre>additional_svc_reserved_ip_range: ""</pre>
 1. Click **Apply Configuration** then **Continue** to deploy <%= vars.product_short %>.
 
     ![Apply the generated YAML configuration](images/apply-yaml.png)
