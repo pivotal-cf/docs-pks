@@ -222,6 +222,7 @@ Provide information about an existing external Active Directory or LDAP server.
 	* **Email Domains**: Optionally enter a comma-separated list of the email domains for external users who can receive invitations to <%= vars.product_short %>.
 	* **First Name Attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user first names, for example `cn`.
 	* **Last Name Attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user last names. for example `sn`.
+	* **Server SSL Certificate**: If you are using an LDAPS endpoint, paste the contents of the LDAP server certificate certificate into the text box.
 1. Optionally click the **Test LDAP Server** button to test the connection that you have configured.
 1. In the **PKS API FQDN** text box, enter an address for the PKS API Server VM, for example `api.pks.example.com`.
 
@@ -627,17 +628,24 @@ When all of the sections of the wizard are green, you can generate a YAML config
 1. Optionally click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`. 
 1. Optionally edit the YAML directly in the YAML editor to specify an FQDN address for the Ops Manager VM.<br>To specify an FQDN address for the Ops Manager VM, update the YAML as follows: 
 
-	1. Locate the `ntp_servers:` entry in the YAML file.
-	1. Create a new line under `ntp_servers:`, and add a row for the Ops Manager VM FQDN:<pre>opsman_fqdn: "myopsman.example.com"</pre>
+	1. Locate the `opsman_fqdn:` entry in the YAML file.
+	1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN:<pre>: "myopsman.example.com"</pre>
 	1. Make sure that the FQDN is mapped to the following IP address:
     	- For NSX-T deployments map it to the first address in the floating IP range.
     	- For Flannel deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.
+    	- If you start the deployment and you have not mapped the FQDN to an IP address, the deployment fails with an error. In this case, you can configure the mapping, return to the YAML editor, and start the deployment again.
+    	
+    **NOTES**: 
+    
+        	- If you are upgrading from a previous version of <%= vars.product_short %>, you cannot specify the Ops Manager FQDN value.
+        	- You cannot reconfigure the Ops Manager FQDN after you deploy <%= vars.product_short %>.
+	
 1. Optionally edit the YAML directly in the YAML editor to specify additional reserved IP ranges in the deployment network or service network.<br>No VMs will be deployed in the reserved ranges that you specify. To specify additional reserved IP ranges, update the YAML as follows:
 
-	1. Locate the `active_t0_edge_node_ip:` entry in the YAML file.
-	1. Create a new line under `active_t0_edge_node_ip:`, and two rows for  reserved IP ranges in the deployment and service networks:
+	1. Locate the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries in the YAML file.
+	1. Update the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries to specify reserved IP ranges in the deployment and service networks:
 	   - Deployment network:<pre>additional_dep_reserved_ip_range: "172.16.100.2,172.16.100.3-172.16.100.10"</pre>
-	   - Service network:<pre>additional_svc_reserved_ip_range: ""</pre>
+	   - Service network (Flannel only):<pre>additional_svc_reserved_ip_range: ""</pre>
 1. Click **Apply Configuration** then **Continue** to deploy <%= vars.product_short %>.
 
     ![Apply the generated YAML configuration](images/apply-yaml.png)
