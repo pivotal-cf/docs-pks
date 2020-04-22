@@ -42,11 +42,13 @@ Enabling PSPs is done during configuration of <%= vars.product_short %> in the P
 
 A Kubernetes cluster created from a plan with the **PodSecurityPolicy** option enabled will require cluster users to have a binding that grants `use` on an appropriate PSP to deploy pods. Enabling the **PodSecurityPolicy** option is a security feature. The design goal is to make the Kubernetes cluster more secure. Once enabled, **PodSecurityPolicy** acts on creation and modification of pods in that cluster or namespace, and determines the actions that should be permitted based on the requested security context and the applied PSP. See [PSP Policy Order](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#policy-order) for more information on PSP application order when multiple PSPs are in use.
 
-<p class="note"><strong>WARNING</strong>: Enabling the **PodSecurityPolicy** option on install or upgrade of <%= vars.product_short %> will prevent developers from using the cluster as they would expect unless the proper PSP, role, and role binding are configured by the cluster administrator before cluster deployment.
+<p class="note"><strong>WARNING</strong>: Enabling the <strong>PodSecurityPolicy</strong> option on install or upgrade 
+  of <%= vars.product_short %> will prevent developers from using the cluster as they would expect unless the proper PSP, 
+role, and role binding are configured by the cluster administrator before cluster deployment.</p>
 
 ###<a id='psp-new-installs'></a> New Installations of PKS: PSPs Are Not Enabled for Any Plan
 
-For new <%= vars.product_short %> installations, the **PodSecurityPolicy** option is not enabled by default in a plan. If the the **PodSecurityPolicy** option is enabled, the cluster administrator will be able to deploy pods, but developers without a binding to a PSP will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods. Once you enable PSPs, you will need to define the RBAC objects and PSP for cluster users. See [Workflow for Enabling PSPs](#psp-enable-workflow) and [Configuring the pks-restricted PSP for Developers to Use with PKS](#psp-config).
+For new <%= vars.product_short %> installations, the **PodSecurityPolicy** option is not enabled by default in a plan. If the **PodSecurityPolicy** option is enabled, the cluster administrator will be able to deploy pods, but developers without a binding to a PSP will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods. Once you enable PSPs, you will need to define the RBAC objects and PSP for cluster users. See [Workflow for Enabling PSPs](#psp-enable-workflow) and [Configuring the pks-restricted PSP for Developers to Use with PKS](#psp-config).
 
 ###<a id='psp-upgrades'></a> Upgrade of PKS: PSPs Must Be Enabled per Plan
 
@@ -80,7 +82,7 @@ At a high-level, the steps for configuring a PSP with appropriate RBAC controls 
 
 ###<a id='psp-define'></a> Step 1: Define the PSP
 
-The first step is to define the PSP. We provide the PSP named `pks-restricted` for general development work in Kubernetes. To onboard cluster users (developers), the best practice is to start with the `pks-resricted` PSP. To create your own PSP, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example).
+The first step is to define the PSP. We provide the PSP named `pks-restricted` for general development work in Kubernetes. To onboard cluster users (developers), the best practice is to start with the `pks-restricted` PSP. To create your own PSP, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example).
 
 To view the `pks-restricted` PSP, run the following command:
 
@@ -133,9 +135,10 @@ spec:
 
 ###<a id='psp-role'></a> Step 2: Create the Role
 
-The following **ClusterRole** grants permission to use the `pks-restricted` PSP resource. You can use this role for onboarding cluster users and granting them cluster access. For additional examples, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) in the Kubernetes documentation.
+The following **ClusterRole** grants permission to use the `pks-restricted` PSP resource. 
+You can use this role for onboarding cluster users and granting them cluster access. 
 
-Below is the system-provided **ClusterRole**. Because this is a **ClusterRole**, rather than a **Role**, the namespace is omitted. 
+Below is the system-provided **ClusterRole**.  
 
 ```
 kind: ClusterRole
@@ -153,57 +156,108 @@ rules:
   - use
 ```
 
+<p class="note"><strong>Note</strong>: Because this is a <strong>ClusterRole</strong> example, rather than a <strong>Role</strong> example, the namespace is omitted.</p>
+
+For more information about `Role` and `ClusterRole`, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) 
+in the Kubernetes documentation.
+
 ###<a id='psp-binding'></a> Step 3: Create the Role Binding
 
-For onboarding cluster users, you have two options based on the mode of authentication you have chosen for PKS: internal or external. Internal authentication uses a service account mechanism for role binding, such as `SERVICE-UUID-cluster-admin`, for example. External authentication uses the OpenID Connect (OIDC) identity provider to interface with an external system such as LDAP or AD. In this case the role binding references the `user` or `group` name.
+For onboarding cluster users, you have two options based on the mode of authentication you have chosen 
+for PKS, either internal or external:  
 
-Here is an example **ClusterRoleBinding** that binds service account users to the the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP.
+* Internal authentication uses a service account mechanism for role binding, 
+such as `SERVICE-UUID-cluster-admin`, for example. 
+* External authentication uses the OpenID Connect (OIDC) 
+identity provider to interface with an external system such as LDAP or AD. 
+In this case the role binding references the `user` or `group` name.
+
+**RoleBinding** and **ClusterRoleBinding** configurations adhere to the following format:
 
 ```
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: ROLE-BINDING-TYPE
 metadata:
-  name: psp:restricted
+  name: ROLE-BINDING-NAME
+  namespace: NAMESPACE-NAME
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole # Must be Role or ClusterRole
-  name: psp:restricted # The name of the ClusterRole to bind to
+  kind: ROLE-REF-TYPE
+  name: BIND-TO
 subjects:
   - kind: ServiceAccount
-    name: cluster-user
+    name: ACCOUNT-ID
 ```
 
-Here is an example **ClusterRoleBinding** that binds an externally authenticated user named `jane` to the the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP.
+Where:
 
-```
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: psp:restricted
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole # This must be Role or ClusterRole
-  name: psp:restricted # The name of the ClusterRole to bind to
-subjects:
-  - kind: User
-    name: jane # Name is case sensitive
-```
+* `ROLE-BINDING-TYPE` is the binding type, either `RoleBinding` or `ClusterRoleBinding`.
+* `ROLE-BINDING-NAME` is your name for the role binding you are creating.  
+* `NAMESPACE-NAME` is the name of the namespace the binding grants access within. `namespace` is optional for a `ClusterRole` binding.   
+* `ROLE-REF-TYPE` is the `roleRef` type, either `Role` or `ClusterRole`.  
+If the binding type is `Role`, the `namespace` property is required.  
+* `BIND-TO` is the name of the **ClusterRole** to bind to.  
+* `ACCOUNT-TYPE` is the type of account managed by the binding, either `ServiceAccount`, `User`, or `Group`.  
+* `ACCOUNT-ID` is the account managed by the binding. The `ACCOUNT-ID` is case sensitive.  
 
-Here is an example **ClusterRoleBinding** that binds externally authenticated group members to the the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP.
+For example, the following **ClusterRoleBinding** examples bind specific groups or users 
+to the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP:
 
-```
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: psp:restricted
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole # This must be Role or ClusterRole
-  name: psp:restricted # The name of the ClusterRole to bind to
-subjects:
-  - kind: Group
-    name: developers # Name is case sensitive
-```
+* Example of binding a service account user:
+
+    ```
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: psp:restricted
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole # Must be Role or ClusterRole
+      name: psp:restricted # The name of the ClusterRole to bind to
+    subjects:
+      - kind: ServiceAccount
+        name: cluster-user
+    ```
+
+* Example of binding an externally authenticated user named `jane`:
+
+    ```
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: psp:restricted
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole # This must be Role or ClusterRole
+      name: psp:restricted # The name of the ClusterRole to bind to
+    subjects:
+      - kind: User
+        name: jane # Name is case sensitive
+    ```
+
+* Example of binding externally authenticated group members:
+
+    ```
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: psp:restricted
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole # This must be Role or ClusterRole
+      name: psp:restricted # The name of the ClusterRole to bind to
+    subjects:
+      - kind: Group
+        name: developers # Name is case sensitive
+    ```
+
+<p class="note"><strong>Note</strong>: Because these are <strong>ClusterRoleBinding</strong> examples, 
+  rather than <strong>RoleBinding</strong> examples, the namespace property is omitted.</p>
+
+For more information about `RoleBinding` and `ClusterRoleBinding`, see 
+[RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) 
+in the Kubernetes documentation.
+
 
 ##<a id='psp-admin'></a> Administering PSPs, Roles, and RoleBindings
 
@@ -408,4 +462,4 @@ The most commonly used Kubernetes workloads (`deployment` and `replication contr
 
 ##<a id='psp-demo-files'></a> PSP Files and Demo
 
-Enterprise PKS provides additional resources for implementing PSPs, including the two default PSPs provided with the product, example YAML files, and a PSP demo movie. Download the files at the following location: <https://github.com/pivotal-cf/docs-pks/blob/master/demos/psp-demo.tar.gz>.
+Enterprise PKS provides additional resources for implementing PSPs, including the two default PSPs provided with the product, example YAML files, and a PSP demo movie. Download the files at the following location: [https://github.com/pivotal-cf/docs-pks/blob/master/demos/psp-demo.tar.gz](https://github.com/pivotal-cf/docs-pks/blob/master/demos/psp-demo.tar.gz).

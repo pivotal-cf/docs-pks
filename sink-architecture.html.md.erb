@@ -3,24 +3,33 @@ title: Sink Architecture in Enterprise PKS
 owner: PKS
 ---
 
-This topic describes how sinks are implemented in <%= vars.product_full %> workloads.
-## <a id="overview"></a> Overview
-<%= vars.product_short %>  provides the following types of sinks for collecting logs and metrics:
+This topic describes how <%= vars.product_full %> implements sinks for collecting logs and metrics from Kubernetes clusters.
 
-* A log sink for monitoring your cluster and namespace logs.
-* A metric sink for monitoring your cluster and namespace metrics.
+## <a id="overview"></a> Overview
+
+<%= vars.product_short %>  provides the following types of sinks for collecting cluster logs and metrics:
+
+* Log sinks for monitoring your cluster logs.
+* Metric sinks for monitoring your cluster metrics.
 
 <%= vars.product_short %> clusters include an observability manager that manages
-log sink and metric sink configurations within a cluster. 
+log sink and metric sink configurations within a cluster.
 
-The following diagram details <%= vars.product_short %> observability manager architecture:
+The following diagram details <%= vars.product_short %> cluster observability architecture:
 
 <a href="images/manager-architecture.png" target="_blank" id="sink-diagram"><img src="images/manager-architecture.png" alt="Observability Manager architecture in PKS"></a>
 <%#= original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %>
 
-If you want to use sinks, you must select **Enable Log Sink Resources** or **Enable Metric Sink Resources** in the <%= vars.product_tile %> tile. If you want to forward additional infrastructure metrics, you must also select **Enable Node-Exporter on master**. When you select these fields, Ops Manager requests that BOSH enable the observability manager with these configurations. 
+In the <%= vars.product_tile %> tile > **In-Cluster Monitoring** pane:
 
-For more information about enabling log sinks and metrics sinks, see [(Optional) In-Cluster Monitoring](./installing-pks-gcp.html#cluster-monitoring) in the _Installing_ topic for your IaaS.
+- **Enable Metric Sink Resources** enables metric sinks
+- **Enable Log Sink Resources** enables log sinks
+- **Enable Node Exporter on workers** forwards additional infrastructure metrics
+
+Setting these checkboxes in Ops Manager directs how BOSH configures the observability manager.
+
+For more information about enabling log sinks and metrics sinks,
+see [(Optional) In-Cluster Monitoring](./installing-pks-vsphere.html#cluster-monitoring) in the _Installing_ topic for your IaaS.
   
 ## <a id="sink-architecture"></a> Log Sink Architecture
 
@@ -31,71 +40,43 @@ The following diagram details <%= vars.product_short %> log sink architecture:
 <a href="images/log-architecture.png" target="_blank" id="sink-diagram"><img src="images/log-architecture.png" alt="Log sink architecture in PKS"></a>
 <%#= original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %>
 
-Logs are monitored and aggregated by a set of fluent-bit daemons running as a pod on a single node. 
+Logs are monitored and aggregated by a Fluent Bit `DaemonSet` running as a pod on each worker node.
 
-An event-controller collects Kubernetes API events and sends them to a second fluent-bit daemon pod for aggregation.
+An event-controller collects Kubernetes API events and sends them to a second Fluent Bit daemon pod for aggregation.
 
 All aggregated log entries are marshaled to a common log destination.
 
-<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the fluent-bit pods are refreshed with new sink information.</p>
+<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Fluent Bit pods are refreshed with new sink information.</p>
 
 ## <a id="metric-sink-architecture"></a> Metric Sink Architecture
 
-The <%= vars.product_short %> metric sink aggregates workload metrics and forwards them to a common metrics destination. 
-The metric sink can aggregate metrics from master and worker nodes. 
+The <%= vars.product_short %> metric sink aggregates workload metrics and forwards them to a common metrics destination.
 
-### <a id="metric-sink-worker"></a> Metric Sink Architecture on Worker Nodes
-
-The following diagram details <%= vars.product_short %> metric sink architecture on a 
-worker node: 
+The following diagram details <%= vars.product_short %> metric sink architecture:
 
 <a href="images/metric-architecture.png" target="_blank" id="metric-sink-diagram"><img src="images/metric-architecture.png" alt="Metric Sink architecture in PKS"></a>
 <%#= original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %>
 
-A metric sink for a worker node collects and writes metrics from a cluster to specified outputs using input and output plugins.
+A metric sink collects and writes metrics from a cluster to specified outputs using input and output plugins.
 
-Workload metrics are monitored by a set of third-party plugins. The plugins forward the metrics to a Telegraph service pod. 
+Workload metrics are monitored by a set of third-party plugins. The plugins forward the metrics to a Telegraf service pod. 
 
-A pair of kubelets monitor Kubernetes and forward Kubernetes metrics to a pair of Telegraph service pods. 
+A pair of kubelets monitors Kubernetes and forwards Kubernetes metrics to a pair of Telegraf service pods. 
 
-If Node Exporter is enabled on the worker nodes from with the <%= vars.product_tile %> a Node Exporter deamonset will be included in all clusters. This exposes a wide variety of node metrics. 
-For more information about these metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) repository in GitHub.
+If Node Exporter is enabled on the worker nodes in the <%= vars.product_tile %> tile, a Node Exporter `DaemonSet` is included in all clusters.
+For more information about Node Exporter metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) repository in GitHub.
 
 To define the collected unstructured metrics, a metric-controller monitors Kubernetes for custom resource definitions and forwards those definitions 
-to the Telegraph services. 
+to the Telegraf services.
 
-The Telegraph services collect, process, and aggregate gathered metrics. All aggregated metrics are marshaled 
+The Telegraf services collect, process, and aggregate gathered metrics. All aggregated metrics are marshaled 
 to an additional plugin for forwarding to a third-party application. 
 
-<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Telegraph pods are refreshed with new sink information.</p>
-
-### <a id="metric-sink-master"></a> Metric Sink Architecture on Master Nodes
-
-The following diagram details <%= vars.product_short %> metric sink architecture on a 
-master node: 
-
-<a href="images/bosh-metrics-architecture.png" target="_blank" id="sink-diagram"><img src="images/bosh-metrics-architecture.png" alt="BOSH metrics sink architecture in PKS"></a>
-<%#= original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %>
-
-A metric sink for a master node writes BOSH health metrics from a cluster to specified outputs using output plugins.
-
-The etcd server exports metrics from a `/metrics` endpoint to the Telegraph services.
-
-If Node Exporter is enabled on the master nodes the <%= vars.product_tile %> form within the tile, a Node Exporter job will run on the master VMs and expose a wide variety of node metics. 
-For more information about these metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) repository in GitHub.
-
-Kubernetes forwards custom resource definitions to the Telegraph services.
-
-The Telegraph services collect, process, and aggregate gathered metrics. All aggregated metrics are marshaled 
-to an additional plugin for forwarding to a third-party application. 
-
-For more information about metrics sinks for master nodes, see [Monitoring Master/etcd Node VMs](./monitor-etcd.html).
-
-<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Telegraph pods are refreshed with new sink information.</p>
+<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Telegraf pods are refreshed with new sink information.</p>
 
 ## <a id="related-links"></a> Related Links
 
 For more information about sinks in <%= vars.product_short %>, see the following topics:
 
 * For information about creating sinks in <%= vars.product_short %>, see [Creating Sink Resources](./create-sinks.html).
-* For information about using sinks for monitoring, see [Monitoring <%= vars.product_short %> with Log Sinks](./monitor-sinks.html).
+* For information about using sinks for monitoring, see [Monitoring Clusters with Log Sinks](./monitor-sinks.html).

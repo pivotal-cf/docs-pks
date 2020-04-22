@@ -1,0 +1,276 @@
+---
+title: Auditing Enterprise PKS Logs
+owner: PKS
+---
+
+This topic summarizes key auditable events in PKS, and the content of the log entries that the events generate.
+Operators can use this information to audit event logs to see 
+what users took what actions at what times.
+This is helpful
+for security, compliance, and troubleshooting. 
+
+Log content can either be [downloaded](./download-logs.html) or configured to be transported via syslog.    
+
+## <a id='overview'></a>PKS API events 
+
+The following log entry examples are produced by PKS API events and correspond to key
+actions taken by a user logged into the PKS CLI. 
+
+### <a id="cluster-creation"></a>Cluster Creation
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>create-cluster<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>A user has issued a create cluster command.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>Action 'create-cluster'</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>2019-05-16 14:59:34.897  INFO 7594 --- [nio-9021-exec-7] io.pivotal.pks.cluster.ClusterService    : Action 'create-cluster' by user 'admin', cluster name: 'logs', plan name: 'small'. Details: class ClusterParameters {
+         kubernetesMasterHost: logs.lathrop.cf-app.com
+         kubernetesMasterPort: 8443
+         workerHaproxyIpAddresses: null
+         kubernetesWorkerInstances: 3
+         authorizationMode: null
+         nsxtNetworkProfile: null
+        }
+        2019-05-16 14:59:34.911  INFO 7594 --- [nio-9021-exec-7] io.pivotal.pks.telemetry.Agent           : Telemetry - addCluster: cluster request: class ClusterRequest {
+         name: logs
+         planName: small
+         networkProfileName: null
+         parameters: class ClusterParameters {
+             kubernetesMasterHost: logs.lathrop.cf-app.com
+             kubernetesMasterPort: 8443
+             workerHaproxyIpAddresses: null
+             kubernetesWorkerInstances: 3
+             authorizationMode: null
+             nsxtNetworkProfile: null
+         }
+        }, cluster entity: ClusterEntity{name='logs', uuid='f4e2b775-8be3-41b8-abe8-67f2265b957e', owner='admin', brokerOperationId='{"BoshTaskID":479,"BoshContextID":"256c3b65-2eae-48f7-81f0-caed7472fa5f","OperationType":"create","PostDeployErrand":{},"PreDeleteErrand":{},"Errands":[{"Name":"apply-addons","Instances":null},{"Name":"vrops-errand","Instances":null},{"Name":"telemetry-agent","Instances":null}]}', lastActionDescription='Creating cluster', planId='8A0E21A8-8072-4D80-B365-D1F502085560', lastAction='CREATE', lastActionState='in progress', masterIps='[In Progress]', parameters=io.pivotal.pks.cluster.data.ClusterParametersEntity@6efbedb6', networkProfileUuid=null', computeProfileUuid=null', taskStartedAt=2019-05-16T14:59:34.804}, plan: class Plan {
+         id: 8A0E21A8-8072-4D80-B365-D1F502085560
+         name: small
+         description: Example: This plan will configure a lightweight kubernetes cluster. Not recommended for production workloads.
+         workerInstances: 3
+         masterInstances: 1
+         allowPrivilegedContainers: false
+        }
+        </code>
+      </td>
+   </tr>
+</table>
+
+### <a id="cluster-deletion"></a>Cluster Deletion
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>delete-cluster<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>A user has issued a delete cluster command.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>delete deployment for instance</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>
+      2019-06-04T14:16:52-06:00 10.0.10.10 broker/rs2 [on-demand-service-broker] [2f71a161-5755-4a0d-9c21-5b8405209594] 2019/06/04 20:16:52.493286 BOSH task ID 132 status: processing delete deployment for instance 67f77801-3d15-4d65-b501-38a643055e69: Description: delete deployment service-instance_67f77801-3d15-4d65-b501-38a643055e69 Result:
+      </code>
+      </td>
+   </tr>
+</table>
+
+### <a id="successful-login"></a>Successful Login
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>UserAuthenticationSuccess<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>A user has successfully logged into <%= vars.product_short %>.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>UserAuthenticationSuccess</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>
+      [2019-05-16 17:12:48.833] uaa - 7777 [https-jsse-nio-8443-exec-2] ....  INFO --- Audit: UserAuthenticationSuccess ('admin'): principal=0074aab6-6ff7-4b4c-b821-49526a96ebcb, origin=[remoteAddress=207.126.127.114, clientId=pks_cli], identityZoneId=[uaa]
+      [2019-05-16 17:12:48.873] uaa - 7777 [https-jsse-nio-8443-exec-2] ....  INFO --- Audit: TokenIssuedEvent ('["pks.clusters.admin"]'): principal=0074aab6-6ff7-4b4c-b821-49526a96ebcb, origin=[client=pks_cli, user=admin], identityZoneId=[uaa]      
+      </code>
+      </td>
+   </tr>
+</table>
+
+### <a id="unsuccessful-login"></a>Unsuccessful Login
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>UserAuthenticationFailure<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>A user has failed a login attempt into <%= vars.product_short %>.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>UserAuthenticationFailure</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>
+      [2019-05-16 17:15:31.363] uaa - 7777 [https-jsse-nio-8443-exec-8] ....  INFO --- Audit: UserAuthenticationFailure ('admin'): principal=0074aab6-6ff7-4b4c-b821-49526a96ebcb, origin=[remoteAddress=207.126.127.114, clientId=pks_cli], identityZoneId=[uaa]
+      [2019-05-16 17:15:31.371] uaa - 7777 [https-jsse-nio-8443-exec-8] ....  INFO --- Audit: PrincipalAuthenticationFailure ('null'): principal=admin, origin=[207.126.127.114], identityZoneId=[uaa]
+      [2019-05-16 17:15:33.387] uaa - 7777 [https-jsse-nio-8443-exec-6] ....  INFO --- Audit: ClientAuthenticationSuccess ('Client authentication success'): principal=pks_client, origin=[remoteAddress=127.0.0.1, cl
+      </code>
+      </td>
+   </tr>
+</table>
+
+### <a id="get-credentials"></a>Successful Cluster Credential Retrieval
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>ClientAuthenticationSuccess<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>A user has successfully gained access to a cluster in <%= vars.product_short %>.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>ClientAuthenticationSuccess</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>
+      [2019-05-16 17:15:31.363] uaa - 7777 [https-jsse-nio-8443-exec-8] ....  INFO --- Audit: UserAuthenticationFailure ('admin'): principal=0074aab6-6ff7-4b4c-b821-49526a96ebcb, origin=[remoteAddress=207.126.127.114, clientId=pks_cli], identityZoneId=[uaa]
+      [2019-05-16 17:15:31.371] uaa - 7777 [https-jsse-nio-8443-exec-8] ....  INFO --- Audit: PrincipalAuthenticationFailure ('null'): principal=admin, origin=[207.126.127.114], identityZoneId=[uaa]
+      [2019-05-16 17:15:33.387] uaa - 7777 [https-jsse-nio-8443-exec-6] ....  INFO --- Audit: ClientAuthenticationSuccess ('Client authentication success'): principal=pks_client, origin=[remoteAddress=127.0.0.1, cl
+      </code>
+      </td>
+   </tr>
+</table>
+
+### <a id="create-user"></a>User Creation
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>UserCreatedEvent<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>An administrator has successfully created a new user for <%= vars.product_short %>.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>UserCreatedEvent</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>
+      Jun 04 16:00:07 10.0.10.10 uaa/rs2:  [2019-06-04 22:00:07.293] uaa - 18840 [https-jsse-nio-8443-exec-6] ....  INFO --- Audit: UserCreatedEvent ('["user_id=dc803130-15dc-4279-8b42-868fc80b8ca1","username=USERNAME2"]'): principal=dc803130-15dc-4279-8b42-868fc80b8ca1, origin=[client=admin, details=(remoteAddress=35.192.67.34, tokenType=bearertokenValue=<TOKEN>, sub=admin, iss=https://api.pks.hawthorne.cf-app.com:8443/oauth/token)], identityZoneId=[uaa]
+      </code>
+      </td>
+   </tr>
+</table>
+
+### <a id="delete-user"></a>User Deletion
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>UserDeletedEvent<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>An administrator has successfully deleted a user for <%= vars.product_short %>.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>UserDeletedEvent</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>
+      Jun 04 16:00:07 10.0.10.10 uaa/rs2:  [2019-06-04 22:00:07.293] uaa - 18840 [https-jsse-nio-8443-exec-6] ....  INFO --- Audit: UserCreatedEvent ('["user_id=dc803130-15dc-4279-8b42-868fc80b8ca1","username=USERNAME2"]'): principal=dc803130-15dc-4279-8b42-868fc80b8ca1, origin=[client=admin, details=(remoteAddress=35.192.67.34, tokenType=bearertokenValue=<TOKEN>, sub=admin, iss=https://api.pks.hawthorne.cf-app.com:8443/oauth/token)], identityZoneId=[uaa]
+      </code>
+      </td>
+   </tr>
+</table>
+
+### <a id="telemetry"></a>Telemetry Collection
+
+<table>
+   <tr><th colspan="2" style="text-align: center;"><br>Telemetry Ping<br><br></th></tr>
+   <tr>
+      <th width="25%">Description</th>
+      <td>The optional telemetry system has successfully reached an external host for collecting product data for <%= vars.product_short %>.<br><br>
+      To learn more about the <%= vars.product_short %> telemetry program, see <a href="./telemetry.html">Telemetry</a>.</td>
+   </tr>
+   <tr>
+      <th>Identifying String</th>
+      <td><code>telemetry-server</code></td>
+   </tr>
+   <tr>
+      <th>Example Log Entries</th>
+      <td>
+      <code>
+      2019-06-04T15:41:05-06:00 10.0.10.10 telemetry-server/rs2 2019-06-04 21:41:05 +0000 [debug]: #0 generating helo
+      2019-06-04T15:41:05-06:00 10.0.10.10 telemetry-server/rs2 2019-06-04 21:41:05 +0000 [debug]: #0 checking ping
+      2019-06-04T15:41:05-06:00 10.0.10.10 telemetry-server/rs2 2019-06-04 21:41:05 +0000 [debug]: #0 generating pong
+      2019-06-04T15:41:05-06:00 10.0.10.10 telemetry-server/rs2 2019-06-04 21:41:05 +0000 [debug]: #0 connection established address="10.0.11.21" port=33366            </code>
+      </td>
+   </tr>
+</table>
+
+## <a id='kubernetes-audit-logs'></a>Kubernetes Audit Log Events
+
+The Kubernetes control plane emits a standard log format every time a user takes
+action to query or change the state of the Kubernetes API. An example
+audit event log entry is below.
+
+```json
+{
+	"kind": "Event",
+	"apiVersion": "audit.k8s.io/v1",
+	"level": "Request",
+	"auditID": "dc2bb4e9-4b85-42da-82a3-5ee47091207d",
+	"stage": "ResponseStarted",
+	"requestURI": "/apis/policy/v1beta1/poddisruptionbudgets?resourceVersion=370506\u0026timeout=7m54s\u0026timeoutSeconds=474\u0026watch=true",
+	"verb": "watch",
+	"user": {
+		"username": "system:kube-scheduler",
+		"uid": "system:kube-scheduler",
+		"groups": ["system:authenticated"]
+	},
+	"sourceIPs": ["10.0.11.10"],
+	"userAgent": "kube-scheduler/v1.15.4 (linux/amd64) kubernetes/67d2fcf/scheduler",
+	"objectRef": {
+		"resource": "poddisruptionbudgets",
+		"apiGroup": "policy",
+		"apiVersion": "v1beta1"
+	},
+	"responseStatus": {
+		"metadata": {},
+		"code": 200
+	},
+	"requestReceivedTimestamp": "2019-12-11T21:47:28.097065Z",
+	"stageTimestamp": "2019-12-11T21:47:28.097491Z",
+	"annotations": {
+		"authorization.k8s.io/decision": "allow",
+		"authorization.k8s.io/reason": "RBAC: allowed by ClusterRoleBinding \"system:kube-scheduler\" of ClusterRole \"system:kube-scheduler\" to User \"system:kube-scheduler\""
+	}
+}
+```
+
+For more information about Kubernetes Audit
+Event Log format see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/). 
+
+## <a id="related-links"></a>Related Links
+
+* For information about configuring syslog log transport, see [Installing <%= vars.product_short %>](./installing.html).
+* For information about downloading PKS logs, see [Sink Architecture in <%= vars.product_short %>](./download-logs.html).
+* For information about Kubernetes Audit Log format, see [Kubernetes documentation](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/)

@@ -18,15 +18,14 @@ To provision a Windows worker-based Kubernetes cluster:
 1. [Create a Windows Worker-Based Cluster](#create-cluster).  
 
 <p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is in beta 
-and supports only vSphere with Flannel. <br><br>Do not enable this feature if you are using <%= vars.product_short %> v1.5
+and supports only vSphere with Flannel. <br><br>Do not enable this feature if you are using <%= vars.product_short %> 
 with vSphere with NSX-T, Google Cloud Platform (GCP), Azure, or Amazon Web Services (AWS).<br>
 </p>
 
 We are actively looking for feedback on this beta feature. To submit feedback, send an email to pcf-windows@pivotal.io. 
  
-
 ## <a id='prerequisites'></a>Prerequisites
-The following are required for creating a Windows worker-based Kubernetes cluster in <%= vars.product_short %> v1.5:
+The following are required for creating a Windows worker-based Kubernetes cluster in <%= vars.product_short %>:
 
 * Your vSphere environment meets the [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html).  
 * <%= vars.product_short %> must be installed in a vSphere with Flannel environment.  
@@ -34,18 +33,17 @@ The following are required for creating a Windows worker-based Kubernetes cluste
       If this is a key requirement for you, submit feedback by sending an email to pcf-windows@pivotal.io.
     </p>
 * <%= vars.product_short %> has been configured as described in [Installing Enterprise PKS on vSphere](installing-pks-vsphere.html).  
-* You must have a vSphere stemcell 2019.7 or later for Windows Server version 2019.  
+* You must have a vSphere stemcell 2019.7 or later for Windows Server version 2019. 
+The latest vSphere stemcell for Windows Server version 2019 is recommended.  
 
-    <p class="note"><strong>Note:</strong> vSphere Windows Server stemcells are not available on the 
-    	<a href="https://network.pivotal.io/">Pivotal Network</a>.  vSphere Windows Server stemcells must be created by using Stembuild 
-    	and your own Windows Server ISO. For information about creating vSphere Windows Server stemcells, see 
-    <a href="https://docs.pivotal.io/pivotalcf/2-7/windows/stemcells.html#stemcell">Windows Stemcells</a> 
-    in <i>Downloading or Creating Windows Stemcells</i>.
+    <p class="note"><strong>Note:</strong> Windows stemcells for vSphere are not available on
+    <a href="https://network.pivotal.io/">Pivotal Network</a>. These stemcells must be created using your own Windows Server disk image (ISO file).
+    To create a Windows stemcell for vSphere,
+    complete the procedures in <a href="https://docs.pivotal.io/platform/application-service-windows/2-7/create-vsphere-stemcell-manually.html">Creating a Windows Stemcell for vSphere Manually</a> or <a href="https://docs.pivotal.io/platform/application-service-windows/2-7/create-vsphere-stemcell-automatically.html">Creating a Windows Stemcell for vSphere Using stembuild (Beta)</a>.
     </p>
-* If your <%= vars.product_short %> installation is in an internetless environment, you must prepare a Windows 
+* If your <%= vars.product_short %> installation is in an air-gapped environment, you must prepare a Windows 
 pause image in a private registry. For information about setting up a Windows pause image see 
-[Prepare a Windows Pause Image for an Internetless Environment](#windows-pause-internetless).
-a  
+[Prepare a Windows Pause Image for an Air-Gapped Environment](#windows-pause-internetless).
 
  
 ## <a id='install'></a> Configure a Windows Worker-Based Kubernetes Cluster
@@ -68,26 +66,24 @@ vSphere stemcell 2019.7 or later for Windows Server version 2019.
 
 1. To create a Windows worker-based cluster follow the steps in [Creating Clusters](create-cluster.html).
 
-## <a id='windows-pause-internetless'></a> Prepare a Windows Pause Image for an Internetless Environment
+## <a id='windows-pause-internetless'></a> Prepare a Windows Pause Image for an Air-Gapped Environment
 
-During a Kubernetes pod deployment the Kubernetes Kubelet deploys a pause container. 
-For Windows worker-based pod deployment, Kubelet fetches a Windows container image from a Docker registry 
-and deploys the fetched image. The Windows container image is typically fetched from the 
-Microsoft Docker registry because only Microsoft can distribute Windows container base images.  
+To deploy a Windows pod, Kubelet deploys a Windows container image fetched from a Docker registry. 
+Microsoft restricts distribution of Windows container base images and the
+fetched Windows container image is typically pulled from the 
+Microsoft Docker registry. 
 
-This default <%= vars.product_short %> configuration does not support deploying Windows worker-based 
-clusters in an internetless environment because the Microsoft Docker registry is not accessible 
-from within the environment.  
+To deploy Windows pods in an air-gapped environment 
+you must have a Windows container image in a Docker registry accessible from your 
+<%= vars.product_short %> environment.  
 
-If your <%= vars.product_short %> installation is in an internetless environment 
-you must place a Windows container image in an accessible Docker registry and configure 
-<%= vars.product_short %> to fetch the Windows container image from that registry.  
-
-To prepare a Windows pause image for an internetless environment, perform the following:
+To prepare a Windows pause image for an air-gapped environment, perform the following:
 
 1. Create an accessible Windows Server 2019 machine in your environment.  
 1. Install Docker on this Windows Server 2019 machine.  
-1. Configure the machine's Docker daemon to allow non-redistributable artifacts to be pushed to your private registry.  
+1. Configure the machine's Docker daemon to allow non-redistributable artifacts to be 
+pushed to your private registry. For information about configuring your Docker daemon, 
+see [Allow push of nondistributable artifacts](https://docs.docker.com/engine/reference/commandline/dockerd/#allow-push-of-nondistributable-artifacts) in the Docker documentation.   
 1. Open a command line on the Windows machine.
 1. To download a Windows container image from the Microsoft Docker registry, run the following command:
 
@@ -98,16 +94,31 @@ To prepare a Windows pause image for an internetless environment, perform the fo
 1. To tag the Windows container image, run the following command:
 
     ```
-    docker tag mcr.microsoft.com/k8s/core/pause:1.2.0 my.private.registry/windows/pause:1.2.0
+    docker tag mcr.microsoft.com/k8s/core/pause:1.2.0  REGISTRY-ROOT/windows/pause:1.2.0
     ```
+
+    Where `REGISTRY-ROOT` is your private registry's URI.   
 
 1. To upload the Windows container image to your accessible private registry, run the following command:
 
     ```
-    docker push my.private.registry/windows/pause:1.2.0
+    docker push  PAUSE-IMAGE-URI
     ```
 
-Configure the <%= vars.product_tile %> tile with the URI of your private registry-hosted Windows container 
-image after uploading it to the registry. 
-For more information about configuring the <%= vars.product_tile %> tile's 
-**Kubelet customization - Windows pause image location** field, see [Plans](#plans), above.
+    Where `PAUSE-IMAGE-URI` is the URI to the Windows pause image in your private registry. 
+    Your pause image URI should follow the pattern: `my.private.registry/windows/pause:1.2.0`.
+
+To configure <%= vars.product_short %> to fetch your accessible Windows container image when 
+deploying Windows pods, perform the following:
+
+1. Open the <%= vars.product_tile %> tile.  
+1. Click the Windows worker Plan that you want to configure to use your accessible private registry.  
+1. Modify the **Kubelet customization - Windows pause image location** property to be your pause image URI.  
+<br>
+    For example: 
+
+    ```
+    my.private.registry/windows/pause:1.2.0
+    ```
+
+1. Click **Save**.  

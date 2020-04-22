@@ -21,8 +21,6 @@ Before you begin the upgrade, follow the procedures in the [Prerequisites](#befo
 
 After you complete the prerequisite steps, continue to the procedures in the [During the Upgrade](#upgrade) section. These steps guide you through the process of upgrading Ops Manager, upgrading the <%= vars.product_tile %> tile, importing an updated stemcell, and applying the changes to your deployment.
 
-<p class="note"><strong>Note:</strong> Windows worker support is BETA. There is no upgrade support from PKS v1.5 to v1.6 for Windows worker nodes.</p>
-
 After you complete the upgrade, follow the procedures in the [After the Upgrade](#after-upgrade) section to verify that your upgraded <%= vars.product_short %> deployment is running properly.
 
 ## <a id="before"></a>Prerequisites
@@ -104,7 +102,10 @@ This adds the tile to your staging area.
 ### <a id="stemcell"></a> Download and Import the Stemcell
 
 <%= vars.product_short %> requires a 
-[Xenial stemcell](https://docs.pivotal.io/pivotalcf/2-7/stemcells/#xenial).
+[Xenial stemcell](https://docs.pivotal.io/pivotalcf/2-7/stemcells/#xenial). 
+A stemcell for Windows 2019 is also required if you intend to create Windows worker-based clusters. 
+For information about Windows stemcells, see 
+[Configuring Windows Worker-Based Clusters (Beta)](windows-pks-beta.html).  
 
 If Ops Manager does not have the Xenial stemcell required for <%= vars.product_short %>, 
 the <%= vars.product_tile %> tile displays the message **Missing stemcell**.
@@ -131,8 +132,6 @@ and download the required stemcell version for your IaaS.
 1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for <%= vars.product_tile %>.
 
 1. Select the **Installation Dashboard** link to return to the Installation Dashboard.
-
-<p class="note"><strong>Note:</strong> If you use vSphere with Flannel, after upgrading to <%= vars.product_short %> v1.6 you have the option to create Windows worker-based clusters. Windows worker-based clusters require an additional stemcell. For more information about Windows worker-based clusters, see <a href="windows-pks-beta.html">Configuring Windows Worker-Based Clusters (Beta)</a>.</p>
 
 ### <a id="host-monitoring"></a> (Optional) Configure Host Monitoring
 
@@ -173,28 +172,6 @@ see the _Tanzu Mission Control (Experimental)_ section of the installation topic
   * [Installing Enterprise PKS on Azure](./installing-pks-azure.html#tmc)
   * [Installing Enterprise PKS on GCP](./installing-pks-gcp.html#tmc)
 
-### <a id="telemetry"></a> Verify CEIP and Telemetry Configuration
-
-The VMware Customer Experience Improvement Program (CEIP)
-and the Pivotal Telemetry Program (Telemetry) are enabled in <%= vars.product_short %> v1.6 by default.
-
-If you do not want to participate in CEIP and Telemetry,
-you must set your participation level to **None** in the <%= vars.product_tile %> tile.
-To set your participation level to **None**:
-
-1. Click the newly-added <%= vars.product_tile %> tile.
-1. Click **CEIP and Telemetry**.
-1. Under **Please select your participation level in the CEIP and Telemetry program**, set your participation level to **None**.
-1. Click **Save**.
-
-For more information about configuring your participation level, see the _CEIP and Telemetry_
-section of the installation topic for your IaaS:
-
-  * [Installing Enterprise PKS on vSphere](./installing-pks-vsphere.html#telemetry)
-  * [Installing Enterprise PKS on AWS](./installing-pks-aws.html#telemetry)
-  * [Installing Enterprise PKS on Azure](./installing-pks-azure.html#telemetry)
-  * [Installing Enterprise PKS on GCP](./installing-pks-gcp.html#telemetry)
-
 ### <a id="errands"></a>Verify Errand Configuration
 
 To verify that errands are configured correctly in the <%= vars.product_tile %> tile, do the following:
@@ -210,15 +187,20 @@ To verify that errands are configured correctly in the <%= vars.product_tile %> 
   * If you want to upgrade the <%= vars.product_tile %> tile only and
   then upgrade your existing Kubernetes clusters separately, disable **Upgrade all clusters errand**.
   For more information, see [Upgrading Clusters](upgrade-clusters.html).
-  <p class="note warning"><strong>Warning:</strong> If you upgrade the <%= vars.product_tile %> tile
-  or update your tile configuration, with <strong>Upgrade all clusters errand</strong> disabled,
-  you must upgrade all your Kubernetes clusters before the next upgrade or configuration update.</p>
+  <p class="note warning"><strong>Warning:</strong> If you disable <strong>Upgrade all clusters errand</strong> when upgrading the <%= vars.product_tile %> tile
+  or updating your tile configuration,
+  you must upgrade all your Kubernetes clusters before the next <%= vars.product_short %> upgrade or tile configuration update.</p>
 
 1. Under **Post-Deploy Errands**, set the **Run smoke tests** errand to **On**. The errand uses the <%= vars.product_short %> Command Line Interface (PKS CLI) to create a Kubernetes cluster and then delete it. If the creation or deletion fails, the errand fails and the installation of the <%= vars.product_tile %> tile is aborted.
 
 1. Click **Save**.
 
 1. Review the other configuration panes. Click **Save** on any panes where you make changes.
+    <p class="note warning"><strong>WARNING</strong>: Do not change the number of master/etcd nodes 
+    for any plan that was used to create currently-running clusters. 
+    <%= vars.product_short %> does not support changing the number of master/etcd nodes for plans 
+    with existing clusters.
+    </p>
     <p class="note"><strong>Note:</strong> When you upgrade <%= vars.product_short %>, you must place singleton jobs in the AZ you selected when you first installed the <%= vars.product_tile %> tile. You cannot move singleton jobs to another AZ.</p>
 
 ### <a id="apply-changes"></a>Apply Changes to the <%= vars.product_tile %> Tile
@@ -234,7 +216,7 @@ To complete the upgrade of the <%= vars.product_tile %> tile:
 1. Click **Apply Changes**.
 
 1. (Optional) To monitor the progress of the **Upgrade all clusters errand** using the BOSH CLI, do the following:
-      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your <%= vars.product_short %> deployment. For more information, see [Managing <%= vars.product_short %> Deployments with BOSH](manage-deployments-bosh.html).
+      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your <%= vars.product_short %> deployment. For more information, see [Using BOSH Diagnostic Commands in <%= vars.product_short %>](diagnostic-tools.html).
       1. Run `bosh -e MY-ENVIRONMENT tasks`.
       1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
       1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
