@@ -24,13 +24,13 @@ To install <%= vars.product_short %> on vSphere without NSX-T, follow the instru
     <a href="./vsphere-om-install-config.html">Installing and Configuring Ops Manager on vSphere</a>
   </li>
   <li>
-    <a href="./installing-pks-vsphere.html">Installing <%= vars.product_short %> on vSphere</a>
+    <a href="./installing-vsphere.html">Installing <%= vars.product_short %> on vSphere</a>
   </li>
   <li>
-    <a href="./vsphere-configure-pks-api.html">Configuring PKS API Load Balancer</a>
+    <a href="./vsphere-configure-api.html">Configuring PKS API Load Balancer</a>
   </li>
   <li>
-    <a href="./vsphere-configure-pks-users.html">Setting Up <%= vars.product_short %> Admin Users on vSphere</a>
+    <a href="./vsphere-configure-users.html">Setting Up <%= vars.product_short %> Admin Users on vSphere</a>
   </li>
   <li>
     <a href="https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html">(Optional) Integrating VMware Harbor with <%= vars.product_short %></a>
@@ -50,7 +50,7 @@ To install the CLIs, follow the instructions below:
 
 <ul>
   <li>
-    <a href="installing-pks-cli.html">Installing the PKS CLI</a>
+    <a href="installing-cli.html">Installing the PKS CLI</a>
   </li>
   <li>
     <a href="installing-kubectl-cli.html">Installing the Kubernetes CLI</a>
