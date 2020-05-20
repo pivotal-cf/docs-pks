@@ -1,6 +1,6 @@
 ---
-title: Installing Enterprise PKS on vSphere with NSX-T
-owner: PKS
+title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T
+owner: TKGI
 iaas: vSphere-NSX-T
 ---
 
@@ -48,7 +48,7 @@ Click the orange **<%= vars.product_tile %>** tile to start the configuration pr
 
 <p class="note"><strong>Note</strong>: Configuration of NSX-T or Flannel <strong>cannot</strong> be changed after initial installation and configuration of <%= vars.product_short %>.</p>
 
-![PKS tile on the Ops Manager installation dashboard](images/pks-tile-orange.png)
+![<%= vars.k8s_runtime_abbr %> tile on the Ops Manager installation dashboard](images/pks-tile-orange.png)
 
   <p class="note warning"><strong>WARNING</strong>: When you configure the <%= vars.product_tile %> tile,
   do not use spaces in any field entries. This includes spaces between characters as well as
@@ -69,14 +69,14 @@ the <%= vars.control_plane %> and <%= vars.control_plane_db %> VMs.
 1. Under **Balance other jobs in**, select the AZ for balancing other <%= vars.product_short %> control plane jobs.  
     <p class="note"><strong>Note</strong>: You must specify the <strong>Balance other jobs in</strong> AZ, but the selection has no effect in the current version of <%= vars.product_short %>.
     </p>
-1. Under **Network**, select the PKS Management Network linked to the `ls-pks-mgmt` NSX-T logical switch you created in the [Create Networks Page](vsphere-nsxt-om-config.html#create-networks) step of _Configuring BOSH Director with NSX-T for <%= vars.product_short %>_. This provides network placement for <%= vars.product_short %> component VMs, such as the <%= vars.control_plane %> and <%= vars.control_plane_db %> VMs.
+1. Under **Network**, select the <%= vars.k8s_runtime_abbr %> Management Network linked to the `ls-tkgi-mgmt` NSX-T logical switch you created in the [Create Networks Page](vsphere-nsxt-om-config.html#create-networks) step of _Configuring BOSH Director with NSX-T for <%= vars.product_short %>_. This provides network placement for <%= vars.product_short %> component VMs, such as the <%= vars.control_plane %> and <%= vars.control_plane_db %> VMs.
 1. Under **Service Network**, your selection depends on whether you are installing a new <%= vars.product_short %> deployment or upgrading from a previous version of <%= vars.product_short %>.
-  * If you are deploying <%= vars.product_short %> with NSX-T for the first time, select the PKS Management Network that you specified in the **Network** field. 
+  * If you are deploying <%= vars.product_short %> with NSX-T for the first time, select the <%= vars.k8s_runtime_abbr %> Management Network that you specified in the **Network** field. 
   You do not need to create or define a service network because <%= vars.product_short %> creates the service network for you during the installation process. 
-  * If you are upgrading from a previous version of <%= vars.product_short %>, then select the **Service Network** linked to the `ls-pks-service` NSX-T logical switch that <%= vars.product_short %> created for you during installation. The service network provides network placement for existing on-demand Kubernetes cluster service instances that were created by the <%= vars.product_short %> broker.
+  * If you are upgrading from a previous version of <%= vars.product_short %>, then select the **Service Network** linked to the `ls-tkgi-service` NSX-T logical switch that <%= vars.product_short %> created for you during installation. The service network provides network placement for existing on-demand Kubernetes cluster service instances that were created by the <%= vars.product_short %> broker.
 1. Click **Save**.
 
-###<a id="pks-api"></a> PKS API
+###<a id="tkgi-api"></a> <%= vars.control_plane %>
 
 <%= partial 'api' %>
 
@@ -94,7 +94,7 @@ To configure networking, do the following:
 
 1. Click **Networking**.  
 1. Under **Container Networking Interface**, select **NSX-T**.  
-  ![NSX-T Networking configuration pane in PKS tile](images/networking-nsx-t.png)
+  ![NSX-T Networking configuration pane in <%= vars.k8s_runtime_abbr %> tile](images/networking-nsx-t.png)
   1. For **NSX Manager hostname**, enter the hostname or IP address of your NSX Manager.  
   1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Generating and Registering the NSX Manager Superuser Principal Identity Certificate and Key](nsxt-generate-pi-cert.html).  
   1. For **NSX Manager CA Cert**, copy and paste the contents of the NSX Manager CA certificate you created in [Generating and Registering the NSX Manager Certificate](nsxt-generate-ca-cert.html). Use this certificate and key to connect to the NSX Manager.  
@@ -109,13 +109,13 @@ To configure networking, do the following:
       * **Pods IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes pods. <%= vars.product_short %> allocates IP addresses for the pods when they are created in Kubernetes. Each time a namespace is created in Kubernetes, a subnet from this IP block is allocated. The current subnet size that is created is /24, which means a maximum of 256 pods can be created per namespace.  
       * **Nodes IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes nodes. <%= vars.product_short %> allocates IP addresses for the nodes when they are created in Kubernetes. The node networks are created on a separate IP address space from the pod networks. The current subnet size that is created is /24, which means a maximum of 256 nodes can be created per cluster.  
       For more information, including sizes and the IP blocks to avoid using, see [Plan IP Blocks](nsxt-prepare-env.html#plan-ip-blocks) in _Preparing NSX-T Before Deploying <%= vars.product_short %>_.  
-  1. For **T0 Router ID**, enter the `t0-pks` T0 router UUID. Locate this value in the NSX-T UI router overview.  
+  1. For **T0 Router ID**, enter the `t0-tkgi` T0 router UUID. Locate this value in the NSX-T UI router overview.  
   1. For **Floating IP Pool ID**, enter the `ip-pool-vips` ID that you created for load balancer VIPs. For more information, see [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs). <%= vars.product_short %> uses the floating IP pool to allocate IP addresses to the load balancers created for each of the clusters. The load balancer routes the API requests to the master nodes and the data plane.  
   1. For **Nodes DNS**, enter one or more Domain Name Servers used by the Kubernetes nodes.  
   1. For **vSphere Cluster Names**, enter a comma-separated list of the vSphere clusters where you will deploy Kubernetes clusters.  
   The NSX-T pre-check errand uses this field to verify that the hosts from the specified clusters are available in NSX-T. You can specify clusters in this format: `cluster1,cluster2,cluster3`.  
   1. For **Kubernetes Service Network CIDR Range**, specify an IP address and subnet size depending on the number of Kubernetes services that you plan to deploy within a single Kubernetes cluster, for example: `10.100.200.0/24`. The IP address used here is internal to the cluster and can be anything, such as `10.100.200.0`. A `/24` subnet provides 256 IPs. If you have a cluster that requires more than 256 IPs, define a larger subnet, such as /20.  
-1. (Optional) Configure a global proxy for all outgoing HTTP and HTTPS traffic from your Kubernetes clusters and the PKS API server. See [Using Proxies with <%= vars.product_short %> on NSX-T](proxies.html) for instructions on how to enable a proxy.  
+1. (Optional) Configure a global proxy for all outgoing HTTP and HTTPS traffic from your Kubernetes clusters and the <%= vars.control_plane %> server. See [Using Proxies with <%= vars.product_short %> on NSX-T](proxies.html) for instructions on how to enable a proxy.  
 1. Under **Allow outbound internet access from Kubernetes cluster vms (IaaS-dependent)**, ignore the **Enable outbound internet access** checkbox.  
 1. Click **Save**.
 
@@ -158,7 +158,7 @@ After configuring the <%= vars.product_tile %> tile, follow the steps below to d
 
 <%= partial 'apply-changes' %>
 
-## <a id="clis"></a> Step 4: Install the PKS and Kubernetes CLIs
+## <a id="clis"></a> Step 4: Install the <%= vars.k8s_runtime_abbr %> and Kubernetes CLIs
 
 <%= partial 'install-cli' %>
 
@@ -166,9 +166,9 @@ After configuring the <%= vars.product_tile %> tile, follow the steps below to d
 
 If you are using NAT mode, verify that you have created the required NAT rules for the <%= vars.product_short %> Management Plane. See [Creating the <%= vars.product_short %> Management Plane](nsxt-prepare-mgmt-plane.html) for details.
 
-In addition, for NAT and no-NAT modes, verify that you created the required NAT rule for Kubernetes master nodes to access NSX Manager. For details, see [Creating the PKS Compute Plane](nsxt-prepare-compute-plane.html).
+In addition, for NAT and no-NAT modes, verify that you created the required NAT rule for Kubernetes master nodes to access NSX Manager. For details, see [Creating the <%= vars.k8s_runtime_abbr %> Compute Plane](nsxt-prepare-compute-plane.html).
 
-If you want your developers to be able to access the PKS CLI from their external workstations, create a DNAT rule that maps a routable IP address to the PKS API VM. This must be done after <%= vars.product_short %> is successfully deployed and it has an IP address. See [Create DNAT Rule on T0 Router for External Access to the PKS CLI](nsxt-prepare-mgmt-plane.html#create-dnat-pks) for details.
+If you want your developers to be able to access the <%= vars.k8s_runtime_abbr %> CLI from their external workstations, create a DNAT rule that maps a routable IP address to the <%= vars.control_plane %> VM. This must be done after <%= vars.product_short %> is successfully deployed and it has an IP address. See [Create DNAT Rule on T0 Router for External Access to the <%= vars.k8s_runtime_abbr %> CLI](nsxt-prepare-mgmt-plane.html#create-dnat-tkgi) for details.
 
 ## <a id="auth"></a> Step 6: Configure Authentication for <%= vars.product_short %>
 

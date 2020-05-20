@@ -1,6 +1,6 @@
 ---
 title: Provisioning a Load Balancer for the NSX-T Management Cluster
-owner: PKS-NSXT
+owner: TKGI-NSXT
 ---
 
 This topic describes how to deploy a load balancer for the NSX-T Management Cluster for <%= vars.product_short %>.
@@ -23,13 +23,13 @@ The diagram below shows an external load balancer fronting the NSX Manager nodes
 
 <p class="note"><strong>Note:</strong> The load balancer VIP load balances traffic to all NSX-T Manager instances in round robin fashion. A Cluster HA VIP, on the other hand, only sends traffic one of the NSX-T Manager instances that is mapped to the Cluster IP VIP; the other NSX-T manager instances do not receive any traffic.</p>
 
-<p class="note"><strong>Note:</strong> If you are using VMware Identity Manager (VIDM) to authenticate with the NSX Management environment, you need two separate load balancer VIPs: one for VIDM and one for PKS. Refer to <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/administration/GUID-EAAD1FBE-F750-4A5A-A3BF-92B1E7D016FE.html">Configure VMware Identity Manager Integration</a> in the VMware NSX-T Data Center documentation.</p>
+<p class="note"><strong>Note:</strong> If you are using VMware Identity Manager (VIDM) to authenticate with the NSX Management environment, you need two separate load balancer VIPs: one for VIDM and one for <%= vars.k8s_runtime_abbr %>. Refer to <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/administration/GUID-EAAD1FBE-F750-4A5A-A3BF-92B1E7D016FE.html">Configure VMware Identity Manager Integration</a> in the VMware NSX-T Data Center documentation.</p>
 
 ###<a id='interactions'></a> Component Interaction with the NSX-T Management Cluster
 
 Various components in an <%= vars.product_short %> deployment interact with the NSX Management Cluster.
 
-PKS Management Plane components:
+<%= vars.k8s_runtime_abbr %> Management Plane components:
 
 - Ops Manager
 - BOSH CPI (Cloud Provider Interface)
@@ -40,7 +40,7 @@ Kubernetes Cluster components:
 - BOSH jobs running on Kubernetes master nodes to prepare and update Kubernetes clusters
 - NSX-T Container Plugin (NCP)
 
-The interaction of the PKS Management Plane components and the BOSH jobs with the NSX-T Management Cluster is sporadic. However, the NCP component may demand a high level of scalability for the NSX-T API processing capability of the NSX Management Cluster, and NCP is vital to the networking needs of each Kubernetes cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Kubernetes Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX-T API processing to its limits.
+The interaction of the <%= vars.k8s_runtime_abbr %> Management Plane components and the BOSH jobs with the NSX-T Management Cluster is sporadic. However, the NCP component may demand a high level of scalability for the NSX-T API processing capability of the NSX Management Cluster, and NCP is vital to the networking needs of each Kubernetes cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Kubernetes Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX-T API processing to its limits.
 
 ###<a id='provisioning'></a> Load Balancer Provisioning for the NSX-T Management Cluster
 
@@ -50,7 +50,7 @@ For scalability, consider deploying a load balancer in front of the NSX-T Manage
 
 For general purposes, a small NSX-T load balancer is sufficient. However, refer to the [Scaling Load Balancer Resources](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.4/administration/GUID-19B12230-8BF4-4AF7-9EB7-3701B0A0A439.html) to ensure that the load balancer you choose is sufficient to meet your needs.
 
-When provisioning the load balancer, you configure a virtual server on the load balancer, and associate a virtual IP address with the virtual server. This load balancer VIP can be used as the entry-point for PKS- and NCP-related API requests on the NSX-T Control Plane. The virtual server includes a member pool where all NSX-T Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX-T Management Cluster.
+When provisioning the load balancer, you configure a virtual server on the load balancer, and associate a virtual IP address with the virtual server. This load balancer VIP can be used as the entry-point for TKGI- and NCP-related API requests on the NSX-T Control Plane. The virtual server includes a member pool where all NSX-T Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX-T Management Cluster.
 
 ##<a id='prereqs'></a> Prerequisites for Provisioning a Load Balancer for the NSX-T Management Cluster
 
@@ -60,7 +60,7 @@ Before you provision a load balancer for the NSX-T Management Cluster, ensure th
 - Transport zone, transport node, Edge Cluster, Edge Node connectivity, and Tier-0 Router are deployed and operational with proper static routes or BGP. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
 - A NSX-T Management Cluster with 3 NSX Manager nodes is provisioned. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
 - Your NSX-T environment has enough Edge Cluster resources to deploy a new small-size load balancer VM. 
-- A dedicated IP Address is available to be used as the VIP and SNAT IP address for the new load balancer. The load balancer VIP address must be globally routable from networks external to NSX-T. This IP address can be carved out from the standard IP Pool required by <%= vars.product_short %> PKS.
+- A dedicated IP Address is available to be used as the VIP and SNAT IP address for the new load balancer. The load balancer VIP address must be globally routable from networks external to NSX-T. This IP address can be carved out from the standard IP Pool required by <%= vars.product_short %> <%= vars.k8s_runtime_abbr %>.
 
 ##<a id='provision'></a> Provision the NSX-T Load Balancer for the Management Cluster
 
@@ -229,7 +229,7 @@ Configure **Load Balancing Profiles** for the load balancer:
 - **Persistence Profile** > **Source IP**: Select **default-source-ip-lb-persistence-profile**
 - Click **Finish**.
 
-<p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the PKS Management Plane, do not configure a persistence profile.</p>
+<p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the <%= vars.k8s_runtime_abbr %> Management Plane, do not configure a persistence profile.</p>
 
 <img src="images/nsxt/mgmt-cluster/mgmt-cluster-26.png" alt="Load Balancing Persistence Profile" width="525">
 <img src="images/nsxt/mgmt-cluster/mgmt-cluster-27.png" alt="Load Balancing Persistence Profile" width="525"> 
@@ -357,7 +357,7 @@ Verify the load balancer and that traffic is load balanced.
 - Open an HTTPS session using multiple browser clients and confirm that traffic is load-balanced across different NSX-T Managers:
 <img src="images/nsxt/mgmt-cluster/mgmt-cluster-54.png" alt="Verify LS" width="525"> 
 
-You can use the NSX API to validate that secure HTTP requests against the new VIP address are associated with the load balancer's Virtual Server. Relying on the SuperUser Principal Identity created as part of PKS provisioning steps, you can cURL the NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP. For example:
+You can use the NSX API to validate that secure HTTP requests against the new VIP address are associated with the load balancer's Virtual Server. Relying on the SuperUser Principal Identity created as part of <%= vars.k8s_runtime_abbr %> provisioning steps, you can cURL the NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP. For example:
 
 Before load balancer provisioning is completed:
 
@@ -373,7 +373,7 @@ curl -k -X GET "https://91.0.0.1/api/v1/trust-management/principal-identities" -
 
 Key behavioral differences among the two API calls is the fact that the call toward the Virtual Server VIP will effectively Load Balance requests among the NSX-T Server Pool members. On the other hand, the call made toward the HA VIP address would ALWAYS select the same member (the Active Member) of the NSX Management Cluster.
 
-Residual configuration step would be to change PKS Tile configuration for NSX-Manager IP Address to use the newly-provisioned Virtual IP Address. This configuration will enable any component internal to PKS (NCP, NSX OSB Proxy, BOSH CPI, etc.) to use the new Load Balancer functionality.
+Residual configuration step would be to change <%= vars.k8s_runtime_abbr %> Tile configuration for NSX-Manager IP Address to use the newly-provisioned Virtual IP Address. This configuration will enable any component internal to <%= vars.k8s_runtime_abbr %> (NCP, NSX OSB Proxy, BOSH CPI, etc.) to use the new Load Balancer functionality.
 
 ##<a id='home'></a> NSX-T Installation Instructions Home
 
