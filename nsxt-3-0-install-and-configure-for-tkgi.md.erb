@@ -71,14 +71,14 @@ A compute manager is required for NSX-T environments with multiple NSX-T Manager
 1. Use a different public IP address.
 1. Verify that the NSX-T Manager 3 appliance is added.
 
-##<a id='nsxt30-mgmt-vip'></a> Configure the NSX-T Manager VIP
+##<a id='nsxt30-mgmt-vip'></a> Configure the NSX-T Management VIP
 
 1. Click the Set Virtual IP button.
 1. Enter a Virtual IP address, such as `10.173.62.47`.
 1. Verify that the VIP is added.. 
 1. Access the NSX-T Management console using the VIP, such as `https://10.173.62.47/login.jsp`.
 
-##<a id='nsxt30-mgmt-ssl'></a> Generate a SSL Certificate and Private Key with the NSX-T Management VIP and Register It with the NSX API
+##<a id='nsxt30-mgmt-ssl'></a> Generate and Register the NSX-T Management SSL Certificate and Private Key
  
 A SSL certificate is automatically created for each NSX-T Manager. You can verify this by SSHing to one of the NSX Manager nodes using the command `get certificate cluster`. For example:
 
@@ -204,9 +204,11 @@ curl --insecure -u admin:'VMware1!VMware1!' -X POST "https://$NSX_MANAGER_IP_ADD
 nsx-manager-1> get certificate cluster
 ```
 
-##<a id='nsxt30-mgmt-vip'></a> Complete the NSX-T Managment Plane Set Up
+##<a id='nsxt30-mgmt-vip'></a> Complete the NSX-T Managment
 
-###<a id='nsxt30-mgmt-enable-adv'></a> Enable the NSX-T Manager Advanced UI
+###<a id='nsxt30-mgmt-enable-adv'></a> Enable the NSX-T Manager Inferface
+
+The **Manager** interface provides the advanced UI for networking and security that is used for configuring NSX-T object for TKGI. Do **NOT** use the **Policy** interface for TKGI objects.
 
 1. Go to System > User Interface Settings.
  
@@ -216,7 +218,7 @@ nsx-manager-1> get certificate cluster
 
 1. Click Save.
 
-1. Verify that you see the **Manager** option in the upper right of the console next to **Policy**. The **Manager** option provides the advanced UI for networking and security that is used for configuring NSX-T for TKGI. Do **NOT** use the **Policy** interface for TKGI objects.
+1. Verify that you see the **Manager** option in the upper right of the console next to **Policy**. 
 
 ###<a id='nsxt30-mgmt-license'></a> Add the NSX-T Manager License
 
@@ -286,9 +288,11 @@ In this section you configure the vSphere networking and port groups for ESXi ho
 
 The following instructions describe how to configure a vSphere Virtual Standard vSwitch (VSS). For production environments it is recommended that you configure a Virtual Distributed vSwitch (VDS). You configure the VDS from the vCenter **Networking** tab then add the ESXi hosts to the VDS. The configuration settings for the VDS are similar to the VSS configuration described below. For instructions on configuring the VDS, see <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-D21B3241-0AC9-437C-80B1-0C8043CC1D7D.html">Create a vSphere Distributed Switch</a> in the vSphere 7 documentation.
 
-TKGI does not support the use of the Converged VDS that is newly available with vSphere 7. The Converged VDS runs vSphere traffic and NSX-T traffic on the same VDS. TKGI v1.8 supports the following networking model:
+TKGI v1.8 uses VSS or VDS for non-NSX-T integration on vSphere, and N-VDS for integration with NSX-T. To summarize, TKGI v1.8 supports the following networking model:
 - 1 VDS or VSS for vSphere traffic
-- 1 N-VDS for NSX-T traffic
+- 1 N-VDS for NSX-T traffic (NSX-T transport nodes)
+
+TKGI v1.8 does not support Converged VDS (C-VDS) that is newly available on vSphere 7.0. The C-VDS let you run vSphere traffic and NSX-T traffic on the same VDS. As a result, TKGI v1.8 does not support VCF 4.x platforms which require C-VDS. A C-VDS is implemented by creating a VDS in vSphere 7 and then using this VDS to configure the NSX-T transport nodes, as opposed to creating an N-VDS.
 
 ###<a id='nsxt30-esxi-pgs'></a> Create vSwitch Port-Groups for Edge Nodes
 
@@ -362,7 +366,7 @@ For this insallation, we use the Large VM form factor for the Edge Node. See [VM
 
 ###<a id='nsxt30-edge-node-1'></a> Install Edge Node 1 
 
-To deploy Edge Node 1 VM using the NSX-T Manager interface:
+Deploy the Edge Node 1 VM using the NSX-T Manager interface.
 
 1. From your browser, log in with admin privileges to NSX Manager at `https://NSX-MANAGER-IP-ADDRESS`.
 
@@ -428,7 +432,7 @@ To deploy Edge Node 1 VM using the NSX-T Manager interface:
 1. In vCenter verify that the Edge Node is created.
   <img src="images/nsxt/nsxt-30/edge-node-10.png">
 
-###<a id='nsxt30-edge-node-1'></a> Install Edge Node 2
+###<a id='nsxt30-edge-node-2'></a> Install Edge Node 2
 
 Repeat the same operation for Edge Node 2, and for each additional NSX Edge Node pair you intend to use for <%= vars.product_short %>. 
 
@@ -456,6 +460,98 @@ Repeat the same operation for Edge Node 2, and for each additional NSX Edge Node
 1. Once done, you should be able to see both Edge Nodes in NSX Manager.
   <img src="images/nsxt/nsxt-30/edge-node-11.png">
 
+##<a id='nsxt30-uplink-profile'></a> Create Uplink Profile for ESXi Transport Node
+
+To configure the TEP, we used the default profile named 'nsx-default-uplink-hostswitch-profile'. However, because the TEP is on VLAN 3127, you must modify the uplink profile for the ESXI Transport Node (TN). NSX-T does not allow you to edit settings the default uplink profile, so we create a new one.
+
+1. Go to system > Fabric > Profiles > Uplink Profiles.
+  <img src="images/nsxt/nsxt-30/uplink-profile-01.png">
+ 
+1. Click Add.
+
+1. Configure the Uplink Profiles as follows:
+  - Name: `nsx-esxi-uplink-hostswitch-profile`
+  - Teamings:
+    - Failover order 
+    - Active Uplinks: uplink-1
+  - Transport VLAN: 3127
+  <img src="images/nsxt/nsxt-30/uplink-profile-02.png">
+
+1. Click Add.
+
+1. Verify that the Uplink Profile is created.
+  <img src="images/nsxt/nsxt-30/uplink-profile-03.png">
+
+##<a id='nsxt30-esxi-tn'></a> Deploy ESXi Host Transport Nodes Using N-VDS
+
+Deploy each ESXi host in the COMPUTE-cluster as an ESXi host transport node (TN) in NSX-T. If you have not created a separate COMPUTE-cluster for ESXi hosts, deploy each ESXi host in the vSphere cluster as a host transport node in NSX-T.
+
+1. Go to System > Fabric > Nodes > Host Transport Nodes.
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-01.png">
+
+1. Expand the Compute Manager and select the ESXi host in the COMPUTE-cluster, or each ESXi host in the vSphere cluster.
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-02.png">
+ 
+1. Click Configure NSX.
+
+1. In the Host Details tab, enter a name, such as `10.172.210.57`.
+
+1. In the Configure NSX tab, configure the transport node as follows:
+  - Type: `N-VDS` (do not select the VDS option; Converged VDS is not supported by TKGI)
+  - Name: `switch-overlay` (you must use the same switch name that was configured for `tz-overlay` transport zone)
+  - Transport Zone: `tz-overlay`
+  - NIOC profile: `nsx-default-nioc-hostswitch-profile`
+  - Uplink Profile: `nsx-esxi-uplink-hostswitch-profile`
+  - LLDP profile: `LLDP [Send Packet Disabled]`
+  - IP Assignment: `Use IP Pool`
+  - IP Pool: `TEP-IP-POOL`
+  - Teaming Policy Swtich Mapping
+    - Uplinks: `uplink-1`
+    - Physical NICs: `vmnic1`
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-03.png">
+
+1. Click Finish.
+
+1. Verify that the host TN is configured.
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-04.png">
+
+##<a id='nsxt30-check-tep'></a> Verify TEP to TEP Connectivity
+
+To avoid any overlay communication in the future due to MTU issue, test TEP to TEP connectivity and verify that it is working.
+
+1. SSH to edge-node-1 and get the local TEP IP address, such as `192.23.213.1`. Use the command `get vteps` to get the IP.
+
+1. SSH to edge-node-2 and get the local TEP IP address, ushc as `192.23.213.2`. Use the command `get vteps` to get the IP.
+
+1. SSH to the ESXi host and get the TEP IP address, such as `192.23.213.3`. Use the command `esxcfg-vmknic -l` to get the IP. The interface will be `vmk10` and the NetStack will be `vxlan`.
+
+1. From each ESXi transport node, test the connecion to each NSX-T Edge Node, for example:
+
+    # vmkping ++netstack=vxlan 192.23.213.1 -d -s 1572 -I vmk10: OK
+    # vmkping ++netstack=vxlan 192.23.213.2 -d -s 1572 -I vmk10: OK
+
+1. From NSX-T edge node 1 and edge node 2 to ESXi TN:
+    > vrf 0
+    > ping 192.23.213.1 size 1572 dfbit enable: OK
+
+1. From NSX-T edge node 1 to NSX-T edge node 2:
+    > vrf 0
+    > ping 192.23.213.2 size 1572 dfbit enable: OK
+
+##<a id='nsxt30-edge-cluster'></a> Create NSX-T Edge Cluster
+
+1. Go to system > Fabric > Nodes > Edge Clusters.
+  <img src="images/nsxt/nsxt-30/edge-cluster-01.png">
+ 
+1. Click Add.
+  - Enter a name, such as `edge-cluster-1`.
+  - Add members, including `edge-node-1` and `edge-node-2`.
+  <img src="images/nsxt/nsxt-30/edge-cluster-02.png">
+
+1. Click Add.
+
+1. Verify.
+  <img src="images/nsxt/nsxt-30/edge-cluster-03.png">
 
 
 
