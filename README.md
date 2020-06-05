@@ -1,18 +1,22 @@
-# VMware Enterprise PKS Documentation
+# VMware Tanzu Kubernetes Grid Integrated Edition Documentation
 
-This repository contains the content for the documentation for Enterprise PKS.
+This repository contains the content for the documentation for Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
-The content in this repository publishes to the Enterprise PKS documentation site at
-https://docs.pivotal.io/pks/index.html.
+In versions 1.7 and earlier, the product was named Enterprise PKS, not TKGI, and those docs versions continue to use the name Enterprise PKS.
+
+## Sites
+
+The content in this repository publishes to the documentation sites at
+https://docs.pivotal.io/tkgi/index.html and https://docs.pivotal.io/pks/index.html.
 
 ## How To Contribute
 
-Please help us improve the accuracy and completeness of the Enterprise PKS documentation by
+Please help us improve the accuracy and completeness of the TKGI documentation by
 contributing.
 
 The easiest way to contribute is to file a pull request through GitHub.
 
-Every topic in the [Enterprise PKS documentation site](https://docs.pivotal.io/pks/index.html) has
+Every topic in the docs sites listed above has
 a corresponding file in this repository. Locate the correct file and make a pull request against
 it. You can also navigate to the topic in the Enterprise PKS documentation site and click "View the
 source for this page in GitHub" at the bottom of the topic to locate the source file of a topic.
@@ -21,7 +25,8 @@ source for this page in GitHub" at the bottom of the topic to locate the source 
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.7` | Enterprise PKS 1.7 pre-release content | N/A |
+| `1.7` | TKGI 1.8 pre-release content | N/A |
+| `1.7` | Enterprise PKS 1.7 released content    | https://docs.pivotal.io/pks/1-6/index.html |
 | `1.6` | Enterprise PKS 1.6 released content    | https://docs.pivotal.io/pks/1-6/index.html |
 | `1.5` | Enterprise PKS 1.5 released content    | https://docs.pivotal.io/pks/1-5/index.html |
 | `1.4` | Enterprise PKS 1.4 released content    | https://docs.pivotal.io/pks/1-4/index.html |
@@ -30,7 +35,7 @@ source for this page in GitHub" at the bottom of the topic to locate the source 
 | `1.1` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-1-1.pdf)) |
 | `1.0-publish` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-docs-1.0.pdf)) |
 | `0.8` | Not in use | N/A|
-| `pks-patches` | Staging site for not-yet-released Enterprise PKS patches. | Publishes to an internal staging site only. |
+| `pks-patches` | Staging site for not-yet-released TKGI and Enterprise PKS patches. | Publishes to an internal staging site only. |
 
 **1.7**: The `1.7` branch is used to publish the pre-release v1.7 version of the site. Create pull requests on `1.7` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.7 documentation.
 
