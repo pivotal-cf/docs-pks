@@ -1,22 +1,32 @@
 ---
-title: Viewing Usage Data
+title: Viewing Usage Data from the Billing Database
 owner: PKS
 ---
 
-This topic describes how operators can view pod usage information from
-their <%= vars.product_full %> deployment. Operators can use this data to
-calculate billed usage, perform customer chargebacks, and generate usage reports.
+<p class="note"><strong>Deprecation Notice:</strong> In <%= vars.product_short %> v1.9,
+the billing database is scheduled to be removed.
+You can use Telemetry instead of the billing database.
+For more information, see <a href="./telemetry.html">Telemetry</a>.
+If you are impacted by this deprecation,
+please reach out to <a href="mailto:pks-telemetry@groups.vmware.com">pks-telemetry@groups.vmware.com</a>.</p>
 
-The <%= vars.product_short %> database stores the following pod usage data:
+This topic describes how operators can view <%= vars.product_full %> pod usage information from the billing database.
+
+## <a id="billing-db"></a>About the Billing Database
+
+The <%= vars.product_short %> billing database stores the following pod usage data:
 
 - **Watermark**: the number of pods that run at a single time.
 - **Consumption**: the memory and CPU usage of pods.
 
-## <a id="about"></a>About Usage Data
+You can use this data to
+calculate billed usage, perform customer chargebacks, generate usage reports, and perform other functions.
+
+## <a id="data"></a>Usage Data Format
 
 This section describes the usage data records you can view in the <%= vars.product_short %> billing
 database. The agent pod collects usage data for the deployment and sends the data
-to the <%= vars.product_short %> aggregator agent. The aggregator agent then stores the data in the <%= vars.product_short %> database. You can access the <%= vars.product_short %> database from the PKS VM.
+to the <%= vars.product_short %> aggregator agent. The aggregator agent then stores the data in the <%= vars.product_short %> billing database. You can access the billing database from the <%= vars.control_plane %> VM.
 
 The following is an example of a pod usage data table:
 
@@ -73,26 +83,32 @@ To view the pod usage data table, follow the steps below:
 1. Select the **Status** tab. Record the IP address that appears in the **IPS** column.
 1. Select the **Credentials** tab.
 1. Click the credential link next to **Cf Mysql Billing Db Password**. Record the billing database password that appears.
-1. Open a terminal window from any system inside your PKS network. If your system is outside the network, you can SSH into the PKS API VM. For more information, see <a href="diagnostic-tools.html#pks-api">SSH into the PKS API VM</a> in _Using BOSH Diagnostic Commands in <%= vars.product_short %>_.
+1. Open a terminal window from any system inside your PKS network. 
+If your system is outside the network, SSH into a PKS DB VM,
+whether it is a singleton or one of multiple DB VMs.  
+For more information, see <a href="diagnostic-tools.html#pks-db">SSH into a PKS DB VM</a> 
+in _Using BOSH Diagnostic Commands in <%= vars.product_short %>_.
 1. On the command line, log in to the billing database in one of the following ways:
-    - Run the following command to connect by IP address from **inside the PKS API VM**:
+    - Run the following command to connect by IP address from **inside the PKS DB VM**:
 
         ```
-        mysql -h 127.0.0.1 --port 13306 -u billing -p billing
+        mysql -h 127.0.0.1 --port 3333 -u billing -p BILLING-PASSWORD
         ```
-    - Run the following command to connect using the MySQL socket file from **inside the PKS API VM**:
+        Where `BILLING-PASSWORD` is the billing database password you located in the steps above.  
+    - Run the following command to connect using the MySQL socket file from **inside the PKS DB VM**:
 
         ```
-        mysql --socket=/var/vcap/sys/run/pxc-mysql/mysqld.sock -u billing -p billing
+        mysql --socket=/var/vcap/sys/run/pxc-mysql/mysqld.sock -u billing -p BILLING-PASSWORD
         ```
-    - Run the following command to connect by IP address from **outside the PKS API VM**:
+        Where `BILLING-PASSWORD` is the billing database password you located in the steps above.  
+    - Run the following command to connect by IP address from **outside the PKS DB VM**:
 
         ```
-        mysql -h IP-ADDRESS --port 13306 -u billing -p billing
+        mysql -h IP-ADDRESS --port 3306 -u billing -p BILLING-PASSWORD
         ```
-        Where `IP-ADDRESS` is the IP address that you located in a previous step.
-1. When prompted by the command line, enter the billing database password you recorded
-in a previous step.
+        Where:  
+        * `IP-ADDRESS` is the IP address that you located in the steps above.
+        * `BILLING-PASSWORD` is the billing database password you located in the steps above.  
 1. View the tables in the billing database by running `show tables;`.<br><br>For example:
 <pre class="terminal">MariaDB [billing]> show tables;
 +-------------------+
@@ -114,6 +130,6 @@ in a previous step.
     2 rows in set (0.00 sec)
     </pre>
 1. (Optional) For information about running additional queries against the billing
-database, see the following articles in the Pivotal Knowledge Base:
+database, see the following articles in the Knowledge Base:
   - [How to calculate pod consumption hours](https://community.pivotal.io/s/article/how-to-calculate-pod-consumption-hours)
   - [How to calculate high watermark pod count](https://community.pivotal.io/s/article/how-to-calculate-high-watermark-pod-count)

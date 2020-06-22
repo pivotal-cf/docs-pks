@@ -6,55 +6,29 @@ owner: PKS
 This topic serves as a checklist for preparing to upgrade <%= vars.product_full %> v1.6 to
 <%= vars.product_full %> v1.7.
 
-This topic contains important preparation steps that you must follow before beginning your upgrade.
+This topic lists steps that you must follow before beginning your upgrade.
 Failure to follow these instructions may jeopardize your existing deployment data and cause the
 upgrade to fail.
 
-After completing the steps in this topic, you can continue to [Upgrading <%= vars.product_short %>](upgrade-pks.html).
-If you are upgrading <%= vars.product_short %> for environments using vSphere with NSX-T, continue to
-[Upgrading <%= vars.product_short %> with NSX-T](upgrade-pks-nsxt.html).
+After completing the steps in this topic, continue to
+[Upgrading <%= vars.product_short %> (Flannel Networking)](upgrade-pks.html) or
+[Upgrading <%= vars.product_short %> (NSX-T Networking)](upgrade-pks-nsxt.html).
+
+<p class="note warning"><strong>Warning:</strong> Upgrading <%= vars.product_short %> to v1.7 reconfigures the PKS control plane
+by creating a new <strong>PKS Database</strong> VM and populating it with MySQL data from the original <strong>PKS API</strong> VM.
+If your upgrade to <%= vars.product_short %> v1.7 fails, contact Support.
+</p>
 
 ##<a id='backup'></a>Back Up Your <%= vars.product_short %> Deployment
 
-We recommend backing up your <%= vars.product_short %> deployment before upgrading.  
-
-<p class="note"><strong>Note</strong>: It is critical that you back up the <%= vars.product_short %> 
-control plane before upgrading PKS v1.6 to PKS v1.7. 
-The PKS Control Plane will be reconfigured during your PKS v1.7 upgrade. 
-If your upgrade to PKS v1.7 fails, restore your system back to PKS v1.6 and contact Pivotal Support.
-</p>
-
-Back up your environment using the procedures for your environment:
-
-
-* **<%= vars.product_short %> on vSphere with NSX-T**  
-<br>
-    Back up PKS by completing the procedures in the following topics:  
-    - [Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html).
-    - <a href="https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A0B3667C-FB7D-413F-816D-019BFAD81AC5.html">
-    Backing Up and Restoring the NSX Manager</a> in the VMware documentation.
-    - <a href="https://kb.vmware.com/s/article/2149237">Overview of Backup and Restore 
-    options in vCenter Server 6.x (2149237)</a> in the VMware documentation.  
-<%#=
-
-    DO NOT INCLUDE THIS TYPICAL NOTE for PKS v1.7 UPGRADES - THIS ALTERNATIVE WON'T HELP IF THERE's A FAILURE
-
-    <p class="note"><strong>Note</strong>: If you choose not to back up <    %= vars.product_short %    >, 
-    NSX-T, or vCenter, we recommend backing up the NSX-T and NSX-T Container Plugin (NCP) logs.</p>
-%>
-    <p class="note"><strong>Note</strong>: If you choose not to back up NSX-T, or vCenter, 
-    we recommend backing up the NSX-T and NSX-T Container Plugin (NCP) logs.</p>
-
-
-* **<%= vars.product_short %> on any other IaaS**  
-<br>
-    Back up PKS by completing the procedures in the following topics:  
-    - Back up the existing <%= vars.product_short %> control plane. For more
-information, see [Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html).
+<%= vars.recommended_by %> recommends backing up your <%= vars.product_short %>
+deployment before upgrading.
+To back up <%= vars.product_short %>, see
+[Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html).
 
 ##<a id='understand-upgrades'></a> Review What Happens During <%= vars.product_short %> Upgrades
 
-If you have not already done so, review [What Happens During <%= vars.product_short %> Upgrades](understanding-upgrades.html). 
+If you have not already done so, review [About <%= vars.product_short %> Upgrades](understanding-upgrades.html).
 
 Plan your upgrade based on your workload capacity and uptime requirements.
 
@@ -62,18 +36,42 @@ Plan your upgrade based on your workload capacity and uptime requirements.
 
 Review the [Release Notes](release-notes.html) for <%= vars.product_short %> v1.7.
 
-##<a id='upgrade-clusters'></a> Upgrade All Clusters to <%= vars.product_short %> v1.6.x
+## <a id='drop-tables'></a> Drop Telemetry Tables (Installations Existing Since PKS v1.2 Only)
 
-Before you upgrade to <%= vars.product_short %> v1.7, you must upgrade all clusters to 
-same patch version of <%= vars.product_short %> v1.6.x. 
+If your <%= vars.k8s_runtime_abbr %> installation was originally deployed using PKS v1.2 or earlier, you need to drop two old Telemetry database tables from the `pivotal-container-service` VM before you upgrade to PKS v1.7.
 
-<%= vars.product_short %> supports running clusters on the current version (_N_)
-and the last version release (_N - 1_). 
-For example, you can upgrade to <%= vars.product_short %> v1.7.0 
-and run <%= vars.product_short %> v1.6.x clusters, 
-but you cannot upgrade to <%= vars.product_short %> v1.7.0 
-while running a <%= vars.product_short %> v1.6.1 cluster alongside a v1.6.0 cluster or v1.5.2 cluster. 
-After the upgrade, the older version clusters can no longer be managed in <%= vars.product_short %> v1.7.0.
+To do this, follow the **Resolution** instructions in the KB article [For environments created before VMware Enterprise PKS 1.3, upgrading to PKS 1.7 fails during data migration when running clone-db errand](https://community.pivotal.io/s/article/environments-created-before-PKS-13-upgrading-to-PKS-1-7-fails).
+
+<p class="note warning"><strong>Warning:</strong> Neglecting to drop the old Telemetry tables from environments that once ran PKS v1.2 causes PKS v1.7 upgrade to fail.</p>
+
+##<a id='expectations'></a> Set User Expectations and Restrict Cluster Access
+
+Coordinate the <%= vars.product_short %> upgrade with cluster admins and users.
+Tell them that the upgrade reconfigures the control plane and migrates its database.
+During the upgrade:
+
+* Their workloads will remain active and accessible.
+
+* They will be unable to perform cluster management functions,
+including creating, resizing, updating, and deleting clusters.
+
+* They will be unable to log in to <%= vars.k8s_runtime_abbr %> or use the <%= vars.k8s_runtime_abbr %> CLI and other <%= vars.k8s_runtime_abbr %> control plane services.
+
+<p class="note"><strong>Note</strong>: Cluster admins should not start any cluster management tasks right before an upgrade.
+Wait for cluster operations to complete before upgrading.
+</p>
+
+
+##<a id='upgrade-clusters'></a> Upgrade All Clusters
+
+Before you upgrade to <%= vars.product_short %> v1.7, you must upgrade all clusters.
+Doing this aligns the <%= vars.k8s_runtime_abbr %> version that the clusters run internally
+with the current patch version of the <%= vars.k8s_runtime_abbr %> control plane.
+
+The <%= vars.k8s_runtime_abbr %> control plane supports clusters running the current version and previously-installed version of <%= vars.product_short %>.
+It does not support clusters running <%= vars.k8s_runtime_abbr %> versions older than the last installed version.
+For example, you can upgrade to <%= vars.k8s_runtime_abbr %> v1.7.0
+and continue running <%= vars.k8s_runtime_abbr %> v1.6.1 clusters.
 
 To check the version of existing clusters and availability of upgrade, run:
 
@@ -81,29 +79,43 @@ To check the version of existing clusters and availability of upgrade, run:
 pks clusters
 ```
 
-To upgrade one or more clusters, see [Upgrading Clusters](./upgrade-clusters.html#upgrade-clusters).
+To upgrade one or more clusters, see [Upgrading Clusters](./upgrade-clusters.html).
 
-##<a id='resource-usage'></a> View Workload Resource Usage
+##<a id='resource-usage'></a> Verify Your Clusters Support Upgrading
 
-View your workload resource usage in Dashboard. For more information, see
-[Accessing Dashboard](access-dashboard.html).
+It is critical that you confirm that a cluster's resource usage is within the 
+recommended maximum limits before upgrading the cluster.
 
-If workers are operating too close to their capacity, the upgrade can fail. 
+<%= vars.product_full %> upgrades a cluster by upgrading master and worker nodes individually. 
+The upgrade processes a master node by redistributing the node's workload, stopping the node, upgrading it and restoring its workload. 
+This redistribution of a node's workloads increases the resource usage on the remaining nodes during the upgrade process.  
 
-To prevent workload downtime during a cluster upgrade, 
-we recommend running your workload on at least three
-worker VMs, using multiple replicas of your workloads spread across those VMs. 
-For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
+If a Kubernetes cluster master VM is operating too close to capacity, the upgrade can fail.  
 
-If your clusters are near capacity for your existing infrastructure, 
-we recommend scaling up your clusters before you upgrade. 
+<p class="note warning"><strong>Warning</strong>: Downtime is required to repair a cluster failure 
+  resulting from upgrading an overloaded Kubernetes cluster master VM.
+</p>
+
+To prevent workload downtime during a cluster upgrade, complete the following before upgrading a cluster:   
+
+1. Ensure none of the master VMs being upgraded will become overloaded during the cluster upgrade. 
+See [Master Node VM Size](vm-sizing.html#master-sizing) for more information. 
+
+1. Review the cluster's workload resource usage in Dashboard. 
+For more information, see [Accessing Dashboard](access-dashboard.html).
+
+1. Scale up the cluster if it is near capacity on its existing infrastructure.
 Scale up your cluster by running `pks resize` or create a cluster
-using a larger plan. For more information, see [Changing Cluster Configurations](scale-clusters.html).
+using a larger plan. For more information, see [Changing Cluster Configurations](scale-clusters.html). 
+
+1. Run the cluster's workloads on at least three
+worker VMs using multiple replicas of your workloads spread across those VMs. 
+For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
 
 ##<a id='verify-k8s-health'></a> Verify Health of Kubernetes Environment
 
 Verify that your Kubernetes environment is healthy. 
-To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html#k8s).
+To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html).
 
 ##<a id='review-vsphere-nsxt'></a> Verify NSX-T Configuration (vSphere with NSX-T Only)
 
@@ -140,7 +152,7 @@ with the PKS Command Line Interface
 
 1. After fixing and cleaning up any failed clusters, view your deployed clusters again by running `pks clusters`.
 
-For more information about troubleshooting and fixing failed clusters, see the [Pivotal Support Knowledge Base](https://community.pivotal.io/s/topic/0TO0P000000IKdbWAG/pivotal-container-service).
+For more information about troubleshooting and fixing failed clusters, see the [Knowledge Base](https://community.pivotal.io/s/topic/0TO0P000000IKdbWAG/pivotal-container-service).
 
 ##<a id='unique-hostname'></a> Verify Kubernetes Clusters Have Unique External Hostnames
 
@@ -171,47 +183,51 @@ Verify your current PKS proxy configuration by performing the following steps:
 
 1. Check whether an existing proxy is enabled:
     1. Log in to Ops Manager.
-    1. Click the **Pivotal Container Service** tile.
+    1. Click the **VMware Enterprise PKS** tile.
     1. Click **Networking**.
     1. If **HTTP/HTTPS Proxy** is **Disabled**, no action is required. Continue to the next section.
        If **HTTP/HTTPS Proxy** is **Enabled**, continue to the next step.
 
 1. If the existing **No Proxy** field contains any of the following values, or you plan to add any
-of the following values, contact PKS Support:
+of the following values, contact Support:
 	* `localhost`
 	* Hostnames containing dashes, such as `my-host.mydomain.com`
 
 ##<a id='check-poddisruptionbudget-value'></a> Check PodDisruptionBudget Value
 
 <%= vars.product_short %> upgrades can run without ever completing if any Kubernetes app has a `PodDisruptionBudget`
-with `maxUnavailable` set to `0`. To ensure that no apps have a `PodDisruptionBudget` with
-`maxUnavailable` set to `0`, perform the following steps:
+with `maxUnavailable` set to `0`.
 
-1. Use the Kubernetes CLI, `kubectl`, to verify the `PodDisruptionBudget` as the cluster
-administrator. Run the following command:
+To ensure that no apps have a `PodDisruptionBudget` with
+`maxUnavailable` set to `0`:
+
+1. Run the following `kubectl` command to verify the `PodDisruptionBudget` as the cluster administrator:
 
     ```
     kubectl get poddisruptionbudgets --all-namespaces
     ```
 
-1. Examine the output. Verify that no app displays `0` in the `MAX UNAVAILABLE` column.
+1. Examine the output to verify that no app displays `0` in the `MAX UNAVAILABLE` column.
 
-## <a id="configure-node-drain"></a> Configure Node Drain Behavior
+## <a id="configure-node-drain"></a> (Optional) Configure Node Drain Behavior
 
-During the <%= vars.product_tile %> tile upgrade process, worker nodes are cordoned and drained.
+During the <%= vars.product_tile %> upgrade process, worker nodes are cordoned and drained.
 Workloads can prevent worker nodes from draining and cause the upgrade to fail or hang.
 
-To prevent hanging cluster upgrades, you can use the PKS CLI to configure the default node drain behavior.
+To prevent hanging cluster upgrades, you can configure default node drain behavior in <%= vars.product_tile %> tile or with the PKS CLI.
+
 The new default behavior takes effect during the next upgrade,
 not immediately after configuring the behavior.
 
-<p class="note"><strong>Note</strong>: You can also configure node drain behavior in the <%= vars.product_tile %> tile.
-For information about configuring default node drain behavior in
-the <%= vars.product_tile %> tile,
+### <a id="node-drain-tile"></a> Configure with the <%= vars.product_tile %> Tile
+
+To configure node drain behavior in the <%= vars.product_tile %> tile,
 see <a href="./troubleshoot-issues.html#upgrade-drain-hangs">Worker Node Hangs Indefinitely</a>
 in <i>Troubleshooting</i>.</p>
 
-To configure default node drain behavior, do the following:
+### <a id="node-drain-cli"></a> Configure with the PKS CLI
+
+To configure default node drain behavior with the PKS CLI:
 
 1. View the current node drain behavior by running the following command:
 
@@ -219,7 +235,7 @@ To configure default node drain behavior, do the following:
     pks cluster CLUSTER-NAME --details
     ```
 
-    Where `CLUSTER-NAME` is the name of you cluster.
+    Where `CLUSTER-NAME` is the name of your cluster.
     <br><br>
     For example:
     <pre class="terminal">$ pks cluster my-cluster --details <br>
@@ -266,14 +282,12 @@ To configure default node drain behavior, do the following:
     For a list of the available action flags for setting node drain behavior,
     see [pks update-cluster](cli/index.html#update-cluster) in _PKS CLI_.
 
-##<a id='update-azure-worker-role'></a> Update Your Role for the Worker Node Managed Identity on Azure
+##<a id='update-azure-worker-role'></a> Update Your Role for the Worker Node Managed Identity (Azure Only)
 
 If you are running <%= vars.product_short %> on Azure,
 you must add the `"Microsoft.Compute/virtualMachines/read"` action to the worker node managed identity.
 
-<p class="note"><strong>Note</strong>: You do not need to modify the worker node managed identity role 
-if you are running <%= vars.product_short %> on AWS, GCP, vSphere, or vSphere with NSX-T. 
-Modifying the role for Azure is a requirement as of Kubernetes v1.14.5.</p>
+<p class="note"><strong>Note</strong>: Modifying the role for Azure is a requirement as of Kubernetes v1.14.5.</p>
 
 To add the `"Microsoft.Compute/virtualMachines/read"` action, do the following:
 

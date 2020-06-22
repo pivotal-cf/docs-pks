@@ -2,14 +2,14 @@
     <img src="images/networking-https-proxy.png" alt="Networking pane configuration" width="325">
 <br>
     Production environments can deny direct access to public Internet services and between internal services by placing an HTTP or HTTPS proxy in the network path between Kubernetes nodes and those services.  
-<br>
-    Configuring <%= vars.product_short %> to use these 
-    proxies allows <%= vars.product_short %>-deployed Kubernetes nodes to access public Internet services 
-    and other internal services. 
-    <p class="note"><strong>Note</strong>: This setting will not set the proxy for running Kubernetes workloads or pods.  
+    <br>
+    Configure <%= vars.product_short %> to use your proxy and enable the following:  
+      * PKS API access to public Internet services and other internal services.  
+      * <%= vars.product_short %>-deployed Kubernetes nodes access to public Internet services and other internal services.  
+      * <%= vars.product_short %> Telemetry ability to forward Telemetry data to the CEIP and Telemetry program.  
+<p class="note"><strong>Note</strong>: This setting does not set the proxy for running Kubernetes workloads or pods.
     </p>
-    To complete your global proxy configuration for all outgoing HTTP/HTTPS traffic from your Kubernetes clusters, perform the following steps:  
-<br>
+1. To complete your global proxy configuration for all outgoing HTTP/HTTPS traffic from your Kubernetes clusters, perform the following steps:  
     1. To proxy outgoing HTTP traffic, enter the URL of your HTTP proxy endpoint under **HTTP Proxy URL**. 
     For example, `http\://myproxy.com:1234`.
     1. (Optional) If your outgoing HTTP proxy uses basic authentication, 
@@ -24,62 +24,80 @@
     1. (Optional) If your HTTPS proxy uses basic authentication, 
     enter the username and password in the **HTTPS Proxy Credentials** fields.  
     1. Under **No Proxy**,  enter the comma-separated list of IP addresses that must bypass the proxy to 
-    allow for internal Enterprise PKS communication.  
+    allow for internal <%= vars.product_short %> communication.  
     <br>
-    The list should include `127.0.0.1` and `localhost`.  
+    The **No Proxy** list should include `127.0.0.1` and `localhost`.  
     <br>
-    Also include:  
+    Also include the following in the **No Proxy** list:  
         * Your <%= vars.product_short %> environment's CIDRs, such as 
     the service network CIDR where your <%= vars.product_short %> cluster is deployed, 
     the deployment network CIDR, the node network IP block CIDR, and the pod network IP block CIDR.     
     <br>
-        * If a component is communicating with <%= vars.product_short %> or a registry using a hostname, 
-    such as the Harbor API FQDN, instead of an 
-    IP address you will need to add the corresponding FQDN to the **No Proxy** list.  
-    <% if current_page.data.topic=='proxies-nsx-t' || current_page.data.topic=='proxies-vsphere' %>
+        * The FQDN of any registry, such as the Harbor API FQDN, or component communicating with <%= vars.product_short %>, using a hostname 
+        instead of an IP address.  
     <br>
-        * If you are upgrading and have an existing proxy configuration for reaching a Docker registry or 
-        other external services, add the following IP addresses to the **No Proxy** field to prevent 
-        the <%= vars.product_short %> to IaaS traffic from going through the proxy: NSX Manager, vCenter Server, 
-        and all ESXi hosts.  
-    <% end %>
+    <% if current_page.data.topic=="proxies-nsx-t" || current_page.data.iaas == "vSphere" %>
+        * The IP addresses for your NSX Manager, vCenter Server, and all ESXi hosts,
+        if you are upgrading and have an existing proxy configuration for reaching a Docker registry or 
+        other external services.  
     <br>
         * Any additional IP addresses or domain names that should bypass the proxy.      
-    <% if current_page.data.topic=='proxies-aws' %>
-    <br>The **No Proxy** property for AWS accepts wildcard domains denoted by a prefixed `\*.` or `.`.
-    <% end %>
-    <% if current_page.data.topic=='proxies-nsx-t' || current_page.data.topic=='proxies-vsphere' %>
-    <br>The **No Proxy** property for vSphere accepts wildcard domains denoted by a prefixed `\*.` or `.`.
-    <% end %>
-<br><br>
-    For example:
-<br>
-    <pre>
-    <% if current_page.data.topic=='proxies-aws' || current_page.data.topic=='proxies-nsx-t' || current_page.data.topic=='proxies-vsphere' %>
-    127.0.0.1,localhost,
-    \*.example1.com,
-    <% end %>
-    .example2.com,
-    example3.com,
-    198.51.100.0/24,
-    203.0.113.0/24,
-    192.0.2.0/24
-    </pre>
-        <p class="note"><strong>Note</strong>: By default the 
-        <% if current_page.data.topic=='proxies-aws' %>
-            <code>169.254.169.254</code>, <code>10.100.0.0/8</code> and <code>10.200.0.0/8</code> 
-         <% else %>
-            <code>10.100.0.0/8</code> and <code>10.200.0.0/8</code> 
+        <br>
+        The **No Proxy** property for vSphere accepts wildcard domains denoted by a prefixed `\*.` or `.`.
+        <br><br>
+        For example:  
+        <pre>
+        127.0.0.1,localhost,
+        \*.example1.com,
+        .example2.com,
+        example3.com,
+        198.51.100.0/24,
+        203.0.113.0/24,
+        192.0.2.0/24
+        </pre>
+        <% else %>
+        * Any additional IP addresses or domain names that should bypass the proxy.      
+        <br>The **No Proxy** property for AWS accepts wildcard domains denoted by a prefixed `\*.` or `.`.
+        <br><br>
+        For example:  
+        <pre>
+        127.0.0.1,localhost,
+        \*.example1.com,
+        .example2.com,
+        example3.com,
+        198.51.100.0/24,
+        203.0.113.0/24,
+        192.0.2.0/24
+        </pre>
         <% end %>
-        IP address ranges,
-        <code>.internal</code>, <code>.svc</code>,<code>.svc.cluster.local</code>, <code>.svc.cluster</code>, 
-        and your <%= vars.product_short %> FQDN are not proxied. This allows internal <%= vars.product_short %> communication.
-        <br><br>
-        Do not use the <code>_</code> character in the <strong>No Proxy</strong> field. Entering an
-        underscore character in this field can cause upgrades to fail.
-        <br><br>
-        Because some jobs in the VMs accept `\*.` as a wildcard, while others only accept `.`, 
-        we recommend that you define a wildcard domain using both of them. 
-        For example, to denote `example.com` as a wildcard domain, add both `\*.example.com` and `example.com` 
-        to the **No Proxy** property.
-        </p>
+    <% if current_page.data.topic=="proxies-aws" %>
+    <p class="note"><strong>Note</strong>: By default the 
+    <code>169.254.169.254</code>, <code>10.100.0.0/8</code> and <code>10.200.0.0/8</code> 
+    IP address ranges,
+    <code>.internal</code>, <code>.svc</code>,<code>.svc.cluster.local</code>, <code>.svc.cluster</code>, 
+    and your <%= vars.product_short %> FQDN are not proxied. This allows internal <%= vars.product_short %> communication.
+    <br><br>
+    Do not use the <code>_</code> character in the <strong>No Proxy</strong> field. Entering an
+    underscore character in this field can cause upgrades to fail.
+    <br><br>
+    Because some jobs in the VMs accept `\*.` as a wildcard, while others only accept `.`, 
+    we recommend that you define a wildcard domain using both of them. 
+    For example, to denote `example.com` as a wildcard domain, add both `\*.example.com` and `example.com` 
+    to the **No Proxy** property.
+    </p>
+    <% else %>
+    <p class="note"><strong>Note</strong>: By default the 
+    <code>10.100.0.0/8</code> and <code>10.200.0.0/8</code> 
+    IP address ranges,
+    <code>.internal</code>, <code>.svc</code>,<code>.svc.cluster.local</code>, <code>.svc.cluster</code>, 
+    and your <%= vars.product_short %> FQDN are not proxied. This allows internal <%= vars.product_short %> communication.
+    <br><br>
+    Do not use the <code>_</code> character in the <strong>No Proxy</strong> field. Entering an
+    underscore character in this field can cause upgrades to fail.
+    <br><br>
+    Because some jobs in the VMs accept `\*.` as a wildcard, while others only accept `.`, 
+    we recommend that you define a wildcard domain using both of them. 
+    For example, to denote `example.com` as a wildcard domain, add both `\*.example.com` and `example.com` 
+    to the **No Proxy** property.
+    </p>
+    <% end %>

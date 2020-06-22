@@ -314,15 +314,17 @@ Enter the contents of the certificate in the **PKS API Certificate** text box:
     Enter the contents of the certificate key in the **Private Key PEM** text box:
     
     ```
-	-----BEGIN PRIVATE KEY-----
+	-----BEGIN RSA PRIVATE KEY-----
     pks_api_private_key_contents
-    -----END PRIVATE KEY-----
+    -----END RSA PRIVATE KEY-----
     ```    
 1. Click **Next**  to configure availability zones.
 
 ## <a id='availability-zones'></a>Step 4: Configure Availability Zones
 
 Availability zones specify the compute resources for Kubernetes cluster deployment. Availability zones are a BOSH construct, that in <%= vars.product_short %> deployments to vSphere correspond to vCenter Server clusters, host groups, and resource pools. Availability zones allow you to provide high-availability and load balancing to applications. When you run more than one instance of an application, those instances are balanced across all of the availability zones that are assigned to the application. You must configure at least one availability zone. You can configure multiple additional availability zones.
+
+<p class="note"><strong>Note</strong>: If you select a cluster as an availability zone, <%= vars.product_short %> Management Console sets the DRS VM-host affinity rule on that cluster to <code>MUST</code>. If you select a host group as an availability zone, <%= vars.product_short %> Management Console sets the DRS VM-host affinity rule on that group to <code>SHOULD</code>.</p>
 
 1. In the **Name** field, enter a name for the availability zone.
 1. Optionally select **This is the management availability zone**.
@@ -389,9 +391,11 @@ You can create a maximum of 3 plans that implement Windows worker nodes in a giv
 <br><br>
 If you use Windows worker nodes, certain options are not available, and the default values of other options change. See the option descriptions below for more information.
 <br><br>
+If you use Windows worker nodes, by default one Linux worker node is deployed per Windows cluster. The Linux node provides cluster services to the Windows worker nodes. You can optionally make the cluster services Linux node highly available, in which case two Linux nodes are deployed.
+<br><br>
 If you use Windows worker nodes, after you deploy <%= vars.product_short %>, you must use Operations Manager to manually install a Windows Server Stemcell in BOSH. For information about how to install a Windows Server Stemcell and other steps to perform after you deploy <%= vars.product_short %> with Windows worker nodes, see <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a>.</p>
 
-<%= vars.product_short %> Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can enable the plans as they are. You must enable at least one plan configuration because when you use the PKS CKI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are enabled, you cannot create Kubernetes clusters.
+<%= vars.product_short %> Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can enable the plans as they are. You must enable at least one plan configuration because when you use the PKS CLI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are enabled, you cannot create Kubernetes clusters.
 
 <%= vars.product_short %> plans support privileged containers and three admission control plugins. For information about privileged containers and the supported admission plugins, see [Privileged mode for pods in the Kubernetes documentation](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers). For information about admission plugins, see [Enabling, Disabling, and Using Admission Control Plugins for Enterprise PKS Clusters](../admission-plugins.html).
 
@@ -421,12 +425,17 @@ If you use Windows worker nodes, after you deploy <%= vars.product_short %>, you
        - **Force node to drain even if it has running pods using emptyDir**
        - **Force node to drain even if pods are still running after timeout**
 	* **Pod Shutdown Grace Period**: Enter a timeout in seconds for the node to wait before it forces the pod to terminate. If you set this value to -1, the default timeout is set to the one specified by the pod. If you use Windows worker nodes, this option is not available.
+
+    ![Configure errand VM, admission plugins and node drain](images/plan-errands-node-drain.png)
+1. If you use Windows worker nodes, optionally enable the **Enable HA Linux Workers** option to deploy two Linux worker nodes per Windows cluster instead of one.
+
+    The Linux nodes provide cluster services to the Windows clusters.
+
+    ![Configure Linux worker HA for Windows plans](images/windows-linux-ha.png)
 1. Click **Save Plan** for each plan that you edit.
 1. Optionally click **Add Plan** to create a new plan, configure it as described above, and click **Save Plan**.
 
     You can create a maximum of 10 Linux plans and a maximum of 3 Windows plans. 
-
-    ![Configure errand VM, admission plugins and node drain](images/plan-errands-node-drain.png)
    
 1. Optionally delete any plans that you do not need.
 1. Click **Next** to configure integrations.
@@ -625,27 +634,29 @@ When all of the sections of the wizard are green, you can generate a YAML config
 1. Click **Generate Configuration** to see the generated YAML file.
 
     ![Generate Enterprise PKS configuration](images/generate-config.png)
-1. Optionally click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`. 
-1. Optionally edit the YAML directly in the YAML editor to specify an FQDN address for the Ops Manager VM.<br>To specify an FQDN address for the Ops Manager VM, update the YAML as follows: 
 
+1. (Optional) Click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`.
+
+1. (Optional) For new deployments of <%= vars.product_short %>, specify an FQDN address for the Ops Manager VM by editing the YAML directly in the YAML editor.
+    <p class='note warning'><strong>WARNING:</strong> You cannot change the Ops Manager FQDN of <%= vars.product_short %> once it has already deployed.
+    </p>
+  To specify an FQDN address for the Ops Manager VM, update the YAML as follows:
 	1. Locate the `opsman_fqdn:` entry in the YAML file.
-	1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN:<pre>: "myopsman.example.com"</pre>
+	1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN:<pre>opsman_fqdn: "myopsman.example.com"</pre>
 	1. Make sure that the FQDN is mapped to the following IP address:
     	- For NSX-T deployments map it to the first address in the floating IP range.
     	- For Flannel deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.
-    	- If you start the deployment and you have not mapped the FQDN to an IP address, the deployment fails with an error. In this case, you can configure the mapping, return to the YAML editor, and start the deployment again.
-    	
-    **NOTES**: 
-    
-    	- If you are upgrading from a previous version of <%= vars.product_short %>, you cannot specify the Ops Manager FQDN value.
-    	- You cannot reconfigure the Ops Manager FQDN after you deploy <%= vars.product_short %>.
+    <br>
+    <br>
+    If you start the deployment and you have not mapped the FQDN to an IP address, the deployment fails with an error. If this happens, configure the mapping as above, return to the YAML editor, and start the deployment again.
 	
-1. Optionally edit the YAML directly in the YAML editor to specify additional reserved IP ranges in the deployment network or service network.<br>No VMs will be deployed in the reserved ranges that you specify. To specify additional reserved IP ranges, update the YAML as follows:
+1. (Optional) Edit the YAML directly in the YAML editor to specify additional reserved IP ranges in the deployment network or service network.<br>No VMs will be deployed in the reserved ranges that you specify. To specify additional reserved IP ranges, update the YAML as follows:
 
 	1. Locate the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries in the YAML file.
 	1. Update the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries to specify reserved IP ranges in the deployment and service networks:
 	   - Deployment network:<pre>additional_dep_reserved_ip_range: "172.16.100.2,172.16.100.3-172.16.100.10"</pre>
 	   - Service network (Flannel only):<pre>additional_svc_reserved_ip_range: ""</pre>
+
 1. Click **Apply Configuration** then **Continue** to deploy <%= vars.product_short %>.
 
     ![Apply the generated YAML configuration](images/apply-yaml.png)

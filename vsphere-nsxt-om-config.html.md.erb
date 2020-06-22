@@ -58,9 +58,11 @@ Before you begin this procedure, ensure that you have successfully completed all
     * **vCenter Username**: A vCenter username with create and delete privileges for virtual machines (VMs) and folders.
     * **vCenter Password**: The password for the vCenter user specified above.
     * **Datacenter Name**: The name of the datacenter as it appears in vCenter.
-    * **Virtual Disk Type**: The Virtual Disk Type to provision for all VMs. For guidance on selecting a virtual disk type, see [vSphere Virtual Disk Types](https://docs.pivotal.io/pivotalcf/2-6/customizing/disk-format.html).
+    * **Virtual Disk Type**: The Virtual Disk Type to provision for all VMs. For guidance on selecting a virtual disk type, see [vSphere Virtual Disk Types](https://docs.pivotal.io/platform/application-service/2-7/operating/disk-format.html).
     * **Ephemeral Datastore Names (comma delimited)**: The names of the datastores that store ephemeral VM disks deployed by Ops Manager.
     * **Persistent Datastore Names (comma delimited)**: The names of the datastores that store persistent VM disks deployed by Ops Manager.
+
+    <p class="note"><strong>Note</strong>: The vSphere datastore type must be Datastore. <%= vars.product_short %> does not support the use of vSphere Datastore Clusters with or without Storage DRS. For more information, see <a href="https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.monitoring.doc/GUID-408D2430-A252-495E-BDB1-4D1940CBC6E1.html">Datastores and Datastore Clusters</a> in the vSphere documentation.</p>
 
 1. Select **NSX Networking**, then select **NSX-T**.
 
@@ -93,7 +95,7 @@ Before you begin this procedure, ensure that you have successfully completed all
 1. In the **NTP Servers (comma delimited)** field, enter your NTP server addresses.
 
     <p class="note"><strong>Note:</strong> The NTP server configuration only updates
-    after VM recreation. Ensure that you select the <strong>Recreate all VMs</strong> checkbox
+    after VM recreation. Ensure that you select the <strong>Recreate VMs deployed by the BOSH Director</strong> checkbox
     if you modify the value of this field.</p>
 
 1. Leave the **JMX Provider IP Address** field blank.
@@ -105,10 +107,10 @@ Before you begin this procedure, ensure that you have successfully completed all
 1. Select **Enable Post Deploy Scripts** to run a post-deploy script after deployment. This script allows the job to execute additional commands against a deployment.
   <p class="note"><strong>Note</strong>: You must enable post-deploy scripts to install <%= vars.product_short %>.</p>
 
-1. Select **Recreate all VMs** to force BOSH to recreate all VMs on the next deploy. This process does not destroy any persistent disk data.
+1. Select **Recreate VMs deployed by the BOSH Director** to force BOSH to recreate all BOSH-managed VMs on the next deploy. This process does not destroy any persistent disk data.
 
-1. For typical <%= vars.product_short %> deployments, the default settings for all other BOSH Director configuration parameters are suitable. Optionally you can apply additional configurations to BOSH Director. See [Director Config Pane](https://docs.pivotal.io/platform/ops-manager/vsphere/config.html#dir-config) in <em>Configuring BOSH Director on vSphere</em> in the Pivotal Platform documentation for details.
-<p class="note"><strong>Note</strong>: If you need to be able to remotely access the BOSH Director VM using the BOSH CLI, and you are deploying <%= vars.product_short %> with NSX-T in a NAT topology, you must provide the <strong>Director Hostname</strong> for BOSH at the time of installation. See <a href="https://docs.pivotal.io/platform/ops-manager/vsphere/config.html#dir-config">Director Config Pane</a> in <em>Configuring BOSH Director on vSphere</em> in the Pivotal Platform documentation for details.</p>
+1. For typical <%= vars.product_short %> deployments, the default settings for all other BOSH Director configuration parameters are suitable. Optionally you can apply additional configurations to BOSH Director. See [Director Config Pane](https://docs.pivotal.io/platform/ops-manager/vsphere/config.html#dir-config) in <em>Configuring BOSH Director on vSphere</em> in the Ops Manager documentation for details.
+<p class="note"><strong>Note</strong>: If you need to be able to remotely access the BOSH Director VM using the BOSH CLI, and you are deploying <%= vars.product_short %> with NSX-T in a NAT topology, you must provide the <strong>Director Hostname</strong> for BOSH at the time of installation. See <a href="https://docs.pivotal.io/platform/ops-manager/vsphere/config.html#dir-config">Director Config Pane</a> in <em>Configuring BOSH Director on vSphere</em> in the Ops Manager documentation for details.</p>
 
 1. Click **Save**.
 
@@ -116,31 +118,40 @@ Before you begin this procedure, ensure that you have successfully completed all
 
 ## <a id='create-az'></a>Step 4: Create Availability Zones
 
-Ops Manager Availability Zones correspond to your vCenter clusters and resource pools. 
+On vSphere with NSX-T, operators define and create create Availability Zones (AZs) using vCenter clusters and resource pools.
+Plans defined in the <%= vars.k8s_runtime_abbr %> tile then use these AZs to enable high availability for <%= vars.k8s_runtime_abbr %> clusters.
 
-Multiple Availability Zones allow you to provide high-availability and load balancing to your applications.
-When you run more than one instance of an application, Ops Manager balances those instances 
-across all of the Availability Zones assigned to the application. 
+The <%= vars.product_short %> control plane also runs in one of the AZs. 
 
-For a highly available installation of your chosen runtime, use at least three availability zones.
+For more information on AZs in <%= vars.k8s_runtime_abbr %>, see [Availability Zones](./control-plane.html#azs)
+in _Enterprise PKS Architecture_.
 
-<p class="note"><strong>Note</strong>: For more information about AZs and high availability in
-vSphere, see <a href="https://docs.pivotal.io/pivotalcf/2-6/plan/vsphere/vsphere_ref_arch.html#high-availability">Compute and HA Considerations</a> in
-<em>vSphere Reference Architecture</em>.</p>
+To create Availability Zones in the BOSH Director tile:
 
 1. Select **Create Availability Zones**.
 
     <%= image_tag("images/nsxt/bosh/config-bosh-08.png") %>
 
 1. Use the following steps to create one or more Availability Zones for <%= vars.product_short %> to use:
-    * Click **Add** and create the <%= vars.product_short %> Management AZ.
-    * Enter a unique **Name** for the Availability Zone, such as `AZ-MGMT`.
-    * Select the IaaS configuration (vSphere/vCenter).
-    * Enter the name of an existing vCenter **Cluster** to use as an Availability Zone, such as `COMP-Cluster-1`.
-    * Enter the name of the <%= vars.product_short %> Management **Resource Pool** in the vCenter cluster that you specified above, such as `RP-MGMT-PKS`. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
-    * Click **Add Cluster** and create at least one <%= vars.product_short %> Compute AZ.
-    * Specify the **Cluster** and the **Resource Pool**, such as `RP-PKS-AZ`. Alternatively, specify the **Cluster** and the **Host Group**. See [Using vSphere Host Group](./vsphere-host-group.html) for more information.
-    * Add additional clusters as necessary. Click the trash icon to delete a cluster. The first cluster cannot be deleted.
+    1. Click **Add** and create the <%= vars.product_short %> Management AZ.
+    1. Enter a unique **Name** for the Availability Zone, such as `AZ-MGMT`.
+    1. Select the IaaS configuration (vSphere/vCenter).
+    1. Enter the name of an existing vCenter **Cluster** to use as an Availability Zone, such as `COMP-Cluster-1`.
+    1. Enter the name of the <%= vars.product_short %> Management **Resource Pool** in the vCenter cluster that you specified above, such as `RP-MGMT-PKS`. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
+    1. Click **Add Cluster** and create at least one <%= vars.product_short %> Compute AZ.
+    1. Specify the **Cluster** and the **Resource Pool**, such as `RP-PKS-AZ`. 
+    Alternatively, specify the **Cluster** and the **Host Group**. 
+    See [Using vSphere Host Group](./vsphere-host-group.html) for more information.
+    1. (Optional) If you are using a host group with vSAN stretched clusters,
+        set the **VM-Host Affinity Rule** dropdown to `SHOULD`. This setting maintains high availability 
+        by letting PKS restart VMs in another host group if their AZ fails. 
+        PKS ignores this setting if the vSAN cluster has no host group configured.  
+<br>
+        For more information, see [Ability to Set the VM-Host Affinity Rule to “Should” for Clusters in vSphere]
+        (https://docs.pivotal.io/platform/2-9/release-notes/opsmanager-rn.html#vm-affinity-rule) 
+        in the _Ops Manager v2.9 Release Notes_.  
+<br>
+    1. Add additional clusters as necessary. Click the trash icon to delete a cluster. The first cluster cannot be deleted.
 
     <%= image_tag("images/nsxt/bosh/config-bosh-09.png") %>
 
@@ -167,7 +178,7 @@ vSphere, see <a href="https://docs.pivotal.io/pivotalcf/2-6/plan/vsphere/vsphere
     <%= image_tag("images/nsxt/bosh/config-bosh-16.png") %>
 
 1. Create the following network:
-  * `NET-MGMT-PKS`: Network for Ops Manager, BOSH Director, and the PKS API. This network maps to the NSX logical switch created for the <%= vars.product_short %> Management Network. See <a href="./nsxt-prepare-mgmt-plane.html">Creating <%= vars.product_short %> Management Plane</a>.
+  * `NET-MGMT-PKS`: Network for Ops Manager, BOSH Director, and <%= vars.product_short %> components. This network maps to the NSX logical switch created for the <%= vars.product_short %> Management Network. See <a href="./nsxt-prepare-mgmt-plane.html">Creating <%= vars.product_short %> Management Plane</a>.
 
       <p class="note"><strong>Note</strong>: NSX-T automatically creates the service network to be used by the master and worker nodes (VMs) for Kubernetes clusters managed by <%= vars.product_short %>. You should not manually create this network.
 
@@ -234,7 +245,7 @@ vSphere, see <a href="https://docs.pivotal.io/pivotalcf/2-6/plan/vsphere/vsphere
 1. In **Trusted Certificates**, enter a custom certificate authority (CA) certificate to insert into your organization's certificate trust chain. 
 This feature allows all BOSH-deployed components in your deployment to trust a custom root certificate.<br/><br/> 
 
-    If you are using a private [Docker registry](https://docs.pivotal.io/pivotalcf/2-6/opsguide/docker-registry.html), such as VMware Harbor, use this field to enter the certificate for the registry. See [Integrating Harbor Registry with <%= vars.product_short %>](https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html) for details.
+    If you are using a private Docker registry, such as VMware Harbor, use this field to enter the certificate for the registry. See [Integrating Harbor Registry with <%= vars.product_short %>](https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html) for details.
 
 1. Choose **Generate passwords** or **Use default BOSH password**. Use the **Generate passwords** option for increased security.
 
@@ -289,7 +300,7 @@ choose **Automatic** from the drop-down menu to allocate the recommended resourc
 
 Use the Ops Manager API to add custom properties to your VMs such as associated security groups and load balancers. 
 
-For more information, see [Managing Custom VM Extensions](https://docs.pivotal.io/pivotalcf/2-6/customizing/custom-vm-extensions.html).
+For more information, see [Managing Custom VM Extensions](https://docs.pivotal.io/platform/2-7/customizing/custom-vm-extensions.html).
 
 ## <a id='deploy-bosh'></a>Step 12: Deploy BOSH
 

@@ -7,48 +7,31 @@ This topic describes how <%= vars.product_full %> manages the deployment of Kube
 
 ##<a id="overview"></a><%= vars.product_short %> Overview
 
-An <%= vars.product_short %> installation consists of the following components:
-  
-* PKS Control Plane VM  
-* PKS Database VM  
-* Ops Manager VM  
-* PKS API Load Balancer  
-* Kubernetes clusters and load balancers to host workloads  
+An <%= vars.product_short %> environment consists of a PKS Control Plane 
+and one or more workload clusters.  
+
+<%= vars.product_short %> administrators use the PKS Control Plane to 
+deploy and manage Kubernetes clusters. The workload clusters run the apps pushed by developers.  
 
 The following illustrates the interaction between <%= vars.product_short %> components:  
 <br>
 <%= image_tag('images/pks-overview.png') %>
+<%# Image source: https://docs.google.com/drawings/d/1EJfnaupkCal2_R_eDUWXOt4fiRmNKrUPft3cv4mgDr4/edit %>
 
-BOSH, hosted on the Ops Manager VM, deploys and manages Kubernetes clusters. 
-Administrators use the PKS Command Line Interface (PKS CLI) to direct BOSH 
-from their local workstations. The PKS CLI directs BOSH using the PKS API hosted 
-on the PKS Control Plane VM.  
+Administrators access the PKS Control Plane 
+through the PKS Command Line Interface (PKS CLI) installed on their local workstations.  
 
-The PKS Database, hosted on the PKS Database VM, stores PKS Control Plane information. 
+Within the PKS Control Plane the PKS API and PKS Broker use BOSH to execute the requested cluster management functions. 
+For information about the PKS Control Plane, see [PKS Control Plane Overview](#control-plane) below. 
+For instructions on installing the PKS CLI, see [Installing the PKS CLI](installing-pks-cli.html).  
 
-Kubernetes deploys and manages workloads on Kubernetes clusters. 
+Kubernetes deploys and manages workloads on Kubernetes clusters.
 Administrators use the  Kubernetes CLI, `kubectl`, to direct Kubernetes 
-from their local workstations.
+from their local workstations. 
+For information about `kubectl`, see [Overview of kubectl]
+(https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.  
 
-####Standard and High Availability Modes
-
-<%= vars.product_short %> can be configured in either Standard or High Availability modes.  
-
-* In Standard Mode the PKS Database is hosted on a single database VM.
-* In High Availability Mode the PKS Database is hosted in a 3-node database cluster.  
-
-<br>
-The following illustrates the interaction between <%= vars.product_short %> components in High Availability Mode:
-<%= image_tag('images/pks-overview-ha.png') %>
-
-##<a id="cluster-management"></a>Cluster Lifecycle Management
-
-The PKS Control Plane enables users to deploy and manage Kubernetes clusters.  
-
-Administrators use the PKS Command Line Interface (PKS CLI) on their local workstations 
-to access the PKS Control Plane. For instructions on installing the PKS CLI, see [Installing the PKS CLI](installing-pks-cli.html).  
-
-###<a id="control-plane"></a>PKS Control Plane Overview
+##<a id="cluster-management"></a><a id="control-plane"></a>PKS Control Plane Overview
 
 The PKS Control Plane manages the lifecycle of Kubernetes clusters deployed 
 using <%= vars.product_short %>. 
@@ -64,19 +47,25 @@ The control plane provides the following via the PKS API:
 * Create and manage network profiles for VMware NSX-T
 
 In addition, the PKS Control Plane can upgrade all existing clusters using the **Upgrade all clusters** BOSH errand.
-For more information, see [Upgrade Kubernetes Clusters](upgrade-pks.html#upgrade-instances) in _Upgrading <%= vars.product_short %>_.
+For more information, see [Upgrade Kubernetes Clusters](upgrade-pks.html#upgrade-instances) in _Upgrading <%= vars.product_short %> (Flannel Networking)_.
 
-###<a id="architecture"></a>PKS Control Plane Architecture
+<br>
+PKS Control Plane is hosted on a pair of VMs:
 
-PKS Control Plane is hosted on a single VM. 
-The `pivotal-container-service` VM hosts the following services:
+* The [<%= vars.control_plane %> VM](#pks-api-vm) hosts cluster management services.
+* The [<%= vars.control_plane_db %> VM](#pks-db-vm) stores cluster management data. 
+
+###<a id="pks-api-vm"></a><%= vars.control_plane %> VM
+
+The <%= vars.control_plane %> VM hosts the following services:
 
 * User Account and Authentication (UAA)  
 * PKS API  
 * PKS Broker
-* Billing and Telemetry  
+* Billing and Telemetry 
 
-The following describes UAA, PKS API, and PKS Broker services, the primary services hosted on the PKS Control Plane VM:
+The following sections describe UAA, PKS API, and PKS Broker services,
+the primary services hosted on the <%= vars.control_plane %> VM.
 
 ####<a id="uaa"></a>UAA
 
@@ -89,12 +78,12 @@ For more information, see [Managing <%= vars.product_short %> Users with UAA](ma
 
 ####<a id="pks-api"></a>PKS API
 
-Through the PKS CLI, users instruct the PKS API server to deploy, scale up, and delete Kubernetes clusters as well as show cluster details and plans.
+Through the PKS CLI, users instruct the PKS API service to deploy, scale up, and delete Kubernetes clusters as well as show cluster details and plans.
 The PKS API can also write Kubernetes cluster credentials to a local kubeconfig file, which enables users to connect to a cluster through `kubectl`.
 
 On AWS, GCP, and vSphere without NSX-T deployments the PKS CLI communicates with the 
 PKS API within the control plane via the PKS API Load Balancer. 
-On vSphere with NSX-T deployments the PKS API host is accessible via a DNAT rule. 
+On vSphere with NSX-T deployments the <%= vars.control_plane %> host is accessible via a DNAT rule. 
 For information about enabling the PKS API on vSphere with NSX-T, see the 
 [Share the PKS API Endpoint](installing-nsx-t.html#retrieve-endpoint) section in 
 _Installing <%= vars.product_short %> on vSphere with NSX-T Integration_.
@@ -111,22 +100,54 @@ For <%= vars.product_short %> deployments on vSphere with NSX-T, there is an add
 The PKS API communicates with the PKS NSX-T Proxy Broker, which in turn communicates with the NSX Manager to provision the Node Networking resources.
 The PKS NSX-T Proxy Broker then forwards the request to the On-Demand Service Broker to deploy the cluster.
 
-###<a id="overview-sql"></a>PKS Database Overview
+###<a id="pks-db-vm"></a><%= vars.control_plane_db %> VM
 
-By default the PKS Database is hosted on a single MySQL node, `pks-db`. 
-The `pks-db` VM hosts the MySQL, proxy, and other data-related services. 
-
-PKS Control Plane data is persisted to the PKS Database 
-for the following services:
+The <%= vars.control_plane_db %> VM hosts MySQL, proxy, and other data-related services. 
+These data-related functions persist PKS Control Plane data for the the following services:
 
 * PKS API
 * UAA
 * Billing
 * Telemetry
 
-When <%= vars.product_short %> is configured for High Availability Mode 
-the PKS Database is a 3-node MySQL cluster.
+##<a id="azs"></a>Availability Zones
 
-##<a id="workload-management"></a>Cluster Workload Management
+<%= vars.product_short %> uses Availability Zones (AZs) to provide high availability for Kubernetes cluster workers.
 
-<%= vars.product_short %> users manage their container-based workloads on Kubernetes clusters through `kubectl`. For more information about `kubectl`, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.
+When an operator creates Plans for developers, they assign AZs to the Plans. 
+Assigning multiple AZs to a Plan allows developers to provide high-availability for their worker clusters. 
+When a cluster has more than one node, 
+Ops Manager balances those nodes across the Availability Zones assigned to the cluster. 
+
+Public-cloud IaaSes such as AWS and Azure provide AZs as part of their service.
+In vSphere with NSX-T, you define and create AZs using vCenter clusters and resource pools.
+See [Step 4: Create Availability Zones](./vsphere-nsxt-om-config.html#create-az) in _Configuring BOSH Director with NSX-T for Enterprise PKS_ for how to create AZs in NSX-T.
+
+For instructions on selecting AZs for your <%= vars.product_short %> Plans, 
+see [Plans](installing-nsx-t.html#plans) 
+in _Installing Enterprise PKS on vSphere with NSX-T_.  
+
+For instructions on selecting the AZ for the <%= vars.product_short %> control plane, 
+see [Assign AZs and Networks](installing-nsx-t.html#azs-networks) 
+in _Installing Enterprise PKS on vSphere with NSX-T_.  
+
+
+##<a id='windows-ha'></a>Windows Worker-Based Kubernetes Cluster (Beta) High Availability
+
+Windows worker-based cluster (beta) Linux nodes can be configured in either standard or high availability modes.
+
+* In standard mode, a single Master/etcd node and a single Linux worker manage a cluster's Windows Kubernetes VMs.  
+* In high availability mode, 
+multiple Master/etcd and Linux worker nodes manage a cluster's Windows Kubernetes VMs.  
+
+The following illustrates the interaction between the 
+<%= vars.product_short %> Management Plane and Windows worker-based Kubernetes clusters:  
+<br>
+<%= image_tag('images/pks-overview-windows-linux-workers.png') %>
+<%# Image source: https://docs.google.com/drawings/d/1zWa-iCVLCvVgPR7-zRGlI7eLbH2JxloMbHE0iK2Z89I/edit %>
+<br>
+To configure <%= vars.product_short %> Windows worker-based clusters for high availability, set these fields in the **Plan** pane as described in [Plans](windows-pks-beta.html#plans) in _Configuring Windows Worker-Based Kubernetes Clusters (Beta)_:
+
+* **Enable HA Linux workers**
+* **Master/ETCD Node Instances**
+* **Worker Node Instances**

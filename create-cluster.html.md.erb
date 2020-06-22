@@ -6,6 +6,19 @@ pkscommand: create
 
 This topic describes how to create a Kubernetes cluster with <%= vars.product_full %> using the PKS Command Line Interface (PKS CLI).
 
+## <a id='overview'></a>Overview
+
+Use the PKS CLI to create Kubernetes clusters in your <%= vars.product_short %> environment.  
+
+To create an <%= vars.product_short %> Kubernetes cluster, do the following:  
+
+* [Configure Cluster Access](#cluster-access)
+* [Create a Kubernetes Cluster](#create)
+* [Identify Kubernetes Cluster Master VMs](#master-id)
+
+The `pks create-cluster` command creates a Kubernetes cluster with PKS compatibility matching 
+the PKS version of the current PKS control plane.
+
 ## <a id='cluster-access'></a>Configure Cluster Access
 
 Cluster access configuration differs by the type of <%= vars.product_short %> deployment.
@@ -72,8 +85,8 @@ For more information, see the [Grant <%= vars.product_short %> Access to an Indi
     * (Optional) `WORKER-NODES` is the number of worker nodes for the cluster. 
     * (Optional) (NSX-T only) `NETWORK-PROFILE-NAME` is the network profile to use for the cluster. 
     See [Using Network Profiles (NSX-T Only)](network-profiles.html) for more information.  
-    * (Optional) (Azure only) `TAGS` are the labels and metadata values to apply to the VMs created in the cluster. 
-    Specify the tags as `key:value` pairs. For more information about tagging see [Tagging Rules](#tagging), below.  
+    * (Optional) (Azure and vSphere only) `TAGS` are the labels and metadata values to apply to the VMs created in the cluster. 
+    Specify the tags as `key:value` pairs. For more information about tagging see [Tagging Clusters](tag-clusters.html).  
 
     For example:
     <pre class="terminal">$ pks create-cluster my-cluster \
@@ -112,7 +125,7 @@ For more information, see the [Grant <%= vars.product_short %> Access to an Indi
         ```
         bosh tasks
         ```
-    For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/2-6/customizing/trouble-advanced.html).
+    For more information, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/platform/2-7/customizing/trouble-advanced.html).
 
 1. Depending on your deployment:
   * For **vSphere with NSX-T**, choose one of the following:
@@ -120,7 +133,7 @@ For more information, see the [Grant <%= vars.product_short %> Access to an Indi
       * Specify a temporary placeholder value for FQDN, then replace the FQDN in the `kubeconfig` with the IP address assigned to the load balancer dedicated to the cluster.<br><br>
   To retrieve the IP address to access the Kubernetes API and UI services, use the `pks cluster CLUSTER-NAME` command.
   * For **vSphere without NSX-T**, **AWS**, and **Azure**, configure external access to the cluster's master nodes using either DNS records or an external load balancer. Use the output from the `pks cluster` command to locate the master node IP addresses and ports.
-  * For **GCP**, use the output from the `pks cluster` command to locate the master node IP addresses and ports, and then continue to [Configure Load Balancer Backend](gcp-cluster-load-balancer.html#backend) in _Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters_.
+  * For **GCP**, use the output from the `pks cluster` command to locate the master node IP addresses and ports, and then continue to [Creating and Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters](gcp-cluster-load-balancer.html#backend) in _Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters_.
   <p class="note"><strong>Note</strong>: For clusters with multiple master node VMs, health checks on port 8443 are recommended.</p>
 
 1. To access your cluster, run the following command:
@@ -177,7 +190,7 @@ To locate the IP addresses and VM IDs for the master VMs of an existing cluster,
     1. SSH into the Ops Manager VM.
     1. Log in to the BOSH Director by using the BOSH CLI from the Ops Manager VM.
     
-    For information on how to complete these steps, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/pivotalcf/2-6/customizing/trouble-advanced.html)
+    For information on how to complete these steps, see [Advanced Troubleshooting with the BOSH CLI](https://docs.pivotal.io/platform/2-7/customizing/trouble-advanced.html)
     .
 1. To identify the name of your cluster deployment, run the following command:
 
@@ -196,10 +209,17 @@ To locate the IP addresses and VM IDs for the master VMs of an existing cluster,
     <pre class="terminal">$ bosh -e pks -d service-instance-aa1234567bc8de9f0a1c vms</pre>
     Your master VM IDs are displayed in the **VM CID** column.
 1. Use the master VM IDs and other information you gathered in this procedure to configure your load balancer backend. 
-For example, if you use GCP, use the master VM IDs retrieved during the previous step in [Reconfiguring a GCP Load Balancer](gcp-cluster-load-balancer.html#reconfigure).
+For example, if you use GCP, use the master VM IDs retrieved during the previous step in [Creating and Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters](gcp-cluster-load-balancer.html#reconfigure).
 
-## <a id='tagging-create'></a>Tag Your Clusters
+## <a id='next'></a>Next Steps
 
-<%= partial 'tagging-intro' %>
+If you did not tag your new cluster during creation, tag your cluster's VMs now. 
+If your <%= vars.product_short %> deployment is on:
 
-<%= partial 'tagging-rules' %>
+* **AWS**: Tag your subnets with your new cluster's unique identifier before adding the subnets to the 
+<%= vars.product_short %> workload load balancer. 
+After you complete the [Create a Kubernetes Cluster](#create) procedure above, 
+follow the instructions in [AWS Prerequisites](./deploy-workloads.html#aws) in _Deploying and Exposing Basic Linux Workloads_.
+* **Azure**, **vSphere**, or **vSphere with NSX-T: You can use the PKS CLI to tag clusters by following the steps in 
+[Tagging Clusters](tag-clusters.html).   
+* **GCP****: You can tag your clusters using your IaaS-provided management console.  

@@ -23,11 +23,13 @@ The diagram below shows an external load balancer fronting the NSX Manager nodes
 
 <p class="note"><strong>Note:</strong> The load balancer VIP load balances traffic to all NSX-T Manager instances in round robin fashion. A Cluster HA VIP, on the other hand, only sends traffic one of the NSX-T Manager instances that is mapped to the Cluster IP VIP; the other NSX-T manager instances do not receive any traffic.</p>
 
+<p class="note"><strong>Note:</strong> If you are using VMware Identity Manager (VIDM) to authenticate with the NSX Management environment, you need two separate load balancer VIPs: one for VIDM and one for PKS. Refer to <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/administration/GUID-EAAD1FBE-F750-4A5A-A3BF-92B1E7D016FE.html">Configure VMware Identity Manager Integration</a> in the VMware NSX-T Data Center documentation.</p>
+
 ###<a id='interactions'></a> Component Interaction with the NSX-T Management Cluster
 
 Various components in an <%= vars.product_short %> deployment interact with the NSX Management Cluster.
 
-PKS Control Plane components:
+PKS Management Plane components:
 
 - Ops Manager
 - BOSH CPI (Cloud Provider Interface)
@@ -38,7 +40,7 @@ Kubernetes Cluster components:
 - BOSH jobs running on Kubernetes master nodes to prepare and update Kubernetes clusters
 - NSX-T Container Plugin (NCP)
 
-The interaction of the PKS Control Plane components and the BOSH jobs with the NSX-T Management Cluster is sporadic. However, the NCP component may demand a high level of scalability for the NSX-T API processing capability of the NSX Management Cluster, and NCP is vital to the networking needs of each Kubernetes cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Kubernetes Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX-T API processing to its limits.
+The interaction of the PKS Management Plane components and the BOSH jobs with the NSX-T Management Cluster is sporadic. However, the NCP component may demand a high level of scalability for the NSX-T API processing capability of the NSX Management Cluster, and NCP is vital to the networking needs of each Kubernetes cluster. When a high number of Kubernetes clusters are subjected to concurrent activities, such as Kubernetes Pod and Service lifecycle operations, multiple NCP instances may tax the system and push NSX-T API processing to its limits.
 
 ###<a id='provisioning'></a> Load Balancer Provisioning for the NSX-T Management Cluster
 
@@ -54,9 +56,9 @@ When provisioning the load balancer, you configure a virtual server on the load 
 
 Before you provision a load balancer for the NSX-T Management Cluster, ensure that your environment is configured as follows: 
 
-- NSX-T is installed and configured for servicing <%= vars.product_short %>. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for Enterprise PKS</a>.
-- Transport zone, transport node, Edge Cluster, Edge Node connectivity, and Tier-0 Router are deployed and operational with proper static routes or BGP. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for Enterprise PKS</a>.
-- A NSX-T Management Cluster with 3 NSX Manager nodes is provisioned. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for Enterprise PKS</a>.
+- NSX-T is installed and configured for servicing <%= vars.product_short %>. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
+- Transport zone, transport node, Edge Cluster, Edge Node connectivity, and Tier-0 Router are deployed and operational with proper static routes or BGP. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
+- A NSX-T Management Cluster with 3 NSX Manager nodes is provisioned. See <a href="./nsxt-install-config-steps.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>.
 - Your NSX-T environment has enough Edge Cluster resources to deploy a new small-size load balancer VM. 
 - A dedicated IP Address is available to be used as the VIP and SNAT IP address for the new load balancer. The load balancer VIP address must be globally routable from networks external to NSX-T. This IP address can be carved out from the standard IP Pool required by <%= vars.product_short %> PKS.
 
@@ -69,7 +71,7 @@ To provision the load balancer for the NSX-T Management Cluster, complete the fo
 1. Log in to an NSX-T Manager Node.
 <p class="note"><strong>Note</strong>: You can connect to any NSX-T Manager Node in the management cluster to provision the load balancer.</p>
 1. Select the **Advanced Networking & Security** tab.
-<p class="note"><strong>Note</strong>: You must use the <strong>Advanced Networking and Security</strong> tab in NSX-T Manager to create, read, update, and delete all NSX-T networking objects used for Enterprise PKS.</p>
+<p class="note"><strong>Note</strong>: You must use the <strong>Advanced Networking and Security</strong> tab in NSX-T Manager to create, read, update, and delete all NSX-T networking objects used for <%= vars.product_short %>.</p>
 
 ###<a id='s2'></a> Step 2: Configure a Logical Switch
 
@@ -227,7 +229,7 @@ Configure **Load Balancing Profiles** for the load balancer:
 - **Persistence Profile** > **Source IP**: Select **default-source-ip-lb-persistence-profile**
 - Click **Finish**.
 
-<p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the PKS Control Plane, do not configure a persistence profile.</p>
+<p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the PKS Management Plane, do not configure a persistence profile.</p>
 
 <img src="images/nsxt/mgmt-cluster/mgmt-cluster-26.png" alt="Load Balancing Persistence Profile" width="525">
 <img src="images/nsxt/mgmt-cluster/mgmt-cluster-27.png" alt="Load Balancing Persistence Profile" width="525"> 
@@ -320,7 +322,7 @@ At the Health Monitors screen, specify the Active Health Monitor you just create
 
 ###<a id='s12'></a> Step 12: Create SNAT Rule
 
-If your Enterprise PKS deployment uses NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX-T topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 Router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
+If your <%= vars.product_short %> deployment uses NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX-T topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 Router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
 
 To do this you need to retrieve the IP of the T1 uplink (Tier-1 Router that connected the NSX-T LB instance). In the example below, the T1 uplink IP is `100.64.112.37/31`.
   <img src="images/nsxt/mgmt-cluster/mgmt-cluster-44.png" alt="Retrieve IP of the T1 Uplink" width="525"> 

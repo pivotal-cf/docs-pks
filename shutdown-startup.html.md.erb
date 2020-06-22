@@ -5,7 +5,9 @@ iaas: vsphere-nsxt
 ---
 
 This topic lists and describes the shutdown and startup sequence for <%= vars.product_full %>
-including <%= vars.product_short %>-provisioned Kubernetes cluster nodes, PKS control plane components, and vSphere hosts.
+including <%= vars.product_short %>-provisioned Kubernetes cluster nodes, PKS components, and (vSphere only) vSphere hosts.
+
+Many of these operations use your IaaS dashboard, such as vSphere Client, Azure Portal, AWS Management Console, or GCP Console.
 
 ##<a id="shutdown"></a> Shutdown Sequence and Tasks
 
@@ -22,7 +24,7 @@ To do this, run the command `bosh update-resurrection off`.
 
 Shut down all customer apps running on <%= vars.product_short %>-provisioned Kubernetes clusters.
 
-<p class="note"><strong>Note</strong>: This task is optional. Perform it after considering the types of apps you have deployed. For example, stateful, stateless, or legacy apps.</p>
+<p class="note"><strong>Note:</strong> This task is optional. Perform it after considering the types of apps you have deployed. For example, stateful, stateless, or legacy apps.</p>
 
 ###<a id="shutdown-k8s"></a>Step 3: Shut Down Kubernetes Clusters
 
@@ -49,7 +51,7 @@ For each Kubernetes cluster that you intend to shut down, do the following:
     <pre class="terminal">
     $ bosh -d service-instance_aa1234567bc8de9f0a1c stop worker</pre>
 
-    <p class="note"><strong>Note</strong>: When you use the BOSH <code>stop</code> command, all
+    <p class="note"><strong>Note:</strong> When you use the BOSH <code>stop</code> command, all
     processes on the Kubernetes node are stopped. BOSH marks them stopped so that when the VM is
     powered back on, the processes do not start automatically.</p>
 
@@ -65,44 +67,78 @@ For each Kubernetes cluster that you intend to shut down, do the following:
     <pre class="terminal">
     $ bosh -d service-instance_aa1234567bc8de9f0a1c stop master</pre>
 
-1. Using vCenter, shut down all Kubernetes node VMs. To do this, perform the following steps:
-	1. Verify the node type by checking the "job" name in the the **Custom Attributes** pane.
+1. Using your IaaS dashboard, shut down all Kubernetes node VMs. To do this, perform the following steps:
+	1. Verify the node type by checking the "job" name in the **Custom Attributes** pane.
 	1. Perform a graceful shutdown by right-clicking the target VM and selecting **Power** > **Shut Down Guest OS**.
 
         <img src="images/nsxt/shutdown/shutdown-k8s-nodes.png" alt="Shut Down Kubernetes Nodes">
 
         [View a larger version of this image.](images/nsxt/shutdown/shutdown-k8s-nodes.png)
 
-###<a id="shutdown-pks"></a>Step 4: Shut Down <%= vars.product_short %> Control Plane
+###<a id="shutdown-pks-control"></a>Step 4: Shut Down the <%= vars.product_short %> API and Database VMs
 
-To shut down the PKS control plane VM, do the following:
+To shutdown <%= vars.product_short %> control plane <%= vars.control_plane %> and <%= vars.control_plane_db %> VMs, 
+complete the following:  
+
+1. [Stop <%= vars.product_short %> Control Plane Processes](#stop-pks-control)  
+1. [Shut Down the <%= vars.product_short %> API and Database VMs](#shutdown-pks-control)  
+
+####<a id="stop-pks-control"></a>Stop <%= vars.product_short %> Control Plane Processes
+
+To stop <%= vars.product_short %> control plane processes and services, do the following:
 
 1. Using the BOSH CLI, retrieve the BOSH deployment ID of your <%= vars.product_short %> deployment by running the following command:
 
     ```
     bosh deployments
     ```
-    <%= vars.product_short %> deployment names begin with `pivotal-container-service` and include a unique BOSH-generated hash.
+    The <%= vars.product_short %> deployment ID is `pivotal-container-service-` followed by a unique BOSH-generated hash.
 
 1. Using the BOSH CLI, stop the PKS control plane VM by running the following command:
 
     ```
-    bosh -d pivotal-container-service-DEPLOYMENT-ID stop 
+    bosh -d pivotal-container-service-DEPLOYMENT-ID stop
     ```
 
-    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your <%= vars.product_short %> deployment.
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your Enterprise PKS deployment.  
+<br>
     For example:
 
     <pre class="terminal">
-    $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 stop</pre>
+    $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 stop
+    </pre>
 
-1. Using vCenter, locate and gracefully shut down the PKS control plane VM.
+####<a id="shutdown-pks-vms"></a>Shut Down the <%= vars.product_short %> API and Database VMs
 
-    <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shut Down PKS control plane VM">
+To shut down the <%= vars.control_plane %> and <%= vars.control_plane_db %> VMs, do the following:
+
+1. Run the `bosh vms` command to list your <%= vars.product_short %> control plane VMs:
+
+    ```
+    bosh -d pivotal-container-service-DEPLOYMENT-ID vms
+    ```
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your <%= vars.product_short %> deployment.  
+    <br>
+    For example:
+
+    <pre class="terminal">
+    $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 vms</pre>
+
+1. From the `bosh vms` output, record: 
+    * The <%= vars.control_plane %> VM name, 
+listed under **Instances** as `pivotal-container-service/` followed by a unique BOSH-generated hash  
+    * The <%= vars.control_plane_db %> VM name, 
+listed under **Instances** as `pks-db/` followed by a unique BOSH-generated hash
+
+1. Using your IaaS dashboard, locate and gracefully shut down your <%= vars.product_short %> control plane VMs:
+    * The <%= vars.control_plane %> VM
+    * The <%= vars.control_plane_db %> VM
+
+    <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shut Down <%= vars.control_plane %> VM">
 
     [View a larger version of this image.](images/nsxt/shutdown/shutdown-pks.png)
 
-###<a id="shutdown-harbor"></a>Step 5: Shut Down VMware Harbor Registry
+###<a id="shutdown-harbor"></a>Step 5: Shut Down VMware Harbor Registry (vSphere Only)
 
 To shut down the Harbor Registry VM, do the following:
 
@@ -133,7 +169,7 @@ deployment by running the following command:
 
 ###<a id="shutdown-bosh"></a>Step 6: Shut Down BOSH Director
 
-Using vCenter, locate and gracefully shut down the BOSH Director VM.
+Using your IaaS dashboard, locate and gracefully shut down the BOSH Director VM.
 
 <img src="images/nsxt/shutdown/shutdown-bosh.png" alt="Shut Down BOSH VM">
 
@@ -141,13 +177,13 @@ Using vCenter, locate and gracefully shut down the BOSH Director VM.
 
 ###<a id="shutdown-om"></a>Step 7: Shut Down Ops Manager
 
-Using vCenter, locate and gracefully shut down the Ops Manager VM.
+Using your IaaS dashboard, locate and gracefully shut down the Ops Manager VM.
 
 <img src="images/nsxt/shutdown/shutdown-om.png" alt="Shut Down Ops Manager VM">
 
 [View a larger version of this image.](images/nsxt/shutdown/shutdown-om.png)
 
-###<a id="shutdown-nsxt"></a>Step 8: Shut Down NSX-T Components
+###<a id="shutdown-nsxt"></a>Step 8: Shut Down NSX-T Components (vSphere NSX-T Only)
 
 Using vCenter, gracefully shut down all NSX-T VMs in the following order:
 
@@ -159,7 +195,7 @@ Using vCenter, gracefully shut down all NSX-T VMs in the following order:
 
 [View a larger version of this image.](images/nsxt/shutdown/shutdown-nsxt.png)
 
-###<a id="shutdown-vc"></a>Step 9: Shut Down vCenter Server
+###<a id="shutdown-vc"></a>Step 9: Shut Down vCenter Server (vSphere Only)
 
 To shut down the vCenter Server VM, do the following:
 
@@ -177,7 +213,7 @@ and the [How to stop, start, or restart vCenter Server 6.x services](https://kb.
 
 [View a larger version of this image](images/nsxt/shutdown/shutdown-vc.png)
 
-###<a id="shutdown-esxi"></a>Step 10: Shut Down ESXi Hosts
+###<a id="shutdown-esxi"></a>Step 11: Shut Down ESXi Hosts (vSphere NSX-T Only)
 
 To shut down each ESXi host in the vSphere cluster, do the following:
 
@@ -198,19 +234,19 @@ To shut down each ESXi host in the vSphere cluster, do the following:
 
 To restart all Kubernetes, <%= vars.product_short %>, and infrastructure components, complete the following tasks in the sequence presented.
 
-###<a id="start-esxi"></a> Step 1: Start ESXi Hosts
+###<a id="start-esxi"></a> Step 1: Start ESXi Hosts (vSphere NSX-T Only)
 
 To start the ESXi hosts, do the following:
 
 1. Using the remote management console, such as Dell IDRAC or HP iLO, power on each ESXi host.
 1. Connect to the web interface of each ESXi host and exit maintenance mode.
 
-###<a id="start-vc"></a> Step 2: Start vCenter
+###<a id="start-vc"></a> Step 2: Start vCenter (vSphere Only)
 
 Connect to the web interface of the ESXi server that hosts the vCenter VM. Select the vCenter VM,
 and click **Power On**.
 
-###<a id="start-nsxt"></a> Step 3: Start NSX-T Components
+###<a id="start-nsxt"></a> Step 3: Start NSX-T Components (vSphere NSX-T Only)
 
 To start the NSX-T components, perform the following steps:
 
@@ -222,23 +258,23 @@ To start the NSX-T components, perform the following steps:
 
 ###<a id="start-om"></a> Step 4: Start Ops Manager
 
-1. Using vCenter, power on the Ops Manager VM.
+1. Using your IaaS dashboard, power on the Ops Manager VM.
 1. Using a browser, go to the Ops Manager URL.
 1. Enter the Ops Manager passphrase.
 1. Log in to the Ops Manager UI.
 
 ###<a id="start-bosh"></a> Step 5: Start the BOSH Director
 
-Using vCenter, power on the BOSH Director VM.
+Using your IaaS dashboard, power on the BOSH Director VM.
 
-<p class="note"><strong>Note</strong>: BOSH is aware that all the VMs under its control were stopped. BOSH does not attempt to resurrect any VMs, which is the desired behavior.</p>
+<p class="note"><strong>Note:</strong> BOSH is aware that all the VMs under its control were stopped. BOSH does not attempt to resurrect any VMs, which is the desired behavior.</p>
 
 It may take approximately 90 minutes for BOSH to start properly.
 
 To speed up the BOSH startup process:
 
 1. Obtain the BOSH Director VM Credentials from Ops Manager. For information about doing this, see
-[Retrieving Credentials from Your Deployment](https://docs.pivotal.io/pivotalcf/2-6/customizing/credentials.html) in the Pivotal documentation.
+[Retrieving Credentials from Your Deployment](https://docs.pivotal.io/platform/customizing/credentials.html) in the Ops Manager documentation.
 1. SSH to the BOSH Director VM.
 1. On the BOSH Director VM, run the following commands:
 
@@ -258,27 +294,31 @@ To speed up the BOSH startup process:
     ```
     You should see that the `uaa` and `credhub` processes are now running. At this point, the BOSH Director should be fully up and running.
 
-###<a id="start-pks"></a>Step 6: Start the <%= vars.product_short %> Control Plane
+###<a id="start-pks"></a>Step 6: Start the Control Plane VMs
 
-To start the PKS control plane, do the following:
+To start the PKS Control Plane, do the following:
 
-1. Using vCenter, power on the PKS control plane VM.
-1. Using the BOSH CLI, start the <%= vars.product_short %> process on the VM by running the
-following command:
+1. Using your IaaS dashboard, power on the <%= vars.control_plane_db %> VM.
+
+1. Run `bosh start` to start the <%= vars.control_plane_db %> VM:
 
     ```
-    bosh -d pivotal-container-service-DEPLOYMENT-ID start
+    bosh -d PKS-DB-VM-ID start
     ```
 
-    Where `DEPLOYMENT-ID` is the BOSH-generated ID of the <%= vars.product_short %> deployment.
-    For example:
+    Where `PKS-DB-VM-ID` is the name of the <%= vars.control_plane_db %> VM listed by the `bosh vms` command.
 
-    <pre class="terminal">
-    $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 start</pre>
+1. Using your IaaS dashboard, power on the <%= vars.control_plane %> VM.
 
-     <p class="note"><strong>Note</strong>: Because you stopped the <%= vars.product_short %> process using BOSH, you must restart it using BOSH.</p>
+1. Run `bosh start` to start the <%= vars.control_plane %> VM:
 
-###<a id="start-harbor"></a> Step 7: Start Harbor Registry
+    ```
+    bosh -d PKS-API-VM-ID start
+    ```
+
+    Where `PKS-API-VM-ID` is the name of the <%= vars.control_plane %> VM.
+
+###<a id="start-harbor"></a> Step 7: Start Harbor Registry (vSphere Only)
 
 To start Harbor Registry, do the following:
 

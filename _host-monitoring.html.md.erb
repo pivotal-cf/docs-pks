@@ -2,24 +2,23 @@
 <%# DO NOT ADD READBILITY LINE WRAPPING TO THIS CONTENT THE LONG LINES MUSt REMAIN TO CORRECTLY FORMAT THE FOLLOWING SECTION'S MARKDOWN CONTENT %>
 <%# <!-- WARNING!!!! --> %>
 
-The **Host Monitoring** pane provides settings for 
-monitoring host VMs in your <%= vars.product_short %> deployment.
-In this pane, you can configure <%= vars.product_short %> to
-forward logs from your BOSH-deployed VMs to a syslog endpoint as well as 
-configure transport of multiple metric sources.
-These settings are not visible to Kubernetes cluster users.
+In **Host Monitoring**, you can configure one or more of the following:
 
-![Host Monitoring pane](images/host-monitoring.png)
- 
-To configure host monitoring in the <%= vars.product_tile %> tile, do the following:
-
-* To configure Syslog for BOSH-deployed VMs, see [Syslog](#host-syslog).
+* To configure Syslog, see [Syslog](#host-syslog). Syslog forwards log messages from all BOSH-deployed VMs to a syslog endpoint.
 <% if current_page.data.iaas == "vSphere" || current_page.data.iaas == "vSphere-NSX-T" %>
-* To configure VMware vRealize Log Insight Integration, see [VMware vRealize Log Insight Integration](#vrealize-logs).
+* To configure VMware vRealize Log Insight (vRLI) Integration, see [VMware vRealize Log Insight Integration](#vrealize-logs).
+The vRLI integration pulls logs from all BOSH jobs and containers running in the cluster, including node logs from core Kubernetes and BOSH processes, Kubernetes event logs, and pod `stdout` and `stderr`.
 <% end %>
-* To configure the Telegraf agent, see [Telegraf](#telegraf).
+* To configure the Telegraf agent, see [Telegraf](#telegraf). The Telegraf agent sends metrics from <%= vars.control_plane %>, master node, and worker node VMs to a monitoring service, such as Wavefront or Datadog.
 
-####<a id='host-syslog'></a> Syslog
+For more information about these components, see
+[Monitoring <%= vars.k8s_runtime_abbr %> and <%= vars.k8s_runtime_abbr %>-Provisioned Clusters](host-monitoring.html).
+
+  ![Host Monitoring pane](images/host-monitoring.png)
+
+####<a id="host-syslog"></a> Syslog
+
+To configure Syslog for all BOSH-deployed VMs in <%= vars.product_short %>:
 
 1. Click **Host Monitoring**.
 1. Under **Enable Syslog for PKS**, select **Yes**.
@@ -27,43 +26,119 @@ To configure host monitoring in the <%= vars.product_tile %> tile, do the follow
 1. Under **Port**, enter the destination syslog port.
 1. Under **Transport Protocol**, select a transport protocol for log forwarding.
 1. (Optional) To enable TLS encryption during log forwarding, complete the following steps:
-  1. Ensure **Enable TLS** is selected.  
+  1. Ensure **Enable TLS** is selected.
   <p class="note"><strong>Note</strong>: Logs may contain sensitive information, such as cloud provider credentials.
-  Pivotal strongly recommends that you enable TLS encryption for log forwarding.
-  </p>  
+  <%= vars.recommended_by %> recommends that you enable TLS encryption for log forwarding.
+  </p>
   1. Under **Permitted Peer**, provide the accepted fingerprint (SHA1) or name of remote peer. For example, `*.YOUR-LOGGING-SYSTEM.com`.
   1. Under **TLS Certificate**, provide a TLS certificate for the destination syslog endpoint.
   <p class="note"><strong>Note</strong>: You do not need to provide a new certificate if the TLS certificate for the destination syslog endpoint is signed by a Certificate Authority (CA) in your BOSH certificate store.
   </p>
-1. (Optional) Under **Max Message Size**, enter a maximum message size for logs that are forwarded to a syslog endpoint. By default, the **Max Message Size** field is 10,000 characters. 
+1. (Optional) Under **Max Message Size**, enter a maximum message size for logs that are forwarded to a syslog endpoint. By default, the **Max Message Size** field is 10,000 characters.
 1. Click **Save**.
 
 <% if current_page.data.iaas == "vSphere" || current_page.data.iaas == "vSphere-NSX-T" %>
-####<a id='vrealize-logs'></a> VMware vRealize Log Insight Integration
+####<a id="vrealize-logs"></a> VMware vRealize Log Insight Integration
 <%= partial 'vrealize-logs' %>
 <% end %>
 
-####<a id='telegraf'></a> Telegraf
+####<a id="telegraf"></a> Telegraf
 
-In **Host Monitoring**, you can configure the Telegraf agent to collect metrics from Node Exporter, etcd, and the Kubelet agent
-and send the metrics to a third-party monitoring service:
+To configure <%= vars.product_short %> to use Telegraf for metric collection:
 
-* Node Exporter, a Prometheus monitoring service, provides infrastructure and OS metrics.
-For more information about Node Exporter metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) GitHub repository.
-* etcd provides local monitoring information that can be used for system health checking and cluster debugging.
-* Kubelet provides an endpoint with metrics for all workloads running in each Kubernetes cluster.
-
-To connect a third-party monitoring service to <%= vars.product_short %>, complete the following steps:  
-
-1. Create a configuration file for the third-party monitoring service.
+1. Create a configuration file for your monitoring service.
 For instructions, see [Create a Configuration File](./monitor-etcd.html#toml).
-1. (Optional) Select **Include etcd metrics**. This includes etcd server and debug metrics. 
-1. (Optional) Select **Enable node exporter on master**. This enables Node Exporter on the _localhost_ of each master node VM.
-1. (Optional) Select **Include kubelet metrics**. This includes all workload metrics across your Kubernetes clusters. Enabling **Include kubelet metrics** generates a high volume of metrics.
-1. To enable a third-party monitoring service, configure **Setup Telegraf Outputs**. Enter the contents of the configuration file you created. 
-If you do not want to output any metrics, leave the default value `[[outputs.discard]]`.
+
+1. Return to the <%= vars.product_tile %> tile > **Settings** > **Host Monitoring**.
+
+3. Under **Enable Telegraf Outputs?**, select **Yes**.
+
+2. Configure the Telegraf checkboxes as described in the table below.
+
+    Components you enable in this step will be visible to <%= vars.k8s_runtime_abbr %> admins only.
+
+    <table class="nice">
+      <col width="30%">
+      <col width="70%">
+      <tr>
+        <th>Enable this checkbox...</th>
+        <th>...to send these metrics to your monitoring service</th>
+      </tr>
+      <tr>
+        <td>
+          <strong>Enable node exporter on PKS API</strong>
+        </td>
+        <td>
+          Node Exporter metrics from the <%= vars.control_plane %> VM
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Enable node exporter on master</strong>
+        </td>
+        <td>
+          Node Exporter metrics from Kubernetes master nodes
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include etcd metrics</strong>
+        </td>
+        <td>
+          etcd server and debugging metrics
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Enable node exporter on worker</strong>
+        </td>
+        <td>
+          Node Exporter metrics from Kubernetes worker nodes
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include Kubernetes Controller Manager metrics</strong>
+        </td>
+        <td>
+          Kubernetes controller manager metrics
+          <ul><li>These metrics provide information about the state of each cluster.</li></ul>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include Kubernetes API Server metrics</strong>
+        </td>
+        <td>
+          Kubernetes API server metrics
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include kubelet metrics</strong>
+        </td>
+        <td>
+          kubelet metrics for all workloads running in all your Kubernetes clusters
+          <ul><li>If you enable <strong>Include kubelet metrics</strong>, be prepared for a high volume of metrics.</li></ul></p>
+        </td>
+      </tr>
+    </table>
+
+1. In **Set Up Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents of the configuration file
+    that you created above. See the following example for an HTTP output plugin:
+
+    ```
+    [[outputs.http]]
+       url="https://example.com"
+       method="POST"
+       data_format="json"
+    [[processors.override]]
+      [processors.override.tags]
+        director = "bosh-director-1"
+    ```
+
 1. Click **Save**.
-  
+
 <%# WARNING!!!! %>
 <%# <!-- DO NOT ADD READBILITY LINE WRAPPING TO THIS CONTENT THE LONG LINES MUSt REMAIN TO CORRECTLY FORMAT THE FOLLOWING SECTION'S MARKDOWN CONTENT  %>
 <%#  WARNING!!!! %>

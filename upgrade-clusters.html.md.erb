@@ -3,67 +3,69 @@ title: Upgrading Clusters
 owner: PKS
 ---
 
-This topic describes how to upgrade Kubernetes clusters provisioned by <%= vars.product_full %>.
+This topic describes how to upgrade Kubernetes clusters
+provisioned by <%= vars.product_full %> (<%= vars.product_short %>)
+through the <%= vars.product_short %> Command Line Interface (PKS CLI).
 
-##<a id='overview'></a>Overview
+For information about how to upgrade PKS-provisioned clusters
+through the <%= vars.product_tile %> tile,<br>
+see _Verify Errand Configuration_ in one of the following topics:
 
-When upgrading <%= vars.product_short %>, you can choose one of the following approaches:
+* [Upgrading <%= vars.product_short %> (Flannel Networking)](upgrade-pks.html)
+* [Upgrading <%= vars.product_short %> (NSX-T Networking)](upgrade-pks-nsxt.html)
 
-* Upgrade the <%= vars.product_tile %> tile and all <%= vars.product_short %>-provisioned Kubernetes clusters simultaneously.
-This is the default behavior of the <%= vars.product_tile %> tile.
-* Upgrade the <%= vars.product_tile %> tile only and then upgrade <%= vars.product_short %>-provisioned Kubernetes clusters separately.
-If you want to upgrade your clusters separately, do the following:
-  1. Review [Limitations](#limitations).
-  1. Complete the steps listed in [Prerequisites](#prerequisites).
-  1. Complete the steps listed in [Upgrade Clusters](#upgrade-clusters).
+For conceptual information about <%= vars.product_short %> upgrades,
+see [About <%= vars.product_short %> Upgrades](understanding-upgrades.html).
 
-    <p class="note"><strong>Note:</strong> When <%= vars.product_short %> is set to upgrade the <%= vars.product_tile %> tile only and
-    not the clusters, the Kubernetes cluster version falls behind the <%= vars.product_tile %> tile version.
-    If the clusters fall more than one version behind the tile,
-    <%= vars.product_short %> cannot upgrade the clusters.
-    The clusters must be upgraded to match the <%= vars.product_short %> tile version before the next tile upgrade.</p>
+## <a id="overview"></a>Overview
 
-For more information about <%= vars.product_short %> upgrades,
-see [What Happens During <%= vars.product_short %> Upgrades](understanding-upgrades.html).
+Upgrading a PKS-provisioned Kubernetes cluster updates
+the <%= vars.product_short %> version and the Kubernetes version
+of the cluster.
+PKS-provisioned Kubernetes clusters upgrade when:
+
+* You upgrade <%= vars.product_short %>
+with the **Upgrade all clusters errand** enabled in the **<%= vars.product_tile %>** tile > **Errands**.
+* You run `pks upgrade-cluster` or `pks upgrade-clusters`
+as described in [Upgrade Clusters](#upgrade-clusters) below.
+
+For example, running `pks upgrade-cluster`
+upgrades the cluster you specify to your current version of <%= vars.product_short %>
+and to the version of Kubernetes
+that is included with your current version of <%= vars.product_short %>.
+
+<p class="note warning"><strong>WARNING</strong>: Do not change the number of master/etcd nodes 
+for any plan that was used to create currently-running clusters. 
+<%= vars.product_short %> does not support changing the number of master/etcd nodes for plans 
+with existing clusters.
+</p>
 
 ##<a id='prerequisites'></a>Prerequisites
 
-Before upgrading Kubernetes clusters provisioned by <%= vars.product_short %>, you must do the following:
+Before upgrading PKS-provisioned Kubernetes clusters:
 
-* Disable **Upgrade all clusters errand** in the <%= vars.product_tile %> tile. For more information, see [Modify Errand Configuration in the <%= vars.product_tile %> Tile](#disable-errand) below.
-  <p class="note warning"><strong>Warning:</strong> If you upgrade the <%= vars.product_tile %> tile or update your tile configuration, with <strong>Upgrade all clusters errand</strong> disabled,
-  you must upgrade all your Kubernetes clusters before the next upgrade or configuration update.</p>
-* Install the PKS command line interface (CLI) v1.7. For more information, see [Installing the PKS CLI](installing-pks-cli.html).
-* Log in to <%= vars.product_short %> using `pks login`. For more information, see [Logging in to <%= vars.product_short %>](login.html).
-
-###<a name='disable-errand'></a> Modify Errand Configuration in the <%= vars.product_tile %> Tile
-
-To modify errand configuration when upgrading your <%= vars.product_short %> version, perform the steps below.
-For more information about upgrading <%= vars.product_short %>, see [Upgrading <%= vars.product_short %>](upgrade-pks.html).
-
-1. If you have not already, import the product file for the new <%= vars.product_short %> version to the Ops Manager **Installation Dashboard**.
-1. In the the <%= vars.product_tile %> tile, navigate to the **Errands** pane.
-1. Disable **Upgrade all clusters errand** and click **Save**.
-  ![Errands pane](images/disable-upgrade-all-clusters-errand.png)
-1. Return to the Ops Manager **Installation Dashboard** and click **Review Pending Changes**.
-1. Select <%= vars.product_short %> and any other products that you want to deploy and click **Apply Changes**.
+1. Verify the cluster you are upgrading supports upgrading. 
+For information, see [Verify Your Clusters Support Upgrading](checklist.html#resource-usage)
+ in the _Upgrade Preparation Checklist for <%= vars.product_short %>_.
+1. Verify that your Kubernetes environment is healthy. 
+For information, see [Verifying Deployment Health](verify-health.html).
+1. Install the PKS CLI.
+For information, see [Installing the PKS CLI](installing-cli.html).
+1. Log in to <%= vars.product_short %> using `pks login`.
+For more information, see [Logging in to <%= vars.product_short %>](login.html).  
 
 ##<a id='upgrade-clusters'></a>Upgrade Clusters
 
-You can upgrade your <%= vars.product_tile %> tile 
-separately from upgrading your <%= vars.product_tile %>-provisioned Kubernetes clusters.  
-
-After upgrading your <%= vars.product_tile %> tile, upgrade individual or multiple 
+You can upgrade individual or multiple
 clusters using the following procedures:
 
 * [Upgrade a Single Kubernetes Cluster](#upgrade-cluster)  
 * [Upgrade Multiple Kubernetes Clusters](#upgrade-clusters-multi)
 
 To monitor or stop a cluster upgrade, follow the procedures in 
-[Manage Your Kubernetes Cluster Upgrade Job](#manage-upgrade), below.
+[Manage Your Kubernetes Cluster Upgrade Job](#manage-upgrade) below.
 
-
-###<a id='upgrade-cluster'></a>Upgrade a Single Kubernetes Cluster
+###<a id='upgrade-cluster'></a>Upgrade a Single Cluster
 
 The <%= vars.product_short %> CLI provides `upgrade-cluster` for upgrading an individual <%= vars.product_tile %>-provisioned 
 Kubernetes cluster. 
@@ -76,11 +78,11 @@ pks upgrade-cluster CLUSTER-NAME
 ```
 Where `CLUSTER-NAME` is the name of the Kubernetes cluster you want to upgrade.
 
-To upgrade multiple clusters, see [Upgrade Multiple Kubernetes Clusters](#upgrade-clusters-multi), below.  
+To upgrade multiple clusters, see [Upgrade Multiple Kubernetes Clusters](#upgrade-clusters-multi) below.
 
 For more information about the `pks upgrade-cluster` command, see [pks upgrade-cluster](cli/index.html#upgrade-cluster) in the _PKS CLI_ documentation.    
 
-###<a id='upgrade-clusters-multi'></a>Upgrade Multiple Kubernetes Clusters
+###<a id='upgrade-clusters-multi'></a>Upgrade Multiple Clusters
 
 The <%= vars.product_short %> CLI provides `upgrade-clusters` for upgrading multiple <%= vars.product_tile %>-provisioned 
 Kubernetes clusters. 
@@ -90,7 +92,7 @@ To upgrade a single cluster, see [Upgrade a Single Kubernetes Cluster](#upgrade-
 
 For more information about the `pks upgrade-clusters` command, see [pks upgrade-clusters](cli/index.html#upgrade-clusters) in the _PKS CLI_ documentation.    
 
-####<a id='upgrade-clusters-parallel'></a> Upgrade Multiple Kubernetes Clusters in Parallel
+####<a id='upgrade-clusters-parallel'></a> Upgrade Clusters in Parallel
 
 To upgrade multiple Kubernetes clusters, run the following command:
 
@@ -137,7 +139,7 @@ Finished upgrading cluster: k8-cluster-002
 Upgrade task d772aba0-2670-4fba-b26c-044b19d6ab60 is done.
 </pre>
 
-####<a id='upgrade-clusters-errors'></a> Upgrade Multiple Kubernetes Clusters With Canaries
+####<a id='upgrade-clusters-errors'></a> Upgrade Clusters With Canaries
 
 To upgrade multiple clusters and automatically stop upgrading clusters if a cluster upgrade fails, 
 specify your cluster list as canary clusters. 
@@ -191,12 +193,12 @@ Upgrade task ce31a1bb-380a-453f-afa0-835ffa1ce6ac is done.
 </pre>
 
 
-###<a id='manage-upgrade'></a> Manage Your Kubernetes Cluster Upgrade Job
+##<a id='manage-upgrade'></a> Manage Your Cluster Upgrade Job
 
 You can use the PKS CLI to monitor and manage your <%= vars.product_tile %>-provisioned Kubernetes cluster 
 upgrade jobs.  
 
-####<a id='monitor-upgrades'></a> Monitor the Status of Your Kubernetes Clusters
+###<a id='monitor-upgrades'></a> Monitor Your Clusters
 
 To review the status of the actions being performed on your clusters, 
 run the following command:
@@ -209,16 +211,16 @@ For example:
 <pre class="terminal">
 $ pks clusters
 <br>
-Upgrade is available to PKS Version: 1.6.0-build.14
+Upgrade is available to PKS Version: 1.7.0-build.16
 <br>
 PKS Version     Name               k8s Version  Plan Name  UUID                                  Status       Action
-1.6.0-build.14  k8-cluster-000     1.14.5       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  succeeded    UPGRADE
-1.6.0-build.14  k8-cluster-001     1.14.5       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  failed       UPGRADE
-1.6.0-build.14  k8-cluster-002     1.14.5       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  in progress  UPGRADE
-1.6.0-build.14  k8-cluster-003     1.14.5       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  queued       UPGRADE
+1.7.0-build.16  k8-cluster-000     1.16.7       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  succeeded    UPGRADE
+1.7.0-build.16  k8-cluster-001     1.16.7       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  failed       UPGRADE
+1.7.0-build.16  k8-cluster-002     1.16.7       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  in progress  UPGRADE
+1.7.0-build.16  k8-cluster-003     1.16.7       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  queued       UPGRADE
 </pre>
 
-####<a id='monitor-upgrade-job'></a> Monitor the Status of Your Kubernetes Cluster Upgrade Job
+###<a id='monitor-upgrade-job'></a> Monitor Your Cluster Upgrade Job
 
 To review the status of your `upgrade-clusters` job, run the following command:
 
@@ -238,7 +240,7 @@ k8-cluster-000 succeeded  Mon, 14 Oct 2019 12:00:00 PDT  Mon, 14 Oct 2019 12:19:
 k8-cluster-001 failed     Mon, 14 Oct 2019 12:20:00 PDT  ---                                 true
 </pre>
 
-####<a id='stop-upgrade-job'></a> Stop Your Kubernetes Cluster Upgrade Job
+###<a id='stop-upgrade-job'></a> Stop Your Cluster Upgrade Job
 
 To cancel a running `upgrade-clusters` job, run the following PKS CLI command:
 
@@ -250,12 +252,12 @@ Where `TASKID` is the ID of the task that was returned when you ran `pks upgrade
 <p class="note warning"><strong>Warning:</strong> <code>pks cancel-task</code> does not cancel cluster upgrades currently in progress. This command only cancels a job's pending cluster upgrades.
 </p>
 
-##<a id='limitations'></a> Limitations
 
-If you upgrade the <%= vars.product_tile %> tile only
-and then attempt to resize or update your existing Kubernetes clusters,
-these operations fail until you upgrade the clusters.
+##<a id='after-upgrade-clusters'></a>After Upgrading Clusters
 
-If you want to upgrade the <%= vars.product_tile %>
-tile and your existing Kubernetes clusters simultaneously,
-do not disable **Upgrade all clusters errand** in the <%= vars.product_tile %> tile.
+###<a id='restore-cluster-sizing'></a>(Optional) Restore Cluster Sizing
+ 
+If you scaled your cluster up for the upgrade and you prefer to restore your cluster to its original sizing, 
+you can now scale the cluster back down to its previous configuration. 
+<%= vars.recommended_by %> recommends that you not scale down your clusters and continue to run them with 
+recommended configurations, reducing the chance of a future outage.  

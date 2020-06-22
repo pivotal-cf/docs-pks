@@ -8,73 +8,15 @@ provisioned with <%= vars.product_full %> on vSphere with NSX-T integration.
 
 Network profiles let you customize NSX-T configuration parameters.
 
-## <a id='assign-profile'></a> Assign a Network Profile to a Cluster
+## <a id="how-created"></a> How Network Profiles are Created
 
-You can assign a network profile to a Kubernetes cluster at the time of cluster creation.
-To assign a network profile to a Kubernetes cluster, you must do the following:
+<%= vars.product_short %> cluster administrators can create and delete network profiles, as described in the [Creating and Managing Network Profiles](./network-profiles-define.html) topic.
 
-1. Define a network profile configuration in a JSON file.
-For instructions on how to define network profile configurations,
-see [Defining Network Profiles](network-profiles-define.html).
-1. Create a network profile using the JSON file.
-For instructions on how to create network profiles, see [Create a Network Profile](#create-profile).
-1. Create a Kubernetes cluster with the network profile.
-For instructions on how to create a Kubernetes cluster with a network profile,
-see [Create a Cluster with a Network Profile](#create-cluster).
+After an administrator creates a network profile, cluster managers can create clusters with it or assign it to existing clusters.
 
-<p class="note"><strong>Note:</strong> Only <%= vars.product_short %> cluster administrators 
-can create and delete network profiles.
-Cluster managers can list existing network profiles and assign them to clusters.</p>
+## <a id="list-profiles"></a> List Network Profiles
 
-### <a name="create-cluster"></a> Create a Cluster with a Network Profile
-
-To create an <%= vars.product_short %>-provisioned Kubernetes cluster with a network profile, run the following command:
-
-```
-pks create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --network-profile NETWORK-PROFILE-NAME
-```
-
-Where:
-
-* `CLUSTER-NAME` is a unique name for your cluster.
-* `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
-* `PLAN-NAME` is the name of the <%= vars.product_short %> plan you want to use for your cluster.
-* `NETWORK-PROFILE-NAME` is the name of the network profile you want to use for your cluster.
-
-## <a id="manage-profiles"></a> Manage Network Profiles
-
-This section describes how to create, list, and delete network profiles.
-
-### <a id="create-profile"></a> Create a Network Profile
-
-After you define your network profile configuration as described in [Defining Network Profiles](network-profiles-define.html),
-run the following command:
-
-```
-pks create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
-``` 
-Where `PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION` is the path to the JSON file
-you created when defining the network profile.
-
-For example:
-
-<pre class="terminal">
-$ pks create-network-profile np-routable-pods.json
-
-Network profile small-routable-pod successfully created
-</pre>
-
-Only cluster administrators, `pks.clusters.admin`, can create network profiles.
-If a cluster manager, `pks.clusters.manage`, attempts to create a network profile,
-the following error occurs:
-
-```
-You do not have enough privileges to perform this action. Please contact the PKS administrator.
-```
-
-### <a id="list-profiles"></a> List Network Profiles
-
-To list your network profiles, run the following command:
+To list available network profiles, run the following command:
 
 ```
 pks network-profiles
@@ -90,51 +32,40 @@ $ pks network-profiles
 	small-routable-pod 	Network profile with small load balancer and two routable pod networks
 </pre>
 
+## <a id='create'></a> Create a Cluster with a Network Profile
 
-### <a id="delete-profile"></a> Delete a Network Profile
+You can assign a network profile to a Kubernetes cluster at the time of cluster creation.
 
-To delete a network profile, run the following command:
-
-```
-pks delete-network-profile NETWORK-PROFILE-NAME
-```
-
-Where `NETWORK-PROFILE-NAME` is the name of the network profile you want to delete.
-
-<p class="note"><strong>Note:</strong> You cannot delete a network profile that is in use.</p>
-
-Only cluster administrators, `pks.clusters.admin`, can delete network profiles.
-If a cluster manager, `pks.clusters.manage`, attempts to delete a network profile,
-the following error occurs:
+To create an <%= vars.product_short %>-provisioned Kubernetes cluster with a network profile, run the following command:
 
 ```
-You do not have enough privileges to perform this action. Please contact the PKS administrator.
+pks create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --network-profile NETWORK-PROFILE-NAME
 ```
 
-### <a id="update-profile"></a> Change the Network Profile for a Cluster
+Where:
+
+* `CLUSTER-NAME` is a unique name for your cluster.
+* `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
+* `PLAN-NAME` is the name of the <%= vars.product_short %> plan you want to use for your cluster.
+* `NETWORK-PROFILE-NAME` is the name of the network profile you want to use for your cluster.
+
+## <a id="update-profile"></a> Assign a Network Profile to an Existing Cluster
  
-PKS supports changing the network profile for an already created cluster. 
+PKS supports changing the network profile for an already created cluster.
+You can use this procedure to:
 
-To change the network profile, you create a new network profile and then apply it to the existing cluster.
+- assign a network profile to a cluster that does not have one, or
+- change a cluster's existing profile to a new one
 
-Currently you only can change the `pod_ip_block_ids` field as follows:
+<p class="note"><strong>Note:</strong> You cannot change a cluster's network profile to remove pod IP block IDs. For more information, see <a href="./network-profiles-define.html#change-pod-ips">Limitation: Pod IP Block Changes</a> in <em >Creating and Managing Network Profiles</em>.</p>
 
-- Reorder the IP Block IDs in the array
-- Add more IP Block IDs in the array
+This is the procedure to change a cluster's network profile:
 
-For more information on the `pod_ip_block_ids` field, see [Network Profile Parameters](./network-profiles-define.html#params). 
-For more information on the supported use cases for the `pod_ip_block_ids` field, see [Network Profile Use Cases](./network-profiles-define.html#use-cases).
-
-To update the `pod_ip_block_ids` network profile field for a cluster, do the following:
-
-1. Define a new network profile. In the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.
-For more information on defining the network profile JSON file, see [Defining Network Profiles](./network-profiles-define.html).
-
-    <p class="note"><strong>Note:</strong> If possible, start with the exact contents of the original network profile and update the <code>pod_ip_block_ids</code> field, as well as the <code>name</code> field. If it is not possible to obtain the original network profile, create a new network profile with a unique <code>name</code> and the original values in the <code>pod_ip_block_ids</code> field. Then reorder or add IPs as desired.</p>
-
-1. Create a new network profile as described in the [Create a Network Profile](./network-profiles.html#create-profile) section. 
-
-    <p class="note"><strong>Note:</strong> The name that you specify for the new network profile must be unique and differ from the previously assigned network profile. Otherwise, you receive an error when you try to create the network profile.</p>
+1. Do one of the following
+	- Choose a new network profile for the cluster.
+	See [List Network Profiles](#list-profiles).
+	- Have a <%= vars.product_short %> cluster administrator define and create a new network profile as described in [Create a Network Profile](./network-profiles.html#create-profile) in _Creating and Managing Network Profiles_. 
+  		- The name of the new network profile must be unique and different from the previously assigned network profile.
 
 1. Run the following command to update the cluster with the new network profile:
 
@@ -146,7 +77,7 @@ For more information on defining the network profile JSON file, see [Defining Ne
     * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
     * `NEW-NETWORK-PROFILE-NAME` is the name of the new network profile you want to apply to the cluster.
 
-#### <a id="network-profile-validation"></a> Network Profile Update Validation
+### <a id="network-profile-validation"></a> Network Profile Update Validation
 
 There are strict validation rules for the `pks update-cluster --network-profile` command:
 
@@ -155,18 +86,9 @@ There are strict validation rules for the `pks update-cluster --network-profile`
 - If a field in the existing network profile conflicts with a field in the new network profile, the system reports the conflict and fails the validation.
 - If the field is empty in the new network profile, then the system ignores the field even if the field is not empty in the original network profile.
 
-## <a id="network-details"></a> View NSX-T Network Details
+## <a id='use-cases'></a> Network Profile Use Cases
 
-You can use the following [PKS CLI command](./cli/index.html) to view NSX-T network details: 
+Network profiles let you customize NSX-T configuration parameters for clusters when you create them or afterward.
+Use cases for network profiles include:
 
-```
-pks cluster CLUSTER-NAME --details
-```
-
-Where CLUSER-NAME is the name of a Kubernetes cluster provisioned by Enterprise PKS.
-
-For example:
-
-<img src="images/nsxt/pks-cli-network-details.png" alt="View NSX-T Network Details" width="725">
-
-
+<%= partial 'network-profiles-uses' %>

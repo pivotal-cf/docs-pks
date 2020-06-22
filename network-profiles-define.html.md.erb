@@ -1,33 +1,26 @@
 ---
-title: Defining Network Profiles
+title: Creating and Managing Network Profiles
 owner: PKS
 ---
 
-This topic describes how to define network profiles for Kubernetes clusters provisioned with <%= vars.product_full %> on vSphere with NSX-T.
+This topic describes how <%= vars.product_full %> administrators on vSphere with NSX-T can create and delete network profiles for Kubernetes clusters provisioned by <%= vars.product_short %>.
+It also lists verified use cases for network profiles on <%= vars.product_short %>.
 
-## <a id='about'></a> About Network Profiles
+For more information on how to use network profiles, see [Using Network Profiles](./network-profiles.html).
 
-Network profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use cases for network profiles include the following:
+## <a id="create"></a> Create a Network Profile
 
-Profile Type 								              		| Description
-----------------------------------------------------------------|------------------------------------------------------------------------------
-[Load Balancer Sizing](./network-profiles-lb-size.html)	  		| Customize the size of the NSX-T load balancer service that is created when a Kubernetes cluster is provisioned.
-[Custom Node Networks](./network-profiles-nodes.html)  			| Customize Kubernetes Node Networks, including the IP addresses, subnet size, and routability.
-[Custom Pod Networks](./network-profiles-pods.html) 			| Customize Kubernetes Pod Networks, including IP addresses, subnet size, and routability.
-[Custom Floating IP Pool](./network-profiles-fip.html)         	| Specify a custom floating IP pool.
-[Security Groups Namespace](./network-profiles-ns-groups.html) 	| Specify an NSX-T Namespace Group where Kubernetes master nodes will be added to during cluster creation.
-[Edge Router Selection](./network-profiles-edge.html)	    	| Specify the NSX-T Tier-0 router where Kubernetes node and Pod networks will be connected to.
-[Nodes DNS Configuration](./network-profiles-nodes-dns.html)  	| Specify one or more DNS servers for Kubernetes clusters.
-[DNS Lookup of Pre-Provisioned IPs](./network-profiles-dns.html)| Configure DNS lookup of the Kubernetes API load balancer or ingress controller.
-[Load Balancer Configuration](./network-profiles-ncp-lb.html)	| Configure layer 4 TCP load balancer settings; use third-party load balancer.
-[Ingress Configuration](./network-profiles-ncp-ingress.html)    | Configure layer 7 HTTP/S ingress controller settings; use third-party ingress controller.
-[FW Section Marking](./network-profiles-ncp-dfw.html)           | Configure top or bottom section markers for explicit DFW rule placement.
-[Shared Tier-1 Router](./network-profiles-shared-t1.html)		| Use a single Shared Tier-1 Router for each Kubernetes cluster.
-[NCP Logging](./network-profiles-ncp-logerr.html) 				| Configure NCP logging.
+To create a network profile in <%= vars.product_short %>, you:
 
-## <a id="format"></a> Network Profile Format
+1. Define a network profile in a JSON configuration file, following the [Network Profile Format](#format) below.
 
-Network profiles are defined using JSON. Here is an example network profile that includes all available parameters.
+1. Use the PKS CLI to define the network profile within <%= vars.product_short %>, as described in [The create-network-profile Command](#run-create), below.
+
+### <a id="format"></a> Network Profile Format
+
+To create a network profile, you must first define it as a JSON file that specifies network parameters, listed in [Network Profile Parameters](#params) below.
+
+Here is an example network profile that includes all available parameters.
 
 <p class="note"><strong>Note:</strong> This example network profile is for illustration purposes only. It is not intended to be used as a template for network profile definition.</p>
 
@@ -85,9 +78,9 @@ Network profiles are defined using JSON. Here is an example network profile that
 
 <p class="note"><strong>WARNING:</strong> None of the parameters defined under <code>cni_configurations</code> can be updated.</p>
 
-## <a id="params"></a> Network Profile Parameters
+### <a id="params"></a> Network Profile Parameters
 
-The network profile JSON accepts the following top-level parameters:
+The network profile JSON can include the following top-level parameters:
 
 Parameter 					| Type 		| Description 
 ----------------------------|-----------|-----------------------------
@@ -104,7 +97,7 @@ Parameter 					| Type 		| Description
 | `nodes_dns` 				| String 	| Array (up to 3) of DNS server IP addresses for lookup of Kubernetes nodes and pods. 
 | `dns_lookup_mode` 		| String 	| DNS lookup mode for Kubernetes API load balancer (`API`) and ingress controller (`API_INGRESS`). 
 | `ingress_prefix` 			| String 	| Ingress controller hostname prefix for DNS lookup. 
-| `single_tier_topology` 	| Boolean 	| Use a single Tier-1 Router per cluster (shared). Default is `false`.
+| `single_tier_topology` 	| Boolean 	| Use a single Tier-1 Router per cluster (shared). Default is `true`.
 | `infrastructure_networks` | String 	| Array of IP addresses and subnets for Node Networks for use with a Shared Tier-1 topology in a Multi-Tier-0 environment.
 | `cni_configurations`		| Map 		| Map containing key-value pairs for configuring NCP (see table below). 
 
@@ -130,12 +123,10 @@ Parameter 							| Type 		| Description
 | `top_firewall_section_marker`		| String 	| UUID of the top `section-id` for the distributed firewall (DFW) section as defined in NSX-T. 
 | `bottom_firewall_section_marker`	| String 	| UUID of the bottom `section-id` for the distributed firewall (DFW) section as defined in NSX-T. 
 
-## <a id="creation"></a> Network Profile Creation
+### <a id="run-create"></a> The create-network-profile Command
 
-After the network profile is defined in a JSON file, an <%= vars.product_short %> administrator can create the network profile using the PKS CLI. The Kubernetes administrator can use the network profile when creating a cluster.
-
-After you define your network profile configuration as described in [Defining Network Profiles](network-profiles-define.html),
-run the following command:
+After a network profile is defined in a JSON file as described in [Network Profile Format](#format),
+an <%= vars.product_short %> administrator can create the network profile by running the following PKS CLI command:
 
 ```
 pks create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
@@ -152,11 +143,73 @@ Network profile small-routable-pod successfully created
 </pre>
 
 Only cluster administrators, `pks.clusters.admin`, can create network profiles.
-If a cluster manager, `pks.clusters.manage`, attempts to create a network profile,
+If a cluster manager, `pks.clusters.manage`, attempts to create a network profile, the following error occurs:
+
+```
+You do not have enough privileges to perform this action. Please contact the PKS administrator.
+```
+
+After an administrator creates a network profile, cluster managers can create clusters with it or assign it to existing clusters.
+For more information, see the [Using Network Profiles](./network-profiles.html) topic.
+
+## <a id="manage"></a> Manage Network Profiles
+
+<%= vars.product_short %> administrators can delete network profiles.
+Administrators can also perform the same operations that cluster managers use to list network profiles and manage how clusters use them.
+
+### <a id="delete"></a> Delete a Network Profile
+
+To delete a network profile, run the following command:
+
+```
+pks delete-network-profile NETWORK-PROFILE-NAME
+```
+
+Where `NETWORK-PROFILE-NAME` is the name of the network profile you want to delete.
+
+<p class="note"><strong>Note:</strong> You cannot delete a network profile that is in use.</p>
+
+Only cluster administrators, `pks.clusters.admin`, can delete network profiles.
+If a cluster manager, `pks.clusters.manage`, attempts to delete a network profile,
 the following error occurs:
 
 ```
 You do not have enough privileges to perform this action. Please contact the PKS administrator.
 ```
 
-For more information, see the [Create and Use Network Profiles](network-profiles.html#cli-commands) section of _Using Network Profiles (NSX-T Only)_.
+### <a id="user-ops"></a> Cluster Manager Operations
+
+The following sections link to operations that both <%= vars.product_short %> administrators and cluster managers can perform on network profiles,
+documented in the [Using Network Profiles (NSX-T Only)](network-profiles.html) topic.
+
+* [List Network Profiles](network-profiles.html#list-profiles) 
+* [Create a Cluster with a Network Profile](network-profiles.html#create)
+* [Assign a Network Profile to an Existing Cluster](network-profiles.html#assign)
+  - This operation can assign a network profile to a cluster that does not have one, or change a cluster's existing profile.
+  - You cannot change a cluster's network profile to remove pod IP block IDs.
+	For details, see [Limitation: Pod IP Block Changes](#change-pod-ips)]
+
+### <a id="change-pod-ips"></a> Limitation: Pod IP Block Changes
+
+You cannot remove a cluster's pod IP block IDs by creating and assigning a new network profile with `pod_ip_block_ids` array values removed.
+
+You only can change the `pod_ip_block_ids` field as follows:
+
+- Reorder the IP Block IDs in the array
+- Add more IP Block IDs in the array
+
+To update the `pod_ip_block_ids` network profile field for a cluster, do the following:
+
+1. Define a new network profile. In the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.
+For more information on defining the network profile JSON file, see [Defining Network Profiles](./network-profiles-define.html).
+
+    <p class="note"><strong>Note:</strong> If possible, start with the exact contents of the original network profile and update the <code>pod_ip_block_ids</code> field, as well as the <code>name</code> field. If it is not possible to obtain the original network profile, create a new network profile with a unique <code>name</code> and the original values in the <code>pod_ip_block_ids</code> field. Then reorder or add IPs as desired.</p>
+
+For more information on the `pod_ip_block_ids` field, see [Network Profile Parameters](./network-profiles-define.html#params). 
+For more information on the supported use cases for the `pod_ip_block_ids` field, see [Network Profile Use Cases](./network-profiles-define.html#use-cases).
+
+## <a id='use-cases'></a> Network Profile Use Cases
+
+Network profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use cases for network profiles include:
+
+<%= partial 'network-profiles-uses' %>

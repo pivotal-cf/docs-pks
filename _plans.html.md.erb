@@ -1,12 +1,12 @@
 <% if current_page.data.windowsbeta == true %>
 A plan defines a set of resource types used for deploying a cluster.   
-
+####<a id='plan-activate'></a> Activate a Plan
 <p class="note"><strong>Note</strong>: Before configuring your Windows worker plan, you must first activate and configure <strong>Plan 1</strong>.
-See <a href="installing-pks-vsphere.html#plans">Plans</a> in <i>Installing Enterprise PKS on vSphere</i> for more information.  
+See <a href="installing-pks-vsphere.html#plans">Plans</a> in <i>Installing <%= vars.product_short %> on vSphere</i> for more information.  
 </p>
 <% else %>
 A plan defines a set of resource types used for deploying a cluster.  
-
+####<a id='plan-activate'></a> Activate a Plan
 You must first activate and configure <strong>Plan 1</strong>, 
 <% end %>
 <% if current_page.data.windowsbeta != true && current_page.data.iaas != "vSphere" %>
@@ -46,6 +46,12 @@ You must activate and configure either **Plan 11**, **Plan 12**, or **Plan 13** 
 1. Under **Name**, provide a unique name for the plan.
 1. Under **Description**, edit the description as needed.
 The plan description appears in the Services Marketplace, which developers can access by using the PKS CLI.
+<% if current_page.data.windowsbeta == true %>
+1. Select **Enable HA Linux workers** to enable high availability Linux worker clusters. 
+A high availability Linux worker cluster consists of three Linux worker nodes.
+  - Windows workers are mediated by one or three Linux workers.
+  - For an illustration of how Linux workers connect Windows workers to their master node, see [Windows Worker-Based Kubernetes Cluster High Availability](./control-plane.html#windows-ha).
+<% end %>
 1. Under **Master/ETCD Node Instances**, select the default number of Kubernetes master/etcd nodes to provision for each cluster.
   You can enter <code>1</code>, <code>3</code>, or <code>5</code>.
   <p class="note"><strong>Note</strong>: If you deploy a cluster with multiple master/etcd node VMs,
@@ -70,13 +76,18 @@ Kubernetes worker node VMs that <%= vars.product_short %> can deploy for each cl
   ![Plan pane configuration, part two](images/plan2.png)
 <% end %>
 <br>
-1. Under **Worker Node Instances**, select the default number of Kubernetes worker nodes to provision for each cluster.
-  <br><br>
-  If the user creating a cluster with the PKS CLI does not specify a number of worker nodes, the cluster is deployed with the default number set in this field. This value cannot be greater than the maximum worker node value you set in the previous field. For more information about creating clusters, see [Creating Clusters](create-cluster.html).
-  <br><br>
+1. Under **Worker Node Instances**, specify the default number of Kubernetes worker nodes the PKS CLI provisions for each cluster. 
+  The **Worker Node Instances** setting must be less than, or equal to, the **Maximum number of workers on a cluster** setting.  
+  <br>
   For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use PersistentVolumes (PVs). For example, if you deploy across three AZs, you should have six worker nodes. For more information about PVs, see [PersistentVolumes](maintain-uptime.html#persistent-volumes) in *Maintaining Workload Uptime*. Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
   <br><br>
-  If you later reconfigure the plan to adjust the default number of worker nodes, the existing clusters that have been created from that plan are not automatically upgraded with the new default number of worker nodes.
+  For more information about creating clusters, see [Creating Clusters](create-cluster.html).
+    <p class="note"><strong>Note</strong>: Changing a plan's <strong>Worker Node Instances</strong> 
+    setting does not alter the number of worker nodes on existing clusters. 
+    For information about scaling an existing cluster, see 
+    [Scale Horizontally by Changing the Number of Worker Nodes Using the PKS CLI](scale-clusters.html#scale-horizontal)
+    in _Scaling Existing Clusters_. 
+    </p>
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker node VMs. For more information, including worker node VM customization options, see the [Worker Node VM Number and Size](vm-sizing.html#worker-sizing) section of _VM Sizing for <%= vars.product_short %> Clusters_.
 <% if current_page.data.iaas == "vSphere-NSX-T" %>
     <p class="note"><strong>Note</strong>: If you install <%= vars.product_short %> in an NSX-T environment, we recommend that you select a <strong>Worker VM Type</strong> with a minimum disk size of 16&nbsp;GB. 
@@ -128,12 +139,11 @@ in the Kubernetes documentation.
     See <a href="https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#feature-restrictions">Feature Restrictions</a> 
     in the Kubernetes documentation for additional information.
     </p>
-1. (Optional) Enable or disable one or more admission controller plugins: **PodSecurityPolicy**, and **SecurityContextDeny**. 
-See [Admission Plugins](./admission-plugins.html) for more information. Windows in Kubernetes does not support the **DenyEscalatingExec** Admission Plugin feature. 
+1. (Optional) Enable or disable one or more admission controller plugins: **PodSecurityPolicy**, and **SecurityContextDeny**. For more information see [Using Admission Control Plugins for <%= vars.product_short %> Clusters](./admission-plugins.html). Windows in Kubernetes does not support the **DenyEscalatingExec** Admission Plugin feature. 
 See <a href="https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#api">API</a> 
 in the Kubernetes documentation for additional information.</p>
 <% else %>
-1. (Optional) Enable or disable one or more admission controller plugins: **PodSecurityPolicy**, **DenyEscalatingExec**, and **SecurityContextDeny**. See [Admission Plugins](./admission-plugins.html) for more information.
+1. (Optional) Enable or disable one or more admission controller plugins: **PodSecurityPolicy**, **DenyEscalatingExec**, and **SecurityContextDeny**. For more information see [Using Admission Control Plugins for <%= vars.product_short %> Clusters](./admission-plugins.html).
 <% end %>
 <% if current_page.data.windowsbeta != true %>
 1. (Optional) Under **Node Drain Timeout(mins)**, enter the timeout in minutes for the node to drain pods. If you set this value to `0`, the node drain does not terminate.
@@ -152,12 +162,14 @@ in the Kubernetes documentation for additional information.</p>
     For more information about configuring default node drain behavior, see [Worker Node Hangs Indefinitely](./troubleshoot-issues.html#upgrade-drain-hangs) in _Troubleshooting_.
 <% end %>
 
-1. Click **Save**.
+1. Click **Save**.  
 
 <% if current_page.data.windowsbeta != true %>
-To deactivate a plan, perform the following steps:
 
-1. Click the plan that you want to deactivate.
-1. Select **Inactive**.
-1. Click **Save**.
+####<a id='plan-deactivate'></a> Deactivate a Plan
+To deactivate a plan, perform the following steps:  
+
+1. Click the plan that you want to deactivate.  
+1. Select **Inactive**.  
+1. Click **Save**.  
 <% end %>

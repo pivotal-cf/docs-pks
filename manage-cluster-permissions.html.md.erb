@@ -3,22 +3,30 @@ title: Managing Cluster Access and Permissions
 owner: PKS
 ---
 
-This topic describes how to grant Kubernetes cluster access and namespace permissions to users in <%= vars.product_full %>.
+This topic describes how to grant Kubernetes cluster access and namespace permissions to Kubernetes users in <%= vars.product_full %>.
 
 ## <a id='overview'></a> Overview
 
-<%= vars.product_short %> admin users can grant other users permissions to specific clusters
-by using the PKS CLI and kubectl.
+<%= vars.product_short %> admin users can grant Kubernetes users, such as developers, permissions to specific clusters.
 
 If you are an <%= vars.product_short %> admin user, you can do the following:
 
 + Grant user access to a cluster with a `ClusterRole` or a namespace within a cluster with a `Role`.
 See [Grant Cluster Access to a User](#cluster-access-user) below.
-+ Grant LDAP  or SAML group access to a cluster with a `ClusterRole` or a namespace within a cluster with a `Role`.
++ Grant group access to a cluster with a `ClusterRole` or a namespace within a cluster with a `Role`.
 See [Grant Cluster Access to a Group](#cluster-access-group) below.
 
-After you grant access, you must create a `ClusterRoleBinding` or a `RoleBinding` for the user you gave
-access to the cluster.
+After you grant user or group access to an <%= vars.product_short %>-provisioned cluster,
+Kubernetes users can connect to the cluster through the Kubernetes CLI (kubectl).
+Kubernetes users cannot create, resize, or delete clusters.
+
+### <a id='workflow'></a>Example Workflow
+
+The following diagram outlines the workflow to grant cluster access to users
+who belong to an identity provider group:
+
+<%# Edit the below file in Google Slides: https://docs.google.com/presentation/d/1ULHunAy-FNiY3NYlRnvmydHJE6QtBpvlO4j-9PBoYTE/edit?usp=sharing %>
+<a href="images/enterprise-id.png" target="_blank"><img src="images/enterprise-id.png" alt="This diagram shows the workflow that operators and cluster admins use to grant cluster access to users."></a>
 
 For more information, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) and [Default Roles and Role Bindings](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#default-roles-and-role-bindings) in the Kubernetes documentation.
 
@@ -26,43 +34,29 @@ For more information, see [RoleBinding and ClusterRoleBinding](https://kubernete
 
 Before setting up cluster access for users in <%= vars.product_short %>, you must have the following:
 
-* Access to an <%= vars.product_short %> admin user account. For information on how to create PKS admin users,
-see [Managing Enterprise PKS Users with UAA](manage-users.html).
-* A PKS API fully qualified domain name (FQDN) of your PKS deployment.
-* A LDAP or SAML identity provider configured by the operator in the <%= vars.product_tile %> tile.
+* Access to an <%= vars.product_short %> admin user account. For information about how to create <%= vars.product_short %> admin users,
+see [Managing <%= vars.product_short %> Users with UAA](manage-users.html).
+* Fully qualified domain name (FQDN) of your PKS deployment.
+* OpenID Connect (OIDC) provider for your Kubernetes clusters, configured using one or both of the following:
+  * Global OIDC provider configuration for all clusters in **Ops Manager Installation Dashboard** > **<%= vars.product_tile %>** >
+  **Settings** > **UAA** > **Configure created clusters to use UAA as the OIDC provider**.
+  For instructions, see [UAA](installing-pks-vsphere.html#uaa) in the _Installing_ topic for your IaaS.
+  * Custom OIDC provider configuration for individual clusters through a Kubernetes profile.
+  For instructions, see [Add an OIDC Provider](k8s-profiles-dex-oidc.html).
 
 ## <a id='cluster-access-user'></a> Grant Cluster Access to a User
 
-After the cluster admin grants cluster access to end users,
-the Kubernetes end user can use the Kubernetes Command Line
-Interface (kubectl) to connect to the cluster. End users can only do actions that are
-permitted by the cluster admin. They cannot create, resize, or delete
-clusters.
+To grant cluster access to a user, do the following:
 
-<p class='note'><strong>Note:</strong> Before you can grant cluster access to Kubernetes end users,
-you must enable OpenID Connect (OIDC) by selecting
-<strong>Enable UAA as OIDC provider
-</strong> in <strong>Ops Manager Installation Dashboard</strong> > <strong>
-  <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>.
-  After you enable OIDC, you must run <code>pks get-credentials</code>
-  to update your existing kubeconfig file.</p>
-
-The following diagram outlines the workflow to grant cluster access to a
-user who belongs to an identity provider group:
-
-<%# Edit the below file in Google Slides: https://docs.google.com/presentation/d/1ULHunAy-FNiY3NYlRnvmydHJE6QtBpvlO4j-9PBoYTE/edit?usp=sharing %>
-<a href="images/enterprise-id.png" target="_blank"><img src="images/enterprise-id.png" alt="This diagram shows the workflow that operators and cluster admins use to grant cluster access to users."></a>
-
-To grant cluster access to users, do the following:
-
-1. Log in to PKS by running following command:
+1. Log in to <%= vars.product_short %> by running following command:
 
     ```
     pks login -u USERNAME -p PASSWORD -a PKS-API --ca-cert CERT-PATH
     ```
     Where:
-    * `USERNAME` is your cluster admin username.
-    This is the username created for your organization's LDAP or SAML identity provider.
+    * `USERNAME` is your cluster admin username:
+      * If you use LDAP or SAML for UAA, this is your LDAP or SAML username.
+      * If you do not use LDAP or SAML for UAA, this is your UAA username.
     * `PASSWORD` is your cluster admin password.
     * `PKS-API` is the FQDN you use to access the PKS API.
     * `CERT-PATH` is the path to your root CA certificate.
@@ -82,7 +76,7 @@ kubectl as a cluster admin by running the following command:
 
 1. When prompted, re-enter your password.
 
-1. Create a YAML file with either the `Role` or `ClusterRole` for your Kubernetes end user.
+1. Create a YAML file for either `Role` or `ClusterRole`.
 Use the following example as a template:
 
     ```
@@ -141,12 +135,15 @@ Use the following example as a template:
     * `NAMESPACE` is the namespace within the cluster.
     This is omitted when creating a `ClusterRole`.
     * `USERNAME` is the Kubernetes end user username.
-    This is the username created for your organization's LDAP or SAML identity provider.  <br>If you configured 
-    **UAA OIDC Username Prefix** in **Ops Manager Installation Dashboard** > **Enterprise PKS** > **Settings** 
-    > **UAA**, you must prepend `USERNAME` with the prefix you configured. For more information, see [UAA](./installing-pks-vsphere.html#uaa) in the _Installing_ topic for your IaaS.
+      * If you use LDAP or SAML for UAA, this is the LDAP or SAML username.
+      * If you do not use LDAP or SAML for UAA, this is the UAA username.
+
+          <p class="note"><strong>Note:</strong> If you configured an OIDC username prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong><%= vars.product_tile %></strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
+          you must prepend <code>USERNAME</code> with the prefix you configured.
+          For more information, see <a href="./installing-pks-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Add an OIDC Provider</a>.</p>
     * `ROLE-TYPE` is the type of role you created in the previous step.
     This must be either `Role` or `ClusterRole`.
-    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you are creating.
+    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you created in the previous step.
 
 1. Create the `RoleBinding` or `ClusterRoleBinding` resource defined
 in your YAML file by running following command:
@@ -162,7 +159,7 @@ in your YAML file by running following command:
 
 ## <a id='obtain-cluster-access'></a> Obtain Cluster Access as a User
 
-To obtain cluster access, the end user must perform the following actions:
+To obtain access to a <%= vars.product_short %>-provisioned cluster, the end user must do the following:
 
 1. Fetch the kubeconfig file by running one of the following command:
       + If you want to validate the PKS API certificate with SSL, run the following command:
@@ -173,7 +170,8 @@ To obtain cluster access, the end user must perform the following actions:
           Where:
           * `CLUSTER-NAME` is the cluster name provided by the cluster admin.
           * `USERNAME` is the Kubernetes end user username.
-            This is the username created for your organization's LDAP or SAML identity provider.
+              * If the <%= vars.product_short %> deployment you are targeting uses LDAP or SAML for UAA, this is the LDAP or SAML username.
+              * If your <%= vars.product_short %> deployment you are targeting does not use LDAP or SAML for UAA, this is the UAA username.
           * `PKS-API` is the FQDN you use to access the PKS API.
           * `CERT-PATH` is the path to your root CA certificate.
           Provide the certificate to validate the PKS API certificate with SSL.
@@ -232,25 +230,22 @@ in the Kubernetes documentation.
 
 ## <a id='cluster-access-group'></a> Grant Cluster Access to a Group
 
-Cluster admins can grant access to an identity provider group by creating a `ClusterRoleBinding` or
-`RoleBinding` for that  group. You can only grant access to an identity provider group
-if you use a LDAP or SAML identity provider for UAA.
+Cluster admins can grant access to a UAA or an identity provider group by creating a `ClusterRoleBinding` or
+`RoleBinding` for that  group. You can grant access to an identity provider group
+only if you use a LDAP or SAML identity provider for UAA.
 You can configure a LDAP or SAML identity provider in
 <strong>Ops Manager Installation Dashboard</strong> >
 <strong> <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>.
 
 <p class='note'><strong>Note:</strong> If you are using a LDAP group,
   you must confirm that the LDAP group you are
-  giving access to has been whitelisted in the
+  giving access is in the allowlist in the
   <%= vars.product_tile %> tile.
   To do this, review <strong>External Groups Whitelist</strong> in
   <strong>Ops Manager Installation Dashboard</strong> > <strong>
-    <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>.</p>
+  <%= vars.product_tile %> </strong> > <strong> Settings </strong> > <strong>UAA</strong>.</p>
 
-The procedure for granting cluster access to an identity provider group is similar to the
-procedure in [Grant Cluster Access to a User](#cluster-access-user) above.
-
-To grant cluster access to an identity provider group,
+To grant cluster access to a group,
 do the procedure in [Grant Cluster Access to a User](#cluster-access-user) above
 and replace step 6 with the following:
 
@@ -278,7 +273,7 @@ with the following:
       apiGroup: rbac.authorization.k8s.io
     roleRef:
       kind: ROLE-TYPE
-      name: ROLE-OR-CLUSTER-ROLE-BINDING-NAME
+      name: ROLE-OR-CLUSTER-ROLE-NAME
       apiGroup: rbac.authorization.k8s.io
     ```
 
@@ -286,9 +281,13 @@ with the following:
     * `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be either `RoleBinding` or `ClusterRoleBinding`.
     * `ROLE-OR-CLUSTER-ROLE-BINDING-NAME` is the name of the role binding. This is given by the cluster admin.
     * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.
-    * `NAME-OF-GROUP` is the identity provider group name. This name is case sensitive. <br>If you configured 
-    **UAA OIDC Groups Prefix** in **Ops Manager Installation Dashboard** > **Enterprise PKS** > **Settings** 
-    > **UAA**, you must prepend `NAME-OF-GROUP` with the prefix you configured. For more information, see [UAA](./installing-pks-vsphere.html#uaa) in the _Installing_ topic for your IaaS.
+    * `NAME-OF-GROUP` is the group name. This name is case sensitive.
+      * If you use LDAP or SAML for UAA, enter the LDAP or SAML group name.
+      * If you do not use LDAP or SAML for UAA, enter the UAA group name.
+
+        <p class="note"><strong>Note:</strong> If you configured an OIDC groups prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong><%= vars.product_tile %></strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
+        you must prepend <code>NAME-OF-GROUP</code> with the prefix you configured.
+        For more information, see <a href="./installing-pks-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Add an OIDC Provider</a>.</p>
     * `ROLE-TYPE` is the type of role you created in the previous step.
     This must be either `Role` or `ClusterRole`.
-    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you are creating.
+    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you are binding the Group to.

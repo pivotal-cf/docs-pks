@@ -1,0 +1,316 @@
+---
+title: Using Kubernetes Profiles
+owner: PKS
+---
+
+This topic describes how <%= vars.product_full %> administrators and cluster managers create and use Kubernetes profiles
+for Kubernetes clusters provisioned by <%= vars.product_short %>. 
+
+This topic also lists verified use cases for Kubernetes profiles on <%= vars.product_short %>.
+
+## <a id="overview"></a> Overview
+
+Kubernetes profiles enable cluster administrators and cluster managers to customize Kubernetes component settings for any clusters that they provision.
+
+To use Kubernetes profiles, <%= vars.product_short %> users:
+
+1. Create JSON configuration files that set configuration options for any Kubernetes components, such as `kube-apiserver` on the control plane or the `kubelet` on each node.
+1. Use the PKS CLI to create the Kubernetes profile in <%= vars.product_short %>.
+1. Use the PKS CLI to apply the profile to clusters.
+
+Verified uses for Kubernetes profiles include encrypting secrets in an etcd database, adding an OIDC provider, and using a `ResourceQuota` admission control plugin.
+
+### <a id="who"></a> Who Creates and Manages Kubernetes Profiles
+
+Users with the `pks.clusters.admin` or `pks.clusters.manage` roles can create and use Kubernetes profiles.
+
+If user with the `pks.clusters.admin-read-only` role attempts to create a Kubernetes profile, they see the following error:
+
+```
+You do not have enough privileges to perform this action. Please contact the PKS administrator.
+```
+
+### <a id="validated"></a> Validated vs Experimental Customizations
+
+A Kubernetes profile configures settings for Kubernetes components in two JSON code blocks,  `customizations` and `experimental_customizations`.
+See [Kubernetes Profile Format](#format) for details.
+The code blocks differ as follows:
+
+* `customizations` block
+  - PKS checks the validity of configurations in this block.
+	If you run `pks create-k8s-profile` on a profile with invalid configurations in `customizations`, the command returns an error.
+	- The PKS team supports clusters configured with tested, validated parameters in this block.
+
+* `experimental_customizations` block
+    <p class="note warning"><strong>Warning:</strong> Experimental customizations are not validated or supported.</p>
+  - PKS imposes no restrictions on the contents of this block.
+	- Configurations in this block are neither tested nor supported.
+  - If a customer wants to use an unsupported configuration, they should contact the PKS team with the parameters that they want tested, validated, and supported.
+
+### <a id="alias"></a> "k8s" to "kubernetes" Alias in PKS CLI
+
+In the PKS CLI, all commands that include `k8s-profile` are aliased to also use `kubernetes-profile`.
+For example, the `pks k8s-profiles` and `pks kubernetes-profiles` commands are equivalent.
+
+For brevity, this documentation uses the `k8s-` versions.
+
+## <a id="create"></a> Create a Kubernetes Profile
+
+To create a Kubernetes profile in <%= vars.product_short %>, you:
+
+1. Define a Kubernetes profile in a JSON configuration file, following the [Kubernetes Profile Format](#format) below.
+
+1. Use the PKS CLI to define the Kubernetes profile within <%= vars.product_short %>, as described in [The create-network-profile Command](#run-create), below.
+
+### <a id="format"></a> Kubernetes Profile Format
+
+To create a Kubernetes profile, you must first define it as a JSON file that specifies network parameters, listed in [Kubernetes Profile Parameters](#params) below.
+
+Here is the basic structure of a Kubernetes profile.
+
+```
+{
+    "name": "my-profile-1",
+    "description": "My profile description",
+    "customizations": [
+        {
+           "component": "k8s-component-name",
+           "arguments": {
+                "key": "value,value,value"
+            },
+            "file-arguments": {
+                "key": "local file path"
+            }
+            
+        }
+    ],
+    "experimental_customizations": [
+        {
+            
+        }
+    ]
+}
+```
+
+<p class="note"><strong>Note:</strong> This example Kubernetes profile is for illustration purposes only. It is not intended to be used as a template for Kubernetes profile definition.</p>
+
+### <a id="params"></a> Kubernetes Profile Parameters
+
+The Kubernetes profile JSON can include the following parameters:
+
+<table id='params' border="1" class="nice" >
+  <tr>
+    <th width="30%">Parameter</th>
+    <th width="10%">Type</th>
+    <th width="60%">Description</th>
+  </tr><tr>
+    <td><code>name</code><sup>&#42;</sup></td>
+    <td>String</td>
+    <td>Name of the Kubernetes profile.</td>
+  </tr><tr>
+    <td><code>description</code></td>
+    <td>String</td>
+    <td>Description of the Kubernetes profile.</td>
+  </tr><tr>
+    <td><code>customizations</code><sup>&#42;</sup></td>
+    <td>Map</td>
+    <td>A block that defines supported, validated<br>
+		K8s options using the <code>component</code>, <code>arguments</code>,<br>
+		and <code>file-arguments</code> parameters below.</td>
+  </tr><tr>
+    <td><code>experimental_<br>
+		customizations</code></td>
+    <td>Map</td>
+    <td>A block that defines unsupported, unvalidated<br>
+		K8s options using the <code>component</code>, <code>arguments</code>,<br>
+		and <code>file-arguments</code> parameters below.</td>
+  </tr><tr>
+    <td><code>component</code><sup>&#42;</sup></td>
+    <td>String</td>
+    <td>The name of a K8s component, <br>
+		e.g. <code>kubelet</code>, <code>kube-apiserver</code>.</td>
+  </tr><tr>
+    <td><code>arguments</code><sup>&#42;</sup></td>
+    <td>Map</td>
+    <td>Parameters for each component, as one or more Key:Value pairs.<br>Multiple values must be separated by commas, without spaces.</td>
+  </tr><tr>
+    <td><code>file-arguments</code><sup>&#42;</sup></td>
+    <td>Map</td>
+    <td>Parameters whose values are stored as files<br>
+		on the local machine.</td>
+  </tr>
+</table>
+
+<sup>&#42;</sup>Parameters marked with an `*` are mandatory.
+
+<p class="note"><strong>Note:</strong> If you specify the same parameter in both <code>customizations</code> and <code>experimental_customizations</code>, the one in <code>customization</code> takes precedence.</p>
+
+### <a id="run-create"></a> The create-k8s-profile Command
+
+After defining a Kubernetes profile in a JSON file as described in [Kubernetes Profile Format](#format),
+a cluster administrator or manager creates the Kubernetes profile by running the following PKS CLI command:
+
+```
+pks create-k8s-profile PATH-TO-YOUR-KUBERNETES-PROFILE-CONFIGURATION
+``` 
+Where `PATH-TO-YOUR-KUBERNETES-PROFILE-CONFIGURATION` is the path to the JSON file
+you created when defining the Kubernetes profile.
+
+For example:
+
+<pre class="terminal">
+cat profile3-docs.json
+{
+    "name": "my-profile3",
+    "description": "My profile description",
+    "customizations": [
+        {
+            "component": "kube-apiserver",
+            "arguments": {
+                "service-node-port-range": "30000-40000"
+            }
+        }
+    ],
+    "experimental_customizations": [
+        {
+            "component": "kubelet",
+            "arguments": {
+                "maximum-dead-containers": "1000",
+                "feature-gates": "APIListChunking=true,AttachVolumeLimit=false"
+            }
+        }
+    ]
+}
+user ~/workspace: ./pks create-k8s-profile k8s-profile3.json 
+Kubernetes profile my-profile3 successfully created 
+</pre>
+
+## <a id="manage"></a> Manage Kubernetes Profiles
+
+<%= vars.product_short %> cluster administrators and managers can perform the following operations on Kubernetes profiles and the clusters that use them.
+
+### <a id="list"></a> List Kubernetes Profiles
+
+To list available Kubernetes profiles, run the following command:
+
+```
+pks k8s-profiles
+```
+
+For example:
+
+<pre class="terminal">
+$ pks k8s-profiles
+K8s-profile        Owner     Created Date
+Basic-k8s-profile  Alana     Tue, 05 Nov 2019 16:28:15 PST
+</pre>
+
+The command output differs by user role:
+- `pks.cluster.admin` see a list of Kubernetes profiles that all users created
+- `pks.cluster.manage` see a list of only the Kubernetes profiles that they created
+
+### <a id="delete"></a> Delete a Kubernetes Profile
+
+To delete a Kubernetes profile, run the following command:
+
+```
+pks delete-k8s-profile KUBERNETES-PROFILE-NAME
+```
+
+Where `KUBERNETES-PROFILE-NAME` is the name of the Kubernetes profile you want to delete.
+
+For example:
+
+<pre class="terminal">
+$ user ~/workspace: ./pks delete-k8s-profile my-profile3 
+Are you sure you want to delete the kubernetes profile my-profile3? (y/n): y
+Deletion of my-profile3 completed
+</pre>
+
+<p class="note"><strong>Note:</strong> You cannot delete a Kubernetes profile that is in use.
+Before deleting a Kubernetes profile, you must disassociate it from all clusters or delete all clusters it is associated with.</p>
+
+Both `pks.clusters.admin` and `pks.clusters.manage` users can
+delete Kubernetes profiles. 
+If a `pks.clusters.admin-read-only` user attempts to delete
+a Kubernetes profile, they see the following error:
+
+```
+You do not have enough privileges to perform this action. Please contact the PKS administrator.
+```
+
+### <a id="view"></a> View Kubernetes Profile Details
+
+To view details of a Kubernetes profile, run the following command:
+
+```
+pks k8s-profile KUBERNETES-PROFILE-NAME
+```
+
+Where `KUBERNETES-PROFILE-NAME` is the name of the Kubernetes profile you want to view.
+
+For example:
+
+<pre class="terminal">
+pks k8s-profile Basic-k8s-profile
+Name:                    Basic-k8s-profile
+Owner:                   Alana
+Created Date             Tue, 05 Nov 2019 16:28:15 PST
+Description:             Kubernetes profile for customer A
+….
+&lt;KEY&gt; :                  &lt;VALUE&gt;
+</pre>
+
+* Users with the `pks.cluster.admin` can view the details of any Kubernetes profile; users with the `pks.cluster.manage` role can view details of Kubernetes profiles that they created.
+* Once you create or update a cluster with an encryption profile, you cannot assign any other Kubernetes profiles to that cluster.
+Because decryption is not straightforward, applying another profile can have nondeterministic outcome.
+
+### <a id='new-cluster'></a> Create a Cluster with a Kubernetes Profile
+
+You can assign a Kubernetes profile to a Kubernetes cluster at the time of cluster creation.
+
+To create an <%= vars.product_short %>-provisioned Kubernetes cluster with a Kubernetes profile, run the following command:
+
+```
+pks create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --kubernetes-profile KUBERNETES-PROFILE-NAME
+```
+
+Where:
+
+* `CLUSTER-NAME` is a unique name for your cluster.
+* `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
+* `PLAN-NAME` is the name of the <%= vars.product_short %> plan you want to use for your cluster.
+* `KUBERNETES-PROFILE-NAME` is the name of the Kubernetes profile you want to use for your cluster.
+
+### <a id="update"></a> Assign a Kubernetes Profile to an Existing Cluster
+
+PKS supports changing the Kubernetes profile for an already created cluster.
+You can use this procedure to:
+
+- assign a Kubernetes profile to a cluster that does not have one, or
+- change a cluster's existing profile to a new one
+
+This is the procedure to change a cluster's Kubernetes profile:
+
+1. Do one of the following
+	- Choose a new Kubernetes profile for the cluster.
+	See [List Kubernetes profiles](#list).
+	- Define and create a new Kubernetes profile as described in [Create a Kubernetes Profile](#create). 
+  		- The name of the new Kubernetes profile must be unique and different from the previously assigned Kubernetes profile.
+
+1. Run the following command to update the cluster with the new Kubernetes profile:
+
+    ```
+    pks update-cluster CLUSTER-NAME --kubernetes-profile NEW-KUBERNETES-PROFILE-NAME
+    ```
+
+    Where: 
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
+    * `NEW-KUBERNETES-PROFILE-NAME` is the name of the new Kubernetes profile you want to apply to the cluster.
+
+
+## <a id='use-cases'></a> Kubernetes Profile Use Cases
+
+Kubernetes profiles let you customize Kubernetes configuration parameters at the time of cluster creation. Use cases for Kubernetes profiles include:
+
+<%= partial 'k8s-profiles-uses' %>
