@@ -13,7 +13,11 @@ To perform a new installation of NSX-T Data Center for <%= vars.product_short %>
 
 1. Read the topics in the [Preparing to Install <%= vars.product_short %> on vSphere with NSX-T Data Center](./vsphere-nsxt-index-prepare.html) section of the documentation.
 
-##<a id='nsxt30-mgr1'></a> Deploy NSX-T Manager 1
+##<a id='nsxt30-mgmt-ssl'></a> Install the NSX-T Management Hosts
+
+Create the NSX-T Management Plane by installing 3 NSX Managers and configuring a VIP address.
+
+###<a id='nsxt30-mgr1'></a> Deploy NSX-T Manager 1
 
 Deploy the NSX-T Manager OVA in vSphere.
 
@@ -56,7 +60,7 @@ Deploy the NSX-T Manager OVA in vSphere.
 1. Log in and verify the installation. Note the system message that a "3 node cluster" is recommended.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-14.png">
 
-##<a id='nsxt30-compute-mgr'></a> Create a Compute Manager
+###<a id='nsxt30-compute-mgr'></a> Create a Compute Manager
 
 A compute manager is required for NSX-T environments with multiple NSX-T Managers. We configure vCenter Server as the Compute Manager.
 
@@ -77,7 +81,7 @@ A compute manager is required for NSX-T environments with multiple NSX-T Manager
 1. Verify that the Compute Manager is added and registered.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-19.png">
 
-##<a id='nsxt30-mgr2'></a> Deploy NSX-T Managers 2 and 3
+###<a id='nsxt30-mgr2'></a> Deploy NSX-T Managers 2 and 3
 
 1. Select **Add NSX Appliance**.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-20.png">
@@ -107,7 +111,7 @@ A compute manager is required for NSX-T environments with multiple NSX-T Manager
   <img src="images/nsxt/nsxt-30/nsx-manager-1-27.png">
   <img src="images/nsxt/nsxt-30/nsx-manager-1-28.png">
 
-##<a id='nsxt30-mgmt-vip'></a> Configure the NSX-T Management VIP
+###<a id='nsxt30-mgmt-vip'></a> Configure the NSX-T Management VIP
 
 1. Click the Set Virtual IP button.
 1. Enter a Virtual IP address, such as `10.173.62.47`.
@@ -555,12 +559,14 @@ To avoid any overlay communication in the future due to MTU issue, test TEP to T
 ```
 
 1. From NSX-T edge node 1 and edge node 2 to ESXi TN:
+
 ```
     > vrf 0
     > ping 192.23.213.1 size 1572 dfbit enable: OK
 ```
 
 1. From NSX-T edge node 1 to NSX-T edge node 2:
+
 ```
     > vrf 0
     > ping 192.23.213.2 size 1572 dfbit enable: OK
@@ -758,9 +764,9 @@ Networking for the <%= vars.k8s_runtime_abbr %> Management Plane consists of a [
 
 Create Tier-1 Logical Switch and Router for TKGI Management Plane VMs. Complete the configuration by enabling Route Advertisement on the T1 router.
 
-1. Go to Networking > Logical Switches.
+1. In the NSX Management console, navigate to **Networking > Logical Switches**.
 
-1. Click Add.
+1. Click **Add**.
 
 1. Create the LS for TKGI Management plane VMs:
   - Name: LS-PKS-MGMT
@@ -770,10 +776,10 @@ Create Tier-1 Logical Switch and Router for TKGI Management Plane VMs. Complete 
 1. Click Add and verify creation of the T1 logical switch.
   <img src="images/nsxt/nsxt-30/tier-1-02.png">
 
-1. Go to Networking > Tier-1 Logical Router.
+1. Go to **Networking > Tier-1 Logical Router**.
   <img src="images/nsxt/nsxt-30/tier-1-03.png">
 
-1. Click on Add.
+1. Click **Add**.
 
 1. Configure the Tier-1 logical router as follows:
   - Name: T1-PKS-MGMT
@@ -813,45 +819,46 @@ Create Tier-1 Logical Switch and Router for TKGI Management Plane VMs. Complete 
 ###<a id='nsxt30-t0-nat'></a> Create NAT Rules 
 
 You need to create the following NAT rules on the Tier-0 router for the TKGI Management Plane VMs.
+
 - DNAT: 10.173.62.220 (for example) to access Ops Manager
 - DNAT: 10.173.62.221 (for example) to access Harbor
 - SNAT: 10.173.62.222 (for example) for all TKGI management plane VM traffic destined to the outside world
 
-1. Go to Networking > NAT.
+1. In the NSX Management console, navigate to **Networking > NAT**.
 
-1. Make sure the Logical Router field is set to the T0-router you defined for TKGI.
+1. In the Logical Router field, select the T0-router you defined for TKGI.
   <img src="images/nsxt/nsxt-30/tier-0-nat-01.png">
 
-1. Click Add.
+1. Click **Add**.
 
-1. Configure the DNAT as follows:
-  - Priority: 1000
-  - Action: DNAT
-  - Protocol: Any Protocol
-  - Destination IP: 10.173.62.220, for example
-  - Translated IP: 10.1.1.2, for example
+1. Configure the Ops Manager DNAT rule as follows:
+  - Priority: **1000**
+  - Action: **DNAT**
+  - Protocol: **Any Protocol**
+  - Destination IP: **10.173.62.220**, for example
+  - Translated IP: **10.1.1.2**, for example
   <img src="images/nsxt/nsxt-30/tier-0-nat-02.png">
 
-1. Click Add and verify. 
+1. Click **Add and verify**. 
   <img src="images/nsxt/nsxt-30/tier-0-nat-03.png">
 
-1. Add a second DNAT rule by repeating the same operation.
-  - Priority: 1000
-  - Action: DNAT
-  - Protocol: Any Protocol
-  - Destination IP: 10.173.62.221, for example
-  - Translated IP: 10.1.1.6, for example
+1. Add a second DNAT rule for Harbor by repeating the same operation.
+  - Priority: **1000**
+  - Action: **DNAT**
+  - Protocol: **Any Protocol**
+  - Destination IP: **10.173.62.221**, for example
+  - Translated IP: **10.1.1.6**, for example
 
-1. Verify DNAT rules.
+1. Verify the creation of the DNAT rules.
   <img src="images/nsxt/nsxt-30/tier-0-nat-04.png">
 
-1. Create the SNAT rule as follows:
-  - Priority: 9024
-  - Action: SNAT
-  - Protocol: Any Protocol
-  - Source IP: 10.1.1.0/24, for example
-  - Translated IP: 10.173.62.222, for example
+1. Create the SNAT rule for the management plane traffic as follows:
+  - Priority: **9024**
+  - Action: **SNAT**
+  - Protocol: **Any Protocol**
+  - Source IP: **10.1.1.0/24**, for example
+  - Translated IP: **10.173.62.222**, for example
     <img src="images/nsxt/nsxt-30/tier-0-nat-05.png">
 
-1. Verify the SNAT rule. 
+1. Verify the creation of the SNAT rule. 
   <img src="images/nsxt/nsxt-30/tier-0-nat-06.png">
