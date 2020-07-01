@@ -21,7 +21,9 @@ source for this page in GitHub" at the bottom of the topic to locate the source 
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.7` | Enterprise PKS 1.7 pre-release content | N/A |
+| `1.9` | TKGI 1.9 pre-release content | N/A |
+| `1.8` | TKGI 1.8 released content | https://docs.pivotal.io/tkgi/1-8/index.html |
+| `1.7` | Enterprise PKS 1.7 released content    | https://docs.pivotal.io/pks/1-6/index.html |
 | `1.6` | Enterprise PKS 1.6 released content    | https://docs.pivotal.io/pks/1-6/index.html |
 | `1.5` | Enterprise PKS 1.5 released content    | https://docs.pivotal.io/pks/1-5/index.html |
 | `1.4` | Enterprise PKS 1.4 released content    | https://docs.pivotal.io/pks/1-4/index.html |
