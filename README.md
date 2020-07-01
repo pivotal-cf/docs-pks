@@ -38,7 +38,11 @@ source for this page in GitHub" at the bottom of the topic to locate the source 
 | `0.8` | Not in use | N/A|
 | `pks-patches` | Staging site for not-yet-released TKGI and Enterprise PKS patches. | Publishes to an internal staging site only. |
 
-**1.7**: The `1.7` branch is used to publish the pre-release v1.7 version of the site. Create pull requests on `1.7` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.7 documentation.
+**1.9**: The `1.9` branch is used to publish the pre-release v1.9 version of the site. Create pull requests on `1.9` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.9 documentation.
+
+**1.8**: The `1.8` branch is used to publish the live v1.8 version of the site. Create pull requests on `1.8` to contribute bug fixes or correct technical inaccuracies in the v1.8 documentation.
+
+**1.7**: The `1.7` branch is used to publish the live v1.7 version of the site. Create pull requests on `1.7` to contribute bug fixes or correct technical inaccuracies in the pre-release v1.7 documentation.
 
 **1.6**: The `1.6` branch is used to publish the live v1.6 version of the site. Create pull requests on `1.6` to contribute bug fixes or correct technical inaccuracies in the v1.6 documentation.
 
