@@ -144,80 +144,81 @@ NOTE: You must run these steps on a host where OpenSSL is installed. The steps a
 
 1. Create a certificate signing request file named `nsx-cert.cnf` and populate it with the contents below. Replace the IP addresses for `commonName` and `DNS.1` with the VIP address for you NSX-T Management plane.
 
-```
-nsx-cert.cnf
-[ req ]
-default_bits = 2048
-distinguished_name = req_distinguished_name
-req_extensions = req_ext
-prompt = no
-[ req_distinguished_name ]
-countryName = US
-stateOrProvinceName = California
-localityName = CA
-organizationName = NSX
-commonName = 10.173.62.47 		# REPLACE
-[ req_ext ]
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = 10.173.62.47			# REPLACE
-```
+    ```
+    nsx-cert.cnf
+    [ req ]
+    default_bits = 2048
+    distinguished_name = req_distinguished_name
+    req_extensions = req_ext
+    prompt = no
+    [ req_distinguished_name ]
+    countryName = US
+    stateOrProvinceName = California
+    localityName = CA
+    organizationName = NSX
+    commonName = 10.173.62.47 		# REPLACE
+    [ req_ext ]
+    subjectAltName = @alt_names
+    [alt_names]
+    DNS.1 = 10.173.62.47			# REPLACE
+    ```
 
 1. Create the following environment variables. Replace the IP address with your VIP.
 
-```
-export NSX_MANAGER_IP_ADDRESS=10.173.62.47
-export NSX_MANAGER_COMMONNAME=10.173.62.47
-```
+    ```
+    export NSX_MANAGER_IP_ADDRESS=10.173.62.47
+    export NSX_MANAGER_COMMONNAME=10.173.62.47
+    ```
 
 1. Generate the SSL certificate and private key.
 
-```
-openssl req -newkey rsa:2048 -x509 -nodes \
-> -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
-> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
-> <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 1000
------
+    ```
+    openssl req -newkey rsa:2048 -x509 -nodes \
+    > -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
+    > -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
+    > <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 1000
+    -----
+    ```
 
 1. Verify that you see the following:
 
-```
-Generating a 2048 bit RSA private key
-...............+++
-................+++
-writing new private key to 'nsx.key'
-```
+    ```
+    Generating a 2048 bit RSA private key
+    ...............+++
+    ................+++
+    writing new private key to 'nsx.key'
+    ```
 
 1. Verify certificate and key generation by running the `ls` command. You should see the following 3 files.
 
-```
-nsx-cert.cnf  nsx.crt  nsx.key
-```
+    ```
+    nsx-cert.cnf  nsx.crt  nsx.key
+    ```
 
 1. Run the following command to verify the certificate and private key. 
 
-```
-openssl x509 -in nsx.crt -text -noout
-```
+    ```
+    openssl x509 -in nsx.crt -text -noout
+    ```
 
-You should see that the common name (CN) and Subject Alternative Name are both the VIP address. For example:
+    You should see that the common name (CN) and Subject Alternative Name are both the VIP address. For example:
 
-```
-Subject: CN = 10.173.62.47
-Subject Alternative Name: 
-	DNS:10.173.62.47, IP Address:10.173.62.47
-```
+    ```
+    Subject: CN = 10.173.62.47
+    Subject Alternative Name: 
+    	DNS:10.173.62.47, IP Address:10.173.62.47
+    ```
 
 ###<a id='nsxt30-mgmt-cert-import'></a> Import the SSL Certificate and Private Key to the NSX-T Management Console
 
 1. Import certificate and private key to NSX-T by navigating to the System > Certificates page.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-34.png">
 1. Select import certificate.
-1. Enter a Name, such as `CERT-NSX-T-VIP`.
-1. Copy/paste the Certificate Contents from the `nsx.crt` file. If you copy the `nsx.crt` file to your local machine, you can import the certificate by clicking Browse and selecting it.
-1. Copy/paste the Private Key from the `nsx.key` file. If you copy the `nsx.key` file to your local machine, you can import the certificate by clicking Browse and selecting it.
+1. Enter a **Name**, such as `CERT-NSX-T-VIP`.
+1. Copy and paste the **Certificate Contents** from the `nsx.crt` file. If you copy the `nsx.crt` file to your local machine, you can import the certificate by clicking Browse and selecting it.
+1. Copy and paste the **Private Key** from the `nsx.key` file. If you copy the `nsx.key` file to your local machine, you can import the certificate by clicking Browse and selecting it.
 1. For the Service Certificate option, select No.
-1. Click Import.
+1. Click **Import**.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-35.png">
 1. Verify that you see the certificate in the list of Certificates.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-36.png">
@@ -229,23 +230,25 @@ Subject Alternative Name:
 1. Copy this UUID to the clipboard, such as `170a6d52-5c61-4fef-a9e0-09c6229fe833`.
 1. Create the following environment variables. Replace the IP address with your VIP address.
 
-```
-export NSX_MANAGER_IP_ADDRESS=10.173.62.47
-export CERTIFICATE_ID=170a6d52-5c61-4fef-a9e0-09c6229fe833
-```
+    ```
+    export NSX_MANAGER_IP_ADDRESS=10.173.62.47
+    export CERTIFICATE_ID=170a6d52-5c61-4fef-a9e0-09c6229fe833
+    ```
 
 1. Post the certificate to the NSX-T Manager API.
-```
-curl --insecure -u admin:'VMware1!VMware1!' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
-{
-  "certificate_id": "170a6d52-5c61-4fef-a9e0-09c6229fe833"
-}
-```
+
+    ```
+    curl --insecure -u admin:'VMware1!VMware1!' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
+    {
+      "certificate_id": "170a6d52-5c61-4fef-a9e0-09c6229fe833"
+    }
+    ```
 
 1. Verify by SSHing to one of the NSX-T Management nodes and running the `get certificate cluster` command. The certificate that is returned should match the generated one.
-```
-nsx-manager-1> get certificate cluster
-```
+
+    ```
+    nsx-manager-1> get certificate cluster
+    ```
 
 ##<a id='nsxt30-mgmt-vip'></a> Complete the NSX-T Management
 
@@ -253,10 +256,9 @@ nsx-manager-1> get certificate cluster
 
 The **Manager** interface provides the advanced UI for networking and security that is used for configuring NSX-T object for TKGI. Do **NOT** use the **Policy** interface for TKGI objects.
 
-1. Go to System > User Interface Settings.
+1. In the NSX-T Manager console, navigate to **System > User Interface** Settings.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-38.png">
 1. Select Toggle Visibility: visible to all users.
-  <img src="images/nsxt/nsxt-30/nsx-manager-1-39.png">
 1. Select Default Mode: Manager.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-40.png">
 1. Click Save.
@@ -267,7 +269,7 @@ The **Manager** interface provides the advanced UI for networking and security t
 
 If you do not add the proper NSX-T license, you will receive an error when you try to deploy a Edge Node VM.
 
-1. Go to System > Licenses.
+1. In the NSX-T Manager console, navigate to **System > Licenses**.
 1. Add the NSX Data Center Advanced (CPU) license.
 1. Verify that the license is added. 
 
@@ -289,9 +291,11 @@ Create IP Pool for VTEP.
 
 ##<a id='nsxt30-tzs'></a> Create Transport Zones
 
-You need two transport zones, an overlay and a VLAN. By default NSX-T creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. However, the default TZs cannot be used by TKGI. If you do use them, you will receive an `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. Therefore, create two new transport zones for use with TKGI:
-- `tz-overlay` (switch name: `switch-overlay`), and
-- `tz-vlan` (switch name: `switch-vlan`)
+You need two transport zones, an overlay and a VLAN. By default NSX-T creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. However, the default TZs cannot be used by TKGI. If you do use them, you will receive an `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. 
+
+Therefore, create two new transport zones for use with TKGI:
+  - `tz-overlay` (switch name: `switch-overlay`), and
+  - `tz-vlan` (switch name: `switch-vlan`)
 
 1. Go to System > Fabric > Transport Zone.
   <img src="images/nsxt/nsxt-30/tz-01.png">
@@ -862,3 +866,151 @@ You need to create the following NAT rules on the Tier-0 router for the TKGI Man
 
 1. Verify the creation of the SNAT rule. 
   <img src="images/nsxt/nsxt-30/tier-0-nat-06.png">
+
+##<a id='nsxt-password-mgr'></a> Configure the NSX-T Password Interval (Optional)
+
+The default NSX-T password expiration interval is 90 days. After this period, the NSX-T passwords will expire on all NSX-T Manager Nodes and all NSX-T Edge Nodes. To avoid this, you can extend or remove the password expiration interval, or change the password if needed.
+
+<p class="note"><strong>Note:</strong> For existing <%= vars.product_short %> deployments, anytime the NSX-T password is changed you must update the BOSH and PKS tiles with the new passwords. See <a href="./password-management.html">Adding Infrastructure Password Changes to the <%= vars.product_short %> Tile</a> for more information.</p>
+
+###<a id='nsxt-manager-password'></a> Update the NSX-T Manager Password and Password Interval
+
+To update the NSX Manager password, perform the following actions on **one** of the NSX Manager nodes. The changes will be propagated to all NSX Manager nodes.
+
+#### SSH to the NSX Manager Node
+
+To manage user password expiration, you use the CLI on one of the NSX Manager nodes. 
+
+To access a NSX Manager node, from Unix hosts use the command `ssh USERNAME@IP_ADDRESS_OF_NSX_MANAGER`. 
+
+For example:
+
+```
+ssh admin@10.196.188.22
+```
+
+On Windows, use Putty and provide the IP address for NSX Manager. Enter the user name and password that you defined during the installation of NSX-T.
+
+#### Get the password expiration interval
+
+To get the password expiration interval, use the following command:
+
+[get user USERNAME password-expiration](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#get%20user%20%3Cusername%3E%20password-expiration)
+
+For example:
+
+```
+NSX CLI (Manager, Policy, Controller 3.0.0.0.0.15946739). Press ? for cost or enter: help
+nsx-mgr-1> get user admin password-expiration
+Password expires 90 days after last change
+```
+
+#### Update the admin password
+
+To update the user password, use the following command:
+
+[set user USERNAME password NEW-PASSWORD old-password OLD-PASSWORD](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#set%20user%20%3Cusername%3E%20[password%20%3Cpassword%3E%20[old-password%20%3Cold-password%3E]]).
+
+For example: 
+
+```
+set user admin password my-new-pwd old-password my-old-pwd
+```
+
+#### Set the admin password expiration interval
+
+To set the password expiration interval, use the following command:
+
+[set user USERNAME password-expiration PASSWORD-EXPIRATION](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#set%20user%20%3Cusername%3E%20password-expiration%20%3Cpassword-expiration%3E).
+
+For example, the following command sets the password expiration interval to 120 days: 
+
+```
+set user admin password-expiration 120
+```
+
+#### Remove the admin password expiration interval
+
+To remove password expiration, use the following command:
+
+[clear user USERNAME password-expiration](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#clear%20user%20%3Cusername%3E%20password-expiration).
+
+For example: 
+
+```
+clear user admin password-expiration
+```
+
+To verify:
+
+```
+nsx-mgr-1> clear user admin password-expiration
+nsx-mgr-1> get user admin password-expiration
+Password expiration not configured for this user
+```
+
+###<a id='nsxt-password-edge'></a> Update the Password for NSX Edge Nodes
+
+To update the NSX Edge Node password, perform the following actions on **each** NSX Edge Node.
+
+<p class="note"><strong>Note:</strong> Unlike the NSX-T Manager nodes, you must update the password or password interval on each Edge Node.</p>
+
+#### Enable SSH
+
+SSH on the Edge Node is disabled by default. You have to enable SSH on the Edge Node using the Console from vSphere.
+
+```
+start service ssh
+set service ssh start-on-boot
+```
+
+#### SSH to the NSX Edge Node
+
+For example:
+
+```
+ssh admin@10.196.188.25
+```
+
+#### Get the password expiration interval for the Edge Node
+
+For example:
+
+```
+nsx-edge> get user admin password-expiration
+Password expires 90 days after last change
+```
+
+#### Update the user password for the Edge Node
+
+For example: 
+
+```
+nsx-edge> set user admin password my-new-pwd old-password my-old-pwd
+```
+
+#### Set the password expiration interval
+
+For example, the following command sets the password expiration interval to 120 days: 
+
+```
+nsx-edge> set user admin password-expiration 120
+```
+
+#### Remove the password expiration interval
+
+For example: 
+
+```
+NSX CLI (Edge 3.0.0.0.0.15946012). Press ? for command list or enter: help
+nsx-edge-2> get user admin password-expiration
+Password expires 90 days after last change. Current password will expire in 7 days.
+
+nsx-edge-2> clear user admin password-expiration
+nsx-edge-2> get user admin password-expiration
+Password expiration not configured for this user
+```
+
+##<a id='next'></a> Next Steps
+
+Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T Using Ops Manager](./vsphere-nsxt-index.html).
