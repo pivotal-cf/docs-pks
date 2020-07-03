@@ -270,26 +270,30 @@ Complete the following steps to generate and register a SSL certificate and priv
 
 ###<a id='nsxt30-mgmt-cert-import'></a> Import the SSL Certificate and Private Key to the NSX-T Management Console
 
-Import certificate and private key to NSX-T by completing the following steps.
+Import certificate and private key to NSX-T by completing the following steps. These steps require populating the NSX-T Managment Console fields with the certficate and private key. You can copy/paste the contents, or if you save the `nsx.crt` and `nsx.key` files to your local machine, you can import them.
 
 1. In the NSX-T Management Console, navigate to the **System** > **Certificates** page.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-34.png">
-1. Select import certificate.
+1. Click **Import** > **Import Certificate**. The **Import Certificate** screen is displayed.  
+    <p class="note"><strong>Note</strong>: Be sure to select <strong>Import Certificate</strong> and not <strong>Import CA Certificate</strong>.</p>
 1. Enter a **Name**, such as `CERT-NSX-T-VIP`.
-1. Copy and paste the **Certificate Contents** from the `nsx.crt` file. If you copy the `nsx.crt` file to your local machine, you can import the certificate by clicking Browse and selecting it.
-1. Copy and paste the **Private Key** from the `nsx.key` file. If you copy the `nsx.key` file to your local machine, you can import the certificate by clicking Browse and selecting it.
-1. For the Service Certificate option, select No.
+1. Copy and paste the **Certificate Contents** from the `nsx.crt` file. Or, import the `nsx.crt` file clicking **Browse** and selecting it.
+1. Copy and paste the **Private Key** from the `nsx.key` file. Or, import the `nsx.key` file by clicking **Browse** and selecting it.
+1. For the **Service Certificate** option, make sure to select **No**.
 1. Click **Import**.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-35.png">
 1. Verify that you see the certificate in the list of Certificates.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-36.png">
 
-###<a id='nsxt30-mgmt-cert-reg'></a> Register the SSL Certificate and Private Key with the NSX API Server
+###<a id='nsxt30-mgmt-cert-reg'></a> Register the SSL Certificate and Private Key with the NSX-T API Server
 
-1. Retrieve the UDID of the certificate from the NSX-T Management Console > **Certificates** screen. 
+To register the imported VIP certificate with the NSX-T Management Cluster Certificate API, complete the following steps:
+
+1. In the NSX-T Management Console, navigate to the **System** > **Certificates** page.
+1. View the UDID of the certificate from the NSX-T Management Console > **Certificates** screen. 
   <img src="images/nsxt/nsxt-30/nsx-manager-1-37.png">
-1. Copy this UUID to the clipboard, such as `170a6d52-5c61-4fef-a9e0-09c6229fe833`.
-1. Create the following environment variables. Replace the IP address with your VIP address.
+1. Copy the UUID to the clipboard, such as `170a6d52-5c61-4fef-a9e0-09c6229fe833`.
+1. Create the following environment variables. Replace the IP address with your VIP address and the UUID with the UUID of the imported certificate.
 
     ```
     export NSX_MANAGER_IP_ADDRESS=10.173.62.47
@@ -305,38 +309,42 @@ Import certificate and private key to NSX-T by completing the following steps.
     }
     ```
 
-1. Verify by SSHing to one of the NSX-T Management nodes and running the `get certificate cluster` command. The certificate that is returned should match the generated one.
+1. Verify by SSHing to one of the NSX-T Management nodes and running the following command. 
+
+    The certificate that is returned should match the generated one.
 
     ```
     nsx-manager-1> get certificate cluster
     ```
 
-##<a id='nsxt30-ip-pools'></a> Create IP Pool for VTEP
+##<a id='nsxt30-ip-pools'></a> Create an IP Pool for VTEP
 
-Tunnel endpoints (TEPs) are the source and destination IP addresses used in the external IP header to identify the ESXi hosts that originate and end the NSX-T encapsulation of overlay frames. The TEP addresses do not need to be routable. so you can use any random IP addressing scheme you want. For more information, see Tunnel Endpoint IP Addresses in the NSX-T Data Center documentation.
+Tunnel endpoints (TEPs) are the source and destination IP addresses used in the external IP header to identify the ESXi hosts that originate and end the NSX-T encapsulation of overlay frames. The TEP addresses do not need to be routable so you can use any random IP addressing scheme you want. For more information, refer to the [NSX-T Data Center documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/installation/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html).
 
-1. Select the Manager interface (upper right).
-1. Go to **Networking** > **IP Address Pool**.
+1. In the NSX-T Management Console, select the **Manager** interface (upper right).
+1. Navigate to **Networking** > **IP Address Pool**.
   <img src="images/nsxt/nsxt-30/ip-pool-01.png">
-1. Select Add.
-1. Enter a Name, such as `TEP-IP-POOL`.
+1. Click **Add**.
+1. Enter a **Name**, such as `TEP-IP-POOL`.
 1. Enter an IP range, such as `192.23.213.1 - 192.23.213.10`.
 1. Enter a CIDR address, such as `192.23.213.0/24`.
   <img src="images/nsxt/nsxt-30/ip-pool-02.png">
-1. Click Add.
+1. Click **Add**.
 1. Verify that the pool is added.
   <img src="images/nsxt/nsxt-30/ip-pool-03.png">
 
 ##<a id='nsxt30-tzs'></a> Create Transport Zones
 
-You need two transport zones, an overlay and a VLAN. By default NSX-T creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. However, the default TZs cannot be used by TKGI. If you do use them, you will receive an `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. 
-
-Therefore, create two new transport zones for use with TKGI:
+You need two transport zones: an Overlay TZ for Transport Nodes and a VLAN TZ for Edge Nodes. By default NSX-T v3.0 creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. However, the default TZs cannot be used by TKGI. If you do use them, you will receive an `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. Therefore, create the following two new transport zones for use with TKGI and associate them with a corresponding swtich:
 
 - `tz-overlay` (switch name: `switch-overlay`), and
 - `tz-vlan` (switch name: `switch-vlan`)
 
-1. Go to **System** > **Fabric** > **Transport Zone**.
+For more information, refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/installation/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html).
+
+###<a id='nsxt30-overlay-tz'></a> Create the Overlay TZ
+
+1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
   <img src="images/nsxt/nsxt-30/tz-01.png">
 1. Click **Add**.
 1. Enter a Name, such as `tz-overlay`.
@@ -346,6 +354,11 @@ Therefore, create two new transport zones for use with TKGI:
   <img src="images/nsxt/nsxt-30/tz-02.png">
 1. Verify that you see the newly created TZ named `tz-overlay` in the list.
   <img src="images/nsxt/nsxt-30/tz-03.png">
+
+###<a id='nsxt30-overlay-tz'></a> Create the VLAN TZ
+
+1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
+  <img src="images/nsxt/nsxt-30/tz-01.png">
 1. Click **Add**.
 1. Enter a name, such as `tz-vlan`.
 1. Enter a switch name, such as `switch-vlan`.
