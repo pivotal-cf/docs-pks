@@ -635,6 +635,39 @@ The supported upgrade path to <%= vars.product_short %> Management Console v1.7.
 
 The <%= vars.product_short %> Management Console v1.7.0 appliance and user interface have the following known issues.
 
+#### <a id="management-console-1.7.0-vrli-https"></a> vRealize Log Insight integration does not support HTTPS connections
+
+**Symptom**
+
+The <%= vars.product_short %> Management Console integration to vRealize Log Insight does not support connections to the HTTPs port on the vRealize Log Insight server. 
+
+**Workaround**
+
+1. Use SSH to log in to the <%= vars.product_short %> Management Console appliance VM.
+1. Open the file `/lib/systemd/system/pks-loginsight.service` in a text editor.
+1. Add `-e LOG_SERVER_ENABLE_SSL_VERIFY=false`  
+1. Set `-e LOG_SERVER_USE_SSL=true`. 
+   
+    The resulting file should look like the following example:
+       
+    ```
+    ExecStart=/bin/docker run --privileged --restart=always --network=pks 
+    -v /var/log/journal:/var/log/journal 
+    --name=pks-loginsight 
+    -e TYPE=gear2-vm 
+    -e LOG_SERVER_HOST=${LOGINSIGHT_HOST} 
+    -e LOG_SERVER_PORT=${LOGINSIGHT_PORT} 
+    -e LOG_SERVER_ENABLE_SSL_VERIFY=false 
+    -e LOG_SERVER_USE_SSL=true 
+    -e LOG_SERVER_AGENT_ID=${LOGINSIGHT_ID} 
+    pksoctopus/vrli-journald:v07092019
+    ```      
+   
+1. Save the file and run `systemctl daemon-reload`.
+1. Run `systemctl restart pks-loginsight.service` to restart the vRealize Log Insight service.
+ 
+<%= vars.product_short %> Management Console can now send logs to the HTTPS port on the vRealize Log Insight server.
+
 #### <a id="management-console-1.7.0-k8s-profile"></a> Base64 encoded file arguments are not decoded in Kubernetes profiles
 
 **Symptom**
