@@ -1,38 +1,39 @@
 ---
-title: Monitoring Master/etcd Node VMs
+title: Configuring Telegraf in Enterprise PKS
 owner: PKS
 ---
 
-This topic describes how platform operators can monitor and retrieve metrics from
-master/etcd node VMs in <%= vars.product_full %> deployments.
+This topic describes how to configure Telegraf in
+<%= vars.product_full %> (<%= vars.product_short %>).
 
 ## <a id="overview"></a>Overview
 
-You can configure the Telegraf agent to collect metrics from master/etcd node VMs and send the metrics to a third-party monitoring service.
-The Telegraf agent can read metrics from the following:
+You can configure Telegraf to collect metrics from master node and worker
+node VMs and send the metrics to a monitoring service,
+such as Wavefront or Datadog.
 
-+ the `/metrics` endpoint exposed by etcd
-+ Node Exporter
-
-Node Exporter provides additional infrastructure metrics on the localhost of the master node.
-For more information, see [node_exporter](https://github.com/prometheus/node_exporter) in GitHub.
+For more information about these metrics, see
+[Metrics: Telegraf](host-monitoring.html#telegraf) in
+_Monitoring <%= vars.product_short %> and
+<%= vars.k8s_runtime_abbr %>-Provisioned Clusters_.
 
 ## <a id="collect"></a>Collect Metrics Using Telegraf
 
-To collect metrics using Telegraf, do the following:
+To collect metrics using Telegraf:
 
-1. Create a configuration file for your output plugin. See [Create a Configuration File](#toml).
-1. Configure Telegraf in the <%= vars.product_tile %> tile. See [Configure Telegraf in the Tile](#connect). 
+1. Create a configuration file for your output plugin.
+See [Create a Configuration File](#toml) below.
+1. Configure Telegraf in the <%= vars.product_tile %> tile.
+See [Configure Telegraf in the Tile](#connect) below. 
 
 ### <a id="toml"></a> Create a Configuration File 
 
-To connect a third-party monitoring service to <%= vars.product_short %>, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the <%= vars.product_tile %> tile to connect the service. 
+To connect a monitoring service to <%= vars.product_short %>, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the <%= vars.product_tile %> tile to connect the service. 
 
-To create a configuration file your monitoring service, do the following:
+To create a configuration file for your monitoring service:
 
-1. Locate the required format for your monitoring service in the `README.md` file for your service in [telegraf](https://github.com/influxdata/telegraf/tree/1.11.0/plugins/outputs) in GitHub. The etcd documentation recommends using the open source Prometheus monitoring service.<br><br>
-    For more information about using Prometheus, see 
-    [Overview](https://prometheus.io/docs/introduction/overview/) in the Prometheus documentation.
+1. Locate the required format for your monitoring service in the `README.md` file for your service in [telegraf](https://github.com/influxdata/telegraf/tree/1.11.0/plugins/outputs) in GitHub.
+For example, if you want to collect metrics from etcd, the etcd documentation recommends using the open-source Prometheus monitoring service.
 
 1. Create your configuration file using the required format of your monitoring service.
 For example, if you want to create a configuration file for an HTTP output plugin, create a file similar to the following: 
@@ -50,13 +51,20 @@ For example, if you want to create a configuration file for an HTTP output plugi
 
 ### <a id="connect"></a> Configure Telegraf in the Tile
 
-To configure Telegraf in the <%= vars.product_tile %> tile,
-follow the instructions in the _Installing_ topic for your IaaS.
-For example, if your are installing <%= vars.product_short %> on vSphere,
-follow the instructions in the [Telegraf](installing-pks-vsphere.html#telegraf) section of _Installing <%= vars.product_short %> on vSphere_.
+To configure <%= vars.product_short %> to use Telegraf for metric collection:
+
+1. Navigate to the **<%= vars.product_tile %>** tile > **Settings** > **Host Monitoring**.
+1. Select one or more of the following checkboxes:
+  * **Include etcd metrics**: This includes etcd server and debug metrics.
+  * **Enable node exporter on master**: This enables Node Exporter on the _localhost_ of each master node VM.
+  * **Include kubelet metrics**: This includes all workload metrics across your Kubernetes clusters. Enabling **Include kubelet metrics** generates a high volume of metrics.
+1. In **Setup Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents
+of the configuration file that you created in [Create a Configuration File](#toml) above.
+1. Click **Save**.
 
 ## <a id="errors"></a>Troubleshoot etcd
 
-Pivotal recommends working with Pivotal or VMware Support to troubleshoot master/etcd node VMs.
+Pivotal recommends working with Pivotal or VMware Support to troubleshoot
+master/etcd node VMs.
 The monitoring and metrics data you retrieve from the master/etcd node VMs
 can help the Support team diagnose and troubleshoot errors.
