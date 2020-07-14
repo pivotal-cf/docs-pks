@@ -1,0 +1,203 @@
+---
+title: Upgrading Tanzu Kubernetes Grid Integrated Edition (Flannel Networking)
+owner: TKGI
+---
+
+This topic explains how to upgrade <%= vars.product_full %> from v1.7 to v1.8
+on vSphere with Flannel networking,
+Google Cloud Platform (GCP), Amazon Web Services (AWS), and Azure.
+
+For instructions on upgrading <%= vars.product_short %>
+on vSphere with NSX-T networking,
+see [Upgrading <%= vars.product_short %> (NSX-T Networking)](upgrade-nsxt.html).
+
+<p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version.
+<%= vars.product_short %> includes the compatible Kubernetes version.
+</p>
+
+## <a id="overview"></a>Overview
+
+Before you upgrade, follow the procedures in [Prepare to Upgrade](#prepare) below
+to plan and prepare your upgrade.
+
+After you complete the preparation steps,
+continue to the procedures in [Perform the Upgrade](#upgrade) below.
+These steps guide you through the process of upgrading Ops Manager and the <%= vars.product_tile %> tile,
+importing an updated stemcell, and applying the changes to your deployment.
+
+After you complete the upgrade, follow the procedures
+in [After the Upgrade](#after-upgrade) below
+to verify that your upgraded <%= vars.product_short %> deployment is running properly.
+
+## <a id="prepare"></a>Prepare to Upgrade
+
+If you have not already, complete all of the steps in
+[Upgrade Preparation Checklist for <%= vars.product_short %> v1.8](checklist.html).
+
+## <a id="upgrade"></a>Perform the Upgrade
+
+This section describes the steps required to upgrade to <%= vars.product_short %> v1.8:
+
+1. [Upgrade Ops Manager](#upgrade-opsman)
+1. [Download and Import <%= vars.product_short %> v1.8](#upgrade-tile)
+1. [Download and Import Stemcells](#stemcell)
+1. [Verify Errand Configuration](#errands)
+1. [Verify Other Configurations](#final-review)
+1. [Apply Changes to the <%= vars.product_tile %> Tile](#apply-changes)
+
+### <a id="upgrade-opsman"></a>Upgrade Ops Manager
+
+Each version of <%= vars.product_short %> is compatible with multiple versions of Ops Manager.
+To determine Ops Manager compatibility and, if necessary, upgrade Ops Manager:
+
+1. See [<%= vars.product_network %>](https://network.pivotal.io/products/pivotal-container-service)
+to determine if your Ops Manager version is compatible with <%= vars.product_short %> v1.8.
+1. If your Ops Manager version is not compatible with <%= vars.product_short %> v1.8,
+follow the steps below.
+1. Upgrade Ops Manager. For instructions, see
+[Import Installation to Ops Manager v2.9 VM](https://docs.pivotal.io/platform/2-9/customizing/upgrading-pcf.html#upgrade).
+
+1. <%= partial 'add-clusters-workloads' %>
+
+### <a id="upgrade-tile"></a> Download and Import <%= vars.product_short %> v1.8
+
+When you upgrade <%= vars.product_short %>,
+your configuration settings typically migrate to the new version automatically.
+To download and import a <%= vars.product_short %> version:
+
+1. Download the desired version of the product
+from [<%= vars.product_network %>](https://network.pivotal.io/products/pivotal-container-service/).
+
+1. Navigate to the Ops Manager Installation Dashboard and click **Import a Product**
+to upload the product file.
+
+1. Under the **Import a Product** button, click **+** next to **<%= vars.product_tile %>**.
+This adds the tile to your staging area.
+
+### <a id="stemcell"></a> Download and Import Stemcells
+<%= vars.product_short %> requires a Xenial stemcell.
+A stemcell for Windows 2019 is also required if you intend to create Windows worker-based clusters.
+For information about Windows stemcells, see
+[Configuring Windows Worker-Based Clusters (Beta)](windows-beta.html).
+
+If Ops Manager does not have the Xenial stemcell required for <%= vars.product_short %> v1.8,
+the <%= vars.product_tile %> tile displays the message **Missing stemcell**.
+To download and import a new Xenial stemcell, follow the steps below:
+
+1. On the <%= vars.product_tile %> tile, click the **Missing stemcell** link.
+
+    <img src="images/missing_stemcell.png" alt="Verify stemcell assignment">
+
+1. In the **Stemcell Library**, locate the **<%= vars.product_tile %>** tile and note the required stemcell version.
+
+1. Navigate to the [Stemcells (Ubuntu Xenial)](https://network.pivotal.io/products/stemcells-ubuntu-xenial/) page on <%= vars.product_network %>
+and download the required stemcell version for your IaaS.
+
+1. Return to the **Installation Dashboard** in Ops Manager and click **Stemcell Library**.
+
+1. On the **Stemcell Library** page, click **Import Stemcell** and select the stemcell file you downloaded from <%= vars.product_network %>.
+
+1. Select the <%= vars.product_tile %> tile and click **Apply Stemcell to Products**.
+
+1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for <%= vars.product_tile %>.
+
+1. Return to the **Installation Dashboard**.
+
+### <a id="errands"></a>Verify Errand Configuration
+
+To verify your **Errands** pane is correctly configured, do the following:
+
+1. In the **<%= vars.product_tile %>** tile, click **Errands**.
+
+1. Under **Post-Deploy Errands**:
+    * Review the **Upgrade all clusters** errand:
+        * If you want to upgrade the <%= vars.product_tile %> tile and all your existing Kubernetes clusters simultaneously,
+        confirm that **Upgrade all clusters errand** is set to **Default (On)**.
+        The errand upgrades all clusters.
+        Upgrading <%= vars.product_short %>-provisioned Kubernetes clusters can temporarily interrupt the service
+        as described in [Service Interruptions](interruptions.html).
+        * If you want to upgrade the <%= vars.product_tile %> tile only and
+        then upgrade your existing Kubernetes clusters separately, disable **Upgrade all clusters errand**.
+        For more information, see [Upgrading Clusters](upgrade-clusters.html).
+        <p class="note warning"><strong>Warning:</strong> Disabling the <strong>Upgrade all clusters errand</strong>
+        causes the <%= vars.k8s_runtime_abbr %> version tagged in your Kubernetes clusters to fall behind
+        the <%= vars.product_tile %> tile version.
+        If you disable the <strong>Upgrade all clusters errand</strong>
+        when upgrading the <%= vars.product_tile %> tile,
+        you must upgrade all your Kubernetes clusters before the next <%= vars.product_short %>
+        upgrade.</p>
+    * Configure the **Run smoke tests** errand:
+        * Set the **Run smoke tests** errand to **On**.
+        The errand uses the <%= vars.product_short %> Command Line Interface (<%= vars.k8s_runtime_abbr %> CLI) to create a
+        Kubernetes cluster and then delete it. If the creation or deletion fails, the errand fails and
+        the installation of the <%= vars.product_tile %> tile is aborted.
+
+1. Click **Save**.
+
+### <a id="final-review"></a>Verify Other Configurations
+To confirm your other **<%= vars.product_tile %>** tile panes are correctly configured, do the following:
+
+1. Review the **Assign AZs and Networks** pane.
+    <p class="note"><strong>Note:</strong> When you upgrade <%= vars.product_short %>, you must place singleton jobs in the AZ you selected when you first installed the <%= vars.product_tile %> tile. You cannot move singleton jobs to another AZ.</p>
+1. Review the other configuration panes.
+1. Make changes where necessary.
+<p class="note warning"><strong>WARNING</strong>: Do not change the number of master/etcd nodes
+for any plan that was used to create currently-running clusters.
+<%= vars.product_short %> does not support changing the number of master/etcd nodes for plans
+with existing clusters.
+</p>
+1. Click **Save** on any panes where you make changes.
+
+### <a id="apply-changes"></a>Apply Changes to the <%= vars.product_tile %> Tile
+
+To complete the upgrade of the <%= vars.product_tile %> tile:
+
+1. Return to the **Installation Dashboard** in Ops Manager.
+
+1. Click **Review Pending Changes**.
+     For more information about this Ops Manager page, see
+    [Reviewing Pending Product Changes](https://docs.pivotal.io/platform/2-7/customizing/review-pending-changes.html).
+
+1. Click **Apply Changes**.
+
+1. (Optional) To monitor the progress of the **Upgrade all clusters errand** using the BOSH CLI, do the following:
+      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your <%= vars.product_short %> deployment. For more information, see [Using BOSH Diagnostic Commands in <%= vars.product_short %>](diagnostic-tools.html).
+      1. Run `bosh -e MY-ENVIRONMENT tasks`.
+      1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
+      1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
+
+## <a id="after-upgrade"></a>After the Upgrade
+
+After you complete the upgrade to <%= vars.product_short %> v1.8,
+complete the following verifications and upgrades:
+
+- [Update the <%= vars.k8s_runtime_abbr %> and Kubernetes CLIs](#update-clis)
+- [Verify the Upgrade](#verify-upgrade)
+
+### <a id="update-clis"></a>Update the <%= vars.k8s_runtime_abbr %> and Kubernetes CLIs
+
+Update the <%= vars.k8s_runtime_abbr %> and Kubernetes CLIs on any local machine
+where you run commands that interact with your upgraded version of <%= vars.product_short %>.
+
+To update your CLIs, download and re-install the <%= vars.k8s_runtime_abbr %> and Kubernetes CLI distributions
+that are provided with <%= vars.product_short %> on <%= vars.product_network %>.
+
+For more information about installing the CLIs, see the following topics:
+
+* [Installing the <%= vars.k8s_runtime_abbr %> CLI](installing-cli.html)
+
+* [Installing the Kubernetes CLI](installing-kubectl-cli.html)
+
+### <a id="verify-upgrade"></a>Verify the Upgrade
+
+After you apply changes to the <%= vars.product_tile %> tile and the upgrade is complete,
+do the following:
+
+1. Verify that your Kubernetes environment is healthy. To verify the health of your Kubernetes environment, see [Verifying
+Deployment Health](./verify-health.html).
+
+    For any cluster upgrade that fails, you can use the BOSH ID of the upgrade task for debugging.
+    To retrieve the BOSH task ID,
+    see [Retrieve Cluster Upgrade Task ID](./verify-health.html#upgrade-code) in _Verifying Deployment Health_.
+
+1. <%= partial 'add-clusters-workloads' %>

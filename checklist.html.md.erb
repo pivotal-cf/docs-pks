@@ -1,40 +1,25 @@
 ---
-title: Upgrade Preparation Checklist for Enterprise PKS v1.7
-owner: PKS
+title: Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Edition v1.8
+owner: TKGI
 ---
 
-This topic serves as a checklist for preparing to upgrade <%= vars.product_full %> v1.6 to
-<%= vars.product_full %> v1.7.
+This topic serves as a checklist for preparing to upgrade
+<%= vars.product_full %> from v1.7 to v1.8.
 
 This topic lists steps that you must follow before beginning your upgrade.
 Failure to follow these instructions may jeopardize your existing deployment data and cause the
 upgrade to fail.
 
 After completing the steps in this topic, continue to
-[Upgrading <%= vars.product_short %> (Flannel Networking)](upgrade-pks.html) or
-[Upgrading <%= vars.product_short %> (NSX-T Networking)](upgrade-pks-nsxt.html).
-
-<p class="note warning"><strong>Warning:</strong> Upgrading <%= vars.product_short %> to v1.7 reconfigures the PKS control plane
-by creating a new <strong>PKS Database</strong> VM and populating it with MySQL data from the original <strong>PKS API</strong> VM.
-If your upgrade to <%= vars.product_short %> v1.7 fails, contact Support.
-</p>
+[Upgrading <%= vars.product_short %> (Flannel Networking)](upgrade.html) or
+[Upgrading <%= vars.product_short %> (NSX-T Networking)](upgrade-nsxt.html).
 
 ##<a id='backup'></a>Back Up Your <%= vars.product_short %> Deployment
 
-<%= vars.recommended_by %> recommends backing up your <%= vars.product_short %> deployment before upgrading.
-
-
-To back up <%= vars.product_short %>, complete the procedures for your environment:
-
-* **<%= vars.product_short %> on AWS, Azure, or GCP**:
-
-    - [Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html)
-
-* **<%= vars.product_short %> on vSphere with or without NSX-T**:
-
-    - [Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html)
-    - (NSX-T only) [Backing Up and Restoring the NSX Manager](https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A0B3667C-FB7D-413F-816D-019BFAD81AC5.html) in the VMware documentation
-    - [Overview of Backup and Restore options in vCenter Server 6.x (2149237)](https://kb.vmware.com/s/article/2149237) in the VMware documentation
+<%= vars.recommended_by %> recommends backing up your <%= vars.product_short %>
+deployment before upgrading.
+To back up <%= vars.product_short %>, see
+[Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html).
 
 ##<a id='understand-upgrades'></a> Review What Happens During <%= vars.product_short %> Upgrades
 
@@ -42,67 +27,90 @@ If you have not already done so, review [About <%= vars.product_short %> Upgrade
 
 Plan your upgrade based on your workload capacity and uptime requirements.
 
-##<a id='review-changes'></a> Review Changes in <%= vars.product_short %> v1.7
+##<a id='review-changes'></a> Review Changes in <%= vars.product_short %> v1.8
 
-Review the [Release Notes](release-notes.html) for <%= vars.product_short %> v1.7.
+Review the [Release Notes](release-notes.html) for <%= vars.product_short %> v1.8.
+
+##<a id='upgrade-order'></a> Determine Upgrade Order (vSphere Only)
+
+To determine the upgrade order for your <%= vars.product_short %> environment,
+review
+[Upgrade Order for <%= vars.product_short %> Environments on vSphere](upgrade-scenarios.html).
 
 ##<a id='expectations'></a> Set User Expectations and Restrict Cluster Access
 
-Coordinate the <%= vars.product_short %> upgrade with cluster users.
-Tell them that the upgrade reconfigures the control plane and migrates its database.
-This means that during the upgrade:
+Coordinate the <%= vars.product_short %> upgrade with cluster admins and users.
+During the upgrade:
 
 * Their workloads will remain active and accessible.
 
 * They will be unable to perform cluster management functions,
 including creating, resizing, updating, and deleting clusters.
 
-* They will be unable to log in to <%= vars.k8s_runtime_abbr %> or use the PKS CLI and other <%= vars.k8s_runtime_abbr %> control plane services.
+* They will be unable to log in to <%= vars.k8s_runtime_abbr %> or use the <%= vars.k8s_runtime_abbr %> CLI and other <%= vars.k8s_runtime_abbr %> control plane services.
 
-<p class="note"><strong>Note</strong>: Cluster users should not start any cluster management tasks right before an upgrade.
-Wait for cluster operations to complete before upgrading.</p>
+<p class="note"><strong>Note</strong>: Cluster admins should not start any cluster management tasks right before an upgrade.
+Wait for cluster operations to complete before upgrading.
+</p>
 
 
 ##<a id='upgrade-clusters'></a> Upgrade All Clusters
 
-Before you upgrade to <%= vars.product_short %> v1.7, you must upgrade all clusters.
-Doing this aligns the <%= vars.k8s_runtime_abbr %> version that the clusters run internally
-with the current patch version of the <%= vars.k8s_runtime_abbr %> control plane.
+<%= vars.product_short %> v1.8 does not support clusters
+running versions of <%= vars.k8s_runtime_abbr %> earlier than v1.7.
 
-The <%= vars.k8s_runtime_abbr %> control plane supports clusters running the current version and previously-installed version of <%= vars.product_short %>.
-It does not support clusters running <%= vars.k8s_runtime_abbr %> versions older than the last installed version.
-For example, you can upgrade to <%= vars.k8s_runtime_abbr %> v1.7.0
-and continue running <%= vars.k8s_runtime_abbr %> v1.6.1 clusters.
+Before you upgrade from <%= vars.product_short %> v1.7 to v1.8,
+you must upgrade all of your <%= vars.k8s_runtime_abbr %>-provisioned clusters
+to v1.7.
 
-To check the version of existing clusters and availability of upgrade, run:
+To upgrade <%= vars.k8s_runtime_abbr %>-provisioned clusters:
 
-```
-pks clusters
-```
+1. Check the version of your clusters:
 
-To upgrade one or more clusters, see [Upgrading Clusters](./upgrade-clusters.html#upgrade-clusters).
+    ```
+    tkgi clusters
+    ```
 
-##<a id='resource-usage'></a> View Workload Resource Usage
+1. If one or more of your clusters are running a version of
+<%= vars.k8s_runtime_abbr %> earlier than v1.7, upgrade the clusters.
+For instructions,
+see [Upgrading Clusters](./upgrade-clusters.html).
 
-View your workload resource usage in Dashboard. For more information, see
-[Accessing Dashboard](access-dashboard.html).
+##<a id='resource-usage'></a> Verify Your Clusters Support Upgrading
 
-If workers are operating too close to their capacity, the upgrade can fail. 
+It is critical that you confirm that a cluster's resource usage is within the 
+recommended maximum limits before upgrading the cluster.
 
-To prevent workload downtime during a cluster upgrade, 
-<%= vars.recommended_by %> recommends running workloads on at least three
-worker VMs, using multiple replicas of your workloads spread across those VMs. 
+<%= vars.product_full %> upgrades a cluster by upgrading master and worker nodes individually. 
+The upgrade processes a master node by redistributing the node's workload, stopping the node, upgrading it and restoring its workload. 
+This redistribution of a node's workloads increases the resource usage on the remaining nodes during the upgrade process.  
+
+If a Kubernetes cluster master VM is operating too close to capacity, the upgrade can fail.  
+
+<p class="note warning"><strong>Warning</strong>: Downtime is required to repair a cluster failure 
+  resulting from upgrading an overloaded Kubernetes cluster master VM.
+</p>
+
+To prevent workload downtime during a cluster upgrade, complete the following before upgrading a cluster:   
+
+1. Ensure none of the master VMs being upgraded will become overloaded during the cluster upgrade. 
+See [Master Node VM Size](vm-sizing.html#master-sizing) for more information. 
+
+1. Review the cluster's workload resource usage in Dashboard. 
+For more information, see [Accessing Dashboard](access-dashboard.html).
+
+1. Scale up the cluster if it is near capacity on its existing infrastructure.
+Scale up your cluster by running `tkgi resize` or create a cluster
+using a larger plan. For more information, see [Changing Cluster Configurations](scale-clusters.html). 
+
+1. Run the cluster's workloads on at least three
+worker VMs using multiple replicas of your workloads spread across those VMs. 
 For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
-
-If your clusters are near capacity for your existing infrastructure, 
-<%= vars.recommended_by %> recommends scaling up your clusters before you upgrade.
-Scale up your cluster by running `pks resize` or create a cluster
-using a larger plan. For more information, see [Changing Cluster Configurations](scale-clusters.html).
 
 ##<a id='verify-k8s-health'></a> Verify Health of Kubernetes Environment
 
 Verify that your Kubernetes environment is healthy. 
-To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html#k8s).
+To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html).
 
 ##<a id='review-vsphere-nsxt'></a> Verify NSX-T Configuration (vSphere with NSX-T Only)
 
@@ -118,16 +126,16 @@ If you are upgrading <%= vars.product_short %> for environments using vSphere wi
   information, see the <a href="./nsxt-prepare-env.html#nsx-edge-ha">Configure NSX Edge for High Availability (HA)</a>
 section of <em>Preparing NSX-T Before Deploying <%= vars.product_short %></em>.</p>
 
-##<a id='clean-up'></a> Clean up or Fix Failed Kubernetes Clusters
+##<a id='clean-up'></a> Clean Up or Fix Failed Kubernetes Clusters
 
-Clean up or fix any previous failed attempts to create PKS clusters 
-with the PKS Command Line Interface
-(PKS CLI) by performing the following steps:
+Clean up or fix any previous failed attempts to create <%= vars.k8s_runtime_abbr %> clusters 
+with the <%= vars.k8s_runtime_abbr %> Command Line Interface
+(<%= vars.k8s_runtime_abbr %> CLI) by performing the following steps:
 
 1. View your deployed clusters by running the following command:
 
     ```
-    pks clusters
+    tkgi clusters
     ```
 
     If the `Status` of any cluster displays as `FAILED`, continue to the next step. If no cluster
@@ -137,7 +145,7 @@ with the PKS Command Line Interface
 
 1. To clean up failed BOSH deployments related to failed clusters, perform the procedure in [Cannot Re-Create a Cluster that Failed to Deploy](troubleshoot-issues.html#cluster-recreate-fails).
 
-1. After fixing and cleaning up any failed clusters, view your deployed clusters again by running `pks clusters`.
+1. After fixing and cleaning up any failed clusters, view your deployed clusters again by running `tkgi clusters`.
 
 For more information about troubleshooting and fixing failed clusters, see the [Knowledge Base](https://community.pivotal.io/s/topic/0TO0P000000IKdbWAG/pivotal-container-service).
 
@@ -146,31 +154,31 @@ For more information about troubleshooting and fixing failed clusters, see the [
 Verify that existing Kubernetes clusters have unique external hostnames by checking for multiple
 Kubernetes clusters with the same external hostname. Perform the following steps:
 
-1. Log in to the PKS CLI. For more information, see
+1. Log in to the <%= vars.k8s_runtime_abbr %> CLI. For more information, see
 [Logging in to <%= vars.product_short %>](login.html). You must log in with an account that has the
 UAA scope of `pks.clusters.admin`. For more information about UAA scopes, see
 [Managing <%= vars.product_short %> Users with UAA](manage-users.html).
 
-1. View your deployed PKS clusters by running the following command:
+1. View your deployed <%= vars.k8s_runtime_abbr %> clusters by running the following command:
 
     ```
-    pks clusters
+    tkgi clusters
     ```
-1. For each deployed cluster, run `pks cluster CLUSTER-NAME` to view the details of the cluster.
+1. For each deployed cluster, run `tkgi cluster CLUSTER-NAME` to view the details of the cluster.
 For example:
 
     <pre class="terminal">
-    $ pks cluster my-cluster
+    $ tkgi cluster my-cluster
     </pre>
     Examine the output to verify that the `Kubernetes Master Host` is unique for each cluster.
 
-##<a id='pks-proxy'></a> Verify PKS Proxy Configuration
+##<a id='tkgi-proxy'></a> Verify <%= vars.k8s_runtime_abbr %> Proxy Configuration
 
-Verify your current PKS proxy configuration by performing the following steps:
+Verify your current <%= vars.k8s_runtime_abbr %> proxy configuration by performing the following steps:
 
 1. Check whether an existing proxy is enabled:
     1. Log in to Ops Manager.
-    1. Click the **VMware Enterprise PKS** tile.
+    1. Click the **VMware Tanzu Kubernetes Grid Integrated Edition** tile.
     1. Click **Networking**.
     1. If **HTTP/HTTPS Proxy** is **Disabled**, no action is required. Continue to the next section.
        If **HTTP/HTTPS Proxy** is **Enabled**, continue to the next step.
@@ -201,38 +209,38 @@ To ensure that no apps have a `PodDisruptionBudget` with
 During the <%= vars.product_tile %> upgrade process, worker nodes are cordoned and drained.
 Workloads can prevent worker nodes from draining and cause the upgrade to fail or hang.
 
-To prevent hanging cluster upgrades, you can configure default node drain behavior in <%= vars.product_tile %> tile or with the PKS CLI.
+To prevent hanging cluster upgrades, you can configure default node drain behavior in <%= vars.product_tile %> tile or with the <%= vars.k8s_runtime_abbr %> CLI.
 
 The new default behavior takes effect during the next upgrade,
 not immediately after configuring the behavior.
 
-### <a id="node-drain-tile"></a> In the <%= vars.product_tile %> tile
+### <a id="node-drain-tile"></a> Configure with the <%= vars.product_tile %> Tile
 
 To configure node drain behavior in the <%= vars.product_tile %> tile,
 see <a href="./troubleshoot-issues.html#upgrade-drain-hangs">Worker Node Hangs Indefinitely</a>
 in <i>Troubleshooting</i>.</p>
 
-### <a id="node-drain-cli"></a> With the PKS CLI
+### <a id="node-drain-cli"></a> Configure with the <%= vars.k8s_runtime_abbr %> CLI
 
-To configure default node drain behavior with the PKS CLI:
+To configure default node drain behavior with the <%= vars.k8s_runtime_abbr %> CLI:
 
 1. View the current node drain behavior by running the following command:
 
     ```
-    pks cluster CLUSTER-NAME --details
+    tkgi cluster CLUSTER-NAME --details
     ```
 
-    Where `CLUSTER-NAME` is the name of you cluster.
+    Where `CLUSTER-NAME` is the name of your cluster.
     <br><br>
     For example:
-    <pre class="terminal">$ pks cluster my-cluster --details <br>
+    <pre class="terminal">$ tkgi cluster my-cluster --details <br>
       Name:                     my-cluster
       Plan Name:                small
       UUID:                     f55ed6c4-c0a7-451d-b735-56c89fdb2ad7
       Last Action:              CREATE
       Last Action State:        succeeded
       Last Action Description:  Instance provisioning completed
-      Kubernetes Master Host:   my-cluster.pks.local
+      Kubernetes Master Host:   my-cluster.tkgi.local
       Kubernetes Master Port:   8443
       Worker Nodes:             3
       Kubernetes Master IP(s):  10.196.219.88
@@ -251,7 +259,7 @@ To configure default node drain behavior with the PKS CLI:
 1. Configure the default node drain behavior by running the following command:
 
     ```
-    pks update-cluster CLUSTER-NAME FLAG
+    tkgi update-cluster CLUSTER-NAME FLAG
     ```
 
     Where:
@@ -259,46 +267,12 @@ To configure default node drain behavior with the PKS CLI:
     + `FLAG` is an action flag for updating the node drain behavior.
 
     For example:
-    <pre class="terminal">$ pks update-cluster my-cluster --kubelet-drain-timeout 1 --kubelet-drain-grace-period 5<br>
+    <pre class="terminal">$ tkgi update-cluster my-cluster --kubelet-drain-timeout 1 --kubelet-drain-grace-period 5<br>
       Update summary for cluster my-cluster:
       Kubelet Drain Timeout: 1
       Kubelet Drain Grace Period: 5
       Are you sure you want to continue? (y/n): y
-      Use 'pks cluster my-cluster' to monitor the state of your cluster</pre>
+      Use 'tkgi cluster my-cluster' to monitor the state of your cluster</pre>
 
     For a list of the available action flags for setting node drain behavior,
-    see [pks update-cluster](cli/index.html#update-cluster) in _PKS CLI_.
-
-##<a id='update-azure-worker-role'></a> Update Your Role for the Worker Node Managed Identity (Azure Only)
-
-If you are running <%= vars.product_short %> on Azure,
-you must add the `"Microsoft.Compute/virtualMachines/read"` action to the worker node managed identity.
-
-<p class="note"><strong>Note</strong>: Modifying the role for Azure is a requirement as of Kubernetes v1.14.5.</p>
-
-To add the `"Microsoft.Compute/virtualMachines/read"` action, do the following:
-
-1. List your roles using the Azure CLI. For example:
-
-    <pre class="terminal">
-    $ az role definition list --custom-role-only true -o json
-    </pre>
-
-1. Retrieve the definition of the `"PKS worker"` role using the `roleName` key. For example:
-
-    <pre class="terminal">
-    $ az role definition list --custom-role-only true -o json | jq -r '.[] | select(.roleName=="PKS worker")'
-    </pre>
-
-1. Copy the JSON to a file and add `"Microsoft.Compute/virtualMachines/read"` under `"Actions"`.
-
-1. Save your template as `pks_worker_role.json`.
-
-1. Run the following command to update the role:
-
-    ```
-    az role definition update --role-definition pks_worker_role.json
-    ```
-
-For more information about creating managed identities for <%= vars.product_short %>,
-see [Creating Managed Identities in Azure for <%= vars.product_short %>](azure-managed-identities.html).
+    see [tkgi update-cluster](cli/index.html#update-cluster) in _<%= vars.k8s_runtime_abbr %> CLI_.

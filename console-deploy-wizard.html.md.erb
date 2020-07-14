@@ -1,0 +1,687 @@
+---
+title: Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard
+owner: TKGI
+thistopic: wizard
+---
+
+This topic describes how to use the configuration wizard to deploy <%= vars.product_short %> on vSphere. 
+
+- For information about how to deploy <%= vars.product_short %> from a YAML, see [Deploy <%= vars.product_short %> by Importing a YAML Configuration File](console-deploy-yaml.html). 
+- For information about how to upgrade an existing deployment to this version, see [Upgrade <%= vars.product_short %> Management Console](console-upgrade.html).
+
+## <a id='prereqs'></a>Prerequisites
+
+- [Deploy the <%= vars.product_short %> Management Console](console-deploy-ova.html) to vCenter Server.
+- The vCenter Server instance must be correctly configured for <%= vars.product_short %> deployment. For information about the vCenter Server requirements, see [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
+- Depending on the type of networking you want to use, your infrastructure must meet the appropriate prerequisites. For information about networking prerequisites, see the following topics:
+  - [Prerequisites for an Automated NAT Deployment to NSX-T Data Center](console-prereqs-nsxt-automatednat.html)
+  - [Prerequisites for a Bring Your Own Topology Deployment to NSX-T Data Center](console-prereqs-nsxt-byot.html)
+  - [Prerequisites for a Flannel Network](console-prereqs-flannel.html)
+- [Log in to <%= vars.product_short %> Management Console](console-deploy-ova.html#access-console).
+- 
+
+## <a id='launch-wizard'></a>Step 0: Launch the Configuration Wizard
+
+1. On the VMware <%= vars.product_short %> landing page, click **Install**.
+    ![Management console welcome page](images/console/console-install-upgrade.png)
+    [View a larger version of this image](images/console/console-install-upgrade.png)    
+1. Click **Start Configuration**.
+    ![Start configuration wizard or import YAML file](images/console/config-yaml.png)
+    [View a larger version of this image](images/console/config-yaml.png)
+
+To get help in the wizard at any time, click the **?** icon at the top of the page and select **Help**, or click the **More Info...** links in each section to see help topics relevant to that section. Click the **i** icons for tips about how to fill in specific fields.
+
+## <a id='connect-vc'></a>Step 1: Connect to vCenter Server
+
+1. Enter the IP address or FQDN for the vCenter Server instance on which to deploy <%= vars.product_short %>.
+1. Enter the vCenter Single Sign On username and password for a user account that has vSphere administrator permissions.
+1. Click **Connect**.
+1. Select the datacenter in which to deploy <%= vars.product_short %> from the drop-down menu.
+    
+    <p class="note warning"><strong> WARNING:</strong> Ideally, do not deploy TGKI from the management console to a datacenter that also includes TKGI instances that you deployed manually. If deploying management console and manual instances of TKGI to the same datacenter cannot be avoided, make sure that the TKGI instances that you deployed manually do not use the folder names
+<code>BoshVMFolder: pks_vms</code>, <code>BoshTemplateFolder: pks_templates</code>, <code>BoshDiskPath: pks_disk</code>. If a manual installation uses these folder names, the VMs that they contain will be deleted when you delete a TKGI instance from the management console.</p>
+1. Click **Next** to configure networking.
+
+
+## <a id='networking'></a>Step 2: Configure Networking
+
+Provide connection information for the container networking interface to use with <%= vars.product_short %>. <%= vars.product_short %> Management Console provides 3 network configuration options for your <%= vars.product_short %> deployments. Each network configuration option has specific prerequisites. 
+
+- **Automated NAT deployment**: Deploy <%= vars.product_short %> to an existing NSX-T Data Center network that you have not fully set up, that <%= vars.product_short %> Management Console configures for you. See [Configure an Automated NAT Deployment to NSX-T Data Center](#nsxt-automated-nat) below for instructions.
+- **Bring your own topology**: Deploy <%= vars.product_short %> to an existing NSX-T Data Center network that you have fully configured yourself. See [Configure a Bring Your Own Topology Deployment to NSX-T Data Center](#nsxt-byot) below for instructions.
+- **Flannel**: Deploy <%= vars.product_short %> to a Flannel network that <%= vars.product_short %> Management Console provisions for you. See [Configure a Flannel Network](#flannel) below for instructions.
+
+![Select Networking](images/console/select-networking.png)
+[View a larger version of this image.](images/console/select-networking.png)
+
+<p class="note"><strong>Important</strong>: You cannot change the type of networking after you deploy <%= vars.product_short %>.<br><br>
+You cannot configure plans to use Windows worker nodes with NSX-T Data Center networking in this release. You can currently only use Windows worker nodes if you implement Flannel networking.</p>
+
+### <a id='nsxt-automated-nat'></a>Configure an Automated NAT Deployment to NSX-T Data Center
+
+Provide information about an NSX-T Data Center network that you have not already configured for use with <%= vars.product_short %>. You provide information about your NSX-T Data Center setup, and <%= vars.product_short %> Management Console creates the necessary objects and configures them for you. Make sure that your NSX-T Data Center setup satisfies the [Prerequisites for an Automated NAT Deployment to NSX-T Data Center](console-prereqs-nsxt-automatednat.html) before you begin.
+
+1. Select the **NSX-T Data Center (Automated NAT Deployment)** radio button.
+1. Configure the connection to NSX Manager.
+	* Enter the IP address or FQDN of NSX Manager.
+	* Enter the user name and password for an NSX administrator account.
+1. Click **Connect**.
+1. Enter information about the uplink network.
+	* **Uplink CIDR**: Enter a CIDR range within the uplink subnet for the Tier 0 uplinks, for example 10.40.206.0/24.
+	*  **Gateway IP**: Enter the IP address for the gateway, for example 10.40.206.125.
+	* **VLAN ID**: Enter the VLAN ID within the range 0 to 4095, for example 1206.
+	* **Edge Node 1**: Select an Edge Node from the drop-down menu, for example `nsx-edge-1`.
+	*  **T0 Uplink 1 IP**: Enter the IP address of the Tier 0 uplink 1, for example 10.40.206.9.
+	* **Edge Node 2**: Select an Edge Node from the drop-down menu, for example `nsx-edge-2`. The second edge node is optional for proof-of-concept deployments, but it is strongly recommended for production deployments. To use only one edge node, set Edge Node two to “None”.
+	* **T0 Uplink 2 IP**: Enter the IP address of the Tier 0 uplink 1, for example 10.40.206.11.
+	* **T0 HA Virtual IP**: Enter the IP address for the HA Virtual IP, for example 10.40.206.24.
+1. Optionally enable **Tier0 Active Active Mode**.
+
+    By default, the management console sets the high availability (HA) mode of the tier 0 router to active-standby. You can optionally enable active-active mode on the tier 0 router, so that all NAT configuration moves from the tier 0 to the tier 1 router.
+    
+    ![Automated NAT Deployment network configuration](images/console/automatednat-network.png)
+1. Enter information about the network resources for the <%= vars.product_short %> deployment to use.
+	* **Deployment CIDR**: Enter a CIDR range to use for <%= vars.product_short %> components, for example 10.192.182.1/22.
+	* **Deployment DNS**: Enter the IP address of the DNS server to use for deploying <%= vars.product_short %> components, for example 192.168.111.155.
+	* **NTP Server**: Enter the IP address of an NTP server.
+	* **Pod IP Block CIDR**: Enter a CIDR range to use for pods, with a maximum suffix of 24. For example 11.192.183.1/22.
+	* **Node IP Block CIDR**: Enter a CIDR range to use for nodes, with a maximum suffix of 22. For example 11.192.184.1/22.
+	* **Nodes DNS**: Enter the Domain Name Server used by the Kubernetes nodes.
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment. You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+	* **Usable range of floating IPs**: Enter the floating IP range, for example **From** 192.168.160.100 **To** 192.168.160.199. Click **Add Range** to add more IP ranges.
+1. Optionally enable **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
+
+    <p class="note"><strong>Important</strong>: If NSX-T Data Center uses custom certificates and you do not provide the CA certificate for NSX Manager, <%= vars.product_short %> Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same datacenter as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX-T manager CA certificate.</p>
+    
+    Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
+    
+    ```
+	-----BEGIN CERTIFICATE-----
+    nsx_manager_CA_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+
+    If you do not select **Manage certificates manually for NSX**, the management console generates a certificate for you.
+    
+    ![Automated NAT Deployment network resources configuraton](images/console/automatednat-network-resources.png)
+1. Optionally enable **Disable SSL certificates verification** to allow unsecured connections to NSX Manager.
+1. Click **Next** to configure identity management.
+
+For the next steps, see [Configure Identity Management](#identity).
+
+### <a id='nsxt-byot'></a>Configure a Bring Your Own Topology Deployment to NSX-T Data Center
+
+Provide information about an NSX-T Data Center network that you have already fully configured for use with <%= vars.product_short %>. Make sure that your NSX-T Data Center setup satisfies the [Prerequisites for a Bring Your Own Topology Deployment to NSX-T Data Center](console-prereqs-nsxt-byot.html) before you begin.
+
+1. Select the **NSX-T Data Center (Bring Your Own Topology)** radio button.
+1. Configure the connection to NSX Manager.
+	* Enter the IP address  or FQDN of the NSX Manager.
+	* Enter the user name and password for an NSX administrator account.
+1. Click **Connect**.
+1. Use the drop-down menus to select existing network resources for each of the following items.
+	* **Network for <%= vars.k8s_runtime_abbr %> Management Plane**: Select the name of an opaque network on an NSX-T Virtual Distributed Switch (N-VDS). 
+	
+         <p class="note warning"><strong>Important</strong>: Do not use the network on which you deployed the <%= vars.product_short %> Management Console VM as the network for the management plane. Using the same network for the management console VM and the management plane requires additional NSX-T Data Center configuration and is not recommended.</p>
+	* **Pod IP Block ID**: Select the UUID for the IP block to use for Kubernetes pods.
+	* **Node IP Block ID**: Select the UUID for the IP block to use for Kubernetes nodes.
+	* **T0 Router ID**: Select the UUID for the Tier-0 Logical Router configured in NSX-T Data Center.
+	* **Floating IP Pool ID**: Select the UUID for the Floating IP Pool.
+1. Enter IP addresses for the following resources.
+	* **Nodes DNS**: Enter the IP address for the DNS server to use for Kubernetes nodes and pods.
+	* **Deployment DNS**: Enter the IP address for the DNS server to use for the <%= vars.k8s_runtime_abbr %> control plane VMs, for example 192.168.111.155.
+	* **NTP Server**: Enter the IP address of an NTP server.
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+    
+    ![Bring your own topology network configuration](images/console/byot-network.png)
+1. Optionally disable **NAT Mode** to implement a routable (No-NAT) topology.
+
+     <%= vars.product_short %> supports NAT topologies, No-NAT with logical switch (NSX-T) topologies, and multiple tier-0 routers for tenant isolation. For information about implementing a routable topology, see [No-NAT Topology](./nsxt-topologies.html#topology-no-nat) in *NSX-T Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition*.
+1. If you left NAT mode enabled, optionally enable **Hybrid NAT Mode**.
+<br><br>
+If you enable hybrid NAT mode, the <%= vars.product_short %> management plane runs on a routable subnet but the cluster node network uses a non-routable subnet.
+    
+    ![Bring your own topology NAT options](images/console/byot-nat-modes.png)
+1. Optionally enable **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
+
+    <p class="note"><strong>Important</strong>: If NSX-T Data Center uses custom certificates and you do not provide the CA certificate for NSX Manager, <%= vars.product_short %> Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same datacenter as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX-T manager CA certificate.</p>
+    
+    Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
+
+    ```
+	-----BEGIN CERTIFICATE-----
+    nsx_manager_CA_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+    
+    If you do not select **Manage certificates manually for NSX**, the management console generates a certificate for you.
+    
+    ![Bring your own topology network options](images/console/byot-network-options.png)
+1. Optionally enable **Disable SSL certificates verification** to allow unsecured connections to NSX Manager.  
+1. Click **Next** to configure identity management.
+
+For the next steps, see [Configure Identity Management](#identity).
+
+### <a id='flannel'></a>Configure a Flannel Network
+
+Provide networking information so that <%= vars.product_short %> Management Console can provision a Flannel network for you during deployment. Make sure that you have the information listed in [Prerequisites for a Flannel Network](console-prereqs-flannel.html) before you begin.
+
+1. Select the **Flannel** radio button.
+1. Configure the Deployment Network Resource options.
+	* **Deployment Network**: Select a vSphere network on which to deploy <%= vars.product_short %>. 
+	* **Deployment Network CIDR**: Enter a CIDR range to use for <%= vars.product_short %> components, for example 10.192.182.1/22.
+	* **Deployment Network Gateway IP**: Enter the IP address for the gateway for the deployment network, for example 10.192.182.1.
+	* **Deployment DNS**: Enter the IP address for the deployment network DNS server, for example 192.168.111.155.
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+    
+    ![Flannel network configuration](images/console/flannel-network.png)
+1. Configure the Service Network Resource options.
+	* **Service Network**: Select a vSphere network to use as the service network.
+	* **Service Network CIDR**: Enter a CIDR range to use for the service network, for example 10.192.182.1/23.
+	* **Service Network Gateway IP**: Enter the IP address for the gateway for the service network.
+	* **Service DNS**: Enter the IP address for the service network DNS server, for example 192.168.111.155.
+	* **Service Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify the reserved IP range after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+	* **NTP Server**: Enter the IP address of an NTP server.
+    
+    ![Flannel service network configuration](images/console/flannel-service-network.png)
+1. Configure the Kubernetes network options.
+	* **Pod Network CIDR**: Enter a CIDR range to use for pods, for example 11.192.182.1/31.
+	* **Service Network CIDR**: Enter a CIDR range to use for the Kubernetes services, for example 10.192.182.1/23.
+    
+    ![Flannel Kubernetes network configuration](images/console/flannel-k8s-network.png)
+1. Click **Next** to configure identity management.
+
+## <a id='identity'></a>Step 3: Configure Identity Management
+
+<%= vars.product_short %> Management Console provides 3 identity management options for your <%= vars.product_short %> deployments.
+
+- A local database of users. See [Use a Local Database](#identity-db) below for instructions.
+- Connect to an external Active Directory or LDAP server. See [Use an External LDAP Server](#identity-ldap) below for instructions.
+- Connect to a SAML identity provider. See [Use a SAML Identity Provider](#identity-saml) below for instructions.
+
+### <a id='identity-db'></a>Use a Local Database 
+
+You can manage users by using a local database that is created during <%= vars.product_short %> deployment. After deployment, you can add users and groups to the database and assign roles to them in the Identity Management view of the <%= vars.product_short %> Management Console.
+
+1. Select the **Local user database** radio button.
+1. In the **<%= vars.control_plane %> FQDN** text box, enter an address for the <%= vars.control_plane %> Server VM, for example `api.tkgi.example.com`.
+
+For the next steps, see [Optionally Configure UAA and Custom Certificates](#uaa-certs).  
+
+### <a id='identity-ldap'></a>Use an External LDAP Server 
+
+Provide information about an existing external Active Directory or LDAP server.
+
+1. Select the **AD/LDAP** radio button.
+1. For **AD/LDAP Endpoint**, select **ldap** or **ldaps** from the drop-down menu and enter the IP address and port of the AD or LDAP server.
+1. Enter the username and password to use to connect to the server.
+1. Enter the remaining details for your server:
+	* **User Search Base**: Enter the location in the AD/LDAP directory tree where user search begins. For example, a domain named `cloud.example.com` might use `ou=Users,dc=example,dc=com`.
+	* **User Search Filter**: Enter a string to use for user search criteria. For example, the standard search filter `cn=Smith` returns all objects with a common name equal to `Smith`. Use `cn={0}` to return all LDAP objects with the same common name as the username.
+	* **LDAP Referrals**: Select how to handle references to alternate locations in which AD/LDAP requests can be processed:
+      - Automatically follow referrals
+      - Ignore referrals
+      - Abort authentication
+	* **Group Search Base**: Optionally enter the location in the AD/LDAP directory tree where group search begins. For example, a domain named `cloud.example.com` might use `ou=Groups,dc=example,dc=com`.
+	* **Group Search Filter**: Enter a string that defines AD/LDAP group search criteria, such as `member={0}`.
+	* **External Groups Whitelist**: Optionally enter a comma-separated list of group patterns to be populated in the user's `id_token`.
+	* **Email Attribute**: Enter the attribute name in the AD/LDAP directory that contains user email addresses. For example, `mail`.
+	* **Email Domains**: Optionally enter a comma-separated list of the email domains for external users who can receive invitations to <%= vars.product_short %>.
+	* **First Name Attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user first names, for example `cn`.
+	* **Last Name Attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user last names. for example `sn`.
+	* **Server SSL Certificate**: If you are using an LDAPS endpoint, paste the contents of the LDAP server certificate certificate into the text box.
+1. Optionally click the **Test LDAP Server** button to test the connection that you have configured.
+1. In the **<%= vars.control_plane %> FQDN** text box, enter an address for the <%= vars.control_plane %> Server VM, for example `api.tkgi.example.com`.
+
+![LDAP configuration](images/console/identity-ldap.png)
+
+For the next steps, see [Optionally Configure UAA and Custom Certificates](#uaa-certs).
+
+### <a id='identity-saml'></a>Use a SAML Identity Provider
+
+You can configure <%= vars.product_short %> so that Kubernetes authenticates users against a SAML identity provider. Before you configure a SAML identity provider, you must configure your identity provider to designate <%= vars.product_short %> as a service provider. For information about how to configure Okta and Azure Active Directory, see the following topics:
+
+- [Configuring Okta as a SAML Identity Provider](./okta-sso-config.html)
+- [Configuring Azure Active Directory as a SAML Identity Provider](./azure-ad-sso-config.html)
+
+After you have configured your identity provider, enter information about the provider in <%= vars.product_short %> Management Console.
+
+1. Select the **SAML Identity Provider** radio button.
+1. For **Provider Name**, enter a unique name you create for the Identity Provider. 
+<br>
+This name can include only alphanumeric characters, `+`, `_`, and `-`. You must not change this name after deployment because all external users use it to link to the provider.
+
+1. For **Display Name**, enter a display name for your provider.
+<br>
+The display name appears as a link on your login page.
+
+1. Enter the metadata from your identity provider either as XML or as a URL.
+  - Download your identity provider metadata and paste the XML into **Provider Metadata**.
+  - If your identity provider exposes a metadata URL, enter it in **Provider Metadata URL**.
+
+1. For **Name ID Format**, select the name identifier format for your SAML identity provider. 
+<br>
+This translates to `username` on TKGI. The default is `Email Address`.
+
+1. For **First Name Attribute** and **Last Name Attribute**, enter the attribute names in your SAML database that correspond to the first and last names in each user record.
+<br>
+These fields are case sensitive.
+  
+1. For **Email Attribute**, enter the attribute name in your SAML assertion that corresponds to the email address in each user record, for example, `EmailID`.
+<br>
+This field is case sensitive.
+
+1. For **External Groups Attribute**, enter the attribute name in your SAML database for your user groups.
+<br>
+This field is case sensitive. To map the groups from the SAML assertion to admin roles in <%= vars.product_short %>, see [Grant Tanzu Kubernetes Grid Integrated Edition Access to an External LDAP Group](./manage-users.html#external-group).
+
+1. By default, all SAML authentication requests from <%= vars.product_short %> are signed, but you can optionally disable **Sign Authentication Requests**.
+<br>
+If you disable this option, you must configure your identity provider to verify SAML authentication requests.
+
+1. To validate the signature for the incoming SAML assertions, enable **Required Signed Assertions**.
+<br>
+If you enable this option, you must configure your Identity Provider to send signed SAML assertions.
+
+1. For **Signature Algorithm**, choose an algorithm from the drop down to use for signed requests and assertions.
+<br>
+The default value is SHA256.
+
+1. In the **<%= vars.control_plane %> FQDN** text box, enter an address for the <%= vars.control_plane %> Server VM, for example `api.tkgi.example.com`.
+    
+![SAML configuration](images/console/identity-saml.png)
+
+For the next steps, see [Optionally Configure UAA and Custom Certificates](#uaa-certs).
+
+### <a id='uaa-certs'></a>Optionally Configure UAA and Custom Certificates
+
+However you manage identities, you can use OpenID Connect (OIDC) to instruct Kubernetes to verify end-user identities based on authentication performed by a User Account and Authentication (UAA) server. Using OIDC lets you set up an external IDP, such as Okta, to authenticate users who access Kubernetes clusters with `kubectl`. If you enable OIDC, administrators can grant namespace-level or cluster-wide access to Kubernetes end users. If you do not enable OIDC, you must use service accounts to authenticate <code>kubectl</code> users.
+
+<p class="note"><strong>Note</strong>: You cannot enable OIDC if you intend to integrate <%= vars.product_short %> with VMware vRealize Operations Management Pack for Container Monitoring.</p>
+
+1. Optionally select **Configure created clusters to use UAA as the OIDC provider** and provide the following information.
+  - **UAA OIDC Groups Claim**: Sets the `--oidc-groups-claim` flag on the kube-api server. Enter the name of your groups claim. This is used to set a user's group in the JSON Web Token (JWT) claim. The default value is `roles`.
+  - **UAA OIDC Groups Prefix**: Sets the `--oidc-groups-prefix` flag. Enter a prefix for your groups claim. This prevents conflicts with existing names. For example, if you enter the prefix `oidc:`, UAA creates a group name like `oidc:developers`.
+  - **UAA OIDC Username Claim**: Sets the `--oidc-username-claim` flag. Enter the name of your username claim. This is used to set a user's username in the JWT claim. The default value is `user_name`. Depending on your provider, admins can enter claims besides `user_name`, such as `email` or `name`.
+  - **UAA OIDC Username Prefix**: Sets the `--oidc-username-prefix` flag. Enter a prefix for your username claim. This prevents conflicts with existing names. For example, if you enter the prefix `oidc:`, UAA creates a username like `oidc:admin`.
+
+    ![OIDC configuration](images/console/identity-oidc.png)
+1. Optionally select **Manage Certificates Manually for <%= vars.control_plane %>** to generate and upload your own certificates for the <%= vars.control_plane %> Server.
+<br><br>
+If you do not select this option, the management console creates auto-generated, self-signed certificates.
+<br><br>
+Enter the contents of the certificate in the **<%= vars.control_plane %> Certificate** text box:
+    
+    ```
+    -----BEGIN CERTIFICATE-----
+    tkgi_api_certificate_contents
+    -----END CERTIFICATE-----
+    ```
+    
+    Enter the contents of the certificate key in the **Private Key PEM** text box:
+    
+    ```
+	-----BEGIN RSA PRIVATE KEY-----
+    tkgi_api_private_key_contents
+    -----END RSA PRIVATE KEY-----
+    ```    
+1. Click **Next**  to configure availability zones.
+
+## <a id='availability-zones'></a>Step 4: Configure Availability Zones
+
+Availability zones specify the compute resources for Kubernetes cluster deployment. Availability zones are a BOSH construct, that in <%= vars.product_short %> deployments to vSphere correspond to vCenter Server clusters, host groups, and resource pools. Availability zones allow you to provide high-availability and load balancing to applications. When you run more than one instance of an application, those instances are balanced across all of the availability zones that are assigned to the application. You must configure at least one availability zone. You can configure multiple additional availability zones.
+
+<p class="note"><strong>Note</strong>: If you select a cluster as an availability zone, <%= vars.product_short %> Management Console sets the DRS VM-host affinity rule on that cluster to <code>MUST</code>. If you select a host group as an availability zone, <%= vars.product_short %> Management Console sets the DRS VM-host affinity rule on that group to <code>SHOULD</code>.</p>
+
+1. In the **Name** field, enter a name for the availability zone.
+1. Optionally select **This is the management availability zone**.
+<br>
+The management availability zone is the availability zone in which to deploy the <%= vars.k8s_runtime_abbr %> Management Plane. The management plane consists of the <%= vars.control_plane %> VM, Ops Manager, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, <%= vars.product_short %> Management Console selects the first one.
+1. In the **Compute Resource** tree, select clusters, host groups, or resource pools for this availability zone to use.
+1. Click **Save Availability Zone**.
+
+    ![Configure availability zones](images/console/availability-zones.png)
+1. Optionally click **Add Availability Zone** to add another zone.
+<br>
+You can only select resources that are not already included in another zone. You can create multiple availability zones. 
+1. Click **Save Availability Zone** for every additional availability zone that you create.
+1. Click **Next**  to configure storage.
+
+## <a id='storage'></a>Step 5: Configure Resources and Storage
+
+Resource Settings allow you to configure the resources that are allocated to the VM on which the <%= vars.product_short %> API and other component services, such as UAA, run. Allocate resources according to the workloads that TKGI will run.
+
+<%= vars.product_short %>, the MySQL database runs on a separate VM to the <%= vars.product_short %> API and other components.
+
+You must also designate the datastores to use for the different types of storage required by your <%= vars.product_short %> deployment. 
+
+- Ephemeral storage is used to contain the files for ephemeral VMs that <%= vars.product_short %> creates during installation, upgrade, and operation. Ephemeral VMs are automatically created and deleted as needed.
+- Permanent storage is used for permanent <%= vars.product_short %> data. 
+- Kubernetes persistent volume storage is used to store Kubernetes persistent volumes, for use in stateful applications.
+
+You can use different datastores for the storage of permanent and ephemeral data. If you disable the permanent storage option, <%= vars.product_short %> uses the ephemeral storage for permanent data. For information about when it is appropriate to share the ephemeral, permanent, and persistent volume datastores or use separate ones, see [PersistentVolume Storage Options on vSphere](./vsphere-persistent-storage.html).
+
+You can use VMware vSAN, Network File Share (NFS), or VMFS storage for ephemeral, permanent, and Kubernetes persistent storage. Datastores can only be selected if their minimum capacity is greater than 250GB. 
+
+1. For **<%= vars.control_plane_db %> Persistent Disk Size**, select the size of the persistent disk for the <%= vars.product_short %> MySQL database VM.
+<br>Set the <%= vars.control_plane_db %> Persistent Disk Size according to the amount of data that you expect the cluster workload to store.
+1. Use the **<%= vars.control_plane_db %> VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the <%= vars.product_short %> MySQL database VM. 
+<br>Choose the configuration for the <%= vars.control_plane_db %> VM depending on the volume of database operations that it will run.
+1. For **<%= vars.control_plane %> Persistent Disk Size**, select the size of the persistent disk for the <%= vars.product_short %> API VM.
+<br>Set the <%= vars.control_plane %> Persistent Disk Size according to the number of pods that you expect the cluster workload to run continuously. It is recommended to allocate 10GB for every 500 pods. For example:
+   - For 1000 pods, allocate 20GB
+   - For 10,000 pods, allocate 200GB
+   - For 50,000 pods, allocate 1TB
+1. Use the **<%= vars.control_plane %> VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the <%= vars.product_short %> API VM. 
+<br>Choose the configuration for the API VM depending on the expected CPU, memory, and storage consumption of the workloads that it will run. For example, some workloads might require a large compute capacity but relatively little storage, while others might require a large amount of storage and less compute capacity.
+  ![Configure <%= vars.control_plane %> and database VMs](images/console/resources.png)
+1. Under **Ephemeral Storage**, select one or more datastores for use as ephemeral storage, or use the search field on the right to find datastores by name.
+  ![Select ephemeral storage](images/console/ephemeral-storage.png)
+1. Optionally enable **Specify Permanent Storage** to designate different datastores for ephemeral and permanent data.
+1. If you enabled permanent storage, under **Permanent Storage**, select one or more datastores for permanent storage, or use the search field to find datastores by name.
+  ![Select permanent storage](images/console/permanent-storage.png)
+1.  Under **Kubernetes Persistent Volume Storage**, select one datastore in which to store Kubernetes volumes, or use the search field to find datastores by name.
+  ![Select Kubernetes storage](images/console/k8s-storage.png)
+1. Click **Next** to configure plans.
+
+## <a id='plans'></a>Step 6: Configure Plans
+
+A plan is a cluster configuration template that defines the set of resources for <%= vars.product_short %> to use when deploying Kubernetes clusters. A plan allows you to configure the numbers of master and worker nodes, select between Linux and Windows OS for worker nodes, specify the configuration of the master and worker VMs, set disk sizes, select availability zones for master and node VMs, and configure advanced settings.
+
+<p class="note warning"><strong>Notes about Windows Worker Nodes</strong>: 
+
+In this release, using Windows worker nodes is a beta feature and is intended for evaluation and test purposes only. Using Windows worker nodes is subject to the following limitations and requires additional configuration after you deploy <%= vars.product_short %>:
+<br><br>
+You can only use Windows worker nodes if you implement Flannel networking. You cannot use Windows worker nodes with NSX-T Data Center networking.
+<br><br>
+You can create a maximum of 3 plans that implement Windows worker nodes in a given <%= vars.product_short %> deployment.
+<br><br>
+If you use Windows worker nodes, certain options are not available, and the default values of other options change. See the option descriptions below for more information.
+<br><br>
+If you use Windows worker nodes, by default one Linux worker node is deployed per Windows cluster. The Linux node provides cluster services to the Windows worker nodes. You can optionally make the cluster services Linux node highly available, in which case two Linux nodes are deployed.
+<br><br>
+If you use Windows worker nodes, after you deploy <%= vars.product_short %>, you must use Operations Manager to manually install a Windows Server Stemcell in BOSH. For information about how to install a Windows Server Stemcell and other steps to perform after you deploy <%= vars.product_short %> with Windows worker nodes, see <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a>.</p>
+
+<%= vars.product_short %> Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can enable the plans as they are. You must enable at least one plan configuration because when you use the <%= vars.k8s_runtime_abbr %> CLI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are enabled, you cannot create Kubernetes clusters.
+
+<%= vars.product_short %> plans support privileged containers and three admission control plugins. For information about privileged containers and the supported admission plugins, see [Privileged mode for pods in the Kubernetes documentation](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers). For information about admission plugins, see [Enabling, Disabling, and Using Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters](./admission-plugins.html).
+
+1. To use the preconfigured plans as they are, click **Save Plan** for each of the `small`, `medium`, and `large` plans.
+1. Optionally use the drop-down menus and buttons to change the default configurations of the preconfigured plans.
+	* If you are deploying <%= vars.product_short %> to a Flannel network, for **Choose the worker OS type**, select **Linux** or **Windows**.
+	* Enter a name and a description for the plan in the **Name** and  **Description** text boxes.
+	* **Master/etcd Node Instances**: Select **1** (small), **3** (medium), or **5** (large).
+	* **Master Persistent Disk Size**: Select the size of the master persistent disk.
+	* **Master/etcd Availability Zones**: Enable one or more  availability zones for the master nodes.
+	* **Master/etcd VM Type**: Select the size of the Master VM. If you use Windows worker nodes, this option defaults to **large.disk**.
+	* **Worker Node Instances**: Specify the number of worker nodes. For a small deployment, 3 is suggested.
+	* **Worker Persistent Disk Size**: Select the size of the worker node persistent disk.
+	* **Worker Availability Zones**: Enable one or more available availability zones for the worker nodes.
+	* **Worker VM Type**: Select a configuration for worker nodes.  If you use Windows worker nodes, this option defaults to **large.disk**.
+	* **Max Worker Node Instances**: Select the maximum number of worker nodes.
+      ![Create a plan with Windows worker nodes](images/console/windows-plan.png)
+	* **Errand VM Type**: Select the size of the VM to run BOSH errand tasks.
+    * **Enable Privileged Containers**: Optionally enable privileged container mode. Use with caution. If you use Windows worker nodes, this option is not available.
+	* **Admission Plugins**: Optionally enable admission plugins. Admission plugins, provide a higher level of access control to the Kubernetes API server and should be used with caution.
+       - **`PodSecurityPolicy`** 
+       - **`DenyEscalatingExec`**. If you use Windows worker nodes, this option is not available.
+       - **`SecurityContextDeny`**
+	* **Node Drain Timeout**: Enter the timeout in minutes for the node to drain pods. If you set this value to 0, the node drain does not terminate. If you use Windows worker nodes, the node drain options are not available. To configure when the nodes drain, optionally enable the following:   
+       - **Force node to drain even if it has running pods not managed by a ReplicationController, ReplicaSet, Job, DaemonSet or Stateful Set**
+       - **Force node to drain even if it has running DaemonSet managed pods**
+       - **Force node to drain even if it has running pods using emptyDir**
+       - **Force node to drain even if pods are still running after timeout**
+	* **Pod Shutdown Grace Period**: Enter a timeout in seconds for the node to wait before it forces the pod to terminate. If you set this value to -1, the default timeout is set to the one specified by the pod. If you use Windows worker nodes, this option is not available.
+
+    ![Configure errand VM, admission plugins and node drain](images/console/plan-errands-node-drain.png)
+1. If you use Windows worker nodes, optionally enable the **Enable HA Linux Workers** option to deploy two Linux worker nodes per Windows cluster instead of one.
+
+    The Linux nodes provide cluster services to the Windows clusters.
+
+    ![Configure Linux worker HA for Windows plans](images/console/windows-linux-ha.png)
+1. Click **Save Plan** for each plan that you edit.
+1. Optionally click **Add Plan** to create a new plan, configure it as described above, and click **Save Plan**.
+
+    You can create a maximum of 10 Linux plans and a maximum of 3 Windows plans. 
+   
+1. Optionally delete any plans that you do not need.
+1. Click **Next** to configure integrations.
+
+## <a id='integrations'></a>Step 7: Configure Integrations
+
+If your infrastructure includes existing deployments of VMware Tanzu Mission Control, Wavefront by VMware, VMware vRealize Operations Management Pack for Container Monitoring, or VMware vRealize Log Insight, you can configure TKGI to connect to those services. You can also configure TKGI to forward logs to a Syslog server.
+
+### <a id='integrations-tanzumc'></a>Configure a Connection to VMware Tanzu Mission Control
+
+Participants in the VMware Tanzu Mission Control beta program can use <%= vars.product_short %> Management Console to integrate their <%= vars.product_short %> deployment with Tanzu Mission Control.
+
+Tanzu Mission Control integration lets you monitor and manage <%= vars.product_short %> clusters from the Tanzu Mission Control console, making the Tanzu Mission Control console a single point of control for all Kubernetes clusters.
+
+<p class="note warning"><strong>Important:</strong> VMware Tanzu Mission Control is currently experimental Beta software and is intended for evaluation and test purposes only. For more information about Tanzu Mission Control, see the <a href="https://cloud.vmware.com/tanzu-mission-control" target="_blank">VMware Tanzu Mission Control home page</a>.</p>
+
+1. Select the **Enable** toggle to enable the Tanzu Mission Control Integration.
+1. For **API URL**, enter the API URL of your Tanzu Mission Control subscription, without a trailing slash (`/`).
+1. For **Cluster Group Name**, enter the name of a Tanzu Mission Control cluster group.
+   - The name can be `default` or another value, depending on your role and access policy:
+      - `Org Member` users in VMware cloud services have a `service.admin` role in Tanzu Mission Control. These users:
+           - By default, can only create and attach clusters in the `default` cluster group.
+           - Can create new cluster groups after an `organization.admin` user grants them the `clustergroup.admin` or `clustergroup.edit` role.
+      - VMware cloud services `Org Owner` users have `organization.admin` permissions in Tanzu Mission Control. These users:
+           - Can create cluster groups.
+           - Can grant `clustergroup` roles to `service.admin` users through the Tanzu Mission Control Access Policy view.
+  - **Tanzu Mission Control Cluster Name Prefix**: Enter a name prefix for identifying the <%= vars.k8s_runtime_abbr %> clusters in Tanzu Mission Control.
+1. For **API token**, Enter your API token to authenticate with VMware Cloud Services APIs.
+   Retrieve this token by logging into [VMware Cloud Services](https://cloud.vmware.com/) and viewing your account information.
+1. For **Cluster Name Prefix**, enter a name prefix for identifying the <%= vars.k8s_runtime_abbr %> clusters in Tanzu Mission Control.
+   This name prefix cannot contain uppercase letters.  For more information, see the see [Cluster Group Name Limitation for Tanzu Mission Control Integration](./release-notes.html#1-6-0-tmc-names) in the _Known Issues_.
+
+    ![Configure integration with Tanzu Mission Control](images/console/tanzu-mission-control.png)
+1. Click **Save**.
+1. Configure integrations with other applications, or click **Next** to install Harbor.
+
+### <a id='integrations-wavefront'></a>Configure a Connection to Wavefront
+
+By connecting your <%= vars.product_short %> deployment to an existing deployment of Wavefront by VMware, you can obtain detailed metrics about Kubernetes clusters and pods. Before you configure Wavefront integration, you must have an active Wavefront account and access to a Wavefront instance. For more information, including about how to generated a Wavefront access token, see [VMware <%= vars.k8s_runtime_abbr %> Integration](https://docs.wavefront.com/pks.html) and [VMware TKGI Integration Details](https://docs.wavefront.com/integrations_pks.html) in the Wavefront by VMware documentation.
+
+1. Select the **Enable** toggle to enable a connection to Wavefront.
+1. Enter the address of your Wavefront instance in the **Wavefront URL** text box.
+1. Enter the Wavefront API token in the **Wavefront Access Token** text box.
+1. Enter an email address to which Wavefront sends alerts in the **Wavefront Alert Recipient** text box.
+1. Optionally disable **Create pre-defined Wavefront alerts when provisioning <%= vars.k8s_runtime_abbr %>**.
+1. In the **HTTP Proxy for <%= vars.k8s_runtime_abbr %>** text box, enter the address of the proxy server to use when it is not possible for the <%= vars.product_short %> Wavefront component to connect to an outside address over HTTP. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
+1. Optionally disable **Delete pre-defined alerts when deleting <%= vars.k8s_runtime_abbr %>**.
+
+     ![Configure integration with Wavefront](images/console/wavefront.png)
+1. Click **Save**.
+1. Configure integrations with other applications, or click **Next** to install Harbor.
+
+
+### <a id='integrations-vrops'></a>Configure a Connection to VMware vRealize Operations Management Pack for Container Monitoring
+
+You can connect your <%= vars.product_short %> deployment to an existing instance of VMware vRealize Operations Management Pack for Container Monitoring. vRealize Operations Management Pack for Container Monitoring provides detailed monitoring of your Kubernetes clusters. vRealize Operations Management Pack for Container Monitoring must be installed, licensed, running, and available in your environment before you enable the option. For more information, see the [vRealize Operations Management Pack for Container Monitoring documentation](https://docs.vmware.com/en/Management-Packs-for-vRealize-Operations-Manager/index.html).
+
+If you enable the option to integrate <%= vars.product_short %> with VMware vRealize Operations Management Pack for Container Monitoring, the management console creates a `cAdvisor` container in your <%= vars.product_short %> deployment.
+
+1. Select the **Enable** toggle to enable a connection to vRealize Operations Management Pack for Container Monitoring.
+1. Click **Save**.
+1. Configure integrations with other applications, or click **Next** to install Harbor.
+
+### <a id='integrations-vfli'></a>Configure a Connection to VMware vRealize Log Insight
+
+You can configure <%= vars.product_short %> deployment so that an existing deployment of VMware vRealize Log Insight pulls logs from all BOSH jobs and containers running in the cluster, including node logs from core Kubernetes and BOSH processes, Kubernetes event logs, and POD stdout and stderr.
+
+vRealize Log Insight must be installed, licensed, running, and available in your environment before you enable the option. For instructions and additional information, see the [vRealize Log Insight documentation](https://docs.vmware.com/en/vRealize-Log-Insight/index.html).
+
+1. Select the **Enable** toggle to enable a connection to vRealize Log Insight.
+1. Enter the address of your vRealize Log Insight instance in the **Host** text box.
+1. Optionally disable **Enable SSL**.
+1. Optionally disable **Disable SSL certificate validation**.
+
+     ![Configure integration with vRealize Log Insight](images/console/vrli.png)
+1. Click **Save**.
+1. Configure integrations with other applications, or click **Next** to install Harbor.
+
+<p class="note"><strong>Note</strong>: If you enable integration with vRealize Log Insight, <%= vars.product_short %> Management Console generates a unique vRealize Log Insight agent ID for the management console. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console VM. For information about how to obtain the agent ID, see <a href="console-troubleshooting.html#log-insight">Obtain the VMware vRealize Log Insight Agent ID for TKGI Management Console</a> in <i>Troubleshooting <%= vars.product_short %> Management Console</i>. </p>
+
+### <a id='integrations-syslog'></a>Configure a Connection to Syslog
+
+You can configure your <%= vars.product_short %> deployment so that it sends logs for BOSH-deployed VMs, Kubernetes clusters, and namespaces to an existing Syslog server.
+
+1. Select the **Enable** toggle to enable a connection to Syslog.
+1. Enter the address of your Syslog server in the **Address and port** text boxes.
+1. Select **TCP**, **UDP**, or **RELP** from the **Transport protocol** drop-down menu.
+1. Optionally select **Enable TLS**.
+1. Enter a permitted peer ID. 
+
+     ![Configure integration with Syslog](images/console/syslog.png)
+1. Click **Save**.
+1. Click **Next** to install Harbor.
+
+## <a id='harbor'></a>Step 8: Configure Harbor
+
+Harbor is an enterprise-class registry server that you can use to store and distribute container images. Harbor allows you to organize image repositories in projects, and to set up role-based access control to those projects to define which users can access which repositories. Harbor also provides rule-based replication of images between registries, optionally implements Content Trust with Notary and vulnerability scanning of stored images with Clair, and provides detailed logging for project and user auditing.
+
+Harbor provides a Notary server that allows you to implement Content Trust by signing and verifying the images in the registry. When Notary content trust is enabled, users can only push and pull images that have been signed and verified to or from the registry.
+
+Harbor uses Clair to perform vulnerability and security scanning of images in the registry. You can set thresholds that prevent users from running images that exceed those vulnerability thresholds. Once an image is uploaded into the registry, Harbor uses Clair to check the various layers of the image against known vulnerability databases and reports any issues found.
+
+1. Optionally select the **Enable** toggle to deploy Harbor when you deploy <%= vars.product_short %>.
+1. In the **Harbor FQDN** text box, enter a name for the Harbor VM, for example `harbor.tkgi.example.com`.
+
+    This is the address at which you access the Harbor administration UI and registry service. Before you set the host name, you must check for potential host name conflicts between TKGI and Harbor.
+    - If the host name might resolve to an IP address that is not one that you want it to, clear the DNS entry manually to avoid conflicts in subsequent use.
+    - If the host name can be resolved to an IP address that you have intentionally created beforehand, be aware that the IP address in the DNS entry might not be the same as the reachable IP address that TKGI Management Console uses, resulting in network issues. If you must use a pre-created DNS entry, after the TKGI deployment finishes, check the IP address that TKGI Management Console uses for Harbor and update the DNS entry accordingly.
+
+1. Enter and confirm a password for the Harbor VM.
+1. Select the method to use for authenticating connections to Harbor.
+	* **Harbor internal user management**: Create a local database of users in the Harbor VM.
+	* **Log in Harbor with LDAP users**: Use AD or LDAP to manage users. You configure the connection to the LDAP server in Harbor after deployment.
+	* **UAA in Pivotal Container Service**: Use the same UAA as you use for <%= vars.product_short %>.
+1. If your environment does not allow Harbor components to access the external network on which <%= vars.product_short %> Management Console is running, provide proxy addresses.
+    - In the **HTTP Proxy** field, enter the proxy server to use when it is not possible for Harbor to connect to an outside address over HTTP. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
+    - In the **HTTPS Proxy** field, enter the proxy server to use when it is not possible for Harbor to connect to an outside address over HTTPS. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
+
+    These proxies allow Clair to obtain updates from its vulnerability database.
+
+    ![Configure Harbor registry](images/console/harbor-config.png)
+    [View a larger version of this image.](images/console/harbor-config.png)
+1. Optionally select **Manage Certificates Manually for Harbor** to use custom certificates with Harbor.
+    
+    To use a custom certificate, paste the contents of the server certificate PEM file in the **SSL Certificate PEM** text box.
+    
+    ```
+	-----BEGIN CERTIFICATE-----
+    ssl_certificate_contents
+    -----END CERTIFICATE-----
+    ``` 
+    
+    Paste the contents of the certificate key in the **SSL Key PEM** text box.
+    
+    ```
+	-----BEGIN PRIVATE KEY-----
+    ssl_private_key_contents
+    -----END PRIVATE KEY-----
+    ```
+    
+    Paste the contents of the Certificate Authority (CA) file in the **Certificate Authority** text box.
+    
+    ```
+	-----BEGIN CERTIFICATE-----
+    CA_certificate_contents
+    -----END CERTIFICATE-----
+    ``` 
+1. Select the location in which to store image repositories.
+	* **Local file system**: Stores images in the Harbor VM. No configuration required.
+	* **Remote NFS server**: Provide the IP address and path to an NFS share point.
+	![Configure NFS for Harbor registry](images/console/harbor-nfs.png)
+	* **AWS S3**: Provide the connection details for your Amazon S3 account.
+		* **Access Key**: Enter your access key ID.
+		* **Secret Key**: Enter the secret access key for your access key ID.
+		* **Region**: The region in which your bucket is located.
+		* **Bucket Name**: Enter the name of your S3 bucket.
+		* **Root Directory in the Bucket**: Enter the root directory of the bucket.
+		* **Chunk Size**: The default is 5242880 but you can change it if necessary.
+		* **Endpoint URL of your S3-compatible file store**: Enter the URL of your S3-compatible filestore.
+		* **Enable v4auth**: Access to the S3 bucket is authenticated by default. Deselect this checkbox for anonymous access.
+		* **Secure mode**: Access to your S3 bucket is secure by default. Deselect this checkbox to disable secure mode.
+	![Configure AWS storage for Harbor registry](images/console/harbor-aws.png)
+	* **Google Cloud Storage**: Provide the connection details for your Google Cloud Storage account.
+		* **Bucket Name**: Enter the name of the GCS bucket.
+		* **Root Directory in the Bucket**: Enter the root directory of the bucket.
+		* **Chunk Size**: The default is 5242880 but you can change it if necessary.
+		* **Key File**: Enter the service account key for your bucket.
+	![Configure Google Cloud Storage for Harbor registry](images/console/harbor-google.png)
+1. Select the configuration for the Harbor VM from the **VM Type for Harbor-App** drop-down menu.
+1. Select the size of the disk for the Harbor VM from the **Disk Size for Harbor-App** drop-down menu.
+
+    ![Configure the Harbor VM](images/console/harbor-resources.png)
+1. Optionally enable Clair by enabling the **Install Clair** toggle. 
+1. In the **Update Interval** field, specify when Clair will update its CVE databases for the registered sources. 
+
+	When the updater interval expires, Clair will update its CVE databases. The default updater interval is 0, which means Clair will never update its CVE databases. If you set the updater interval to 24, Clair updates its CVE databases every 24 hours. 
+
+    ![Configure vulnerability scanning with Clair](images/console/harbor-clair.png)
+1. Optionally enable Notary by enabling the **Install Notary** toggle.
+1. Optionally send Harbor logs to vRealize Log Insight by enabling the **Enable vRealize Log Insight for Harbor** toggle.
+
+     If you enable vRealize Log Insight, provide the address and port of your  vRealize Log Insight service, and select either UDP or TCP for the transport protocol.
+
+     ![Configure Notary and vRealize Log Insight](images/console/harbor-notary-vrli.png)
+1. Click **Next** to complete the configuration wizard.
+
+## <a id='ceip-telemetry'></a>Step 9: Configure CEIP and Telemetry
+
+VMware's Customer Experience Improvement Program (CEIP) and the Pivotal Telemetry Program provide VMware and Pivotal 
+with information to improve their products and services, fix problems, and advise you on how best to deploy and use our products. 
+As part of the CEIP and Telemetry programs, VMware and Pivotal collect technical information about your organization's use 
+of <%= vars.product_short %> Management Console.  
+
+<%= partial 'console-usage-data' %>
+
+
+## <a id='deploy'></a>Step 10: Generate Configuration File and Deploy <%= vars.product_short %>
+
+When all of the sections of the wizard are green, you can generate a YAML configuration file and deploy <%= vars.product_short %>.
+
+1. Click **Generate Configuration** to see the generated YAML file.
+
+    ![Generate Tanzu Kubernetes Grid Integrated Edition configuration](images/console/generate-config.png)
+
+1. (Optional) Click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`.
+
+1. (Optional) Specify an FQDN address for the Ops Manager VM by editing the YAML directly in the YAML editor.
+    <p class='note warning'><strong>WARNING:</strong> You cannot change the Ops Manager FQDN of <%= vars.product_short %> once it has already deployed.
+    </p>
+  To specify an FQDN address for the Ops Manager VM, update the YAML as follows:
+	1. Locate the `opsman_fqdn:` entry in the YAML file.
+	1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN:<pre>opsman_fqdn: "myopsman.example.com"</pre>
+	1. Make sure that the FQDN is mapped to the following IP address:
+    	- For NSX-T deployments map it to the first address in the floating IP range.
+    	- For Flannel deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.
+    <br>
+    <br>
+    If you start the deployment and you have not mapped the FQDN to an IP address, the deployment fails with an error. If this happens, configure the mapping as above, return to the YAML editor, and start the deployment again.
+	
+1. (Optional) Edit the YAML directly in the YAML editor to specify additional reserved IP ranges in the deployment network or service network.<br>No VMs will be deployed in the reserved ranges that you specify. To specify additional reserved IP ranges, update the YAML as follows:
+
+	1. Locate the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries in the YAML file.
+	1. Update the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries to specify reserved IP ranges in the deployment and service networks:
+	   - Deployment network:<pre>additional_dep_reserved_ip_range: "172.16.100.2,172.16.100.3-172.16.100.10"</pre>
+	   - Service network (Flannel only):<pre>additional_svc_reserved_ip_range: ""</pre>
+
+1. Click **Apply Configuration** then **Continue** to deploy <%= vars.product_short %>.
+
+    ![Apply the generated YAML configuration](images/console/apply-yaml.png)
+1. On the <%= vars.k8s_runtime_abbr %> Configuration page, follow the progress of the deployment.
+1. When the deployment has completed successfully, click **Continue** to monitor and manage your deployment.
+
+![A successful Tanzu Kubernetes Grid Integrated Edition deployment](images/console/deployment-complete.png)
+
+## <a id='next-steps'></a>Next Steps
+
+You can now access the <%= vars.product_short %> control plane and begin deploying Kubernetes clusters. For information about how to deploy clusters directly from the management console, see [Create and Manage Clusters in the Management Console](console-create-and-manage-clusters.html).
+
+For information about how you can use <%= vars.product_short %> Management Console to monitor and manage your <%= vars.product_short %> deployment, see [Monitor and Manage <%= vars.product_short %> in the Management Console](console-monitor-manage.html).
+
+<p class="note"><strong>Important</strong>: If you deployed <%= vars.product_short %> with plans that use Windows worker nodes, see <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a> for information about how to install a Windows Server stemcell and other necessary configuration actions that you must perform. Plans that use Linux worker nodes are available immediately, but plans that use Windows worker nodes are ignored until you install the Windows Server stemcell.</p>
+
+If <%= vars.product_short %> fails to deploy, see  [Troubleshooting](console-troubleshooting.html).

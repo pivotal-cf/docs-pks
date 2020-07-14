@@ -1,6 +1,6 @@
 ---
-title: Managing Enterprise PKS Admin Users with UAA
-owner: PKS
+title: Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA
+owner: TKGI
 ---
 
 This topic describes how to manage users in <%= vars.product_full %> 
@@ -14,47 +14,12 @@ UAA is the identity management service for <%= vars.product_short %>.
 To interact with the UAA server, you can use the UAA Command Line Interface (UAAC).
 You can either run UAAC commands from the Ops Manager VM or install UAAC on your local workstation.
 
-### <a id='pks-uaa-scope'></a> UAA Scopes for <%= vars.product_short %> Users
+### <a id='tkgi-uaa-scope'></a> UAA Scopes for <%= vars.product_short %> Users
 
-<%= partial 'pks-uaa-scopes' %>
+<%= partial 'uaa-scopes' %>
 
 For more information about UAA scopes in <%= vars.product_short %>, see
 [UAA Scopes](uaa-scopes.html#uaa-scopes).
-
-### <a id='uaa-oidc'></a> Enabling UAA as an OIDC Provider
-
-The table below describes how the UAA acts as an OIDC provider when enabled by the <%= vars.product_short %> tile > **UAA** pane > **Configure created clusters to use UAA as the OIDC provider** checkbox:
-
-<table class="nice">
-  <tr>
-    <th>Option</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td><strong>Enabled</strong></td>
-    <td>If you enable UAA as the OIDC provider, Kubernetes verifies end-user identities based on authentication executed by UAA as follows:
-      <ul>
-        <li>If you select <strong>Internal UAA</strong>, Kubernetes authenticates users against the internal UAA authentication mechanism.</li>
-        <li>If you select <strong>LDAP Server</strong>, Kubernetes authenticates users against the LDAP server.</li>
-        <li>If you select <strong>SAML Identity Provider</strong>, Kubernetes authenticates users against the SAML identity provider.</li>
-      </ul>
-      After you enable UAA as the OIDC provider:
-      <ul>
-        <li>You must create Kubernetes role bindings.
-        This gives end users access to PKS-provisioned clusters.
-        For instructions, see <a href="./manage-cluster-permissions.html">Managing Cluster Access and Permissions</a>.</li>
-        <li>When you enable UAA as the OIDC provider,
-        existing PKS-provisioned clusters are upgraded to use OIDC.
-        This invalidates your kubeconfig files.
-        You must regenerate the files for all existing clusters.</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td><strong>Disabled</strong></td>
-    <td>If you do not enable UAA as the OIDC provider, Kubernetes authenticates users against its internal user management system.</td>
-  </tr>
-</table>
 
 ##<a id='prerequisites'></a> Prerequisites
 
@@ -64,8 +29,8 @@ To connect to the <%= vars.control_plane %> VM, you need one of the following:
 * SSH access to the Ops Manager VM
 * A machine that can connect to your <%= vars.control_plane %> VM
 
-For instructions on how to connect to the PKS control plane,
-see [Connect to the <%= vars.control_plane %> VM](vsphere-configure-pks-users.html#connect) for your IaaS.
+For instructions on how to connect to the <%= vars.k8s_runtime_abbr %> control plane,
+see [Connect to the <%= vars.control_plane %> VM](vsphere-configure-users.html#connect) for your IaaS.
 
 ##<a id='uaa-admin-login'></a> Log In as a UAA Admin
 
@@ -86,17 +51,16 @@ To create a new UAA user with <%= vars.product_short %> access, do the following
     For example:<pre class="terminal">$ uaac user add cody --emails cody&#64;example.com -p password</pre>
     
     <p class="note"><strong>Note:</strong> If your operator has configured <%= vars.product_short %> to use a SAML identity provider,
-    you must add <code>--origin SAML-ORIGIN</code> to the above command.<code>SAML-ORIGIN</code> is the domain name for your SAML identity provider. To find <code>SAML-ORIGIN</code>, click on the PKS tile, select <strong>Settings</strong> > <strong>UAA</strong> > <strong>SAML</strong>, and locate the <code>Provider Name</code>. For information about configuring SAML,
-    see <a href="./installing-pks-vsphere.html#configure-saml">Configure SAML as an Identity Provider</a>
-    in the <i>Installing</i> topic for your IaaS.</p> 
+    you must add <code>--origin SAML-ORIGIN</code> to the above command.<code>SAML-ORIGIN</code> is the domain name for your SAML identity provider. To find <code>SAML-ORIGIN</code>, click on the <%= vars.k8s_runtime_abbr %> tile, select <strong>Settings</strong> > <strong>UAA</strong> > <strong>SAML</strong>, and locate the <code>Provider Name</code>. For information about configuring SAML,
+    see <a href="configuring-saml.html">Connecting <%= vars.product_short %> to a SAML Identity Provider</a>.</p> 
 
-1. Assign a PKS cluster scope to the new user by running the following command:
+1. Assign a <%= vars.k8s_runtime_abbr %> cluster scope to the new user by running the following command:
 
     ```
     uaac member add UAA-SCOPE USERNAME
     ```
     Where:
-    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#pks-uaa-scope).
+    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#tkgi-uaa-scope).
     * `USERNAME` is the user that you created in the previous step.
 
     For example:
@@ -127,13 +91,13 @@ To grant <%= vars.product_short %> access to an external LDAP group, do the foll
 
 1. If you are not logged in as the UAA admin, do the steps in [Log In as a UAA Admin](#uaa-admin-login).
 
-1. Assign a PKS cluster scope to all users in an LDAP group by running the following command:
+1. Assign a <%= vars.k8s_runtime_abbr %> cluster scope to all users in an LDAP group by running the following command:
 
     ```
     uaac group map --name UAA-SCOPE GROUP-DISTINGUISHED-NAME
     ```
     Where:
-    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#pks-uaa-scope).
+    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#tkgi-uaa-scope).
     * `GROUP-DISTINGUISHED-NAME` is the LDAP Distinguished Name (DN) for the group.
     
     For example:
@@ -147,19 +111,19 @@ To grant <%= vars.product_short %> access to an external SAML group, do the foll
 
 1. If you are not logged in as the UAA admin, do the steps in [Log In as a UAA Admin](#uaa-admin-login).
 
-1. Assign a PKS cluster scope to all users in a SAML group by running the following command:
+1. Assign a <%= vars.k8s_runtime_abbr %> cluster scope to all users in a SAML group by running the following command:
 
     ```
     uaac group map --name UAA-SCOPE SAML-GROUP --origin SAML-ORIGIN
     ```
     Where:
-    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#pks-uaa-scope).
+    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#tkgi-uaa-scope).
     * `SAML-GROUP` is name of your SAML identity provider group.
-    * `SAML-ORIGIN` is the domain name for your SAML identity provider. To find `SAML-ORIGIN`, click on the PKS tile, select **Settings** > **UAA** > **SAML**, and locate the `Provider Name`.
+    * `SAML-ORIGIN` is the domain name for your SAML identity provider. To find `SAML-ORIGIN`, click on the <%= vars.k8s_runtime_abbr %> tile, select **Settings** > **UAA** > **SAML**, and locate the `Provider Name`.
 
     For example:
     <pre class="terminal">
-    $ uaac group map --name pks.clusters.manage pks-devs --origin my-sso.example.com
+    $ uaac group map --name pks.clusters.manage tkgi-devs --origin my-sso.example.com
     </pre>
 
 ##<a id='uaa-client'></a>Grant <%= vars.product_short %> Access to a Client
@@ -177,7 +141,7 @@ To grant <%= vars.product_short %> access to a client for a script or service au
     ```
     Where:
     * `CLIENT-NAME` and `CLIENT-SECRET` are the client credentials.
-    * `UAA-SCOPES` is one or more of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#pks-uaa-scope), separated by a comma. For example:
+    * `UAA-SCOPES` is one or more of the UAA scopes described in [UAA Scopes for <%= vars.product_short %> Users](#tkgi-uaa-scope), separated by a comma. For example:
     <pre class="terminal">
     $ uaac client add automated-client \
     -s randomly-generated-secret

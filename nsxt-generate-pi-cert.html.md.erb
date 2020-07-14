@@ -1,12 +1,12 @@
 ---
 title: Generating and Registering the NSX Manager Superuser Principal Identity Certificate and Key
-owner: PKS
+owner: TKGI
 authenttype: pkstile
 ---
 
 This topic describes how to generate and register the NSX Manager superuser principal identity certificate and key in preparation for installing <%= vars.product_full %> on vSphere with NSX-T.
 
-The NSX Manager superuser for PKS has the Enterprise Administrator role and permissions.
+The NSX Manager superuser for <%= vars.k8s_runtime_abbr %> has the Enterprise Administrator role and permissions.
 See [Role-Based Access Control](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/administration/GUID-26C44DE8-1854-4B06-B6DA-A2FD426CDF44.html) in the VMware documentation for more information.
 
 ##<a id='prerequisites'></a>Prerequisites
@@ -18,19 +18,22 @@ Before you begin this procedure, ensure that you have successfully completed all
     <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install <%= vars.product_short %> on vSphere with NSX-T Data Center</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-rpd-mpd.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>
+    <a href="./vsphere-nsxt-rpd-mpd.html">Hardware Requirements for <%= vars.product_short %> on vSphere with NSX-T</a>
   </li>
   <li>
-    <a href="./nsxt-prepare-mgmt-plane.html">Creating the <%= vars.product_short %> Management Plane</a>
-  </li>
-  <li>
-    <a href="./nsxt-prepare-compute-plane.html">Create <%= vars.product_short %> Compute Plane</a>
+    Depending on your NSX-T version:
+    <ul><li><strong>NSX-T v3.0:</strong>
+    <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for <%= vars.product_short %></a></li>
+    <li><strong>NSX-T v2.5:</strong> See the v1.7 documentation:
+      <ul><li><a href="https://docs.pivotal.io/pks/1-7/nsxt-2-5-installation-steps.html">Installing and Configuring NSX-T Data Center v2.5 for Enterprise PKS</a></li>
+      <li><a href="https://docs.pivotal.io/pks/1-7/nsxt-prepare-mgmt-plane.html">Creating the <%= vars.product_short %> Management Plane</a></li>
+      <li><a href="https://docs.pivotal.io/pks/1-7/nsxt-prepare-compute-plane.html">Create <%= vars.product_short %> Compute Plane</a></li></ul></li></ul>
   </li>
   <li>
     <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX-T for <%= vars.product_short %></a>
   </li>
   <li>
-    <a href="./nsxt-generate-ca-cert.html">Generating and Registering the NSX Manager Certificate for <%= vars.product_short %></a>
+    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for <%= vars.k8s_runtime_abbr %></em>
   </li>
   <li>
     <a href="./vsphere-nsxt-om-config.html">Configuring BOSH Director with NSX-T for <%= vars.product_short %></a>
@@ -42,8 +45,8 @@ Before you begin this procedure, ensure that you have successfully completed all
 <%= partial 'other-super-certificates' %>
 ####<a id='certificates-nsx-pid-about'></a> About the NSX Manager Super User Principal Identity
 
-The PKS API accesses the NSX Manager through an Enterprise Administrator account.
-This superuser account lets PKS use NSX-T to create, delete, and modify networking resources for Kubernetes cluster nodes.
+The <%= vars.control_plane %> accesses the NSX Manager through an Enterprise Administrator account.
+This superuser account lets <%= vars.k8s_runtime_abbr %> use NSX-T to create, delete, and modify networking resources for Kubernetes cluster nodes.
 
 When you configure <%= vars.product_short %> with NSX-T as the container networking interface, you must provide the certificate and private key for the NSX Manager Enterprise Administrator account in the **Networking** pane of the <%= vars.product_tile %> tile.
 
@@ -68,9 +71,9 @@ Once you have generated the principal identity certificate and key, you must reg
 
 ###<a id='certificate-super-user-script'></a> Option A: Generate and Register the Certificate and Key Using Scripts
 
-This option uses Bash shell scripts to generate and register the NSX Manager superuser principal identity certificate and key. When you configure Enterprise PKS for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the <%= vars.product_short %> tile.
+This option uses Bash shell scripts to generate and register the NSX Manager superuser principal identity certificate and key. When you configure Tanzu Kubernetes Grid Integrated Edition for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the <%= vars.product_short %> tile.
 
-<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the PKS client VM where you install the PKS CLI.</p>
+<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the <%= vars.k8s_runtime_abbr %> client VM where you install the <%= vars.k8s_runtime_abbr %> CLI.</p>
 
 ####<a id='script-generate'></a> Step 1: Generate and Register the Certificate and Key
 
@@ -126,6 +129,7 @@ Provided below is the `create_certificate.sh` script that generates a certificat
         -H 'content-type: application/json' \
         -d "$cert_request"
     ```
+</br>
     Where:  
     - `NSX-MANAGER-IP` is the IP address of the NSX Management Cluster VIP or NSX Management Load Balancer IP.
     - `NSX-MANAGER-USERNAME` is the Username for NSX Manager.
@@ -148,7 +152,7 @@ Provided below is the `create_pi.sh` script that creates the principal identity 
 1. Copy the script contents into the `create_pi.sh` file you created.
 1. Modify the file you created to have the following script contents:
 
-    ```
+    ```bash
     #!/bin/bash
     #create_pi.sh
 
@@ -187,8 +191,8 @@ Provided below is the `create_pi.sh` script that creates the principal identity 
         "https://${NSX_MANAGER}/api/v1/trust-management/principal-identities" \
         --cert $(pwd)/"$NSX_SUPERUSER_CERT_FILE" \
         --key $(pwd)/"$NSX_SUPERUSER_KEY_FILE"
-    </pre>
     ```
+</br>
     Where: 
     - `NSX-MANAGER-IP` is the IP address of the NSX Management Cluster VIP or NSX Management Load Balancer IP.
     - `NSX-MANAGER-USERNAME` is the Username for NSX Manager.
@@ -210,12 +214,12 @@ with the role `Enterprise Admin`.
 To generate the certificate and key automatically in the **Networking** pane in the <%= vars.product_tile %> tile, follow the steps below:
 
 1. Navigate to the **Networking** pane in the <%= vars.product_tile %> tile. For more information, see [Networking](installing-nsx-t.html#networking) in _Installing <%= vars.product_short %> on vSphere with NSX-T Integration_.
-1. Click **Generate RSA Certificate** and provide a wildcard domain. For example, `*.nsx.pks.vmware.local`.
+1. Click **Generate RSA Certificate** and provide a wildcard domain. For example, `*.nsx.tkgi.vmware.local`.
 
 ####<a id='copy-pi-cert'></a> Step 2: Copy the Certificate and Key to the Linux VM
 
 To copy the certificate and key you generated to a Linux VM, follow the steps below:
-<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the PKS client VM where you install the PKS CLI.</p>
+<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the <%= vars.k8s_runtime_abbr %> client VM where you install the <%= vars.k8s_runtime_abbr %> CLI.</p>
 
 1. On the Linux VM you want to use to register the certificate, create a file named `pks-nsx-t-superuser.crt`. Copy the generated certificate into the file.
 1. On the Linux VM you want to use to register the key, create a file named `pks-nsx-t-superuser.key`. Copy the generated private key into the file.

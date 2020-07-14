@@ -1,6 +1,6 @@
 ---
 title: Managing Cluster Access and Permissions
-owner: PKS
+owner: TKGI
 ---
 
 This topic describes how to grant Kubernetes cluster access and namespace permissions to Kubernetes users in <%= vars.product_full %>.
@@ -25,7 +25,7 @@ Kubernetes users cannot create, resize, or delete clusters.
 The following diagram outlines the workflow to grant cluster access to users
 who belong to an identity provider group:
 
-<%# Edit the below file in Google Slides: https://docs.google.com/presentation/d/1ULHunAy-FNiY3NYlRnvmydHJE6QtBpvlO4j-9PBoYTE/edit?usp=sharing %>
+<%# Image source: https://docs.google.com/presentation/d/1s5oP_eGo7jms7pYpA29MWDp_3iPIkdfKW6Tu_vYV7yE/edit#slide=id.g5cf13dc5d4_0_0 %>
 <a href="images/enterprise-id.png" target="_blank"><img src="images/enterprise-id.png" alt="This diagram shows the workflow that operators and cluster admins use to grant cluster access to users."></a>
 
 For more information, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) and [Default Roles and Role Bindings](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#default-roles-and-role-bindings) in the Kubernetes documentation.
@@ -36,11 +36,11 @@ Before setting up cluster access for users in <%= vars.product_short %>, you mus
 
 * Access to an <%= vars.product_short %> admin user account. For information about how to create <%= vars.product_short %> admin users,
 see [Managing <%= vars.product_short %> Users with UAA](manage-users.html).
-* Fully qualified domain name (FQDN) of your PKS deployment.
+* Fully qualified domain name (FQDN) of your <%= vars.k8s_runtime_abbr %> deployment.
 * OpenID Connect (OIDC) provider for your Kubernetes clusters, configured using one or both of the following:
   * Global OIDC provider configuration for all clusters in **Ops Manager Installation Dashboard** > **<%= vars.product_tile %>** >
   **Settings** > **UAA** > **Configure created clusters to use UAA as the OIDC provider**.
-  For instructions, see [UAA](installing-pks-vsphere.html#uaa) in the _Installing_ topic for your IaaS.
+  For instructions, see [UAA](installing-vsphere.html#uaa) in the _Installing_ topic for your IaaS.
   * Custom OIDC provider configuration for individual clusters through a Kubernetes profile.
   For instructions, see [Add an OIDC Provider](k8s-profiles-dex-oidc.html).
 
@@ -51,16 +51,16 @@ To grant cluster access to a user, do the following:
 1. Log in to <%= vars.product_short %> by running following command:
 
     ```
-    pks login -u USERNAME -p PASSWORD -a PKS-API --ca-cert CERT-PATH
+    tkgi login -u USERNAME -p PASSWORD -a TKGI-API --ca-cert CERT-PATH
     ```
     Where:
     * `USERNAME` is your cluster admin username:
       * If you use LDAP or SAML for UAA, this is your LDAP or SAML username.
       * If you do not use LDAP or SAML for UAA, this is your UAA username.
     * `PASSWORD` is your cluster admin password.
-    * `PKS-API` is the FQDN you use to access the PKS API.
+    * `TKGI-API` is the FQDN you use to access the <%= vars.control_plane %>.
     * `CERT-PATH` is the path to your root CA certificate.
-    Provide the certificate to validate the PKS API certificate with SSL.   
+    Provide the certificate to validate the <%= vars.control_plane %> certificate with SSL.   
     
     <%= partial "saml-sso-login" %>
 
@@ -68,7 +68,7 @@ To grant cluster access to a user, do the following:
 kubectl as a cluster admin by running the following command:
 
     ```
-    pks get-credentials CLUSTER-NAME
+    tkgi get-credentials CLUSTER-NAME
     ```
     This step creates a `ClusterRoleBinding` for the cluster admin.
     
@@ -140,7 +140,7 @@ Use the following example as a template:
 
           <p class="note"><strong>Note:</strong> If you configured an OIDC username prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong><%= vars.product_tile %></strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
           you must prepend <code>USERNAME</code> with the prefix you configured.
-          For more information, see <a href="./installing-pks-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Add an OIDC Provider</a>.</p>
+          For more information, see <a href="./installing-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Add an OIDC Provider</a>.</p>
     * `ROLE-TYPE` is the type of role you created in the previous step.
     This must be either `Role` or `ClusterRole`.
     * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you created in the previous step.
@@ -154,7 +154,7 @@ in your YAML file by running following command:
     Where `ROLE-BINDING-CONFIGURATION.yml` is the YAML file you created in the above step.
 
 1. Share the following information with your Kubernetes end users:
-  - PKS API FQDN
+  - <%= vars.control_plane %> FQDN
   - Cluster name
 
 ## <a id='obtain-cluster-access'></a> Obtain Cluster Access as a User
@@ -162,38 +162,38 @@ in your YAML file by running following command:
 To obtain access to a <%= vars.product_short %>-provisioned cluster, the end user must do the following:
 
 1. Fetch the kubeconfig file by running one of the following command:
-      + If you want to validate the PKS API certificate with SSL, run the following command:
+      + If you want to validate the <%= vars.control_plane %> certificate with SSL, run the following command:
 
           ```
-        pks get-kubeconfig CLUSTER-NAME -u USERNAME -a PKS-API --ca-cert CERT-PATH
+        tkgi get-kubeconfig CLUSTER-NAME -u USERNAME -a TKGI-API --ca-cert CERT-PATH
           ```
           Where:
           * `CLUSTER-NAME` is the cluster name provided by the cluster admin.
           * `USERNAME` is the Kubernetes end user username.
               * If the <%= vars.product_short %> deployment you are targeting uses LDAP or SAML for UAA, this is the LDAP or SAML username.
               * If your <%= vars.product_short %> deployment you are targeting does not use LDAP or SAML for UAA, this is the UAA username.
-          * `PKS-API` is the FQDN you use to access the PKS API.
+          * `TKGI-API` is the FQDN you use to access the <%= vars.control_plane %>.
           * `CERT-PATH` is the path to your root CA certificate.
-          Provide the certificate to validate the PKS API certificate with SSL.
+          Provide the certificate to validate the <%= vars.control_plane %> certificate with SSL.
 
           For example:
-          <pre class="terminal">$ pks get-kubeconfig my-cluster -u naomi -a api.pks.example.com \
+          <pre class="terminal">$ tkgi get-kubeconfig my-cluster -u naomi -a api.tkgi.example.com \
           --ca-cert /var/tempest/workspaces/default/root_ca_certificate</pre>
       + If your CA is trusted and you want to skip SSL validation, run the following command:
 
           ```
-        pks get-kubeconfig CLUSTER-NAME -u USERNAME -a PKS-API -k
+        tkgi get-kubeconfig CLUSTER-NAME -u USERNAME -a TKGI-API -k
           ```
           Where `-k` is the shortcut flag to skip SSL validation.
 
           For example:
-          <pre class="terminal">$ pks get-kubeconfig my-cluster -u naomi -a api.pks.example.com -k</pre>  
+          <pre class="terminal">$ tkgi get-kubeconfig my-cluster -u naomi -a api.tkgi.example.com -k</pre>  
           
     <%= partial "saml-sso-login" %>
 
 1. When prompted, enter your password.
 
-1. The PKS CLI generates a kubeconfig for the cluster you have access to.
+1. The <%= vars.k8s_runtime_abbr %> CLI generates a kubeconfig for the cluster you have access to.
   Review the following example kubeconfig file:
 
     ```
@@ -239,7 +239,7 @@ You can configure a LDAP or SAML identity provider in
 
 <p class='note'><strong>Note:</strong> If you are using a LDAP group,
   you must confirm that the LDAP group you are
-  giving access to has been whitelisted in the
+  giving access is in the allowlist in the
   <%= vars.product_tile %> tile.
   To do this, review <strong>External Groups Whitelist</strong> in
   <strong>Ops Manager Installation Dashboard</strong> > <strong>
@@ -287,7 +287,7 @@ with the following:
 
         <p class="note"><strong>Note:</strong> If you configured an OIDC groups prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong><%= vars.product_tile %></strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
         you must prepend <code>NAME-OF-GROUP</code> with the prefix you configured.
-        For more information, see <a href="./installing-pks-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Add an OIDC Provider</a>.</p>
+        For more information, see <a href="./installing-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Add an OIDC Provider</a>.</p>
     * `ROLE-TYPE` is the type of role you created in the previous step.
     This must be either `Role` or `ClusterRole`.
     * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you are binding the Group to.

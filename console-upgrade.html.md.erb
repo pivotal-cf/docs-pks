@@ -1,0 +1,90 @@
+---
+title: Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console
+owner: TKGI
+---
+
+To upgrade an existing installation of <%= vars.product_short %> Management Console, you download and deploy a new version of the <%= vars.product_short %> Management Console VM. You then use the management console UI of the new version to migrate the configuration of the old installation to the new one.
+
+You can only use the management console to upgrade an <%= vars.product_short %> installation that was deployed from a previous version of the management console. You cannot use the console to upgrade an instance of <%= vars.product_short %> that you installed manually.
+
+## <a id='prereqs'></a>Prerequisites
+
+- You have deployed and configured an older version of <%= vars.product_short %> Management Console.
+- Download the new version of the <%= vars.product_short %> Management Console OVA template from https://downloads.vmware.com. 
+- Use an account with vSphere administrator privileges to log in to vSphere using the vSphere Client.
+- (Optional) If you deployed the old version of the <%= vars.product_short %> Management Console with a static IP address, and you want the new version to retain the same IP address after the upgrade, reconfigure the old Management Console VM to use a temporary IP address before you start the upgrade procedure:
+  1.  Shut down the previous version of the management console VM by selecting **Shut Down Guest OS**.
+<br>
+<p class="note warning"><strong> WARNING:</strong> Do not select **Power Off**.</p>
+  1. Access the vApp options for the management console VM.
+      * vSphere Client 6.5: Right-click the management console VM, and select **Edit Settings** and select **vApp Options**.
+      * vSphere Client 6.7: Select the management console VM, select the **Configure** tab &gt; **vApp Options** and scroll to the Properties section.
+  1. Set a temporary IP address on the management console VM.
+      * vSphere Client 6.5: Edit the **2.1 Network IP Address** setting directly.
+      * vSphere Client 6.7: Select the row for **2.1. Network IP Address** and click **Set Value**.
+  1. Save your changes and power the management console VM back on.
+  
+  
+## <a id='deploy-ova'></a>Step 1: Deploy the New OVA Template
+
+Follow the instructions in [Deploy the <%= vars.product_short %> Management Console](console-deploy-ova.html) to deploy and power on the new version of the management console VM from the new OVA template.
+
+<p class="note"><strong>Notes</strong>: If you want to reuse the same IP address as before, and you assigned a temporary IP address to the old version of the management console, configure the network settings of the new Management Console to use the same static IP address as previously.
+<br>
+<br>
+If you used custom certificates when you deployed the previous version of the management console, you must use the same certificates when you deploy the new version of the management console. If you do not provide the certificate details when you deploy the new version, self-signed certificates are generated.</p>
+
+## <a id='access-console'></a>Step 2: Log In to the New Version of <%= vars.product_short %> Management Console
+
+When the OVA deployment has completed successfully, you can access the new version of the management console.
+
+1. In the vSphere Client, right-click the new Management Console VM and select **Power** > **Power On**.
+1. When the new Management Console VM has booted, go to the **Summary** tab for the VM and  copy its IP address, if you do not know it already.
+1. Enter the IP address of the new Management Console VM in a browser.
+1. At the VMware <%= vars.product_short %> log in page, enter username `root` and the root password that you set when you deployed the new version of the OVA template. 
+
+
+## <a id='migrate-config'></a>Step 3: Migrate the Configuration from the Old Appliance to the New Version
+
+<%= vars.product_short %> Management Console provides an upgrade wizard to help you to migrate the configuration of your old deployment to the new version.
+
+To get help in the wizard at any time, click the **?** icon at the top of the page, or click the **More Info...** links in each section to see help topics relevant to that section. Click the **i** icons for tips about how to fill in specific fields.
+
+1. On the VMware <%= vars.product_short %> Management Console landing page for the new version, click **Upgrade**.
+    ![Management console welcome page](images/console/console-install-upgrade.png)
+    [View a larger version of this image](images/console/console-install-upgrade.png)
+1. Enter the IP address of the old version of the <%= vars.product_short %> Management Console VM in the **Endpoint** text box.
+1. Enter the username and password for the old version of the management console VM and click **Connect**.
+    ![Upgrade endpoint](images/console/upgrade-connect-endpoint.png)
+1. Under Resources, verify the list of components that will be upgraded and click **Next**.
+    ![Component versions to upgrade](images/console/upgrade-resources.png)
+1. If any sections of the configuration wizard are marked in red, expand and reconfigure them.
+<br>
+Sections might appear in red because they are in an error state, or because they relate to new configuration parameters that were not present in the previous version. For information about how to configure each section, see [Deploy <%= vars.product_short %> by Using the Configuration Wizard](console-deploy-wizard.html). For information about new parameters that have been added, see the release notes for the version to which you are upgrading.
+1. When all of the sections of the configuration wizard are green, click **Generate Configuration** to see the generated YAML file.
+1. (Optional) Specify an FQDN address for the Ops Manager VM by editing the YAML directly in the YAML editor.
+    <p class='note warning'><strong>WARNING:</strong> You cannot change the Ops Manager FQDN of <%= vars.product_short %> once it has already deployed.
+    </p>
+  To specify an FQDN address for the Ops Manager VM, update the YAML as follows:
+	1. Locate the `opsman_fqdn:` entry in the YAML file.
+	1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN:<pre>opsman_fqdn: "myopsman.example.com"</pre>
+	1. Make sure that the FQDN is mapped to the following IP address:
+    	- For NSX-T deployments map it to the first address in the floating IP range.
+    	- For Flannel deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.
+    <br>
+    <br>
+    If you start the upgrade and you have not mapped the FQDN to an IP address, the deployment fails with an error. If this happens, configure the mapping as above, return to the YAML editor, and start the upgrade again.
+1. Optionally click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`. 
+1. Click **Apply Configuration** then **Continue** to upgrade <%= vars.product_short %>.
+1. On the VMware Tanzu Kubernetes Grid Integrated Edition Upgrade page, follow the progress of the upgrade.
+
+
+## <a id='next-steps'></a>Next Steps
+
+You can now access the upgraded <%= vars.product_short %> control plane and continue deploying Kubernetes clusters. Any new clusters that you deploy from the upgraded <%= vars.product_short %> control plane will use the new version of Kubernetes.
+
+<p class="note warning"><strong>Important</strong>: Existing clusters are not upgraded during the upgrade of <%= vars.product_short %> Management Console. You must manually upgrade any existing clusters.</p>
+
+For information about how you can use <%= vars.product_short %> Management Console to monitor and manage your upgraded deployment, see [Monitor and Manage <%= vars.product_short %> in the Management Console](console-monitor-manage.html).
+
+You can decommission the old version of <%= vars.product_short %> by deleting the previous version of the <%= vars.product_short %> Management Console VM from the vSphere inventory.

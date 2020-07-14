@@ -1,6 +1,6 @@
 ---
 title: Cloud Native Storage (CNS) on vSphere
-owner: PKS
+owner: TKGI
 ---
 
 This topic explains how to integrate Cloud Native Storage (CNS) with <%= vars.product_full %> with a Cloud Storage Interface (CSI).
@@ -17,37 +17,37 @@ After you create the volumes, you can use the vSphere client to review the volum
 
 For more information, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).
 
-## <a id='prereq'></a>Prerequisites for CNS with PKS
+## <a id='prereq'></a>Prerequisites for CNS with <%= vars.k8s_runtime_abbr %>
 
 - **vSphere** v6.7U3 or later
   - [vSphere definition](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere)
 - **NSX-T** version compatible with vSphere version above
-  - NSX-T v2.4.0 and above are compatible with vSphere v6.7U3
+  - NSX-T v2.4.0 and later are compatible with vSphere v6.7U3
   - See the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&1=&175=) for other version compatibilities
-- **PKS** v1.7 or later
+- **<%= vars.k8s_runtime_abbr %>** v1.7 or later
   - Support upgrading virtual hardware version on Kubernetes cluster VMs
 - **Firewall and network configuration**:
   - Enable the following components to access vCenter:
       - Cluster master nodes
       - Cluster worker nodes, so their CSI components can provision their disks
-      - All pods running CSI components
-- **PKS plan configuration**:
-  - In the PKS tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode
+      - All Pods running CSI components
+- **<%= vars.k8s_runtime_abbr %> plan configuration**:
+  - In the <%= vars.k8s_runtime_abbr %> tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode
 
 
-## <a id='manual'></a>Manually Install CSI on a PKS Cluster
+## <a id='manual'></a>Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster
 
-### <a id='create-cluster'></a>Step 1: Create a PKS cluster
+### <a id='create-cluster'></a>Step 1: Create a <%= vars.k8s_runtime_abbr %> cluster
 
-1. Create a PKS cluster:
+1. Create a <%= vars.k8s_runtime_abbr %> cluster:
 
     ```
-    pks create-cluster pks-cluster-5-shared-t1 --external-hostname
-    pks-cluster-5-shared-t1 --plan large --num-nodes 3 --network-profile
+    tkgi create-cluster tkgi-cluster-5-shared-t1 --external-hostname
+    tkgi-cluster-5-shared-t1 --plan large --num-nodes 3 --network-profile
     single-tier-profile
     ```
 
-1. Make sure all VMs in the K8s cluster have HW version 15
+1. Make sure that all VMs in the Kubernetes cluster have hardware compatible with VMware version 15.
 
     ![VM Instance Summary pane in vCenter](images/vsphere/vm-cns.png)
 
@@ -56,7 +56,6 @@ For more information, see [Getting Started with VMware Cloud Native Storage](htt
 1. Create the following configuration file `csi-vsphere.conf` anywhere in your system:
 
     ```
-    csi-vsphere.conf
     [Global]
     cluster-id = CLUSTER-ID
 
@@ -77,7 +76,7 @@ For more information, see [Getting Started with VMware Cloud Native Storage](htt
     secret/vsphere-config-secret created  
     </pre>
 
-1. Check that the secret exists:
+1. Confirm that the secret exists:
 
     <pre class="terminal">
     &gt; kubectl get secret/vsphere-config-secret -n kube-system
@@ -153,7 +152,7 @@ vsphere-csi-node-pdbb5                  3/3     Running  
 
 ### <a id='pod-access'></a>Verify that All Pods Can Access vCenter
 
-Once CSI is installed in the Kubernetes cluster, you will see these PODs in the kube-system namespace:
+After CSI is installed in the Kubernetes cluster, you see these Pods in the kube-system namespace:
 
 <pre class="terminal">
 &gt; kubectl get pod -n kube-system -o wide
@@ -167,8 +166,8 @@ vsphere-csi-node-nnldx   3/3     Running  3         24h   �
 vsphere-csi-node-pw7hw   3/3     Running  3         5h18m   172.16.30.12   1b84ae77-45bf-4fa1-9f0b-cbc13bb75894  &lt;none&gt;           &lt;none&gt;
 </pre>
 
-All these pods must be able to access vCenter.
-This means that the Floating IP allocated to the SNAT rule for this
+All these Pods must be able to access vCenter.
+This means that the Floating IP address allocated to the SNAT rule for this
 namespace in the T0 (or T1 if shared T1 model is used) must be able to
 reach vCenter.
     
@@ -302,21 +301,19 @@ Events:               <none>
 Create the following YAML:
 
   ```
-  cassandra-storageclass.yaml
-  apiVersion: storage.k8s.io/v1
-  kind: StorageClass  
-  metadata:  
-    name: demo-sts-sc  
-    annotations:  
-      storageclass.kubernetes.io/is-default-class:
-  "true"  
-  provisioner: csi.vsphere.vmware.com
-  parameters:  
-    datastoreurl:
-  "ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/"
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: demo-sts-storageclass
+  annotations:
+      storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.vsphere.vmware.com
+parameters:
+  datastoreurl: "ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/"
   ```
 
-Note: the datastoreurl can be found here:
+For a non-vSAN datastore, the `datastoreurl` value looks like `ds:///vmfs/volumes/5e66e525-8e46bd39-c184-005056ae28de/`.
+You can find the `datastoreurl` value in vCenter:
 
 ![vSAN Datastore Summary pane in vCenter](images/vsphere/datastore.png)
 

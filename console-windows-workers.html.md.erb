@@ -1,0 +1,47 @@
+---
+title: Enable Plans with Windows Worker Nodes
+owner: TKGI
+---
+
+If you used <%= vars.product_short %> Management Console to deploy <%= vars.product_short %> on vSphere, and you created Plans that implement Windows worker nodes, you must use Operations Manager to provide BOSH with a vSphere stemcell for Windows Server. See the [release notes](release-notes.html) for the correct version of vSphere stemcell for this release.
+
+<%= vars.product_short %> Management Console does not provide a mechanism for the automatic upload and installation of the Windows stemcell. Because Operations Manager and BOSH Director for vSphere are deployed when you deploy <%= vars.product_short %> from <%= vars.product_short %> Management Console, you can only install the stemcell after you have deployed <%= vars.product_short %>. 
+
+After you deploy <%= vars.product_short %> from the management console, any plans that use Windows worker nodes are ignored until you install a Windows Stemcell and configure the management console to use it.
+
+<p class="note warning"><strong>Important:</strong> Support for Windows-based Kubernetes clusters is in beta and supports only vSphere with Flannel. You cannot use Windows worker nodes with NSX-T Data Center networking.</p>
+
+## <a id='prerequisites'></a>Prerequisites
+
+- You used <%= vars.product_short %> Management Console to deploy <%= vars.product_short %> with Flannel networking. For information about deploying <%= vars.product_short %> from the management console, see [Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard](console-deploy-wizard.html). For information about how to configure Flannel networking, see [Prerequisites for a Flannel Network](console-prereqs-flannel.html).
+- During <%= vars.product_short %> deployment, you configured a plan that implements Windows worker nodes. For information about creating a plan with Windows worker nodes, see [Configure Plans](console-deploy-wizard.html#plans) in *Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard*.
+- If you did not create a plan that uses Windows worker nodes when you deployed <%= vars.product_short %>, or if you have upgraded <%= vars.product_short %> Management Console from a version that did not support Windows worker nodes, you can use <%= vars.product_short %> Management Console to reconfigure the plans of your existing deployment. For information about reconfiguring <%= vars.product_short %> in the management console, see [Reconfigure Your Tanzu Kubernetes Grid Integrated Edition Deployment](console-reconfigure.html).
+
+## <a id='create-windows-stemcell'></a>Step 1: Create a Windows Server Stemcell
+
+vSphere stemcells for Windows Server version 2019 are not available on the <a href="https://network.pivotal.io/">Tanzu Network</a>. You must create Windows Server stemcells for vSphere by using Stembuild and your own Windows Server ISO.
+
+Create a vSphere stemcell for Windows Server version 2019 by following the instructions in [Creating a Windows Stemcell for vSphere Using stembuild](https://docs.pivotal.io/platform/application-service-windows/2-9/create-vsphere-stemcell-automatically.html). 
+
+## <a id='install-stemcell-ops-mgr'></a>Step 2: Install the Windows Server Stemcell in Operations Manager
+
+After you have created your stemcell, you must upload it to Operations Manager and install it in BOSH. You can use either the Operations Manager interface or the Operations Manager CLI. These instructions describe how to upload and install the stemcell by using the Operations Manager interface.
+
+1. Log in to Operations Manager.
+   For information about how to log in to Operations Manager and the credentials to use, see [Log In to the Operations Manager UI](console-login-opsmanager.html#ops-manager-ui).
+1. Select **Stemcell Library**.
+1. Click **Import Stemcell** and navigate to the location on your local machine where you saved the stemcell `.tgz` file in [Step 1](#create-windows-stemcell) above.
+1. Click **Save**.
+
+## <a id='reconfigure-deployment'></a>Step 3: Reconfigure Your <%= vars.product_short %> Deployment to Use the Stemcell
+
+After you have created a Windows stemcell and used Operations Manager to install it in BOSH Director for vSphere, you must redeploy your <%= vars.product_short %> with the Windows stemcell installed.
+
+1. In <%= vars.product_short %> Management Console, expand **Configuration** and select **<%= vars.k8s_runtime_abbr %> Configuration**.
+1. If you did not already create a plan that uses Windows worker nodes, or if you have upgraded this <%= vars.product_short %> instance from a version that did not support Windows worker nodes, expand the **Plans** section and create or reconfigure a plan that uses Windows worker nodes.
+1. If necessary, reconfigure any other options that show a red status bar or that you want to change.
+1. Click **Generate Configuration** to view the generated YAML file.
+1. Click **Apply Configuration** to redeploy this <%= vars.product_short %> instance.
+1. When the deployment finishes, go to the **TKG Integrated Edition** view and verify that the Windows Stemcell Status is **INSTALLED**.
+
+You can now deploy Kubernetes clusters in plans that implement Windows worker nodes.

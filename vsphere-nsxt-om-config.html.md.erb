@@ -1,5 +1,5 @@
 ---
-title: Configuring BOSH Director with NSX-T for Enterprise PKS
+title: Configuring BOSH Director with NSX-T for Tanzu Kubernetes Grid Integrated Edition
 owner: Ops Manager
 iaas: vSphere
 authenttype: boshtile
@@ -16,19 +16,25 @@ Before you begin this procedure, ensure that you have successfully completed all
     <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install <%= vars.product_short %> on vSphere with NSX-T Data Center</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-rpd-mpd.html">Installing and Configuring NSX-T for <%= vars.product_short %></a>
+    <a href="./vsphere-nsxt-rpd-mpd.html">Hardware Requirements for <%= vars.product_short %> on vSphere with NSX-T</a>
   </li>
   <li>
-    <a href="./nsxt-prepare-mgmt-plane.html">Creating the <%= vars.product_short %> Management Plane</a>
-  </li>
-  <li>
-    <a href="./nsxt-prepare-compute-plane.html">Create <%= vars.product_short %> Compute Plane</a>
+    Depending on your NSX-T version:
+    <ul><li><strong>NSX-T v3.0:</strong>
+    <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for <%= vars.product_short %></a></li>
+    <li><strong>NSX-T v2.5:</strong> See the v1.7 documentation:
+      <ul><li><a href="https://docs.pivotal.io/pks/1-7/nsxt-2-5-installation-steps.html">Installing and Configuring NSX-T Data Center v2.5 for Enterprise PKS</a></li>
+      <li><a href="https://docs.pivotal.io/pks/1-7/nsxt-prepare-mgmt-plane.html">Creating the <%= vars.product_short %> Management Plane</a></li>
+      <li><a href="https://docs.pivotal.io/pks/1-7/nsxt-prepare-compute-plane.html">Create <%= vars.product_short %> Compute Plane</a></li></ul></li></ul>
   </li>
   <li>
     <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX-T for <%= vars.product_short %></a>
   </li>
   <li>
-    <a href="./nsxt-generate-ca-cert.html">Generating and Registering the NSX Manager Certificate for <%= vars.product_short %></a>
+    <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX-T for <%= vars.product_short %></a>
+  </li>
+  <li>
+    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for <%= vars.k8s_runtime_abbr %></em>
   </li>
 </ul>
 
@@ -71,12 +77,12 @@ Before you begin this procedure, ensure that you have successfully completed all
 1. Configure NSX-T networking as follows:
     * **NSX Address**: Enter the IP address of the NSX Manager host.
     * **NSX Username** and **NSX Password**: Enter the NSX Manager username and password.
-    * **NSX CA Cert**: Provide the CA certificate in PEM format that authenticates to the NSX server. Open the [NSX CA Cert that you generated](nsxt-generate-ca-cert.html) and copy/paste its content to this field.
+    * **NSX CA Cert**: Provide the CA certificate in PEM format that authenticates to the NSX server. Open the [NSX CA Cert that you generated](./nsxt-3-0-install.html#nsxt30-mgmt-ssl) and copy/paste its content to this field.
 
 1. Configure the following folder names:
-    * **VM Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_vms`.
-    * **Template Folder**: The vSphere datacenter folder where Ops Manager places VMs. Enter `pks_templates`.
-    * **Disk path Folder**: The vSphere datastore folder where Ops Manager creates attached disk images. You must not nest this folder. Enter `pks_disk`.
+    * **VM Folder**: The vSphere datacenter folder where Ops Manager places VMs.
+    * **Template Folder**: The vSphere datacenter folder where Ops Manager places VMs.
+    * **Disk path Folder**: The vSphere datastore folder where Ops Manager creates attached disk images. You must not nest this folder.
 
     <p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the VM Folder, Template Folder, and Disk path Folder names.</p>
 
@@ -124,7 +130,7 @@ Plans defined in the <%= vars.k8s_runtime_abbr %> tile then use these AZs to ena
 The <%= vars.product_short %> control plane also runs in one of the AZs. 
 
 For more information on AZs in <%= vars.k8s_runtime_abbr %>, see [Availability Zones](./control-plane.html#azs)
-in _Enterprise PKS Architecture_.
+in _Tanzu Kubernetes Grid Integrated Edition Architecture_.
 
 To create Availability Zones in the BOSH Director tile:
 
@@ -137,15 +143,15 @@ To create Availability Zones in the BOSH Director tile:
     1. Enter a unique **Name** for the Availability Zone, such as `AZ-MGMT`.
     1. Select the IaaS configuration (vSphere/vCenter).
     1. Enter the name of an existing vCenter **Cluster** to use as an Availability Zone, such as `COMP-Cluster-1`.
-    1. Enter the name of the <%= vars.product_short %> Management **Resource Pool** in the vCenter cluster that you specified above, such as `RP-MGMT-PKS`. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
+    1. Enter the name of the <%= vars.product_short %> Management **Resource Pool** in the vCenter cluster that you specified above, such as `RP-MGMT-TKGI`. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
     1. Click **Add Cluster** and create at least one <%= vars.product_short %> Compute AZ.
-    1. Specify the **Cluster** and the **Resource Pool**, such as `RP-PKS-AZ`. 
+    1. Specify the **Cluster** and the **Resource Pool**, such as `RP-TKGI-AZ`. 
     Alternatively, specify the **Cluster** and the **Host Group**. 
     See [Using vSphere Host Group](./vsphere-host-group.html) for more information.
     1. (Optional) If you are using a host group with vSAN stretched clusters,
         set the **VM-Host Affinity Rule** dropdown to `SHOULD`. This setting maintains high availability 
-        by letting PKS restart VMs in another host group if their AZ fails. 
-        PKS ignores this setting if the vSAN cluster has no host group configured.  
+        by letting <%= vars.k8s_runtime_abbr %> restart VMs in another host group if their AZ fails. 
+        <%= vars.k8s_runtime_abbr %> ignores this setting if the vSAN cluster has no host group configured.  
 <br>
         For more information, see [Ability to Set the VM-Host Affinity Rule to “Should” for Clusters in vSphere]
         (https://docs.pivotal.io/platform/2-9/release-notes/opsmanager-rn.html#vm-affinity-rule) 
@@ -178,11 +184,11 @@ To create Availability Zones in the BOSH Director tile:
     <%= image_tag("images/nsxt/bosh/config-bosh-16.png") %>
 
 1. Create the following network:
-  * `NET-MGMT-PKS`: Network for Ops Manager, BOSH Director, and <%= vars.product_short %> components. This network maps to the NSX logical switch created for the <%= vars.product_short %> Management Network. See <a href="./nsxt-prepare-mgmt-plane.html">Creating <%= vars.product_short %> Management Plane</a>.
+  * `NET-MGMT-TKGI`: Network for Ops Manager, BOSH Director, and <%= vars.product_short %> components. This network maps to the NSX logical switch created for the <%= vars.product_short %> Management Network. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for <%= vars.k8s_runtime_abbr %>_.
 
       <p class="note"><strong>Note</strong>: NSX-T automatically creates the service network to be used by the master and worker nodes (VMs) for Kubernetes clusters managed by <%= vars.product_short %>. You should not manually create this network.
 
-    Use the following values as a guide when you define the network in BOSH. Replace the IP addresses with ranges you defined for the <a href="./nsxt-prepare-mgmt-plane.html"><%= vars.product_short %> Management Network.</a>. Reserve any IP addresses from the subnet that are already in use, such as the IP for Ops Manager and subnet gateway.
+    Use the following values as a guide when you define the network in BOSH. Replace the IP addresses with ranges you defined for the [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for <%= vars.k8s_runtime_abbr %>_. Reserve any IP addresses from the subnet that are already in use, such as the IP for Ops Manager and subnet gateway.
     <table>
     <tr>
       <th rowspan="7">Infrastructure<br> Network</th>
@@ -191,11 +197,11 @@ To create Availability Zones in the BOSH Director tile:
     </tr>
     <tr>
       <td>Name</td>
-      <td><code>NET-MGMT-PKS</code></td>
+      <td><code>NET-MGMT-TKGI</code></td>
     </tr>
     <tr>
       <td>vSphere Network Name</td>
-      <td><code>LS-MGMT-PKS</code></td>
+      <td><code>LS-MGMT-TKGI</code></td>
     </tr>
     <tr>
       <td>CIDR</td>
@@ -215,7 +221,7 @@ To create Availability Zones in the BOSH Director tile:
     </tr>
     </table>
 
-1. Select the **AZ-MGMT** Availability Zone to use with the `NET-MGMT-PKS` network.
+1. Select the **AZ-MGMT** Availability Zone to use with the `NET-MGMT-TKGI` network.
 
       <p class="note"><strong>Note</strong>: Do not select the COMPUTE network at this point in the configuration. 
       It will be configured at the end of the procedure.</p>
@@ -232,7 +238,7 @@ To create Availability Zones in the BOSH Director tile:
 
 1. Use the drop-down menu to select a **Singleton Availability Zone**. The Ops Manager Director installs in this Availability Zone. For <%= vars.product_short %>, this will be the `AZ-MGMT` availability zone.
 
-1. Use the drop-down menu to select a **Network** for BOSH Director. BOSH Director runs on the <%= vars.product_short %> Management Plane network. Select the `NST-MGTM-PKS` network.
+1. Use the drop-down menu to select a **Network** for BOSH Director. BOSH Director runs on the <%= vars.product_short %> Management Plane network. Select the `NST-MGTM-TKGI` network.
 
 1. Click **Save**.
 
@@ -328,13 +334,13 @@ Follow the steps below to deploy BOSH:
 
 ## <a id='deploy-bosh'></a>Step 12: Update Network Availability Zones
 
-Ater BOSH is successfully deployed, update the network you defined above (`NET-MGMT-PKS`) to include each of the COMPUTE AZs that you defined. This ensures that both the Management AZ and the Compute AZs appear in the <%= vars.product_tile %> tile for the Plans.
+Ater BOSH is successfully deployed, update the network you defined above (`NET-MGMT-TKGI`) to include each of the COMPUTE AZs that you defined. This ensures that both the Management AZ and the Compute AZs appear in the <%= vars.product_tile %> tile for the Plans.
 
 1. Return to the BOSH tile and click **Create Networks**.
 
     <%= image_tag("images/nsxt/bosh/config-bosh-26.png") %>
 
-1. Edit the network (`NET-MGMT-PKS`) and each COMPUTE AZ.
+1. Edit the network (`NET-MGMT-TKGI`) and each COMPUTE AZ.
 
     <%= image_tag("images/nsxt/bosh/config-bosh-27.png") %>
 

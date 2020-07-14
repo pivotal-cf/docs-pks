@@ -1,6 +1,6 @@
 ---
 title: Shared and Dedicated Tier-1 Router Topologies
-owner: PKS
+owner: TKGI
 ---
 
 This topic describes shared and dedicated Tier-1 router topologies for <%= vars.product_short %> Kubernetes clusters on vSphere with NSX-T.
@@ -31,7 +31,7 @@ the shared Tier-1 model configures any necessary NAT rules (if using NAT mode) o
 The Tier-0 router is not used for any NAT configuration. As a result, 
 the Tier-0 router can operate in Active/Active mode if all Kubernetes clusters are deployed using the Shared Tier-1 model.
 
-The Shared Tier-1 model enables higher scale numbers for PKS as the number of NSX-T objects allocated per Kubernetes cluster 
+The Shared Tier-1 model enables higher scale numbers for <%= vars.k8s_runtime_abbr %> as the number of NSX-T objects allocated per Kubernetes cluster 
 is drastically reduced, in comparison to dedicated Tier-1.
 The advantage of the shared Tier-1 topology is that you can increase the number of NSX-T objects that can be 
 supported in a given cluster. 
@@ -61,6 +61,38 @@ Shown below is an example network profile that disables the Shared Tier-1 Router
   "description": "Shared-Tier-1 topology network profile",
   "parameters": {
     "single_tier_topology": false
+  }
+}
+```
+
+To create a Shared Tier-1 network profile, see [Create Network Profile](./network-profiles.html#create-profile).
+
+To create a cluster using a Shared Tier-1 network profile, see [Create a Cluster with a Network Profile](./network-profiles.html#create-cluster).
+
+## <a id='shared-t1-multi-t0'></a> Implementing a Shared Tier-1 Topology in a Multi-Tier-0 Environment
+
+In a Shared Tier-1 Router topology, all Kubernetes cluster traffic is automatically NATed in the single Tier-1 router that services that cluster. However, in a <a href="./nsxt-multi-t0.html">Multi-Tier-0 environment</a>, traffic from Kubernetes Node Networks to the Shared Tier-0 Router cannot be NATed.
+
+To implement a Shared Tier-1 topology in a <a href="./nsxt-multi-t0.html">Multi-Tier-0 environment</a>, use the `infrastructure_networks` field in the network profile and include the subnets where your infrastructure is running. During Kubernetes cluster creation, <%= vars.product_short %> will add a NO_SNAT rule from the Node Network to subnets specified in the `infrastructure_networks` field.
+
+In the following example network profile, the `infrastructure-networks` field includes three subnets for which NO_SNAT rules will be created. These subnets map to the PKS Control Plane (`30.0.0.0/24`), vCenter and NSX-T VMs (`192.168.111.0/24`), and the Nodes DNS server (`192.168.115.1`).
+
+```
+{
+  "name": "tenant-A-shared-T1",
+  "description": "Example Network Profile for Tenant A Shared Tier-1 Router Topology",
+  "parameters": {
+    "t0_router_id": "a6addd27-24ce-469a-979e-cf742a19ef5c",
+    "fip_pool_ids": [
+      "a8b7f715-42f0-46bf-a4f2-1599c55058b6" ],
+    "pod_ip_block_ids": [
+      "edd59bf6-ff04-420c-88de-2c43d47f7130" ],
+    "infrastructure_networks": [
+      "30.0.0.0/24",
+      "192.168.111.0/24",
+      "192.168.115.1"
+    ],
+    "single_tier_topology": true
   }
 }
 ```

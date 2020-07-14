@@ -1,104 +1,20 @@
 ---
 title: Release Notes
-owner: PKS
+owner: TKGI
 topictype: releasenotes
 ---
 
-This topic contains release notes for <%= vars.product_full %> v1.7.
+This topic contains release notes for <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) v1.8.
 
-<p class="note warning"><strong>Warning:</strong> Before installing or upgrading to <%= vars.product_short %> v1.7,
-review the <a href="#1-7-0-breaking-changes">Breaking Changes</a> below.
+<p class="note warning"><strong>Warning:</strong> Before installing or upgrading to <%= vars.product_short %> v1.8,
+review the <a href="#1-8-0-breaking-changes">Breaking Changes</a> below.
 </p>
 
-## <a id="1.7.0"></a>v1.7.0
+## <a id="1.8.0"></a><%= vars.k8s_runtime_abbr %> v1.8.0
 
-**Release Date**: TK
+**Release Date**: June 30, 2020
 
-### <a id="1-7-0-features"></a>Features
-
-This section describes new features and changes in <%= vars.product_full %> v1.7.0.
-
-#### <a id="1-7-0-pks-core"></a>PKS Control Plane and API
-
-* Introduces _Kubernetes profiles_ that customize Kubernetes component settings for <%= vars.k8s_runtime_abbr %>-provisioned clusters.
-Kubernetes profiles can include validated configurations supported by the PKS team and unvalidated configurations for evaluation only.
-For more information, see [Using Kubernetes Profiles](./k8s-profiles.html).
-* Supports [VMware Tanzu Service Mesh by VMware NSX (Beta)](./nsxt-service-mesh.html).
-* Uses TLS v1.2+ with strong ciphers for all internal components.
-* Supports resizing and updating Kubernetes clusters that
-have not been upgraded from the previously installed <%= vars.product_short %> version.
-* Increases to 65,535 the maximum allowed number of open files for the Docker process on worker nodes.
-* Removes the **Server SSL Cert AltName** field from under the **<%= vars.product_tile %>** tile > **UAA** > **LDAP Server**.
-<%= vars.product_short %> no longer uses this field.
-* (Beta) Supports high availability (HA) mode in <%= vars.product_short %>.
-You can now scale the number of VM instances for the following <%= vars.product_short %> control plane jobs:
-
-    * <%= vars.product_short %> API and UAA
-    * <%= vars.product_short %> database
-    
-    To configure HA (beta) for new <%= vars.product_short %> v1.7 installations, see [Resource Config](installing-pks-vsphere.html#resource-config) in the _Installing_ topic for your IaaS.
-    To configure HA (beta) for <%= vars.product_short %> v1.7 upgrades from v1.6, see [Upgrading <%= vars.product_short %> (Flannel Networking)](upgrade-pks.html) or [Upgrading <%= vars.product_short %> (NSX-T Networking)](upgrade-pks-nsxt.html)
-    and follow the instructions in _(Optional) Scale to <%= vars.product_short %> High Availability Mode_.
-    <p class="note warning"><strong>Warning:</strong> HA mode is a beta feature. Do not scale your <strong>PKS API</strong> or <strong>PKS Database</strong> to more than one instance in production environments.</p>
-
-#### <a id="1-7-0-bosh-lifecycle"></a>Kubernetes Control Plane
-
-* Replaces the [proxy](https://coredns.io/plugins/proxy/) plugin with the [forward](https://coredns.io/plugins/forward/) plugin for CoreDNS,
-as recommended in upstream Kubernetes.
-For more information, see [CoreDNS-1.4.0 Release](https://coredns.io/2019/03/03/coredns-1.4.0-release/) in the CoreDNS documentation.
-
-* For security, PKS v1.7 does not include the Kubernetes Dashboard Web UI because it uses [weak TLS ciphers](https://github.com/kubernetes/dashboard/issues/3058).
-Clusters created with PKS v1.7 do not have Dashboard installed on creation.
-  - You can install Dashboard on new clusters by following the [Deploying the Dashboard UI](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#deploying-the-dashboard-ui) instructions in the Kubernetes documentation.
-  - Clusters upgraded from PKS v1.6 to v1.7 have leftover, cached dashboard objects.
-      - The service of these cached Dashboard objects may degrade over time, as resize or upgrade operations rebuild node VMs.
-      - To remove the leftover Dashboard objects from a cluster, run
-`kubectl delete service,deployment,configmap,rolebinding,role,serviceaccount -l k8s-app=kubernetes-dashboard -n kube-system`
-
-#### <a id="1-7-0-logging-monitoring"></a>PKS Monitoring and Logging
-
-* Adds new metrics that <%= vars.product_short %> can send to your monitoring service:
-  - Node Exporter metrics from the <%= vars.control_plane %> VM and worker nodes in Prometheus format
-  - Metrics from the Kubernetes controller manager and Kubernetes API server on master nodes  
-
-    For configuration instructions, see [Telegraf](installing-pks-vsphere.html#telegraf) in the _Installing_ topic for your IaaS.
-
-* Deprecates the billing database.
-The billing database is scheduled to be removed in <%= vars.product_short %> v1.9.
-You can use Telemetry instead of the billing database.
-For more information about the billing database and Telemetry, see [Viewing Usage Data](view-usage-data.html#billing-db)
-and [Telemetry](telemetry.html).
-If you are impacted by this deprecation,
-please reach out to <a href="mailto:pks-telemetry@groups.vmware.com">pks-telemetry@groups.vmware.com</a>.
-
-####<a id="1-7-0-windows-features"></a>Windows on PKS
-
-* Makes proxy available on Windows nodes, to enable Windows Docker image downloads through proxy.
-
-####<a id="1-7-0-nsx-t-features"></a>PKS with NSX-T Networking
-
-* Supports backup and restore of the PKS control plane, Kubernetes clusters, and stateless workloads networked with vSphere NSX-T.
-
-#### <a id="1-7-0-telemetry"></a>Customer Experience Improvement Program (CEIP) and Telemetry
-
-* Adds proxy support for Telemetry.
-You can configure your <%= vars.product_short %> proxy settings in the **<%= vars.product_tile %>** tile > **Networking**.
-
-#### <a id="1-7-0-component-updates"></a>Component Updates
-
-* Bumps Kubernetes to v1.16.7.
-* Bumps NCP to v2.5.1.
-* Bumps UAA to v74.5.10.
-
-####<a id="1-7-0-bug-fixes"></a>Bug Fixes
-
-<%= vars.product_short %> v1.7.0 includes the following bug fixes:
-
-* Improves the behavior of the `pks get-kubeconfig` and `pks get-credentials` commands during cluster updates and upgrades.
-You can now run the `pks get-kubeconfig` command during single- and multi-master cluster updates.
-Additionally, you can run the `pks get-credentials` command during multi-master cluster upgrades.
-
-### <a id='1-7-0-snapshot'></a>Product Snapshot
+### <a id='1-8-0-snapshot'></a>Product Snapshot
 
 <table class="nice">
     <tr>
@@ -107,11 +23,11 @@ Additionally, you can run the `pks get-credentials` command during multi-master 
     </tr>
     <tr>
         <td>Version</td>
-        <td>v1.7.0</td>
+        <td>v1.8.0</td>
     </tr>
     <tr>
         <td>Release date</td>
-        <td>April 2, 2020</td>
+        <td>June 30, 2020</td>
     </tr>
     <tr>
         <th>Component</th>
@@ -119,205 +35,262 @@ Additionally, you can run the `pks get-credentials` command during multi-master 
     </tr>
     <tr>
         <td>Kubernetes</td>
-        <td>v1.16.7</td>
+        <td>v1.17.5</td>
+    </tr>
+    <tr>
+        <td>Docker</td>
+        <td>v19.03.5</td>
     </tr>
     <tr>
         <td>On-Demand Broker</td>
         <td>v0.38.0</td>
     </tr>
     <tr>
+        <td>CoreDNS</td>
+        <td>v1.6.2</td>
+    </tr>
+    <tr>
         <td>NCP</td>
-        <td>v2.5.1</td>
+        <td>v3.0.1</td>
     </tr>
     <tr>
         <td>UAA</td>
-        <td>v74.5.10</td>
+        <td>v74.5.15</td>
     </tr>
     <tr>
         <td>Percona XtraDB Cluster (PXC)</td>
         <td>v0.22.0</td>
     </tr>
     <tr>
-        <td>Docker</td>
-        <td>v18.09.9</td>
+        <td>Metrics Server</td>
+        <td>v0.3.6</td>
+    </tr>
     <tr>
         <td>etcd</td>
-        <td>v3.3.17</td>
+        <td>v3.4.3</td>
     </tr>
-        <tr>
+    <tr>
+        <td>kubo-release</td>
+        <td>v1.8.0</td>
+    </tr>
+    <tr>
         <th>Compatibilities</th>
         <th>Versions</th>
     <tr>
         <td>Ops Manager</td>
-        <td>See <a href="https://network.pivotal.io/products/pivotal-container-service"><%= vars.product_network %></a></td>
+        <td><strong>AWS</strong>, <strong>Azure</strong>, <strong>GCP</strong>: See <a href="https://network.pivotal.io/products/pivotal-container-service">VMware Tanzu Network</a><br />
+        <strong>vSphere v7.0</strong>: Ops Manager v2.9.3 - v2.9.5<sup>&#42;</sup><br />
+        <strong>vSphere v6.7</strong> or <strong>v6.5</strong>: Ops Manager v2.9.3 - v2.9.5<sup>&#42;</sup>, v2.8.2+, v2.7.15+</td>
     </tr>
     <tr>
-        <td>vSphere</td>
+        <td>vSphere<sup>&#42;&#42;</sup></td>
         <td>See <a href="https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&356=&175=&1=">VMware Product Interoperability Matrices</a></td>
     </tr>
     <tr>
         <td>NSX-T</td>
-        <td>v2.5.1, v2.4.3</td>
+        <td>v3.0<sup>&#42;&#42;&#42;</sup>, v2.5.1, v2.5.0</td>
     </tr>
         <tr>
-        <td>Xenial stemcells</td>
+        <td>Xenial stemcells<sup>&#42;</sup></td>
         <td>See <a href="https://network.pivotal.io/products/pivotal-container-service"><%= vars.product_network %></a></td>
     </tr>
     <tr>
         <td>Windows stemcells</td>
-        <td>v2019.15</td>
+        <td>
+        <strong>vSphere v7.0</strong>: v2019.15<br />
+        <strong>vSphere v6.7</strong> or <strong>v6.5</strong>: v2019.15 and later</td>
+    </tr>
+    <tr>
+        <td>Harbor</td>
+        <td>v2.0, v1.10.3</td>
+    </tr>
+    <tr>
+        <td>CNS for vSphere</td>
+        <td>v1.0.2</td>
     </tr>
     <tr>
         <td>Backup and Restore SDK</td>
-        <td>v1.17.0</td>
+        <td>v1.18.0</td>
     </tr>
 </table>
 
-### <a id='1-7-0-upgrade'></a>Upgrade Path
 
-The supported upgrade paths to <%= vars.product_short %> v1.7.0 are from <%= vars.product_short %> v1.6.0 and later.
+<sup>&#42;</sup> See [<%= vars.k8s_runtime_abbr %> v1.8 With NSX-T v3.0 Not Compatible With Xenial Stemcells 621.76+ and Ops Manager v2.9.6](#1-8-0-xenial-compat).
 
-### <a id="1-7-0-features"></a>Features
+<sup>&#42;&#42;</sup> Excluding VCF 4; see [VCF 4 and Converged VDS v7 Not Supported in <%= vars.k8s_runtime_abbr %> v1.8](#1-8-0-cvds).
 
-This section describes new features and changes in <%= vars.product_full %> v1.7.0.
-
-#### <a id="1-7-0-pks-core"></a>PKS Control Plane and API
-
-* Introduces _Kubernetes profiles_ that customize Kubernetes component settings for <%= vars.k8s_runtime_abbr %>-provisioned clusters.
-Kubernetes profiles can include validated configurations supported by the PKS team and unvalidated configurations for evaluation only.
-For more information, see [Using Kubernetes Profiles](./k8s-profiles.html).
-* Supports [VMware Tanzu Service Mesh by VMware NSX (Beta)](./nsxt-service-mesh.html).
-* Uses TLS v1.2+ with strong ciphers for all internal components except for the `metrics-server` (see [Known Issues](#1-7-0-metrics-server)).
-* Supports resizing and updating Kubernetes clusters that
-have not been upgraded from the previously installed <%= vars.product_short %> version.
-* Splits the <%= vars.k8s_runtime_abbr %> control plane into separate <%= vars.control_plane %> and <%= vars.control_plane_db %> VMs.
-* Increases to 65,535 the maximum allowed number of open files for the Docker process on worker nodes.
-* Removes the **Server SSL Cert AltName** field from under the **<%= vars.product_tile %>** tile > **UAA** > **LDAP Server**.
-<%= vars.product_short %> no longer uses this field.
-
-#### <a id="1-7-0-bosh-lifecycle"></a>Kubernetes Control Plane
-
-* For security, PKS v1.7 does not include the Kubernetes Dashboard Web UI because it uses [weak TLS ciphers](https://github.com/kubernetes/dashboard/issues/3058).
-Clusters created with PKS v1.7 do not have Dashboard installed on creation.
-  - You can install Dashboard on new clusters by following the [Deploying the Dashboard UI](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#deploying-the-dashboard-ui) instructions in the Kubernetes documentation.
-  - Clusters upgraded from PKS v1.6 to v1.7 have leftover, cached dashboard objects.
-      - The service of these cached Dashboard objects may degrade over time, as resize or upgrade operations rebuild node VMs.
-      - To remove the leftover Dashboard objects from a cluster, run
-`kubectl delete service,deployment,configmap,rolebinding,role,serviceaccount -l k8s-app=kubernetes-dashboard -n kube-system`
-
-* The bump to Kubernetes v1.16 removes some API version definitions in favor of newer, more stable elements.
-See [Deprecated APIs Removed In 1.16: Here’s What You Need To Know] (https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/) in the _Kubernetes Blog_.
-Kubernetes recommends that you:
-  - Update the following to reference the newer API definitions:
-      - Custom integrations and controllers
-      - Third-party tools such as ingress controllers and continuous delivery systems
-  - <%= vars.recommended_by %> recommends that customers selectively upgrade Kubernetes 1.15.x clusters before upgrading a fleet of clusters.
-  See [Upgrade a Single Cluster](./upgrade-clusters.html#upgrade-cluster) for how to upgrade clusters selectively.
-
-* Replaces the [proxy](https://coredns.io/plugins/proxy/) plugin with the [forward](https://coredns.io/plugins/forward/) plugin for CoreDNS,
-as recommended in upstream Kubernetes.
-For more information, see [CoreDNS-1.4.0 Release](https://coredns.io/2019/03/03/coredns-1.4.0-release/) in the CoreDNS documentation.
-
-#### <a id="1-7-0-logging-monitoring"></a>PKS Monitoring and Logging
-
-* Adds new metrics that <%= vars.product_short %> can send to your monitoring service:
-  - Node Exporter metrics from the <%= vars.control_plane %> VM and worker nodes in Prometheus format
-  - Metrics from the Kubernetes controller manager and Kubernetes API server on master nodes  
-
-    For configuration instructions, see [Telegraf](installing-pks-vsphere.html#telegraf) in the _Installing_ topic for your IaaS.
-
-* Deprecates the billing database.
-The billing database is scheduled to be removed in <%= vars.product_short %> v1.9.
-You can use Telemetry instead of the billing database.
-For more information about the billing database and Telemetry, see [Viewing Usage Data](view-usage-data.html#billing-db)
-and [Telemetry](telemetry.html).
-If you are impacted by this deprecation,
-please reach out to <a href="mailto:pks-telemetry@groups.vmware.com">pks-telemetry@groups.vmware.com</a>.
-
-####<a id="1-7-0-windows-features"></a>Windows on PKS
-
-* Makes HTTP and HTTPS proxy available on Windows nodes, to support downloading Windows Docker images through a proxy.
-  - You must configure a global proxy in the <%= vars.product_short %> tile > **Networking** pane before you create any Windows workers that use the proxy.
-  - For more information, see [Difficulty Changing Proxy for Windows Workers](#1-7-0-windows-proxy) in _Known Issues_.
-
-* When upgrading Windows clusters, <%= vars.product_short %> upgrades Windows workers with the latest Windows stemcell.
-
-* Enables Windows pods to access DNS services from `kube-dns` (CoreDNS).
-
-* Windows pods can now consume the same pod CIDR as Linux pods.
-
-* Windows pods can now egress to applications or workloads outside of the pod’s IP subnet.
-
-####<a id="1-7-0-nsx-t-features"></a>PKS with NSX-T Networking
-
-* Changes the default topology for newly-created clusters to Shared Tier-1 Router topology, from Dedicated Tier-1 Router topology.
-  - This change does not affect the topology of previously-existing clusters, which continue to run during and after upgrade to v1.7.
-  - You cannot change the topology of an existing cluster from Dedicated Tier-1 to Shared Tier-1.
-  - See [Network Profile for Dedicated Tier-1 Topology](./network-profiles-shared-t1.html#dedicated-t1-profile) for how to use a network profile to override the default and create new Dedicated Tier-1 Router clusters.
+<sup>&#42;&#42;&#42;</sup> <%= vars.k8s_runtime_abbr %> supports NSX-T v3.0 as a beta integration. 
+Upgrading NSX-T to v3.0 is not recommended for production or large-scale 
+<%= vars.k8s_runtime_abbr %> environments. 
+For more information about NSX-T v3.0 support, 
+see [NSX-T v3.0 Compatibility](#1-8-0-nsxt-compat) below.
 
 
-* Supports backup and restore of the PKS control plane, Kubernetes clusters, and stateless workloads networked with vSphere NSX-T.
+### <a id='1-8-0-upgrade'></a>Upgrade Path
 
-#### <a id="1-7-0-telemetry"></a>Customer Experience Improvement Program (CEIP) and Telemetry
+The supported upgrade paths to <%= vars.product_short %> v1.8.0 are from Enterprise PKS v1.7.0 and later patches.
 
-* Adds proxy support for Telemetry.
-You can configure your <%= vars.product_short %> proxy settings in the **<%= vars.product_tile %>** tile > **Networking**.
+### <a id="1-8-0-features"></a>Features
 
-#### <a id="1-7-0-component-updates"></a>Component Updates
+This section describes new features and changes in <%= vars.product_full %> v1.8.0.
 
-* Bumps Kubernetes to v1.16.7.
-* Bumps NCP to v2.5.1.
-* Bumps UAA to v74.5.10.
+#### <a id="1-8-0-rebranding"></a>Enterprise PKS Renamed to <%= vars.product_short %>
 
-####<a id="1-7-0-bug-fixes"></a>Bug Fixes
+Enterprise PKS has been renamed to
+<%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>).
 
-<%= vars.product_short %> v1.7.0 includes the following bug fixes:
+What has changed:
 
-* Improves the behavior of the `pks get-kubeconfig` and `pks get-credentials` commands during cluster updates and upgrades.
-You can now run the `pks get-kubeconfig` command during single- and multi-master cluster updates.
-Additionally, you can run the `pks get-credentials` command during multi-master cluster upgrades.
+* The <%= vars.product_tile %> v1.8 tile uses the new name.
+* <%= vars.product_short %> v1.8 includes
+two downloads of the CLI, the <%= vars.k8s_runtime_abbr %> CLI and PKS CLI.
+See [PKS CLI Renamed  to <%= vars.k8s_runtime_abbr %> CLI](#1-8-0-tkgi-cli) below.
 
-* When upgrading Windows clusters, <%= vars.product_short %> upgrades the Windows stemcell and Kubernetes version on Windows worker nodes.
-See [Windows on PKS](#1-7-0-windows-features) for more information.
+What has **not** changed:
 
-### <a id='1-7-0-breaking-changes'></a>Breaking Changes
+* Internal components continue to use the old
+name and its alternatives, such as `PKS`, `pks`, and `pivotal-container-service`.
+This includes, but is not limited to, BOSH names, UAA roles, and text strings
+containing the product name in <%= vars.k8s_runtime_abbr %> components
+and <%= vars.k8s_runtime_abbr %>-provisioned clusters.
 
-<%= vars.product_short %> v1.7.0 has the following breaking changes:
+If you intend to continue using the PKS CLI in <%= vars.k8s_runtime_abbr %>
+v1.8, no action is required.
+However, future releases of <%= vars.k8s_runtime_abbr %> will deprecate and remove the PKS CLI.
 
-#### <a id='1-7-0-dashboard'></a> Removal of the Dashboard UI
+#### <a id="1-8-0-tkgi-cli"></a>PKS CLI Renamed  to <%= vars.k8s_runtime_abbr %> CLI
 
-Clusters created with PKS v1.7 do not have Dashboard installed on creation.
-For more information, see the [Kubernetes Control Plane](#1-7-0-bosh-lifecycle) section.
+To support the [product name change](#1-8-0-rebranding), <%= vars.product_short %> v1.8
+is distributed with a <%= vars.k8s_runtime_abbr %> CLI in addition to a PKS CLI.
 
-#### <a id='1-7-0-api'></a> Removal of API Version Definitions in Kubernetes v1.16
+Both CLIs work identically and accept the same commands and arguments.
+To run a TKGI CLI command,
+substitute `tkgi` where you previously used `pks`.
+For more information, see [<%= vars.k8s_runtime_abbr %> CLI](./cli/index.html).
 
-The bump to Kubernetes v1.16 removes some API version definitions in favor of newer, more stable definitions.
-This change may break some integrations, controllers, and pipelines.
-For more information, see the [Kubernetes Control Plane](#1-7-0-bosh-lifecycle) section.
+To download the <%= vars.k8s_runtime_abbr %> CLI or the PKS CLI, see
+[<%= vars.product_network %>](https://network.pivotal.io/products/pivotal-container-service/).
 
-#### <a id='1-7-0-db-migration'></a><%= vars.product_short %> Database Migration
+#### <a id="1-8-0-vsphere"></a>vSphere v7 Compatibility
 
-To enable HA (beta) support for the <%= vars.product_short %> database,
-this release migrates the database from the PKS API VM to a new instance group, PKS Database.
+<%= vars.k8s_runtime_abbr %> v1.8 can run on vSphere v7.
 
-<%= vars.product_short %> performs the database migration as part of your <%= vars.product_short %> upgrade to v1.7.
-During the upgrade, the <%= vars.product_short %> control plane and the PKS CLI will be unavailable.
-Your Kubernetes workloads remain accessible throughout the upgrade.
+#### <a id="1-8-0-nsxt-compat"></a>NSX-T v3.0 Compatibility
 
-To upgrade to <%= vars.product_short %> v1.7,
-follow the instructions in [Upgrading <%= vars.product_short %> (Flannel Networking)](upgrade-pks.html) or [Upgrading <%= vars.product_short %> (NSX-T Networking)](upgrade-pks-nsxt.html).
+On vSphere, <%= vars.k8s_runtime_abbr %> can run with NSX-T v3.0 container networking.
 
-These topics contain important preparation and upgrade configuration steps
-you must follow before and during your upgrade to v1.7.
+<p class="note warning">
+<strong>Warning:</strong> <%= vars.k8s_runtime_abbr %> supports NSX-T v3.0 as a beta integration. 
+Intermittent upgrade failures and scale problems may occur if you upgrade to NSX-T v3.0. 
+Upgrading your NSX-T environment to v3.0 in a production or large-scale deployment is not recommended 
+until a patch resolving these issues has been released.
+</p>
 
-<p class="note warning"><strong>Warning:</strong> When upgrading from <%= vars.product_short %> v1.6 to v1.7,
-do not scale <strong><%= vars.control_plane_db %></strong> to more than one instance.</p>
 
-###<a id='1-7-0-known-issues'></a>Known Issues
+#### <a id="1-8-0-tkgi-core"></a><%= vars.k8s_runtime_abbr %> Control Plane and API
 
-<%= vars.product_short %> v1.7.0 has the following known issues:
+* The <%= vars.k8s_runtime_abbr %> API VM no longer stores a copy of the
+control plane database that the v1.7 upgrade migrated to the Database VM.
+This deletion frees internal memory in the <%= vars.k8s_runtime_abbr %> API VM.
+As a result, users may notice improved control plane performance.
 
-#### <a id="1-7-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login  
+* The **PKS 1.7.x Upgrade - MySQL Clone errand** errand has been removed from the
+<%= vars.k8s_runtime_abbr %> tile **Errands** pane.
+
+
+#### <a id="1-8-0-bosh-lifecycle"></a>Kubernetes Control Plane
+
+* On Azure, <%= vars.k8s_runtime_abbr %> supports disabling the creation of a default outbound SNAT rule for clusters.
+See [Kubernetes Cloud Provider](installing-azure.html#cloud-provider) 
+for how to disable the default SNAT rule.
+
+#### <a id="1-8-0-logging-monitoring"></a><%= vars.k8s_runtime_abbr %> Monitoring and Logging
+
+* All <%= vars.k8s_runtime_abbr %> components use TLS v1.2 with
+strong ciphers, including the `metrics-server` component.
+`sslscan` on a `metrics-server` over port `443` now reports only TLS v1.2+
+ciphers.
+
+#### <a id="1-8-0-telemetry"></a>Customer Experience Improvement Program (CEIP) and Telemetry
+
+* The legacy Telemetry DB has been removed from the <%= vars.control_plane_db %>. 
+
+#### <a id="1-8-0-component-updates"></a>Component Updates
+
+The following components have been updated:
+
+* Bumps Kubernetes to v1.17.5.
+* Bumps NCP to v3.0.1.
+* Bumps UAA to v74.5.15.
+
+###<a id="1-8-0-bug-fixes"></a>Bug Fixes
+
+<%= vars.k8s_runtime_abbr %> v1.8.0 includes the following bug fixes:
+
+* `tkgi tasks` returns valid output for all clusters.
+* `tkgi upgrade-cluster` errand no longer times out when stopping `dockerd` processes.
+* `tkgi get-credentials` works for clusters that have not been upgraded.
+* `tkgi update-cluster` retains the `compute_profile` value when changing settings
+for clusters created with a Compute Profile.
+
+
+###<a id='1-8-0-known-issues'></a>Known Issues
+
+<%= vars.k8s_runtime_abbr %> v1.8.0 has the following known issues:
+
+#### <a id='1-8-0-xenial-compat'></a><%= vars.k8s_runtime_abbr %> v1.8 With NSX-T v3.0 Not Compatible With Xenial Stemcells 621.76+ and Ops Manager v2.9.6
+
+<%= vars.k8s_runtime_abbr %> with NSX-T v3.0 is compatible with Linux Ubuntu Xenial stemcell v621.75, but not with stemcell versions v621.76 and later.
+
+Because Ops Manager v2.9.6 uses Xenial stemcell 621.76, <%= vars.k8s_runtime_abbr %> v1.8
+with NSX-T on vSphere is incompatible with that version.
+<%= vars.k8s_runtime_abbr %> v1.8 on NSX-T is compatible with Ops Manager v2.9.3 - v2.9.5.
+
+#### <a id='1-8-0-cvds'></a>VCF 4 and Converged VDS v7 Not Supported in <%= vars.k8s_runtime_abbr %> v1.8
+
+For installations on vSphere v7 with NSX-T v3.0 integration,
+<%= vars.k8s_runtime_abbr %> v1.8 supports only N-VDS for NSX-T traffic.
+It does not support:
+
+* Converged Virtual Distributed
+Switch (C-VDS) v7, which lets you use the same VDS for both vSphere and NSX-T traffic
+* VMware Cloud Foundation (VCF) v4.x, which uses only VDS mode with
+NSX-T v3.0
+
+For more information, see
+[Configure vSphere Networking for ESXi Hosts](nsxt-3-0-install.html#nsxt30-esxi-vswitch)
+in _Installing and Configuring NSX-T Data Center v3.0 for <%= vars.product_short %>_.
+
+#### <a id='1-8-0-ops-manager'></a><%= vars.k8s_runtime_abbr %> v1.8 (Windows) on vSphere Not Compatible with Ops Manager v2.9
+
+<%= vars.k8s_runtime_abbr %> v1.8 installations with Windows worker-based
+Kubernetes clusters on vSphere (Flannel)
+are not compatible with Ops Manager v2.9.
+If you do not intend to deploy and run Windows worker-based Kubernetes clusters,
+you can use Ops Manager v2.9 with <%= vars.k8s_runtime_abbr %> v1.8.
+
+For Ops Manager compatibility information,
+see [<%= vars.product_network %>](https://network.pivotal.io/products/pivotal-container-service).
+
+#### <a id='1-8-0-ping'></a>Pinging Windows Workers Does Not Work
+
+<%= vars.k8s_runtime_abbr %>-provisioned Windows workers inherit a Kubernetes limitation that prevents
+outbound ICMP communication from workers.
+As a result, pinging Windows workers does not work.
+
+For information about this limitation, see [Limitations > Networking](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#networking-1)
+in the _Windows in Kubernetes_ documentation.
+
+#### <a id="1-8-0-tmc-on-gcp"></a>TMC Integration Not Supported on GCP
+
+<%= vars.k8s_runtime_abbr %> on Google Cloud Platform (GCP) does not support
+Tanzu Mission Control integration, which is configured in
+the **<%= vars.product_tile %>** tile > the **Tanzu Mission Control (Experimental)** pane.
+
+If you intend to run <%= vars.k8s_runtime_abbr %> v1.8 on GCP,
+skip this pane when configuring the <%= vars.product_tile %> tile.
+
+#### <a id="1-8-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login  
 
 **Symptom**  
 
@@ -336,7 +309,7 @@ and `response_header_size` to 50,000 characters.
 For information about configuring NSX-T default header sizes, 
 see [OIDC Response Header Overflow](https://community.pivotal.io/s/article/OIDC-Response-Header-overflow) in the Knowledge Base.  
 
-#### <a id='1-7-0-uuid-length'></a> One Plan ID Longer than Other Plan IDs  
+#### <a id='1-8-0-uuid-length'></a> One Plan ID Longer than Other Plan IDs  
 
 **Symptom**  
 
@@ -344,7 +317,7 @@ One of your plan IDs is one character longer than your other plan IDs.
 
 **Explanation**  
 
-In <%= vars.product_short %>, each plan has a unique plan ID. 
+In <%= vars.k8s_runtime_abbr %>, each plan has a unique plan ID.
 A plan ID is normally a UUID consisting of 32 alphanumeric characters and 4 hyphens. 
 However, the **Plan 4** ID consists of 33 alphanumeric characters and 4 hyphens.  
 
@@ -355,7 +328,7 @@ The length of the **Plan 4** ID does not affect the functionality of **Plan 4** 
 
 If you require all plan IDs to have identical length, do not activate or use **Plan 4**.  
 
-#### <a id='1-7-0-eight-cores-error'></a> NSX-T Pre-Check Errand Fails Due to Edge Node Configuration  
+#### <a id='1-8-0-eight-cores-error'></a> NSX-T Pre-Check Errand Fails Due to Edge Node Configuration  
 
 **Symptom**  
 
@@ -371,14 +344,125 @@ The NSX-T Pre-Check Errand is erroneously returning the "_cpu cores is less than
 
 You can safely configure your NSX-T Edge Node VMs as `medium` size and ignore the error. 
 
-#### <a id='1-7-0-windows-proxy'></a> Difficulty Changing Proxy for Windows Workers
+#### <a id='1-8-0-windows-proxy'></a> Difficulty Changing Proxy for Windows Workers
 
 You must configure a global proxy in the <%= vars.product_tile %> tile > **Networking** pane before you create any Windows workers that use the proxy.
 
-To change the proxy configuration for Windows workers in an existing cluster,
-contact Support to help recreate the cluster and its Windows worker VMs.
+You cannot change the proxy configuration for Windows workers in an existing cluster.
 
-#### <a id='1-7-0-metrics-server'></a> Metrics Server uses Weak Ciphers
+#### <a id='1-8-0-http-proxy-password'></a> Character Limitations in HTTP Proxy Password
 
-The `metrics-server` component communicates over TLS v1.2 with weak ciphers.
-All other <%= vars.product_short %> components use TLS v1.2 with strong ciphers.
+For vSphere with NSX-T, the HTTP Proxy password field does not support the following special characters: `&` or `;`.
+
+
+## <a id="management-console-1.8.0"></a> <%= vars.k8s_runtime_abbr %> Management Console 1.8.0
+
+**Release Date**: June 30, 2020
+
+### <a id="management-console-1.8.0-features"></a>Features
+
+<%= vars.product_short %> Management Console v1.8.0 updates include:
+
+- Support for vSphere 7
+- Support for NSX-T 3.0
+- Rebranding to <%= vars.product_short %> Management Console
+- Specify FQDN for the Ops Manager VM during upgrade
+
+### <a id="management-console-1.8.0-snapshot"></a>Product Snapshot
+
+<p class="note"><strong>Note</strong>: <%= vars.product_short %> Management Console provides an opinionated 
+    installation of <%= vars.k8s_runtime_abbr %>. The supported versions may differ from or be more limited than
+    what is generally supported by <%= vars.k8s_runtime_abbr %>.</p>
+
+<table class="nice">
+    <th>Element</th>
+    <th>Details</th>
+    <tr>
+      <td>Version</td>
+      <td>v1.8.0</td>
+    </tr>
+    <tr>
+      <td>Release date</td>
+      <td>June 30, 2020</td>
+    </tr>
+    <tr>
+      <td>Installed Tanzu Kubernetes Grid Integrated Edition version</td>
+      <td>v1.8.0</td>
+    </tr>
+    <tr>
+      <td>Installed Ops Manager version</td>
+      <td>v2.9.0</td>
+    </tr>
+    <tr>
+      <td>Installed Kubernetes version</td>
+        <td>v1.17.5</td>
+    </tr>
+    <tr>
+      <td>Compatible NSX-T versions</td>
+      <td>v3.0, v2.5.1, v2.5.0</td>
+    </tr>
+    <tr>
+      <td>Installed Harbor Registry version</td>
+      <td>v2.0, v1.10.3</td>
+    </tr>
+    <tr>
+        <td>Windows stemcells</td>
+        <td>v2019.20 and later</td>
+    </tr>
+</table>
+
+### <a id='management-console-1-8-0-upgrade'></a>Upgrade Path
+
+The supported upgrade path to <%= vars.product_short %> Management Console v1.8.0 is from 
+<%= vars.product_short %> v1.7.0 and later.
+
+### <a id="management-console-1.8.0-known-issues"></a> Known Issues
+
+The <%= vars.product_short %> Management Console v1.8.0 has the following known issues:
+
+#### <a id="management-console-1.8.0-vsphere-ha"></a> vSphere HA causes Management Console ovfenv Data Corruption
+
+**Symptom**
+
+If you enable vSphere HA on a cluster, if the TKGI Management Console appliance VM is running on a host in that cluster, and if the host reboots, vSphere HA recreates a new TKGI Management Console appliance VM on another host in the cluster. Due to an issue with vSphere HA, the `ovfenv` data for the newly created appliance VM is corrupted and the new appliance VM does not boot up with the correct network configuration. 
+
+**Workaround**
+
+- In the vSphere Client, right-click the appliance VM and select **Power** > **Shut Down Guest OS**.
+- Right-click the appliance again and select Edit Settings.
+- Select **VM Options** and click **OK**.
+- Verify under Recent Tasks that a `Reconfigure virtual machine` task has run on the appliance VM.
+- Power on the appliance VM.
+
+#### <a id="management-console-1.8.0-k8s-profile"></a> Base64 encoded file arguments are not decoded in Kubernetes profiles
+
+**Symptom**
+
+Some file arguments in Kubernetes profiles are base64 encoded. When the management console displays the Kubernetes profile,
+some file arguments are not decoded.
+
+**Workaround**
+
+Run `echo "$content" | base64 --decode` 
+
+#### <a id="management-console-1.8.0-network-profile"></a> Network profiles not immediately selectable
+
+**Symptom**
+
+If you create network profiles and then try to apply them in the Create Cluster page, the new profiles 
+are not available for selection. 
+
+**Workaround**
+
+Log out of the management console and log back in again.
+
+#### <a id="management-console-1.8.0-cluster-summary"></a> Real-Time IP information not displayed for network profiles
+
+**Symptom**
+
+In the cluster summary page, only default IP pool, pod IP block, node IP block values are displayed, 
+rather than the real-time values from the associated network profile. 
+
+**Workaround**
+
+None

@@ -1,0 +1,142 @@
+---
+title: Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server
+owner: TKGI
+---
+
+This topic describes how to connect <%= vars.product_full %>
+to an external LDAP server.
+
+## <a id='overview'></a>Overview
+
+User Account and Authentication (UAA), the identity management
+service for <%= vars.product_short %>, can
+authenticate users either through its internal user account store or external
+authentication mechanisms such as an LDAP server or a SAML identity provider.
+
+To enable an internal user account store for UAA, you select **Internal UAA**
+in the **<%= vars.product_tile %>** tile > **UAA**.
+
+If you want to connect <%= vars.product_short %> to an external LDAP server, you
+must integrate the UAA server with your LDAP server by following the
+instructions in [Integrate UAA with an LDAP Server](#integrate) below.
+This enables UAA to delegate authentication to your LDAP user store.
+
+## <a id='integrate'></a>Integrate UAA with an LDAP Server
+
+To integrate UAA with one or more LDAP servers:
+
+1. In **<%= vars.product_tile %>** > **UAA**, under **Configure your UAA user
+account store with either internal or external authentication mechanisms**,
+select **LDAP Server**.
+  <img src="images/ldap1.png" alt="LDAP Server configuration pane" width="538">
+
+1. Under **Server URL**, enter the URLs that point to your LDAP server.
+For example, `ldaps://example.com`.
+If you have multiple LDAP servers, separate their URLs with spaces.
+Each URL must include one of the following protocols:
+    * `ldap://`: Enter this protocol if your LDAP server uses
+    an unencrypted connection.
+    * `ldaps://`: Enter this protocol if your LDAP server uses
+    SSL for an encrypted connection.
+    To support an encrypted connection,
+    the LDAP server must hold a trusted certificate or
+    you must import a trusted certificate to the JVM truststore.
+
+1. Under **LDAP Credentials**, enter the LDAP Distinguished Name (DN) and
+password for binding to the LDAP server.
+For example, `cn=administrator,ou=Users,dc=example,dc=com`.
+If the bind user belongs to a different search base, you must use the full DN.
+    <p class="note"><strong>Note:</strong> <%= vars.recommended_by %> recommends
+    that you provide LDAP credentials that grant read-only permissions
+    on the LDAP search base and the LDAP group search base.</p>
+
+1. Under **User Search Base**, enter the location in the LDAP directory tree
+where LDAP user search begins. For example, a domain named
+`cloud.example.com` may use `ou=Users,dc=example,dc=com` as its LDAP user
+search base.
+
+1. Under **User Search Filter**, enter a string to use for
+LDAP user search criteria. The search criteria allows LDAP to perform more
+effective and efficient searches.
+For example, the standard LDAP search filter `cn=Smith` returns all objects
+with a common name equal to `Smith`.
+<br><br>
+In the LDAP search filter string that you use to configure
+<%= vars.product_short %>, use `{0}` instead of the username. For example, use
+`cn={0}` to return all LDAP objects with the same common name as the username.
+In addition to `cn`, other common attributes are `mail`, `uid`, and
+for Active Directory, `sAMAccountName`.
+    <p class="note"><strong>Note:</strong> For information about testing and
+    troubleshooting your LDAP search filters, see
+    <a href="https://community.pivotal.io/s/article/Configuring-LDAP-Integration-with-Pivotal-Cloud-Foundry">Configuring LDAP Integration with Pivotal Cloud Foundry</a>.</p>
+
+1. Under **Group Search Base**, enter the location in the LDAP directory tree
+where the LDAP group search begins. For example, a domain named
+`cloud.example.com` may use `ou=Groups,dc=example,dc=com` as its LDAP group
+search base.
+You must configure **Group Search Base**
+if you want to map an external LDAP group to a role in
+<%= vars.product_short %> or a Kubernetes group.
+    <p class="note"><strong>Note:</strong> To map the groups under this
+    search base to roles in <%= vars.product_short %>, follow the instructions
+    in <a href="manage-users.html#external-group">Grant <%= vars.product_short %> Access to an External LDAP Group</a>.</p>
+
+1. Under **Group Search Filter**, enter a string that defines LDAP group
+search criteria. The default value is `member={0}`.
+
+1. Under **Server SSL Cert**, paste in the root certificate from your CA
+certificate or your self-signed certificate.
+
+1. Under **First Name Attribute**, enter the attribute name in your LDAP
+directory that contains user first names. For example, `cn`.
+    <img src="images/ldap2.png" alt="LDAP configuration fields">
+
+1. Under **Last Name Attribute**, enter the attribute name in your LDAP
+directory that contains user last names. For example, `sn`.
+
+1. Under **Email Attribute**, enter the attribute name in your LDAP
+directory that contains user email addresses. For example, `mail`.
+
+1. Under **Email Domain(s)**, enter a comma-separated list of the email domains
+for external users who can receive invitations to Apps Manager.
+
+1. Under **LDAP Referrals**, choose how UAA handles LDAP server referrals to
+other user stores. UAA can follow the external referrals, ignore them
+without returning errors, or generate an error for each external referral and
+abort the authentication.
+
+1. Under **External Groups Whitelist**, enter a comma-separated list of group
+patterns that need to be populated in the user's `id_token`. For more
+information about accepted patterns, see the description of
+`config.externalGroupsWhitelist` in the OAuth/OIDC
+[Identity Provider Documentation](https://docs.cloudfoundry.org/api/uaa/version/4.19.0/index.html#oauth-oidc).
+<p class="note"><strong>Note</strong>: When sent as a Bearer token in the
+Authentication header, wide pattern queries for users who are members of
+multiple groups can cause the size of the <code>id_token</code> to extend
+beyond what is supported by web servers.</p>
+  ![External Groups Allowlist field](images/external-groups-allowlist.png)
+
+1. Click **Save**.
+
+## <a id='complete'></a>Complete Your Tile Configuration
+
+* If you do not need to configure any other settings in the
+<%= vars.product_tile %> tile, return to the Ops Manager Installation Dashboard and
+click **Review Pending Changes** > **Apply Changes**.
+* If you need to configure any other settings in the <%= vars.product_tile %>
+tile, return to the _Installing Tanzu Kubernetes Grid Integrated Edition_ topic for your IaaS and
+follow the instructions for the pane you want to configure:
+  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#uaa)
+  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T](installing-nsx-t.html#uaa)
+  * [Installing Tanzu Kubernetes Grid Integrated Edition on GCP](installing-gcp.html#uaa)
+  * [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#uaa)
+  * [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#uaa)
+
+## <a id='next'></a>Next Steps
+
+For information about creating <%= vars.product_short %> roles and
+managing Kubernetes cluster access, see:
+
+* [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users](vsphere-configure-users.html)
+for your IaaS
+* [Managing Cluster Access and Permissions](manage-cluster-permissions.html)

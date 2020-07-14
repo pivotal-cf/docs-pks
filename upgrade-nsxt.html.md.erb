@@ -1,0 +1,323 @@
+---
+title: Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX-T Networking)
+owner: TKGI
+---
+
+This topic explains how to upgrade <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)
+from v1.7 to v1.8
+on vSphere with NSX-T networking.
+
+For instructions on upgrading <%= vars.k8s_runtime_abbr %>
+with Flannel networking,
+see [Upgrading <%= vars.product_short %> (Flannel Networking)](upgrade.html).
+
+<p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version.
+<%= vars.k8s_runtime_abbr %> includes the compatible Kubernetes version.
+</p>
+
+## <a id="overview"></a>Overview
+
+Before you upgrade, follow the procedures in [Prepare to Upgrade](#prepare) below
+to plan and prepare your upgrade.
+
+After you complete the preparation steps,
+continue to the procedures in [Perform the Upgrade](#upgrade) below.
+These steps guide you through the process of upgrading Ops Manager and the <%= vars.k8s_runtime_abbr
+ %> tile,
+importing an updated stemcell, and applying the changes to your deployment.
+
+After you complete the upgrade, follow the procedures
+in [After the Upgrade](#after-upgrade) below
+to verify that your upgraded <%= vars.k8s_runtime_abbr %> deployment is running properly
+and to optionally upgrade NSX-T and vSphere.
+
+## <a id="prerequisites"></a>Prerequisites
+
+<%= vars.k8s_runtime_abbr %> v1.8 does not support NSX-T v2.4. You must upgrade
+to NSX-T v2.5 before upgrading to <%= vars.k8s_runtime_abbr %> v1.8.
+
+To see a list of NSX-T 2.5 versions compatible with <%= vars.k8s_runtime_abbr %> v1.8,
+consult [Product Snapshot](release-notes.html) in _Release Notes_ for <%= vars.k8s_runtime_abbr %> v1.8.
+
+## <a id="prepare"></a>Prepare to Upgrade
+
+If you have not already, complete all of the steps in
+[Upgrade Preparation Checklist for <%= vars.product_short %> v1.8](checklist.html).
+
+## <a id="upgrade"></a>Perform the Upgrade
+
+This section describes the steps required to upgrade to <%= vars.k8s_runtime_abbr %> v1.8:
+
+1. [Upgrade Ops Manager](#upgrade-opsman)
+1. [Download and Import <%= vars.k8s_runtime_abbr %> v1.8](#stage-tkgi)
+1. [Download and Import the Stemcell if Needed](#stemcell)
+1. [Upgrade the <%= vars.k8s_runtime_abbr %> Tile](#upgrade-tkgi)
+
+### <a id="upgrade-opsman"></a>Upgrade Ops Manager
+
+Each version of <%= vars.k8s_runtime_abbr %> is compatible with multiple versions of Ops Manager.
+See [<%= vars.product_network %>](https://network.pivotal.io/products/pivotal-container-service)
+to determine if your Ops Manager version is compatible with <%= vars.k8s_runtime_abbr %> v1.8.
+
+To upgrade Ops Manager from v2.8.5 or later to v2.9.3 or later:
+
+1. Log in to Ops Manager.
+
+1. Click your username in the top right corner and navigate to **Settings** > **Export Installation Settings**.
+
+1. Click **Export Installation Settings**. 
+  - Ops Manager exports an encrypted archive of your current installation configuration. 
+  - Later, you import this configuration into to your upgraded Ops Manager.
+  <img src="images/nsxt/nsxt-30/upgrade-01.png">
+
+1. Log in to vCenter Server using the vSphere Client.
+
+1. Shut down the Ops Manager VM.
+
+1. Deploy the upgraded Ops Manager VM by following the first two steps of [Deploying Ops Manager with NSX-T for <%= vars.k8s_runtime_abbr %>](vsphere-nsxt-om-deploy.html):
+  1. [Step 1: Generate SSH Key Pair](vsphere-nsxt-om-deploy.html#ssh-key)
+  1. [Step 2: Deploy Ops Manager for <%= vars.product_short %>](vsphere-nsxt-om-deploy.html#deploy-om)
+
+1. Using a browser, navigate to the newly-deployed Ops Manager web interface.
+
+1. On the welcome page, select **Import Existing Installation**.
+  <img src="images/nsxt/nsxt-30/upgrade-02.png">
+
+1. Browse to and select the installation configuration archive you exported.
+
+1. Log in to Ops Manager 
+
+1. Click **Apply Changes**. 
+  <img src="images/nsxt/nsxt-30/upgrade-03.png">
+
+1. Verify that the BOSH Director for vSphere tile shows the target, updated version.
+  <img src="images/nsxt/nsxt-30/upgrade-04.png">
+
+### <a id="stage-tkgi"></a> Download and Import <%= vars.k8s_runtime_abbr %> v1.8
+
+When you upgrade <%= vars.k8s_runtime_abbr %>,
+your configuration settings typically migrate to the new version automatically.
+To download and import a <%= vars.k8s_runtime_abbr %> version:
+
+1. Download the target version of the product
+from [<%= vars.product_network %>](https://network.pivotal.io/products/pivotal-container-service/).
+
+1. Import the target version of the TKGI tile to the Ops Manager Installation Dashboard. 
+  <img src="images/nsxt/nsxt-30/upgrade-05.png">
+
+1. Click **Review Pending Changes**.
+
+1. Expand the **Errands** dropdown and enable or disable **Upgrade all clusters errand**
+  - See [Deciding Between Full and Two-Phase Upgrade](./understanding-upgrades.html#decide) to decide whether to upgrade <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes clusters along with <%= vars.k8s_runtime_abbr %>, or upgrade them later.
+  - <%= vars.recommended_by %> recommends that you upgrade Kubernetes clusters along with <%= vars.k8s_runtime_abbr %> if possible.
+  - Enable the **Upgrade all clusters errand** to upgrade clusters along with <%= vars.k8s_runtime_abbr %>.
+  <p class="note warning"><strong>Warning:</strong> Disabling the <strong>Upgrade all clusters errand</strong>
+  causes the <%= vars.k8s_runtime_abbr %> version tagged in your Kubernetes clusters to fall behind
+  the <%= vars.k8s_runtime_abbr
+ %> tile version.
+  If you disable the <strong>Upgrade all clusters errand</strong>
+  when upgrading the <%= vars.k8s_runtime_abbr
+ %> tile,
+  you must upgrade all your Kubernetes clusters before the next <%= vars.k8s_runtime_abbr %>
+  upgrade.</p>
+  <p class="note"><strong>Note:</strong> If you are upgrading <%= vars.k8s_runtime_abbr %> on NSX-T v2.5,
+  you must select the **Upgrade all clusters errand** or plan to upgrade all clusters individually before
+  upgrading to NSX-T v3.0.
+  </p>
+
+1. Set the **Run smoke tests** errand to **On**.
+The errand uses the <%= vars.k8s_runtime_abbr %> CLI to create a Kubernetes cluster and then delete it.
+If the creation or deletion fails, the errand fails and the installation of the <%= vars.k8s_runtime_abbr
+ %> tile is aborted.
+          
+### <a id="stemcell"></a>Download and Import the Stemcell if Needed
+
+<%= vars.k8s_runtime_abbr %> requires a Xenial stemcell.
+
+If Ops Manager does not have the Xenial stemcell required for <%= vars.k8s_runtime_abbr %> v1.8,
+the <%= vars.k8s_runtime_abbr
+ %> tile displays the message **Missing stemcell**.
+To download and import a new Xenial stemcell, follow the steps below:
+
+1. On the <%= vars.k8s_runtime_abbr
+ %> tile, click the **Missing stemcell** link.
+
+    <img src="images/missing_stemcell.png" alt="Verify stemcell assignment">
+
+1. In the **Stemcell Library**, locate the **<%= vars.k8s_runtime_abbr
+ %>** tile and note the required stemcell version.
+
+1. Navigate to the [Stemcells (Ubuntu Xenial)](https://network.pivotal.io/products/stemcells-ubuntu-xenial/) page on <%= vars.product_network %>
+and download the required stemcell version for your IaaS.
+
+1. Return to the **Installation Dashboard** in Ops Manager and click **Stemcell Library**.
+
+1. On the **Stemcell Library** page, click **Import Stemcell** and select the stemcell file you downloaded from <%= vars.product_network %>.
+
+1. Select the <%= vars.k8s_runtime_abbr
+ %> tile and click **Apply Stemcell to Products**.
+
+1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for <%= vars.k8s_runtime_abbr
+ %>.
+
+1. Return to the **Installation Dashboard**.
+
+### <a id="upgrade-tkgi"></a>Upgrade the <%= vars.k8s_runtime_abbr %> Tile
+
+To complete the upgrade of the <%= vars.k8s_runtime_abbr
+ %> tile:
+
+1. Return to the **Installation Dashboard** in Ops Manager.
+
+1. Click **Review Pending Changes**.
+     For more information about this Ops Manager page, see
+    [Reviewing Pending Product Changes](https://docs.pivotal.io/platform/2-7/customizing/review-pending-changes.html).
+
+1. Click **Apply Changes.**
+  <img src="images/nsxt/nsxt-30/upgrade-06.png">
+
+1. (Optional) If you enabled the **Upgrade all clusters errand**, you can use the BOSH CLI to monitor its progress:
+      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your <%= vars.k8s_runtime_abbr %> deployment. For more information, see [Using BOSH Diagnostic Commands in <%= vars.product_short %>](diagnostic-tools.html).
+      1. Run `bosh -e MY-ENVIRONMENT tasks`.
+      1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
+      1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
+
+1. Verify that the TKGI tile is updated to the target version.
+  <img src="images/nsxt/nsxt-30/upgrade-07.png">
+
+## <a id="after-upgrade"></a>After the Upgrade
+
+After you complete the upgrade to <%= vars.k8s_runtime_abbr %> v1.8,
+complete the following verifications and upgrades:
+
+- [Update the <%= vars.k8s_runtime_abbr %> and Kubernetes CLIs](#update-clis)
+- [Upgrade Kubernetes Clusters if Needed](#upgrade-k8s)
+- [Verify <%= vars.k8s_runtime_abbr %> Upgrade](#verify-upgrade)
+- [(Optional) Upgrade NSX-T Data Center v2.5 to v3.0](#upgrade-nsxt)
+- [(Optional) Upgrade to vSphere 7](#upgrade-vsphere)
+
+### <a id="update-clis"></a>Update the <%= vars.k8s_runtime_abbr %> and Kubernetes CLIs
+
+Update the <%= vars.k8s_runtime_abbr %> and Kubernetes CLIs on any local machine
+where you run commands that interact with your upgraded version of <%= vars.k8s_runtime_abbr %>.
+
+To update your CLIs, download and re-install the <%= vars.k8s_runtime_abbr %> and Kubernetes CLI distributions
+that are provided with <%= vars.k8s_runtime_abbr %> on <%= vars.product_network %>.
+
+For more information about installing the CLIs, see the following topics:
+
+* [Installing the <%= vars.k8s_runtime_abbr %> CLI](installing-cli.html)
+
+* [Installing the Kubernetes CLI](installing-kubectl-cli.html)
+
+###<a id='upgrade-k8s'></a>Upgrade Kubernetes Clusters if Needed
+
+If you upgraded <%= vars.k8s_runtime_abbr %> with the **Upgrade all clusters errand** disabled,
+the next step is to upgrade the Kubernetes clusters individually using the TKGI CLI.
+
+1. Log in to the <%= vars.k8s_runtime_abbr %> environment using the [TKGI CLI](./cli/index.html). 
+
+1. Run the command `tkgi clusters` to list all Kubernetes clusters with their current versions and status:
+
+    ```
+    PKS Version     Name                      k8s Version  Plan Name  UUID                                  Status     Action
+    1.7.0  pks-cluster-1-small  		1.16.7       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  CREATE
+    1.7.0  pks-cluster-2-medium      1.16.7       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  CREATE
+    1.7.0  pks-cluster-3-large       1.16.7       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  CREATE
+    ```
+
+1. Update each cluster one-by-one using the command `tkgi upgrade-cluster CLUSTER-NAME`.
+  - You do not have to wait for each upgrade to complete before upgrading the next one.
+  - The advantage of running each upgrade separately is that it makes troubleshooting easier.
+  BOSH assigns a unique task ID to each cluster upgrade.
+
+1. When the cluster upgrades are complete, run the command `tkgi clusters` and verify that they list the target version:
+
+    ```
+    PKS Version     Name                      k8s Version  Plan Name  UUID                                  Status     Action
+    1.8.0  pks-cluster-1-small  		1.17.5       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
+    1.8.0  pks-cluster-2-medium      1.17.5       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
+    1.8.0  pks-cluster-3-large       1.17.5       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
+    ```
+
+###<a id='verify'></a>Verify <%= vars.k8s_runtime_abbr %> Upgrade
+
+1. To verify successful upgrade, create a test cluster: 
+
+    ```
+    pks create-cluster pks-cluster-4-test --external-hostname pks-cluster-test --plan medium --num-nodes 3
+    ```
+
+1. Run `tkgi clusters` to verify that the new cluster is created with the appropriate version of TKGI and Kubernetes:
+
+    ```
+    $ tkgi clusters
+    PKS Version     Name                      k8s Version  Plan Name  UUID                                  Status     Action
+    1.8.0  pks-cluster-4-test        1.17.5       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  CREATE
+    1.8.0  pks-cluster-1-small       1.17.5       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
+    1.8.0  pks-cluster-2-medium      1.17.5       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
+    1.8.0  pks-cluster-3-large       1.17.5       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
+    ```
+
+## <a id="upgrade-nsxt"></a>(Optional) Upgrade NSX-T Data Center v2.5 to v3.0
+
+  <p class="note warning">
+  <strong>Warning:</strong> <%= vars.k8s_runtime_abbr %> supports NSX-T v3.0 as a beta integration. 
+  Intermittent upgrade failures and scale problems may occur if you upgrade to NSX-T v3.0. 
+  Upgrading your NSX-T environment to v3.0 in a production or large-scale deployment is not recommended 
+  until a patch resolving these issues has been released.
+  </p>
+
+If you are using NSX-T v2.5, you can upgrade to NSX-T v3.0.
+For a list of NSX-T 2.5 and 3.0 versions compatible with
+<%= vars.k8s_runtime_abbr %> v1.8,
+see [Product Snapshot](release-notes.html) in _Release Notes_ for
+<%= vars.k8s_runtime_abbr %> v1.8.
+
+1. Confirm that you have upgraded all <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes clusters to TKGI v1.8 using **Upgrade all clusters errand** in Ops Manager or using the <%= vars.k8s_runtime_abbr %> CLI.
+
+    <p class="note"><strong>Note:</strong> This updates your Kubernetes clusters to the version of Kubernetes and version of NCP that are included with <%= vars.k8s_runtime_abbr %> v1.8.</p>
+
+1. Confirm that your vSphere v6.5, v6.7, or v7.0 installation is on the supported version and patch for NSX-T v3.0.
+  - Refer to the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&175=&1=).
+  - If necessary, update to the required vSphere version or patch before proceeding with the upgrade of NSX-T.
+
+1. Upload the NSX-T upgrade bundle using the NSX-T Manager and proceed with the upgrade process by following the instructions in the UI.
+
+    <p class="note warning">
+    <strong>Warning:</strong>
+    <%= vars.k8s_runtime_abbr %> v1.8 does not support Converged VDS,
+    which runs one VDS for both vSphere v7 traffic and NSX-T v3.0 traffic,
+    or VMware Cloud Foundation (VCF) v4, which requires Converged VDS.
+    Use N-VDS for NSX-T v3.0 traffic.
+    </p>
+
+    <img src="images/nsxt/nsxt-30/upgrade-09.png">
+
+    For more information, refer to the [NSX-T Data Center Upgrade Guide](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/upgrade/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) documentation.
+
+1. If you made architectural changes to your NSX-T environment that affect <%= vars.k8s_runtime_abbr %>,
+such as adding or updating a [VIP address](./nsxt-3-0-install.html#nsxt30-t0-router-config), or
+a [load balancer](./nsxt-3-0-install.html#nsxt30-edge-nodes) for the NSX-T Management Cluster,
+update the BOSH Director and <%= vars.k8s_runtime_abbr %> tiles with the new or updated IP addresses:
+  -  In the BOSH Director tile > **vCenter Configuration** pane, update **NSX Address** and **NSX CA Cert**.
+  - In the <%= vars.k8s_runtime_abbr %> tile > **Networking** pane, update **NSX Manager hostname** and **NSX Manager CA Cert**.
+
+##<a id='upgrade-vsphere'></a> (Optional) Upgrade to vSphere 7
+
+After upgrading <%= vars.k8s_runtime_abbr %> and its Kubernetes clusters to v1.8 and NSX-T to v3.0, you can upgrade vSphere to v7.
+This upgrade includes upgrading the vCenter Server Appliance and each ESXi host, in that order.  
+
+1. Upgrade vCenter. Refer to [Upgrading the vCenter Server Appliance](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vcenter.upgrade.doc/GUID-30485437-B107-42EC-A0A8-A03334CFC825.html) in the vCenter documentation.
+1. Upgrade each ESXi host, one at a time.
+  - Put the ESXi host into maintenance mode.
+  - Upgrade the ESXi host. Refer to [Upgrading ESXi hosts](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.esxi.upgrade.doc/GUID-122035F6-8433-463E-A0F7-B4FC71A05B04.html) in the vSphere documentation.
+  - Using the NSX-T Manager web interface for Transport Nodes, install the vSphere 7.0 VIBS onto the ESXi host.
+  - Using the NSX Manage web interface, verify that the ESXi host is in a "Success" state. If it is not, click the **Resolve** button.
+  - Remove the ESXi host from maintenance mode.
+  - Repeat the process for each ESXi host in your vCenter cluster that is part of your TKGI domain.
+
+##<a id='troubleshoot'></a>Troubleshoot the Upgrade
+
+See [Verifying Deployment Health](verify-health.html) for how to verify the health of your <%= vars.k8s_runtime_abbr %> environment
+and gather information for troubleshooting cluster upgrades.

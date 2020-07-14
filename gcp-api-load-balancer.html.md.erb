@@ -1,13 +1,13 @@
 ---
-title: Creating a GCP Load Balancer for the PKS API
-owner: PKS
+title: Creating a GCP Load Balancer for the TKGI API
+owner: TKGI
 ---
 
-This topic describes how to create a load balancer for the PKS API using Google Cloud Platform (GCP).
+This topic describes how to create a load balancer for the <%= vars.control_plane %> using Google Cloud Platform (GCP).
 
 ## <a id='overview'></a>Overview
 
-Before you install <%= vars.product_full %>, you must configure an external TCP load balancer to access the PKS API from outside the network.
+Before you install <%= vars.product_full %>, you must configure an external TCP load balancer to access the <%= vars.control_plane %> from outside the network.
 You can use any external TCP load balancer of your choice.
 
 Refer to the procedures in this topic to create a load balancer using GCP.
@@ -15,7 +15,7 @@ If you choose to use a different load balancer, use the configuration in this to
 
 <p class="note"><strong>Note</strong>: This procedure uses example commands which you should modify to represent the details of your <%= vars.product_short %> installation.</p>
 
-To create a GCP load balancer for the PKS API, do the following:
+To create a GCP load balancer for the <%= vars.control_plane %>, do the following:
 
 1. [Create a Load Balancer](#create-lb)
 1. [Create a Firewall Rule](#firewall-rule)
@@ -39,7 +39,7 @@ To create a load balancer using GCP, perform the following steps:
 
 1. Click **Continue**.
 
-1. Name your load balancer. <%= vars.recommended_by %> recommends naming your load balancer `pks-api`.
+1. Name your load balancer. <%= vars.recommended_by %> recommends naming your load balancer `tkgi-api`.
 
 1. Select **Backend configuration**.
    * Under **Region**, select the region where you deployed Ops Manager.
@@ -52,14 +52,14 @@ To create a load balancer using GCP, perform the following steps:
 1. Select **Frontend configuration**.
     * (Optional) Name your frontend.
     * (Optional) Click **Add a description** and provide a description.
-   * Select **Create IP address** to reserve an IP address for the PKS API endpoint.
-      1. Enter a name for your reserved IP address. For example, `pks-api-ip`. GCP assigns a static IP address that appears next to the name.
+   * Select **Create IP address** to reserve an IP address for the <%= vars.control_plane %> endpoint.
+      1. Enter a name for your reserved IP address. For example, `tkgi-api-ip`. GCP assigns a static IP address that appears next to the name.
       1. (Optional) Enter a description.
       1. Click **Reserve**.
-   * Under **Port**, enter `9021`. Your external load balancer forwards traffic to the <%= vars.control_plane %> VM using the UAA endpoint on port 8443 and the PKS API endpoint on port 9021.
+   * Under **Port**, enter `9021`. Your external load balancer forwards traffic to the <%= vars.control_plane %> VM using the UAA endpoint on port 8443 and the <%= vars.control_plane %> endpoint on port 9021.
    * Click **Done**.
    * Click **New Frontend IP and Port**.
-      1. Enter a name for the frontend IP-port mapping, such as `pks-api-uaa`.
+      1. Enter a name for the frontend IP-port mapping, such as `tkgi-api-uaa`.
       1. (Optional) Add a description.
       1. Under **IP** select the same static IP address that GCP assigned in the previous step.
       1. Under **Port**, enter `8443`.
@@ -83,7 +83,7 @@ To create a firewall rule that allows traffic between the load balancer and the 
    * Under **Direction of traffic**, select **Ingress**.
    * Under **Action on match**, select **Allow**.
    * Under **Targets**, select **Specified target tags**.
-   * Under **Target tags**, enter `pks-api`.
+   * Under **Target tags**, enter `tkgi-api`.
    * Under **Source filter**, select **IP ranges**.
    * Under **Source IP ranges**, enter `0.0.0.0/0`.
    * Under **Protocols and ports**, select **Specified protocols and ports** and enter `tcp:8443,9021`.
@@ -92,7 +92,7 @@ To create a firewall rule that allows traffic between the load balancer and the 
 
 ## <a id='dns-entry'></a>Create a DNS Entry
 
-To create a DNS entry in GCP for your PKS API domain, do the following:
+To create a DNS entry in GCP for your <%= vars.control_plane %> domain, do the following:
 
 1. From the GCP console, navigate to **Network Services > Cloud DNS**.
 
@@ -105,8 +105,8 @@ To create a DNS entry in GCP for your PKS API domain, do the following:
 1. Click **Add record set**.
 
 1. Under **DNS Name**, enter a subdomain for the load balancer. For example, if
-your domain is `example.com`, enter `api.pks` in this field to use `api.pks.example.com`
-as your PKS API load balancer hostname.
+your domain is `example.com`, enter `api.tkgi` in this field to use `api.tkgi.example.com`
+as your <%= vars.control_plane %> load balancer hostname.
 
 1. Under **Resource Record Type**, select **A** to create a DNS address record.
 
@@ -118,18 +118,18 @@ as your PKS API load balancer hostname.
 
 ## <a id='install'></a>Install <%= vars.product_short %>
 
-Follow the instructions in [Installing <%= vars.product_short %> on GCP](installing-pks-gcp.html) to deploy <%= vars.product_short %>.
-After you finish installing <%= vars.product_short %>, continue to the [Create a Network Tag for the Firewall Rule](#tag) section below to complete the PKS API load balancer configuration.
+Follow the instructions in [Installing <%= vars.product_short %> on GCP](installing-gcp.html) to deploy <%= vars.product_short %>.
+After you finish installing <%= vars.product_short %>, continue to the [Create a Network Tag for the Firewall Rule](#tag) section below to complete the <%= vars.control_plane %> load balancer configuration.
 
 ## <a id='tag'></a>Create a Network Tag for the Firewall Rule
 
-To apply the firewall rule to the VM or VMs hosting the PKS API, the VM must have the `pks-api` tag in GCP. Do the following:
+To apply the firewall rule to the VM or VMs hosting the <%= vars.control_plane %>, the VM must have the `tkgi-api` tag in GCP. Do the following:
 
 1. From the GCP console, navigate to **Compute Engine** > **VM instances**.
 1. Locate your <%= vars.control_plane %> VM, or VMs.
 To locate this VM, you can search for the `pivotal-container-service` job label on the **VM instances** page.
 1. Click the name of the VM to open the **VM instance details** menu.
 1. Click **Edit**.
-1. Verify that the **Network tags** field contains the `pks-api` tag. Add the tag if it does not appear in the field.
-1. Repeat the preceding steps for your other VMs with the `pivotal-container-service` job label and apply the `pks-api` tag to each.
+1. Verify that the **Network tags** field contains the `tkgi-api` tag. Add the tag if it does not appear in the field.
+1. Repeat the preceding steps for your other VMs with the `pivotal-container-service` job label and apply the `tkgi-api` tag to each.
 1. Scroll to the bottom of the screen and click **Save**.
