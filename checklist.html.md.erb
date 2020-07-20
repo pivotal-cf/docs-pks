@@ -16,18 +16,15 @@ If you are upgrading <%= vars.product_short %> for environments using vSphere wi
 
 ##<a id='backup'></a>Back Up Your <%= vars.product_short %> Deployment
 
-We recommend backing up your <%= vars.product_short %> deployment before upgrading.
+We recommend backing up your <%= vars.product_short %>
+deployment before upgrading.
+To back up <%= vars.product_short %>, see
+[Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html).
 
-**If you are upgrading <%= vars.product_short %> for environments using vSphere with NSX-T**, back up your environment
-using the procedures in the following topics:
-
-- [Back up <%= vars.product_short %>](backup-and-restore.html)
-- <a href="https://docs.vmware.com/en/VMware-NSX-T/2.1/com.vmware.nsxt.admin.doc/GUID-A0B3667C-FB7D-413F-816D-019BFAD81AC5.html">Back up NSX-T</a>
-- <a href="https://kb.vmware.com/s/article/2149237">Back up vCenter</a>
-<p class="note"><strong>Note</strong>: If you choose not to back up <%= vars.product_short %>, NSX-T, or vCenter, we recommend backing up the NSX-T and NSX-T Container Plugin (NCP) logs.</p>
-
-**If you are upgrading <%= vars.product_short %> for any other IaaS**, back up the existing <%= vars.product_short %> control plane. For more
-information, see [Backing Up and Restoring <%= vars.product_short %>](backup-and-restore.html).
+<p class="note"><strong>Note:</strong> If you choose not to back up
+<%= vars.product_short %>, NSX-T, or vCenter, we recommend backing up the
+NSX-T and NSX-T Container Plugin (NCP) logs.
+</p>
 
 ##<a id='understand-upgrades'></a> Review What Happens During <%= vars.product_short %> Upgrades
 
@@ -39,16 +36,32 @@ Plan your upgrade based on your workload capacity and uptime requirements.
 
 Review the [Release Notes](release-notes.html) for <%= vars.product_short %> v1.6.
 
+##<a id='expectations'></a> Set User Expectations and Restrict Cluster Access
+
+Coordinate the <%= vars.product_short %> upgrade with cluster admins and users.
+During the upgrade:
+
+* Their workloads will remain active and accessible.
+
+* They will be unable to perform cluster management functions,
+including creating, resizing, updating, and deleting clusters.
+
+* They will be unable to log in to <%= vars.k8s_runtime_abbr %> or use the <%= vars.k8s_runtime_abbr %> CLI and other <%= vars.k8s_runtime_abbr %> control plane services.
+
+<p class="note"><strong>Note</strong>: Cluster admins should not start any cluster management tasks right before an upgrade.
+Wait for cluster operations to complete before upgrading.
+</p>
+
 ##<a id='upgrade-clusters'></a> Upgrade All Clusters to <%= vars.product_short %> v1.5.x
 
-Before you upgrade to <%= vars.product_short %> v1.6, you must upgrade all clusters to same patch version of <%= vars.product_short %> v1.5.x. 
+Before you upgrade to <%= vars.product_short %> v1.6, you must upgrade all clusters.
+Doing this aligns the <%= vars.k8s_runtime_abbr %> version that the clusters run internally
+with the current patch version of the <%= vars.k8s_runtime_abbr %> control plane.
 
-<%= vars.product_short %> supports running clusters on the current version (_N_)
-and the last version release (_N - 1_). 
-For example, you can upgrade to <%= vars.product_short %> v1.6.0 
-and run <%= vars.product_short %> v1.5.x clusters, 
-but you cannot upgrade to <%= vars.product_short %> v1.6.0 
-while running a <%= vars.product_short %> v1.5.1 cluster alongside a v1.5.0 cluster or v1.4.3 cluster. After the upgrade, the older version clusters can no longer be managed in <%= vars.product_short %> v1.6.0.
+The <%= vars.k8s_runtime_abbr %> control plane supports clusters running the current version and previously-installed version of <%= vars.product_short %>.
+It does not support clusters running <%= vars.k8s_runtime_abbr %> versions older than the last installed version.
+For example, you can upgrade to <%= vars.k8s_runtime_abbr %> v1.6.0
+and continue running <%= vars.k8s_runtime_abbr %> v1.5.3 clusters.
 
 To check the version of existing clusters and availability of upgrade, run:
 
@@ -56,29 +69,43 @@ To check the version of existing clusters and availability of upgrade, run:
 pks clusters
 ```
 
-To upgrade one or more clusters, see [Upgrading Clusters](./upgrade-clusters.html#upgrade-clusters).
+To upgrade one or more clusters, see [Upgrading Clusters](./upgrade-clusters.html).
 
-##<a id='resource-usage'></a> View Workload Resource Usage
+##<a id='resource-usage'></a> Verify Your Clusters Support Upgrading
 
-View your workload resource usage in Dashboard. For more information, see
-[Accessing Dashboard](access-dashboard.html).
+It is critical that you confirm that a cluster's resource usage is within the 
+recommended maximum limits before upgrading the cluster.
 
-If workers are operating too close to their capacity, the upgrade can fail. 
+<%= vars.product_full %> upgrades a cluster by upgrading master and worker nodes individually. 
+The upgrade processes a master node by redistributing the node's workload, stopping the node, upgrading it and restoring its workload. 
+This redistribution of a node's workloads increases the resource usage on the remaining nodes during the upgrade process.  
 
-To prevent workload downtime during a cluster upgrade, 
-we recommend running your workload on at least three
-worker VMs, using multiple replicas of your workloads spread across those VMs. 
-For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
+If a Kubernetes cluster master VM is operating too close to capacity, the upgrade can fail.  
 
-If your clusters are near capacity for your existing infrastructure, 
-we recommend scaling up your clusters before you upgrade. 
+<p class="note warning"><strong>Warning</strong>: Downtime is required to repair a cluster failure 
+  resulting from upgrading an overloaded Kubernetes cluster master VM.
+</p>
+
+To prevent workload downtime during a cluster upgrade, complete the following before upgrading a cluster:   
+
+1. Ensure none of the master VMs being upgraded will become overloaded during the cluster upgrade. 
+See [Master Node VM Size](vm-sizing.html#master-sizing) for more information. 
+
+1. Review the cluster's workload resource usage in Dashboard. 
+For more information, see [Accessing Dashboard](access-dashboard.html).
+
+1. Scale up the cluster if it is near capacity on its existing infrastructure.
 Scale up your cluster by running `pks resize` or create a cluster
-using a larger plan. For more information, see [Scaling Existing Clusters](scale-clusters.html).
+using a larger plan. For more information, see [Changing Cluster Configurations](scale-clusters.html). 
+
+1. Run the cluster's workloads on at least three
+worker VMs using multiple replicas of your workloads spread across those VMs. 
+For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
 
 ##<a id='verify-k8s-health'></a> Verify Health of Kubernetes Environment
 
 Verify that your Kubernetes environment is healthy. 
-To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html#k8s).
+To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html).
 
 ##<a id='review-vsphere-nsxt'></a> Verify NSX-T Configuration (vSphere with NSX-T Only)
 
@@ -180,11 +207,13 @@ To prevent hanging cluster upgrades, you can use the PKS CLI to configure the de
 The new default behavior takes effect during the next upgrade,
 not immediately after configuring the behavior.
 
-<p class="note"><strong>Note</strong>: You can also configure node drain behavior in the <%= vars.product_tile %> tile.
-For information about configuring default node drain behavior in
-the <%= vars.product_tile %> tile,
+### <a id="node-drain-tile"></a> Configure with the <%= vars.product_tile %> Tile
+
+To configure node drain behavior in the <%= vars.product_tile %> tile,
 see <a href="./troubleshoot-issues.html#upgrade-drain-hangs">Worker Node Hangs Indefinitely</a>
-in <i>Troubleshooting</i>.</p>
+in <i>Troubleshooting</i>.
+
+### <a id="node-drain-cli"></a> Configure with the PKS CLI
 
 To configure default node drain behavior, do the following:
 
@@ -194,7 +223,7 @@ To configure default node drain behavior, do the following:
     pks cluster CLUSTER-NAME --details
     ```
 
-    Where `CLUSTER-NAME` is the name of you cluster.
+    Where `CLUSTER-NAME` is the name of your cluster.
     <br><br>
     For example:
     <pre class="terminal">$ pks cluster my-cluster --details <br>

@@ -1,0 +1,142 @@
+---
+title: Connecting Enterprise PKS to a SAML Identity Provider
+owner: PKS
+---
+
+This topic describes how to connect <%= vars.product_full %>
+to a SAML identity provider (IdP).
+
+## <a id='overview'></a>Overview
+
+User Account and Authentication (UAA), the identity management
+service for <%= vars.product_short %>, can
+authenticate users either through its internal user account store or external
+authentication mechanisms such as an LDAP server or a SAML IdP.
+
+To enable an internal user account store for UAA, you select **Internal UAA**
+in the **<%= vars.product_tile %>** tile > **UAA**.
+
+If you want to connect <%= vars.product_short %> to a SAML IdP, you must
+integrate the UAA server with your SAML IdP by following the instructions in
+[Integrate UAA with a SAML IdP](#integrate) below. This enables UAA to
+delegate authentication to your SAML IdP.
+
+## <a id='prerequisites'></a>Prerequisites
+
+Before you configure a SAML IdP in the <%= vars.product_tile %> tile,
+you must configure your IdP to designate <%= vars.product_short %>
+as a service provider (SP).
+
+See the table below for information about industry-standard SAML IdPs and
+how to integrate them with <%= vars.product_short %>:
+
+<table>
+  <tr>
+    <th>Solution Name</th>
+    <th>Integration Guide</th>
+  </tr>
+
+  <tr>
+    <td><a href="https://www.okta.com/products/single-sign-on/">Okta Single Sign-On</a></td>
+    <td><a href="./okta-sso-config.html">Configuring Okta as a SAML Identity Provider</a></td>
+  </tr>
+  
+  <tr>  
+    <td><a href="https://azure.microsoft.com/en-us/services/active-directory/">Azure Active Directory</a></td>
+    <td><a href="./azure-ad-sso-config.html">Configuring Azure Active Directory as a SAML Identity Provider</a></td>
+  </tr>
+</table>
+
+## <a id='integrate'></a>Integrate UAA with a SAML IdP
+
+To integrate UAA with a SAML IdP:
+
+1. In **<%= vars.product_tile %>** > **UAA**, under **Configure your UAA user
+account store with either internal or external authentication mechanisms**,
+select **SAML Identity Provider**.
+
+    ![SAML Fields 1](images/saml1.png)
+
+1. For **Provider Name**, enter a unique name you create for the IdP. This name
+can include only alphanumeric characters, +, &#95;, and -.
+You must not change this name after deployment because all external users use
+it to link to the provider.
+
+1. For **Display Name**, enter a display name for your provider. This display
+name appears as a link on your Pivotal login page, which you can access
+at `https://PKS-API:8443/login`.
+
+    ![SAML provider display name](images/saml-display-name.png)
+
+1. Retrieve the metadata from your IdP. You recorded your IdP metadata when you
+configured your IdP to designate <%= vars.product_short %> as a SP.
+See [Prerequisites](#prerequisites) above.
+
+1. Enter your IdP metadata into either the **Provider Metadata** or the
+**Provider Metadata URL** fields:
+  * If your IdP exposes a metadata URL, enter it in
+  **Provider Metadata URL**.
+  * If your IdP does not expose a metadata URL, paste the XML you retrieved into
+  **Provider Metadata**.
+
+    <p class='note'><strong>Note:</strong> Pivotal recommends that you use the
+    Provider Metadata URL rather than Provider Metadata because the metadata can
+    change. You need to select only one of the
+    above configurations. If you configure both, your IdP
+    defaults to the <strong>(OR) Provider Metadata URL</strong>.</p>
+
+1. For **Name ID Format**, select the name identifier format for your SAML
+IdP. This translates to `username` in <%= vars.product_short %>.
+The default is `Email Address`.
+
+    ![SAML Fields 2](images/saml2.png)
+
+1. For **First Name Attribute** and **Last Name Attribute**, enter the
+attribute names in your SAML database that correspond to the first and
+last names in each user record. This field is case sensitive.
+
+1. For **Email Attribute**, enter the attribute name in your SAML assertion
+that corresponds to the email address in each user record,
+for example, `EmailID`. This field is case sensitive.
+
+1. For **External Groups Attribute**, enter the attribute name in your
+SAML database for your user groups. This field is case sensitive.
+To map the groups from the SAML assertion to admin roles in PKS, see
+[Grant <%= vars.product_short %> Access to an External SAML Group](./manage-users.html#saml)
+in _Managing Enterprise PKS Users with UAA_.
+
+1. By default, all SAML authentication requests from <%= vars.product_short %>
+are signed. To change this, disable **Sign Authentication Requests** and
+configure your IdP to verify SAML authentication requests.
+
+1. To validate the signature for the incoming SAML assertions, enable
+**Required Signed Assertions** and configure your IdP to send signed SAML
+assertions.
+
+1. For **Signature Algorithm**, choose an algorithm from the dropdown to use
+for signed requests and assertions. The default value is `SHA256`.
+
+1. Click **Save**.
+
+## <a id='complete'></a>Complete Your Tile Configuration
+
+* If you do not need to configure any other settings in the
+<%= vars.product_tile %> tile, return to the Ops Manager Installation Dashboard and
+click **Review Pending Changes** > **Apply Changes**.
+* If you need to configure any other settings in the <%= vars.product_tile %>
+tile, return to the _Installing Enterprise PKS_ topic for your IaaS and
+follow the instructions for the pane you want to configure:
+  * [Installing Enterprise PKS on vSphere](installing-pks-vsphere.html#uaa)
+  * [Installing Enterprise PKS on vSphere with NSX-T](installing-nsx-t.html#uaa)
+  * [Installing Enterprise PKS on GCP](installing-pks-gcp.html#uaa)
+  * [Installing Enterprise PKS on AWS](installing-pks-aws.html#uaa)
+  * [Installing Enterprise PKS on Azure](installing-pks-azure.html#uaa)
+
+## <a id='next'></a>Next Steps
+
+For information about creating <%= vars.product_short %> roles and
+managing Kubernetes cluster access, see:
+
+* [Setting Up Enterprise PKS Admin Users](vsphere-configure-pks-users.html)
+for your IaaS
+* [Managing Cluster Access and Permissions](manage-cluster-permissions.html)
