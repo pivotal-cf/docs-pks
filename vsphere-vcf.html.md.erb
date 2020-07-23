@@ -6,18 +6,18 @@ owner: TKGI
 This topic explains how to install and operate <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)
 on the VMware Cloud Foundation platform.
 
-## <a id='about-vcf'></a>About VCF
+## <a id='about-vcf'></a>About TKGI Integration with VCF
 
 VMware Cloud Foundation (VCF) is a unified SDDC platform that brings together VMware vSphere, vSAN, NSX and vRealize components into a integrated stack to deliver enterprise-ready cloud infrastructure for the private and public cloud. For more information,
 see the [VCF Documentation](https://docs.vmware.com/en/VMware-Cloud-Foundation/index.html).
 
-You can install <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) v1.8 on VCF v4. Check the [Release Notes](./release-notes.html) for precies version compatibility. You can use either the [TKGI Management Console](console-install-vsphere.html) or [Ops Manager](vsphere-nsxt-index.html) to install TKGI on VCF. The installation procedure is the same that you would follow if you were not using the VCF platform, with the requirements and considerations documented here.
+You can install <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) v1.8 on VCF v4. You can use either the [TKGI Management Console](console-install-vsphere.html) or [Ops Manager](vsphere-nsxt-index.html) to install TKGI on VCF. The installation procedure is generally the same that you would follow if you were not using the VCF platform, with the requirements and considerations documented here.
 
-## <a id='vcf-requirements'></a>
+## <a id='vcf-requirements'></a> Requirements for Installing TKGI on VCF
 
 To install TGKI on VCF, you must adhere to the following requirements:
 
-- Deploy only the supported versions of all included products. Refer to the [Release Notes](./release-notes.html) for details.
+- Deploy only the supported versions of TKGI and VCF. Check the [Release Notes](./release-notes.html) for precise version compatibility. 
 
 - Deploy vSphere 7.x with NSX-T 3.x using a converged VDS for vSphere and NSX-T traffic. You cannot use an N-VDS for NSX-T transport node traffic. Because of this requirement, a fresh installation is required. There is no way to migrate from N-VDS to VDS.
 
@@ -25,11 +25,11 @@ To install TGKI on VCF, you must adhere to the following requirements:
 
 - Deploy TKGI using a single vSphere cluster, if you are using the TKGI Management Console. The reason is that currently the TKGI Management Console does not support using multiple converged VDSes. If you are using Ops Manager, you can use multiple vSphere clusters (with separate VDSes) as long as you are using a shared datastore (vSAN) to support PersistentVolumes.
 
-- When deploying TKGI on top of VCF, do not generate a new certificate for NSX-T Manager. If you do it will break the VCF to NSX-T Manager communication. You must the existing NSX-T Manager certificate when configuring TKGI.
+- When deploying TKGI on VCF, do not generate a new certificate for NSX-T Manager. If you do it will break the VCF to NSX-T Manager communication. You must use the existing NSX-T Manager certificate when configuring TKGI.
 
-- You must deploy an NSX-T load balancer in front of the NSX Manager nodes in the Management Domain.
+- You must deploy an NSX-T load balancer in front of the NSX Manager nodes in the VCF Management Domain. See [Installing an NSX-T Management Plane Load Balancer](./nsxt-install-mgmt-lb.html) for more information.
 
-## <a id='vcf-topos'></a>Supported Topologies
+## <a id='vcf-topos'></a>Supported Topologies for TKGI on VCF
 
 TKGI supports two topologies for VCF: a Workload Domain with a single vSphere Cluster and a Workload Domain with multiple vSphere clusters.
 
@@ -41,20 +41,22 @@ This topology contains a single vSphere cluster in the Workload Domain managed b
 
 ### <a id='vcf-topo-2'></a>Topology 2: Workload Domain with Multiple vSphere Clusters
 
-This toplogy contains two or more vSphere clusters in the Workload Domain and is managed by the vCenter instance on the Management Domain.
+This toplogy contains two or more vSphere clusters in the Workload Domain managed by the vCenter instance on the Management Domain.
 
     <img src="images/vsphere/vcf-tkgi-topology2.png" alt="GCP pane configuration" width="325">
 
-## <a id='vcf-deployment'></a>Deployment Procedure
+## <a id='vcf-deployment'></a>TKGI on VCF Deployment Procedure
 
 This section provides high-level instructions for deploying TKGI once the Management and Workload Domains are created using VCF.
 
-<p class="note"><strong>Note:</strong> These instructions assume hands-on experience deploying NSX-T and TKGI. For assistance with NSX-T 3.0, refer to the NSX-T documentation [here](https://docs.pivotal.io/tkgi/1-8/nsxt-3-0-install.html). For instructions on installing TKGI, refer to the installation section for the type of installation you are performing [here](https://docs.pivotal.io/tkgi/1-8/vsphere-index.html).</p>
+These instructions assume hands-on experience deploying NSX-T and TKGI. For assistance with NSX-T 3.0, see [Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition](./nsxt-3-0-install.html). For instructions on installing TKGI, see [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](./vsphere-index.html).
 
-### <a id='vcf-deployment-nat'></a>Deployment Procedure: NAT Mode
+### <a id='vcf-deployment-nat'></a>Deployment: NAT Mode
 
-1. Deploy the Management Domain and a single Workload Domain by deploying VCF 4.0, which installs and configures vSphere 7.0 with vSAN and NSX-T 3.0. Refer to the [VMWare Cloud Foundation Deployment Guide](https://docs.vmware.com/en/VMware-Cloud-Foundation/4.0/com.vmware.vcf.ovdeploy.doc_40/GUID-F2DCF1B2-4EF6-444E-80BA-8F529A6D0725.html).
-1. Decide on the topology and create one or two vSphere clusters in the Workload Domain.
+Follow this procedure to deploy TKGI in [NAT mode](./nsxt-topologies.html#topology-nat) on VCF using [Ops Manager](./vsphere-nsxt-index.html) or the [TKGI Management Console](./console-install-vsphere.html).
+
+1. Deploy the Management Domain and a single Workload Domain by deploying VCF 4.0, which installs and configures vSphere 7.0 with vSAN and NSX-T 3.0. See the [VMWare Cloud Foundation Deployment Guide](https://docs.vmware.com/en/VMware-Cloud-Foundation/4.0/com.vmware.vcf.ovdeploy.doc_40/GUID-F2DCF1B2-4EF6-444E-80BA-8F529A6D0725.html) for guidance.
+1. Decide on the [topology](#vcf-topos) and create one or two vSphere clusters in the Workload Domain.
 1. After the Workload Domain is created, use the NSX Manager in the Workload Domain to configure the following NSX-T objects:
 - Create a VLAN trunk port group for the NSX Edge interfaces, one for port group for each Edge Node.
 - Create an Uplink Profile for the Edge Nodes.
@@ -77,7 +79,9 @@ This section provides high-level instructions for deploying TKGI once the Manage
 1. Enable Harbor. (If you are using the Ops Manager installation, deploy Harbor after TKGI.)
 1. Deploy TKGI.
 
-### <a id='vcf-deployment-no-nat'></a>Deployment Procedure: No-NAT and Hybrid Mode
+### <a id='vcf-deployment-no-nat'></a>Deployment: No-NAT and Hybrid Modes
+
+Follow this procedure to deploy TKGI in [No-NAT mode](./nsxt-topologies.html#topology-no-nat) or using a [Hybrid topology](./nsxt-topologies.html#topology-hybrid) on VCF using [Ops Manager](./vsphere-nsxt-index.html) or the [TKGI Management Console](./console-install-vsphere.html).
 
 1. Deploy the Management Domain and a single Workload Domain by deploying VCF 4.0, which installs and configures vSphere 7.0 with vSAN and NSX-T 3.0. Refer to the [VMWare Cloud Foundation Deployment Guide](https://docs.vmware.com/en/VMware-Cloud-Foundation/4.0/com.vmware.vcf.ovdeploy.doc_40/GUID-F2DCF1B2-4EF6-444E-80BA-8F529A6D0725.html).
 1. Decide on the topology and create one or two vSphere clusters in the Workload Domain.
@@ -88,7 +92,7 @@ This section provides high-level instructions for deploying TKGI once the Manage
 - Create an Edge Cluster comprising the Edge Nodes.
 - Create T0 router and add uplink interfaces to get reachability to the physical switches.
 - Create overlay logical switch for deployment network
-- Create a T1 router and add interface to overlay logical switch. Redistribute connected routes.
+- Create a Tier-1 router and add interface to overlay logical switch. Redistribute connected routes.
 - Create 2 IP blocks with mask /16. 
 - Create 1 IP pool for the Load Balancer VIP.
 1. Create Resource pool in VC for deployment and Kubernetes node VMs. These will be used in Availability zones.
