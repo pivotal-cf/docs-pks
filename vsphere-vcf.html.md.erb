@@ -3,24 +3,102 @@ title: Install Tanzu Kubernetes Grid Integrated Edition on VMware Cloud Foundati
 owner: TKGI
 ---
 
-This topic explains how to install <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)
-on VMware Cloud Foundation, hardware/software cloud platform.
+This topic explains how to install and operate <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)
+on the VMware Cloud Foundation platform.
 
-For more information about VMware Cloud Foundation (VCF),
+## <a id='about-vcf'></a>About VCF
+
+VMware Cloud Foundation (VCF) is a unified SDDC platform that brings together VMware vSphere, vSAN, NSX and vRealize components into a integrated stack to deliver enterprise-ready cloud infrastructure for the private and public cloud. For more information,
 see the [VCF Documentation](https://docs.vmware.com/en/VMware-Cloud-Foundation/index.html).
 
-## <a id='byot'></a>Bring Your Own Topology
+You can install <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) on VCF. Check the [Release Notes](./release-notes.html) for version compatibility. You can use either the [TKGI Management Console](console-install-vsphere.html) or [Ops Manager](vsphere-nsxt-index.html) to install TKGI on VCF. The installation procedure is the same that you would follow if you were not using the VCF platform, with the requirements, caveats, and considerations documented here.
 
-TK -- see [TKGi on VCF WLD](https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=ISBU&title=TKGi+on+VCF+WLD).
+## <a id='vcf-requirements'></a>
 
-### <a id='no-nat'></a>No-NAT Topology
+To install TGKI on VCF, you must adhere to the following requirements:
 
-TK -- see [TKGi on VCF WLD](https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=ISBU&title=TKGi+on+VCF+WLD).
+- Deploy only the supported versions of all included products. Refer to the [Release Notes](./release-notes.html) for details.
 
-### <a id='hybrid-nat'></a>Hybrid NAT Topology
+- Deploy vSphere 7.x with NSX-T 3.x using a converged VDS for vSphere and NSX-T traffic. You cannot use an N-VDS for NSX-T transport node traffic. Because of this requirement, a fresh installation is required. There is no way to migrate from N-VDS to VDS.
 
-TK -- see [TKGi on VCF WLD](https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=ISBU&title=TKGi+on+VCF+WLD).
+- Deploy TKGI in the Workload domain only. VCF creates domains, including a Management and Workload domain. TKGI components, including Ops Manager, BOSH Director, TKGI API and DB, and Harbor, must be installed into the Workload domain.
 
-## <a id='auto'></a>Automated NAT Deployment
+- Deploy TKGI using a single vSphere cluster, if you are using the TKGI Management Console. The reason is that currently the TKGI Management Console does not support using multiple converged VDSes. If you are using Ops Manager, you can use multiple vSphere clusters (with separate VDSes) as long as you are using a shared datastore (vSAN) to support PersistentVolumes.
 
-TK -- see [TKGi on VCF WLD](https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=ISBU&title=TKGi+on+VCF+WLD).
+- When deploying TKGI on top of VCF (using either Ops Manager or the Management Console), do not generate a new certificate for NSX-T Manager. If you do it will break the VCF to NSX-T Manager communication. You must the existing NSX-T Manager certificate when configuring TKGI.
+
+- You must deploy an NSX-T load balancer in front of the NSX Manager nodes in the Management Domain.
+
+## <a id='vcf-topos'></a>Supported Topologies
+
+TKGI supports two topologies for VCF: a Workload Domain with a single vSphere Cluster and a Workload Domain with multiple vSphere clusters.
+
+### <a id='vcf-topo-1'></a>Topology 1: Workload Domain with a Single vSphere Cluster
+
+This topology contains a single vSphere cluster managed by the vCenter Server instance on the Management Domain.
+
+    <img src="images/vsphere/vcf-tkgi-topology1.png" alt="Workload Domain with 1 vSphere Cluster" width="325">
+
+### <a id='vcf-topo-2'></a>Topology 2: Workload Domain with Multiple vSphere Clusters
+
+This Workload Domain contains 2 vSphere clusters and is managed by the vCenter instance on the Management Domain.
+
+    <img src="images/vsphere/vcf-tkgi-topology2.png" alt="GCP pane configuration" width="325">
+
+## <a id='vcf-deployment'></a>Deployment Procedure: No-NAT Mode
+
+<p class="note"><strong>Note:</strong> These instructions assume hands-on experience deploying NSX-T and TKGI. For assistance with NSX-T 3.0, refer to the NSX-T documentation [here](https://docs.pivotal.io/tkgi/1-8/nsxt-3-0-install.html). For instructions on installing TKGI, refer to the installation section for the type of installation you are performing [here](https://docs.pivotal.io/tkgi/1-8/vsphere-index.html).</p>
+
+### <a id='vcf-deployment-no-nat'></a>Deployment Procedure: No-NAT or Hybrid Mode
+
+1. Deploy the Management Domain and a single Workload Domain by deploying VCF 4.0, which installs and configures vSphere 7.0 with vSAN and NSX-T 3.0. Refer to the [VMWare Cloud Foundation Deployment Guide](https://docs.vmware.com/en/VMware-Cloud-Foundation/4.0/com.vmware.vcf.ovdeploy.doc_40/GUID-F2DCF1B2-4EF6-444E-80BA-8F529A6D0725.html).
+1. Decide on the topology and create one or two vSphere clusters in the Workload Domain.
+1. After the Workload Domain is created, use the NSX Manager in the Workload Domain to configure the following NSX-T objects:
+- Create a VLAN trunk port group for the NSX Edge interfaces, one for port group for each Edge Node.
+- Create an Uplink Profile for the Edge Nodes.
+- Deploy two Edge Nodes of size Large VM form factor.
+- Create an Edge Cluster comprising the Edge Nodes.
+- Create T0 router and add uplink interfaces to get reachability to the physical switches.
+- Create overlay logical switch for deployment network
+- Create a T1 router and add interface to overlay logical switch. Redistribute connected routes.
+- Create 2 IP blocks with mask /16. 
+- Create 1 IP pool for the Load Balancer VIP.
+1. Create Resource pool in VC for deployment and Kubernetes node VMs. These will be used in Availability zones.
+1. Deploy the Ops Manager or TKGI Management Console OVA in the Management Domain on the management network.
+1. Configure the tile or installer with the connection information for vCenter in the Workload Domain.
+1. Configure the tile or installer with the connection information for NSX-T Manager in the Workload Domain.
+- Configure the Edge cluster, T0 router, IPAMs and IP pools created earlier.
+- Choose the topology (No-NAT or Hybrid).
+- Get the Active cluster cert from NSXT and provide the same for NSX Cert.
+1. Create Availability zones.
+1. Select vSAN datastore for Ephemeral and Persistent storage.
+1. Create Kubernetes plans.
+1. Enable integration with vROPs and vRLI.
+1. Enable Harbor. (If you are using the Ops Manager installation, deploy Harbor after TKGI.)
+1. Deploy TKGI.
+
+### <a id='vcf-deployment-nat'></a>Deployment Procedure: NAT Mode
+
+1. Deploy the Management Domain and a single Workload Domain by deploying VCF 4.0, which installs and configures vSphere 7.0 with vSAN and NSX-T 3.0. Refer to the [VMWare Cloud Foundation Deployment Guide](https://docs.vmware.com/en/VMware-Cloud-Foundation/4.0/com.vmware.vcf.ovdeploy.doc_40/GUID-F2DCF1B2-4EF6-444E-80BA-8F529A6D0725.html).
+1. Decide on the topology and create one or two vSphere clusters in the Workload Domain.
+1. After the Workload Domain is created, use the NSX Manager in the Workload Domain to configure the following NSX-T objects:
+- Create a VLAN trunk port group for the NSX Edge interfaces, one for port group for each Edge Node.
+- Create an Uplink Profile for the Edge Nodes.
+- Deploy two Edge Nodes of size Large VM form factor.
+- Create an Edge Cluster comprising the Edge Nodes.
+1. Create Resource pool in VC for deployment and K8 VMs. These will be used in Availability zones.
+1. Deploy the Ops Manager or TKGI Management Console OVA in the Management Domain on the management network.
+1. Configure the tile or installer with the connection information for vCenter in the Workload Domain.
+1. Configure the tile or installer with the connection information for NSX-T Manager in the Workload Domain.
+- Select the Edge Cluster and Edge Nodes.
+- Provide IPs for Edge Node-1 uplink, Edge-Node-2 uplink, HA VIP for uplink and Default gateway.
+- Provide deployment network info.
+- Provide POD & Node CIDRs.
+- Provide Load Balancer IP range. (NAT IPs will be taken from from this pool.)
+- Get the Active cluster cert from NSXT and provide the same for NSX Cert.
+1. Create Availability zones.
+1. Select vSAN datastore for Ephemeral and Persistent storage.
+1. Create Kubernetes plans.
+1. Enable integration with vROPs and vRLI.
+1. Enable Harbor. (If you are using the Ops Manager installation, deploy Harbor after TKGI.)
+1. Deploy TKGI.
