@@ -13,9 +13,9 @@ To perform a new installation of NSX-T Data Center for <%= vars.product_short %>
 
 1. Read the topics in the [Preparing to Install <%= vars.product_short %> on vSphere with NSX-T Data Center](./vsphere-nsxt-index-prepare.html) section of the documentation.
 
-##<a id='nsxt30-mgmt-hosts'></a> Install the NSX-T Management Hosts
+##<a id='nsxt30-mgmt-hosts'></a> Create the NSX-T Management Plane
 
-Create the NSX-T Management cluster by installing 3 NSX Manager appliances and configuring a VIP address. 
+Create the NSX-T Management plane by installing three NSX Manager Nodes and configuring a VIP address. 
 
 ![NSX-T Management Cluster](images/nsxt/nsxt-30/mgmt-cluster-arch.png)
 
@@ -333,117 +333,76 @@ Tunnel endpoints (TEPs) are the source and destination IP addresses used in the 
 1. Verify that the pool is added.
   <img src="images/nsxt/nsxt-30/ip-pool-03.png">
 
-##<a id='nsxt30-tzs'></a> Create Transport Zones
+##<a id='nsxt30-tzs'></a> Use Default Transport Zones
 
-You need two transport zones: an Overlay TZ for Transport Nodes and a VLAN TZ for Edge Nodes. By default NSX-T v3.0 creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. However, the default TZs cannot be used by TKGI. If you do use them, you will receive an `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. Therefore, create the following two new transport zones for use with TKGI and associate them with a corresponding swtich:
-
-- `tz-overlay` (switch name: `switch-overlay`), and
-- `tz-vlan` (switch name: `switch-vlan`)
+You need two transport zones: an Overlay TZ for ESXi Transport Nodes and a VLAN TZ for Edge Nodes. By default NSX-T v3.0 creates two default transport zones: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. We can leverage the default transport zones as long as we specify the NVDS name on each NSX-T Edge Node to be the same that is defined on the default transport zones (`nsxHostSwitch`).
 
 For more information, refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/installation/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html).
 
-###<a id='nsxt30-overlay-tz'></a> Create the Overlay TZ
+##<a id='nsxt30-esxi-vsphere-vds-pgs'></a> Configure vSphere Networking and Port Groups
 
-1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
-  <img src="images/nsxt/nsxt-30/tz-01.png">
-1. Click **Add**.
-1. Enter a Name, such as `tz-overlay`.
-1. Enter a switch name, such as `switch-overlay`.
-1. For the **Traffic Type**, select `Overlay`.
-1. Click **Add**.
-  <img src="images/nsxt/nsxt-30/tz-02.png">
-1. Verify that you see the newly created TZ named `tz-overlay` in the list.
-  <img src="images/nsxt/nsxt-30/tz-03.png">
+In this section you configure vSphere networking and port groups. If you have created separate vSphere clusters for Management and Compute, perform this operation on each ESXi host in the Management cluster. If you have not created separate vSphere clusters, perform this operation on each ESXi host in the cluster
 
-###<a id='nsxt30-vlan-tz'></a> Create the VLAN TZ
+For vSphere networking, you can create a Virtual Standard vSwitch (VSS) or a Virtual Distributed Switch (VDS). For production environments, VDS is recommended. Refer to the [Release Notes](./release-notes) for details on TKGI support for VDS.
 
-1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
-  <img src="images/nsxt/nsxt-30/tz-01.png">
-1. Click **Add**.
-1. Enter a name, such as `tz-vlan`.
-1. Enter a switch name, such as `switch-vlan`.
-1. For the **Traffic Type**, select `VLAN`.
-  <img src="images/nsxt/nsxt-30/tz-04.png">
-1. Click **Add**.
-1. Verify that you see the newly created TZ named `tz-vlan` in the list. 
-  <img src="images/nsxt/nsxt-30/tz-05.png">
+###<a id='nsxt30-vsphere-vds'></a> Create VDS
 
-##<a id='nsxt30-esxi-vswitch'></a> Configure vSphere Networking for ESXi Hosts
+The following steps describe minimally how to create a VDS. Refer to the vSphere 7 documentation for additional guidance: <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-D21B3241-0AC9-437C-80B1-0C8043CC1D7D.html">Create a vSphere Distributed Switch</a>.
 
-In this section, you configure the vSphere networking and port groups for ESXi hosts (the vSwitch). If you have created separate vSphere clusters for Management and Compute, perform this operation on each ESXi host in the Management cluster. If you have not created separate vSphere clusters, perform this operation on each ESXi host in the cluster.
+1. Log in to vCenter. 
+1. Select the **Networking** tab.
+1. Select the Datacenter.
+1. Right-click and select **Distributed Switch** > **New Distributed Switch**.
+1. Configure the VDS with a name, such as TKGI-DSwitch.
+1. Select **7.0.0 - ESXI 7.0 and later** as the version.
+1. Specify the number of uplinks, such as 2 or 4.
+1. Add the ESXi hosts to the VDS.
 
-The following instructions describe how to configure a vSphere Virtual Standard vSwitch (VSS). For production environments, it is recommended that you configure a Virtual Distributed vSwitch (VDS). You configure the VDS from the vCenter **Networking** tab and then add the ESXi hosts to the VDS. The configuration settings for the VDS are similar to the VSS configuration described below. For instructions on configuring the VDS, see <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-D21B3241-0AC9-437C-80B1-0C8043CC1D7D.html">Create a vSphere Distributed Switch</a> in the vSphere 7 documentation.
-
-TKGI v1.8 supports 1 VDS (or VSS) for vSphere traffic and 1 N-VDS for NSX-T v3.0 traffic (NSX-T transport nodes).
-
-TKGI v1.8.1 and later patch versions also support a single VDS v7 as a Beta feature under specific conditions:
-
-  - With Ops Manager v2.9.5 and above.
-  - With NSX-T v3.0.1.1 (v3.0.1 EP1) or later.
-  - The VDS runs both vSphere v7 traffic and NSX-T v3.0 traffic, in the same Datacenter.
-  - On new installations only.
-  Previous versions of TKGI required N-VDS, and you cannot migrate existing NSX-T infrastructure for TKGI from N-VDS to VDS.
-
-###<a id='nsxt30-esxi-pgs'></a> Create vSwitch Port-Groups for Edge Nodes
-
-Create vSwitch Port-Groups for the Edge Nodes on the ESXi hosts in the MANAGEMENT-cluster.
-
-For each ESXi host in the MANAGEMENT-cluster, create the following vSwitch Port Groups:
-
-- EDGE-VTEP-PG: VLAN 3127
-- EDGE-UPLINK-PG: VLAN trunk (All (4095))
-
-1. Log in to the vCenter Server.
-1. Select the ESXi host in the MANAGEMENT-cluster.
-  <img src="images/nsxt/nsxt-30/vswitch-01.png">
-1. Select **Configure** > **Virtual switches**. 
-1. Select A**dd Networking** (upper right).
-1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**. 
-  <img src="images/nsxt/nsxt-30/vswitch-02.png">               
-1. Select the existing standard switch named `vSwitch0` and click **Next**.
-  <img src="images/nsxt/nsxt-30/vswitch-03.png">
-1. Enter a **Network Label**, such as `EDGE-VTEP-PG`.
-1. Enter a **VLAN ID**, such as `3127`.
-  <img src="images/nsxt/nsxt-30/vswitch-04.png">
-1. Click **Finish**.
-  <img src="images/nsxt/nsxt-30/vswitch-05.png">
-1. Verify that you see the newly created port group.
-  <img src="images/nsxt/nsxt-30/vswitch-07.png">
-1. Select **Add Networking** (upper right).
-1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**.                
-1. Select the existing standard switch named `vSwitch0` and click **Next**.
-1. Enter a **Network Label**, such as `EDGE-UPLINK-PG`.
-1. For the **VLAN ID**, select `All (4095)` from the drop-down.
-  <img src="images/nsxt/nsxt-30/vswitch-04.png">
-1. Click **Finish**.
-1. Verify that you see the newly created port group.
-  <img src="images/nsxt/nsxt-30/vswitch-09.png">
-
-###<a id='nsxt30-esxi-mtu'></a> Set vSwitch0 with MTU at 9000
+###<a id='nsxt30-vds-mtu'></a> Configure VDS with Jumbo MTU
  
-For each ESXi host in the MANAGEMENT-cluster, or each ESXi host in the vCenter cluster if you have not created separate Management and Compute clusters, you must enable the virtual switch with jumbo MTU, that is, set vSwitch0 with MTU=9000. If you do not do this, network overlay traffic will jam. The TEP interface for the NSX-T Edge Nodes must be connected to a port group that supports > 1600 bytes. The default is 1500.
+The uplink interface for each NSX-T Edge Node must be connected to a port group that is greater than 1600 bytes. If this limit is not set, network overlay traffic will jam. To support this requirement, set the VDS with a jumbo MTU of 9000 bytes. 
 
-1. Select the Virtual Switch on each ESXi host in the MANAGEMENT-cluster, or each host in the vCenter cluster.
-1. Click Edit. 
+1. Log in to vCenter. 
+1. Select the **Networking** tab.
+1. Locate the VDS you created in the previous section.
+1. Right-click the VDS and select **Settings* > **Edit Settings**. 
 1. For the MTU (bytes) setting, enter `9000`.
-  <img src="images/nsxt/nsxt-30/vswitch-11.png">
-1. Click OK to complete the operation.
+1. Click Save to complete the configuration.
+
+###<a id='nsxt30-esxi-pgs'></a> Create Distributed Port Groups for Edge Nodes
+
+Create VDS Port Groups for the Edge Nodes on the ESXi hosts in the MANAGEMENT-cluster, or the cluster comprising the hosts participating in TKGI. The following steps describe minimally how to create the require port groups. Refer to the vSphere 7 documentation for additional guidance: <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-809743E1-F366-4454-9BA5-9C3FD8C56D32.html">Add a Distributed Port Group</a>.
+
+The following Port Groups are required:
+
+  - EDGE-UPLINK-PGA (VLAN trunk) with vmnic0 as active and vmnic1 as standby
+  - EDGE-UPLINK-PGB (VLAN trunk) with vmnic1 as active and vmnic0 as standby
+
+See the vSphere 7 documentation for additional guidance on VLAN tagging for a distributed port group: <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-809743E1-F366-4454-9BA5-9C3FD8C56D32.html">Configure VLAN Tagging on a Distributed Port Group or Distributed Port</a>.  
+
+Create EDGE-UPLINK-PGA as follows:
+
+1. Log in to vCenter. 
+1. Select the **Networking** tab.
+1. Locate the VDS you created in the previous section.
+1. Right-click the VDS and select **Distributed Port Group* > **New Distributed Port Group**. 
+1. Name the port group **EDGE-UPLINK-PGA**. 
+1. For **VLAN type** select **VLAN trunking** with a VLAN trunk range of `0-4094` (default).
+1. For **Teaming and Failover**, configure `vmnic0` as active and `vmnic1` as standby.
+1. Click **Next** and then **Finish**.
+
+Create EDGE-UPLINK-PGB using the same procedure with the following settings:
+
+1. Right-click the VDS and select **Distributed Port Group* > **New Distributed Port Group**. 
+1. Name the port group **EDGE-UPLINK-PGB**. 
+1. For **VLAN type** select **VLAN trunking** with a VLAN trunk range of `0-4094` (default).
+1. For **Teaming and Failover**, configure `vmnic1` as active and `vmnic0` as standby.
 
 ##<a id='nsxt30-edge-nodes'></a> Deploy NSX-T Edge Nodes
 
-In this section you deploy two NSX-T Edge Nodes. 
+In this section you deploy two NSX-T Edge Nodes. NSX-T Edge Nodes provide the bridge between the virtual network based on NSX-T and the physical network. Edge Nodes for <%= vars.product_short %> run load balancers for <%= vars.control_plane %> traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in <%= vars.product_short %>](./about-lb.html) for more information.
 
-NSX Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for <%= vars.product_short %> run load balancers for <%= vars.control_plane %> traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in <%= vars.product_short %>](./about-lb.html) for more information.
-
-In NSX-T, a load balancer is deployed on the Edge Nodes as a virtual server. The following virtual servers are required for <%= vars.product_short %>:
-
-- 1 TCP Layer 4 virtual server for each Kubernetes service of type:`LoadBalancer`
-- 2 Layer 7 global virtual servers for Kubernetes pod ingress resources (HTTP and HTTPS)
-- 1 global virtual server for the <%= vars.control_plane %>
-
-The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node. <%= vars.product_short %> supports the `medium` and `large` VM Edge Node form factor, as well as the bare metal Edge Node. The default size of the load balancer deployed by NSX-T for a Kubernetes cluster is `small`. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>. 
-
-For this installation, we use the Large VM form factor for the Edge Node. See [VMware Configuration Maximums](https://configmax.vmware.com/guest?vmwareproduct=VMware%20NSX-T&release=NSX-T%20Data%20Center%203.0.0&categories=17-0) for more information.
+An NSX-T load balancer is deployed on the Edge Nodes as a virtual server. The number of virtual servers that can be run depends on the size of the load balancer which in turn depends on the size of the Edge Node. For TKGI, we use the Large VM form factor for the Edge Node. By default a small size load balancer is deployed, but this can be changed using Network Profile. See [VMware Configuration Maximums](https://configmax.vmware.com/guest?vmwareproduct=VMware%20NSX-T&release=NSX-T%20Data%20Center%203.0.0&categories=17-0) for more information on Edge Node and load balancer sizing.
 
 ###<a id='nsxt30-edge-node-1'></a> Install Edge Node 1 
 
