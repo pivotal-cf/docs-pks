@@ -1,0 +1,258 @@
+---
+title: Rotating Certificates for Kubernetes Clusters
+owner: TKGI
+---
+
+This topic describes how to rotate the `kubo_ca_2018` and `etcd_ca_2018` 
+certificate authority (CA) certificates and their leaf certificates for
+Kubernetes clusters provisioned by <%= vars.product_full %>
+(<%= vars.k8s_runtime_abbr %>).
+
+<p class="note warning"><strong>Warning:</strong> Do not use the instructions
+in this topic for rotating any other Kubernetes cluster CA and leaf certificates.</p>
+
+## <a id="overview"></a>Overview
+
+The `kubo_ca_2018` and `etcd_ca_2018` CA certificates are managed
+by CredHub. You use the CredHub Maestro command line interface (CLI)
+to rotate these certificates and their leaf certificates.
+For more information about the CredHub Maestro CLI,
+see [Getting Started with CredHub Maestro](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/getting-started-with-maestro-cli.html)
+in the Ops Manager documentation.
+
+Each <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster has
+the `kubo_ca_2018` CA certificate and the `etcd_ca_2018` CA certificate.
+These certificates are unique, meaning the value of each certificate is
+different for each cluster.
+
+## <a id="prerequisites"></a>Prerequisites
+
+You must have the following:
+
+* <%= vars.k8s_runtime_abbr %> v1.9 or later.
+Earlier versions of <%= vars.k8s_runtime_abbr %> are not
+compatible with the CredHub Maestro CLI.
+* Kubernetes clusters upgraded to <%= vars.k8s_runtime_abbr %> v1.9.
+* Ops Manager v2.9.
+* The `pks.cluster.admin` UAA scope.
+
+The certificate rotation procedure
+with the CredHub Maestro CLI provided in this topic is intended only for
+Ops Manager v2.9. In later versions of Ops Manager, the procedure may change.
+
+## <a id="identify"></a>Retrieve the Cluster UUID
+
+This section describes how to retrieve the universally unique identifier (UUID)
+of a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster.
+You will use this UUID in [Access CredHub Maestro on the Ops Manager VM](#access)
+and [Rotate the Certificates](#rotate) below.
+
+To retrieve the UUID of a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes
+cluster:
+
+1. Log in to <%= vars.k8s_runtime_abbr %>. For instructions, see
+[Logging in to <%= vars.product_short %>](login.html).
+1. To view the list of your deployed clusters, run `tkgi clusters`.
+
+    For example:
+
+    <pre class="terminal">
+    $ tkgi clusters
+
+    Name    Plan Name       UUID                                    Status       Action  
+    test    multi-master    ae681cd1-7ff4-4661-b12c-49a5b543f16f    succeeded    CREATE
+    </pre>   
+
+1. In the output of the `tkgi clusters` command,
+locate your target cluster and record its UUID. If you want to rotate the `kubo_ca_2018`
+and `etcd_ca_2018` CA certificates and their leaf certificates for multiple clusters,
+locate all your target clusters in the output and record the UUIDs.
+1. Proceed to [Access CredHub Maestro on the Ops Manager VM](#access) below.
+
+## <a id="access"></a>Access CredHub Maestro on the Ops Manager VM
+
+This section describes how to access the CredHub Maestro CLI on the Ops Manager VM,
+identify your Kubernetes cluster deployments,
+and list certificate expiration dates using the CredHub Maestro CLI.
+
+1. SSH into the Ops Manager VM. For instructions, see
+[Log in to the Ops Manager VM with SSH](https://docs.pivotal.io/platform/2-9/customizing/trouble-advanced.html#ssh)
+in the Ops Manager documentation.
+1. Set the BOSH command line and CredHub environment variables on the
+Ops Manager VM.
+    1. To set the BOSH environment variables,
+    follow the instructions in
+    [Set the BOSH Environment Variables on the Ops Manager VM](https://docs.pivotal.io/platform/2-9/customizing/trouble-advanced.html#export-bosh-envs)
+    in the Ops Manager documentation.
+
+        For example:
+
+        <pre class="terminal">
+        $ export BOSH_CLIENT=ops_manager \
+        BOSH_CLIENT_SECRET=example_secret \
+        BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate \
+        BOSH_ENVIRONMENT=10.0.16.5 bosh
+        </pre>
+
+    1. To set the CredHub environment variables, export the following variables:
+        * `CREDHUB_SERVER` is the URL of the BOSH Director CredHub server.
+        This should be `BOSH_ENVIRONMENT:8844`.
+        * `CREDHUB_CLIENT` is the name of the CredHub client.
+        This is the same as `BOSH_CLIENT`.
+        * `CREDHUB_SECRET` is the CredHub client secret.
+        This is the same as `BOSH_CLIENT_SECRET`.
+        * `CREDHUB_CA_CERT` is the path or value of the CredHub trusted CA certificate.
+        This is the same as `BOSH_CA_CERT`.
+
+        For example:
+
+        <pre class="terminal">
+        $ export CREDHUB_SERVER=10.0.16.5:8844 \
+        CREDHUB_CLIENT=ops_manager \
+        CREDHUB_SECRET=example_secret \
+        CREDHUB_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate
+        </pre>
+
+1. Retrieve your Kubernetes cluster deployment names:
+
+    ```
+    bosh deployments
+    ```
+
+    Kubernetes cluster deployment names begin with
+    `service-instance_`. For example,
+    `service-instance_ae681cd1-7ff4-4661-b12c-49a5b543f16f`, where
+    `ae681cd1-7ff4-4661-b12c-49a5b543f16f` is the cluster UUID you retrieved
+    in [Retrieve the Cluster UUID](#identify) above.
+
+1. To review the expiration dates of the `kubo_ca_2018` and `etcd_ca_2018`
+CA certificates and their leaf certificates for a
+<%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster:
+
+    1. Run the following command:
+
+        ```
+        maestro list --expires-within TIME-PERIOD --deployment-name service-instance_CLUSTER-UUID
+        ```
+
+        Where:
+        * `TIME-PERIOD` is the expiry window you want to filter.
+        Valid units are `d` for days, `w` for weeks, `m` for months,
+        and `y` for years. For example, `1y` lists the certificates expiring within
+        one year.
+        * `CLUSTER-UUID` is the cluster UUID you retrieved in
+        [Retrieve the Cluster UUID](#identify) above.
+
+        For more information,
+        see [maestro list](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/getting-started-with-maestro-cli.html#list)
+        in the Ops Manager documentation.<br><br>
+
+    1. Locate the `kubo_ca_2018` and `etcd_ca_2018` CA certificates and
+    their leaf certificates in the output of the `maestro list` command.
+
+1. Proceed to [Rotate the Certificates](#rotate) below.
+
+## <a id="rotate"></a>Rotate the Certificates
+
+This section describes how to rotate the
+`kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf certificates
+for a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster.
+To rotate these certificates for multiple clusters,
+repeat the procedure below for each cluster.
+
+To rotate the `kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf
+certificates for a <%= vars.k8s_runtime_abbr %>-provisioned
+Kubernetes cluster:
+
+1. Regenerate the `kubo_ca_2018` and `etcd_ca_2018` CA certificates:
+ 	
+ 	```
+    maestro regenerate ca --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
+    maestro regenerate ca --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
+    ```
+    
+    Where `CLUSTER-UUID` is the cluster UUID. You retrieved the UUID in
+    [Retrieve the Cluster UUID](#identify) above.
+    <br><br>
+    This step creates a new version of the CA certificates.
+ 
+1. Mark the latest version of each CA certificate as transitional:
+    
+    ```
+    maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
+    maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
+    ```
+    
+    Where `CLUSTER-UUID` is the same cluster UUID as in the step above.
+
+1. Redeploy the cluster: 
+    
+    1. Download the latest cluster deployment manifest:
+
+        ```
+        bosh -d service-instance_CLUSTER-UUID manifest > PATH-TO-DEPLOYMENT-MANIFEST
+        ```
+
+        Where:
+        * `CLUSTER-UUID` is the cluster UUID.
+        * `PATH-TO-DEPLOYMENT-MANIFEST` is the location where you want to save
+        the cluster deployment manifest. For example, `/tmp/manifest.yml`.
+
+    1. Deploy the cluster:
+
+        ```
+        bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
+        ```
+
+        Where:
+        * `CLUSTER-UUID` is the cluster UUID.
+        * `PATH-TO-DEPLOYMENT-MANIFEST` is the location where you saved
+        the cluster deployment manifest.
+
+1. After the cluster redeployment completes
+successfully, mark the signing version of each CA certificate as transitional:
+ 
+    ```
+    maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
+    maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
+    ```
+
+    Where `CLUSTER-UUID` is the cluster UUID.
+    This command also removes the transitional flag from the latest version of the
+    CA certificates.
+
+1. Regenerate all leaf certificates signed by `kubo_ca_2018` and `etcd_ca_2018`:
+    
+    ```
+    maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
+    maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
+    ```
+    
+    Where `CLUSTER-UUID` is the cluster UUID.
+
+1. Redeploy the cluster:
+
+    ```
+    bosh -d service-instance_CLUSTER-UUID manifest > PATH-TO-DEPLOYMENT-MANIFEST
+    bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
+    ```
+    See step 3 above for more information about these commands.
+
+1. After the cluster redeployment completes
+successfully, remove the transitional flag:
+	
+    ```
+    maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
+    maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
+    ```
+
+    Where `CLUSTER-UUID` is the cluster UUID.
+
+1. Redeploy the cluster:
+
+    ```
+    bosh -d service-instance_CLUSTER-UUID manifest > PATH-TO-DEPLOYMENT-MANIFEST
+    bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
+    ```
+
+    See step 3 above for more information about these commands.

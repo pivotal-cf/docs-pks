@@ -1,0 +1,94 @@
+---
+title: Using Compute Profiles
+owner: TKGI
+---
+
+This topic describes how to use compute profiles for Kubernetes clusters
+provisioned with <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) on vSphere with NSX-T integration.
+
+Compute profiles let you customize cluster resources parameters.
+
+## <a id="how-created"></a> How Compute Profiles are Created
+
+<%= vars.k8s_runtime_abbr %> cluster administrators can create and delete compute profiles, as described in the [Creating and Managing Compute Profiles](./compute-profiles-manage.html) topic.
+
+After an administrator creates a compute profile, cluster managers and read-only admins can create clusters with it or assign it to existing clusters.
+
+## <a id="list-profiles"></a> List Compute Profiles
+
+To list available compute profiles, run the following command:
+
+```
+tkgi compute-profiles
+```
+
+For example:
+
+<pre class="terminal">
+$ tkgi compute-profiles
+
+	compute-profile         Owner      Created Date                                   
+	Basic-compute-profile   Alana      Tue, 15 Jul 2020 16:28:15 PST
+
+</pre>
+
+## <a id='create'></a> Create a Cluster with a Compute Profile
+
+You can assign a compute profile to a Kubernetes cluster at the time of cluster creation.
+
+To create an <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster with a compute profile, run the following command:
+
+```
+tkgi create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --compute-profile COMPUTE-PROFILE-NAME
+```
+
+Where:
+
+* `CLUSTER-NAME` is a unique name for your cluster.
+* `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
+* `PLAN-NAME` is the name of the <%= vars.k8s_runtime_abbr %> plan you want to use for your cluster.
+* `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to use for your cluster.
+
+## <a id="update-profile"></a> Assign a Compute Profile to an Existing Cluster
+ 
+<%= vars.k8s_runtime_abbr %> supports changing the compute profile for an already created cluster.
+You can use this procedure to:
+
+- assign a compute profile to a cluster that does not have one, or
+- change a cluster's existing profile to a new one
+
+<p class="note"><strong>Note:</strong> You cannot change a cluster's compute profile to remove pod IP block IDs. For more information, see <a href="./compute-profiles-manage.html#change-pod-ips">Limitation: Pod IP Block Changes</a> in <em >Creating and Managing Compute Profiles</em>.</p>
+
+This is the procedure to change a cluster's compute profile:
+
+1. Do one of the following
+	- Choose a new compute profile for the cluster.
+	See [List Compute Profiles](#list-profiles).
+	- Have a <%= vars.k8s_runtime_abbr %> cluster administrator define and create a new compute profile as described in [Create a Compute Profile](./compute-profiles-use.html#create-profile) in _Creating and Managing Compute Profiles_. 
+  		- The name of the new compute profile must be unique and different from the previously assigned compute profile.
+
+1. Run the following command to update the cluster with the new compute profile:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --compute-profile NEW-COMPUTE-PROFILE-NAME
+    ```
+
+    Where: 
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
+    * `NEW-COMPUTE-PROFILE-NAME` is the name of the new compute profile you want to apply to the cluster.
+
+### <a id="compute-profile-validation"></a> Compute Profile Update Validation
+
+There are strict validation rules for the `tkgi update-cluster --compute-profile` command:
+
+- You cannot update a compute profile for a cluster that already has an associated profile created in <%= vars.k8s_runtime_abbr %> v1.8 or earlier.
+- If a field in the original compute profile is empty, the system ignores the empty field even if the field is included in the new compute profile. 
+- If a field in the existing compute profile conflicts with a field in the new compute profile, the system reports the conflict and fails the validation.
+- If the field is empty in the new compute profile, then the system ignores the field even if the field is not empty in the original compute profile.
+
+## <a id='use-cases'></a> Compute Profile Use Cases
+
+Compute profiles let you customize NSX-T configuration parameters for clusters when you create them or afterward.
+Use cases for compute profiles include:
+
+<%= partial 'compute-profiles-uses' %>

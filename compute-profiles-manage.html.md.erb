@@ -1,0 +1,217 @@
+---
+title: Creating and Managing Compute Profiles with the CLI
+owner: TKGI
+---
+
+This topic describes how <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) administrators on vSphere with NSX-T can create and delete compute profiles for Kubernetes clusters provisioned by <%= vars.k8s_runtime_abbr %>.
+It also lists verified use cases for compute profiles on <%= vars.k8s_runtime_abbr %>.
+
+For more information on how to use compute profiles, see [Using Compute Profiles](./compute-profiles-use.html).
+
+## <a id="vs-plans"></a> Compute Profiles vs. Plans
+
+As with plans defined in <%= vars.k8s_runtime_abbr %> tile **Plans** panes,
+compute profiles let <%= vars.k8s_runtime_abbr %> admins define cluster resource choices for developers using Kubernetes.
+
+Compute profiles offer more granular control over cluster topology and node sizing than plans do.
+For example, compute profiles can define heterogenous clusters with different
+CPU, memory, ephemeral disk, or persistent disk settings for master nodes and worker nodes.
+
+You can also apply a compute profile to specific clusters, overriding the default settings defined by their plan and possibly avoiding the need to create new plans.
+
+You use the <%= vars.k8s_runtime_abbr %> tile to manage plans
+and the <%= vars.k8s_runtime_abbr %> CLI to manage compute profiles.
+
+## <a id="create"></a> Create a Compute Profile
+
+To create a compute profile in <%= vars.k8s_runtime_abbr %>, you:
+
+1. Define a compute profile in a JSON configuration file, following the [Compute Profile Format](#format) below.
+
+1. Use the <%= vars.k8s_runtime_abbr %> CLI to define the compute profile within <%= vars.k8s_runtime_abbr %>, as described in [The create-compute-profile Command](#run-create), below.
+
+### <a id="format"></a> Compute Profile Format
+
+To create a compute profile, you must first define it as a JSON file that specifies network parameters, listed in [Compute Profile Parameters](#params) below.
+
+Here is an example compute profile that includes all available parameters.
+
+<p class="note"><strong>Note:</strong> This example compute profile is for illustration purposes only. It is not intended to be used as a template for compute profile definition.</p>
+
+```
+{
+ "name": "my-compute-profile",
+ "description": "my compute profile description",
+ "parameters": {
+  "AZs" : [
+   {
+     "name": "az-name",
+     "cloud_properties": {}
+   }
+ ],
+ "cluster_customization": {
+   "control_plane": 
+     {
+       "vm_resources": {
+         "cpu" : 4,
+         "memory" : 4098,
+         "disk" : 8196
+       },
+       "azs": ["az-1", "az-2"],
+       "instances" : 2,
+     "resource_label": "small"
+     },
+   "nodes": [
+     {
+       "vm_resources": {
+         "cpu" : 2,
+         "memory" : 2048,
+         "disk" : 8196
+       },
+       "azs": ["az-1", "az-2"],
+       "resource_label": "node1",
+       "Instances" : 2
+     },
+{
+       "vm_resources": {
+         "cpu" : 2,
+         "memory" : 2048,
+         "disk" : 8196
+       },
+       "azs": ["az-1", "az-2"],
+       "resource_label": "node2",
+       "Instances" : 2
+     }
+   ]
+ }
+} 
+}
+
+```
+
+### <a id="params"></a> Compute Profile Parameters
+
+The compute profile JSON can include the following top-level parameters:
+
+Parameter 					| Type 		| Description 
+----------------------------|-----------|-----------------------------
+| `name` 					| String 	| Name of the compute profile. 
+| `description` 			| String 	| Description of the compute profile. 
+| `parameters` 				| Map 		| One or more name-value pairs. 
+| `AZs` 				| Map 	| Pairs defining AZ name with `cloud_properties` settings.
+| `cluster_customization`		| Map 	| `vm_resources` settings for Kubernetes cluster nodes. 
+| `control_plane`		| JSON 	| Settings for Kubernetes control plane node.
+| `nodes`		| Map 	| `vm_resources` settings for worker nodes.
+| `vm_resources`		| Map 	| Settings for `cpu`, `memory`, and `disk`.
+| `azs` 			| List 	| AZs where node instances run`. 
+| `instances` 			| Integer 	| Number of node instances. 
+
+The compute profile JSON accepts the following parameters for `vm_resources`:
+
+Parameter 							| Type 		| Description 
+------------------------------------|-----------|-----------------------------
+| `cpu` 			| Integer 	| CPU count for node instance. 
+| `memory` 	| Integer 	| RAM for node instance, in MB. 
+| `disk` 				| Integer 	| Total disk (persistent plus ephemeral) for node instance, in MB.
+
+### <a id="run-create"></a> The create-compute-profile Command
+
+After a compute profile is defined in a JSON file as described in [Compute Profile Format](#format),
+an <%= vars.k8s_runtime_abbr %> administrator can create the compute profile by running the following <%= vars.k8s_runtime_abbr %> CLI command:
+
+```
+tkgi create-compute-profile PATH-TO-YOUR-COMPUTE-PROFILE-CONFIGURATION
+``` 
+Where `PATH-TO-YOUR-COMPUTE-PROFILE-CONFIGURATION` is the path to the JSON file
+you created when defining the compute profile.
+
+For example:
+
+<pre class="terminal">
+$ tkgi create-compute-profile large-workers.json
+
+Compute profile large-workers successfully created
+</pre>
+
+Only cluster administrators, `pks.clusters.admin`, can create compute profiles.
+If a cluster manager `pks.clusters.manage` or read-only admin `pks.clusters.admin-read-only` attempts to create a compute profile, the following error occurs:
+
+```
+You do not have enough privileges to perform this action. Please contact the <%= vars.k8s_runtime_abbr %> administrator.
+```
+
+After an administrator creates a compute profile, cluster managers can create clusters with it or assign it to existing clusters.
+For more information, see the [Using Compute Profiles](./compute-profiles-use.html) topic.
+
+## <a id="manage"></a> Manage Compute Profiles
+
+<%= vars.k8s_runtime_abbr %> administrators can delete compute profiles.
+Administrators can also perform the same operations that cluster managers use to list compute profiles and manage how clusters use them.
+
+<p class="note warning"><strong>Warning:</strong> These commands do not work for compute profiles created using the <%= vars.k8s_runtime_abbr %> API in <%= vars.k8s_runtime_abbr %> v1.8 or earlier.</p>
+
+
+### <a id="view"></a> View a Compute Profile
+
+To view details about a compute profile, run the following command:
+
+```
+tkgi compute-profile COMPUTE-PROFILE-NAME
+```
+
+Where `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to delete.
+
+For example:
+
+<pre class="terminal">
+$ tkgi compute-profile Basic-compute-profile
+
+	Name:                     Basic-compute-profile
+	Owner:                    Alana
+	Created Date              Tue, 15 Jul 2020 16:28:15 PST
+	Description:              compute profile for customer A
+	….
+	<KEY> :                   <VALUE>
+</pre>
+
+$ pks compute-profile <compute profile name> 
+
+
+### <a id="delete"></a> Delete a Compute Profile
+
+To delete a compute profile, run the following command:
+
+```
+tkgi delete-compute-profile COMPUTE-PROFILE-NAME
+```
+
+Where `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to delete.
+
+Limitations:
+
+- You cannot delete a compute profile that is in use.
+The profile must be disassociated from all clusters, or all associated clusters must be deleted.
+
+- Only cluster administrators, `pks.clusters.admin`, can delete compute profiles.
+If a cluster manager `pks.clusters.manage` or read-only admin `pks.clusters.admin-read-only` attempts to delete a compute profile, the following error occurs:
+
+	```
+	You do not have enough privileges to perform this action. Please contact the <%= vars.k8s_runtime_abbr %> administrator.
+	```
+
+### <a id="user-ops"></a> Cluster Manager Operations
+
+The following sections link to operations that both <%= vars.k8s_runtime_abbr %> administrators and cluster managers can perform on compute profiles,
+documented in the [Using Compute Profiles (NSX-T Only)](compute-profiles-use.html) topic.
+
+* [List Compute Profiles](compute-profiles-use.html#list-profiles) 
+* [Create a Cluster with a Compute Profile](compute-profiles-use.html#create)
+* [Assign a Compute Profile to an Existing Cluster](compute-profiles-use.html#assign)
+  - This operation can assign a compute profile to a cluster that does not have one, or change a cluster's existing profile.
+  - You cannot change a cluster's compute profile to move its nodes to different Availability Zones.
+
+## <a id='use-cases'></a> Compute Profile Use Cases
+
+Compute profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use cases for compute profiles include:
+
+<%= partial 'compute-profiles-uses' %>
