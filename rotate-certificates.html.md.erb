@@ -1,48 +1,58 @@
 ---
-title: Rotating Certificates for Kubernetes Clusters
+title: Rotating Certificates
 owner: TKGI
 ---
 
-This topic describes how to rotate the `kubo_ca_2018` and `etcd_ca_2018` 
-certificate authority (CA) certificates and their leaf certificates for
-Kubernetes clusters provisioned by <%= vars.product_full %>
-(<%= vars.k8s_runtime_abbr %>).
+This topic describes how to rotate certificates for
+Kubernetes clusters created by <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>),
+and for the <%= vars.k8s_runtime_abbr %> control plane itself.
+
+To check certificate expiration dates, see [Check Expiration Dates and Certificate Types](https://docs.pivotal.io/platform/security/pcf-infrastructure/advanced-certificate-rotation.html#check-expiration) in the Ops Manager documentation.
+
+## <a id="overview"></a>Certificates Overview
+
+Certificates used by <%= vars.k8s_runtime_abbr %> include the following.
+These include both certificate authority (CA) certificates and the leaf-level certificates that they issue:
+
+* **Cluster-Specific Certificates**: Kubernetes cluster certificates that have values and expiration dates unique to each cluster.
+* **Shared Cluster Certificates**: Certificates that are common to all <%= vars.k8s_runtime_abbr %>-deployed Kubernetes clusters.
+* **<%= vars.k8s_runtime_abbr %> Control Plane Certificates**: Certificates used by the <%= vars.k8s_runtime_abbr %> control plane and tile.
+
+Some certificates are used by both Kubernetes clusters
+and the <%= vars.k8s_runtime_abbr %> control plane, for communication between the two.
+
+The sections below explain rotation procedures for each of these certificate types.
+
+## <a id="unique"></a>Rotate Cluster-Specific Certificates
+
+When <%= vars.k8s_runtime_abbr %> creates a Kubernetes cluster, it creates new CA certificates for the cluster's `kubo_ca_2018` and `etcd_ca_2018` properties.
+These certificates have values unique to the cluster,
+and their expiration dates depend on the cluster creation date.
+
+The `kubo_ca_2018` and `etcd_ca_2018` CAs and their leaf certificates are managed by CredHub. The procedure below uses the CredHub Maestro command line interface (CLI) to rotate these CAs and their leaf certificates.
+
+This procedure differs from the procedures to rotate shared cluster certificates
+or <%= vars.k8s_runtime_abbr %> control plane certificates.
 
 <p class="note warning"><strong>Warning:</strong> Do not use the instructions
-in this topic for rotating any other Kubernetes cluster CA and leaf certificates.</p>
+in this section to rotate shared Kubernetes cluster certificates.</p>
 
-## <a id="overview"></a>Overview
+You can modify this procedure to rotate `kubo_ca_2018` and `etcd_ca_2018`
+separately, rather than at the same time.
 
-Each <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster has
-the `kubo_ca_2018` CA certificate and the `etcd_ca_2018` CA certificate.
-These certificates are unique, meaning the value of each certificate is
-different for each cluster.
-
-The `kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf
-certificates are managed by CredHub. You use the CredHub Maestro command
-line interface (CLI) to rotate these CA certificates and their leaf certificates.
 For more information, see
-[Getting Started with CredHub Maestro](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/getting-started-with-maestro-cli.html)
+[Getting Started with CredHub Maestro](https://docs.pivotal.io/platform/2-10/security/pcf-infrastructure/getting-started-with-maestro-cli.html)
 in the Ops Manager documentation.
 
-You can rotate the `kubo_ca_2018` CA certificate and the `etcd_ca_2018`
-CA certificate at the same time in a single rotation or separately.
-This topic explains how to rotate both CA certificates at the same time.
+### <a id="downtime"></a>Downtime
 
-### <a name="downtime"></a>About Downtime
+Depending on cluster topology, rotating `kubo_ca_2018` or `etcd_ca_2018` may cause cluster downtime while cluster nodes restart:
 
-For <%= vars.k8s_runtime_abbr %>-provisioned
-Kubernetes clusters with multiple master and worker nodes, the `kubo_ca_2018`
-and `etcd_ca_2018` CA certificates and their leaf certificates
-are rotated without downtime.
+* **Multiple control plane (master) and worker nodes**: No downtime
+* **Single control plane node**: Cluster control plane downtime
+* **Single worker node**: Workload downtime
 
-However, if your cluster has only one master node,
-the control plane of the cluster experiences downtime while BOSH
-redeploys the master node during the rotation procedure.
-Similarly, if your workloads run on a single worker node,
-they experience downtime while BOSH redeploys the single worker node.
-
-## <a id="prerequisites"></a>Prerequisites
+### <a id="prerequisites"></a>Prerequisites
 
 You must have the following:
 
@@ -57,7 +67,7 @@ The certificate rotation procedure
 with the CredHub Maestro CLI provided in this topic is intended only for
 Ops Manager v2.9. In later versions of Ops Manager, the procedure may change.
 
-## <a id="identify"></a>Retrieve the Cluster UUID
+### <a id="identify"></a>Retrieve the Cluster UUID
 
 This section describes how to retrieve the universally unique identifier (UUID)
 of a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster.
@@ -86,7 +96,7 @@ and `etcd_ca_2018` CA certificates and their leaf certificates for multiple clus
 locate all your target clusters in the output and record the UUIDs.
 1. Proceed to [Access CredHub Maestro on the Ops Manager VM](#access) below.
 
-## <a id="access"></a>Access CredHub Maestro on the Ops Manager VM
+### <a id="access"></a>Access CredHub Maestro on the Ops Manager VM
 
 This section describes how to access the CredHub Maestro CLI on the Ops Manager VM,
 identify your Kubernetes cluster deployments,
@@ -169,7 +179,7 @@ CA certificates and their leaf certificates for a
 
 1. Proceed to [Rotate the Certificates](#rotate) below.
 
-## <a id="rotate"></a>Rotate the Certificates
+### <a id="rotate"></a>Rotate the Certificates
 
 This section describes how to rotate the
 `kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf certificates
@@ -199,8 +209,6 @@ Kubernetes cluster:
     maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
     maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
     ```
-    
-    Where `CLUSTER-UUID` is the same cluster UUID as in the step above.
 
 1. Redeploy the cluster: 
     
@@ -211,7 +219,6 @@ Kubernetes cluster:
         ```
 
         Where:
-        * `CLUSTER-UUID` is the cluster UUID.
         * `PATH-TO-DEPLOYMENT-MANIFEST` is the location where you want to save
         the cluster deployment manifest. For example, `/tmp/manifest.yml`.
 
@@ -221,11 +228,6 @@ Kubernetes cluster:
         bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
         ```
 
-        Where:
-        * `CLUSTER-UUID` is the cluster UUID.
-        * `PATH-TO-DEPLOYMENT-MANIFEST` is the location where you saved
-        the cluster deployment manifest.
-
 1. After the cluster redeployment completes
 successfully, mark the signing version of each CA certificate as transitional:
  
@@ -234,7 +236,6 @@ successfully, mark the signing version of each CA certificate as transitional:
     maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
     ```
 
-    Where `CLUSTER-UUID` is the cluster UUID.
     This command also removes the transitional flag from the latest version of the
     CA certificates.
 
@@ -244,8 +245,6 @@ successfully, mark the signing version of each CA certificate as transitional:
     maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
     maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
     ```
-    
-    Where `CLUSTER-UUID` is the cluster UUID.
 
 1. Redeploy the cluster:
 
@@ -253,7 +252,6 @@ successfully, mark the signing version of each CA certificate as transitional:
     bosh -d service-instance_CLUSTER-UUID manifest > PATH-TO-DEPLOYMENT-MANIFEST
     bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
     ```
-    See step 3 above for more information about these commands.
 
 1. After the cluster redeployment completes
 successfully, remove the transitional flag:
@@ -263,8 +261,6 @@ successfully, remove the transitional flag:
     maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
     ```
 
-    Where `CLUSTER-UUID` is the cluster UUID.
-
 1. Redeploy the cluster:
 
     ```
@@ -272,4 +268,43 @@ successfully, remove the transitional flag:
     bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
     ```
 
-    See step 3 above for more information about these commands.
+## <a id="shared"></a>Rotate Shared Cluster Certificates
+
+<%= vars.k8s_runtime_abbr %> rotates shared cluster certificates automatically with each tile upgrade.
+Most of these have 4- or 5-year expiry periods,
+so users do not ordinarily need to rotate them.
+
+After a shared certificate is rotated, all clusters must be updated.
+If the certificate is also used by the <%= vars.k8s_runtime_abbr %> control plane,
+the <%= vars.k8s_runtime_abbr %> control plane must be redeployed as well.
+
+Special cases:
+
+- `tls_ca`: Shared by Kubernetes clusters, and also used by the <%= vars.k8s_runtime_abbr %> control plane and other Ops Manager products.
+  - To rotate `tls_ca` and update all <%= vars.k8s_runtime_abbr %> clusters and Ops Manager products,
+  see [Rotate a Single CA and Its Leaf Certificates](https://docs.pivotal.io/platform/security/pcf-infrastructure/advanced-certificate-rotation.html#single-rotation) in the Ops Manager documentation.
+  - This procedure requires Ops Manager v2.9 or later.
+
+- `kubo_odb_ca_2018`: Shared by Kubernetes clusters and the <%= vars.k8s_runtime_abbr %> control plane.
+  - If rotation needed, contact Support.
+
+- `tls_nsx_t`: Registered with the NSX Manager.
+  - If rotation needed, contact Support.
+
+  
+## <a id="control"></a>Rotate TKGI Control Plane Certificates
+
+<%= vars.k8s_runtime_abbr %> control plane and tile certificates are configurable and non-configurable certificates stored in CredHub.
+Rotate them as follows:
+
+* Rotate **configurable** certificates in the tile interface by entering new values
+and redeploying the tile.
+
+* **Non-configurable** certificates rotate automatically with each tile upgrade.
+Most of these have 4- or 5-year expiry periods,
+so users do not ordinarily need to rotate them.
+  - Follow Ops Man docs to rotate these if needed:
+  [Rotate a Single CA and Its Leaf Certificates](https://docs.pivotal.io/platform/security/pcf-infrastructure/advanced-certificate-rotation.html#single-rotation).
+  - This procedure requires Ops Manager v2.9 or later.
+
+For more information, see [Certificate Types](https://docs.pivotal.io/platform/security/pcf-infrastructure/certificate-types.html) in the Ops Manager documentation.
