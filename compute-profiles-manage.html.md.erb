@@ -26,93 +26,252 @@ and the <%= vars.k8s_runtime_abbr %> CLI to manage compute profiles.
 
 To create a compute profile in <%= vars.k8s_runtime_abbr %>, you:
 
-1. Define a compute profile in a JSON configuration file, following the [Compute Profile Format](#format) below.
+1. Define a compute profile in a JSON configuration file by
+following the [Compute Profile Format](#format) below.
 
-1. Use the <%= vars.k8s_runtime_abbr %> CLI to define the compute profile within <%= vars.k8s_runtime_abbr %>, as described in [The create-compute-profile Command](#run-create), below.
+1. Use the <%= vars.k8s_runtime_abbr %> CLI to define the compute profile
+within <%= vars.k8s_runtime_abbr %>. For instructions, see
+[The create-compute-profile Command](#run-create) below.
 
 ### <a id="format"></a> Compute Profile Format
 
-To create a compute profile, you must first define it as a JSON file that specifies network parameters, listed in [Compute Profile Parameters](#params) below.
+To create a compute profile, you must first define it as a JSON file that
+specifies compute parameters, which are listed in
+[Compute Profile Parameters](#params) below.
 
-Here is an example compute profile that includes all available parameters.
-
-<p class="note"><strong>Note:</strong> This example compute profile is for illustration purposes only. It is not intended to be used as a template for compute profile definition.</p>
+Compute profiles support the following top-level properties:
 
 ```
 {
- "name": "my-compute-profile",
- "description": "my compute profile description",
- "parameters": {
-  "AZs" : [
-   {
-     "name": "az-name",
-     "cloud_properties": {}
-   }
- ],
- "cluster_customization": {
-   "control_plane": 
-     {
-       "vm_resources": {
-         "cpu" : 4,
-         "memory" : 4098,
-         "disk" : 8196
-       },
-       "azs": ["az-1", "az-2"],
-       "instances" : 2,
-     "resource_label": "small"
-     },
-   "nodes": [
-     {
-       "vm_resources": {
-         "cpu" : 2,
-         "memory" : 2048,
-         "disk" : 8196
-       },
-       "azs": ["az-1", "az-2"],
-       "resource_label": "node1",
-       "Instances" : 2
-     },
-{
-       "vm_resources": {
-         "cpu" : 2,
-         "memory" : 2048,
-         "disk" : 8196
-       },
-       "azs": ["az-1", "az-2"],
-       "resource_label": "node2",
-       "Instances" : 2
-     }
-   ]
- }
-} 
+  "name": "my-compute-profile",
+  "description": "my compute profile description",
+  "parameters": {
+    "azs": [{
+      "name": "az-name",
+      "cloud_properties": {}
+    }],
+    "cluster_customization": {
+      "control_plane": {},
+      "node_pools": [{}]
+    }
+  }
 }
+```
 
+Below is an example compute profile.
+
+<p class="note"><strong>Note:</strong> This example compute profile is for
+illustration purposes only. It is not intended to be used as a template for
+compute profile definition.</p>
+
+```
+{
+  "name": "my-compute-profile",
+  "description": "my compute profile description",
+  "parameters": {
+    "azs": [{
+      "name": "az-name",
+      "cloud_properties": {}
+    }],
+    "cluster_customization": {
+      "control_plane": {
+        "cpu": 4,
+        "memory_in_mb": 4098,
+        "ephemeral_disk_in_mb": 8196,
+        "persistent_disk_in_mb": 4096,
+        "az_names": ["az-1", "az-2"],
+        "instances": 2
+      },
+      "node_pools": [{
+          "cpu": 2,
+          "memory_in_mb": 2048,
+          "ephemeral_disk_in_mb": 8196,
+          "persistent_disk_in_mb": 4096,
+          "az_names": ["az-1", "az-2"],
+          "name": "node1",
+          "instances": 2
+        },
+        {
+          "cpu": 2,
+          "memory_in_mb": 2048,
+          "ephemeral_disk_in_mb": 8196,
+          "persistent_disk_in_mb": 4096,
+          "az_names": ["az-1", "az-2"],
+          "name": "node2",
+          "instances": 2
+        }
+      ]
+    }
+  }
+}
 ```
 
 ### <a id="params"></a> Compute Profile Parameters
 
-The compute profile JSON can include the following top-level parameters:
+The compute profile JSON configuration file can include the following top-level
+properties:
 
-Parameter 					| Type 		| Description 
-----------------------------|-----------|-----------------------------
-| `name` 					| String 	| Name of the compute profile. 
-| `description` 			| String 	| Description of the compute profile. 
-| `parameters` 				| Map 		| One or more name-value pairs. 
-| `AZs` 				| Map 	| Pairs defining AZ name with `cloud_properties` settings.
-| `cluster_customization`		| Map 	| `vm_resources` settings for Kubernetes cluster nodes. 
-| `control_plane`		| JSON 	| Settings for Kubernetes control plane node.
-| `nodes`		| Map 	| `vm_resources` settings for worker nodes.
-| `vm_resources`		| Map 	| Settings for `cpu`, `memory`, and `disk`.
-| `azs` 			| List 	| AZs where node instances run`. 
-| `instances` 			| Integer 	| Number of node instances. 
+<table>
+  <tr>
+    <th width="28%">Property</th>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>name</code></td>
+    <td>String</td>
+    <td>Name of the compute profile. You use this name when managing the 
+    compute profile or assigning the profile to a Kubernetes cluster through
+    the TKGI CLI.</td>
+  </tr>
+  <tr>
+    <td><code>description</code></td>
+    <td>String</td>
+    <td>Description of the compute profile.</td>
+  </tr>
+  <tr>
+    <td><code>parameters</code></td>
+    <td></td>
+    <td>Set of properties defining the main body of the compute profile
+    such as <code>azs</code> and <code>cluster_customization</code>.</td>
+  </tr>
+  <tr>
+    <td><code>azs</code></td>
+    <td></td>
+    <td>Properties defining AZ name and <code>cloud_properties</code> settings.
+    See <a href="#cloud-properties">cloud_properties Block</a> below.</td>
+  </tr>
+  <tr>
+    <td><code>cluster_customization</code></td>
+    <td></td>
+    <td>Properties defining <code>control_plane</code> and <code>node_pools</code>.</td>
+  </tr>
+  <tr>
+    <td><code>control_plane</code></td>
+    <td></td>
+    <td>Settings for Kubernetes control plane node instances.
+     See <a href="#control-plane">control_plane Block</a> below.</td>
+  </tr>
+  <tr>
+    <td><code>node_pools</code></td>
+    <td></td>
+    <td>Settings for worker node instances. See <a href="#node-pools">node_pools Block</a>
+    below.</td>
+  </tr>
+</table>
 
-The compute profile JSON accepts the following parameters for `vm_resources`:
+#### <a id="cloud-properties"></a>`cloud_properties` Block
 
-Parameter 							| Type 		| Description 
-------------------------------------|-----------|-----------------------------
-| `cpu` 			| Integer 	| CPU count for node instance. 
-| `memory` 	| Integer 	| RAM for node instance, in MB. 
-| `disk` 				| Integer 	| Total disk (persistent plus ephemeral) for node instance, in MB.
+<table>
+  <tr>
+    <th width="28%">Property</th>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+    <td>TBD</td>
+    <td>TBD</td>
+    <td>TBD</td>
+  </tr>
+</table>
+
+#### <a id="control-plane"></a>`control_plane` Block
+
+This block defines properties for Kubernetes control plane node instances.
+
+When defining the `control_plane` block,
+you must specify either `cpu`, `memory_in_mb`,
+`ephemeral_disk_in_mb`, and `persistent_disk_in_mb` or none of the four.
+
+<table>
+  <tr>
+    <th width="30%">Property</th>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>cpu</code></td>
+    <td>Integer</td>
+    <td>CPU count for control plane instances.</td>
+  </tr>
+  <tr>
+    <td><code>memory_in_mb</code></td>
+    <td>Integer</td>
+    <td>RAM for control plane instances.</td>
+  </tr>
+  <tr>
+    <td><code>ephemeral_disk_in_mb</code></td>
+    <td>Integer</td>
+    <td>Ephemeral disk for control plane instances.</td>
+  </tr>
+  <tr>
+    <td><code>persistent_disk_in_mb</code></td>
+    <td>Integer</td>
+    <td>Persistent disk for control plane instances.</td>
+  </tr>
+  <tr>
+    <td><code>az_names</code></td>
+    <td></td>
+    <td>AZs where control plane instances run.</td>
+  </tr>
+  <tr>
+    <td><code>instances</code></td>
+    <td>Integer</td>
+    <td>Number of control plane instances.</td>
+  </tr>
+</table>
+
+Do not assign the `name` property to this block.
+
+#### <a id="node-pools"></a>`node_pools` Block
+
+This block defines properties for each Kubernetes worker node.
+
+When defining the `node_pools` block,
+you must specify either `cpu`, `memory_in_mb`,
+`ephemeral_disk_in_mb`, and `persistent_disk_in_mb` or none of the four.
+
+<table>
+  <tr>
+    <th width="30%">Property</th>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>cpu</code></td>
+    <td>Integer</td>
+    <td>CPU count for worker node instances.</td>
+  </tr>
+  <tr>
+    <td><code>memory_in_mb</code></td>
+    <td>Integer</td>
+    <td>RAM for worker node instances.</td>
+  </tr>
+  <tr>
+    <td><code>ephemeral_disk_in_mb</code></td>
+    <td>Integer</td>
+    <td>Ephemeral disk for worker node instances.</td>
+  </tr>
+  <tr>
+    <td><code>persistent_disk_in_mb</code></td>
+    <td>Integer</td>
+    <td>Persistent disk for worker node instances.</td>
+  </tr>
+  <tr>
+    <td><code>az_names</code></td>
+    <td></td>
+    <td>AZs where worker node instances run.</td>
+  </tr>
+  <tr>
+    <td><code>name</code></td>
+    <td>String</td>
+    <td>Name of the worker node.</td>
+  </tr>
+  <tr>
+    <td><code>instances</code></td>
+    <td>Integer</td>
+    <td>Number of worker node instances.</td>
+  </tr>
+</table>
 
 ### <a id="run-create"></a> The create-compute-profile Command
 
