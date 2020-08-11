@@ -1,0 +1,80 @@
+---
+title: Installing Minio, Valero, and Restic
+owner: TKGI
+---
+
+This topic describes how to install Minio, Valero and Restic for the purposes of backing up and restoring Kubernetes workloads.
+
+##<a id="prerequisites"></a> Prerequisite: Object Store
+
+You need to provide an object store for Valero backups and Restic snapshots. Valero supports a number of [object store providers](https://velero.io/docs/v1.4/supported-providers/). The examples provided in this documentation use the Minio server as a backup destination. Minio is an Amazon S3 compatible object store that is easy to install, configure, and use.
+
+##<a id="minio-deploy"></a> Deploy Minio Object Store as a Backup Destination for Valero and Restic
+
+We are going to deploy Minio on a Linux Ubuntu VM by following the [Minio quick start guide](https://docs.min.io/docs/minio-quickstart-guide.html). 
+
+### <a id='minio-install'></a> Install Minio
+
+```
+wget https://dl.min.io/server/minio/release/linux-amd64/minio
+```
+
+```
+chmod +x minio
+```
+
+Create directory where Minio data will be stored:
+
+```
+mkdir /DATA-MINIO
+```
+
+### <a id='minio-start'></a> Start Minio
+
+Start the Minio server:
+
+```
+./minio server /DATA-MINIO
+```
+
+Once the Minio server is started, you are provided with the endpoint URL, AccessKey, and ScretKey for the data store. Record this information.
+
+Check the Minio browser using the URL.
+
+### <a id='minio-service'></a> Enable Minio as a Service
+
+Configure Minio for automatic startup using systemctl:
+
+```
+curl -O https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service
+```
+
+Edit minio.service with the ExecStart=/usr/local/bin/minio server /DATA-MINIO path.
+
+```
+cp minio.service /etc/systemd/system
+cp minio /usr/local/bin/
+systemctl daemon-reload
+systemctl start  minio
+systemctl status minio
+systemctl enable minio
+```
+
+### <a id='minio-create'></a> Create Minio Bucket for TKGI
+
+1. Create the bucket tkgi-velero.
+1. Click on the red button and then select create bucket.
+1. Enter bucket name: tkgi-velero
+1. Verify that the bucket is created.
+
+### <a id='minio-config'></a> Configure Minio Bucket for TKGI
+
+By default, the policy for this new bucket (tkgi-velero) is read-only. Let's change it to read-write:
+
+1. Select the bucket and then click on the dots link.
+1. Select Edit Policy.
+1. Change from read-only to read and write.
+1. Click on Add.
+1. Click on the X button to close the dialog box.
+
+
