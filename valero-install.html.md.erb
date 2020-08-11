@@ -5,13 +5,13 @@ owner: TKGI
 
 This topic describes how to install Minio, Valero and Restic for the purposes of backing up and restoring Kubernetes workloads.
 
-##<a id="prerequisites"></a> Prerequisite: Object Store
+##<a id="requirements"></a> Requirements
 
-You need to provide an object store for Valero backups and Restic snapshots. Valero supports a number of [object store providers](https://velero.io/docs/v1.4/supported-providers/). The examples provided in this documentation use the Minio server as a backup destination. Minio is an Amazon S3 compatible object store that is easy to install, configure, and use.
+Make sure you have read the prerequisties.
 
-##<a id="minio-deploy"></a> Deploy Minio Object Store as a Backup Destination for Valero and Restic
+##<a id="minio-deploy"></a> Deploy Minio
 
-We are going to deploy Minio on a Linux Ubuntu VM by following the [Minio quick start guide](https://docs.min.io/docs/minio-quickstart-guide.html). 
+Install and Configure Minio Object Store as a Backup Destination for Valero and Restic. We are going to deploy Minio on a Linux Ubuntu VM by following the [Minio quick start guide](https://docs.min.io/docs/minio-quickstart-guide.html). 
 
 ### <a id='minio-install'></a> Install Minio
 
@@ -76,5 +76,250 @@ By default, the policy for this new bucket (tkgi-velero) is read-only. Let's cha
 1. Change from read-only to read and write.
 1. Click on Add.
 1. Click on the X button to close the dialog box.
+
+##<a id="valero-deploy"></a> Deploy Valero with Restic
+
+Install the Valero CLI and create the Valero and Restic pods.
+
+### <a id='valero-download'></a> Download Velero
+
+Run the following commands on the TKGI client VM or local client to download Valero.
+
+Create a directory.
+
+```
+mkdir /DATA/BINARIES/VELERO/1-4-2
+```
+
+CD to the directory.
+
+```
+cd /DATA/BINARIES/VELERO/1-4-2
+```
+
+Verify the directory.
+
+```
+pwd
+
+/DATA/BINARIES/VELERO/1-4-2 
+```
+
+Download Valero:
+
+```
+wget https://github.com/vmware-tanzu/velero/releases/download/v1.4.2/velero-v1.4.2-linux-amd64.tar.gz
+```
+
+Verify: download:
+
+```
+ls
+velero-v1.4.2-linux-amd64.tar.gz
+```
+
+Unzip the file:
+
+```
+gunzip velero-v1.4.2-linux-amd64.tar.gz
+```
+Untar the file:
+
+```
+tar xvf velero-v1.4.2-linux-amd64.tar
+```
+
+Verify that the CLI and Valero package are present:
+
+```
+ls
+
+velero-v1.4.2-linux-amd64  velero-v1.4.2-linux-amd64.tar
+```
+
+### <a id='valero-cli-install'></a> Install the Velero CLI
+
+Install Velero on TKIG client or on your local machine.
+
+CD to the Velero CLI download.
+
+```
+cd velero-v1.4.2-linux-amd64/
+```
+
+Check for the binary:
+
+```
+ls
+
+examples  LICENSE  velero
+```
+
+Copy the CLI to /usr/local/bin.
+
+```
+cp velero /usr/local/bin/velero
+```
+
+Verify installation:
+
+```
+velero version
+
+Client:
+    Version: v1.4.2
+    Git commit: 56a08a4d695d893f0863f697c2f926e27d70c0c5
+```
+
+### <a id='valero-cluster-install'></a> Install Velero and Restic on the Kubernetes Cluster
+
+Install the Valero and Restic pods on each Kubernetes cluster whose workloads you want to backup. The instructions for installaing Valero and Restic depend on the type of object store. Since we are using Minio for this implemnentation, the instrutions are here: https://velero.io/docs/main/contributions/minio/.
+
+#### Prerequisites
+
+Before installing Valero and Restic on the Kubernetes cluster:
+
+- Get the name of the Minio bucket; it is `tkgi-valero` in our example
+- Get the keys for the Minio bucket, for example: 
+  - AccessKey: 0XXNO8JCCGV41QZBV0RQ
+  - SecretKey: SecretKey: clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx
+- Make sure `kubectl` works against the cluster (use `tkgi get-credentials` if needed)
+
+#### Procedure
+
+Create the `credentials-minio` with credentials to access the Minio server.
+
+```
+CD /DATA/BINARIES/VELERO/1-4-2/velero-v1.4.2-linux-amd64
+
+vi credentials-minio
+
+aws_access_key_id = 0XXNO8JCCGV41QZBV0RQ
+
+aws_secret_access_key = clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx
+```
+
+Verify:
+
+```
+ls
+
+credentials-minio  examples  LICENSE  velero
+```
+
+Run the following command to install Valero on the Kubernetes cluster:
+
+```
+    velero install  \
+    --provider aws \
+    --plugins velero/velero-plugin-for-aws:v1.0.0 \
+    --bucket tkgi-velero \
+    --secret-file ./credentials-minio \
+    --use-volume-snapshots=false \
+    --use-restic \
+    --backup-location-config \
+    region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
+```
+
+For example:
+
+
+```
+root@PKS-client-VM-WA:/DATA/BINARIES/VELERO/1-4-2/velero-v1.4.2-linux-amd64#     velero install  \
+>     --provider aws \
+>     --plugins velero/velero-plugin-for-aws:v1.0.0 \
+>     --bucket tkgi-velero \
+>     --secret-file ./credentials-minio \
+>     --use-volume-snapshots=false \
+>     --use-restic \
+>     --backup-location-config \
+>     region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
+```
+
+Expected result:
+
+```
+CustomResourceDefinition/backups.velero.io: attempting to create resource
+CustomResourceDefinition/backups.velero.io: created
+...
+Waiting for resources to be ready in cluster...
+...
+Deployment/velero: attempting to create resource
+Deployment/velero: created
+DaemonSet/restic: attempting to create resource
+DaemonSet/restic: created
+Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
+
+
+Verify the installation of Valero and Restic:
+
+```
+kubectl logs deployment/velero -n velero
+
+time="2020-07-21T21:05:53Z" level=info msg="setting log-level to INFO" logSource="pkg/cmd/server/server.go:177"
+time="2020-07-21T21:05:53Z" level=info msg="Starting Velero server v1.4.2 (56a08a4d695d893f0863f697c2f926e27d70c0c5)" logSource="pkg/cmd/server/server.go:179"
+time="2020-07-21T21:05:53Z" level=info msg="1 feature flags enabled []" logSource="pkg/cmd/server/server.go:181"
+...
+time="2020-07-21T21:05:59Z" level=info msg="Starting controller" controller=gc-controller logSource="pkg/controller/generic_controller.go:76"
+time="2020-07-21T21:05:59Z" level=info msg="Starting controller" controller=backup logSource="pkg/controller/generic_controller.go:76"
+time="2020-07-21T21:05:59Z" level=info msg="Done checking for expired DeleteBackupRequests" controller=backup-deletion logSource="pkg/controller/backup_deletion_controller.go:579"
+```
+
+```
+root@PKS-client-VM-WA:/DATA/BINARIES/VELERO/1-4-2/velero-v1.4.2-linux-amd64# kubectl get ns
+NAME              STATUS   AGE
+default           Active   13d
+kube-node-lease   Active   13d
+kube-public       Active   13d
+kube-system       Active   13d
+pks-system        Active   13d
+velero            Active   2m38s
+```
+
+#### Configure Valero and Restic for TKGI
+
+Fix Restic pods crashloopback issue. Restic POD in CrashLoopBackOff. At this point in time, the 3 RESTIC PODs in Crashloopback mode is expected: from: https://velero.io/docs/v1.1.0/restic/ "Please note: For some PaaS/CaaS platforms based on Kubernetes such as RancherOS, OpenShift and Enterprise PKS, some modifications are required to the restic DaemonSet spec."
+
+This means that for TKGI, you need to enable the Allow Privileged option in your plan configuration so that restic is able to mount the hostpath. The hostPath should be changed from /var/lib/kubelet/pods to /var/vcap/data/kubelet/pods. You're now ready to use Velero with restic."
+
+Verify: 
+
+```
+kubectl get pod -n velero
+NAME                          READY   STATUS             RESTARTS   AGE
+pod/restic-p5bdz              0/1     CrashLoopBackOff   4          3m8s
+pod/restic-rbmnd              0/1     CrashLoopBackOff   4          3m8s
+pod/restic-vcpjm              0/1     CrashLoopBackOff   4          3m8s
+pod/velero-68f47744f5-lb5df   1/1     Running            0          3m8s
+```
+
+Run the following command:
+
+```
+kubectl edit daemonset restic -n velero
+```
+
+Change hostPath from /var/lib/kubelet/pods to /var/vcap/data/kubelet/pods:
+
+```
+     - hostPath:
+
+          path: /var/vcap/data/kubelet/pods
+```
+
+
+
+Check:
+
+```
+kubectl get pod -n velero
+
+NAME                      READY   STATUS    RESTARTS   AGE
+restic-5jln8              1/1     Running   0          73s
+restic-bpvtq              1/1     Running   0          73s
+restic-vg8j7              1/1     Running   0          73s
+velero-68f47744f5-lb5df   1/1     Running   0          10m
+```
+
 
 
