@@ -171,7 +171,7 @@ Client:
     Git commit: 56a08a4d695d893f0863f697c2f926e27d70c0c5
 ```
 
-### <a id='valero-cluster-install'></a> Install Velero and Restic on the Kubernetes Cluster
+### <a id='valero-cluster-install'></a> Install Velero and Restic on a Kubernetes Cluster
 
 Install the Valero and Restic pods on each Kubernetes cluster whose workloads you want to backup. The instructions for installaing Valero and Restic depend on the type of object store. Since we are using Minio for this implemnentation, the instrutions are here: https://velero.io/docs/main/contributions/minio/.
 
@@ -265,8 +265,11 @@ time="2020-07-21T21:05:59Z" level=info msg="Starting controller" controller=back
 time="2020-07-21T21:05:59Z" level=info msg="Done checking for expired DeleteBackupRequests" controller=backup-deletion logSource="pkg/controller/backup_deletion_controller.go:579"
 ```
 
+Verify the `velero` namespace.
+
 ```
-root@PKS-client-VM-WA:/DATA/BINARIES/VELERO/1-4-2/velero-v1.4.2-linux-amd64# kubectl get ns
+kubectl get ns
+
 NAME              STATUS   AGE
 default           Active   13d
 kube-node-lease   Active   13d
@@ -276,16 +279,17 @@ pks-system        Active   13d
 velero            Active   2m38s
 ```
 
-#### Configure Valero and Restic for TKGI
+#### Enable Allow Privileged and Modify the Host Path
 
-Fix Restic pods crashloopback issue. Restic POD in CrashLoopBackOff. At this point in time, the 3 RESTIC PODs in Crashloopback mode is expected: from: https://velero.io/docs/v1.1.0/restic/ "Please note: For some PaaS/CaaS platforms based on Kubernetes such as RancherOS, OpenShift and Enterprise PKS, some modifications are required to the restic DaemonSet spec."
+To run the 3-pod Restic DaemonSet on a Kubernetes cluster in TKGI, you must modif the Restic DaemonSet spec. For more information as to why, see this section of the Restic documentation. https://velero.io/docs/v1.1.0/restic/
 
-This means that for TKGI, you need to enable the Allow Privileged option in your plan configuration so that restic is able to mount the hostpath. The hostPath should be changed from /var/lib/kubelet/pods to /var/vcap/data/kubelet/pods. You're now ready to use Velero with restic."
+For TKGI, you must enable the **Allow Privileged** option in your plan configuration so that Restic is able to mount the hostPath. In addition, the hostPath should be changed from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`.
 
-Verify: 
+Verify the 3-pod Restic DaemonSet: 
 
 ```
 kubectl get pod -n velero
+
 NAME                          READY   STATUS             RESTARTS   AGE
 pod/restic-p5bdz              0/1     CrashLoopBackOff   4          3m8s
 pod/restic-rbmnd              0/1     CrashLoopBackOff   4          3m8s
@@ -293,13 +297,13 @@ pod/restic-vcpjm              0/1     CrashLoopBackOff   4          3m8s
 pod/velero-68f47744f5-lb5df   1/1     Running            0          3m8s
 ```
 
-Run the following command:
+1. Run the following command:
 
 ```
 kubectl edit daemonset restic -n velero
 ```
 
-Change hostPath from /var/lib/kubelet/pods to /var/vcap/data/kubelet/pods:
+1. Change hostPath from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`:
 
 ```
      - hostPath:
@@ -307,9 +311,9 @@ Change hostPath from /var/lib/kubelet/pods to /var/vcap/data/kubelet/pods:
           path: /var/vcap/data/kubelet/pods
 ```
 
+1. Save the file.
 
-
-Check:
+1. Verify the 3-pod Restic DaemonSet: 
 
 ```
 kubectl get pod -n velero
