@@ -1,13 +1,13 @@
 ---
-title: Backup and Restore StatefulSet App with Namespace
+title: Backup and Restore StatefulSet App with Label
 owner: TKGI
 ---
 
-This topic describes how to use Valero to backup and restore a statefulset application with namepsace.
+This topic describes how to use Valero to backup and restore a statefulset application with label.
 
 ##<a id="overview"></a> Overview
 
-This example demonstrates Velero backup and restore for a statefulset application with namespace. The CassandraDB app is used for demonstrating backup and restore with Velero.
+This example demonstrates Velero backup and restore for a statefulset application with label selector. The CassandraDB app is used for demonstrating stateful backup and restore with Velero.
 
 When restoring a stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster. If the PVC was using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
 
@@ -15,7 +15,7 @@ When restoring a stateful application using Velero, the Storage Class that was u
 
 [Install and configure](./velero-install.html) Minio, Velero, and Restic.
 
-The application we are going to use to test backup/restore with Velero is the CassandraDB statefulset app. Download the Cassandra app YAML files availalble [here](https://github.com/cormachogan/vsphere-storage-101/tree/master/StatefulSets).
+The application we are going to use to demonstrate Velero backup and restore is the CassandraDB statefulset app. Download the following [Cassandra app YAML files]: (https://github.com/cormachogan/vsphere-storage-101/tree/master/StatefulSets).
 
 - cassandra-storageclass.yaml
 - headless-cassandra-service.yaml
@@ -54,6 +54,9 @@ demo-sts-sc   kubernetes.io/vsphere-volume   Delete          Immediate          
 
 ## <a id='cassandra-deploy'></a> Deploy CassandraDB App
 
+By default all the objects related to CassandraDB app have the same and common label: `app=cassandra`. Unlike the Guestbook app, you do not need to create a new label that is common to all Kubernetes objects for this app.
+
+
 Create the namespace:
 
 ```
@@ -78,37 +81,27 @@ kubectl apply -f cassandra-statefulset.yaml -n cassandra
 statefulset.apps/cassandra created
 ```
 
-Verfiy:
+Verfiy the CassandraDB app:
 
 ```
-kubectl get all -n cassandra
+kubectl get all -n cassandra --show-labels
+NAME              READY   STATUS    RESTARTS   AGE     LABELS
+pod/cassandra-0   1/1     Running   0          2m24s   app=cassandra,controller-revision-hash=cassandra-559df6f5c,statefulset.kubernetes.io/pod-name=cassandra-0
+pod/cassandra-1   1/1     Running   0          103s    app=cassandra,controller-revision-hash=cassandra-559df6f5c,statefulset.kubernetes.io/pod-name=cassandra-1
+pod/cassandra-2   0/1     Running   0          29s     app=cassandra,controller-revision-hash=cassandra-559df6f5c,statefulset.kubernetes.io/pod-name=cassandra-2
 
-NAME              READY   STATUS    RESTARTS   AGE
-pod/cassandra-0   1/1     Running   0          5m16s
-pod/cassandra-1   1/1     Running   0          4m25s
-pod/cassandra-2   1/1     Running   0          2m52s
+NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE     LABELS
+service/cassandra   ClusterIP   None         <none>        <none>    2m28s   app=cassandra
 
-NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
-service/cassandra   ClusterIP   None         <none>        <none>    5m21s
-
-NAME                         READY   AGE
-statefulset.apps/cassandra   3/3     5m16s
+NAME                         READY   AGE     LABELS
+statefulset.apps/cassandra   2/3     2m24s   app=cassandra
 ```
+
+Verify PVC and PV:
 
 ```
 kubectl get pvc,pv -n cassandra
-
-NAME                                               STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-persistentvolumeclaim/cassandra-data-cassandra-0   Bound    pvc-394770b3-64ba-4c35-af0c-f76a52695b25   100Gi      RWO            demo-sts-sc    5m46s
-persistentvolumeclaim/cassandra-data-cassandra-1   Bound    pvc-5e0e4935-472e-46de-bba2-91d06d301f3b   100Gi      RWO            demo-sts-sc    4m55s
-persistentvolumeclaim/cassandra-data-cassandra-2   Bound    pvc-cc4d55c4-b794-4a9f-871f-365ec0c3ad50   100Gi      RWO            demo-sts-sc    3m22s
-
-NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                  STORAGECLASS   REASON   AGE
-persistentvolume/pvc-394770b3-64ba-4c35-af0c-f76a52695b25   100Gi      RWO            Delete           Bound    cassandra/cassandra-data-cassandra-0   demo-sts-sc             5m46s
-persistentvolume/pvc-5e0e4935-472e-46de-bba2-91d06d301f3b   100Gi      RWO            Delete           Bound    cassandra/cassandra-data-cassandra-1   demo-sts-sc             4m54s
-persistentvolume/pvc-cc4d55c4-b794-4a9f-871f-365ec0c3ad50   100Gi      RWO            Delete           Bound    cassandra/cassandra-data-cassandra-2   demo-sts-sc             3m22s
 ```
-
 
 Make sure CassandraDB instances are fully participating in the cluster:
 
@@ -120,13 +113,12 @@ Datacenter: Demo-DataCenter
 Status=Up/Down
 |/ State=Normal/Leaving/Joining/Moving
 --  Address     Load       Tokens       Owns (effective)  Host ID                               Rack
-UN  172.16.1.2  104.42 KiB  32           69.1%             6670d501-ce1a-41a6-b0ab-e5654be90d05  Demo-Rack
-UN  172.16.1.3  75.87 KiB  32           60.8%             d4c65f54-6ba0-4caa-8b0c-9a2b945cb05c  Demo-Rack
-UN  172.16.1.4  81.09 KiB  32           70.1%             fb0cca97-eb35-4e69-ad87-09ab18f739b2  Demo-Rack
+UN  172.16.1.2  104.41 KiB  32           68.0%             06df61ac-135c-406c-a1f1-d9937de38b9d  Demo-Rack
+UN  172.16.1.3  94.96 KiB  32           75.7%             a49a5c78-85be-411f-a0b9-e28ff35fd918  Demo-Rack
+UN  172.16.1.4  81.1 KiB   32           56.4%             85d124ee-0217-49e8-b56c-e13736038f02  Demo-Rack
 ```
 
-## <a id='guestbook-br-ns'></a> Create and Populate a Database and Table in Cassandra
-
+## <a id='cassandra-db'></a> Create and Populate a Database and Table in Cassandra
 
 Create the DB:
 
@@ -238,29 +230,33 @@ kubectl -n cassandra describe pod/cassandra-2 | grep Annotations
 Annotations:  backup.velero.io/backup-volumes: cassandra-data
 ```
 
-## <a id='cassandra-backup'></a> Backup the CassandraDB App using Namespace
+## <a id='cassandra-backup'></a> Backup the CassandraDB App Using Label
 
 Perform the Velero backup:
 
 ```
-velero backup create cassandra-backup --include-namespaces cassandra
+velero backup create cassandra-label-backup --selector app=cassandra
+Backup request "cassandra-label-backup" submitted successfully.
 
-Backup request "cassandra-backup" submitted successfully.
-Run `velero backup describe cassandra-backup` or `velero backup logs cassandra-backup` for more details.
+Run `velero backup describe cassandra-label-backup` or `velero backup logs cassandra-label-backup` for more details.
 ```
 
 Verify the backup:
 
 ```
-velero backup create cassandra-backup --include-namespaces cassandra
+velero backup get
 
-Backup request "cassandra-backup" submitted successfully.
-Run `velero backup describe cassandra-backup` or `velero backup logs cassandra-backup` for more details.
+NAME                     STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+cassandra-label-backup   Completed   0        0          2020-07-29 09:48:49 -0700 PDT   29d       default            app=cassandra
+
 ```
 
+View backup details:
+
 ```
-velero backup describe cassandra-backup --details
-Name:         cassandra-backup
+velero backup describe cassandra-label-backup --details
+
+Name:         cassandra-label-backup
 Namespace:    velero
 Labels:       velero.io/storage-location=default
 Annotations:  velero.io/source-cluster-k8s-gitversion=v1.17.8+vmware.1
@@ -280,17 +276,7 @@ Restic Backups:
     cassandra/cassandra-2: cassandra-data
 ```
 
-
-Get the backup:
-
-```
-velero backup get
-
-NAME               STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
-cassandra-backup   Completed   0        0          2020-07-29 08:26:18 -0700 PDT   29d       default            <none>
-```
-
-Use the Velero CRD commands to verify:
+Use Velero CRD commands to further verify the backup:
 
 ```
 kubectl get crd
@@ -298,20 +284,21 @@ kubectl get crd
 
 ```
 kubectl get backups.velero.io -n velero
-NAME               AGE
-cassandra-backup   94s
+
+NAME                     AGE
+cassandra-label-backup   96s
 ```
 
 ```
-kubectl describe backups.velero.io cassandra-backup -n velero
+kubectl describe backups.velero.io cassandra-label-backup -n velero
 ```
 
 ## <a id='cassandra-restore'></a> Restore the CassandraDB App
 
 Restore the CassandraDB app from the Velero backup. Note the following about the restore operation:
 
-- Pod annotation is still required for Velero backup of PV
-- The namespace 'cassandra' was automatically re-created
+- Pod annotation is required to restore a Velero backup of a persitent volume (PV)
+- The namespace 'cassandra' is automatically recreated during the restoration
 
 
 Delete the namespace:
@@ -321,7 +308,7 @@ kubectl delete ns cassandra
 namespace "cassandra" deleted
 ```
 
-Verify that Cassandra resources are deleted:
+Confirm that Cassandra resources are deleted:
 
 ```
 kubectl get ns
@@ -337,6 +324,7 @@ velero            Active   7d18h
 
 ```
 kubectl get pvc,pv --all-namespaces
+
 No resources found
 ```
 
@@ -349,27 +337,35 @@ NAME          PROVISIONER                    RECLAIMPOLICY   VOLUMEBINDINGMODE  
 demo-sts-sc   kubernetes.io/vsphere-volume   Delete          Immediate           false                  36m
 ```
 
-Restore the CassandraDB app from the backup:
+Restore the CassandraDB app from the Velero backup:
 
 ```
-velero restore create --from-backup cassandra-backup
+velero restore create --from-backup cassandra-label-backup
 
-Restore request "cassandra-backup-20200729083742" submitted successfully.
-Run `velero restore describe cassandra-backup-20200729083742` or `velero restore logs cassandra-backup-20200729083742` for more details.
+Restore request "cassandra-label-backup-20200729095415" submitted successfully.
+Run `velero restore describe cassandra-label-backup-20200729095415` or `velero restore logs cassandra-label-backup-20200729095415` for more details.
 ```
 
 Verify that the app is restored:
 
 ```
-velero restore describe cassandra-backup-20200729083742
-Name:         cassandra-backup-20200729083742
+velero restore get
+
+NAME                                    BACKUP                   STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+cassandra-label-backup-20200729095415   cassandra-label-backup   Completed   0        0          2020-07-29 09:54:15 -0700 PDT   <none>
+```
+
+```
+velero restore describe cassandra-label-backup-20200729095415
+
+Name:         cassandra-label-backup-20200729095415
 Namespace:    velero
 Labels:       <none>
 Annotations:  <none>
 
 Phase:  Completed
 
-Backup:  cassandra-backup
+Backup:  cassandra-label-backup
 
 Namespaces:
   Included:  all namespaces found in the backup
@@ -391,44 +387,26 @@ Restic Restores (specify --details for more information):
 ``` 
 
 ```
-velero restore get
-
-NAME                              BACKUP             STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
-cassandra-backup-20200729083742   cassandra-backup   Completed   0        0          2020-07-29 08:37:42 -0700 PDT   <none>
-```
-
-```
 kubectl get ns
 
 NAME              STATUS   AGE
-cassandra         Active   80s
+cassandra         Active   79s
 default           Active   21d
 kube-node-lease   Active   21d
 kube-public       Active   21d
 kube-system       Active   21d
 pks-system        Active   21d
-velero            Active   7d18h
+velero            Active   7d19h
 ```
 
 ```
-kubectl get all -n cassandra
-
-NAME              READY   STATUS    RESTARTS   AGE
-pod/cassandra-0   1/1     Running   0          2m6s
-pod/cassandra-1   1/1     Running   2          2m6s
-pod/cassandra-2   1/1     Running   2          2m6s
-
-NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
-service/cassandra   ClusterIP   None         <none>        <none>    2m6s
-
-NAME                         READY   AGE
-statefulset.apps/cassandra   3/3     2m6s
+kubectl get all -n cassandra --show-labels
 ```
 
 Verify the persistent volume:
 
 ```
-kubectl get pvc,pv -n cassandra
+kubectl get pvc,pv -n cassandra --show-labels
 ```
 
 Check the content of each Cassandra DB instance:
@@ -447,8 +425,7 @@ cqlsh:demodb> select * from emp;
     100 |     Cork |      Tom |       999 | 1000000
     102 |    Paris |     Lara |      1001 | 1000000
     101 |       NY |   Andrew |      1000 | 1000000
-
-(3 rows)
+```
 
 ```
 kubectl exec -it cassandra-1 -n cassandra -- cqlsh
