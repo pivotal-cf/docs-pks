@@ -1,0 +1,31 @@
+---
+title: Backup and Restore Scenarios and Considerations
+owner: TKGI
+---
+
+This section describes backup and restore scenarios and considerations.
+
+## Scenarios and Considerations
+
+The following sencarios and considerations summarize the various aspects of backup and restore for TKGI.
+
+Scenario 							| Tool(s) 		| Considerations 
+------------------------------------|---------------|-----------------------------
+| Backup and Restore vSpehre SDDC 	| vCenter file backup, 3rd party data protection software | Create clusters with HA and DRS enabled. Use 3rd party DR software for data protection. 
+| Backup and Restore NSXT			| NSX-T Backup and Restore 	| Run application on Kubernetes. Continuously curl endpoint. Delete NSX-T Manager Nodes. Redeploy NSX-T Manager Nodes. Check connectivity. There should be no loss app connectivity.
+ 
+| Take NSX-T back, deploy app, Recover NSX-T | NSX-T Backup and Restore | PODs need to be redeployed for them to work 
+| Take NSX-T back, create Namespace, Recover | NSX-T Backup and Restore | Namespaces need to be recreated for them to work
+| Take NSX-T backup, create cluster, Restore | NSX-T Backup and Restore | Take NSX-T backup; Create PKS cluster; Restore NSX-T. Cluster not reachable. Delete and recreate cluster.
+| Create namespace when NSX-T is down | NSX-T Backup and Restore 		| Need to recreate Namespace. Delete. NSX-T components deleted when NSX is backup. Works as expected.
+| Create apps when NSX-T CP is down   | NSX-T Backup and Restore 	    | PODs still in ContainerCreating state. If namespace was created before, restarting pods brings the PODs to running state. Otherwise - still in ContainerCreating State so need to recreate namespace and apps. PODs delete successfully when NSX-T is backup.
+| Create service when NSX-T CP is down | NSX-T Backup and Restore 	| Create: Pending LB IP; Need to redeploy for it to work. Delete: Works as expected: LB VIP deleted.
+| Create cluster when NSX CP is down   | NSX-T Backup and Restore  	| Unable to create cluster if NSX CP is down.
+| Backup & Recover BOSH, PKS and opsmanager | Ops Manager, BBR | Take Backup. Run and monitor an app in k8s. Power off Ops Manager, BOSH, PKS, PKS DB VMs. Redeploy Ops Manager, reload config and deploy BOSH and PKS. Restore BOSH from backup. Restore PKS from backup. During test, Bosh and PKS VM turned off, NOT deleted.
+| Backup & Recover k8s Clusters | Namespace Group UUID as defined in NSX-T. | NSX-T, Ops Manager, BBR | Take backup. Delete cluster VMs - Master & Worker. Delete disk & references. Restore cluster. Delete worker nodes from kubectl. Restart kubelet. Observations: If app is deployed before cluster backup, LB IP of app changes. Test 6 for using static LB IP. If app is deployed after backup, the app goes away and NSX objects for app are deleted automatically.
+| Backup and restore stateless app 		| Velero, Restic 	| Install Velero/Restic on cluster. Enable privileged mode. 
+| Backup and restore stateful app 		| Velero, Restic 	| Install Velero/Restic on cluster. Enable privileged mode. 
+| Backup and restore statelfulset app 	| Velero, Restic 	| Install Velero/Restic on cluster. Enable privileged mode. 
+| Backup and restore whole cluster 		| Velero, Restic 	| Install Velero/Restic on cluster. Enable privileged mode. 
+| Backup and restore app with fixed IP 	| Velero, Restic 	| Install Velero/Restic on cluster. Enable privileged mode. 
+| Backup and restore statful apps with CSI 	| Velero, Restic 	| Install Velero/Restic on cluster. Enable privileged mode. 

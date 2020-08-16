@@ -9,13 +9,13 @@ This topic describes how to use Valero to backup and restore a stateful applicat
 
 This topic describes how to use Valero to backup and restore a stateful application with ingress and a static IP address.
 
-The application we are going to use to test backup/restore with Velero is the Tea/Coffee stateless app. Kubernetes ingress provides a layer 7 load balancer. In this case the IP address must be static.
+The application we are going to use to demonstrate this scenario is the Cafe stateless app. Kubernetes ingress provides a layer 7 load balancer. In this case the IP address must be static.
 
 ##<a id="prereqs"></a> Prerequisites
 
 TKGI cluster is created with static IP set from floating IP pool.
 
-Configure IP/DNS-NAME and IP/DNS-INGRESS MUST in the DNS server that is used by the Kubernetes master node.
+Create and apply network profile for DNS lookup of the Kuberentes API server and the fixed IP address. For example:
 
 ```
 {
@@ -33,7 +33,7 @@ Configure IP/DNS-NAME and IP/DNS-INGRESS MUST in the DNS server that is used by 
 
 [Install and configure](./velero-install.html) Minio, Velero, and Restic.
 
-Download the [Cafe app YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.8/demos/cafe-app) to a local known directory:
+Download the [Coffee-Tea app YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.90/demos/cafe-app) to a local known directory:
 
 - coffee-rc.yml
 - tea-rc.yml
@@ -41,178 +41,117 @@ Download the [Cafe app YAML files](https://github.com/pivotal-cf/docs-pks/tree/1
 - tea-svc.yml
 - cafe-ingress-http.yml
 
-## <a id='wordpress-yaml'></a> Configure Wordpress YAML Files
+## <a id='coffee-tea-deploy'></a> Deploy the Coffee-Tea App
 
-Edit the **wordpress-deployment.yaml** to include the static IP for the load balancer (`loadBalancerIP: IP`). In this example, the IP address used is taken from the NSX-T floating IP pool that is resourced for TKGI.
-
-```
-apiVersion: v1
-kind: Service
-metadata:
-  name: wordpress
-  labels:
-    app: wordpress
-spec:
-  ports:
-    - port: 80
-  selector:
-    app: wordpress
-    tier: frontend
-  type: LoadBalancer
-  loadBalancerIP: 10.199.41.110
-```
-
-Create the `kustomization.yaml` file` with a value for YOUR_PASSWORD:
+Create the Namespace for the application: 
 
 ```
-secretGenerator:
-- name: mysql-pass
-  literals:
-  - password=YOUR_PASSWORD
-resources:
-  - mysql-deployment.yaml
-  - wordpress-deployment.yaml
+kubectl create ns tea-coffee
+
+namespace/tea-coffee created
 ```
 
-Create the default storage class YAML `default-sc.yaml`:
+Deploy the Tea-Coffee app:
 
 ```
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: default-sc
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
-provisioner: kubernetes.io/vsphere-volume
-parameters:
-    diskformat: thin
-```    
+kubectl apply -f . -n tea-coffee
 
-Apply the storage class YAML file:
-
-```
-kubectl apply -f 0-default-sc.yaml
-
-storageclass.storage.k8s.io/default-sc created
+ingress.extensions/cafe-ingress created
+replicationcontroller/coffee-rc created
+service/coffee-svc created
+replicationcontroller/tea-rc created
+service/tea-svc created
 ```
 
-Verify the storage class:
+Verfiy app deployment:
 
 ```
-kubectl get sc
+kubectl get all -n tea-coffee
 
-NAME                   PROVISIONER                    RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
-default-sc (default)   kubernetes.io/vsphere-volume   Delete          Immediate           false                  3m38s
+NAME                  READY   STATUS    RESTARTS   AGE
+pod/coffee-rc-8lrwn   1/1     Running   0          7m19s
+pod/coffee-rc-kn65r   1/1     Running   0          7m19s
+pod/tea-rc-fhhnz      1/1     Running   0          7m19s
+pod/tea-rc-t59cs      1/1     Running   0          7m19s
+
+NAME                              DESIRED   CURRENT   READY   AGE
+replicationcontroller/coffee-rc   2         2         2       7m19s
+replicationcontroller/tea-rc      2         2         2       7m19s
+
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+service/coffee-svc   ClusterIP   10.100.200.223   <none>        80/TCP    7m19s
+service/tea-svc      ClusterIP   10.100.200.229   <none>        80/TCP    7m19s
 ```
 
-## <a id='wordpress-deploy'></a> Deploy Wordpress App
-
-Create Wordpress namespace:
+Get the ingress configuration:
 
 ```
-kubectl create ns wordpress-lbstaticip
+kubectl get ingress -n tea-coffee
 
-namespace/wordpress-lbstaticip created
+NAME           HOSTS              ADDRESS         PORTS   AGE
+cafe-ingress   cafe.example.com   10.199.41.111   80      8s
 ```
 
-Deploy the Wordpress app:
+Describe the ingress configuration:
 
 ```
-kubectl apply -k . -n wordpress-lbstaticip
-secret/mysql-pass-c57bb4t7mf created
-service/wordpress-mysql created
-service/wordpress created
-deployment.apps/wordpress-mysql created
-deployment.apps/wordpress created
-persistentvolumeclaim/mysql-pv-claim created
-persistentvolumeclaim/wp-pv-claim created
+kubectl describe ingress cafe-ingress -n tea-coffee
+
+Name:             cafe-ingress
+Namespace:        tea-coffee
+Address:          10.199.41.111
+Default backend:  default-http-backend:80 (<none>)
+Rules:
+  Host              Path  Backends
+  ----              ----  --------
+  cafe.example.com  
+                    /tea      tea-svc:80 (172.16.19.4:80,172.16.19.5:80)
+                    /coffee   coffee-svc:80 (172.16.19.2:80,172.16.19.3:80)
+Annotations:
+  kubectl.kubernetes.io/last-applied-configuration:  {"apiVersion":"extensions/v1beta1","kind":"Ingress","metadata":{"annotations":{},"name":"cafe-ingress","namespace":"tea-coffee"},"spec":{"rules":[{"host":"cafe.example.com","http":{"paths":[{"backend":{"serviceName":"tea-svc","servicePort":80},"path":"/tea"},{"backend":{"serviceName":"coffee-svc","servicePort":80},"path":"/coffee"}]}}]}}
+
+  ncp/internal_ip_for_policy:  100.64.208.63
+Events:                        <none>
 ```
 
-Verfiy Wordpress app deployment:
+Access the Coffee-Tea app at http://cafe.example.com/coffee and http://cafe.example.com/tea.
+
+  <img src="images/backup-restore/coffee-tea-01.png" alt="Coffee-Tea App" width="538">
+
+  <img src="images/backup-restore/coffee-tea-02.png" alt="Coffee-Tea App" width="538">
+
+For local testing, make sure the following entry is present in the /etc/hosts of the computer accessing the Coffee-Tea app:
 
 ```
-kubectl get all -n wordpress-lbstaticip
+/etc/hosts
+10.199.41.111 cafe.example.com
 ```
 
-```
-kubectl get pvc,pv -n wordpress-lbstaticip
-```
-
-Access the Wordpress app at <http://10.199.41.110/>. Use the static IP you set for the load balancer.
-
-  <img src="images/backup-restore/wordpress-01.png" alt="Wordpress App" width="538">
-
-Create a user and log in.
-
-  <img src="images/backup-restore/wordpress-02.png" alt="Wordpress Interface" width="538">
-
-Create blog post.
-
-  <img src="images/backup-restore/wordpress-03.png" alt="Wordpress Blog" width="538">
-
-Publish the blog.
-
-    <img src="images/backup-restore/wordpress-04.png" alt="Wordpress Blog" width="538">
-
-## <a id='wordpress-backup'></a> Backup the Wordpress App Using Namespace
-
-Because the Wordpress app is stateful, add annotations for the stateful pods with the volume name. 
-
-From `wordpress-deployment.yaml`, the volume name is `wordpress-persistent-storage`.
-
-From `mysql-deployment.yaml` the volume name is `mysql-persistent-storage`.
-
-Get the pod names:
+## <a id='coffee-tea-backup'></a> Backup the Coffee-Tea App Using Namespace
 
 ```
-kubectl get pod -n wordpress-lbstaticip
+velero backup create tea-coffee-backup --include-namespaces tea-coffee
+
+Backup request "tea-coffee-backup" submitted successfully.
+Run `velero backup describe tea-coffee-backup` or `velero backup logs tea-coffee-backup` for more details.
 ```
 
-Annotate the pods:
-
-```
-kubectl -n wordpress-lbstaticip annotate pod/wordpress-675699f695-f5zdl backup.velero.io/backup-volumes=wordpress-persistent-storage
-pod/wordpress-675699f695-f5zdl annotated
-
-kubectl -n wordpress-lbstaticip annotate pod/wordpress-mysql-69dcc4fc49-zpjrd backup.velero.io/backup-volumes=mysql-persistent-storage
-pod/wordpress-mysql-69dcc4fc49-zpjrd annotated
-```
-
-Verify the annotations:
-
-```
-kubectl -n wordpress-lbstaticip describe pod wordpress-675699f695-f5zdl | grep Annotations
-Annotations:  backup.velero.io/backup-volumes: wordpress-persistent-storage
-
-kubectl -n wordpress-lbstaticip describe pod wordpress-mysql-69dcc4fc49-zpjrd | grep Annotations
-Annotations:  backup.velero.io/backup-volumes: mysql-persistent-storage
-```
-
-Perform the Velero backup:
-
-```
-velero backup create wordpress-lbstaticip-backup --include-namespaces wordpress-lbstaticip
-
-Backup request "wordpress-lbstaticip-backup" submitted successfully.
-Run `velero backup describe wordpress-lbstaticip-backup` or `velero backup logs wordpress-lbstaticip-backup` for more details.
-```
-
-Verify the backup that was created.
+Verify the backup:
 
 ```
 velero backup get
 
-NAME                          STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
-wordpress-lbstaticip-backup   Completed   0        0          2020-07-24 11:35:46 -0700 PDT   29d       default            <none>
+NAME                        STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+tea-coffee-backup           Completed   0        0          2020-07-27 09:16:02 -0700 PDT   29d       default            <none>
 ```
 
 Verify backup details:
 
 ```
-velero backup describe wordpress-lbstaticip-backup --details
+velero backup describe tea-coffee-backup
 ```
 
-Use Velero CRD commands to further verify the backup:
+Use Velero CRD commands to futher verify the backup:
 
 ```
 kubectl get crd
@@ -220,70 +159,64 @@ kubectl get crd
 
 ```
 kubectl get backups.velero.io -n velero
+
+NAME                        AGE
+tea-coffee-backup           97s
 ```
 
 ```
-kubectl describe backups.velero.io wordpress-lbstaticip-backup -n velero
+kubectl describe backups.velero.io tea-coffee-backup -n velero
 ```
 
-## <a id='wordpress-restore'></a> Restore the Wordpress App
+## <a id='coffee-tea-restore'></a> Restore the Coffee-Tea App
 
-To test the restoration of the Wordpress app, delete it.
+Restore the Coffee-Tea app from the backup using Velero.
 
 Delete the namespace:
 
 ```
-kubectl delete ns wordpress-lbstaticip
+kubectl delete ns tea-coffee
 
-namespace "wordpress-lbstaticip" deleted
+namespace "tea-coffee" deleted
 ```
 
-Verify namespace deletion:
+Verify that the app is removed:
 
 ```
 kubectl get ns
 ```
 
-```
-kubectl get pvc,pv --all-namespaces
-```
-
-Make sure the storage class used by the application is still present:
+Restore the app:
 
 ```
-kubectl get sc
+velero restore create --from-backup tea-coffee-backup
+
+Restore request "tea-coffee-backup-20200727092014" submitted successfully.
+Run `velero restore describe tea-coffee-backup-20200727092014` or `velero restore logs tea-coffee-backup-20200727092014` for more details.
 ```
 
-Restore the Wordpress app:
-
-```
-velero restore create --from-backup wordpress-lbstaticip-backup
-
-Restore request "wordpress-lbstaticip-backup-20200724114046" submitted successfully.
-Run `velero restore describe wordpress-lbstaticip-backup-20200724114046` or `velero restore logs wordpress-lbstaticip-backup-20200724114046` for more details.
-```
-
-Verify that the Wordpress app is restored:
+Verify app restoration:
 
 ```
 velero restore get
-NAME                                         BACKUP                        STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
-wordpress-lbstaticip-backup-20200724114046   wordpress-lbstaticip-backup   Completed   0        0          2020-07-24 11:40:46
+
+NAME                               BACKUP              STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+tea-coffee-backup-20200727092014   tea-coffee-backup   Completed   0        0          2020-07-27 09:20:14 -0700 PDT   <none>
 ```
 
-Verify restoration details:
+Get app restoration details:
 
 ```
-velero restore describe wordpress-lbstaticip-backup-20200724114046
+velero restore describe tea-coffee-backup-20200727092014
 
-Name:         wordpress-lbstaticip-backup-20200724114046
+Name:         tea-coffee-backup-20200727092014
 Namespace:    velero
 Labels:       <none>
 Annotations:  <none>
 
 Phase:  Completed
 
-Backup:  wordpress-lbstaticip-backup
+Backup:  tea-coffee-backup
 
 Namespaces:
   Included:  all namespaces found in the backup
@@ -299,45 +232,82 @@ Namespace mappings:  <none>
 Label selector:  <none>
 
 Restore PVs:  auto
-
-Restic Restores (specify --details for more information):
-  Completed:  2
 ```
 
-Verify the Wordpress namespace:
+Check that the namespace is restored.
 
 ```
 kubectl get ns
-NAME                   STATUS   AGE
-default                Active   16d
-kube-node-lease        Active   16d
-kube-public            Active   16d
-kube-system            Active   16d
-pks-system             Active   16d
-velero                 Active   2d21h
-wordpress-lbstaticip   Active   68s
+NAME              STATUS   AGE
+default           Active   138m
+kube-node-lease   Active   138m
+kube-public       Active   138m
+kube-system       Active   138m
+pks-system        Active   121m
+tea-coffee        Active   56s
+velero            Active   9m24s
 ```
 
-Check for all Wordpress objects in the namespace:
+Verify that all app objects are restored:
 
 ```
-kubectl get all -n wordpress-lbstaticip
+kubectl get all -n tea-coffee
+
+NAME                  READY   STATUS    RESTARTS   AGE
+pod/coffee-rc-8lrwn   1/1     Running   0          89s
+pod/coffee-rc-kn65r   1/1     Running   0          89s
+pod/tea-rc-fhhnz      1/1     Running   0          89s
+pod/tea-rc-t59cs      1/1     Running   0          89s
+
+NAME                              DESIRED   CURRENT   READY   AGE
+replicationcontroller/coffee-rc   2         2         2       89s
+replicationcontroller/tea-rc      2         2         2       89s
+
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+service/coffee-svc   ClusterIP   10.100.200.197   <none>        80/TCP    89s
+service/tea-svc      ClusterIP   10.100.200.17    <none>        80/TCP    89s
 ```
 
-Verify persistent volume for Wordpress:
+Check ingress:
 
 ```
-kubectl get pvc,pv -n wordpress-lbstaticip
+kubectl get ingress -n tea-coffee
+
+NAME           HOSTS              ADDRESS         PORTS   AGE
+cafe-ingress   cafe.example.com   10.199.41.111   80      112s
 ```
 
-Access the Wordpress blog at <http://10.199.41.110/>. Use the static IP you set for the load balancer.
+View ingress details for the restored app:
 
-  <img src="images/backup-restore/wordpress-05.png" alt="Wordpress Blog" width="538">
+```
+kubectl describe ingress cafe-ingress -n tea-coffee
+
+Name:             cafe-ingress
+Namespace:        tea-coffee
+Address:          10.199.41.111
+Default backend:  default-http-backend:80 (<none>)
+Rules:
+  Host              Path  Backends
+  ----              ----  --------
+  cafe.example.com  
+                    /tea      tea-svc:80 (172.16.19.2:80,172.16.19.3:80)
+                    /coffee   coffee-svc:80 (172.16.19.4:80,172.16.19.5:80)
+Annotations:
+  kubectl.kubernetes.io/last-applied-configuration:  {"apiVersion":"extensions/v1beta1","kind":"Ingress","metadata":{"annotations":{},"name":"cafe-ingress","namespace":"tea-coffee"},"spec":{"rules":[{"host":"cafe.example.com","http":{"paths":[{"backend":{"serviceName":"tea-svc","servicePort":80},"path":"/tea"},{"backend":{"serviceName":"coffee-svc","servicePort":80},"path":"/coffee"}]}}]}}
+
+  ncp/internal_ip_for_policy:  100.64.208.63
+Events:                        <none>
+```
+
+Access the Coffee-Tea app at http://cafe.example.com/tea and http://cafe.example.com/coffee.
+
+  <img src="images/backup-restore/coffee-tea-03.png" alt="Coffee-Tea App" width="538">
+
+  <img src="images/backup-restore/coffee-tea-04.png" alt="Coffee-Tea App" width="538">
 
 ## <a id='wordpress-conclude'></a> Conclusions
 
 Key takeaways from the Velero backup and restore operation for this type of application:
 
-- Pod annotation is still required for Velero backup of PV
-- The namespace 'wordpress-lbstaticip' was automatically re-created
-- The K8s SVC LB IP has been preserved as expected
+- The namespace 'tea-coffee' is automatically recreated by Velero
+- The Kubernetes ingress IP is preserved (10.199.41.111)
