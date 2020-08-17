@@ -1,0 +1,446 @@
+---
+title: Backup and Restore StatefulSet App with Namespace
+owner: TKGI
+---
+
+This topic describes how to use Valero to backup and restore a statefulset application with namepsace.
+
+##<a id="overview"></a> Overview
+
+This example demonstrates Velero backup and restore for a statefulset application with namespace. The CassandraDB app is used for demonstrating backup and restore with Velero.
+
+When restoring a stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster. If the PVC was using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
+
+##<a id="prereqs"></a> Prerequisites
+
+[Install and configure](./velero-install.html) Minio, Velero, and Restic.
+
+The application we are going to use to test backup/restore with Velero is the CassandraDB statefulset app. Download the Cassandra app YAML files availalble [here](https://github.com/cormachogan/vsphere-storage-101/tree/master/StatefulSets).
+
+- cassandra-storageclass.yaml
+- headless-cassandra-service.yaml
+- cassandra-statefulset.yaml
+
+## <a id='storage-class-csi'></a> Create the Storage Class
+
+Modify the storage class **cassandra-storageclass.yaml** to use the generic CSI provisioner:
+
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: cassandra-sc-csi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.vsphere.vmware.com
+parameters:
+  datastoreurl: "ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/"
+```
+
+Apply the storage class YAML file:
+
+```
+kubectl apply -f 0-cassandra-storageclass.yaml
+
+storageclass.storage.k8s.io/cassandra-sc-csi created
+```
+
+Verify the storage class:
+
+```
+kubectl get sc
+
+NAME                         PROVISIONER              RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+cassandra-sc-csi (default)   csi.vsphere.vmware.com   Delete          Immediate           false                  98m
+```
+
+## <a id='cassandra-deploy-csi'></a> Deploy CassandraDB App
+
+Create the namespace:
+
+```
+kubectl create ns cassandra-csi
+
+namespace/cassandra-csi created
+```
+
+Create the service:
+
+```
+kubectl apply -f 1-headless-cassandra-service.yaml -n cassandra
+
+service/cassandra created
+```
+
+Deploy CassandraDB app:
+
+```
+kubectl apply -f 2-cassandra-statefulset.yaml -n cassandra
+
+statefulset.apps/cassandra created
+```
+
+Verfiy:
+
+```
+kubectl get all -n cassandra-csi
+
+NAME              READY   STATUS    RESTARTS   AGE
+pod/cassandra-0   1/1     Running   0          101m
+pod/cassandra-1   1/1     Running   0          100m
+pod/cassandra-2   1/1     Running   0          99m
+
+NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/cassandra   ClusterIP   None         <none>        <none>    101m
+
+NAME                         READY   AGE
+statefulset.apps/cassandra   3/3     101m
+```
+
+```
+kubectl get pvc,pv -n cassandra-cs
+```
+
+
+Make sure CassandraDB instances are fully participating in the cluster:
+
+```
+kubectl exec -it cassandra-0 -n cassandra-csi -- nodetool status
+
+Datacenter: Demo-DataCenter
+===========================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address     Load       Tokens       Owns (effective)  Host ID                               Rack
+UN  172.16.1.2  134.43 KiB  32           55.6%             f4ae812c-fd83-4268-a225-890df1ca84d6  Demo-Rack
+UN  172.16.1.3  132.68 KiB  32           73.0%             deb9625e-89f5-45d0-9d0b-c8ee3dcb610a  Demo-Rack
+UN  172.16.1.4  109.58 KiB  32           71.4%             4599bc2e-6f7b-4093-9397-53184a83a92c  Demo-Rack
+```
+
+## <a id='cassandra-db-csi'></a> Create and Populate a Database and Table in Cassandra
+
+
+Create the DB:
+
+```
+kubectl exec -it cassandra-0 -n cassandra-csi -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+```
+
+Create and populate the table:
+
+```
+cqlsh> CREATE KEYSPACE demodb WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+cqlsh> use demodb;
+cqlsh:demodb> CREATE TABLE emp(emp_id int PRIMARY KEY, emp_name text, emp_city text, emp_sal varint,emp_phone varint);
+cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (100, 'Tom', 'Cork', 999, 1000000);
+cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (101, 'Andrew', 'NY', 1000, 1000000);
+cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (102, 'Lara', 'Paris', 1001, 1000000);
+cqlsh:demodb> select * from emp;
+```
+
+Verify:
+
+``` 
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+Verify that the other Cassandra DB instances have the same information:
+
+```
+kubectl exec -it cassandra-1 -n cassandra-csi -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+```
+kubectl exec -it cassandra-2 -n cassandra-csi -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+## <a id='cassandra-annotations-csi'></a> Add Annotations
+
+Add annotations for the stateful pods with the volume name `cassandra-data`.
+
+```
+kubectl get pod -n cassandra-csi
+
+NAME          READY   STATUS    RESTARTS   AGE
+cassandra-0   1/1     Running   0          105m
+cassandra-1   1/1     Running   0          105m
+cassandra-2   1/1     Running   0          103m
+```
+
+The pods `cassandra-0`, `cassandra-1` and `cassandra-2` must be annotated with `cassandra-data`.
+
+```
+kubectl -n cassandra-csi annotate pod/cassandra-0 backup.velero.io/backup-volumes=cassandra-data
+pod/cassandra-0 annotated
+
+kubectl -n cassandra-csi annotate pod/cassandra-1 backup.velero.io/backup-volumes=cassandra-data
+pod/cassandra-1 annotated
+
+kubectl -n cassandra-csi annotate pod/cassandra-2 backup.velero.io/backup-volumes=cassandra-data
+pod/cassandra-2 annotated
+```
+
+Verify the annotations:
+
+```
+kubectl -n cassandra-csi describe pod/cassandra-0 | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: cassandra-data
+
+kubectl -n cassandra-csi describe pod/cassandra-1 | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: cassandra-data
+
+kubectl -n cassandra-csi describe pod/cassandra-2 | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: cassandra-data
+```
+
+## <a id='cassandra-backup-csi'></a> Backup the CassandraDB App using Namespace
+
+Perform the Velero backup:
+
+```
+velero backup create cassandra-csi-backup --include-namespaces cassandra-csi
+
+Backup request "cassandra-csi-backup" submitted successfully.
+Run `velero backup describe cassandra-csi-backup` or `velero backup logs cassandra-csi-backup` for more details.
+```
+
+Verify the backup:
+
+```
+velero backup get
+
+NAME                   STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+cassandra-csi-backup   Completed   0        0          2020-07-30 12:02:43 -0700 PDT   29d       default            <none>
+```
+
+Get backup details:
+
+```
+velero backup describe cassandra-csi-backup --details
+```
+
+Use the Velero CRD commands to verify:
+
+```
+kubectl get crd
+```
+
+```
+kubectl get backups.velero.io -n velero
+```
+
+```
+kubectl describe backups.velero.io cassandra-backup -n velero
+```
+
+## <a id='cassandra-restore-csi'></a> Restore the CassandraDB App
+
+Restore the CassandraDB app from the Velero backup. Note the following about the restore operation:
+
+- Pod annotation is still required for Velero backup of PV
+- The namespace 'cassandra' was automatically re-created
+
+
+Delete the namespace:
+
+```
+kubectl delete ns cassandra-csi
+namespace "cassandra-csi" deleted
+```
+
+Verify that Cassandra resources are deleted:
+
+```
+kubectl get ns
+
+NAME              STATUS   AGE
+default           Active   22d
+kube-node-lease   Active   22d
+kube-public       Active   22d
+kube-system       Active   22d
+pks-system        Active   22d
+velero            Active   8d
+```
+
+```
+kubectl get pvc,pv --all-namespaces
+
+No resources found
+```
+
+Verify that the storage class used by the application is still present:
+
+```
+kubectl get sc
+
+NAME                         PROVISIONER              RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+cassandra-sc-csi (default)   csi.vsphere.vmware.com   Delete          Immediate           false                  175m
+```
+
+Restore the CassandraDB app from the backup:
+
+```
+velero restore create --from-backup cassandra-csi-backup
+
+Restore request "cassandra-csi-backup-20200730130959" submitted successfully.
+Run `velero restore describe cassandra-csi-backup-20200730130959` or `velero restore logs cassandra-csi-backup-20200730130959` for more details.
+```
+
+Verify that the app is restored:
+
+```
+velero restore get
+
+NAME                                  BACKUP                 STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+cassandra-csi-backup-20200730130959   cassandra-csi-backup   Completed   0        0          2020-07-30 13:09:59 -0700 PDT   <none>
+```
+
+Check restoration details:
+
+```
+velero restore describe cassandra-csi-backup-20200730130959
+``` 
+
+Verify the namespace:
+
+```
+kubectl get ns
+
+NAME              STATUS   AGE
+cassandra-csi     Active   75s
+default           Active   22d
+kube-node-lease   Active   22d
+kube-public       Active   22d
+kube-system       Active   22d
+pks-system        Active   22d
+velero            Active   8d
+```
+
+Verify the pods:
+
+```
+kubectl get all -n cassandra-csi
+
+NAME              READY   STATUS    RESTARTS   AGE
+pod/cassandra-0   1/1     Running   0          105s
+pod/cassandra-1   0/1     Running   3          105s
+pod/cassandra-2   0/1     Running   3          105s
+
+NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/cassandra   ClusterIP   None         <none>        <none>    105s
+
+NAME                         READY   AGE
+statefulset.apps/cassandra   1/3     105s
+```
+
+Verify the persistent volume:
+
+```
+kubectl get pvc,pv -n cassandra-csi
+```
+
+Check the content of each Cassandra DB instance:
+
+```
+kubectl exec -it cassandra-0 -n cassandra-csi -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+```
+kubectl exec -it cassandra-1 -n cassandra-csi -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+```
+kubectl exec -it cassandra-2 -n cassandra-csi -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+## <a id='cassandra-conclusions-csi'></a> Conclusions
+
+Key takeaways from the restore operation:
+
+- Pod annotation is still required for Velero backup of PV
+- The namespace 'cassandra-csi' was automatically re-created
+- Restic works fine with CSI
+
+
+
+

@@ -1,0 +1,464 @@
+---
+title: Backup and Restore All Cluster Workloads
+owner: TKGI
+---
+
+This topic describes how to use Valero to backup and restore all workloads on a Kubernetes cluster.
+
+##<a id="overview"></a> Overview
+
+This example demonstrates how to use Velero to perform a full cluster backup and restore. This example uses the stateless Guestbook app with namespace and the statefulset CassandraDB app with namesapce to perform cluster backup and restore.
+
+##<a id="prereqs"></a> Prerequisites
+
+[Install and configure](./velero-install.html) Minio, Velero, and Restic.
+
+Download the [Guestbook app YAML files](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) to a local known directory:
+
+- redis-master-deployment.yaml
+- redis-master-service.yaml
+- redis-slave-deployment.yaml
+- redis-slave-service.yaml
+- frontend-deployment.yaml 
+- frontend-service.yaml
+
+Download the [Cassandra app YAML files]: (https://github.com/cormachogan/vsphere-storage-101/tree/master/StatefulSets) to a local known directory:
+
+- cassandra-storageclass.yaml
+- headless-cassandra-service.yaml
+- cassandra-statefulset.yaml
+
+## <a id='guestbook-deploy'></a> Deploy Stateless Guestbook App
+
+Create Guestbook namespace:
+
+```
+kubectl create ns guestbook
+```
+
+Deploy the Guestbook app:
+
+```
+kubectl apply -f . -n guestbook
+```
+
+Verfiy:
+
+```
+kubectl get pod -n guestbook
+```
+
+```
+kubectl get svc -n guestbook
+```
+
+Access the Guestbook app at <http://10.199.41.14/>.
+
+  <img src="images/backup-restore/guestbook-04.png" alt="Guestbook App" width="538">
+
+## <a id='cassandra-deploy'></a> Deploy StatefulSet CassandraDB App
+
+Modify the storage class **cassandra-storageclass.yaml**:
+
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: demo-sts-sc
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+  diskformat: thin
+```
+
+Apply the storage class YAML file:
+
+```
+kubectl apply -f cassandra-storageclass.yaml
+
+storageclass.storage.k8s.io/demo-sts-sc created
+```
+
+Verify the storage class:
+
+```
+kubectl get sc
+NAME          PROVISIONER                    RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+
+demo-sts-sc   kubernetes.io/vsphere-volume   Delete          Immediate           false                  3s
+```
+
+Create the namespace:
+
+```
+kubectl create ns cassandra
+```
+
+Create the service:
+
+```
+kubectl apply -f headless-cassandra-service.yaml -n cassandra
+```
+
+Deploy CassandraDB app:
+
+```
+kubectl apply -f cassandra-statefulset.yaml -n cassandra
+```
+
+Verfiy pods and services:
+
+```
+kubectl get all -n cassandra
+
+NAME              READY   STATUS    RESTARTS   AGE
+pod/cassandra-0   1/1     Running   0          5m16s
+pod/cassandra-1   1/1     Running   0          4m25s
+pod/cassandra-2   1/1     Running   0          2m52s
+
+NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/cassandra   ClusterIP   None         <none>        <none>    5m21s
+
+NAME                         READY   AGE
+statefulset.apps/cassandra   3/3     5m16s
+```
+
+Verify the persistent volume:
+
+```
+kubectl get pvc,pv -n cassandra
+```
+
+Make sure CassandraDB instances are fully participating in the cluster:
+
+```
+kubectl exec -it cassandra-0 -n cassandra -- nodetool status
+```
+
+## <a id='cassandra-db'></a> Create and Populate Cassandra Database
+
+Create the DB:
+
+```
+kubectl exec -it cassandra-0 -n cassandra -- cqlsh
+```
+
+Create and populate table:
+
+```
+cqlsh> CREATE KEYSPACE demodb WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+cqlsh> use demodb;
+cqlsh:demodb> CREATE TABLE emp(emp_id int PRIMARY KEY, emp_name text, emp_city text, emp_sal varint,emp_phone varint);
+cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (100, 'Tom', 'Cork', 999, 1000000);
+cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (101, 'Andrew', 'NY', 1000, 1000000);
+cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (102, 'Lara', 'Paris', 1001, 1000000);
+cqlsh:demodb> select * from emp;
+```
+
+Verify:
+
+``` 
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+Verify that the other Cassandra DB instances have the same information:
+
+```
+kubectl exec -it cassandra-1 -n cassandra -- cqlsh
+```
+
+```
+kubectl exec -it cassandra-2 -n cassandra -- cqlsh
+```
+
+## <a id='annotations'></a> Add Annotations
+
+Add annotations for the CassandraDB statefulset pods with the volume name `cassandra-data`.
+
+```
+kubectl get pod -n cassandra
+
+NAME          READY   STATUS    RESTARTS   AGE
+cassandra-0   1/1     Running   0          19m
+cassandra-1   1/1     Running   0          19m
+cassandra-2   1/1     Running   0          17m
+```
+
+The pods `cassandra-0`, `cassandra-1` and `cassandra-2` must be annotated with `cassandra-data`.
+
+```
+kubectl -n cassandra annotate pod/cassandra-0 backup.velero.io/backup-volumes=cassandra-data
+pod/cassandra-0 annotated
+
+kubectl -n cassandra annotate pod/cassandra-1 backup.velero.io/backup-volumes=cassandra-data
+pod/cassandra-1 annotated
+
+kubectl -n cassandra annotate pod/cassandra-2 backup.velero.io/backup-volumes=cassandra-data
+pod/cassandra-2 annotated
+```
+
+Verify the annotations:
+
+```
+kubectl -n cassandra describe pod/cassandra-0 | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: cassandra-data
+
+kubectl -n cassandra describe pod/cassandra-1 | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: cassandra-data
+
+kubectl -n cassandra describe pod/cassandra-2 | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: cassandra-data
+```
+
+## <a id='velero-backup'></a> Perform Velero Backup of the Cluster
+
+Perform the Velero backup:
+
+```
+velero backup create k8s-cluster-backup
+
+Backup request "k8s-cluster-backup" submitted successfully.
+Run `velero backup describe k8s-cluster-backup` or `velero backup logs k8s-cluster-backup` for more details.
+```
+
+Verify the backup that was created.
+
+```
+velero backup get
+
+NAME                 STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+k8s-cluster-backup   Completed   0        0          2020-07-29 13:56:37 -0700 PDT   29d       default            <none>
+```
+
+Verify backup details:
+
+```
+velero backup describe k8s-cluster-backup --details
+
+Name:         k8s-cluster-backup
+Namespace:    velero
+Labels:       velero.io/storage-location=default
+Annotations:  velero.io/source-cluster-k8s-gitversion=v1.17.8+vmware.1
+              velero.io/source-cluster-k8s-major-version=1
+              velero.io/source-cluster-k8s-minor-version=17
+
+Phase:  Completed
+
+Errors:    0
+Warnings:  0
+
+...
+
+Velero-Native Snapshots: <none included>
+
+Restic Backups:
+  Completed:
+    cassandra/cassandra-0: cassandra-data
+    cassandra/cassandra-1: cassandra-data
+    cassandra/cassandra-2: cassandra-data
+```
+
+Use Velero CRD commands to verify further:
+
+```
+kubectl get crd
+```
+
+```
+kubectl get backups.velero.io -n velero
+
+NAME                 AGE
+k8s-cluster-backup   2m6s
+```
+
+```
+kubectl describe backups.velero.io k8s-cluster-backup -n velero
+```
+
+## <a id='velero-restore'></a> Restore All Cluster Workloads
+
+Deploy a new Kuberentes cluster.
+
+Get the credentials for the cluster.
+
+[Install and configure](./velero-install.html) Velero and Restic on the cluster.
+
+Verify that the Velero namesapce exists on the new cluster:
+
+```
+kubectl get ns
+
+NAME              STATUS   AGE
+default           Active   2d8h
+kube-node-lease   Active   2d8h
+kube-public       Active   2d8h
+kube-system       Active   2d8h
+pks-system        Active   2d8h
+velero            Active   2d6h
+```
+
+Restore the all workload to the new cluster:
+
+```
+velero restore create --from-backup k8s-cluster-backup
+
+Restore request "k8s-cluster-backup-20200729154634" submitted successfully.
+Run `velero restore describe k8s-cluster-backup-20200729154634` or `velero restore logs k8s-cluster-backup-20200729154634` for more details.
+```
+
+Verify cluster restoration:
+
+```
+velero restore get
+
+NAME                                BACKUP               STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+
+k8s-cluster-backup-20200729154634   k8s-cluster-backup   Completed   0        41         2020-07-29 15:46:34 -0700 PDT   <none>
+```
+
+velero restore describe k8s-cluster-backup-20200729154634
+
+```
+Name:         k8s-cluster-backup-20200729154634
+Namespace:    velero
+Labels:       <none>
+Annotations:  <none>
+
+Phase:  Completed
+
+...
+
+Restic Restores (specify --details for more information):
+  Completed:  3
+```
+
+Verify that the Cassandra and Guestbook namespaces exist:
+
+```
+kubectl get ns
+
+NAME              STATUS   AGE
+cassandra         Active   8m14s
+default           Active   2d8h
+guestbook         Active   8m11s
+kube-node-lease   Active   2d8h
+kube-public       Active   2d8h
+kube-system       Active   2d8h
+pks-system        Active   2d8h
+velero            Active   2d6h
+```
+
+Check the Guestbook app:
+
+```
+kubectl get all -n guestbook
+```
+
+Access the Guestbook app: <http://10.199.41.39/>. The message log will be empty because it is a stateless app.
+
+  <img src="images/backup-restore/guestbook-07.png" alt="Guestbook App" width="538">
+
+
+Verify that the CassandraDB storage class object exists. The storage class is automatically created during the restore operation because the storage class object is  part of the default namespace.
+
+```
+kubectl get sc
+
+NAME          PROVISIONER                    RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+demo-sts-sc   kubernetes.io/vsphere-volume   Delete          Immediate           false                  5m51s
+```
+
+Check the CassandraDB pods, service, and statefulset:
+
+```
+kubectl get all -n cassandra
+
+NAME              READY   STATUS    RESTARTS   AGE
+pod/cassandra-0   1/1     Running   0          6m35s
+pod/cassandra-1   1/1     Running   0          6m35s
+pod/cassandra-2   1/1     Running   0          6m35s
+
+NAME                TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+
+service/cassandra   ClusterIP   None         <none>        <none>    6m5s
+
+
+NAME                         READY   AGE
+statefulset.apps/cassandra   3/3     6m5s
+```
+
+Check the CassandraDB persitence volume:
+
+```
+kubectl get pvc,pv -n cassandra
+```
+
+Verify the content of each Cassandra DB instance:
+
+```
+kubectl exec -it cassandra-0 -n cassandra -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+```
+kubectl exec -it cassandra-1 -n cassandra -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+```
+kubectl exec -it cassandra-2 -n cassandra -- cqlsh
+
+Connected to Demo-Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh> use demodb;
+cqlsh:demodb> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+    100 |     Cork |      Tom |       999 | 1000000
+    102 |    Paris |     Lara |      1001 | 1000000
+    101 |       NY |   Andrew |      1000 | 1000000
+
+(3 rows)
+```
+
+## <a id='conclusions'></a> Conclusions
+
+Note the following:
+
+- Storage Class 'demo-sts-sc' used by CassandraDB app was automatically restored by Velero
+- Pod annotation is still required for Velero backup of PV
+- The namespace 'cassandra' was automatically re-created
+- The namespace 'guestbook' was automatically re-created
