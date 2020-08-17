@@ -78,6 +78,22 @@ For more information, see
 [Getting Started with CredHub Maestro](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/getting-started-with-maestro-cli.html)
 in the Ops Manager documentation.
 
+### <a id="list"></a>List of Cluster-Specific Certificates
+
+This procedure rotates these CA certificates and their leaf certificates:
+
+-  `kubo_ca_2018`:
+  - `tls-metrics-server-2018`
+  - `tls-kubelet-client-2018`
+  - `tls-kubelet-2018`
+  - `tls-kube-controller-manager-2018`
+- `etcd_ca_2018`
+  - `tls-etcdctl-root-2018-2`
+  - `tls-etcdctl-flanneld-2018-2`
+  - `tls-etcdctl-2018-2`
+  - `tls-etcd-2018-2`
+
+
 ### <a id="downtime"></a>Downtime
 
 Depending on cluster topology, rotating `kubo_ca_2018` or `etcd_ca_2018` may cause cluster downtime while cluster nodes restart:
@@ -226,26 +242,26 @@ certificates for a <%= vars.k8s_runtime_abbr %>-provisioned
 Kubernetes cluster:
 
 1. Regenerate the `kubo_ca_2018` and `etcd_ca_2018` CA certificates:
- 	
+
  	```
     maestro regenerate ca --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
     maestro regenerate ca --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
     ```
-    
+
     Where `CLUSTER-UUID` is the cluster UUID. You retrieved the UUID in
     [Retrieve the Cluster UUID](#identify) above.
     <br><br>
     This step creates a new version of the CA certificates.
- 
+
 1. Mark the latest version of each CA certificate as transitional:
-    
+
     ```
     maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
     maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
     ```
 
-1. Redeploy the cluster: 
-    
+1. Redeploy the cluster:
+
     1. Download the latest cluster deployment manifest:
 
         ```
@@ -263,7 +279,7 @@ Kubernetes cluster:
 
 1. After the cluster redeployment completes
 successfully, mark the signing version of each CA certificate as transitional:
- 
+
     ```
     maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
     maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
@@ -273,7 +289,7 @@ successfully, mark the signing version of each CA certificate as transitional:
     CA certificates.
 
 1. Regenerate all leaf certificates signed by `kubo_ca_2018` and `etcd_ca_2018`:
-    
+
     ```
     maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
     maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
@@ -288,7 +304,7 @@ successfully, mark the signing version of each CA certificate as transitional:
 
 1. After the cluster redeployment completes
 successfully, remove the transitional flag:
-	
+
     ```
     maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
     maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
