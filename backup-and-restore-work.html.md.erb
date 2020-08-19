@@ -15,6 +15,8 @@ Velero is the only open source product to provide full backup and recovery of Ku
 
 An application deployed to Kubernetes can be stateless or stateful. Velero with Restic can back up and restore both types, but the procedure may differ slightly. The examples demonstrate the differences and process for each type.
 
+In addition, an application may have a service attached. If a service is attached, the IP address may need to be static for backup and restore to work as eexpected.
+
 ###<a id="persistence-prov"></a> Storage Types
 
 Tanzu Kubernetes clusters support two persistence providers: VMware Cloud Provider (vCP) and the Container Storage Interface (CSI). 
@@ -22,6 +24,32 @@ Tanzu Kubernetes clusters support two persistence providers: VMware Cloud Provid
 vCP is VMware's Kubernetes storage plugin that allows cluster nodes on vSphere to interact with vCenter to support Kubernetes Persistent Volume objects. CSI is open source software that enables Kubernetes implementations to provide a standard interface for storage systems, without having to create drivers for each  system.
 
 The provider is defined in the storage class. Velero with Restic backup and restore is slightly different depending on the type of persistence provider. 
+
+The VMware Cloud Provider (vCP) StorageClass provisioner only works with TKGI:
+
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: demo-sts-sc
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+  diskformat: thin
+```
+
+The Container Storage Interface (CSI) StorageClass provisioner works with TKGI, TKGM, and TKGS.
+
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: guestbook-sc-csi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.vsphere.vmware.com
+parameters:
+  datastoreurl: "ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/"
+```
 
 ##<a id="requirements"></a> Tanzu Kubernetes Workload Backup and Restore Requirements
 
@@ -31,10 +59,12 @@ This section lists the requirements for using Velero and Restic for Kubernetes w
 
 A Velero pod and a Restic pod are installed on the Kubernetes cluster. To use Velero and Restic for Kubernetes workload backup and recovery with TKGI, you must configure each target cluster as follows:
 
-1. Enable the `Allow Privileged` option in your plan configuration so that Restic is able to mount the hostpath.
+1. Enable the `Allow Privileged` option in the plan configuration so that Restic is able to mount the hostpath.
 1. Change the hostPath from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`.
 
-The instructions for doing this are provided within each bakcup and restore scenario.
+The examples provided in this section demonstate how to perform these actions.
+
+<p class="note"><strong>Note</strong>: Enabling the Allow Privileged option means that all containers in the cluster will run in privileged mode. Pod Security Policy provides a privileged parameter that can be used to enable or disable Pods running in privileged mode. As a best practice, if you enable Allow Privileged, define PSP to limit which Pods run in privileged mode. If you are implementing PSP for privileged pods, you must enable Allow Privileged mode. For more information, see <a href="./pod-security-policy.html">Enabling and Configuring Pod Security Policies</a>.</p>
 
 ###<a id="valero-objstore-req"></a> Object Store
 
@@ -46,7 +76,7 @@ To perform Velero backup and recovery, you install the Velero CLI on a client VM
 
 ###<a id="valero-airgap-req"></a>Air-Gapped Environment
 
-The instructions assume that the cluster environment has internet access, including the client where the Velero CLI is installed as well as the Kubernetes  cluster. In case the environment has no internet access, follow the procedure listed in this doc: https://velero.io/docs/v1.4/on-premises/#air-gapped-deployments
+The instructions assume that the cluster environment has internet access, including the client where the Velero CLI is installed as well as the Kubernetes cluster. In case the environment has no internet access, follow the [Air-gapped deployments[(https://velero.io/docs/v1.4/on-premises/#air-gapped-deployments) procedure in the Velero documentation.
 
 ###<a id="valero-version-req"></a> Velero Version
 
