@@ -5,13 +5,19 @@ owner: TKGI
 
 This topic describes how to install Minio, Valero and Restic for the purposes of backing up and restoring Kubernetes workloads.
 
-##<a id="requirements"></a> Requirements
+##<a id="prereqs"></a> Prerequisites
 
-Make sure you have read the prerequisties.
+Read the [workload backup and restore requirements](./backup-and-restore-work.html#requirements) before proceeding.
+
+Prepare a Linxu VM with sufficient storage to store several workload backups. You will install [Minio](https://velero.io/docs/main/contributions/minio/) on this VM.
+
+It is assumed that you have TKGI Client VM (Linux) where CLI tools are installed, such as the TKGI CLI, Kubectl, and others. You will install the Velero CLI on this client VM. If you do not have such a VM, you can install the Velero CLI on your laptop, but you will need to adjust the installation steps accordingly.
+
+It is assumed that the Kuberentes environment has internet access and can be reached by the client VM. If the environment has no internet access, refer to the [Velero air-gapped deployment](https://github.com/vmware-tanzu/velero/releases/tag/v1.4.2) documentation.
 
 ##<a id="minio-deploy"></a> Deploy Minio
 
-Install and Configure Minio Object Store as a Backup Destination for Valero and Restic. We are going to deploy Minio on a Linux Ubuntu VM by following the [Minio quick start guide](https://docs.min.io/docs/minio-quickstart-guide.html). 
+Restic requires an object store as the backup destination for for workload backups. Complete the following tasks to install and configure Minio as the backend object store. The instructions descrige how to deploy the Minio Server on a Linux Ubuntu VM. For more informaion, see the [Minio quick start guide](https://docs.min.io/docs/minio-quickstart-guide.html). 
 
 ### <a id='minio-install'></a> Install Minio
 
@@ -37,19 +43,33 @@ Start the Minio server:
 ./minio server /DATA-MINIO
 ```
 
-Once the Minio server is started, you are provided with the endpoint URL, AccessKey, and ScretKey for the data store. Record this information.
+Once the Minio server is started, you are provided with the endpoint URL, AccessKey, and ScretKey for the data store instance. Record this information.
 
-Check the Minio browser using the URL.
+In addition, URLs are provided. Browse to the Minio data store using one of the URLs, for example <http://http://10.199.17.63:9000/minio/login/>.
+
+  <img src="images/backup-restore/minio-01.png" alt="Minio Data Store" width="538">
+
+Provide the AccessKey and ScretKey and log in.
+
+  <img src="images/backup-restore/minio-02.png" alt="Minio Log In" width="538">
 
 ### <a id='minio-service'></a> Enable Minio as a Service
 
-Configure Minio for automatic startup using systemctl:
+Configure Minio for automatic startup.
+
+Download the `minio.service` script:
 
 ```
 curl -O https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service
 ```
 
-Edit minio.service with the ExecStart=/usr/local/bin/minio server /DATA-MINIO path.
+Edit the `minio.service` script and add the following value for `ExecStart`:
+
+```
+ExecStart=/usr/local/bin/minio server /DATA-MINIO path
+```
+
+Run the following series of commands to configure the Minio service:
 
 ```
 cp minio.service /etc/systemd/system
@@ -60,26 +80,36 @@ systemctl status minio
 systemctl enable minio
 ```
 
-### <a id='minio-create'></a> Create Minio Bucket for TKGI
+### <a id='minio-create'></a> Create Minio Bucket
 
-1. Create the bucket tkgi-velero.
-1. Click on the red button and then select create bucket.
-1. Enter bucket name: tkgi-velero
+Create a Minio bucket for TKGI workload backup and restore:
+
+1. Launch the Mino browswer and log in to your object store.
+1. Click the **Create bucket** icon.
+1. Enter the bucket name, for example: `tkgi-velero`
 1. Verify that the bucket is created.
 
-### <a id='minio-config'></a> Configure Minio Bucket for TKGI
+  <img src="images/backup-restore/minio-03.png" alt="Minio Create Bucket" width="538">
+  <img src="images/backup-restore/minio-04.png" alt="Minio Bucket Name" width="538">
+  <img src="images/backup-restore/minio-05.png" alt="Verify Minio Bucket" width="538">
 
-By default, the policy for this new bucket (tkgi-velero) is read-only. Let's change it to read-write:
+### <a id='minio-config'></a> Configure Minio Bucket
 
-1. Select the bucket and then click on the dots link.
-1. Select Edit Policy.
-1. Change from read-only to read and write.
-1. Click on Add.
-1. Click on the X button to close the dialog box.
+By default, the policy for the new `tkgi-velero` bucket is read-only. Change it to read-write:
+
+1. Select the bucket and click on the dots link.
+1. Select **Edit Policy**.
+1. Change the policy to **Read and Write**.
+1. Click **Add**.
+1. Click the X button to close the dialog box.
+
+  <img src="images/backup-restore/minio-06.png" alt="Minio Name Bucket" width="538">
+  <img src="images/backup-restore/minio-07.png" alt="Minio Name Bucket" width="538">
+  <img src="images/backup-restore/minio-08.png" alt="Minio Name Bucket" width="538">
 
 ##<a id="valero-deploy"></a> Deploy Valero with Restic
 
-Install the Valero CLI and create the Valero and Restic pods.
+Install the Valero CLI and create the Valero and Restic pods. These instructions 
 
 ### <a id='valero-download'></a> Download Velero
 
@@ -171,10 +201,9 @@ Client:
     Git commit: 56a08a4d695d893f0863f697c2f926e27d70c0c5
 ```
 
-### <a id='valero-cluster-install'></a> Install Velero and Restic on a Kubernetes Cluster
+### <a id='valero-cluster-install'></a> Install Velero and Restic on the Target Kubernetes Cluster
 
-Install the Valero and Restic pods on each Kubernetes cluster whose workloads you want to backup. The instructions for installaing Valero and Restic depend on the type of object store. The following instructions assume the use of [Minio](https://velero.io/docs/main/contributions/minio/) and that the Kubernetes cluster has internet access. If you are installing Velero on a cluster in an air-gapped environment, see [Air-gapped deployments[(https://velero.io/docs/v1.4/on-premises/#air-gapped-deployments) in the Velero documentation.
-
+Install the Valero and Restic pods on each Kubernetes cluster whose workloads you want to backup. The instructions for installaing Valero and Restic depend on the type of object store. The following instructions assume the use of [Minio](./velero-install.html#minio-deploy) and that the Kubernetes cluster has internet access. If you are installing Velero on a cluster in an air-gapped environment, see [Air-gapped deployments](https://velero.io/docs/v1.4/on-premises/#air-gapped-deployments) in the Velero documentation.
 
 #### Prerequisites
 
@@ -226,7 +255,7 @@ For example:
 
 
 ```
-root@PKS-client-VM-WA:/DATA/BINARIES/VELERO/1-4-2/velero-v1.4.2-linux-amd64#     velero install  \
+#     velero install  \
 >     --provider aws \
 >     --plugins velero/velero-plugin-for-aws:v1.0.0 \
 >     --bucket tkgi-velero \
@@ -237,7 +266,7 @@ root@PKS-client-VM-WA:/DATA/BINARIES/VELERO/1-4-2/velero-v1.4.2-linux-amd64#    
 >     region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
 ```
 
-Expected result:
+Sample expected result:
 
 ```
 CustomResourceDefinition/backups.velero.io: attempting to create resource
@@ -250,7 +279,7 @@ Deployment/velero: created
 DaemonSet/restic: attempting to create resource
 DaemonSet/restic: created
 Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
-
+```
 
 Verify the installation of Valero and Restic:
 
@@ -280,11 +309,11 @@ pks-system        Active   13d
 velero            Active   2m38s
 ```
 
-#### Enable Allow Privileged and Modify the Host Path
+#### Enable Privileged Mode and Modify the Host Path
 
-To run the 3-pod Restic DaemonSet on a Kubernetes cluster in TKGI, you must modif the Restic DaemonSet spec. For more information as to why, see this section of the Restic documentation. https://velero.io/docs/v1.1.0/restic/
+To run the 3-pod Restic DaemonSet on a Kubernetes cluster in TKGI, you must modify the Restic DaemonSet spec. For more information as to why, see the [Restic documentation](https://velero.io/docs/v1.1.0/restic/). In addition, the hostPath should be changed from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`. The instructions for both of these configurations are provided below.
 
-For TKGI, you must enable the **Allow Privileged** option in your plan configuration so that Restic is able to mount the hostPath. In addition, the hostPath should be changed from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`.
+In addition, you must enable the **Allow Privileged** option in your plan configuration so that Restic is able to mount the `hostPath`. See [Plan Configuration](./installing-nsx-t.html#plans) in the TKGI documentation for details. If you change the plan, you will need to redeploy the cluster. Note that Because you are allowing privileged containers in the cluster, you should apply PSP to control pod access. See [Enabling Pod Security Policy](./pod-security-policy.html). 
 
 Verify the 3-pod Restic DaemonSet: 
 
@@ -298,13 +327,13 @@ pod/restic-vcpjm              0/1     CrashLoopBackOff   4          3m8s
 pod/velero-68f47744f5-lb5df   1/1     Running            0          3m8s
 ```
 
-1. Run the following command:
+Run the following command:
 
 ```
 kubectl edit daemonset restic -n velero
 ```
 
-1. Change hostPath from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`:
+Change hostPath from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`:
 
 ```
      - hostPath:
@@ -312,9 +341,9 @@ kubectl edit daemonset restic -n velero
           path: /var/vcap/data/kubelet/pods
 ```
 
-1. Save the file.
+Save the file.
 
-1. Verify the 3-pod Restic DaemonSet: 
+Verify the 3-pod Restic DaemonSet: 
 
 ```
 kubectl get pod -n velero
@@ -325,7 +354,7 @@ restic-bpvtq              1/1     Running   0          73s
 restic-vg8j7              1/1     Running   0          73s
 velero-68f47744f5-lb5df   1/1     Running   0          10m
 ```
-##<a id="valero-deploy"></a> Velero Memory Configurations
+##<a id="valero-memory"></a> Configure Velero Memory Limits (If Necessary)
 
 By default Velero sets limits and request memory at 256 and 128 by default. In case a Velero backup get status='InProgress' for many hours, increase these limits.
 
