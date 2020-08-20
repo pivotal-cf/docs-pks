@@ -1,62 +1,61 @@
 ---
-title: Kubernetes Grid Integrated Edition Certificates
+title: Tanzu Kubernetes Grid Integrated Edition Certificates
 owner: TKGI
 ---
 
-<strong><%= modified_date %></strong>
-
-This topic describes <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) certificates.
+This topic summarizes <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) certificates
+and how to rotate them.
 
 ## <a id="overview"></a>Overview of <%= vars.k8s_runtime_abbr %> Certificates
 
-<%= vars.k8s_runtime_abbr %> uses Certificate Authority (CA) certificates, 
-and the leaf certificates that they issue, 
-for all communication between 
-the <%= vars.k8s_runtime_abbr %> tile, the <%= vars.k8s_runtime_abbr %> control plane, 
-<%= vars.k8s_runtime_abbr %> components, and
-<%= vars.k8s_runtime_abbr %>-managed Kubernetes clusters.
+<%= vars.k8s_runtime_abbr %> secures all communication between <%= vars.k8s_runtime_abbr %> control plane components and <%= vars.k8s_runtime_abbr %>-managed Kubernetes clusters
+with RSA Certificate Authority (CA) certificates and leaf certificates that they issue:
 
-### <a id="control"></a>Overview of <%= vars.k8s_runtime_abbr %> Control Plane Certificates
-
-<%= vars.k8s_runtime_abbr %> control plane and tile certificates are configurable 
-and non-configurable certificates:  
-
-* Configurable certificates must be rotated.  
-* Non-configurable certificates rotate automatically with each tile upgrade. 
+* **Non-configurable certificates** rotate automatically with each <%= vars.k8s_runtime_abbr %> tile upgrade.
+* **Configurable certificates** must be periodically checked for expiration dates and rotated.
 
 All <%= vars.k8s_runtime_abbr %> control plane and tile certificates are stored in CredHub.  
 
 For more information, see [Certificate Types](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/certificate-types.html)
 in the Ops Manager documentation.
 
+## <a id="rotate"></a>Rotating Certificates
 
-### <a id="overview"></a>Overview of Cluster Certificates
+<%= vars.k8s_runtime_abbr %> certificates fall into different types based on
+where they are used, and how you check expirations and rotate them.
 
-<%= vars.k8s_runtime_abbr %>-created Kubernetes clusters use 
-shared and cluster-specific CA certificates, and the leaf-level certificates that they issue.  
+With NSX-T networking, <%= vars.k8s_runtime_abbr %> uses additional certs that you must register with the NSX Manager after rotation.
 
-#### <a id="overview-specific"></a>Cluster-Specific Certificates
+The following table lists these types and their check and rotation procedures:
 
-Cluster-specific certificates are Kubernetes cluster certificates that 
-have values and expiration dates unique to each cluster.
+<table id='rotate' border="1" class="nice" >
+  <tr>
+    <th>Used By</th>
+    <th>Configurable?</th>
+    <th>How to Rotate</th>
+  </tr><tr>
+    <td><%= vars.k8s_runtime_abbr %> Control Plane</td>
+    <td>N*</td>
+    <td><a href="./rotate-tile-certificates.html#control">Rotate TKGI Control Plane Certificates</a></td>
+  </tr><tr>
+    <td><%= vars.k8s_runtime_abbr %> Control Plane (NSX-T)</td>
+    <td>Y</td>
+    <td><a href="./nsxt-generate-pi-cert.html#certificates-nsx-pid-options">Options for Generating the Certificate and Key</a></td>
+  </tr><tr>
+    <td><%= vars.k8s_runtime_abbr %> Control Plane and Clusters, Shared</td>
+    <td>N*</td>
+    <td><a href="rotate-cluster-certificates.html#shared">Rotate Shared Cluster Certificates</a></td>
+  </tr><tr>
+    <td>Unique to Cluster</td>
+    <td>Y</td>
+    <td><a href="./rotate-cluster-certificates.html#unique">Rotate Cluster-Specific Certificates (Non-NSX-T)</a></td>
+  </tr><tr>
+    <td>Unique to Cluster (NSX-T)</td>
+    <td>Y</td>
+    <td><a href="rotate-cluster-certificates.html#unique-nsxt">Rotate Cluster-Specific NSX-T Certificates</a></td>
+  </tr>
+</table>
 
-Cluster-specific certificates are generated for a new Kubernetes cluster 
-by <%= vars.k8s_runtime_abbr %> when it creates the cluster. 
-These cluster-specific certificates are managed by CredHub.
+*Non-configurable certificates rotate with tile upgrade and do not ordinarily require manual rotation.
 
-The following are the cluster-specific certificates:  
-
-* `kubo_ca_2018` and `etcd_ca_2018`, used by clusters in all environments.
-* `tls_nsx_t` and `tls_nsx_lb`, used only by clusters in NSX-T environments.
-
-
-#### <a id="overview-shared"></a>Shared Cluster Certificates  
-
-Shared cluster certificates are Kubernetes cluster certificates that are common to 
-all <%= vars.k8s_runtime_abbr %>-deployed Kubernetes clusters.
-
-Shared cluster certificates do not have unique values for each cluster.
-Some of them are used by the <%= vars.k8s_runtime_abbr %> control plane
-for communication between the <%= vars.k8s_runtime_abbr %> control plane and
-the clusters.
 
