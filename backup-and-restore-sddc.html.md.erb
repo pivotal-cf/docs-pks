@@ -1,26 +1,34 @@
 ---
-title: Backing Up and Restoring the vCenter Server
+title: Backing Up and Restoring the Data Center for TKGI
 owner: TKGI
 ---
 
-This section describes how to back up and restore the vCenter Server in context of a TKGI deployment.
+This section describes summarizes the scenarios for backing up and restoring the data center for TKGI.
 
-<p class="note"><strong>Note</strong>: vSphere SDDC is typically included as part of a site-wide disaster recovery plan. The information provided here is to be used as part of confirmation of such a plan.</p>
+## Components
 
-## vCenter Cluster Configuration
+Backup and restoring the data center for TKGI involves the following components:
 
-To support highly available clusters, configure the vCenter clusters for TKGI with HA and DRS enabled. For more information, see [vSphere Availability](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.avail.doc/GUID-63F459B7-8884-4818-8872-C9753B2E0215.html) in the VMware vSphere documentation.
+- Backup and restore NSX-T Data Center. See [Backing Up and Restoring NSX-T Manager](./backup-and-restore-nsxt.html).
+- Backup and restore vSphere SDDC. See [Backing Up and Restoring the vCenter Server](./backup-and-restore-sddc.html).
 
-## vCenter Server Backup and Recover
+<p class="note"><strong>Note</strong>: In terms of TKGI, the focus is on backup and restore of NSX-T Data Center. vCenter backup and restore is generally outside the scope of this documentation, but a reference is provided to ensure it is part of your end-to-end backup and restore workflow.</p>
 
-vCenter Server supports file backup to network attached storage.
+## Scenarios and Considerations
 
-To backup and restore vCenter, create a backup of the vCenter primary server. Refer to the topic [File-Based Backup and Restore of vCenter Server](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vcenter.install.doc/GUID-3EAED005-B0A3-40CF-B40D-85AD247D7EA4.html) in the vCenter documentation.
+Test Scenario 						| Expected Result
+------------------------------------|----------------------------------------------------------
+| Deploy Kubernetes application with service endpoint. Take backup of NSX-T. Shut down (or delete) NSX Manager nodes. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | No loss in app connectivity.
+| Take backup of NSX-T. Deploy Kubernetes application with service endpoint. Shut down (or delete) NSX Manager nodes. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | App must be redeployed because it was deployed after backup was taken.
+| Take backup of NSX-T. Create Kubernetes namespace. Shut down (or delete) NSX Manager nodes. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | Namespace must be recreated because it was created after backup was taken.
+| Take backup of NSX-T. Create TKGI cluster. Shut down (or delete) NSX Manager nodes. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | Cluster is not reachable. Delete cluster and create new one.
+| Take backup of NSX-T. Shut down (or delete) NSX Manager nodes. Delete namespace. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | Namespace is removed when NSX-T is restored.
+| Create namespace. Take backup of NSX-T. Shut down (or delete) NSX Manager nodes. Create pods. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | Restarting pods brings them to running state since namespace was created before backup. 
+| Take backup of NSX-T. Shut down (or delete) NSX Manager nodes. Create pods. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | Pods stuck in ContainerCreating state. Namespace and app must be recreated.
+| Take backup of NSX-T. Shut down (or delete) NSX Manager nodes. Create load balancer service. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | Load balancer VIP is pending. Must redeploy the service for it to work.
+| Take backup of NSX-T. Shut down (or delete) NSX Manager nodes. Delete load balancer service. Deploy new NSX-T Manger node and restore configuration from backup. Restore additional NSX Manager nodes. | On restore the load balancer VIP is deleted.
 
-## Data Protection
 
-VMware provides a robust set of vSphere Storage APIs for host data protection, and partners with third-party vendors to provide backup and recovery solutions for vSphere datastores, including the following:
 
-- [Dell Avamar](https://www.delltechnologies.com/en-us/data-protection/data-protection-suite/avamar-data-protection-software.htm#)
-- [Veeam] (https://www.vmware.com/partners/strategic-technology-partners/veeam.html)
-- [Datrium] (https://www.datrium.com/)
+
+
