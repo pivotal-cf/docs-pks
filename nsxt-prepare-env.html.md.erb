@@ -72,43 +72,38 @@ The routable IP block overrides the default non-routable <strong>Pods IP Block</
 
 ###<a id='nodes-ip-block'></a>Nodes IP Block
 
-Each Kubernetes cluster deployed by <%= vars.product_short %> owns a /24 subnet. To deploy multiple Kubernetes clusters, set the **Nodes IP Block ID** in the **Networking** pane of the <%= vars.product_tile %> tile to larger than /24. The recommended size is /16. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).
+Each Kubernetes cluster deployed by <%= vars.product_short %> owns a /24 subnet. To deploy multiple Kubernetes clusters, set the **Nodes IP Block ID** in the **Networking** pane of the <%= vars.product_tile %> tile to larger than /24. The recommended size is /16. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html). 
 
   <img src="images/nsxt/nodes-ip-block.png" alt="Nodes IP Block">
+
+Each Kubernetes cluster uses the `10.100.200.0/24` subnet for Kubernetes services. Do not use this IP block for the Nodes IP Block.
 
 <p class="note"><strong>Note</strong>: You can use a smaller nodes block size for no-NAT environments with a limited number of routable subnets.
 For example, /20 allows up to 16 Kubernetes clusters to be created.</p>
 
 ###<a id='reserved-ip-blocks'></a>Reserved IP Blocks
 
-The <%= vars.product_short %> Management Plane must not use the use 172.17.0.0/16 subnet. This restriction applies to all virtual machines (VMs) deployed during the <%= vars.product_short %> installation process, including <%= vars.product_short %> components, Ops Manager, BOSH Director, and Harbor Registry.
+<%= vars.product_short %> reserves several CIDR blocks and IP addresses for internal use. When deploying TKGI, do not use these CIDR blocks or IP addresses.
 
-In addition, do not use any of the IP blocks listed below for Kubernetes master or worker node VMs, or for Kubernetes pods.
-If you create Kubernetes clusters with any of the blocks listed below, the Kubernetes worker nodes cannot reach Harbor or internal Kubernetes services.
+* Each Kubernetes cluster uses the `10.100.200.0/24` subnet for Kubernetes services. Do not use this IP range for the Nodes IP Block.
+* The Docker daemon (`dockerd`) is installed on the <%= vars.product_short %> worker nodes and requires the entire `172.20.0.0/16` subnet. Do not use this CIDR range for any TKGI component, including Ops Manager, BOSH Director, the TKGI API VM, the TKGI DB VM, and Harbor.
+* The Harbor Registry requires IP blocks in the range `172.20.x.0/24`. (See below for the complete list.) Do not use these CIDR ranges.
+* The <%= vars.product_short %> Management Console runs the Docker daemon on the `172.18.0.0/16` subnet using the gateway `172.18.0.1`. Do not use these IP addresses.
 
-The Docker daemon on the Kubernetes worker node uses the subnet in the following CIDR range.
-Do not use IP addresses in the following CIDR range:
+The table below summarizes the IP blocks reserved by TKGI. Do not use these when deploying TKGI components.
 
-  * 172.17.0.1/16
-  * 172.18.0.1/16
-  * 172.19.0.1/16
-  * 172.20.0.1/16
-  * 172.21.0.1/16
-  * 172.22.0.1/16
-
-If <%= vars.product_short %> is deployed with Harbor v1.9.3 or v1.9.4, also do not use IP addresses in the following CIDR ranges.
-Harbor v1.9.3 and v1.9.4 use these for internal Docker bridges:
-
-  * 172.23.0.1/16
-  * 172.24.0.1/16
-  * 172.25.0.1/16
-  * 172.26.0.1/16
-  * 172.27.0.1/16
-
-Each Kubernetes cluster uses the following subnet for Kubernetes services.
-Do not use the following IP block for the Nodes IP Block:
-
-  * 10.100.200.0/24
+IP Address Block    | Reserved for
+--------------------|--------------------
+`10.100.200.0/24`   | Kubernetes services
+`172.20.0.0/16`     | Docker daemon (`dockerd`) running on TKGI worker nodes
+`172.20.0.0/24'     | Harbor Registry
+`172.20.6.0/24'     | Harbor Registry
+`172.20.7.0/24'     | Harbor Registry
+`172.20.8.0/24'     | Harbor Registry
+`172.20.9.0/24'     | Harbor Registry
+`172.20.10.0/24'    | Harbor Registry
+`172.18.0.0/16'     | TKGI Management Console
+`172.18.0.1'        | TKGI Management Console Gateway
 
 ##<a id='plan-ip-blocks'></a>Gather Other Required IP Addresses
 
