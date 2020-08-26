@@ -13,12 +13,12 @@ The application we are going to use to test backup/restore with Velero is the st
 
 [Install and configure](./velero-install.html) Minio, Velero, and Restic.
 
-Download the [Guestbook app YAML files](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) to a local known directory:
+Download the [Guestbook app YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/guestbook-app/) to a local known directory:
 
-- redis-master-deployment.yaml
-- redis-master-service.yaml
-- redis-slave-deployment.yaml
-- redis-slave-service.yaml
+- redis-leader-deployment.yaml
+- redis-leader-service.yaml
+- redis-follower-deployment.yaml
+- redis-follower-service.yaml
 - frontend-deployment.yaml 
 - frontend-service.yaml
 
@@ -37,10 +37,10 @@ Deploy the Guestbook app:
 kubectl apply -f . -n guestbook
 deployment.apps/frontend created
 service/frontend created
-deployment.apps/redis-master created
-service/redis-master created
-deployment.apps/redis-slave created
-service/redis-slave created
+deployment.apps/redis-leader created
+service/redis-leader created
+deployment.apps/redis-follower created
+service/redis-follower created
 root@PKS-client-VM-WA:/DATA/K8s-Apps
 ```
 
@@ -52,17 +52,17 @@ NAME                            READY   STATUS    RESTARTS   AGE
 frontend-6cb7f8bd65-kqbf6       1/1     Running   0          38s
 frontend-6cb7f8bd65-s7mk9       1/1     Running   0          38s
 frontend-6cb7f8bd65-vtz4k       1/1     Running   0          38s
-redis-master-7b8487bf68-2mhcd   1/1     Running   0          38s
-redis-slave-5bdcfd74c7-4hhqs    1/1     Running   0          37s
-redis-slave-5bdcfd74c7-hl8hf    1/1     Running   0          37s
+redis-leader-7b8487bf68-2mhcd   1/1     Running   0          38s
+redis-follower-5bdcfd74c7-4hhqs 1/1  Running   0          37s
+redis-follower-5bdcfd74c7-hl8hf 1/1     Running   0          37s
 ```
 
 ```
 kubectl get svc -n guestbook
 NAME           TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)        AGE
 frontend       LoadBalancer   10.100.200.3     10.199.41.10   80:32498/TCP   47s
-redis-master   ClusterIP      10.100.200.192   <none>         6379/TCP       47s
-redis-slave    ClusterIP      10.100.200.218   <none>         6379/TCP       46s
+redis-leader   ClusterIP      10.100.200.192   <none>         6379/TCP       47s
+redis-follower ClusterIP      10.100.200.218   <none>         6379/TCP       46s
 ```
 
 Access the Guestbook app at <http://10.199.41.10/>.
@@ -299,9 +299,9 @@ NAME                            READY   STATUS    RESTARTS   AGE
 frontend-6cb7f8bd65-kqbf6       1/1     Running   0          29s
 frontend-6cb7f8bd65-s7mk9       1/1     Running   0          29s
 frontend-6cb7f8bd65-vtz4k       1/1     Running   0          29s
-redis-master-7b8487bf68-2mhcd   1/1     Running   0          29s
-redis-slave-5bdcfd74c7-4hhqs    1/1     Running   0          29s
-redis-slave-5bdcfd74c7-hl8hf    1/1     Running   0          29s
+redis-leader-7b8487bf68-2mhcd   1/1     Running   0          29s
+redis-follower-5bdcfd74c7-4hhqs 1/1     Running   0          29s
+redis-follower-5bdcfd74c7-hl8hf 1/1     Running   0          29s
 ```
 
 ```
@@ -309,15 +309,17 @@ kubectl get svc -n guestbook
 
 NAME           TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)        AGE
 frontend       LoadBalancer   10.100.200.127   10.199.41.14   80:32673/TCP   34s
-redis-master   ClusterIP      10.100.200.78    <none>         6379/TCP       34s
-redis-slave    ClusterIP      10.100.200.250   <none>         6379/TCP       34s
+redis-leader   ClusterIP      10.100.200.78    <none>         6379/TCP       34s
+redis-follower ClusterIP      10.100.200.250   <none>         6379/TCP       34s
 ```
 
 Access the Guestbook app at <http://10.199.41.14/>.
 
   <img src="images/backup-restore/guestbook-02.png" alt="Guestbook App" width="538">
 
+## <a id='guestbook-conclusions-ns'></a> Conclusions
 
 Note the following:
-  - The namespace 'guestbook' was automatically re-created
-  - The IP address for the Kuberentes service load balancer is changed from 10.199.41.10 to .14
+
+- The namespace 'guestbook' is automatically re-created.
+- The IP address for the Kuberentes service load balancer is changed from 10.199.41.10 to .14.
