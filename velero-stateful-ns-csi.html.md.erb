@@ -11,19 +11,18 @@ This topic describes how to use Velero to backup and restore a stateful applicat
 
 To test Velero backup and restore for stateful applications, use the [Guestbook application](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) with a persistent volume. 
 
-When restoring the stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster.
-If the PVC was using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
+When restoring the stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster. If the PVC is using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
 
 ##<a id="prereqs"></a> Prerequisites
 
 [Install and configure](./velero-install.html) Minio, Velero, and Restic.
 
-Download the [Guestbook app YAML files](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) to a local known directory:
+Download the [Guestbook app YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/guestbook-app/) to a local known directory:
 
-- redis-master-deployment.yaml
-- redis-master-service.yaml
-- redis-slave-deployment.yaml
-- redis-slave-service.yaml
+- redis-leader-deployment.yaml
+- redis-leader-service.yaml
+- redis-follower-deployment.yaml
+- redis-follower-service.yaml
 - frontend-deployment.yaml 
 - frontend-service.yaml
 
@@ -76,12 +75,12 @@ Deploy the Guestbook app:
 kubectl apply -f . -n guestbook-csi
 
 storageclass.storage.k8s.io/guestbook-sc-csi unchanged
-persistentvolumeclaim/redis-master-claim created
-persistentvolumeclaim/redis-slave-claim created
-service/redis-master created
-deployment.apps/redis-master created
-service/redis-slave created
-deployment.apps/redis-slave created
+persistentvolumeclaim/redis-leader-claim created
+persistentvolumeclaim/redis-follower-claim created
+service/redis-leader created
+deployment.apps/redis-leader created
+service/redis-follower created
+deployment.apps/redis-follower created
 service/frontend created
 deployment.apps/frontend created
 ```
@@ -114,28 +113,28 @@ Get the volume names:
 kubectl get pod -n guestbook-csi
 ```
 
-The volume name is `redis-master-data` for pod redis-master-64fb8775bf-wg5tk
+The volume name is `redis-leader-data` for pod redis-leader-64fb8775bf-wg5tk
 
-The volume name is `redis-slave-data` for pod redis-slave-779b6d8f79-mqcrx
+The volume name is `redis-follower-data` for pod redis-follower-779b6d8f79-mqcrx
 
 Annotate the pods:
 
 ```
-kubectl -n guestbook-csi annotate pod redis-master-64fb8775bf-wg5tk backup.velero.io/backup-volumes=redis-master-data
-pod/redis-master-64fb8775bf-wg5tk annotated
+kubectl -n guestbook-csi annotate pod redis-leader-64fb8775bf-wg5tk backup.velero.io/backup-volumes=redis-leader-data
+pod/redis-leader-64fb8775bf-wg5tk annotated
 
-kubectl -n guestbook-csi annotate pod redis-slave-779b6d8f79-mqcrx backup.velero.io/backup-volumes=redis-slave-data
-pod/redis-slave-779b6d8f79-mqcrx annotated
+kubectl -n guestbook-csi annotate pod redis-follower-779b6d8f79-mqcrx backup.velero.io/backup-volumes=redis-follower-data
+pod/redis-follower-779b6d8f79-mqcrx annotated
 ```
 
 Verify:
 
 ```
-kubectl -n guestbook-csi describe pod redis-master-64fb8775bf-wg5tk | grep Annotations
-Annotations:  backup.velero.io/backup-volumes: redis-master-data
+kubectl -n guestbook-csi describe pod redis-leader-64fb8775bf-wg5tk | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: redis-leader-data
 
-kubectl -n guestbook-csi describe pod redis-slave-779b6d8f79-mqcrx | grep Annotations
-Annotations:  backup.velero.io/backup-volumes: redis-slave-data
+kubectl -n guestbook-csi describe pod redis-follower-779b6d8f79-mqcrx | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: redis-follower-data
 ```
 
 Perform the Velero backup:
@@ -260,7 +259,7 @@ Access the Guestbook app at <http://10.199.41.10/>.
 
 The Velero restore may not show the saved messages. This is not a Velero issue. The guestbook app is using some kind of RAM cache for the messages so if those messages are not flushed into disk, the data won't be available in the PV.
 
-Key takeaways from the restore operation:
+Key takeaways from the restore operation for this scenario:
 
 - Pod annotation is still required for Velero backup of PV
 - The namespace 'guestbook-csi' was automatically re-created
