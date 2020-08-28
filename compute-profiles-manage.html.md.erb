@@ -4,42 +4,21 @@ owner: TKGI
 ---
 
 This topic describes how to create and manage compute profiles in
-<%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) on vSphere with NSX-T.
+<%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) on vSphere.
 
 For more information on how to use compute profiles, see
 [Using Compute Profiles](./compute-profiles-use.html).
 
 ## <a id='about'></a>About Compute Profiles
 
-<%= vars.k8s_runtime_abbr %> admins can define
-compute resources such as CPU, memory, ephemeral disk, and persistent disk
-for Kubernetes clusters with a compute profile.
+A compute profile enables <%= vars.k8s_runtime_abbr %> admins to override the default settings defined by a plan. 
 
-You can also define availability zones (AZs) using a compute profile.
+Using a compute profile, you can customize the following:
 
-### <a id='examples'></a> Compute Profile Examples
+* Compute resources such as CPU, memory, ephemeral disk, and persistent disk for Kubernetes clusters
+* Where Kubernetes clusters are created within your vSphere infrastructure and which vSphere resources are used 
 
-See the table below for examples of compute profiles.
-
-Example 								              		| Description
-----------------------------------------------------------------|------------------------------------------------------------------------------
-[Flexible Node Types](#flexible-types)	  		| Define compute resources.
-[Heterogeneous Nodes](#heterogeneous-nodes)	  		| TK one-line description
-[Custom AZs for Nodes](#custom-azs)	  		| Define AZs.
-
-### <a id='flexible-types'></a> Flexible Node Types
-
-TK Recipe.
-
-### <a id='heterogeneous-nodes'></a> Heterogeneous Nodes
-
-TK Recipe.
-
-### <a id='custom-azs'></a> Custom AZs for Nodes
-
-You can define Availability Zones (AZs) dynamically instead of adding new AZs in the BOSH Director tile. As a result, you do not need to make AZ changes to each plan and the overall impact to the TKGI control plane is smaller.
-
-TK Recipe.
+After you create a compute profile, you can apply it to one or more Kubernetes clusters.
 
 ## <a id="create"></a> Create a Compute Profile
 
@@ -58,25 +37,6 @@ To create a compute profile, you must first define it as a JSON file that
 specifies compute parameters, which are listed in
 [Compute Profile Parameters](#params) below.
 
-Compute profiles support the following top-level properties:
-
-```
-{
-  "name": "my-compute-profile",
-  "description": "my compute profile description",
-  "parameters": {
-    "azs": [{
-      "name": "az-name",
-      "cloud_properties": {}
-    }],
-    "cluster_customization": {
-      "control_plane": {},
-      "node_pools": [{}]
-    }
-  }
-}
-```
-
 Below is an example compute profile.
 
 <p class="note"><strong>Note:</strong> This example compute profile is for
@@ -85,39 +45,52 @@ compute profile definition.</p>
 
 ```
 {
-  "name": "my-compute-profile",
-  "description": "my compute profile description",
+  "name": "dc-east-mixed",
+  "description": "A profile for the east datacenter with heterogeneous workers.",
   "parameters": {
     "azs": [{
-      "name": "az-name",
-      "cloud_properties": {}
+      "name": "east",
+      "cpi": "056bf5a3aea9c5c79f62",
+      "cloud_properties": {
+        "datacenters": [{
+          "name": "east",
+          "clusters": [{
+            "cluster-0": {
+              "host_group": {
+                "drs_rule": "MUST",
+                "name": "cluster-0-hg"
+              }
+            },
+            "resource_pool": "az-2"
+          }]
+        }]
+      }
     }],
     "cluster_customization": {
       "control_plane": {
         "cpu": 4,
-        "memory_in_mb": 4098,
-        "ephemeral_disk_in_mb": 8196,
-        "persistent_disk_in_mb": 4096,
-        "az_names": ["az-1", "az-2"],
-        "instances": 2
+        "memory_in_mb": 16384,
+        "ephemeral_disk_in_mb": 32768,
+        "az_names": ["east"],
+        "instances": 3
       },
       "node_pools": [{
-          "cpu": 2,
-          "memory_in_mb": 2048,
-          "ephemeral_disk_in_mb": 8196,
-          "persistent_disk_in_mb": 4096,
-          "az_names": ["az-1", "az-2"],
-          "name": "node1",
-          "instances": 2
+          "name": "x-large",
+          "cpu": 4,
+          "memory_in_mb": 8192,
+          "ephemeral_disk_in_mb": 32768,
+          "az_names": ["east"],
+          "instances": 3,
+          "max_worker_instances": 25
         },
         {
-          "cpu": 2,
+          "name": "small",
+          "cpu": 1,
           "memory_in_mb": 2048,
-          "ephemeral_disk_in_mb": 8196,
-          "persistent_disk_in_mb": 4096,
-          "az_names": ["az-1", "az-2"],
-          "name": "node2",
-          "instances": 2
+          "ephemeral_disk_in_mb": 8192,
+          "az_names": ["east"],
+          "instances": 5,
+          "max_worker_instances": 30
         }
       ]
     }
@@ -157,29 +130,17 @@ properties:
   <tr>
     <td><code>azs</code></td>
     <td>Array</td>
-    <td>Properties defining AZ name and <code>cloud_properties</code> settings.
-    See <a href="#cloud-properties">cloud_properties Block</a> below.</td>
+    <td>Properties defining AZ name, CPI, and <code>cloud_properties</code> settings.
+    See <a href="#cloud-properties">azs Block</a> below.</td>
   </tr>
   <tr>
     <td><code>cluster_customization</code></td>
     <td>Object</td>
-    <td>Properties defining <code>control_plane</code> and <code>node_pools</code>.</td>
-  </tr>
-  <tr>
-    <td><code>control_plane</code></td>
-    <td>Object</td>
-    <td>Settings for Kubernetes control plane node instances.
-     See <a href="#control-plane">control_plane Block</a> below.</td>
-  </tr>
-  <tr>
-    <td><code>node_pools</code></td>
-    <td>Array</td>
-    <td>Settings for worker node instances. See <a href="#node-pools">node_pools Block</a>
-    below.</td>
+    <td>Properties defining <a href="#control-plane"><code>control_plane</code></a> and <a href="#node-pools"><code>node_pools</code></a>.</td>
   </tr>
 </table>
 
-#### <a id="cloud-properties"></a>`cloud_properties` Block
+#### <a id="cloud-properties"></a>`azs` Block
 
 <table>
   <tr>
@@ -187,9 +148,62 @@ properties:
     <th>Type</th>
     <th>Description</th>
   </tr>
-    <td>TBD</td>
-    <td>TBD</td>
-    <td>TBD</td>
+  <tr>
+    <td><code>name</code></td>
+    <td>String</td>
+    <td>Name for the AZ where you want to deploy cluster VMs. For example,
+      <code>z1</code>.</td>
+  </tr>
+  <tr>
+    <td><code>cpi</code></td>
+    <td></td>
+    <td>BOSH CPI ID of your <%= vars.product_short %> deployment. For instructions on how to obtain the ID, see <a href="#retrieve-cpi-id">Retrieve the BOSH CPI ID</a>. For example,
+      <code>abc012abc345abc567de</code>.</td>
+  </tr>
+  <tr>
+    <td><code>cloud_properties</code></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>datacenters</code></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>name</code></td>
+    <td></td>
+    <td>Name of your datacenter as it appears in Ops Manager and your cloud provider console. For example, <code>dc-east</code>.</td>
+  </tr>
+  <tr>
+    <td><code>clusters</code></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>cluster-0</code></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>host_group</code></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>drs_rule</code></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>name</code></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>resource_pool</code></td>
+    <td></td>
+    <td>Name of the resource pool where you want to deploy your cluster.</td>
   </tr>
 </table>
 
@@ -199,7 +213,7 @@ This block defines properties for Kubernetes control plane node instances.
 
 When defining the `control_plane` block,
 you must specify either `cpu`, `memory_in_mb`,
-`ephemeral_disk_in_mb`, and `persistent_disk_in_mb` or none of the four.
+`ephemeral_disk_in_mb` or none of the three.
 
 <table>
   <tr>
@@ -223,14 +237,9 @@ you must specify either `cpu`, `memory_in_mb`,
     <td>Ephemeral disk for control plane instances.</td>
   </tr>
   <tr>
-    <td><code>persistent_disk_in_mb</code></td>
-    <td>Integer</td>
-    <td>Persistent disk for control plane instances.</td>
-  </tr>
-  <tr>
     <td><code>az_names</code></td>
     <td>Array</td>
-    <td>AZs where control plane instances run.</td>
+    <td>AZs in which you want control plane instances to run.</td>
   </tr>
   <tr>
     <td><code>instances</code></td>
@@ -243,17 +252,23 @@ Do not assign the `name` property to this block.
 
 #### <a id="node-pools"></a>`node_pools` Block
 
-This block defines properties for each Kubernetes worker node.
+This block defines properties for Kubernetes worker nodes.
+You can define one or more node pools.
 
 When defining the `node_pools` block,
 you must specify either `cpu`, `memory_in_mb`,
-`ephemeral_disk_in_mb`, and `persistent_disk_in_mb` or none of the four.
+`ephemeral_disk_in_mb` or none of the three.
 
 <table>
   <tr>
     <th width="30%">Property</th>
     <th>Type</th>
     <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>name</code></td>
+    <td>String</td>
+    <td>Name of the node pool.</td>
   </tr>
   <tr>
     <td><code>cpu</code></td>
@@ -271,26 +286,46 @@ you must specify either `cpu`, `memory_in_mb`,
     <td>Ephemeral disk for worker node instances.</td>
   </tr>
   <tr>
-    <td><code>persistent_disk_in_mb</code></td>
-    <td>Integer</td>
-    <td>Persistent disk for worker node instances.</td>
-  </tr>
-  <tr>
     <td><code>az_names</code></td>
     <td>Array</td>
-    <td>AZs where worker node instances run.</td>
-  </tr>
-  <tr>
-    <td><code>name</code></td>
-    <td>String</td>
-    <td>Name of the worker node.</td>
+    <td>AZs in which you want worker node instances to run.</td>
   </tr>
   <tr>
     <td><code>instances</code></td>
     <td>Integer</td>
     <td>Number of worker node instances.</td>
   </tr>
+  <tr>
+    <td><code>max_worker_instances</code></td>
+    <td>Integer</td>
+    <td>Maximum number of worker node instances for the node pool.</td>
+  </tr>
 </table>
+
+
+### <a id='examples'></a> Compute Profile Examples
+
+See the table below for examples of compute profiles.
+
+Example                                   | Description
+----------------------------------------------------------------|------------------------------------------------------------------------------
+[Flexible Node Types](#flexible-types)        | Define compute resources.
+[Heterogeneous Nodes](#heterogeneous-nodes)       | TK one-line description
+[Custom AZs for Nodes](#custom-azs)       | Define AZs.
+
+### <a id='flexible-types'></a> Flexible Node Types
+
+TK Recipe.
+
+### <a id='heterogeneous-nodes'></a> Heterogeneous Nodes
+
+TK Recipe.
+
+### <a id='custom-azs'></a> Custom AZs for Nodes
+
+You can define Availability Zones (AZs) dynamically instead of adding new AZs in the BOSH Director tile. As a result, you do not need to make AZ changes to each plan and the overall impact to the TKGI control plane is smaller.
+
+TK Recipe.
 
 ### <a id="run-create"></a> The create-compute-profile Command
 
