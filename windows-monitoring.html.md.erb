@@ -1,0 +1,227 @@
+---
+title: Monitoring Windows Worker Clusters and Workers
+owner: PKS
+---
+
+This topic describes how to install and configure 
+components and integrations to capture 
+<%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) 
+Windows Worker Kubernetes cluster and worker node 
+metrics.
+
+## <a id='monitor-prerequisites'></a> Prerequisites
+
+Before installing Prometheus ensure you have installed `kubectl`. 
+For more information about installing `kubectl`, 
+see [Install and Set Up kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) 
+in the Kubernetes documentation.  
+
+For additional Prometheus and Grafana prerequisites, see 
+[Prerequisites](https://github.com/prometheus-operator/kube-prometheus#prerequisites) 
+in the _kube-prometheus_ GitHub repository.  
+
+
+### <a id='monitor-prometheus-grafana'></a> Monitor Windows Clusters and Worker Nodes Using Prometheus and Grafana
+
+To monitor Windows clusters and worker nodes using Prometheus and Grafana:  
+
+1. [Install Prometheus and Grafana](#install-prometheus)
+1. [Verify Grafana is Running](#verify-grafana)
+1. [Install the Windows Node Exporter](#install-node-exporter)
+1. [Configure the Windows Node Exporter](#configure-node-exporter)
+1. [Configure Grafana to Monitor the Windows Node Exporter](#configure-node-exporter-grafana)
+
+### <a id='install-prometheus'></a> Install Prometheus and Grafana
+To install Prometheus and Grafana:  
+
+1. Get `kubeconfig` for your windows cluster.  
+1. Clone or download the prometheus operator source from the
+[kube-prometheus](https://github.com/prometheus-operator/kube-prometheus)
+GitHub repository.  
+1. Open a command line to your prometheus source code root folder.  
+1. To deploy Prometheus and Grafana, run:  
+
+    ```
+    kubectl create -f manifests/setup
+    until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
+    kubectl create -f manifests/
+    ```
+1. To forward the Prometheus and Grafana ports to localhost run:  
+
+    ```
+    $ kubectl --namespace monitoring port-forward svc/prometheus-k8s 9090
+    $ kubectl --namespace monitoring port-forward svc/grafana 3000
+    ```
+
+For more information about installing , see [Quickstart](https://github.com/prometheus-operator/kube-prometheus#quickstart) 
+in the _prometheus-operator/kube-prometheus_ GitHub repository.  
+
+### <a id='verify-grafana'></a> Verify Grafana is Running
+1. To open the Grafana Dashboard, open a browser to `http://localhost:3000`.
+1. To log in to the Grafana Dashboard authenticate with user `admin`, 
+password `admin`. 
+1. To view Kubelet metrics from all of your windows workers, navigate
+to **Dashboard** > **Default** > **Kubernetes/Kubelet**. 
+
+<%#
+### <a i 
+d='xinstall-node-exporter'></a> Monitor Windows Clusters Using the Windows Node Exporter
+
+To monitor Windows worker nodes for CPU and memory utilization, 
+the Windows Node Exporter must be installed on all Windows workers to be monitored.  
+%>
+
+#### <a id='install-node-exporter'></a> Install the Windows Node Exporter
+
+To install the Windows Node Exporter on all of your Windows worker nodes, 
+repeat the steps below for each Windows worker node you want to monitor:  
+
+1. Start a remote Windows session to the Windows worker.  
+1. Download the [`windows_exporter-0.13.0-386.msi`]
+(https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-386.msi) 
+from [v0.13.0](https://github.com/prometheus-community/windows_exporter/releases/) 
+in the _prometheus-community/windows\_exporter_ repository on GitHub, to the worker.
+1. To start the `windows_exporter` msi as a Windows service, open a command line:  
+
+    ```
+    msiexec /i C:\windows_exporter-0.13.0-amd64.msi ENABLED_COLLECTORS="ad,iis,logon,memory,process,tcp,thermalzone"
+    ```
+
+
+#### <a id='configure-node-exporter'></a> Configure the Windows Node Exporter
+
+To monitor Windows worker node metrics, you need endpoints, the node exporter service, 
+and the node exporter service monitor. 
+To support monitoring by Prometheus and Grafana, a Windows Node Exporter service must be configured 
+to access your Windows worker node metrics.
+
+To configure the Windows Node Exporter:  
+
+1. Create a file named `win-exporter.yml`.
+1. Populate the file with the following:
+
+    ```
+    apiVersion: v1
+    kind: Endpoints
+    metadata:
+      labels:
+        k8s-app: win-exporter
+      name: win-exporter
+      namespace: kube-system
+    subsets:
+    - addresses:
+      - ip: NODE-IP
+        targetRef:
+          kind: Node
+          name: NODE-NAME
+      ports:
+      - name: http-metrics
+        port: 9182
+        protocol: TCP
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        k8s-app: win-exporter
+      name: win-exporter
+      namespace: kube-system
+    spec:
+      clusterIP: None
+      ports:
+      - name: http-metrics
+        port: 9182
+        protocol: TCP
+        targetPort: 9182
+      sessionAffinity: None
+      type: ClusterIP
+    ---
+    apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: |
+          {"apiVersion":"monitoring.coreos.com/v1","kind":"ServiceMonitor","metadata":{"annotations":{},"labels":{"k8s-app":"win-exporter"},"name":"win-exporter","namespace":"monitoring"},"spec":{"endpoints":[{"interval":"30s","port":"http-metrics"}],"jobLabel":"k8s-app","namespaceSelector":{"matchNames":["kube-system"]},"selector":{"matchLabels":{"k8s-app":"win-exporter"}}}}
+      labels:
+        k8s-app: win-exporter
+      name: win-exporter
+      namespace: mornitoring
+    spec:
+      endpoints:
+      - interval: 30s
+        port: http-metrics
+      jobLabel: k8s-app
+      namespaceSelector:
+        matchNames:
+        - kube-system
+      selector:
+        matchLabels:
+          k8s-app: win-exporter
+    ```
+
+    Where:  
+    * `NODE-IP` is the IP address of the Windows worker node to monitor.
+    * `NODE-NAME` is the name of the Windows worker node to monitor.
+
+1. Create an additional `subsets.addresses` item for each Windows worker node you want to monitor: 
+
+    ```
+    subsets:
+    - addresses:
+      - ip: NODE-ONE-IP
+        targetRef:
+          kind: Node
+          name: NODE-ONE-NAME
+      - ip: NODE-TWO-IP
+        targetRef:
+          kind: Node
+          name: NODE-TWO-NAME
+      - ip: NODE-THREE-IP
+        targetRef:
+          kind: Node
+          name: NODE-THREE-NAME
+    ```
+
+    Where:  
+    * `NODE-ONE-IP` is the IP address of the first Windows worker node to monitor.
+    * `NODE-ONE-NAME` is the name of the first Windows worker node to monitor.
+    * `NODE-TWO-IP` is the IP address of the second Windows worker node to monitor.
+    * `NODE-TWO-NAME` is the name of the second Windows worker node to monitor.
+    * `NODE-THREE-IP` is the IP address of the third Windows worker node to monitor.
+    * `NODE-THREE-NAME` is the name of the third Windows worker node to monitor.
+
+
+1. Save your changes to the `win-exporter.yml` file.  
+1. To create the Windows node exporter objects, run:
+
+    ```
+    kubectl create -f win-exporter.yml
+    ```
+1. Wait a few seconds for the service to be ready.
+1. To verify your new targets in Prometheus, open a browser to `http://localhost:9090/targets`.  
+
+### <a id='configure-node-exporter-grafana'></a> Configure Grafana to Monitor the Windows Node Exporter
+
+To monitor Windows worker CPU, memory and other system metrics in Grafana, 
+add the Windows Node Exporter to the Grafana Dashboard:  
+
+1. Open a browser to your Grafana dashboard.
+1. To open the **Import** tab, click **+** on the Grafana side menu.
+1. To import the [Windows Node](https://grafana.com/grafana/dashboards/12422) 
+    dashboard from the Grafana Labs [Dashboards](https://grafana.com/grafana/dashboards) 
+    site, type `12422` in **Import via grafana.com**.
+1. Click **Load**. 
+1. Select Prometheus as the dashboard source.
+
+If you prefer to use a different Grafana dashboard, 
+you can use and configure the preferred dashboard to monitor the Windows Node Exporter. 
+For more information, see [Dashboards](https://grafana.com/grafana/dashboards) 
+at the Grafana Labs site.
+
+## <a id='unsupported'></a> Unsupported Monitoring Features
+The following are linux monitoring features that are not supported in Windows worker monitoring:  
+
+* **Pod Metrics**  
+    Grafana cannot be used to collect CPU, memory usage or other Pod metrics. 
+    cAdvisor is used to collect this information from Linux worker nodes, 
+    but cAdvisor is not compatible with Windows nodes.
