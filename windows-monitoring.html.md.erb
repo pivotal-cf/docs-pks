@@ -34,9 +34,7 @@ To monitor Windows clusters and worker node metrics using Prometheus and Grafana
 1. [Install the Windows Node Exporter](#install-node-exporter)
 1. [Configure the Windows Node Exporter](#configure-node-exporter)
 1. [Configure Grafana to Monitor the Windows Node Exporter](#configure-node-exporter-grafana)
-
-After completing the steps for setting up Prometheus and Grafana for Windows cluster and worker node metrics monitoring, 
-please also review the steps in [Post-Installation Considerations](#considerations) below.
+1. [Administer Prometheus and Grafana](#post-install-admin)  
 
 ### <a id='install-prometheus'></a> Install Prometheus and Grafana  
 
@@ -110,13 +108,13 @@ To install the Windows Node Exporter on all of your Windows worker nodes,
 repeat the steps below for each Windows worker node you want to monitor:  
 
 1. Start an SSH session to the Windows worker.  
-1. Download the [`windows_exporter-0.13.0-386.msi`]
+1. To download the [`windows_exporter-0.13.0-386.msi`]
 (https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-386.msi) 
-from [v0.13.0](https://github.com/prometheus-community/windows_exporter/releases/) 
-in the _prometheus-community/windows\_exporter_ repository on GitHub, to the worker:  
+to the worker from [v0.13.0](https://github.com/prometheus-community/windows_exporter/releases/) 
+in the _prometheus-community/windows\_exporter_ repository on GitHub:  
 
     ```
-    Invoke-WebRequest https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-amd64.exe ^
+    Powershell Invoke-WebRequest https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-amd64.exe ^
         -OutFile DOWNLOAD-PATH 
     ```
 
@@ -149,8 +147,8 @@ To configure the Windows Node Exporter:
     metadata:
       labels:
         k8s-app: APP-NAME
-      name: APP-NAME
-      namespace: NAMESPACE
+      name: ENDPOINT-NAME
+      namespace: kube-system
     subsets:
     - addresses:
       - ip: NODE-IP
@@ -167,8 +165,8 @@ To configure the Windows Node Exporter:
     metadata:
       labels:
         k8s-app: APP-NAME
-      name: APP-NAME
-      namespace: NAMESPACE
+      name: SERVICE-NAME
+      namespace: kube-system
     spec:
       clusterIP: None
       ports:
@@ -182,13 +180,10 @@ To configure the Windows Node Exporter:
     apiVersion: monitoring.coreos.com/v1
     kind: ServiceMonitor
     metadata:
-      annotations:
-        kubectl.kubernetes.io/last-applied-configuration: |
-          {"apiVersion":"monitoring.coreos.com/v1","kind":"ServiceMonitor","metadata":{"annotations":{},"labels":{"k8s-app":"win-exporter"},"name":"win-exporter","namespace":"monitoring"},"spec":{"endpoints":[{"interval":"30s","port":"http-metrics"}],"jobLabel":"k8s-app","namespaceSelector":{"matchNames":["kube-system"]},"selector":{"matchLabels":{"k8s-app":"win-exporter"}}}}
       labels:
         k8s-app: APP-NAME
-      name: APP-NAME
-      namespace: NAMESPACE-MONITORING
+      name: SERVICEMONITOR-NAME
+      namespace: monitoring
     spec:
       endpoints:
       - interval: 30s
@@ -203,11 +198,12 @@ To configure the Windows Node Exporter:
     ```
 
     Where:  
-    * `APP-NAME` is the name for the Windows node exporter service.  
-    * `NAMESPACE` is the namespace for the Windows node exporter service.  
+    * `APP-NAME` is the name for the Kubernetes app.  
+    * `ENDPOINT-NAME` is the name for the endpoint.  
+    * `SERVICE-NAME` is the name for the service.  
+    * `SERVICEMONITOR-NAME` is the name for the service monitor.  
     * `NODE-IP` is the IP address of the Windows worker node to monitor.  
     * `NODE-NAME` is the name of the Windows worker node to monitor.  
-    * `NAMESPACE-MONITORING` is the namespace for the monitor service.  
 
     For example:
 
@@ -250,13 +246,10 @@ To configure the Windows Node Exporter:
     apiVersion: monitoring.coreos.com/v1
     kind: ServiceMonitor
     metadata:
-      annotations:
-        kubectl.kubernetes.io/last-applied-configuration: |
-          {"apiVersion":"monitoring.coreos.com/v1","kind":"ServiceMonitor","metadata":{"annotations":{},"labels":{"k8s-app":"win-exporter"},"name":"win-exporter","namespace":"monitoring"},"spec":{"endpoints":[{"interval":"30s","port":"http-metrics"}],"jobLabel":"k8s-app","namespaceSelector":{"matchNames":["kube-system"]},"selector":{"matchLabels":{"k8s-app":"win-exporter"}}}}
       labels:
         k8s-app: win-exporter
       name: win-exporter
-      namespace: mornitoring
+      namespace: monitoring
     spec:
       endpoints:
       - interval: 30s
@@ -332,7 +325,7 @@ you can use and configure the preferred dashboard to monitor the Windows Node Ex
 For more information, see [Dashboards](https://grafana.com/grafana/dashboards) 
 at the Grafana Labs site.
 
-### <a id='considerations'></a> Post-Installation Considerations
+### <a id='post-install-admin'></a> Administer Prometheus and Grafana
 
 After completing the minimum installation steps described above, you should also review:
 
