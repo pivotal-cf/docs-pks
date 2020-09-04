@@ -1,5 +1,5 @@
 ---
-title: Creating and Managing Compute Profiles with the CLI
+title: Creating and Managing Compute Profiles with the CLI (vSphere Only)
 owner: TKGI
 ---
 
@@ -11,42 +11,41 @@ For more information on how to use compute profiles, see
 
 ## <a id='about'></a>About Compute Profiles
 
-A compute profile enables <%= vars.k8s_runtime_abbr %> admins to override the default settings defined by a plan. 
+A compute profile enables cluster administrators, `pks.clusters.admin`, to override the default settings defined by a plan.
 
-Using a compute profile, you can customize the following:
+Using a compute profile, cluster administrators can customize the following:
 
-* Compute resources such as CPU, memory, ephemeral disk, and persistent disk for Kubernetes clusters
-* Where Kubernetes clusters are created within your vSphere infrastructure and which vSphere resources are used 
+* Compute resources such as CPU, memory, ephemeral disk, and persistent disk for Kubernetes control plane and worker nodes
+* vSphere resources for Kubernetes control plane and worker nodes
 
 After you create a compute profile, you can apply it to one or more Kubernetes clusters.
 
 ## <a id="create"></a> Create a Compute Profile
 
-To create a compute profile in <%= vars.k8s_runtime_abbr %>, you:
+To create a compute profile in <%= vars.k8s_runtime_abbr %>, a
+cluster administrator must:
 
-1. Define a compute profile in a JSON configuration file by
-following the [Compute Profile Format](#format) below.
+1. Define a compute profile in a JSON configuration file.
+See [Compute Profile Format](#format) and
+[Compute Profile Parameters](#params) below.
 
 1. Use the <%= vars.k8s_runtime_abbr %> CLI to define the compute profile
-within <%= vars.k8s_runtime_abbr %>. For instructions, see
+within <%= vars.k8s_runtime_abbr %>. See
 [The create-compute-profile Command](#run-create) below.
 
 ### <a id="format"></a> Compute Profile Format
 
-To create a compute profile, you must first define it as a JSON file that
-specifies compute parameters, which are listed in
-[Compute Profile Parameters](#params) below.
+To create a compute profile, a cluster administrator must first define it as a JSON file.
 
-Below is an example compute profile.
+Below is an example compute profile that defines compute resources for Kubernetes control plane nodes in the `control_plane` block, node pools for workers in the `node_pools` block, and where the nodes are created within vSphere infrastructure in the `azs` block.
 
 <p class="note"><strong>Note:</strong> This example compute profile is for
-illustration purposes only. It is not intended to be used as a template for
-compute profile definition.</p>
+illustration purposes only.</p>
 
 ```
 {
-  "name": "dc-east-mixed",
-  "description": "A profile for the east datacenter with heterogeneous workers.",
+  "name": "test-compute-profile",
+  "description": "A profile for the east datacenter with heterogeneous workers",
   "parameters": {
     "azs": [{
       "name": "east",
@@ -98,9 +97,12 @@ compute profile definition.</p>
 }
 ```
 
+For information about the parameters listed in the example, see
+[Compute Profile Parameters](#params) below.
+
 ### <a id="params"></a> Compute Profile Parameters
 
-The compute profile JSON configuration file can include the following top-level
+The compute profile JSON configuration file includes the following top-level
 properties:
 
 <table>
@@ -140,7 +142,11 @@ properties:
   </tr>
 </table>
 
+When you create a compute profile, only the `name` and `description` properties are required. For example, you can choose to define only node pools for worker nodes in your compute profile. If you are using compute profiles for the first time, it is recommended that you include all available configuration options in your definition.
+
 #### <a id="cloud-properties"></a>`azs` Block
+
+This block defines where Kubernetes control plane and worker nodes are created within your vSphere infrastructure. You can define one or more AZs.
 
 <table>
   <tr>
@@ -152,12 +158,12 @@ properties:
     <td><code>name</code></td>
     <td>String</td>
     <td>Name for the AZ where you want to deploy cluster VMs. For example,
-      <code>z1</code>.</td>
+      <code>east</code>.</td>
   </tr>
   <tr>
     <td><code>cpi</code></td>
-    <td></td>
-    <td>BOSH CPI ID of your <%= vars.product_short %> deployment. For instructions on how to obtain the ID, see <a href="#retrieve-cpi-id">Retrieve the BOSH CPI ID</a>. For example,
+    <td>String</td>
+    <td>BOSH CPI ID of your <%= vars.k8s_runtime_abbr %> deployment. For instructions on how to obtain the ID, see <a href="compute-profiles.html#retrieve-cpi-id">Retrieve the BOSH CPI ID</a>. For example,
       <code>abc012abc345abc567de</code>.</td>
   </tr>
   <tr>
@@ -172,8 +178,8 @@ properties:
   </tr>
   <tr>
     <td><code>name</code></td>
-    <td></td>
-    <td>Name of your datacenter as it appears in Ops Manager and your cloud provider console. For example, <code>dc-east</code>.</td>
+    <td>String</td>
+    <td>Name of your datacenter as it appears in Ops Manager and your cloud provider console. For example, <code>east</code>.</td>
   </tr>
   <tr>
     <td><code>clusters</code></td>
@@ -181,9 +187,9 @@ properties:
     <td></td>
   </tr>
   <tr>
-    <td><code>cluster-0</code></td>
-    <td></td>
-    <td></td>
+    <td><code>CLUSTER-NAME</code></td>
+    <td>String</td>
+    <td>For example, <code>cluster-0</code>.</td>
   </tr>
   <tr>
     <td><code>host_group</code></td>
@@ -197,12 +203,12 @@ properties:
   </tr>
   <tr>
     <td><code>name</code></td>
-    <td></td>
+    <td>String</td>
     <td></td>
   </tr>
   <tr>
     <td><code>resource_pool</code></td>
-    <td></td>
+    <td>String</td>
     <td>Name of the resource pool where you want to deploy your cluster.</td>
   </tr>
 </table>
@@ -212,7 +218,7 @@ properties:
 This block defines properties for Kubernetes control plane node instances.
 
 When defining the `control_plane` block,
-you must specify either `cpu`, `memory_in_mb`,
+you must specify either `cpu`, `memory_in_mb`, and
 `ephemeral_disk_in_mb` or none of the three.
 
 <table>
@@ -244,7 +250,7 @@ you must specify either `cpu`, `memory_in_mb`,
   <tr>
     <td><code>instances</code></td>
     <td>Integer</td>
-    <td>Number of control plane instances.</td>
+    <td>Number of control plane instances. Enter <code>1</code>, <code>3</code>, or <code>5</code>.</td>
   </tr>
 </table>
 
@@ -256,7 +262,7 @@ This block defines properties for Kubernetes worker nodes.
 You can define one or more node pools.
 
 When defining the `node_pools` block,
-you must specify either `cpu`, `memory_in_mb`,
+you must specify either `cpu`, `memory_in_mb`, and
 `ephemeral_disk_in_mb` or none of the three.
 
 <table>
@@ -268,7 +274,7 @@ you must specify either `cpu`, `memory_in_mb`,
   <tr>
     <td><code>name</code></td>
     <td>String</td>
-    <td>Name of the node pool.</td>
+    <td>Unique Name of the node pool.</td>
   </tr>
   <tr>
     <td><code>cpu</code></td>
@@ -309,19 +315,43 @@ See the table below for examples of compute profiles.
 
 Example                                   | Description
 ----------------------------------------------------------------|------------------------------------------------------------------------------
-[Flexible Node Types](#flexible-types)        | Define compute resources.
-[Heterogeneous Nodes](#heterogeneous-nodes)       | TK one-line description
-[Custom AZs for Nodes](#custom-azs)       | Define AZs.
+[Custom Nodes](#custom-nodes)        | Define custom compute resources for Kubernetes control plane and worker nodes.
+[Node Pools](#node-pools)       | Define multiple pools of worker nodes with different compute resources.
+[Custom AZs](#custom-azs)       | Define AZs for Kubernetes control plane and worker nodes dynamically.
 
-### <a id='flexible-types'></a> Flexible Node Types
+#### <a id='custom-nodes'></a> Custom Nodes
+
+See the example below:
+
+```
+{
+  "name": "test-compute-profile",
+  "description": "test-compute-profile",
+  "parameters": {
+    "cluster_customization": {
+      "control_plane": {
+        "cpu": 2,
+        "memory_in_mb": 4096,
+        "ephemeral_disk_in_mb": 16384,
+        "instances": 3
+      },
+      "node_pools": [{
+        "cpu": 2,
+        "memory_in_mb": 4096,
+        "ephemeral_disk_in_mb": 16384,
+        "name": "tiny-1",
+        "instances": 5
+      }]
+    }
+  }
+}
+```
+
+#### <a id='node-pools'></a> Node Pools
 
 TK Recipe.
 
-### <a id='heterogeneous-nodes'></a> Heterogeneous Nodes
-
-TK Recipe.
-
-### <a id='custom-azs'></a> Custom AZs for Nodes
+#### <a id='custom-azs'></a> Custom AZs
 
 You can define Availability Zones (AZs) dynamically instead of adding new AZs in the BOSH Director tile. As a result, you do not need to make AZ changes to each plan and the overall impact to the TKGI control plane is smaller.
 
@@ -330,7 +360,7 @@ TK Recipe.
 ### <a id="run-create"></a> The create-compute-profile Command
 
 After a compute profile is defined in a JSON file as described in [Compute Profile Format](#format),
-an <%= vars.k8s_runtime_abbr %> administrator can create the compute profile by running the following <%= vars.k8s_runtime_abbr %> CLI command:
+a cluster administrator can create the compute profile by running the following <%= vars.k8s_runtime_abbr %> CLI command:
 
 ```
 tkgi create-compute-profile PATH-TO-YOUR-COMPUTE-PROFILE-CONFIGURATION
