@@ -13,102 +13,144 @@ logs.
 
 Before starting the tasks in this topic:  
 
-* Your environment should be a Windows 2019 datacenter with vRLI.  
-* You must have an accessible image registry.  
+* Your environment should be a Windows 2019 data center with vRLI.  
+* You must have an accessible container image registry.  
 
 
-## <a id='logging-windows-clusters'></a> Logging Windows Worker Nodes
+## <a id='logging-windows-clusters'></a> Configure Windows Worker Node Logging
 
 To send Windows worker logs to vRLI using Fluent Bit:  
 
-1. [Prepare the Windows Worker Nodes](#prep-windows-nodes)
-1. [Build a Fluent Bit Windows Docker Image](#build-docker-image)
-1. [Build a Fluent Bit Syslog Plug-in Windows Docker Image](#build-syslog docker-image)
+1. [Prepare the Working Environment](#prep-windows-nodes)
+1. [Build a Windows Fluent Bit Docker Image](#build-docker-image)
+1. [Build a Windows Fluent Bit Syslog Plugin Docker Image](#build-syslog docker-image)
 1. [Deploy Fluent Bit on the Windows Cluster](#build-syslog docker-image)
 
-## <a id='prep-windows-nodes'></a> Prepare the Windows Worker Nodes
+## <a id='prep-windows-nodes'></a> Prepare the Working Environment
 
-To prepare your Windows worker nodes for logging:
+To prepare your working environment:
 
-1. Install `docker` on each of the Windows worker nodes you wish to monitor logging on.
+1. Install `docker` on the local machine you will be working from. 
+If you are working from a TKGI-provisioned Windows worker node docker is already installed.
 
-## <a id='build-docker-image'></a> Build a Fluent Bit Windows Docker Image
+## <a id='build-docker-image'></a> Build a Windows Fluent Bit Docker Image
 
 To build a Fluent Bit Windows Docker image:  
 
-1. Start a remote Windows session to the Windows 2019 Windows worker.  
+1. Log in to the Windows 2019 machine where you will do your work.  
 1. Download the Fluent Bit source code from the [fluent/fluent-bit](https://github.com/fluent/fluent-bit) 
-repository on GitHub, to the worker.
-1. To build the container image use `Dockerfile.windows`:    
+repository on GitHub.
+1. To build a Fluent Bit container image, run:    
 
     ```
     docker.exe build  -f Dockerfile.windows -t fluent-bit .
     ```
 
-    When Docker builds the Fluent Bit container, it downloads `vc_redist.x64.exe` 
-    and installs it in the Fluent Bit container.  If this process fails, 
-    see [Troubleshooting](#troubleshooting) below.  
-<br>
-1. Push the image to your registry.
+    <p class="note"><strong>Note:</strong> Docker downloads the <em>Microsoft Visual C++ Redistributable Update</em> 
+      while building the Fluent Bit container and installs <code>vc_redist.x64.exe</code> 
+      in the new container. 
+      If this process fails, see <a href="#troubleshooting">Troubleshooting</a> below.
+    </p>
 
-## <a id='build-syslog docker-image'></a> Build a Fluent Bit Syslog Plug-in Windows Docker Image
+1. Push the Fluent Bit container image to your registry.
+
+## <a id='build-syslog docker-image'></a> Build a Windows Fluent Bit Syslog Plugin Docker Image
 
 Fluent Bit does not officially support syslog output. 
-To send <%= vars.k8s_runtime_abbr %> Windows worker container logs to vRLI, 
-you must use a syslog plug-in.
+To send <%= vars.k8s_runtime_abbr %> Windows worker logs to vRLI, 
+you must use a syslog plugin.
 
-To build a Fluent Bit syslog plug-in image:  
+To build a Fluent Bit syslog plugin image:  
 
-1. Download the syslog plug-in from the [benmoss/fluent-bit-out-syslog]
+1. Download the syslog plugin from the [benmoss/fluent-bit-out-syslog]
 (https://github.com/benmoss/fluent-bit-out-syslog/tree/windows) GitHub repository.  
-1. Open the `main.go` file you downloaded to `.../windows/cmd/main.go` in a text editor.  
-1. To remove a conflict between this syslog plug-in and the default Fluent Bit syslog output, 
-change this plug-in's out_syslog plug-in setting to `syslogvrli`:  
+1. To remove a conflict between this syslog plugin and the default Fluent Bit syslog output:  
+    1. Locate the `main.go` file you downloaded to `.../windows/cmd/main.go`.  
+    1. Open the `main.go` file in a text editor.  
+    1. Change the`out_syslog` plugin setting to `syslogvrli`.  
+<br>
+        For example:  
+
+        ```
+        //export FLBPluginRegister
+        func FLBPluginRegister(def unsafe.Pointer) int {
+            return output.FLBPluginRegister(
+                def,
+                "syslogvrli",
+                "syslog output plugin that follows RFC 5424",
+            )
+        }
+        ```
+    1. Save the file.         
+1. Modify the `Dockerfile.windows` file: 
+
+    1. Remove the following lines from the file:
+
+        ```
+        ARG BASE_IMAGE=mcr.microsoft.com/windows/servercore:ltsc2019
+        FROM $BASE_IMAGE as builder
+        ```
+
+    1. Replace those lines with the following:
+
+        ```
+        FROM REGISTRY-IMAGE
+        ```
+
+        Where `REGISTRY-IMAGE` is the registry image location of the container you built in 
+        [Build a Windows Fluent Bit Docker Image](#build-docker-image') above.  
+<br>
+        For example:
+
+        ```
+        FROM gcr.io/cf-london-servces-k8s/windows-images/fluent-bit:latest
+        ```
+    1. Save the file.  
+1. To build the container, use:
 
     ```
-    //export FLBPluginRegister
-    func FLBPluginRegister(def unsafe.Pointer) int {
-        return output.FLBPluginRegister(
-            def,
-            "syslogvrli",
-            "syslog output plugin that follows RFC 5424",
-        )
-    }
-    ```
-1. To build the container, use `Dockerfile.windows`: 
-
-    ```
-    FROM REGISTRY-IMAGE
+    docker.exe build  -f Dockerfile.windows -t FLUENT-BIT-IMAGE
     ```
 
-    Where `REGISTRY-IMAGE` is the container you built in 
-    [Build a Fluent Bit Windows Docker Image](#build-docker-image') above. 
-    For example, `gcr.io/cf-london-servces-k8s/windows-images/fluent-bit:latest`.  
+    Where `FLUENT-BIT-IMAGE` is the name for the Fluent Bit image to store in your registry.  
+<br>
+    For example:
+
+    ```
+    docker.exe build  -f Dockerfile.windows -t fluent-bit-syslog
+    ``` 
 
 1. Push the image to your registry.
 
 
 ## <a id='build-syslog docker-image'></a> Deploy Fluent Bit on the Windows Cluster  
 
-In addition to deploying the syslog plug-in,  we must also deploy the Kubernetes filter plug-in. 
-The Kubernetes filter plug-in is a natively supported Fluent Bit filter which improves logging by
-adding Kubernetes metadata, such as namespace, and pod name to your logs. 
+In addition to deploying the syslog plugin,  we must also deploy the Kubernetes filter plugin. 
+The Kubernetes filter plugin is a natively supported Fluent Bit filter which improves logging by
+adding Kubernetes metadata, such as namespace, and Pod name to your logs. 
 
 To deploy Fluent Bit and send container logs to vRLI:  
 
-1. To create a Fluent Bit deployment configuration file, complete the steps in [Configure Fluent Bit](#configure-fluent) below. 
+1. To create a Fluent Bit deployment configuration file, follow the steps in [Configure Fluent Bit](#configure-fluent) below. 
 1. To deploy Fluent Bit and related objects:
 
     ```
     kubectl create -f CONFIG-FILE
     ```
 
-    Where `CONFIG-FILE` is the filename of your Fluent Bit deployment configuration file. For example, `fluent-bit.yml`.
+    Where `CONFIG-FILE` is the filename of your Fluent Bit deployment configuration file.  
+<br>
+    For example:
+
+    ```
+    kubectl create -f fluent-bit.yml
+    ```  
 
 <br>
-To validate your Fluent Bit configuration and confirm that Fluent Bit is functioning:  
+To validate your Fluent Bit configuration and confirm that Fluent Bit is functioning, 
+use a test app:  
 
-1. To create a configuration file for a test app, complete the steps in 
+1. To create a configuration file for a test app, follow the steps in 
 [Configure a Sample App](#configure-sample) below.  
 1. To deploy the test app:  
 
@@ -116,19 +158,27 @@ To validate your Fluent Bit configuration and confirm that Fluent Bit is functio
     kubectl create -f CONFIG-FILE
     ```
 
-    Where `CONFIG-FILE` is the filename of your sample app deployment configuration file. For example, `sample.yml`.   
+    Where `CONFIG-FILE` is the filename of your sample app deployment configuration file.  
+<br>
+    For example:
 
-1. Check logs in vRLI:
+    ```
+    kubectl create -f sample.yml
+    ```   
+
+
+1. To confirm the sample app's logs are being written to vRLI:  
     1. Open vRLI.  
     1. Open the **vRLI** > **Interactive Analytics** tab.  
     1. Search the list for "logspewer". The "logspewer" items are the log entries generated by the sample app.  
 
 ## <a id='configure-fluent'></a>  Configure Fluent Bit 
 
-Your Fluent Bit configuration is a YAML file that defines the Fluent Bit Service Account, Cluster Role, 
-Cluster Role Binding and other objects. 
-The Service Account, Cluster Role, Cluster Role Binding objects ensure that the Fluent Bit Kubernetes filter 
-can access and read metadata from the Kubernetes API server `kubernetes.default.svc.cluster.local:443`.  
+Your Fluent Bit configuration is a YAML file that defines the 
+Fluent Bit Service Account, Cluster Role, Cluster Role Binding and other objects. 
+The Fluent Bit Service Account, Cluster Role, and Cluster Role Binding objects ensure that the 
+Fluent Bit Kubernetes filter can access and read metadata from the 
+Kubernetes API server `kubernetes.default.svc.cluster.local:443`.  
 
 To configure Fluent Bit:  
 
@@ -246,7 +296,7 @@ To configure Fluent Bit:
             value: "2019"
             effect: "NoSchedule"
           containers:
-          - image: REGISTRY-IMAGE                                          #Change image to point to the image in your registry.
+          - image: FLUENT-BIT-IMAGE:latest                                          #Change image to point to the image in your registry.
             imagePullPolicy: IfNotPresent
             name: fluent-bit
             command: [fluent-bit]
@@ -286,15 +336,16 @@ To configure Fluent Bit:
     * `OUTPUT-ADDRESS` is the IP address of your vRealize Log Insight installation.  
     * `OUTPUT-PORT` is the port to use to communicate with  your vRealize Log Insight installation. 
     Use port `514` for most installations. Use port `1514` if you enable TLS.  
-    * `REGISTRY-IMAGE` is the location of Fluent Bit in your registry. For example, `fluent-bit-1.5.4-syslog:latest`.
-
+    * `FLUENT-BIT-IMAGE` is the name of the Fluent Bit image in your registry. 
+    For example, `fluent-bit-syslog`.
+1. Save the file.  
 
 ## <a id='configure-sample'></a>  Configure a Sample App 
 
 To confirm that logging is working correctly, use a sample app that outputs log entries frequently. 
-When running, the sample app defined below outputs a log every 10 seconds.  
+The `logspewer` sample app defined below outputs a log every 10 seconds when running.  
 
-To configure a sample app for testing:  
+To configure a `logspewer` sample app for testing:  
 
 1. Create a file named `sample.yml`.  
 1. Populate the file with the following:  
@@ -336,32 +387,51 @@ To configure a sample app for testing:
 
 ## <a id='troubleshooting'></a> Troubleshooting
 
-### <a id='cannot-find-path'></a> Cannot Find Path Error When Creating the Fluent Bit Docker Container
+### <a id='cannot-find-path'></a> 'Cannot Find Path' Error When Creating the Fluent Bit Docker Container
 
 #### Symptom
 The error message `Copy-Item : Cannot find path 'C:\Windows\System32\msvcp140.dll'` is displayed while Docker 
-installs `vc_redist.x64.exe`. 
+installs the _Microsoft Visual C++ Redistributable Update_. 
 
 #### Description
-When Docker builds the Fluent Bit container, it downloads `vc_redist.x64.exe`, 
-installs it in the new Docker container, and copies three DLL files to the `/fluent-bit/bin/` folder.  
+When Docker builds the Fluent Bit container, 
+it installs the _Microsoft Visual C++ Redistributable Update_ to the container. 
+To do this, it downloads the _Redistributable Update_ as `vc_redist.x64.exe`, 
+installs the update in the new Docker container, and copies three DLL files to the `/fluent-bit/bin/` directory.  
 
 If a `Copy-Item : Cannot find path` error is returned for either `msvcp140.dll`, `vccorlib140.dll`, or 
 `vcruntime140.dll` the installation of `vc_redist.x64.exe` has failed.
 
 #### Workaround
-1. Install `vc_redist.x64.exe` on your local Windows 2019 machine:  
+To manually install the _Microsoft Visual C++ Redistributable Update_ to the Fluent Bit container:  
 
-    ```
-    RUN Write-Host ('Installing Visual C++ Redistributable Package'); `
-        Start-Process /local/vc_redist.x64.exe -ArgumentList '/install', '/quiet', '/norestart' -NoNewWindow -Wait; 
-    ```
-1. Change directory to `C:\Windows\System32\`.
-1. Copy the `msvcp140.dll`, `vccorlib140.dll`, and `vcruntime140.dll` files 
-into the `/fluent-bit/bin/` directory:  
+1. Download the _Microsoft Visual C++ Redistributable Update_, `vc_redist.x64.exe`, from Microsoft.  
+1. Install `vc_redist.x64.exe` on your local Windows 2019 machine.  
+1. Copy the following files from `C:\Windows\System32\` to the directory containing `dockerfile.windows`: 
+`msvcp140.dll`, `vccorlib140.dll`, and `vcruntime140.dll`.  
+1. Modify your `Dockerfile.windows` file:  
 
-    ```
-    COPY msvcp140.dll  /fluent-bit/bin/; 
-    COPY vccorlib140.dll /fluent-bit/bin/; 
-    COPY vcruntime140.dll /fluent-bit/bin/;
-    ```
+    1. Remove the following lines from the file:
+
+        ```
+        RUN Write-Host ('Installing Visual C++ Redistributable Package'); `
+            Start-Process /local/vc_redist.x64.exe -ArgumentList '/install', '/quiet', '/norestart' -NoNewWindow -Wait; `
+            Copy-Item -Path /Windows/System32/msvcp140.dll -Destination /fluent-bit/bin/; `
+            Copy-Item -Path /Windows/System32/vccorlib140.dll -Destination /fluent-bit/bin/; `
+            Copy-Item -Path /Windows/System32/vcruntime140.dll -Destination /fluent-bit/bin/;
+        ```
+
+    1. Replace those lines with the following:  
+
+        ```
+        RUN Write-Host ('Installing Visual C++ Redistributable Package'); `
+            Start-Process /local/vc_redist.x64.exe -ArgumentList '/install', '/quiet', '/norestart' -NoNewWindow -Wait; 
+ 
+        COPY msvcp140.dll  /fluent-bit/bin/; 
+        COPY vccorlib140.dll /fluent-bit/bin/; 
+        COPY vcruntime140.dll /fluent-bit/bin/;
+        ```
+
+    1. Save the file.  
+1. Re-run the docker build command as shown in 
+[Build a Windows Fluent Bit Docker Image](#build-docker-image) above.
