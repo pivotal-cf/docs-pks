@@ -21,7 +21,9 @@ Using a compute profile, cluster administrators can customize the following:
 * Compute resources such as CPU, memory, ephemeral disk, and persistent disk for Kubernetes control plane and worker nodes
 * vSphere resources for Kubernetes control plane and worker nodes
 
-After you create a compute profile, you can apply it to one or more Kubernetes clusters.
+<p class="note"><strong>Note</strong>: A compute profile overrides only the settings that you specify in the profile definition. The rest of the cluster's configuration is inherited from the plan.</p>
+
+After you create a compute profile, cluster managers can apply it to one or more Kubernetes clusters.
 
 
 ## <a id="create"></a> Create a Compute Profile
@@ -41,7 +43,11 @@ within <%= vars.k8s_runtime_abbr %>. See
 
 To create a compute profile, a cluster administrator must first define it as a JSON file.
 
-Below is an example compute profile that defines compute resources for Kubernetes control plane nodes in the `control_plane` block, node pools for workers in the `node_pools` block, and where the nodes are created within vSphere infrastructure in the `azs` block.
+Below is an example compute profile that defines compute resources for
+Kubernetes control plane nodes in the `control_plane` block, two node pools for
+workers in the `node_pools` block, and one availability zone (AZ) within vSphere infrastructure
+in the `azs` block. For more examples,
+see [Compute Profile Examples](#examples) below.
 
 <p class="note"><strong>Note:</strong> This example compute profile is for
 illustration purposes only.</p>
@@ -101,8 +107,8 @@ illustration purposes only.</p>
 }
 ```
 
-For information about the parameters listed in the example, see
-[Compute Profile Parameters](#params) below.
+For information about all of the parameters that you can specify in a compute
+profile, see [Compute Profile Parameters](#params) below.
 
 ### <a id="params"></a> Compute Profile Parameters
 
@@ -118,39 +124,44 @@ properties:
   <tr>
     <td><code>name</code></td>
     <td>String</td>
-    <td>Name of the compute profile. You use this name when managing the
+    <td>(Required) Name of the compute profile. You use this name when managing the
     compute profile or assigning the profile to a Kubernetes cluster through
     the TKGI CLI.</td>
   </tr>
   <tr>
     <td><code>description</code></td>
     <td>String</td>
-    <td>Description of the compute profile.</td>
+    <td>(Required) Description of the compute profile.</td>
   </tr>
   <tr>
     <td><code>parameters</code></td>
     <td>Object</td>
-    <td>Set of properties defining the main body of the compute profile
+    <td>(Required) Set of properties defining the main body of the compute profile
     such as <code>azs</code> and <code>cluster_customization</code>.</td>
   </tr>
   <tr>
     <td><code>azs</code></td>
     <td>Array</td>
-    <td>Properties defining AZ name, CPI, and <code>cloud_properties</code> settings.
+    <td>(Optional) Properties defining AZ name, CPI, and <code>cloud_properties</code> settings.
     See <a href="#cloud-properties">azs Block</a> below.</td>
   </tr>
   <tr>
     <td><code>cluster_customization</code></td>
     <td>Object</td>
-    <td>Properties defining <a href="#control-plane"><code>control_plane</code></a> and <a href="#node-pools"><code>node_pools</code></a>.</td>
+    <td>(Optional) Properties defining <a href="#control-plane"><code>control_plane</code></a> and <a href="#node-pools"><code>node_pools</code></a>.</td>
   </tr>
 </table>
 
-When you create a compute profile, only the `name` and `description` properties are required. For example, you can choose to define only node pools for worker nodes in your compute profile. If you are using compute profiles for the first time, it is recommended that you include all available configuration options in your definition.
+When you create a compute profile, only the `name`, `description`, and `parameters` properties are required. For example, you can choose to define only node pools for worker nodes in your compute profile.
 
-#### <a id="cloud-properties"></a>`azs` Block
 
-This block defines where Kubernetes control plane and worker nodes are created within your vSphere infrastructure. You can define one or more AZs.
+#### <a id="cloud-properties"></a>`azs` Block (vSphere with NSX-T Only)
+
+This optional block defines where Kubernetes control plane and worker nodes are created
+within your vSphere infrastructure. You can define one or more AZs.
+
+If you define the `azs` block, do not use the `persistent_disk_in_mb`
+parameter in `cluster_customization`. You can define only one of the two in the same profile.
 
 <table>
   <tr>
@@ -219,7 +230,7 @@ This block defines where Kubernetes control plane and worker nodes are created w
 
 #### <a id="control-plane"></a>`control_plane` Block
 
-This block defines properties for Kubernetes control plane node instances.
+This optional block defines properties for Kubernetes control plane node instances.
 
 When defining the `control_plane` block,
 you must specify either `cpu`, `memory_in_mb`, and
@@ -247,6 +258,11 @@ you must specify either `cpu`, `memory_in_mb`, and
     <td>Ephemeral disk for control plane instances.</td>
   </tr>
   <tr>
+    <td><code>persistent_disk_in_mb</code></td>
+    <td>Integer</td>
+    <td>Persistent disk for control plane instances. Do not specify this parameter if you intend to define the <code>azs</code> block in the compute profile.</td>
+  </tr>
+  <tr>
     <td><code>az_names</code></td>
     <td>Array</td>
     <td>AZs in which you want control plane instances to run.</td>
@@ -262,7 +278,7 @@ Do not assign the `name` property to this block.
 
 #### <a id="node-pools"></a>`node_pools` Block
 
-This block defines properties for Kubernetes worker nodes.
+This optional block defines properties for Kubernetes worker nodes.
 You can define one or more node pools.
 
 When defining the `node_pools` block,
@@ -294,6 +310,12 @@ you must specify either `cpu`, `memory_in_mb`, and
     <td><code>ephemeral_disk_in_mb</code></td>
     <td>Integer</td>
     <td>Ephemeral disk for worker node instances.</td>
+  </tr>
+  <tr>
+    <td><code>persistent_disk_in_mb</code></td>
+    <td>Integer</td>
+    <td>Persistent disk for worker node instances.
+    Do not specify this parameter if you intend to define the <code>azs</code> block in the compute profile.</td>
   </tr>
   <tr>
     <td><code>az_names</code></td>
@@ -352,31 +374,35 @@ See the table below for examples of compute profiles.
 Example                                   | Description
 ----------------------------------------------------------------|------------------------------------------------------------------------------
 [Custom Nodes](#custom-nodes)        | Define custom compute resources for Kubernetes control plane and worker nodes.
-[Node Pools](#node-pools)       | Define multiple pools of worker nodes with different compute resources.
-[Custom AZs](#custom-azs)       | Define AZs for Kubernetes control plane and worker nodes dynamically.
+[Worker Node Pools](#node-pools)       | Define multiple pools of worker nodes.
+[Custom AZs](#custom-azs)       | Define AZs for Kubernetes control plane nodes and worker node pools dynamically.
 
 #### <a id='custom-nodes'></a> Custom Nodes
 
-See the example below:
+The example below defines compute resources for control plane nodes
+and one node pool for workers:
 
 ```
 {
-  "name": "test-compute-profile",
-  "description": "test-compute-profile",
+  "name": "custom-nodes-compute-profile",
+  "description": "custom-nodes-compute-profile",
   "parameters": {
     "cluster_customization": {
       "control_plane": {
         "cpu": 2,
         "memory_in_mb": 4096,
         "ephemeral_disk_in_mb": 16384,
+        "persistent_disk_in_mb": 16384,
         "instances": 3
       },
       "node_pools": [{
         "cpu": 2,
         "memory_in_mb": 4096,
         "ephemeral_disk_in_mb": 16384,
+        "persistent_disk_in_mb": 16384,
         "name": "tiny-1",
-        "instances": 5
+        "instances": 5,
+        "max_worker_instances": 10
       }]
     }
   }
@@ -385,13 +411,88 @@ See the example below:
 
 #### <a id='node-pools'></a> Node Pools
 
-TK Recipe.
+Cluster administrators can define pools of worker nodes with different compute resources. Cluster managers then apply the compute profile to one or more cluster to change their worker node topology This enables cluster managers to schedule workloads with different compute requirements on a single cluster.
 
-#### <a id='custom-azs'></a> Custom AZs
+The example below defines compute resources for two worker node pools:
 
-You can define Availability Zones (AZs) dynamically instead of adding new AZs in the BOSH Director tile. As a result, you do not need to make AZ changes to each plan and the overall impact to the TKGI control plane is smaller.
+```
+{
+  "name": "custom-node-pools-compute-profile",
+  "description": "custom-node-pools-compute-profile",
+  "parameters": {
+    "cluster_customization": {
+      "node_pools": [{
+          "cpu": 2,
+          "memory_in_mb": 4096,
+          "ephemeral_disk_in_mb": 16384,
+          "persistent_disk_in_mb": 16384,
+          "name": "tiny-1",
+          "instances": 5
+        },
+        {
+          "cpu": 4,
+          "memory_in_mb": 4096,
+          "ephemeral_disk_in_mb": 32768,
+          "name": "medium-2",
+          "instances": 1,
+          "max_worker_instances": 5
+        }
+      ]
+    }
+  }
+}
+```
 
-TK Recipe.
+#### <a id='custom-azs'></a> Custom AZs (vSphere with NSX-T Only)
+
+Cluster administrators can define AZs in a compute profile instead of adding new AZs in the BOSH Director tile. Cluster managers then use it to specify AZs for a cluster dynamically. As a result, you do not need to make AZ changes to each <%= vars.k8s_runtime_abbr %> plan and the overall impact to the
+<%= vars.k8s_runtime_abbr %> control plane is smaller.
+
+The example below defines an AZ, `east`, in the `azs` block, which is then
+referenced in the `cluster_customization` block.
+
+{
+  "name": "dc-east-single-node-pool",
+  "description": "A profile for the east datacenter with a single node pool.",
+  "parameters": {
+    "azs": [{
+      "name": "east",
+      "cpi": "056bf5a3aea9c5c79f62",
+      "cloud_properties": {
+        "datacenters": [{
+          "name": "east",
+          "clusters": [{
+            "cluster-0": {
+              "host_group": {
+                "drs_rule": "MUST",
+                "name": "cluster-0-hg"
+              }
+            },
+            "resource_pool": "az-2"
+          }]
+        }]
+      }
+    }],
+    "cluster_customization": {
+      "control_plane": {
+        "cpu": 4,
+        "memory_in_mb": 16384,
+        "ephemeral_disk_in_mb": 32768,
+        "az_names": ["east"],
+        "instances": 3
+      },
+      "node_pools": [{
+        "name": "x-large",
+        "cpu": 4,
+        "memory_in_mb": 8192,
+        "ephemeral_disk_in_mb": 32768,
+        "az_names": ["east"],
+        "instances": 3,
+        "max_worker_instances": 25
+      }]
+    }
+  }
+}
 
 ### <a id="run-create"></a> The create-compute-profile Command
 
@@ -509,7 +610,7 @@ documented in the [Using Compute Profiles (vSphere)](compute-profiles-use.html) 
 * [Create a Cluster with a Compute Profile](compute-profiles-use.html#create)
 * [Assign a Compute Profile to an Existing Cluster](compute-profiles-use.html#assign)
   - This operation can assign a compute profile to a cluster that does not have one, or change a cluster's existing profile.
-  - You cannot change a cluster's compute profile to move its nodes to different Availability Zones.
+  - You cannot change a cluster's compute profile to move its nodes to different AZs.
 
 ## <a id="vs-plans"></a> Compute Profiles vs. Plans
 
