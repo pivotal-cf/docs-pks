@@ -12,7 +12,7 @@ Compute profiles let you customize cluster resources parameters.
 
 <%= vars.k8s_runtime_abbr %> cluster administrators can create and delete compute profiles, as described in the [Creating and Managing Compute Profiles with the CLI (vSphere)](./compute-profiles-manage.html) topic.
 
-After an administrator creates a compute profile, cluster managers and read-only admins can create clusters with it or assign it to existing clusters.
+After an administrator creates a compute profile, cluster managers (`pks.cluster.manage`) can create clusters with it or assign it to existing clusters.
 
 ## <a id="list-profiles"></a> List Compute Profiles
 
@@ -27,10 +27,12 @@ For example:
 <pre class="terminal">
 $ tkgi compute-profiles
 
-Name                    Description
-test-compute-profile-1  My test compute profile 1
-test-compute-profile-2  My test compute profile 2
-test-compute-profile-3  My test compute profile 3
+Name                              Description
+custom-nodes-compute-profile      custom-nodes-compute-profile
+custom-node-pools-compute-profile custom-node-pools-compute-profile
+Dc-east-single-node-pool          A profile for the east datacenter with a single node pool
+dc-east-mixed                     A profile for the east datacenter with heterogeneous workers
+
 </pre>
 
 ## <a id='create'></a> Create a Cluster with a Compute Profile
@@ -53,7 +55,7 @@ Where:
 For example:
 
 <pre class="terminal">
-tkgi create-cluster test -e test.tkgi.shep.api.com --compute-profile test-compute-profile -p "small"
+tkgi create-cluster custom-node-pools -e test.tkgi.shep.api.com --compute-profile test-compute-profile -p "small"
 
 TKGI Version:              1.9.0-build.11
 Name:                     test
@@ -69,7 +71,7 @@ Worker Nodes:             3
 Kubernetes Master IP(s):  In Progress
 Network Profile Name:
 Kubernetes Profile Name:
-Compute Profile Name:     test-compute-profile
+Compute Profile Name:     custom-node-pools-compute-profile
 Tags:
 </pre>
 
@@ -109,17 +111,25 @@ This is the procedure to change a cluster's compute profile:
 	Update summary for cluster test:
 	Compute Profile Name: new-compute-profile
 	Are you sure you want to continue? (y/n): y
-	Use 'tkgi cluster test' to monitor the state of your cluster
+	Use 'tkgi cluster test' to monitor the state of your cluster<br />
+  Resize and update operation:
+  tkgi resize custom-node-pools-compute-profile
+  --node-pool-instances "tiny-1:3,medium-2:7"
   </pre>
 
-### <a id="compute-profile-validation"></a> Compute Profile Update Validation
+### <a id="compute-profile-validation"></a> Compute Profile Update and Resize Validation
 
 There are strict validation rules for the `tkgi update-cluster --compute-profile` command:
 
+- You cannot use the compute profile to change Availability Zones of a cluster.
+- If any optional field is unspecified at the time of cluster creation or cluster update, then the value of that field is set to the value of the corresponding field from the plan.
+- Values passed to `--num-nodes` are ignored.
+- Values passed to `--node-pool-instances` must match the labels of the node pools specified in the compute profile.
+
+Clusters created with compute profile in <%= vars.k8s_runtime_abbr %> 1.8 and earlier:
+
 - You cannot update a compute profile for a cluster that already has an associated profile created in <%= vars.k8s_runtime_abbr %> v1.8 or earlier.
-- If a field in the original compute profile is empty, the system ignores the empty field even if the field is included in the new compute profile. 
-- If a field in the existing compute profile conflicts with a field in the new compute profile, the system reports the conflict and fails the validation.
-- If the field is empty in the new compute profile, then the system ignores the field even if the field is not empty in the original compute profile.
+
 
 ## <a id='use-cases'></a> Compute Profile Use Cases
 
