@@ -1,0 +1,80 @@
+---
+title: Using a Windows Pause Image for an Air-Gapped Environment
+owner: TKGI
+---
+
+This topic describes configuring a private registry and a Windows pause image for an air-gapped environment
+for Windows worker-based Kubernetes clusters in <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>).  
+
+
+## <a id='overview'></a> Overview
+
+To deploy a Windows pod, Kubelet deploys a Windows container image fetched from a Docker registry.  
+
+Microsoft restricts distribution of Windows container base images and the
+fetched Windows container image is typically pulled from the 
+Microsoft Docker registry. This registry is inaccessible from within an air-gapped environment.  
+
+To deploy Windows pods in an air-gapped environment 
+you must have a Windows container image in a private Docker registry. 
+
+### <a id='prepare-registry'></a> Prepare Your Private Docker Registry
+
+Your private Docker registry must meet the following requirements:  
+
+* The registry must be accessible from your <%= vars.product_short %> environment.  
+* The registry must be configured to support Microsoft Windows images. 
+For an example of a Windows-supporting registry, see [Pushing Images]
+(https://goharbor.io/docs/2.0.0/working-with-projects/working-with-images/pulling-pushing-images/) 
+in the VMware Harbor documentation.  
+
+Follow the instructions for the Docker registry you chose to configure an accessible Windows image-supporting registry.  
+
+### <a id='prepare-windows-pause-image'></a> Prepare a Windows Pause Image for an Air-Gapped Environment
+
+To prepare a Windows pause image for an air-gapped environment, perform the following:
+
+1. Create an accessible Windows Server 2019 machine in your environment.  
+1. Install Docker on this Windows Server 2019 machine.  
+1. Configure the machine's Docker daemon to allow non-redistributable artifacts to be 
+pushed to your private registry. For information about configuring your Docker daemon, 
+see [Allow push of nondistributable artifacts](https://docs.docker.com/engine/reference/commandline/dockerd/#allow-push-of-nondistributable-artifacts) in the Docker documentation.   
+1. Open a command line on the Windows machine.
+1. To download a Windows container image from the Microsoft Docker registry, run the following command:
+
+    ```
+    docker pull mcr.microsoft.com/k8s/core/pause:1.3.0
+    ```
+
+1. To tag the Windows container image, run the following command:
+
+    ```
+    docker tag mcr.microsoft.com/k8s/core/pause:1.3.0  REGISTRY-ROOT/windows/pause:1.3.0
+    ```
+
+    Where `REGISTRY-ROOT` is your private registry's URI.   
+
+1. To upload the Windows container image to your accessible private registry, run the following command:
+
+    ```
+    docker push  PAUSE-IMAGE-URI
+    ```
+
+    Where `PAUSE-IMAGE-URI` is the URI to the Windows pause image in your private registry. 
+    Your pause image URI should follow the pattern: `my.private.registry/windows/pause:1.3.0`.  
+
+### <a id='configure-to-use-pause-image'></a> Configure <%= vars.product_short %> to Use the Windows Pause Image
+To configure <%= vars.product_short %> to fetch your accessible Windows container image when 
+deploying Windows pods, perform the following:
+
+1. Open the <%= vars.product_tile %> tile.  
+1. Click the Windows worker Plan that you want to configure to use your accessible private registry.  
+1. Modify the **Kubelet customization - Windows pause image location** property to be your pause image URI.  
+<br>
+    For example: 
+
+    ```
+    my.private.registry/windows/pause:1.3.0
+    ```
+
+1. Click **Save**.  
