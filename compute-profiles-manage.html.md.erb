@@ -41,71 +41,8 @@ within <%= vars.k8s_runtime_abbr %>. See
 
 ### <a id="format"></a> Compute Profile Format
 
-To create a compute profile, a cluster administrator must first define it as a JSON file.
-
-Below is an example compute profile that defines compute resources for
-Kubernetes control plane nodes in the `control_plane` block, two node pools for
-workers in the `node_pools` block, and one availability zone (AZ) within vSphere infrastructure
-in the `azs` block. For more examples,
+To create a compute profile, a cluster administrator must first define it as a JSON file. For examples of compute profiles,
 see [Compute Profile Examples](#examples) below.
-
-<p class="note"><strong>Note:</strong> This example compute profile is for
-illustration purposes only.</p>
-
-```
-{
-  "name": "test-compute-profile",
-  "description": "A profile for the east datacenter with heterogeneous workers",
-  "parameters": {
-    "azs": [{
-      "name": "east",
-      "cpi": "056bf5a3aea9c5c79f62",
-      "cloud_properties": {
-        "datacenters": [{
-          "name": "east",
-          "clusters": [{
-            "cluster-0": {
-              "host_group": {
-                "drs_rule": "MUST",
-                "name": "cluster-0-hg"
-              }
-            },
-            "resource_pool": "az-2"
-          }]
-        }]
-      }
-    }],
-    "cluster_customization": {
-      "control_plane": {
-        "cpu": 4,
-        "memory_in_mb": 16384,
-        "ephemeral_disk_in_mb": 32768,
-        "az_names": ["east"],
-        "instances": 3
-      },
-      "node_pools": [{
-          "name": "x-large",
-          "cpu": 4,
-          "memory_in_mb": 8192,
-          "ephemeral_disk_in_mb": 32768,
-          "az_names": ["east"],
-          "instances": 3,
-          "max_worker_instances": 25
-        },
-        {
-          "name": "small",
-          "cpu": 1,
-          "memory_in_mb": 2048,
-          "ephemeral_disk_in_mb": 8192,
-          "az_names": ["east"],
-          "instances": 5,
-          "max_worker_instances": 30
-        }
-      ]
-    }
-  }
-}
-```
 
 For information about all of the parameters that you can specify in a compute
 profile, see [Compute Profile Parameters](#params) below.
@@ -142,13 +79,13 @@ properties:
   <tr>
     <td><code>azs</code></td>
     <td>Array</td>
-    <td>(<strong>Optional</strong>) Properties defining AZ name, CPI, and <code>cloud_properties</code> settings.
+    <td>(<strong>Optional</strong>) Properties defining one or more AZs, including the <code>name</code>, <code>cpi</code>, and <code>cloud_properties</code> settings.
     See <a href="#cloud-properties">azs Block</a> below.</td>
   </tr>
   <tr>
     <td><code>cluster_customization</code></td>
     <td>Object</td>
-    <td>(<strong>Optional</strong>) Properties defining <a href="#control-plane"><code>control_plane</code></a> and <a href="#node-pools"><code>node_pools</code></a>.</td>
+    <td>(<strong>Optional</strong>) Properties defining the <code>control_plane</code> and <code>node_pools</code> settings. See <a href="#control-plane"><code>control_plane Block</code></a> and <a href="#node-pools"><code>node_pools Block</code></a> below.</td>
   </tr>
 </table>
 
@@ -158,10 +95,13 @@ When you create a compute profile, only the `name`, `description`, and `paramete
 #### <a id="cloud-properties"></a>`azs` Block (vSphere with NSX-T Only)
 
 This optional block defines where Kubernetes control plane and worker nodes are created
-within your vSphere infrastructure. You can define one or more AZs.
+within your vSphere infrastructure. You can define one or more AZs. 
 
 If you define the `azs` block, do not use the `persistent_disk_in_mb`
-parameter in `cluster_customization`. You can define only one of the two in the same profile.
+property in `cluster_customization`. You can define only one of the two in the same profile.
+
+Specify the properties below for each AZ. For an example, see
+[Custom AZs (vSphere with NSX-T Only)](#custom-azs).
 
 <table>
   <tr>
@@ -173,7 +113,7 @@ parameter in `cluster_customization`. You can define only one of the two in the 
     <td><code>name</code></td>
     <td>String</td>
     <td>Name for the AZ where you want to deploy cluster VMs. For example,
-      <code>east</code>.</td>
+      <code>cp-hg-az-1</code>.</td>
   </tr>
   <tr>
     <td><code>cpi</code></td>
@@ -194,23 +134,22 @@ parameter in `cluster_customization`. You can define only one of the two in the 
   <tr>
     <td><code>name</code></td>
     <td>String</td>
-    <td>Name of your datacenter as it appears in Ops Manager and your cloud provider console. For example, <code>east</code>.</td>
+    <td>Name of your datacenter as it appears in Ops Manager and your cloud provider console. For example, <code>vSAN_Datacenter</code>.</td>
   </tr>
   <tr>
     <td><code>clusters</code></td>
     <td>Array</td>
-    <td>Array of one or more vSphere clusters.</td>
+    <td>Array of clusters. Only one cluster is required.</td>
   </tr>
   <tr>
     <td><code>CLUSTER-NAME</code></td>
     <td>String</td>
-    <td>Name that you want to give your vSphere cluster. For example, <code>cluster-0</code>. This section defines <code>host_group</code> and 
-      <code>resource_pool</code>.</td>
+    <td>Name that you want to give your cluster. For example, <code>vSAN_Cluster</code>. This section defines <code>host_group</code>.</td>
   </tr>
   <tr>
     <td><code>host_group</code></td>
     <td>Object</td>
-    <td>Properties of the host group that you want to use for your cluster VMs. This includes <code>name</code> and <code>drs_rule.</td>
+    <td>Properties of the host group that you want to use for your Kubernetes cluster VMs. This includes <code>name</code> and <code>drs_rule.</td>
   </tr>
   <tr>
     <td><code>name</code></td>
@@ -220,13 +159,7 @@ parameter in `cluster_customization`. You can define only one of the two in the 
   <tr>
     <td><code>drs_rule</code></td>
     <td>String</td>
-    <td><code>MUST</code> or <code>SHOULD</code>.</td>
-  </tr>
-  <tr>
-    <td><code>resource_pool</code></td>
-    <td>String</td>
-    <td>Name of the resource pool where you want to deploy your cluster VMs.
-    </td>
+    <td>Specify <code>MUST</code>.</td>
   </tr>
 </table>
 
@@ -450,38 +383,71 @@ The example below defines compute resources for two worker node pools:
 Cluster administrators can define AZs in a compute profile instead of adding new AZs in the BOSH Director tile. Cluster managers then use it to specify AZs for a cluster dynamically. As a result, you do not need to make AZ changes to each <%= vars.k8s_runtime_abbr %> plan and the overall impact to the
 <%= vars.k8s_runtime_abbr %> control plane is smaller.
 
-The example below defines an AZ, `east`, in the `azs` block, which is then
-referenced in the `cluster_customization` block.
+The example below defines three AZs, `cp-hg-az-1`, `cp-hg-az-2`, and `cp-hg-az-3`, in the `azs` block, which are then referenced in the `cluster_customization` block.
 
 ```
 {
-  "name": "dc-east-single-node-pool",
-  "description": "A profile for the east datacenter with a single node pool.",
+  "name": "azs-custom-compute-profile",
+  "description": "A profile for customized AZs.",
   "parameters": {
     "azs": [{
-      "name": "east",
-      "cpi": "056bf5a3aea9c5c79f62",
-      "cloud_properties": {
-        "datacenters": [{
-          "name": "east",
-          "clusters": [{
-            "cluster-0": {
-              "host_group": {
-                "drs_rule": "MUST",
-                "name": "cluster-0-hg"
+        "name": "cp-hg-az-1",
+        "cpi": "ff8d93840299bd7474f5",
+        "cloud_properties": {
+          "datacenters": [{
+            "name": "vSAN_Datacenter",
+            "clusters": [{
+              "vSAN_Cluster": {
+                "host_group": {
+                  "drs_rule": "MUST",
+                  "name": "CP-HG-AZ-1"
+                }
               }
-            },
-            "resource_pool": "az-2"
+            }]
           }]
-        }]
+        }
+      },
+      {
+        "name": "cp-hg-az-2",
+        "cpi": "ff8d93840299bd7474f5",
+        "cloud_properties": {
+          "datacenters": [{
+            "name": "vSAN_Datacenter",
+            "clusters": [{
+              "vSAN_Cluster": {
+                "host_group": {
+                  "drs_rule": "MUST",
+                  "name": "CP-HG-AZ-2"
+                }
+              }
+            }]
+          }]
+        }
+      },
+      {
+        "name": "cp-hg-az-3",
+        "cpi": "ff8d93840299bd7474f5",
+        "cloud_properties": {
+          "datacenters": [{
+            "name": "vSAN_Datacenter",
+            "clusters": [{
+              "vSAN_Cluster": {
+                "host_group": {
+                  "drs_rule": "MUST",
+                  "name": "CP-HG-AZ-3"
+                }
+              }
+            }]
+          }]
+        }
       }
-    }],
+    ],
     "cluster_customization": {
       "control_plane": {
         "cpu": 4,
         "memory_in_mb": 16384,
         "ephemeral_disk_in_mb": 32768,
-        "az_names": ["east"],
+        "az_names": ["cp-hg-az-1", "cp-hg-az-2", "cp-hg-az-3"],
         "instances": 3
       },
       "node_pools": [{
@@ -489,7 +455,7 @@ referenced in the `cluster_customization` block.
         "cpu": 4,
         "memory_in_mb": 8192,
         "ephemeral_disk_in_mb": 32768,
-        "az_names": ["east"],
+        "az_names": ["cp-hg-az-1", "cp-hg-az-2", "cp-hg-az-3"],
         "instances": 3,
         "max_worker_instances": 25
       }]
