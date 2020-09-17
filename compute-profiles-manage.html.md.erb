@@ -41,11 +41,186 @@ within <%= vars.k8s_runtime_abbr %>. See
 
 ### <a id="format"></a> Compute Profile Format
 
-To create a compute profile, a cluster administrator must first define it as a JSON file. For examples of compute profiles,
-see [Compute Profile Examples](#examples) below.
+To create a compute profile, a cluster administrator first defines it as a JSON file. Every profile must include the `name`, `description`, and `parameters` properties. Then, depending on what compute resources you want to customize, define `azs`, `control_plane`, or `node_pools`. For example, you can define the following:
+
+* Both `control_plane` and `node_pools`, with or without `azs`
+* `control_plane` or `node_pools`, with or without `azs`
+
+See the table below for examples of compute profiles.
+
+<table>
+  <tr>
+    <th width="28%">Example</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><a href="#custom-nodes">Custom Nodes</a></td>
+    <td>Define custom compute resources for Kubernetes control plane and worker nodes.</td>
+  </tr>
+  <tr>
+    <td><a href="#node-pools">Worker Node Pools</a></td>
+    <td>Define multiple pools of worker nodes.</td>
+  </tr>
+  <tr>
+    <td><a href="#custom-azs">Custom AZs (vSphere with NSX-T Only)</a></td>
+    <td>Define AZs for Kubernetes control plane nodes and worker node pools dynamically.</td>
+  </tr>
+</table>
 
 For information about all of the parameters that you can specify in a compute
 profile, see [Compute Profile Parameters](#params) below.
+
+#### <a id='custom-nodes'></a> Custom Nodes
+
+The example below defines compute resources for control plane nodes
+and one node pool for workers:
+
+```
+{
+  "name": "custom-nodes-compute-profile",
+  "description": "custom-nodes-compute-profile",
+  "parameters": {
+    "cluster_customization": {
+      "control_plane": {
+        "cpu": 2,
+        "memory_in_mb": 4096,
+        "ephemeral_disk_in_mb": 16384,
+        "persistent_disk_in_mb": 16384,
+        "instances": 3
+      },
+      "node_pools": [{
+        "cpu": 2,
+        "memory_in_mb": 4096,
+        "ephemeral_disk_in_mb": 16384,
+        "persistent_disk_in_mb": 16384,
+        "name": "tiny-1",
+        "instances": 5,
+        "max_worker_instances": 10
+      }]
+    }
+  }
+}
+```
+
+#### <a id='node-pools'></a> Node Pools
+
+Cluster administrators can define pools of worker nodes with different compute resources. Cluster managers then apply the compute profile to one or more cluster. This enables cluster managers to schedule workloads with different compute requirements on a single cluster.
+
+The example below defines compute resources for two worker node pools:
+
+```
+{
+  "name": "custom-node-pools-compute-profile",
+  "description": "custom-node-pools-compute-profile",
+  "parameters": {
+    "cluster_customization": {
+      "node_pools": [{
+          "cpu": 2,
+          "memory_in_mb": 4096,
+          "ephemeral_disk_in_mb": 16384,
+          "persistent_disk_in_mb": 16384,
+          "name": "tiny-1",
+          "instances": 5
+        },
+        {
+          "cpu": 4,
+          "memory_in_mb": 4096,
+          "ephemeral_disk_in_mb": 32768,
+          "name": "medium-2",
+          "instances": 1,
+          "max_worker_instances": 5
+        }
+      ]
+    }
+  }
+}
+```
+
+#### <a id='custom-azs'></a> Custom AZs (vSphere with NSX-T Only)
+
+Cluster administrators can define AZs in a compute profile instead of adding new AZs in the BOSH Director tile. Cluster managers then use it to specify AZs for a cluster dynamically. As a result, you do not need to make AZ changes to each <%= vars.k8s_runtime_abbr %> plan and the overall impact to the
+<%= vars.k8s_runtime_abbr %> control plane is smaller.
+
+The example below defines three AZs, `cp-hg-az-1`, `cp-hg-az-2`, and `cp-hg-az-3`, in the `azs` block, which are then referenced in the `cluster_customization` block.
+
+```
+{
+  "name": "azs-custom-compute-profile",
+  "description": "A profile for customized AZs.",
+  "parameters": {
+    "azs": [{
+        "name": "cp-hg-az-1",
+        "cpi": "ff8d93840299bd7474f5",
+        "cloud_properties": {
+          "datacenters": [{
+            "name": "vSAN_Datacenter",
+            "clusters": [{
+              "vSAN_Cluster": {
+                "host_group": {
+                  "drs_rule": "MUST",
+                  "name": "CP-HG-AZ-1"
+                }
+              }
+            }]
+          }]
+        }
+      },
+      {
+        "name": "cp-hg-az-2",
+        "cpi": "ff8d93840299bd7474f5",
+        "cloud_properties": {
+          "datacenters": [{
+            "name": "vSAN_Datacenter",
+            "clusters": [{
+              "vSAN_Cluster": {
+                "host_group": {
+                  "drs_rule": "MUST",
+                  "name": "CP-HG-AZ-2"
+                }
+              }
+            }]
+          }]
+        }
+      },
+      {
+        "name": "cp-hg-az-3",
+        "cpi": "ff8d93840299bd7474f5",
+        "cloud_properties": {
+          "datacenters": [{
+            "name": "vSAN_Datacenter",
+            "clusters": [{
+              "vSAN_Cluster": {
+                "host_group": {
+                  "drs_rule": "MUST",
+                  "name": "CP-HG-AZ-3"
+                }
+              }
+            }]
+          }]
+        }
+      }
+    ],
+    "cluster_customization": {
+      "control_plane": {
+        "cpu": 4,
+        "memory_in_mb": 16384,
+        "ephemeral_disk_in_mb": 32768,
+        "az_names": ["cp-hg-az-1", "cp-hg-az-2", "cp-hg-az-3"],
+        "instances": 3
+      },
+      "node_pools": [{
+        "name": "x-large",
+        "cpu": 4,
+        "memory_in_mb": 8192,
+        "ephemeral_disk_in_mb": 32768,
+        "az_names": ["cp-hg-az-1", "cp-hg-az-2", "cp-hg-az-3"],
+        "instances": 3,
+        "max_worker_instances": 25
+      }]
+    }
+  }
+}
+```
 
 ### <a id="params"></a> Compute Profile Parameters
 
@@ -89,9 +264,6 @@ properties:
   </tr>
 </table>
 
-When you create a compute profile, only the `name`, `description`, and `parameters` properties are required. For example, you can choose to define only node pools for worker nodes in your compute profile.
-
-
 #### <a id="cloud-properties"></a>`azs` Block (vSphere with NSX-T Only)
 
 This optional block defines where Kubernetes control plane and worker nodes are created
@@ -100,8 +272,8 @@ within your vSphere infrastructure. You can define one or more AZs.
 If you define the `azs` block, do not use the `persistent_disk_in_mb`
 property in `cluster_customization`. You can define only one of the two in the same profile.
 
-Specify the properties below for each AZ. For an example, see
-[Custom AZs (vSphere with NSX-T Only)](#custom-azs).
+Specify the properties below for each AZ. For more information about
+the `cloud_properties` schema, see [AZs](https://bosh.io/docs/vsphere-cpi/#azs) in the BOSH documentation.
 
 <table>
   <tr>
@@ -301,168 +473,6 @@ you must specify either `cpu`, `memory_in_mb`, and
     <td>Maximum number of worker node instances for the node pool.</td>
   </tr>
 </table>
-
-### <a id='examples'></a> Compute Profile Examples
-
-See the table below for examples of compute profiles.
-
-Example                                   | Description
-----------------------------------------------------------------|------------------------------------------------------------------------------
-[Custom Nodes](#custom-nodes)        | Define custom compute resources for Kubernetes control plane and worker nodes.
-[Worker Node Pools](#node-pools)       | Define multiple pools of worker nodes.
-[Custom AZs](#custom-azs)       | Define AZs for Kubernetes control plane nodes and worker node pools dynamically.
-
-#### <a id='custom-nodes'></a> Custom Nodes
-
-The example below defines compute resources for control plane nodes
-and one node pool for workers:
-
-```
-{
-  "name": "custom-nodes-compute-profile",
-  "description": "custom-nodes-compute-profile",
-  "parameters": {
-    "cluster_customization": {
-      "control_plane": {
-        "cpu": 2,
-        "memory_in_mb": 4096,
-        "ephemeral_disk_in_mb": 16384,
-        "persistent_disk_in_mb": 16384,
-        "instances": 3
-      },
-      "node_pools": [{
-        "cpu": 2,
-        "memory_in_mb": 4096,
-        "ephemeral_disk_in_mb": 16384,
-        "persistent_disk_in_mb": 16384,
-        "name": "tiny-1",
-        "instances": 5,
-        "max_worker_instances": 10
-      }]
-    }
-  }
-}
-```
-
-#### <a id='node-pools'></a> Node Pools
-
-Cluster administrators can define pools of worker nodes with different compute resources. Cluster managers then apply the compute profile to one or more cluster. This enables cluster managers to schedule workloads with different compute requirements on a single cluster.
-
-The example below defines compute resources for two worker node pools:
-
-```
-{
-  "name": "custom-node-pools-compute-profile",
-  "description": "custom-node-pools-compute-profile",
-  "parameters": {
-    "cluster_customization": {
-      "node_pools": [{
-          "cpu": 2,
-          "memory_in_mb": 4096,
-          "ephemeral_disk_in_mb": 16384,
-          "persistent_disk_in_mb": 16384,
-          "name": "tiny-1",
-          "instances": 5
-        },
-        {
-          "cpu": 4,
-          "memory_in_mb": 4096,
-          "ephemeral_disk_in_mb": 32768,
-          "name": "medium-2",
-          "instances": 1,
-          "max_worker_instances": 5
-        }
-      ]
-    }
-  }
-}
-```
-
-#### <a id='custom-azs'></a> Custom AZs (vSphere with NSX-T Only)
-
-Cluster administrators can define AZs in a compute profile instead of adding new AZs in the BOSH Director tile. Cluster managers then use it to specify AZs for a cluster dynamically. As a result, you do not need to make AZ changes to each <%= vars.k8s_runtime_abbr %> plan and the overall impact to the
-<%= vars.k8s_runtime_abbr %> control plane is smaller.
-
-The example below defines three AZs, `cp-hg-az-1`, `cp-hg-az-2`, and `cp-hg-az-3`, in the `azs` block, which are then referenced in the `cluster_customization` block.
-
-```
-{
-  "name": "azs-custom-compute-profile",
-  "description": "A profile for customized AZs.",
-  "parameters": {
-    "azs": [{
-        "name": "cp-hg-az-1",
-        "cpi": "ff8d93840299bd7474f5",
-        "cloud_properties": {
-          "datacenters": [{
-            "name": "vSAN_Datacenter",
-            "clusters": [{
-              "vSAN_Cluster": {
-                "host_group": {
-                  "drs_rule": "MUST",
-                  "name": "CP-HG-AZ-1"
-                }
-              }
-            }]
-          }]
-        }
-      },
-      {
-        "name": "cp-hg-az-2",
-        "cpi": "ff8d93840299bd7474f5",
-        "cloud_properties": {
-          "datacenters": [{
-            "name": "vSAN_Datacenter",
-            "clusters": [{
-              "vSAN_Cluster": {
-                "host_group": {
-                  "drs_rule": "MUST",
-                  "name": "CP-HG-AZ-2"
-                }
-              }
-            }]
-          }]
-        }
-      },
-      {
-        "name": "cp-hg-az-3",
-        "cpi": "ff8d93840299bd7474f5",
-        "cloud_properties": {
-          "datacenters": [{
-            "name": "vSAN_Datacenter",
-            "clusters": [{
-              "vSAN_Cluster": {
-                "host_group": {
-                  "drs_rule": "MUST",
-                  "name": "CP-HG-AZ-3"
-                }
-              }
-            }]
-          }]
-        }
-      }
-    ],
-    "cluster_customization": {
-      "control_plane": {
-        "cpu": 4,
-        "memory_in_mb": 16384,
-        "ephemeral_disk_in_mb": 32768,
-        "az_names": ["cp-hg-az-1", "cp-hg-az-2", "cp-hg-az-3"],
-        "instances": 3
-      },
-      "node_pools": [{
-        "name": "x-large",
-        "cpu": 4,
-        "memory_in_mb": 8192,
-        "ephemeral_disk_in_mb": 32768,
-        "az_names": ["cp-hg-az-1", "cp-hg-az-2", "cp-hg-az-3"],
-        "instances": 3,
-        "max_worker_instances": 25
-      }]
-    }
-  }
-}
-```
 
 ### <a id="run-create"></a> The create-compute-profile Command
 
