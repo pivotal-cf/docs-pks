@@ -21,9 +21,9 @@ Using a compute profile, cluster administrators can customize the following:
 * Compute resources such as CPU, memory, ephemeral disk, and persistent disk for Kubernetes control plane and worker nodes
 * vSphere resources for Kubernetes control plane and worker nodes
 
-<p class="note"><strong>Note</strong>: A compute profile overrides only the CPU, memory, disk, and AZ settings that you define in the profile. If you do not define a setting in the profile, its configuration is inherited from the plan.</p>
+<p class="note"><strong>Note</strong>: A compute profile overrides only those CPU, memory, disk, and AZ settings that you define in the profile. If you do not define a setting in the profile, its configuration is inherited from the plan.</p>
 
-After you create a compute profile, cluster managers can apply it to one or more Kubernetes clusters.
+After you create a compute profile, cluster managers, `pks.clusters.manage`, can apply it to one or more Kubernetes clusters.
 
 For more information, see [Compute Profiles vs. Plans](#vs-plans) below.
 
@@ -74,8 +74,9 @@ profile, see [Compute Profile Parameters](#params) below.
 
 #### <a id='custom-nodes'></a> Custom Nodes
 
-Cluster administrators can define a compute profile with custom compute resources
-for control plane nodes and/or worker nodes. Cluster managers can then apply
+Cluster administrators can define custom compute resources
+for control plane nodes and/or worker nodes in a compute profile instead of
+updating plans. Then, cluster managers can apply
 the profile to an existing cluster to update the cluster
 with the new compute resources. As a result, the overall impact to the
 <%= vars.k8s_runtime_abbr %> 
@@ -111,9 +112,9 @@ and one node pool for workers:
 }
 ```
 
-#### <a id='node-pools'></a> Node Pools
+#### <a id='node-pools'></a> Worker Node Pools
 
-Cluster administrators can define pools of worker nodes with different compute resources. Cluster managers then apply the compute profile to one or more cluster. This enables cluster managers to schedule workloads with different compute requirements on a single cluster.
+Cluster administrators can define pools of worker nodes with different compute resources. Cluster managers then apply the compute profile to one or more clusters. This enables cluster managers to schedule workloads with different compute requirements on a single cluster.
 
 The example below defines compute resources for control plane nodes and two worker node pools:
 
@@ -161,7 +162,7 @@ The example below defines three AZs, `cp-hg-az-1`, `cp-hg-az-2`, and `cp-hg-az-3
 ```
 {
   "name": "azs-custom-compute-profile",
-  "description": "A profile for customized AZs.",
+  "description": "Profile for customized AZs",
   "parameters": {
     "azs": [{
         "name": "cp-hg-az-1",
@@ -275,7 +276,7 @@ properties:
   <tr>
     <td><code>cluster_customization</code></td>
     <td>Object</td>
-    <td>(<strong>Optional</strong>) Properties defining the <code>control_plane</code> and <code>node_pools</code> settings. See <a href="#control-plane"><code>control_plane Block</code></a> and <a href="#node-pools"><code>node_pools Block</code></a> below.</td>
+    <td>(<strong>Optional</strong>) Properties defining the <code>control_plane</code> and <code>node_pools</code> settings. See <a href="#control-plane"><code>control_plane Block</code></a> and <a href="#worker-nodes"><code>node_pools Block</code></a> below.</td>
   </tr>
 </table>
 
@@ -299,24 +300,24 @@ the `cloud_properties` schema, see [AZs](https://bosh.io/docs/vsphere-cpi/#azs) 
   <tr>
     <td><code>name</code></td>
     <td>String</td>
-    <td>Name for the AZ where you want to deploy cluster VMs. For example,
+    <td>Name for the AZ where you want to deploy Kubernetes cluster VMs. For example,
       <code>cp-hg-az-1</code>.</td>
   </tr>
   <tr>
     <td><code>cpi</code></td>
     <td>String</td>
-    <td>BOSH CPI ID of your <%= vars.k8s_runtime_abbr %> deployment. For instructions on how to obtain the ID, see <a href="#retrieve-cpi-id">Retrieve the BOSH CPI ID</a>. For example,
-      <code>abc012abc345abc567de</code>.</td>
+    <td>BOSH CPI ID of your <%= vars.k8s_runtime_abbr %> deployment. For example,
+      <code>abc012abc345abc567de</code>. For instructions on how to obtain the ID, see <a href="#retrieve-cpi-id">Retrieve the BOSH CPI ID</a>.</td>
   </tr>
   <tr>
     <td><code>cloud_properties</code></td>
     <td>Object</td>
-    <td>Properties defining vSphere <code>datacenters</code> for your cluster VMs.</td>
+    <td>Properties defining vSphere <code>datacenters</code> for your Kubernetes cluster VMs.</td>
   </tr>
   <tr>
     <td><code>datacenters</code></td>
     <td>Array</td>
-    <td>Array of datacenters.</td>
+    <td>Array of datacenters. Define only one datacenter.</td>
   </tr>
   <tr>
     <td><code>name</code></td>
@@ -354,7 +355,7 @@ the `cloud_properties` schema, see [AZs](https://bosh.io/docs/vsphere-cpi/#azs) 
 ####<a id="retrieve-cpi-id"></a> Retrieve the BOSH CPI ID
 
 Use the following procedure to retrieve the BOSH CPI ID for your
-<%= vars.product_short %> deployment.
+<%= vars.k8s_runtime_abbr %> deployment.
 
 1. Locate the credentials that were used to import the Ops Manager .ova or .ovf file into your virtualization system. You configured these credentials when you installed Ops Manager.
     <p class="note"><strong>Note</strong>: If you lose your credentials, you must shut down the Ops Manager VM in the vSphere UI and reset the password. See <a href="https://docs.vmware.com/en/VMware-vSphere/6.5/com.vmware.vsphere.security.doc/GUID-4BDBF79A-6C16-43B0-B0B1-637BF5516112.html">vCenter Password Requirements and Lockout Behavior</a> in the vSphere documentation for more information.</p>
@@ -421,18 +422,19 @@ you must specify either `cpu`, `memory_in_mb`, and
   <tr>
     <td><code>az_names</code></td>
     <td>Array</td>
-    <td>AZs in which you want control plane instances to run.</td>
+    <td>One or more AZs in which you want control plane instances to run.
+     You defined these AZs in the `azs` block of the compute profile.</td>
   </tr>
   <tr>
     <td><code>instances</code></td>
     <td>Integer</td>
-    <td>Number of control plane instances. Enter <code>1</code>, <code>3</code>, or <code>5</code>.</td>
+    <td>Number of control plane instances. Specify <code>1</code>, <code>3</code>, or <code>5</code>.</td>
   </tr>
 </table>
 
 Do not assign the `name` property to this block.
 
-#### <a id="node-pools"></a>`node_pools` Block
+#### <a id="worker-nodes"></a>`node_pools` Block
 
 This optional block defines properties for Kubernetes worker nodes.
 You can define one or more node pools.
@@ -450,7 +452,7 @@ you must specify either `cpu`, `memory_in_mb`, and
   <tr>
     <td><code>name</code></td>
     <td>String</td>
-    <td>Unique Name of the node pool.</td>
+    <td>Name of the node pool.</td>
   </tr>
   <tr>
     <td><code>cpu</code></td>
@@ -476,7 +478,8 @@ you must specify either `cpu`, `memory_in_mb`, and
   <tr>
     <td><code>az_names</code></td>
     <td>Array</td>
-    <td>AZs in which you want worker node instances to run.</td>
+    <td>One or more AZs in which you want worker node instances to run. You defined these
+    AZs in the `azs` block of the compute profile.</td>
   </tr>
   <tr>
     <td><code>instances</code></td>
