@@ -1,17 +1,56 @@
 ---
-title: Backup and Restore Scenarios for TKGI
+title: Backup and Restore Considerations and Best Practices for TKGI
 owner: TKGI
 ---
 
-This section summarizes the backup and restore scenarios and considerations for all TKGI components.
+This section summarizes the backup and restore scenarios for all TKGI components, and provides considerations for each layer.
 
-## Scenarios and Considerations
+## Layers and Considerations
 
-The following scenarios and considerations summarize the various aspects of backup and restore for TKGI. Refer to the individual sections for details on performing backup and restore for that layer.
+The table summarizes the layers and tools for backing up and restoring TKGI. Refer to the individual sections for details on performing backup and restore for that layer, as well as additional details on common scenarios.
 
-Scenario 							| Tool(s) 		    | Test Considerations 
-------------------------------------|-------------------|-----------------------------|
-| [Backup and Restore Kubernetes Workloads](./backup-and-restore-work.html) | Velero, Restic | Must account for stateless and stateful applications, and load balancer and ingress services. Stateless requires Restic plugin. See <a href="./velero-scenarios.html">Velero Backup and Restore Scenarios</a> for details. 
-| [Backup and Restore TKGI Clusters](./backup-and-restore-tkgi.html) | BOSH Backup and Restore (BBR) | Use BBR to back up and restore <%= vars.k8s_runtime_abbr %> clusters, which includes the control plane and worker nodes; applications deployed before backup was taken may be restored but workload backup/restore is recommended. See <a href="./backup-and-restore-tkgi.html">TKGI Cluster Backup and Restore Scenarios</a> for details.
+Layer 							| Tool(s) 		    | Comments 
+--------------------------------|-------------------|-----------------------------|
+| [Backup and Restore Kubernetes Workloads](./backup-and-restore-work.html) | Velero, Restic | Use Velero for for stateless and Velero with Restic for stateful applications. Load balancer and ingress services depend on NSX-T backup. See <a href="./velero-scenarios.html">Velero Backup and Restore Scenarios</a> for details. 
+| [Backup and Restore TKGI Clusters](./backup-and-restore-tkgi.html) | BOSH Backup and Restore (BBR) | Use BBR to back up and restore <%= vars.k8s_runtime_abbr %> clusters, which includes the control plane and worker nodes; See <a href="./backup-and-restore-tkgi.html">TKGI Cluster Backup and Restore Scenarios</a> for details.
 | [Backup and Restore TKGI Management Plane](./backup-and-restore-tkgi-mgmt.html) | Ops Manager, BBR | Export Ops Manager configuration and import to new Ops Manager instance. Use BBR to backup and restore the TKGI Management Plane VMs: BOSH, TKGI API, TKGI DB. See <a href="./backup-and-restore-tkgi-mgmt.html">TKGI Management Plane Backup and Restore Scenarios</a> for details.
-| [Backup and Restore TKGI SDDC](./backup-and-restore-sddc.html) | NSX Manager; vCenter | Use the NSX Manager UI or CLI to backup the NSX Manager DB. Use the vSphere Client to backup the vCenter Server DB. See <a href="./backup-and-restore-sddc.html">TKGI Cluster Backup and Restore Scenarios</a> for details.
+| [Backup and Restore TKGI SDDC](./backup-and-restore-sddc.html) | NSX-T Manager | Use the NSX Manager UI or CLI to backup the NSX Manager DB. See <a href="./backup-and-restore-sddc.html">TKGI Cluster Backup and Restore Scenarios</a> for details.
+
+## Best Practices
+
+Keep in the mind the following best practices.
+
+### Backup Regularly 
+
+Resources should be backed up on a regular schedule, such as nightly (every 24-hours).
+
+### Backup Critical Components
+
+The most important components to back up are stateful applications, cluster configurations, and NSX-T objects.
+
+- When you deploy an application, take a backup using Velero and Restic.
+- When you create a TKGI cluster, take a backup using BBR and NSX-T.
+- When you deploy TKGI or update the TKGI or BOSH Director tiles, take a backup of Ops Manager.
+- When you create an NSX-T object, take a backup using NSX-T.
+  - Load balancer 
+  - Namespace
+  - Logical switch (created when a cluster is provisioned)
+  - Ingress
+  - Network Policy
+
+### Restore What Breaks
+
+The general approach is to restore what breaks. For example, if NSX-T crashes, you only need to restore NSX-T. Workloads will continue to run, but you can't add anything. 
+
+The exception is a Kubernetes cluster. If the cluster breaks, you need to restore the cluster using BBR and the applications using Velero. On the NSX-T side, create a new namespace for the restored cluster. Using kubectl, restore the application using Velero, this will force the creation of the NSX-T objects in the namespace.
+
+### Understand What Is Restored
+
+Use Velero restore if something breaks in a workload application, and you need to restore it.
+
+BBR will restore the cluster nodes and etcd. It will also restore stateless applications but you shouldn't rely on it for such purposes. Use Velero for workload backup and restore.
+
+For BBR to work restoring a cluster, the NSX-T objects need to be in the NSX-T database. BBR will only work if the objects are in NSX-T. BBR recreates the VM. You just need the LS for the Kubernetes node.
+
+If NSX-T crashes, you only need to restore NSX-T. App will continue to run, but you can't add anything.
+
