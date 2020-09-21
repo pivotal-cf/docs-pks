@@ -1,0 +1,92 @@
+---
+title: Installing and Configuring BOSH Backup and Restore
+owner: TKGI
+---
+
+This topic describes how to install BOSH Backup and Restore (BBR).
+
+##<a id="overview"></a> Overview
+
+To install BBR, first validate that your jumpbox VM is a valid BOSH backup host, then copy the BBR executable to the jumpbox. 
+
+After installing BBR, you can run `bbr` commands to back up and restore your <%= vars.product_short %>
+deployment.
+
+For more information about using BOSH Backup and Restore, see:  
+
+* To backup and restore Kubernetes clusters provisioned by TKGI, see [Backing Up and Rrestoring TKGI Clusters](backup-and-restore-tkgi.html).  
+* To backup and restore TKGI Management Plane Components, see [Backing Up and Rrestoring TKGI Managmenent Plane](backup-and-restore-tkgi-mgmt.html).  
+
+##<a id="prerequisites"></a> Prerequisite
+
+Using BBR requires the following:  
+
+* A jumpbox. You must have a jumpbox before you can install BBR to the jumpbox.  
+* A bbr executable file. You must have the correct BBR executable version for your <%= vars.k8s_runtime_abbr %> installation. 
+
+A jumpbox is a separate, hardened server on your network that provides a controlled means of accessing the other VMs on your network. 
+See the [jumpbox-deployment](https://github.com/cloudfoundry/jumpbox-deployment) GitHub repository for an example jumpbox deployment.  
+
+To determine the correct version of BBR for your deployment, see the [<%= vars.product_short %> Release Notes](release-notes.html).
+To download a BBR installation file, see [BOSH Backup and Restore](https://network.pivotal.io/products/p-bosh-backup-and-restore) on the VMware Tanzu Network.
+
+##<a id="bbr-jumpbox"></a> Configure Your Jumpbox for BBR
+
+Configure your jumpbox to meet the following requirements:
+
+* Your jumpbox must be able to communicate with the network that contains your <%= vars.product_short %> deployment. You
+can use the Ops Manager VM as your jumpbox.
+* Your jumpbox must have sufficient space for the backup.
+* Your jumpbox must be in the same network as the deployed VMs because BBR connects to the VMs at their private IP addresses. BBR does not support SSH gateways.
+* Your jumpbox should be a host with minimal network latency to the source VMs you are configuring BBR to backup.
+
+<p class="note"><strong>Note</strong>: BBR uses SSH to orchestrate the backup of your <%= vars.product_short %> instances using port 22 by default.</p>
+
+## <a id='bbr-install'></a> Install BBR on Your Jumpbox
+
+Copy the `bbr` executable to a local disk then upload the executable to the jumpbox:
+
+1. Download the latest [BOSH Backup and Restore release](https://network.pivotal.io/products/p-bosh-backup-and-restore) from VMware Tanzu Network.
+1. To add executable permissions to the `bbr` binary file, run the following command:
+
+    ```
+    chmod a+x bbr
+    ```
+1. To securely copy the `bbr` binary file to your jumpbox, run the following command:
+
+    ```
+    scp LOCAL-PATH-TO-BBR/bbr JUMPBOX-USER@JUMPBOX-ADDRESS:
+    ```
+
+    Where:  
+    * `LOCAL-PATH-TO-BBR` is the path to the `bbr` binary you downloaded from VMware Tanzu Network.
+    * `JUMPBOX-USER` is the ssh username for connecting to the jumpbox.
+    * `JUMPBOX-ADDRESS` is the IP address, or hostname, of the jumpbox.
+
+## <a id='bbr-install'></a> Verify BBR Installation
+
+To verify the that BBR is installed, run the following command:
+
+```
+bbr version  
+```
+
+## <a id='bbr-logging'></a>Configure BBR Logging
+
+By default, BBR displays the following:
+
+* The backup and restore scripts that it finds
+* When it starts or finishes a stage, such as `pre-backup scripts` or `backup scripts`
+* When the process is complete
+* When any error occurs
+
+BBR writes any errors associated with stack traces to a file in of the form `bbr-TIMESTAMP.err.log` in the current directory.
+
+To troubleshoot a failed backup or restore using BBR, you can enable verbose logging using the . If more logging is needed, use the optional `--debug` flag to print the following information:
+
+* Logs about the API requests made to the BOSH server
+* All commands executed on remote instances
+* All commands executed on local environment
+* Standard in and standard out streams for the backup and restore scripts when they are executed
+
+
