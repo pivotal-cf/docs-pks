@@ -1,23 +1,23 @@
 ---
-title: Installing Minio, Velero, and Restic
+title: Installing Velero and Restic
 owner: TKGI
 ---
 
-This topic describes how to install Minio, Velero and Restic for the purposes of backing up and restoring Kubernetes workloads.
+This topic describes how to install Velero and Restic for the purposes of backing up and restoring Kubernetes workloads. This topic also describes how to install Minio as the storage for Velero with Restic backups.
 
 ##<a id="prereqs"></a> Prerequisites
 
 Read the [workload backup and restore requirements](./backup-and-restore-work.html#requirements) before proceeding.
 
-Prepare a Linxu VM with sufficient storage to store several workload backups. You will install [Minio](https://velero.io/docs/main/contributions/minio/) on this VM.
+Prepare a Linux VM with sufficient storage to store several workload backups. You will install [Minio](https://velero.io/docs/main/contributions/minio/) on this VM.
 
-It is assumed that you have TKGI Client VM (Linux) where CLI tools are installed, such as the TKGI CLI, Kubectl, and others. You will install the Velero CLI on this client VM. If you do not have such a VM, you can install the Velero CLI on your laptop, but you will need to adjust the installation steps accordingly.
+It is assumed that you have TKGI Client VM (Linux) where CLI tools are installed, such as the TKGI CLI, kubectl, and others. You will install the Velero CLI on this client VM. If you do not have such a VM, you can install the Velero CLI on your laptop, but you will need to adjust the installation steps accordingly.
 
-It is assumed that the Kuberentes environment has internet access and can be reached by the client VM. If the environment has no internet access, refer to the [Velero air-gapped deployment](https://github.com/vmware-tanzu/velero/releases/tag/v1.4.2) documentation.
+It is assumed that the Kubernetes environment has internet access and can be reached by the client VM. If the environment has no internet access, refer to the [Velero air-gapped deployment](https://github.com/vmware-tanzu/velero/releases/tag/v1.4.2) documentation.
 
-##<a id="minio-deploy"></a> Deploy Minio
+##<a id="minio-deploy"></a> Deploy an Object Store
 
-Restic requires an object store as the backup destination for for workload backups. Complete the following tasks to install and configure Minio as the backend object store. The instructions descrige how to deploy the Minio Server on a Linux Ubuntu VM. For more informaion, see the [Minio quick start guide](https://docs.min.io/docs/minio-quickstart-guide.html). 
+Restic requires an object store as the backup destination for for workload backups. Complete the following tasks to install and configure Minio as the backend object store. The instructions describe how to deploy the Minio Server on a Linux Ubuntu VM. For more information, see the [Minio quick start guide](https://docs.min.io/docs/minio-quickstart-guide.html). 
 
 ### <a id='minio-install'></a> Install Minio
 
@@ -45,7 +45,7 @@ Start the Minio server:
 
 Once the Minio server is started, you are provided with the endpoint URL, AccessKey, and ScretKey for the data store instance. Record this information.
 
-In addition, URLs are provided. Browse to the Minio data store using one of the URLs, for example <http://http://10.199.17.63:9000/minio/login/>.
+Browse to the Minio data store using the endpoint URL, for example <http://http://10.199.17.63:9000/minio/login/>.
 
   <img src="images/backup-restore/minio-01.png" alt="Minio Data Store" width="538">
 
@@ -82,7 +82,7 @@ systemctl enable minio
 
 ### <a id='minio-create'></a> Create Minio Bucket
 
-Create a Minio bucket for TKGI workload backup and restore:
+Create a Minio bucket for TKGI workload backup and restore.
 
 1. Launch the Mino browswer and log in to your object store.
 1. Click the **Create bucket** icon.
@@ -107,105 +107,62 @@ By default, the policy for the new `tkgi-velero` bucket is read-only. Change it 
   <img src="images/backup-restore/minio-07.png" alt="Minio Name Bucket" width="538">
   <img src="images/backup-restore/minio-08.png" alt="Minio Name Bucket" width="538">
 
-##<a id="velero-deploy"></a> Deploy Velero with Restic
+##<a id="velero-deploy"></a> Install the Velero CLI on Your Workstation
 
-Install the Velero CLI and create the Velero and Restic pods. These instructions 
+Install the Velero CLI on your workstation. 
 
-### <a id='velero-download'></a> Download Velero
+### <a id='velero-download'></a> Download the Velero CLI Binary
 
-Run the following commands on the TKGI client VM or local client to download Velero.
+Download the signed Velero binary from VMware at <https://www.vmware.com/>. The Linux binary tested with this documentation is `velero-linux-v1.4.2_vmware.1.gz`.
 
-Create a directory.
-
-```
-mkdir /DATA/BINARIES/VELERO/1-4-2
-```
-
-CD to the directory.
-
-```
-cd /DATA/BINARIES/VELERO/1-4-2
-```
-
-Verify the directory.
-
-```
-pwd
-
-/DATA/BINARIES/VELERO/1-4-2 
-```
-
-Download Velero:
-
-```
-wget https://github.com/vmware-tanzu/velero/releases/download/v1.4.2/velero-v1.4.2-linux-amd64.tar.gz
-```
-
-Verify: download:
-
-```
-ls
-velero-v1.4.2-linux-amd64.tar.gz
-```
-
-Unzip the file:
-
-```
-gunzip velero-v1.4.2-linux-amd64.tar.gz
-```
-Untar the file:
-
-```
-tar xvf velero-v1.4.2-linux-amd64.tar
-```
-
-Verify that the CLI and Velero package are present:
-
-```
-ls
-
-velero-v1.4.2-linux-amd64  velero-v1.4.2-linux-amd64.tar
-```
+<p class="note"><strong>Note</strong>: You must use the Velero binary signed by VMware to be eligible for support from VMware.</p>
 
 ### <a id='velero-cli-install'></a> Install the Velero CLI
 
-Install Velero on TKIG client or on your local machine.
+Install the Velero CLI on the TKIG client or on your local machine.
 
-CD to the Velero CLI download.
-
-```
-cd velero-v1.4.2-linux-amd64/
-```
-
-Check for the binary:
+CD to the Velero CLI download and unzip the file.
 
 ```
-ls
-
-examples  LICENSE  velero
+gunzip velero-linux-v1.4.2_vmware.1.gz
 ```
 
-Copy the CLI to /usr/local/bin.
+Check for the Velero binary:
 
 ```
-cp velero /usr/local/bin/velero
+ls -l
+
+-rw-r--r-- 1 root root 57819586 Sep 14 16:19 velero-linux-v1.4.2_vmware.1
 ```
 
-Verify installation:
+Change the permissions and put the Velero CLI in the system path.
+
+```
+chmod +x velero-linux-v1.4.2_vmware.1
+```
+
+Put the CLI in the system path so it is globally available.
+
+```
+cp velero-linux-v1.4.2_vmware.1 /usr/local/bin/velero
+```
+
+Verify the installation:
 
 ```
 velero version
 
 Client:
     Version: v1.4.2
-    Git commit: 56a08a4d695d893f0863f697c2f926e27d70c0c5
 ```
 
-### <a id='velero-cluster-install'></a> Install Velero and Restic on the Target Kubernetes Cluster
+##<a id='velero-cluster-install'></a> Install Velero and Restic on the Target Kubernetes Cluster
 
-Install the Velero and Restic pods on each Kubernetes cluster whose workloads you want to backup. The instructions for installaing Velero and Restic depend on the type of object store. The following instructions assume the use of [Minio](./velero-install.html#minio-deploy) and that the Kubernetes cluster has internet access. If you are installing Velero on a cluster in an air-gapped environment, see [Air-gapped deployments](https://velero.io/docs/v1.4/on-premises/#air-gapped-deployments) in the Velero documentation.
+Install the Velero and Restic pods on each Kubernetes cluster whose workloads you want to backup. The following instructions assume the use of [Minio](./velero-install.html#minio-deploy) and that the Kubernetes cluster has internet access.
 
-#### Prerequisites
+The Velero CLI context follows the kubectl CLI context. Before running the Velero CLI command to install Velero and Restic on the target cluster, you first set the kubectl context. The Velero CLI context will automatically follow the kubectl context. For example, running `kubectl config use-context <cluster-name>` or `pks get-credentials <cluster-name>` tells the Velero CLI which cluster to work on.
+
+###<a id='velero-cluster-install-prereqs'></a>Prerequisites
 
 Before installing Velero and Restic on the Kubernetes cluster:
 
@@ -215,15 +172,24 @@ Before installing Velero and Restic on the Kubernetes cluster:
   - SecretKey: SecretKey: `clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx` (for example)
 - Make sure `kubectl` works against the cluster (use `tkgi get-credentials` if needed)
 
-#### Procedure
+###<a id='velero-cluster-install-prodecure'></a>Procedure
 
-Create the `credentials-minio` with credentials to access the Minio server.
+Get the context for the target Kubernetes cluster so that the Velero CLI knows what cluster to work on. Replace `cluster-1` with the name of the target cluster.
+
+````
+pks get-credentials cluster-1
+
+Fetching credentials for cluster cluster-1.
+Password: ********
+Context set for cluster cluster-1.
+
+You can now switch between clusters by using:
+$kubectl config use-context <cluster-name>
+```
+
+Create a secrets file named `credentials-minio` with the credentials to access the Minio server.
 
 ```
-CD /DATA/BINARIES/VELERO/1-4-2/velero-v1.4.2-linux-amd64
-
-vi credentials-minio
-
 aws_access_key_id = 0XXNO8JCCGV41QZBV0RQ
 
 aws_secret_access_key = clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx
@@ -234,65 +200,40 @@ Verify:
 ```
 ls
 
-credentials-minio  examples  LICENSE  velero
+credentials-minio
 ```
 
-Run the following command to install Velero on the Kubernetes cluster:
+Run the following command to install Velero and Restic on the target Kubernetes cluster:
 
 ```
-    velero install  \
-    --provider aws \
-    --plugins velero/velero-plugin-for-aws:v1.0.0 \
-    --bucket tkgi-velero \
-    --secret-file ./credentials-minio \
-    --use-volume-snapshots=false \
-    --use-restic \
-    --backup-location-config \
-    region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
-```
-
-For example:
-
-
-```
-#     velero install  \
->     --provider aws \
->     --plugins velero/velero-plugin-for-aws:v1.0.0 \
->     --bucket tkgi-velero \
->     --secret-file ./credentials-minio \
->     --use-volume-snapshots=false \
->     --use-restic \
->     --backup-location-config \
->     region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
+velero install \
+--provider aws \
+--plugins velero/velero-plugin-for-aws:v1.0.0 \
+--bucket tkgi-velero \
+--secret-file ./credentials-minio \
+--use-volume-snapshots=false \
+--use-restic \
+--backup-location-config \
+region=minio,s3ForcePathStyle=“true”,s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
 ```
 
 Sample expected result:
 
 ```
-CustomResourceDefinition/backups.velero.io: attempting to create resource
 CustomResourceDefinition/backups.velero.io: created
 ...
 Waiting for resources to be ready in cluster...
 ...
-Deployment/velero: attempting to create resource
-Deployment/velero: created
-DaemonSet/restic: attempting to create resource
 DaemonSet/restic: created
 Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
 ```
 
-Verify the installation of Velero and Restic:
+### Verify
+
+Verify the installation of Velero and Restic.
 
 ```
 kubectl logs deployment/velero -n velero
-
-time="2020-07-21T21:05:53Z" level=info msg="setting log-level to INFO" logSource="pkg/cmd/server/server.go:177"
-time="2020-07-21T21:05:53Z" level=info msg="Starting Velero server v1.4.2 (56a08a4d695d893f0863f697c2f926e27d70c0c5)" logSource="pkg/cmd/server/server.go:179"
-time="2020-07-21T21:05:53Z" level=info msg="1 feature flags enabled []" logSource="pkg/cmd/server/server.go:181"
-...
-time="2020-07-21T21:05:59Z" level=info msg="Starting controller" controller=gc-controller logSource="pkg/controller/generic_controller.go:76"
-time="2020-07-21T21:05:59Z" level=info msg="Starting controller" controller=backup logSource="pkg/controller/generic_controller.go:76"
-time="2020-07-21T21:05:59Z" level=info msg="Done checking for expired DeleteBackupRequests" controller=backup-deletion logSource="pkg/controller/backup_deletion_controller.go:579"
 ```
 
 Verify the `velero` namespace.
@@ -309,7 +250,19 @@ pks-system        Active   13d
 velero            Active   2m38s
 ```
 
-#### Enable Privileged Mode and Modify the Host Path
+Verify the `velero` and `restic` pods.
+
+```
+kubectl get all -n velero
+
+NAME                         READY   STATUS             RESTARTS   AGE
+pod/restic-25chx             0/1     CrashLoopBackOff   1          30s
+pod/restic-rpxcp             0/1     CrashLoopBackOff   1          30s
+pod/restic-wfxmg             0/1     CrashLoopBackOff   1          30s
+pod/velero-8dc7498d9-9v7x4   1/1     Running            0          30s
+```
+
+###<a id='velero-privileged'></a> Enable Privileged Mode and Modify the Host Path
 
 To run the 3-pod Restic DaemonSet on a Kubernetes cluster in TKGI, you must modify the Restic DaemonSet spec. For more information as to why, see the [Restic documentation](https://velero.io/docs/v1.1.0/restic/). In addition, the hostPath should be changed from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`. The instructions for both of these configurations are provided below.
 
@@ -354,7 +307,7 @@ restic-bpvtq              1/1     Running   0          73s
 restic-vg8j7              1/1     Running   0          73s
 velero-68f47744f5-lb5df   1/1     Running   0          10m
 ```
-##<a id="velero-memory"></a> Configure Velero Memory Limits (if necessary)
+###<a id='velero-memory'></a> Adjust Velero Memory Limits (if necessary)
 
 By default Velero sets limits and request memory at 256 and 128 by default. In case a Velero backup get status='InProgress' for many hours, increase these limits.
 
@@ -366,3 +319,97 @@ Change limits and request memory to 512 and 256.
 
   <img src="images/backup-restore/velero-limits.png" alt="Velero Limits" width="538">
 
+##<a id='velero-cluster-install-airgapped'></a> Install Velero and Restic in an Air-Gapped Environment
+
+If you are working in an [air-gapped environment](https://velero.io/docs/v1.4/on-premises/#air-gapped-deployments), you can install Velero and Restic using an internal registry. 
+
+###<a id='velero-cluster-install-airgapped-prereqs'></a> Prerequisites
+
+- A private container registry is installed and configured. The instructions use Harbor.
+- Docker is installed on the workstation or TKGI jump host.
+- Get the name of the Minio bucket; it is `tkgi-velero` in our example
+- Get the keys for the Minio bucket: 
+  - AccessKey: `0XXNO8JCCGV41QZBV0RQ` (for example)
+  - SecretKey: SecretKey: `clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx` (for example)
+- Make sure `kubectl` works against the cluster (use `tkgi get-credentials` if needed)
+
+###<a id='velero-cluster-install-airgapped-procedure'></a> Procedure
+
+1. Download the Velero CLI and Velero with Restic Dockers images from VMware at <https://www.vmware.com/>.
+
+  - velero-plugin-for-aws-v1.1.0-beta.1.tar.gz
+  - velero-v1.4.2_vmware.1.tar.gz
+  - velero-restic-restore-helper-v1.4.2_vmware.1.tar.gz
+
+<p class="note"><strong>Note</strong>: You must use the container images signed by VMware to be eligible for support from VMware.</p>
+
+2. Push the Docker images into the internal registry. Adjust the variables as needed for your registry instance and preferences.
+
+```
+docker login harbor.example.com
+docker load -i velero-plugin-for-aws-v1.1.0-beta.1.tar.gz 
+docker tag vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1 harbor.example.com/vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1
+docker load -i velero-restic-restore-helper-v1.4.2_vmware.1.tar.gz 
+docker tag vmware-tanzu/velero-restic-restore-helper:v1.4.2_vmware.1 harbor.example.com/vmware-tanzu/velero-restic-restore-helper:v1.4.2_vmware.1
+docker load -i velero-v1.4.2_vmware.1.tar.gz
+docker tag vmware-tanzu/velero:v1.4.2_vmware.1 harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1
+docker push harbor.example.com/harbor-ci/vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1
+docker push harbor.example.vmware.com/vmware-tanzu/velero-restic-restore-helper:v1.4.2_vmware.1
+docker push harbor.example.vmware.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1
+```
+
+3. Create a secrets file named `credentials-minio` with the credentials to access the Minio server.
+
+```
+aws_access_key_id = 0XXNO8JCCGV41QZBV0RQ
+
+aws_secret_access_key = clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx
+```
+
+4. Install Velero with Restic. Refer to the [On-Premises Environments](https://velero.io/docs/main/on-premises/) instructions in the Velero documentation, and the [Restic installation](https://velero.io/docs/main/restic/#install-restic) instructions.
+
+You can install Velero using the following command. Adjust the variables for your environment.
+
+```
+velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1 --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1 --provider aws --bucket velero --secret-file ./credentials-minio --use-volume-snapshots=false    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-restic
+```
+
+Expected result:
+
+```
+Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
+```
+
+5. Perform post-installation configurations.
+
+After install, customize the Restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) for the pod during the restore process. This can be done by creating a configmap and applying it in the velero namespace, such as `kubect apply -f restic-cm.yaml -n velero`. Download the example configmap [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/velero-restic/) provided for such purposes.
+
+After install, modify the host path by editing the Restic daemonset manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`. Verify that the Restic pods are running. See [Enable Privileged Mode and Modify the Host Path](./velero-install.html#velero-memory).
+
+Optionally, for large backups (such as 1 TB), you can edit the Velero deployment manifest and add `'- --restic-timeout=900m'` to `spec.template.spec.containers`.
+
+Optionally, depending on your requirements, you can adjust the CPU and memory reserves and limits for the Velero and Restic pods. See [Adjust Velero Memory Limits (if necessary)](./velero-install.html#velero-memory).
+
+**restic pod**
+
+```
+resources:
+limits:
+cpu: "1"
+memory: 1Gi
+requests:
+cpu: 500m
+memory: 512Mi
+```
+
+**velero pod**
+
+```
+resources:
+limits:
+cpu: "1"
+memory: 256Mi
+requests:
+cpu: 500m
+memory: 128Mi
+```

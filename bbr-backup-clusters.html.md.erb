@@ -1,0 +1,468 @@
+---
+title: Backing Up Tanzu Kubernetes Grid Integrated Edition
+owner: TKGI
+---
+
+This topic describes how to use BOSH Backup and Restore (BBR) to back up Kubernetes clusters provisioned by <%= vars.product_full %>.
+
+##<a id="overview"></a> Overview
+
+You can use BOSH Backup and Restore (BBR) to backup Kubernetes clusters provisioned by TKGI, including the control plane nodes, etcd database, and worker node VMs.
+
+Kubernetes clusters provisioned by TKGI include custom backup and restore scripts which encapsulate the correct procedure
+for backing up and restoring the cluster nodes and etcd database.
+
+BBR orchestrates running the backup and restore scripts and transferring the generated backup artifacts to and from a backup directory.
+If configured correctly, BBR can use TLS to communicate securely with backup targets.
+
+To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup and Restore Release Notes](https://docs.cloudfoundry.org/bbr/bbr-rn.html).
+
+## <a id='recs'></a> Recommendations
+
+<%= vars.recommended_by %> recommends:
+
+* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of Ops Manager and <%= vars.product_short %> to restore from.
+
+* Back up your Kubernetes clusters frequently, especially before upgrading your <%= vars.product_short %> deployment.
+
+* For BOSH v270.0 and above (currently in <%= vars.platform_name %> 2.7), prune the BOSH blobstore by running `bosh clean-up --all` prior to running a backup of the BOSH director. This removes all unused resources, including packages compiled against older stemcell versions, which can result in a smaller, faster backup of the BOSH Director. For more information see the [`clean-Up`](https://bosh.io/docs/cli-v2/#clean-up) command.
+
+<p class="note"><strong>Note:</strong>The command <code>bosh clean-up --all</code> is a destructive operation and can remove resources that are unused but needed. For example, if an On-Demand Service Broker such as <%= vars.product_short %> is deployed <strong>and</strong> no service instances have been created, the releases needed to create a service instance will be categorized as unused and removed.</p>
+
+## <a id="prepare"></a> Prepare to Back Up
+
+<%= partial 'preparing-for-bbr' %>
+
+## <a id='backup'></a> Back Up <%= vars.product_short %>
+
+To back up your <%= vars.product_short %> environment you must first connect to your jumpbox before executing `bbr` backup commands.
+
+### <a id='connect-to-jumpbox'></a> Connect to Your Jumpbox
+
+You can establish a connection to your jumpbox in one of the following ways:
+
+* [Connect with SSH](#ssh)
+* [Connect with BOSH&#95;ALL&#95;PROXY](#bosh-all-proxy)
+
+For general information about the jumpbox, see [Installing BOSH Backup and Restore](bbr-install.html).
+
+#### <a id='ssh'></a> Connect with SSH
+
+To connect to your jumpbox with SSH, do one of the following:
+
++ **If you are using the Ops Manager VM as your jumpbox, log in to the Ops Manager VM.** See
+    [Log in to the Ops Manager VM with SSH](https://docs.pivotal.io/platform/2-7/customizing/trouble-advanced.html#bosh-ssh) in _Advanced Troubleshooting with the BOSH CLI_.
+    <br><br>
++ **If you want to connect to your jumpbox using the command line, run the following
+ command:**
+
+    ```
+    ssh -i PATH-TO-KEY JUMPBOX-USERNAME@JUMPBOX-ADDRESS
+    ```
+    Where:
+    * `PATH-TO-KEY` is the local path to your private key for the jumpbox host.
+    * `JUMPBOX-USERNAME` is your jumpbox username.
+    * `JUMPBOX-ADDRESS` is the address of the jumpbox.
+
+<p class="note"><strong>Note:</strong> If you connect to your jumpbox with SSH, you must run the BBR commands
+  in the following sections from within your jumpbox.</p>
+
+
+#### <a id='bosh-all-proxy'></a> Connect with BOSH&#95;ALL&#95;PROXY
+
+You can use the `BOSH_ALL_PROXY` environment variable to open an SSH tunnel with SOCKS5 to your jumpbox.
+This tunnel enables you to forward requests from your local machine to the BOSH Director through the jumpbox.
+When `BOSH_ALL_PROXY` is set, BBR always uses its value to forward requests to the BOSH Director.
+
+<p class="note"><strong>Note:</strong>
+  For the following procedures to work, ensure the SOCKS port is not already in use by a different tunnel or process.</p>
+
+To connect with `BOSH_ALL_PROXY`, do one of the following:
+
+* **If you want to establish the tunnel separate from the BOSH CLI, do the following:**
+    1. Establish the tunnel and make it available on a local port by running the following command:
+
+        ```
+        ssh -4 -D SOCKS-PORT -fNC JUMPBOX-USERNAME@JUMPBOX-ADDRESS -i JUMPBOX-KEY-FILE -o ServerAliveInterval=60
+        ```
+
+        Where:
+
+      * `SOCKS-PORT` is the local SOCKS port.
+      * `JUMPBOX-USERNAME` is your jumpbox username.
+      * `JUMPBOX-ADDRESS` is the address of the jumpbox.
+      * `JUMPBOX-KEY-FILE` is the local SSH private key for accessing the jumpbox.
+
+        For example:
+        <pre class="terminal">$ ssh -4 -D 12345 -fNC jumpbox<span>@</span>203.0.113.0 -i jumpbox.key -o ServerAliveInterval=60</pre>
+    1. Provide the BOSH CLI with access to the tunnel through `BOSH_ALL_PROXY` by running the following command:
+
+        ```
+        export BOSH_ALL_PROXY=socks5://localhost:SOCKS-PORT
+        ```
+        Where is `SOCKS-PORT` is your local SOCKS port.
+
+* **If you want to establish the tunnel using the BOSH CLI, do the following:**
+    1. Provide the BOSH CLI with the necessary SSH credentials to create the
+    tunnel by running the following command:
+
+        ```
+        export BOSH_ALL_PROXY=ssh+socks5://JUMPBOX-USERNAME@JUMPBOX-ADDRESS:SOCKS-PORT?private_key=JUMPBOX-KEY-FILE
+        ```
+
+        Where:
+        * `JUMPBOX-USERNAME` is your jumpbox username.
+        * `JUMPBOX-ADDRESS` is the address of the jumpbox.
+        * `SOCKS-PORT` is your local SOCKS port.
+        * `JUMPBOX-KEY-FILE` is the local SSH private key for accessing the jumpbox.
+
+        For example:
+        <pre class="terminal">$ export BOSH\_ALL\_PROXY=ssh+socks5<span>:</span>//jumpbox<span>@</span>203.0.113.0:12345?private_key=jumpbox.key</pre>
+
+
+<p class="note"><strong>Note:</strong> Using <code>BOSH_ALL_PROXY</code> can result in longer
+backup and restore times because of network performance degradation. All operations must pass
+through the proxy which means moving backup artifacts can be significantly slower.</p>
+
+<div class="note warning"><strong>Warning:</strong> In BBR v1.5.0 and earlier,
+  the tunnel created by the BOSH CLI does not include the <code>ServerAliveInterval</code> flag.
+  This may result in your SSH connection timing out when transferring large artifacts.
+  In BBR v1.5.1, the <code>ServerAliveInterval</code> flag is included.
+  For more information,
+  see  <a href="https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/tag/v1.5.1">bosh-backup-and-restore v1.5.1</a> on GitHub.
+</div>
+
+### <a id='back-up-clusters'></a> Back Up Kubernetes Clusters Provisioned by TKGI
+
+Before backing up your <%= vars.k8s_runtime_abbr %> cluster deployments you should verify that they can be backed up.
+
+#### <a id='verify-deployments'></a> Verify Your Provisioned Clusters
+To verify that you can reach your <%= vars.k8s_runtime_abbr %> cluster deployments and that the deployments can be backed up, follow the steps below.
+
+1. SSH into your jumpbox. For more information about the jumpbox, see
+[Configure Your Jumpbox](bbr-install.html#jumpbox-setup) in _Installing BOSH Backup and Restore_.
+1. To perform the BBR pre-backup check, run the following command from your jumpbox:
+
+    ```
+    BOSH_CLIENT_SECRET=TKGI-UAA-CLIENT-SECRET  bbr deployment \
+    --all-deployments  --target BOSH-TARGET  --username TKGI-UAA-CLIENT-NAME \
+    --ca-cert PATH-TO-BOSH-SERVER-CERT \
+    pre-backup-check
+    ```
+
+    Where:
+    * `TKGI-UAA-CLIENT-SECRET` is the value you recorded for `uaa_client_secret` in
+    [Download the UAA Client Credentials](#cluster-creds) above.
+    * `BOSH-TARGET` is the value you recorded for the BOSH Director's address in
+    [Retrieve the BOSH Director Address](#bosh-address) above.
+    You must be able to reach the target address from the machine where you run `bbr` commands.
+    * `TKGI-UAA-CLIENT-NAME` is the value you recorded for `uaa_client_name` in
+    [Download the UAA Client Credentials](#cluster-creds) above.
+    * `PATH-TO-BOSH-SERVER-CERT` is the path to the root CA certificate that you downloaded in
+    [Download or Locate Root CA Certificate](#root-ca-cert) above.
+
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd  bbr deployment \
+    --all-deployments --target bosh.example.com --username pivotal-container-service-12345abcdefghijklmn \
+    --ca-cert /var/tempest/workspaces/default/root\_ca\_certificate \
+    pre-backup-check
+    </pre>
+
+1. If the pre-backup-check command is successful, the command returns a list of cluster
+deployments that can be backed up.
+
+     <br>
+
+     For example:
+     <pre class="terminal">
+     [21:51:23] Pending: service-instance\_abcdeg-1234-5678-hijk-90101112131415
+     [21:51:23] -------------------------
+     [21:51:31] Deployment 'service-instance\_abcdeg-1234-5678-hijk-90101112131415' can be backed up.
+     [21:51:31] -------------------------
+     [21:51:31] Successfully can be backed up: service-instance\_abcdeg-1234-5678-hijk-90101112131415
+     </pre>
+
+     In the output above, `service-instance_abcdeg-1234-5678-hijk-90101112131415` is the
+     BOSH deployment name of a <%= vars.k8s_runtime_abbr %> cluster.
+
+1. If the pre-backup-check command fails, do one or more of the following:
+    * Make sure you are using the correct <%= vars.product_tile %> credentials.
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+    see [BBR Logging](bbr-logging.html).
+    * Make the changes suggested in the output and run the pre-backup check again. For example,
+    the deployments might not have the correct backup scripts, or the connection to
+    the BOSH Director failed.
+
+#### <a id='back-up-clusters-back-up'></a> Back Up Kubernetes Clusters Provisioned by TKGI
+
+When backing up your <%= vars.k8s_runtime_abbr %> cluster, you can choose to back up only one cluster or to backup all cluster deployments in scope.
+The procedures to do this are the following:
+
+* [Back up All Cluster Deployments](#back-up-all)
+* [Back Up One Cluster Deployment](#back-up-one)
+
+##### <a id='back-up-all'></a> Back Up All Kubernetes Clusters
+
+The following procedure backs up all cluster deployments.
+
+Make sure you use the <%= vars.k8s_runtime_abbr %> UAA credentials that you recorded in
+[Download the UAA Client Credentials](#cluster-creds).
+These credentials limit the scope of the backup to cluster deployments only.
+
+<p class="note"><strong>Note</strong>: The BBR backup command can take a long time to complete.
+You can run it independently of the SSH session so that the process can continue running even if
+your connection to the jumpbox fails.
+The command above uses <code>nohup</code>, but you could also run the command in a
+<code>screen</code> or <code>tmux</code> session.</p>
+
+1. To back up all cluster deployments, run the following command from your jumpbox:
+
+    ```
+    BOSH_CLIENT_SECRET=TKGI-UAA-CLIENT-SECRET nohup bbr deployment \
+    --all-deployments --target BOSH-TARGET --username TKGI-UAA-CLIENT-NAME \
+    --ca-cert PATH-TO-BOSH-SERVER-CERT \
+    backup [--with-manifest] [--artifact-path]
+    ```
+
+    Where:
+    * `TKGI-UAA-CLIENT-SECRET` is the value you recorded for `uaa_client_secret` in
+    [Download the UAA Client Credentials](#cluster-creds) above.
+    * `BOSH-TARGET` is the value you recorded for the BOSH Director's address in
+    [Retrieve the BOSH Director Address](#bosh-address) above.
+    You must be able to reach the target address from the machine where you run `bbr` commands.
+    * `TKGI-UAA-CLIENT-NAME` is the value you recorded for `uaa_client_name` in
+    [Download the UAA Client Credentials](#cluster-creds) above.
+    * `PATH-TO-BOSH-SERVER-CERT` is the path to the root CA certificate that you downloaded in
+    [Download the Root CA Certificate](#root-ca-cert) above.
+    * `--with-manifest` is an optional `backup` parameter to include the manifest in the backup artifact.
+    If you use this flag, the backup artifact then contains credentials that you should keep secret.
+    * `--artifact-path` is an optional `backup` parameter to specify the output path for the backup artifact.
+
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd \
+    nohup bbr deployment \
+    --all-deployments \
+    --target bosh.example.com \
+    --username pivotal-container-service-12345abcdefghijklmn \
+    --ca-cert /var/tempest/workspaces/default/root\_ca\_certificate \
+    backup
+    </pre>
+
+    <p class="note"><strong>Note</strong>: The optional <code>--with-manifest</code> flag directs BBR to create a backup
+    containing credentials. You should manage the generated backup artifact knowing it contains secrets for administering
+    your environment.</p>
+
+1. If the `backup` command completes successfully, follow the steps in [Manage Your Backup Artifact](#good-practices) below.
+
+1. If the backup command fails, the backup operation exits. BBR does not attempt to continue backing up any
+non-backed up clusters. To troubleshoot a failing backup, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+    see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command) below.
+
+##### <a id='back-up-one'></a> Back Up a Single Kubernetes Cluster
+
+1. To backup a single, specific cluster deployment, run the following command from your jumpbox:
+
+    ```
+    BOSH_CLIENT_SECRET=TKGI-UAA-CLIENT-SECRET \
+    nohup bbr deployment \
+    --deployment CLUSTER-DEPLOYMENT-NAME \
+    --target BOSH-DIRECTOR-IP \
+    --username TKGI-UAA-CLIENT-NAME \
+    --ca-cert PATH-TO-BOSH-SERVER-CERT \
+    backup [--with-manifest] [--artifact-path]
+    ```
+
+    Where:
+    * `TKGI-UAA-CLIENT-SECRET` is the value you recorded for `uaa_client_secret` in
+    [Download the UAA Client Credentials](#cluster-creds) above.
+    * `CLUSTER-DEPLOYMENT-NAME` is the value you recorded in
+    [Retrieve your Cluster Deployment Name](#cluster-deployment-name) above.
+    * `BOSH-TARGET` is the value you recorded for the BOSH Director's address in
+    [Retrieve the BOSH Director Address](#bosh-address) above. You must be able to reach the
+    target address from the machine where you run `bbr` commands.
+    * `TKGI-UAA-CLIENT-NAME` is the value you recorded for `uaa_client_name` in
+    [Download the UAA Client Credentials](#cluster-creds) above.
+    * `PATH-TO-BOSH-SERVER-CERT` is the path to the root CA certificate that you downloaded in
+    [Download the Root CA Certificate](#root-ca-cert) above.
+    * `--with-manifest` is an optional `backup` parameter to include the manifest in the backup artifact.
+    If you use this flag, the backup artifact then contains credentials that you should keep secret.
+    * `--artifact-path` is an optional `backup` parameter to specify the output path for the backup artifact.
+
+    For example:
+    <pre class="terminal">
+    $ BOSH\_CLIENT\_SECRET=p455w0rd  nohup bbr deployment \
+    --deployment service-instance\_abcdeg-1234-5678-hijk-9010111213141 \
+    --target bosh.example.com  --username pivotal-container-service-12345abcdefghijklmn \
+    --ca-cert /var/tempest/workspaces/default/root\_ca\_certificate \
+    backup
+    </pre>
+
+    <p class="note"><strong>Note</strong>: The optional <code>--with-manifest</code> flag directs BBR to create a backup
+    containing credentials. You should manage the generated backup artifact knowing it contains secrets for administering
+    your environment.</p>
+
+1. If the `backup` command completes successfully, follow the steps in [Manage Your Backup Artifact](#good-practices) below.
+
+1. If the backup command fails, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
+    see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command) below.
+
+### <a id='cancel-backup'></a> Cancel a Cluster Backup
+
+Backups can take a long time. If you realize that the backup is going to fail or that
+your developers need to push an app immediately, you might need to cancel the backup.
+
+To cancel a backup, perform the following steps:
+
+1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
+1. Because stopping a backup can leave the system in an unusable state and prevent additional
+backups, follow the procedures in [Clean up After a Failed Backup](#manual-clean) below.
+
+## <a id="after-backup"></a> After Backing Up <%= vars.product_short %>
+
+After the backup has completed you should review and manage the generated backup artifacts.
+
+### <a id="good-practices"></a> Manage Your Backup Artifact
+The BBR-created backup consists of a directory containing the backup artifacts and metadata files.
+BBR stores each completed backup directory within the current working directory.
+
+<p class="note"><strong>Note</strong>: The optional <code>--with-manifest</code> flag directs BBR to create a backup
+containing credentials. You should manage the generated backup artifact knowing it contains secrets for administering
+your environment.</p>
+
+BBR backup artifact directories are named using the following formats:
+
+* `DIRECTOR-IP-TIMESTAMP` for the BOSH Director backups.
+* `DEPLOYMENT-TIMESTAMP` for the Control Plane backup.
+* `DEPLOYMENT-TIMESTAMP` for the cluster deployment backups.
+
+Keep your backup artifacts safe by following these steps:
+
+1. Move the backup artifacts off the jumpbox to your storage space.
+
+1. Compress and encrypt the backup artifacts when storing them.
+
+1. Make redundant copies of your backup and store them in multiple locations. This minimizes the
+risk of losing your backups in the event of a disaster.
+
+1. Each time you redeploy <%= vars.product_short %>, test your backup artifact by following the procedures in:
+    * [Restore the <%= vars.product_short %> BOSH Director](bbr-restore.html#redeploy-restore-director)
+    * [Restore the <%= vars.product_short %> Control Plane](bbr-restore.html#redeploy-restore-control-plane)
+    * [Restore <%= vars.product_short %> Clusters](bbr-restore.html#redeploy-restore-clusters)
+
+### <a id="recover-from-failing-command"></a> Recover from a Failing Command
+
+If the backup fails, follow these steps:
+
+1. Ensure that you set all the parameters in the backup command.
+1. Ensure the credentials previously obtained are valid.
+1. Ensure the deployment that you specify in the BBR command exists.
+1. Ensure that the jumpbox can reach the BOSH Director.
+1. Consult [BBR Logging](bbr-logging.html).
+1. If you see the error message: `Directory /var/vcap/store/bbr-backup already exists on instance`,
+   run the appropriate cleanup command. See [Clean Up After a Failed Backup](#manual-clean) below for more information.
+1. If the backup artifact is corrupted, discard the failing artifacts and run the backup again.
+
+
+### <a id="manual-clean"></a> Clean Up after a Failed Backup
+
+If your backup process fails, use the BBR cleanup script to clean up the failed run.
+
+<p class="note warning"><strong>Warning</strong>: It is important to run the BBR cleanup script after a
+failed BBR backup run. A failed backup run might leave the BBR backup directory on the instance,
+causing any subsequent attempts to backup to fail. In addition, BBR might not have run the post-backup scripts,
+leaving the instance in a locked state.</p>
+
+* If the <%= vars.k8s_runtime_abbr %> BOSH Director backup failed, run the following BBR cleanup script command to clean up:
+
+    ```
+    bbr director --host BOSH-DIRECTOR-IP \
+    --username bbr  --private-key-path PRIVATE-KEY-FILE \
+    backup-cleanup
+    ```
+
+    Where:
+    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public,
+    `BOSH-DIRECTOR-IP` is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal
+    IP `BOSH-DIRECTOR-IP` which you can retrieve as show in [Retrieve the BOSH Director Address](#bosh-address) above.
+    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in
+    [Download the BBR SSH Credentials](#bbr-ssh-creds) above. Replace the placeholder text using the
+    information in the following table.
+
+    For example:
+
+    <pre class="terminal">
+    $ bbr director  --host 10.0.0.5  --username bbr \
+    --private-key-path private-key.pem \
+    backup-cleanup
+    </pre>
+
+* If the <%= vars.k8s_runtime_abbr %> control plane or <%= vars.k8s_runtime_abbr %> clusters backups fail, run the following BBR cleanup script command to clean up:
+
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    bbr deployment \
+    --target BOSH-TARGET \
+    --username BOSH-CLIENT \
+    --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-CA-CERT \
+    backup-cleanup
+    ```
+
+    Where:
+    * `BOSH-CLIENT-SECRET` is your BOSH client secret. If you do not know your BOSH Client Secret,
+    open your BOSH Director tile, navigate to **Credentials > Bosh Commandline Credentials** and
+    record the value for `BOSH_CLIENT_SECRET`.
+    * `BOSH-TARGET` is your BOSH Environment setting. If you do not know your BOSH Environment setting,
+    open your BOSH Director tile,     navigate to **Credentials > Bosh Commandline Credentials** and
+    record the value for `BOSH_ENVIRONMENT`. You must be able to reach the target address from the
+    workstation where you run `bbr` commands.
+    * `BOSH-CLIENT` is your BOSH Client Name. If you do not know your BOSH Client Name, open your BOSH Director tile,
+    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.
+    * `DEPLOYMENT-NAME` is the <%= vars.product_short %> BOSH deployment name that you located in
+    the [Locate the <%= vars.product_short %> Deployment Names](#locate-deploy-name) section above.
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in
+    [Download the Root CA Certificate](#root-ca-cert) above.
+
+    For example:
+    <pre class="terminal">
+    $ BOSH&#95;CLIENT&#95;SECRET=p455w0rd bbr deployment \
+    --target bosh.example.com --username admin --deployment cf-acceptance-0 \
+    --ca-cert bosh.ca.crt \
+    backup-cleanup
+    </pre>
+
+If the cleanup script fails, consult the following table to match the exit codes to an error
+message.
+
+<table>
+  <tr>
+    <th>Value</th>
+    <th>Error</th>
+  </tr>
+  <tr>
+    <td>0</td>
+    <td>Success</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>General failure</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>The post-backup unlock failed. One of your deployments might be in a bad state and require
+      attention.</td>
+  </tr>
+  <tr>
+    <td>16</td>
+    <td>The cleanup failed. This is a non-fatal error indicating that the utility has been unable
+      to clean up open BOSH SSH connections to a deployment's VMs. Manual cleanup might be required
+      to clear any hanging BOSH users and connections.</td>
+  </tr>
+</table>
+
