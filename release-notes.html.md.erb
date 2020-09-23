@@ -359,6 +359,71 @@ for clusters created with a compute Profile.
 
 <%= vars.k8s_runtime_abbr %> v1.8.0 has the following known issues:
 
+
+#### <a id="1.8.0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
+
+**Symptom**  
+
+After clicking **Apply Changes** on the <%= vars.k8s_runtime_abbr %> tile in an Azure environment, you experience 
+an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
+
+* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_  
+* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
+
+For example:  
+
+```
+INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
+2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
+HTTP/1.1 500 Internal Server Error
+Transfer-Encoding: chunked
+Cache-Control: no-cache, no-store
+Connection: keep-alive
+Content-Type: application/json; charset=utf-8
+Date: Mon, 21 Sep 2020 17:51:50 GMT
+Expires: Fri, 01 Jan 1990 00:00:00 GMT
+Pragma: no-cache
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Ops Manager
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-Request-Id: f5fc99c1-21a7-45c3-7f39
+X-Runtime: 9.905591
+X-Xss-Protection: 1; mode=block
+
+44
+{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
+0
+```
+
+
+**Explanation**  
+
+The Azure CPI endpoint used by Ops Manager has been changed and 
+your installed version of Ops Manager is not compatible with the new endpoint.
+
+**Workaround**  
+
+Run the following Ops Manager CLI command:
+
+```
+om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
+```
+
+Where:
+
+* `USERNAME` is the account to use to run Ops Manager API commands.  
+* `PASSWORD` is the password for the account.  
+* `OPSMAN-API` is the IP address for the Ops Manager API
+
+
+For more information, see [Error 'undefined method location' is received when running Apply Change on Azure]
+(https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US) 
+in the VMware Tanzu Knowledge Base.  
+
 #### <a id='1-8-0-upgrade-connectivity'></a>Loss of Network Connectivity While Upgrading Stateful Kubernetes Clusters
 
 Stateful sets with attached persistent storage on <%= vars.k8s_runtime_abbr %> on vSphere with NSX-T 
