@@ -118,6 +118,11 @@ The supported upgrade paths to <%= vars.k8s_runtime_abbr %> v1.9.0 are from <%= 
 
 This section describes new features and changes in <%= vars.product_full %> v1.9.0.
 
+#### <a id="1-9-0-windows"></a>Windows Workers on NSX-T
+
+<%= vars.k8s_runtime_abbr %> v1.9.0 supports clusters with Windows-based worker nodes on vSphere with NSX-T networking only.
+<%= vars.k8s_runtime_abbr %> v1.9.0 continues to support Windows workloads on vSphere with Flannel networking as a beta feature.
+ 
 #### <a id="1-9-0-certs"></a>Cluster Certificate Rotation Support
 
 For secure communication, <%= vars.k8s_runtime_abbr %> clusters use TLS certificates created unique for each cluster.
@@ -131,11 +136,6 @@ and [<%= vars.k8s_runtime_abbr %> Certificates](./certificate-concepts.html) for
 The PKS CLI now trusts the certificates in a system CA store, such as the MacOS keychain. 
 When logging in to the PKS CLI, you no longer need to specify the `--skip-ssl-validation` or `--ca-cert` command line arguments.  
 
-#### <a id="1-9-0-windows"></a>Windows Workers on NSX-T
-
-<%= vars.k8s_runtime_abbr %> v1.9.0 supports clusters with Windows-based worker nodes on vSphere with NSX-T networking only.
-<%= vars.k8s_runtime_abbr %> v1.9.0 continues to support Windows workloads on vSphere with Flannel networking as a beta feature.
- 
 #### <a id="1-9-0-compute-profiles"></a>Compute Profile CLI Support and Improvements (vSphere)
 
 Compute profiles let developers customize cluster topology, node sizing, and other compute resource options, overriding configurations that a cluster inherits from its Plan.
@@ -147,6 +147,17 @@ With Flannel networking you can only apply compute profiles to Linux clusters.
 
 For more information, see [Creating and Managing Compute Profiles with the CLI (vSphere)](./compute-profiles-manage.html).
 
+#### <a id="1-9-0-velero"></a>Velero Support and Bundling for Backup and Restore
+
+<%= vars.k8s_runtime_abbr %> v1.9.0 includes support for [Velero](https://velero.io/docs), an open source community standard tool for backing up and restoring Kubernetes clusters and persistent volumes.
+Velero is the preferred backup solution for <%= vars.k8s_runtime_abbr %> clusters, and is downloadable from your <%= vars.k8s_runtime_abbr %> downloads page on https://my.vmware.com.
+
+#### <a id="1-9-0-resizable-pv"></a>Resizable Persistent Volume Support on vSphere with NSX-T 
+
+<%= vars.k8s_runtime_abbr %> supports creating resizable persistent volumes on clusters created on 
+vSphere with NSX-T with CNS v2.0.
+
+For more information, see [Cloud Native Storage (CNS) on vSphere](./vsphere-cns.html).
 
 #### <a id="1-9-0-tagging"></a>Tagging Support on AWS and GCP 
 
@@ -156,15 +167,11 @@ This enables the `--tags` option to `tkgi create-cluster` and other commands on 
 For more information, see [Tagging Clusters](./tag-clusters.html).
 
 
-#### <a id="1-9-0-velero"></a>Velero Support and Bundling for Backup and Restore
-
-<%= vars.k8s_runtime_abbr %> v1.9.0 includes support for [Velero](https://velero.io/docs), an open source community standard tool for backing up and restoring Kubernetes clusters and persistent volumes.
-Velero is the preferred backup solution for <%= vars.k8s_runtime_abbr %> clusters, and is downloadable from your <%= vars.k8s_runtime_abbr %> downloads page on https://my.vmware.com.
-
-
 #### <a id="1-9-0-telegraf"></a>New Telegraf Configuration Fields
 
-TBD
+<%= vars.k8s_runtime_abbr %> supports modifying the Telegraf Agent configuration. 
+For more information, see [Configure Telegraf in the Tile](monitor-etcd.html#connect) 
+in _Configuring Telegraf in <%= vars.k8s_runtime_abbr %>_.  
 
 #### <a id="1-9-0-telemetry"></a>Telemetry Changes
 
@@ -194,6 +201,70 @@ The following components have been updated:
 ###<a id='1-9-0-known-issues'></a>Known Issues
 
 <%= vars.k8s_runtime_abbr %> v1.9.0 has the following known issues:
+
+#### <a id="1.9.0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
+
+**Symptom**  
+
+After clicking **Apply Changes** on the <%= vars.k8s_runtime_abbr %> tile in an Azure environment, you experience 
+an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
+
+* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_  
+* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
+
+For example:  
+
+```
+INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
+2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
+HTTP/1.1 500 Internal Server Error
+Transfer-Encoding: chunked
+Cache-Control: no-cache, no-store
+Connection: keep-alive
+Content-Type: application/json; charset=utf-8
+Date: Mon, 21 Sep 2020 17:51:50 GMT
+Expires: Fri, 01 Jan 1990 00:00:00 GMT
+Pragma: no-cache
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Ops Manager
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-Request-Id: f5fc99c1-21a7-45c3-7f39
+X-Runtime: 9.905591
+X-Xss-Protection: 1; mode=block
+
+44
+{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
+0
+```
+
+
+**Explanation**  
+
+The Azure CPI endpoint used by Ops Manager has been changed and 
+your installed version of Ops Manager is not compatible with the new endpoint.
+
+**Workaround**  
+
+Run the following Ops Manager CLI command:
+
+```
+om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
+```
+
+Where:
+
+* `USERNAME` is the account to use to run Ops Manager API commands.  
+* `PASSWORD` is the password for the account.  
+* `OPSMAN-API` is the IP address for the Ops Manager API
+
+
+For more information, see [Error 'undefined method location' is received when running Apply Change on Azure]
+(https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US) 
+in the VMware Tanzu Knowledge Base.
 
 #### <a id="1.9.0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
 
@@ -320,8 +391,9 @@ For vSphere with NSX-T, the HTTP Proxy password field does not support the follo
 
 - Support for vSphere 7
 - Support for NSX-T 3.0
-- Rebranding to <%= vars.product_short %> Management Console
-- Specify FQDN for the Ops Manager VM during upgrade
+- [Support for Windows worker nodes on NSX-T networking](console-deploy-wizard.html#plans)
+- [Configure compute profiles in the management console](console-compute-profile.html)
+- [Upgrade clusters in the management console](console-create-clusters.html#upgrade-clusters)
 
 ### <a id="management-console-1.9.0-snapshot"></a>Product Snapshot
 

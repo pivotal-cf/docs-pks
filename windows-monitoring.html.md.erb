@@ -37,8 +37,85 @@ To monitor Windows clusters and worker node metrics using Prometheus and Grafana
 
 To install Prometheus and Grafana: 
 
+1. [Download the Prometheus Source Code](#download-source)  
+1. [Generate Your Prometheus Dashboard Configuration](#monitor-rules)  
+1. [Generate Monitoring Rules](#monitor-rules)
 1. [Deploy Prometheus and Grafana](#deploy-prometheus) 
 1. [Verify Grafana is Running ](#verify-grafana)
+
+
+### <a id='download-source'></a> Download the Prometheus Source Code  
+
+To download the Prometheus source code:
+
+1. Clone or download the Prometheus operator source code from the 
+[prometheus-operator/kube-prometheus]
+(https://github.com/prometheus-operator/kube-prometheus) GitHub repository.
+
+1. Clone or download the Prometheus monitoring mixin for kubernetes source code from the 
+[kubernetes-monitoring/kubernetes-mixin](https://github.com/kubernetes-monitoring/kubernetes-mixin) 
+GitHub repository.
+
+### <a id='monitor-rules'></a> Generate Your Prometheus Dashboard Configuration
+
+To generate a Prometheus dashboard configuration:  
+
+1. Open a command line.
+1. Change directory to the `kubernetes-mixin/dashboards` source code directory.
+1. Edit the `dashboards.libsonnet` configuration file.
+1. To add the Windows dashboard to the configuration add the following to the `dashboards.libsonnet` file:
+
+    ```
+    (import 'windows.libsonnet')
+    ```
+1. Save the file.
+1. Change directory to the `kubernetes-mixin` source code root directory.
+1. To generate the Prometheus dashboard, run:
+
+    ```
+    make dashboards_out
+    ```
+1. Review the `kubernetes-mixin/dashboards_out` directory and confirm the following Windows dashboard definition files were created:  
+
+    ```
+    k8s-resources-windows-cluster.json
+    k8s-resources-windows-namespace.json
+    k8s-resources-windows-pod.json
+    k8s-windows-cluster-rsrc-use.json
+    k8s-windows-node-rsrc-use.json
+    ```
+
+### <a id='monitor-rules'></a> Generate Monitoring Rules
+
+To generate Prometheus monitoring rules:  
+
+1. Open a command line.
+1. Copy the rule definition file to the Prometheus operator directory:
+
+    ```
+    cp KUBERNETES-MIXIN-PATH/rules/windows.libsonnet PROMETHEUS-OP-PATH/jsonnet/kube-prometheus/rules/windows.libsonnet
+    ```
+
+    Where:  
+    * `KUBERNETES-MIXIN-PATH` is the `kubernetes_mixin` source directory.  
+    * `PROMETHEUS-OP-PATH` is the Prometheus operator path.  
+<%#
+1. Copy the Windows dashboard definition files generated above to the Prometheus operator directory.
+%>
+1. Change directory to the `kube-prometheus/jsonnet/kube-prometheus/rules` source code directory.
+1. Edit the `rules.libsonnet` configuration file.
+1. To add the Windows rule to the configuration add the following to the `rules.libsonnet` file:
+
+    ```
+    (import 'windows.libsonnet')
+    ```
+1. Save the file.
+1. Change directory to the `kube-prometheus` Prometheus source code root directory.
+1. To generate all rules, run:
+
+    ```
+    make manifests
+    ```
 
 
 ### <a id='deploy-prometheus'></a> Deploy Prometheus and Grafana  
@@ -47,10 +124,13 @@ To deploy Prometheus and Grafana:
 
 1. Get `kubeconfig` for your Windows cluster. 
 For more information, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html).  
+<%#
 1. Clone or download the Prometheus operator source from the
 [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus)
-GitHub repository.  
-1. Open a command line to your Prometheus source code root directory.  
+GitHub repository. 
+%> 
+1. Open a command line.
+1. Change directory to the `kube-prometheus` Prometheus source code root directory. 
 1. To deploy Prometheus and Grafana, run:  
 
     ```
@@ -98,7 +178,7 @@ To install and configure the Windows Node Exporter:
 
 1. [Deploy the Windows Node Exporter](#deploy-node-exporter)
 1. [Configure the Windows Node Exporter](#configure-node-exporter)
-1. [Configure Grafana to Monitor the Windows Node Exporter](#configure-node-exporter-grafana)
+1. [Set Up the Grafana Windows Node Dashboard](#set-up-node-exporter-grafana-dashboard)  
 
 ### <a id='deploy-node-exporter'></a> Deploy the Windows Node Exporter
 
@@ -130,7 +210,7 @@ in the _prometheus-community/windows\_exporter_ repository on GitHub:
     ```
 
     Where `DOWNLOAD-PATH` is the full path to the output location and filename for the retrieved file. 
-    For example, `c:\windows_exporter-0.13.0-386.msi`.
+    For example, `c:\windows_exporter-0.13.0-amd64.msi`.
 
 1. To start the `windows_exporter` msi as a Windows service, open a command line:  
 
@@ -139,7 +219,7 @@ in the _prometheus-community/windows\_exporter_ repository on GitHub:
     ```
 
     Where `DOWNLOAD-PATH` is the full path to the output location and filename for the retrieved file. 
-    For example, `c:\windows_exporter-0.13.0-386.msi`.
+    For example, `c:\windows_exporter-0.13.0-amd64.msi`.
 
 
 ### <a id='configure-node-exporter'></a> Configure the Windows Node Exporter
@@ -149,7 +229,7 @@ to access your Windows worker node metrics.
 
 To configure the Windows Node Exporter:  
 
-1. Create a file named `win-exporter.yml`.
+1. Create a file named `windows-exporter.yml`.
 1. Populate the file with the following:
 
     ```
@@ -223,8 +303,8 @@ To configure the Windows Node Exporter:
     kind: Endpoints
     metadata:
       labels:
-        k8s-app: win-exporter
-      name: win-exporter
+        k8s-app: wmi-exporter
+      name: wmi-exporter
       namespace: kube-system
     subsets:
     - addresses:
@@ -232,6 +312,10 @@ To configure the Windows Node Exporter:
         targetRef:
           kind: Node
           name: nodeone
+      - ip: 192.168.1.1
+        targetRef:
+          kind: Node
+          name: nodetwo
       ports:
       - name: http-metrics
         port: 9182
@@ -241,8 +325,8 @@ To configure the Windows Node Exporter:
     kind: Service
     metadata:
       labels:
-        k8s-app: win-exporter
-      name: win-exporter
+        k8s-app: wmi-exporter
+      name: wmi-exporter
       namespace: kube-system
     spec:
       clusterIP: None
@@ -258,9 +342,9 @@ To configure the Windows Node Exporter:
     kind: ServiceMonitor
     metadata:
       labels:
-        k8s-app: win-exporter
-      name: win-exporter
-      namespace: monitoring
+        k8s-app: wmi-exporter
+      name: wmi-exporter
+      namespace: mornitoring
     spec:
       endpoints:
       - interval: 30s
@@ -271,7 +355,7 @@ To configure the Windows Node Exporter:
         - kube-system
       selector:
         matchLabels:
-          k8s-app: win-exporter
+          k8s-app: wmi-exporter
     </pre>
 
 
@@ -303,11 +387,11 @@ To configure the Windows Node Exporter:
     * `NODE-THREE-NAME` is the name of the third Windows worker node to monitor.
 
 
-1. Save your changes to the `win-exporter.yml` file.  
+1. Save your changes to the `windows-exporter.yml` file.  
 1. To create the Windows node exporter objects, run:
 
     ```
-    kubectl create -f win-exporter.yml
+    kubectl create -f windows-exporter.yml
     ```
 1. Wait a few seconds for the service to be ready.
 1. To verify your new targets in Prometheus, open a browser to:
@@ -318,10 +402,37 @@ To configure the Windows Node Exporter:
 
     Where `PROMETHEUS-PORT` is the localhost port for Prometheus, for example `9090`.
 
-### <a id='configure-node-exporter-grafana'></a> Configure Grafana to Monitor the Windows Node Exporter
+<%#
+### < a id='configure-node-exporter-grafana' >< / a > Configure Grafana to Monitor the Windows Node Exporter
+%>
+### <a id='set-up-node-exporter-grafana-dashboard'></a> Set Up the Grafana Windows Node Dashboard  
 
-To monitor Windows worker CPU, memory and other system metrics in Grafana, 
-add the Windows Node Exporter to the Grafana Dashboard:  
+To import the dashboard files generated above to Grafana:  
+
+1. Open a browser to your Grafana dashboard.
+1. To open the **Import** tab, click **+** on the Grafana side menu.
+1. Click **Upload .json file**.  
+1. Upload the five dashboard files from the `kubernetes-mixin/dashboards_out` directory one at a time:  
+
+    ```
+    k8s-resources-windows-cluster.json
+    k8s-resources-windows-namespace.json
+    k8s-resources-windows-pod.json
+    k8s-windows-cluster-rsrc-use.json
+    k8s-windows-node-rsrc-use.json
+    ```
+1. To verify the dashboard, open a browser to your Grafana dashboard.  
+
+If you prefer to use a different Grafana dashboard, 
+you can use and configure the preferred dashboard to monitor the Windows Node Exporter. 
+For more information, see [Dashboards](https://grafana.com/grafana/dashboards) 
+at the Grafana Labs site.
+
+<%#
+### < a i d='set-up-node-exporter-grafana-dashboard' >< / a > Set Up the Grafana Windows Node Dashboard  
+
+To monitor Windows Node Exporter metrics in Grafana, 
+add the Windows Node Dashboard to the Grafana Dashboard:  
 
 1. Open a browser to your Grafana dashboard.
 1. To open the **Import** tab, click **+** on the Grafana side menu.
@@ -330,18 +441,16 @@ add the Windows Node Exporter to the Grafana Dashboard:
     site, type `12422` in **Import via grafana.com**.
 1. Click **Load**. 
 1. Select `Prometheus` as the dashboard source.
-
-If you prefer to use a different Grafana dashboard, 
-you can use and configure the preferred dashboard to monitor the Windows Node Exporter. 
-For more information, see [Dashboards](https://grafana.com/grafana/dashboards) 
-at the Grafana Labs site.
+%>
 
 ## <a id='post-install-admin'></a> Administer Prometheus and Grafana
 
-After completing the minimum installation steps described above, review the Grafana and Prometheus documentation for any additional steps you should complete:
+After completing the minimum installation steps described above:  
 
-* For information about managing Grafana, see [Administration](https://grafana.com/docs/grafana/latest/administration/) in the Grafana documentation.  
-* For information about managing Prometheus, see [Customizing Kube-Prometheus](https://github.com/prometheus-operator/kube-prometheus#customizing-kube-prometheus)
-in the kube-prometheus documentation.  
+* Change your Grafana installation's account authentication to not use the default `admin/admin` user/password pair.  
+* Review the Grafana and Prometheus documentation for any additional steps you should complete:
 
-At a minimum, change your Grafana installation's account authentication to not use the default `admin/admin` user/password pair.  
+    * For information about managing Grafana, see [Administration](https://grafana.com/docs/grafana/latest/administration/) in the Grafana documentation.  
+    * For information about managing Prometheus, see [Customizing Kube-Prometheus](https://github.com/prometheus-operator/kube-prometheus#customizing-kube-prometheus)
+    in the kube-prometheus documentation.  
+
