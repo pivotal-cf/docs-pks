@@ -230,6 +230,8 @@ If you want to isolate a certain workload’s metrics to its own output, you hav
 
 #### <a id='define-cluster-metric-sinks'></a> ClusterMetricSink Resources
 
+#### How It Works
+
 By default, a `ClusterMetricSink` resource collects metrics from a cluster using the [Kubernetes Input Plugin]
 (https://github.com/influxdata/telegraf/tree/1.13.4/plugins/inputs/kubernetes) and writes them to one or more outputs
 that you specify in your `ClusterMetricSink` configuration:  
@@ -258,18 +260,37 @@ metrics.
 For a list of supported output plugins,
 see [Output Plugins](https://github.com/influxdata/telegraf/tree/1.13.4#output-plugins) in the telegraf GitHub repository.
 
-#### <a id='create-sinks'></a> Creating ClusterMetricSink and MetricSink Resources  
+#### When to Use MetricSink vs. ClusterMetricSink
 
-To create a `ClusterMetricSink` resource, use either:
+Case 1. Isolating Output => MetricSink
 
-* The default `ClusterMetricSink` configuration, see [Create a ClusterMetricSink or MetricSink Resource](#telegraf-plugins).  
-* `ClusterMetricSink`  with Node Exporter as your input plugin, see [Create a ClusterMetricSink Resource for Node Exporter Metrics](#node-exporter). 
-For a list of Node Exporter metrics,
-see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) GitHub repository.
+If you want to isolate a certain workload's metrics to its own output, you
+have to use a namespaced MetricSink. A MetricSink creates a unique telegraf
+agent pod and ConfigMap in the namespace.
 
-<br>
-To create a `MetricSink` resource, see [Create a ClusterMetricSink or MetricSink Resource](#telegraf-plugins).
+ClusterMetricSinks cannot isolate one input from all the others because all
+ClusterMetricSinks' configurations are located in a shared ConfigMap. This
+means that each ClusterMetricSink's inputs will also go to all other
+ClusterMetricSinks' outputs.
 
+Note that MetricSinks do not have access to pod usage metrics, as the
+source of those metrics does not filter by namespace and gives usage for all
+pods on a node.
+
+Case 2. Pod Usage Metrics (CPU, Memory) => ClusterMetricSink
+
+If you want to get pod usage metrics, you have to use a ClusterMetricSink.
+
+To get pod usage metrics, Telegraf agents need to run on every node in a
+cluster, and this is what the ClusterMetricSink DaemonSet does.
+
+Pod metrics come from the underlying container runtime, which does not isolate
+metrics based on namespace, so only ClusterMetricSink is able to fetch pod
+metrics.
+
+ClusterMetricSinks use the Kubernetes input plugin, which gives access to pod
+usage metrics for each kubernetes node.  MetricSinks only run in a single
+node, so they do not have access to pod usage metrics.
 
 #### <a id='telegraf-plugins'></a> Create a ClusterMetricSink or MetricSink Resource
 
@@ -314,8 +335,7 @@ To define a `ClusterMetricSink` or `MetricSink` resource, perform the following 
         data_format: json
     ```
 
-    This example configuration sends all cluster metrics provided by the kubernetes input plugin via json POST to `https://example.com`. For information about the metrics provided by the kubernetes input plugin, see [Metrics](https://github.com/influxdata/telegraf/tree/1.13.4/plugins/inputs/kubernetes#metrics) 
-    in the _Kubernetes Input Plugin_ GitHub repository.
+    This will send all cluster [metrics provided by the kubernetes input plugin](https://github.com/influxdata/telegraf/tree/1.13.4/plugins/inputs/kubernetes#metrics) via json POST to https://example.com
 
 
 #### <a id='node-exporter'></a> Create a ClusterMetricSink Resource for Node Exporter Metrics
