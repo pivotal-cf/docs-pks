@@ -7,11 +7,7 @@ This topic describes how to rotate certificates for
 Kubernetes clusters created by <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>).
 
 ## <a id="overview"></a>Overview of Rotating Cluster Certificates
-<%#--
-### <a id="overview-specific"></a>Cluster-Specific Certificates
-### <a id="overview-shared"></a>Shared Cluster Certificates
-### <a id="list"></a>List of Cluster-Specific Certificates
---%>
+
 Certificate authority (CA) certificates used by
 <%= vars.k8s_runtime_abbr %>-created Kubernetes clusters
 and the leaf-level certificates that they issue include the following:
@@ -51,43 +47,76 @@ the clusters.
 For how to rotate certificates used only by the <%= vars.k8s_runtime_abbr %> control plane, and not Kubernetes clusters,
 see [Rotating <%= vars.k8s_runtime_abbr %> Control Plane Certificates](./rotate-tile-certificates.html).
 
-## <a id="prerequisites"></a>Prerequisites
+## <a id="unique"></a>Rotate Cluster-Specific Certificates (Non-NSX-T)
 
-You must have the following:
+This procedure rotates the following CA certificates and their leaf certificates:
+
+-  `kubo_ca_2018`:
+  - `tls-metrics-server-2018`
+  - `tls-kubelet-client-2018`
+  - `tls-kubelet-2018`
+  - `tls-kube-controller-manager-2018`
+- `etcd_ca_2018`
+  - `tls-etcdctl-root-2018-2`
+  - `tls-etcdctl-flanneld-2018-2`
+  - `tls-etcdctl-2018-2`
+  - `tls-etcd-2018-2`
+
+The `kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf certificates
+have values unique to each cluster,
+and their expiration dates depend on the cluster creation date.
+
+The procedure below uses the CredHub Maestro command line interface (CLI) to rotate the
+`kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf certificates.
+
+This procedure differs from the procedures to rotate shared cluster certificates
+or <%= vars.k8s_runtime_abbr %> control plane certificates.
+
+<p class="note warning"><strong>Warning:</strong> Do not use the instructions
+in this section to rotate NSX-T certificates or shared Kubernetes cluster certificates.</p>
+
+For more information about the CredHub Maestro CLI, see
+[Getting Started with CredHub Maestro](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/getting-started-with-maestro-cli.html)
+in the Ops Manager documentation.
+
+### <a id="prerequisites"></a>Prerequisites
+
+To rotate certificates using the CredHub Maestro CLI, you must have the following:
 
 * <%= vars.k8s_runtime_abbr %> v1.9 or later.
 Earlier versions of <%= vars.k8s_runtime_abbr %> are not
 compatible with the CredHub Maestro CLI.
 * Kubernetes clusters upgraded to <%= vars.k8s_runtime_abbr %> v1.9.
-* Ops Manager v2.9.
+* Ops Manager v2.9 or later.
 * The `pks.cluster.admin` UAA scope.
 
 The certificate rotation procedure
 with the CredHub Maestro CLI provided in this topic is intended only for
-Ops Manager v2.9. In later versions of Ops Manager, the procedure may change.
+Ops Manager v2.9. For later versions of Ops Manager, consult the Ops Manager
+documentation.
 
-## <a id="prepare"></a>Prepare to Rotate 
+### <a id="downtime"></a>Downtime
 
-* [Determine Which Certificates are Expiring](#expiration)
-* [Retrieve the Cluster UUID](#identify)
-* [Access CredHub Maestro on the Ops Manager VM](#access)
-* [Determine Your Deployment Names](#deployments)
-* [Determine Your Deployment's Expiration Dates](#deployment-expiration-dates)
+Depending on cluster topology, rotating `kubo_ca_2018` or `etcd_ca_2018` may cause cluster downtime while cluster nodes restart:
 
-### <a id="expiration"></a>Determine Which Certificates are Expiring
+* **Multiple control plane (master) and worker nodes**: No downtime
+* **Single control plane node**: Cluster control plane downtime
+* **Single worker node**: Workload downtime
 
-Before rotating your certificates, verify which certificates require rotation.  
+### <a id="prepare"></a>Prepare to Rotate
 
-To check certificate expiration dates,
-see [Check Expiration Dates and Certificate Types](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/advanced-certificate-rotation.html#check-expiration)
-in the Ops Manager documentation.
+Before rotating your certificates, complete the following steps: 
 
+1. [Retrieve the Cluster UUID](#identify)
+1. [Access CredHub Maestro on the Ops Manager VM](#access)
+1. [Identify Your Cluster Deployment Names](#deployments)
+1. [Determine Which Certificates are Expiring](#deployment-expiration-dates)
 
 #### <a id="identify"></a>Retrieve the Cluster UUID
 
 This section describes how to retrieve the universally unique identifier (UUID)
 of a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster.
-You will use this UUID in [Access CredHub Maestro on the Ops Manager VM](#access)
+You will use this UUID in [Identify Your Cluster Deployment Names](#deployments)
 and [Rotate the Certificates](#rotate) below.
 
 To retrieve the UUID of a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes
@@ -114,9 +143,7 @@ locate all your target clusters in the output and record the UUIDs.
 
 #### <a id="access"></a>Access CredHub Maestro on the Ops Manager VM
 
-This section describes how to access the CredHub Maestro CLI on the Ops Manager VM,
-identify your Kubernetes cluster deployments,
-and list certificate expiration dates using the CredHub Maestro CLI.
+To access the CredHub Maestro CLI on the Ops Manager VM:
 
 1. SSH into the Ops Manager VM. For instructions, see
 [Log in to the Ops Manager VM with SSH](https://docs.pivotal.io/platform/2-9/customizing/trouble-advanced.html#ssh)
@@ -156,9 +183,9 @@ Ops Manager VM.
         CREDHUB_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate
         </pre>
 
-#### <a id="deployments"></a>Determine Your Deployment Names
+#### <a id="deployments"></a>Identify Your Cluster Deployment Names
 
-1. Retrieve your Kubernetes cluster deployment names:
+1. To identify your Kubernetes cluster deployment names, run:
 
     ```
     bosh deployments
@@ -170,7 +197,7 @@ Ops Manager VM.
     `ae681cd1-7ff4-4661-b12c-49a5b543f16f` is the cluster UUID you retrieved
     in [Retrieve the Cluster UUID](#identify) above.
 
-#### <a id="deployment-expiration-dates"></a>Determine Your Deployment's Expiration Dates
+#### <a id="deployment-expiration-dates"></a>Determine Which Certificates are Expiring
 
 1. To review the expiration dates of the `kubo_ca_2018` and `etcd_ca_2018`
 CA certificates and their leaf certificates for a
@@ -190,57 +217,12 @@ CA certificates and their leaf certificates for a
         * `CLUSTER-UUID` is the cluster UUID you retrieved in
         [Retrieve the Cluster UUID](#identify) above.
 
-        For more information,
+        For more information about how to check certificate expiration dates,
         see [maestro list](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/getting-started-with-maestro-cli.html#list)
         in the Ops Manager documentation.<br><br>
 
     1. Locate the `kubo_ca_2018` and `etcd_ca_2018` CA certificates and
     their leaf certificates in the output of the `maestro list` command.
-
-
-## <a id="unique"></a>Rotate Cluster-Specific Certificates (Non-NSX-T)
-
-This procedure rotates these CA certificates and their leaf certificates:
-
--  `kubo_ca_2018`:
-  - `tls-metrics-server-2018`
-  - `tls-kubelet-client-2018`
-  - `tls-kubelet-2018`
-  - `tls-kube-controller-manager-2018`
-- `etcd_ca_2018`
-  - `tls-etcdctl-root-2018-2`
-  - `tls-etcdctl-flanneld-2018-2`
-  - `tls-etcdctl-2018-2`
-  - `tls-etcd-2018-2`
-
-The `kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf certificates
-have values unique to each cluster,
-and their expiration dates depend on the cluster creation date.
-
-The procedure below uses the CredHub Maestro command line interface (CLI) to rotate the
-`kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf certificates.
-
-This procedure differs from the procedures to rotate shared cluster certificates
-or <%= vars.k8s_runtime_abbr %> control plane certificates.
-
-<p class="note warning"><strong>Warning:</strong> Do not use the instructions
-in this section to rotate NSX-T certificates or shared Kubernetes cluster certificates.</p>
-
-You can modify this procedure to rotate `kubo_ca_2018` and `etcd_ca_2018`
-separately, rather than at the same time.
-
-For more information, see
-[Getting Started with CredHub Maestro](https://docs.pivotal.io/platform/2-9/security/pcf-infrastructure/getting-started-with-maestro-cli.html)
-in the Ops Manager documentation.
-
-### <a id="downtime"></a>Downtime
-
-Depending on cluster topology, rotating `kubo_ca_2018` or `etcd_ca_2018` may cause cluster downtime while cluster nodes restart:
-
-* **Multiple control plane (master) and worker nodes**: No downtime
-* **Single control plane node**: Cluster control plane downtime
-* **Single worker node**: Workload downtime
-
 
 ### <a id="rotate"></a>Rotate the Certificates
 
@@ -249,6 +231,9 @@ This section describes how to rotate the
 for a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster.
 To rotate these certificates for multiple clusters,
 repeat the procedure below for each cluster.
+
+You can modify this procedure to rotate `kubo_ca_2018` and `etcd_ca_2018`
+separately, rather than at the same time.
 
 To rotate the `kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf
 certificates for a <%= vars.k8s_runtime_abbr %>-provisioned
