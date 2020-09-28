@@ -1,44 +1,33 @@
 ---
-title: Backing Up and Restoring TKGI Clusters
+title: Backing Up and Restoring the TKGI Management Plane
 owner: TKGI
 ---
 
-This topic describes how to back up and restore <%= vars.product_full %> nodes. <%= vars.product_short %> uses BOSH Backup and Restore (BBR) software to back up and restore the <%= vars.k8s_runtime_abbr %> Management Plane and Kubernetes clusters. For more information about BBR, see [BOSH Backup and Restore](https://docs.cloudfoundry.org/bbr/index.html).
+This section describes how to back up and restore <%= vars.product_full %> Management Plane.
 
-## Components
+## Overview
 
-BBR orchestrates triggering the backup or restore process on the BOSH deployment, and transfers the backup artifacts to and from the BOSH deployment.
+Back up and restore of the <%= vars.k8s_runtime_abbr %> Management Plane includes the following components: 
 
-In context of <%= vars.k8s_runtime_abbr %>, BBR backs up and restores the following components:
+- Ops Manager configuration, including the BOSH Director and TKGI tiles.
+- The TKGI Management Plane VMs, including the [BOSH Director VM](bbr-backup-tkgi.html#back-up-director), and the [TKGI Control Plane VM](bbr-backup-tkgi.html#back-up-control-plane).
 
-* <%= vars.k8s_runtime_abbr %> Management Plane, including:
-  - BOSH Director VM
-  - <%= vars.k8s_runtime_abbr %> control plane API VM and its ETCD database
-  - <%= vars.k8s_runtime_abbr %> control plane database VM (MySQL)
+You use Ops Manager to backup and restore the BOSH Director and TKGI tiles. You use [BOSH Backup and Restore](https://docs.cloudfoundry.org/bbr/index.html) (BBR) to backup and restore the TKGI Management Plane VMs. Restoring the Ops Manager VM is a manual process.
 
-* <%= vars.k8s_runtime_abbr %> Clusters, including:
-  - <%= vars.k8s_runtime_abbr %> cluster control plane nodes
-  - <%= vars.k8s_runtime_abbr %> cluster worker nodes
+To backup and restore the TKGI Management Plane, see the following topics:
 
-In context of <%= vars.k8s_runtime_abbr %>, BBR does not back up and restore:
+- [Install and Configure BBR](bbr-install-config.html).
+- [Backing Up TKGI Management Plane Components](bbr-backup-tkgi.html).
+- [Restoring TKGI Management Plane Components](bbr-restore-tkgi.html).
 
-* Kubernetes workloads, see [Backing up and restoring Kubernetes workloads](./backup-and-restore-work.html).
-* Ops Manager VM (including the BOSH Director and TKGI tiles), see [Backing up and restoring Ops Manager](./backup-and-restore-om.html).
-* NSX-T objects and resources, such as load balancers, see [Backing up and restoring NSX-T](./backup-and-restore-nsxt.html).
-* Harbor VM
+## Testing Considerations
 
-To install, use, and troubleshoot BBR, see the following topics:
+As part of your TKGI backup and restore planning and testing, consider the following test scenario.
 
-* [Installing BOSH Backup and Restore](bbr-install.html)
-* [Backing Up <%= vars.product_short %>](bbr-backup.html)  
-* [Restore the BOSH Director](bbr-restore.html#redeploy-restore-director)  
-* [Restore the <%= vars.product_short %> Control Plane](bbr-restore.html#redeploy-restore-control-plane)  
-* [Restore <%= vars.product_short %> Clusters](bbr-restore.html#redeploy-restore-clusters) 
-* [BBR Logging and Troubleshooting](bbr-logging.html).
+- Export Ops Manager configuration.  
+- Take backup of TKGI Management Plane using BBR.
+- Power off the Ops Manager, BOSH, and TKGI Control Plane VMs. 
+- Deploy a new Ops Manager VM and import the exported configuration. 
+- Restore BOSH and TKGI VMs using BBR. 
 
-## Scenarios and Considerations
-
-Test Scenario 						| Expected Result
-------------------------------------|----------------------------------------------------------
-| Take backup of TKGI using BBR. Delete cluster VMs: control plane and worker nodes. Delete disks and references. Restore cluster nodes using BBR. Delete old worker nodes using kubectl. Restart kubelet. | If the application is deployed before cluster backup, the VIP of the load balancer for the application changes. To recover without application redeployment, create the service using a static IP.
-| Take backup of TKGI using BBR. Delete cluster VMs: control plane and worker nodes. Delete disks and references. Restore cluster nodes using BBR. Delete old worker nodes using kubectl. Restart kubelet. | If the application is deployed after cluster backup, the application is no longer available and the NSX-T objects created for the application are automatically deleted.
+On restore of all TKGI Management Plane components, there should be no loss of data for configurations included in the backups. Any TKGI  configuration changes made after the backup was taken are not restored since they were made after the backup.
