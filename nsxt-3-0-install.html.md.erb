@@ -335,12 +335,18 @@ Tunnel endpoints (TEPs) are the source and destination IP addresses used in the 
 
 ##<a id='nsxt30-tzs'></a> Create Transport Zones
 
-You need two transport zones: an Overlay TZ for Transport Nodes and a VLAN TZ for Edge Nodes. By default NSX-T v3.0 creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. However, the default TZs cannot be used by TKGI. If you do use them, you will receive an `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. Therefore, create the following two new transport zones for use with TKGI and associate them with a corresponding swtich:
+You need two transport zones for TKGI: an Overlay TZ for Transport Nodes and a VLAN TZ for Edge Nodes. You have two options: use the defeault transport zones or create custom ones.
+
+By default NSX-T v3.0 creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. To use the default transport zones with TKGI, when you [configure the NSX-T Edge Nodes](#nsxt30-edge-nodes), you **MUST** specify the N-VDS switch name to be the same that is defined on the default transport zones, which is `nsxHostSwitch`. 
+
+Alternatively, you can create custom transport zones for the Edge Nodes and use your own switch names, for example:
 
 - `tz-overlay` (switch name: `switch-overlay`), and
 - `tz-vlan` (switch name: `switch-vlan`)
 
-For more information, refer to the [NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/installation/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html).
+The advantage of using the default transport zones is that you only need a single N-VDS for the Edge Nodes. The caveat is that you must specify this exact swith name `nsxHostSwitch`. If you are going to use the default transport zones, skip to the next section. To create custom transport zones, follow the steps below.
+
+<p class="note"><strong>Note:</strong> If you use the default transpoprt zones, but do not use the exact name `nsxHostSwitch` when configuring the Edge Node N-VDS switch, you will receive an `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. Refer to the <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/installation/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html">NSX-T documentation</a> for more information.</p>
 
 ###<a id='nsxt30-overlay-tz'></a> Create the Overlay TZ
 
@@ -374,15 +380,7 @@ In this section, you configure the vSphere networking and port groups for ESXi h
 
 The following instructions describe how to configure a vSphere Virtual Standard vSwitch (VSS). For production environments, it is recommended that you configure a Virtual Distributed vSwitch (VDS). You configure the VDS from the vCenter **Networking** tab and then add the ESXi hosts to the VDS. The configuration settings for the VDS are similar to the VSS configuration described below. For instructions on configuring the VDS, see <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-D21B3241-0AC9-437C-80B1-0C8043CC1D7D.html">Create a vSphere Distributed Switch</a> in the vSphere 7 documentation.
 
-TKGI v1.8 supports 1 VDS (or VSS) for vSphere traffic and 1 N-VDS for NSX-T v3.0 traffic (NSX-T transport nodes).
-
-TKGI v1.8.1 and later patch versions also support a single VDS v7 as a Beta feature under specific conditions:
-
-  - With Ops Manager v2.9.5 and above.
-  - With NSX-T v3.0.1.1 (v3.0.1 EP1) or later.
-  - The VDS runs both vSphere v7 traffic and NSX-T v3.0 traffic, in the same Datacenter.
-  - On new installations only.
-  Previous versions of TKGI required N-VDS, and you cannot migrate existing NSX-T infrastructure for TKGI from N-VDS to VDS.
+Refer to the [Release Notes](./release-notes.html) for details on TKGI support for vSphere 7 VDS for NSX-T transport node traffic.
 
 ###<a id='nsxt30-esxi-pgs'></a> Create vSwitch Port-Groups for Edge Nodes
 
@@ -485,8 +483,12 @@ Deploy the Edge Node 1 VM using the NSX-T Manager interface.
   <img src="images/nsxt/nsxt-30/edge-node-05.png">
 
 1. Configure the first NSX switch for the Edge Node as follows:
-  - **Edge Switch Name**: `switch-overlay` (be sure to use the exact switch name that was configured for `tz-overlay`)
-  - **Transport Zone**: `tz-overlay`
+  - **Edge Switch Name**: Choose one of the following depending on your [transport zone](#nsxt30-tzs) configuration:
+    - `nsxHostSwitch` (use this switch name if you are using the default transport zone `nsx-overlay-transportzone`), or 
+    - `switch-overlay` (use the exact switch name that was configured for the custom transport zone `tz-overlay`)
+  - **Transport Zone**: 
+    - `nsx-overlay-transportzone` (default transport zone), or
+    - `tz-overlay` (example custom transport zone)
   - **Uplink Profile**: `nsx-edge-single-nic-uplink-profile`
   - **IP Assignment**: Use IP Pool
   - **IP Pool**: TEP-IP-POOL
@@ -495,7 +497,9 @@ Deploy the Edge Node 1 VM using the NSX-T Manager interface.
 
 1. Configure the second NSX switch for the Edge Node as follows:
   - Click **Add Switch** (at the top of the dialog)
-  - **Edge Switch Name**: `switch-vlan` (be sure to use the same switch name that was configured for `tz-vlan`)
+  - **Edge Switch Name**: Choose one of the following depending on your [transport zone](#nsxt30-tzs) configuration:
+    - `nsxHostSwitch` (use this switch name if you are using the default transport zone `nsx-vlan-transportzone`), or 
+    - `switch-vlan` (use the exact switch name that was configured for the custom transport zone `tz-vlan`)
   - **Uplink Profile**: `nsx-edge-single-nic-uplink-profile`
   - **Uplinks**: uplink-1 / EDGE-UPLINK-PG
   <img src="images/nsxt/nsxt-30/edge-node-07.png">
