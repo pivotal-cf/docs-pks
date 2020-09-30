@@ -668,12 +668,10 @@ Example manifests are also provided in [v.2.0.0](https://github.com/kubernetes-s
 
 ### <a id='rbac-template'></a>RBAC Manifest
 
-To define RBAC for CSI:  
+To define RBAC for CSI, create a file named `vsphere-csi-controller-rbac.yaml`
+populated with the following:
 
-1. Create a file named `vsphere-csi-controller-rbac.yaml`.
-1. Populate the file with the following:  
-    
-    ```
+```
 kind: ServiceAccount
 apiVersion: v1
 metadata:
@@ -719,17 +717,14 @@ roleRef:
   kind: ClusterRole
   name: vsphere-csi-controller-role
   apiGroup: rbac.authorization.k8s.io
-    ```
-1. Save the file.  
+```
 
 ### <a id='driver-template'></a>CSI Driver Manifest
 
-To define a CSI driver:  
+To define a CSI driver, create a file named `vsphere-csi-controller-deployment.yaml`
+populated with the following:
 
-1. Create a file named `vsphere-csi-controller-deployment.yaml`.
-1. Populate the file with the following:  
-
-    ```
+```
 # Minimum Kubernetes version - 1.16
 # For prior releases make sure to add required --feature-gates flags
 kind: Deployment
@@ -817,7 +812,7 @@ spec:
             periodSeconds: 5
             failureThreshold: 3
         - name: liveness-probe
-          image: quay.io/k8scsi/livenessprobe:v1.1.0
+          image: quay.io/k8scsi/livenessprobe:v2.0.0
           args:
             - "--csi-address=$(ADDRESS)"
           env:
@@ -865,6 +860,14 @@ spec:
           path: /var/vcap/data/csi/sockets/pluginproxy/csi.vsphere.vmware.com
           type: DirectoryOrCreate
 ---
+apiVersion: v1
+data:
+  "csi-migration": "false"
+kind: ConfigMap
+metadata:
+  name: csi-feature-states
+  namespace: kube-system
+---
 apiVersion: storage.k8s.io/v1beta1
 kind: CSIDriver
 metadata:
@@ -872,17 +875,14 @@ metadata:
 spec:
   attachRequired: true
   podInfoOnMount: false
-    ```
-1. Save the file.  
+```
 
 ### <a id='daemonset-template'></a>DaemonSet Manifest
 
-To define a DaemonSet manifest:  
+To define a DaemonSet manifest, create a file named `vsphere-csi-node-ds.yaml`
+populated with the following:
 
-1. Create a file named `vsphere-csi-node-ds.yaml`.
-1. Populate the file with the following:  
-
-    ```
+```
 # Minimum Kubernetes version - 1.16
 # For prior releases make sure to add required --feature-gates flags
 kind: DaemonSet
@@ -1007,5 +1007,4 @@ spec:
           operator: Exists
         - effect: NoSchedule
           operator: Exists
-    ```
-1. Save the file.  
+```
