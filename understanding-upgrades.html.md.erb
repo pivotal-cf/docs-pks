@@ -102,6 +102,21 @@ If your <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes clusters fall more t
 
 ## <a id="what-happens"></a> What Happens During Full <%= vars.k8s_runtime_abbr %> and <%= vars.k8s_runtime_abbr %> Control Plane Upgrades
 
+During a <%= vars.product_short %> control plane upgrade to v1.10, the <%= vars.product_tile %> tile does the following:
+
+1. **Creates MySQL VM (First-time v1.10 Upgrade Only)**: When you first upgrade from <%= vars.product_short %> v1.9 to v1.10, the upgrade process creates the <%= vars.control_plane_db %> VM, a new dedicated MySQL VM.
+  - This MySQL VM resides alongside the <%= vars.control_plane %> VM on the TKGI Control Plane.
+  - The upgrade process then migrates the TKGI v1.9 MySQL data from the <%= vars.control_plane %> VM onto the new dedicated MySQL VM.
+  - Subsequent <%= vars.product_short %> upgrades, from earlier to later patch versions of TKGI v1.10, do not include this step.
+
+1. **Recreates the Control Plane VMs** which host the TKGI API and UAA servers.
+  * If the <%= vars.product_short %> installation is not scaled for high availability (beta), this control plane recreation causes temporary outages as described in [Non-HA Control Plane Outages](#outages), below.
+
+1. **(Optional) Upgrades Clusters**
+  * Upgrading <%= vars.product_short %> only upgrades its Kubernetes clusters if the **Upgrade all clusters errand** checkbox is enabled in the **Errands** pane.
+  * The cluster upgrade process recreates all clusters, which may cause cluster outages.  
+  For more information, see the [What Happens During Cluster Upgrades](./upgrade-clusters.html#what) section of the _Upgrading Clusters_ topic.
+
 You can perform full <%= vars.k8s_runtime_abbr %> upgrades and <%= vars.k8s_runtime_abbr %> control plane upgrades only
 through the <%= vars.product_tile %> tile.
 
@@ -139,7 +154,7 @@ It does not upgrade <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes clusters
 
 ### <a name="outages"></a> Control Plane Outages
 
-Upgrading the <%= vars.product_short %> control plane temporarily interrupts the following:
+When the <%= vars.product_short %> control plane is not scaled for high availability (beta), upgrading it temporarily interrupts the following:
 
   * Logging in to the <%= vars.k8s_runtime_abbr %> CLI and using all `tkgi` commands
   * Using the <%= vars.control_plane %> to retrieve information about clusters
@@ -149,7 +164,7 @@ Upgrading the <%= vars.product_short %> control plane temporarily interrupts the
 These outages do not affect the Kubernetes clusters themselves.
 During a <%= vars.k8s_runtime_abbr %> control plane upgrade, you can still interact with clusters and their workloads using the Kubernetes Command Line Interface, `kubectl`.
 
-For more information about the <%= vars.k8s_runtime_abbr %> control plane, see [<%= vars.k8s_runtime_abbr %> Control Plane Overview](control-plane.html#control-plane) in _<%= vars.product_short %> Architecture_.
+For more information about the <%= vars.k8s_runtime_abbr %> control plane and high availability (beta), see [<%= vars.k8s_runtime_abbr %> Control Plane Overview](control-plane.html#control-plane) in _<%= vars.product_short %> Architecture_.
 
 ### <a name="canary"></a>Canary Instances
 

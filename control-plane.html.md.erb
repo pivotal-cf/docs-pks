@@ -15,7 +15,7 @@ deploy and manage Kubernetes clusters. The workload clusters run the apps pushed
 
 The following illustrates the interaction between <%= vars.product_short %> components:  
 <br>
-<%= image_tag('images/components.png') %>
+<%= image_tag('images/tkgi-overview-ha.png') %>
 <%# Image source: https://docs.google.com/drawings/d/1TZkaTSCiddEE7mZtOTjTg6jBuDAy0D3CI9JY56HBIAY/edit %>
 
 Administrators access the <%= vars.k8s_runtime_abbr %> Control Plane 
@@ -50,14 +50,14 @@ In addition, the <%= vars.k8s_runtime_abbr %> Control Plane can upgrade all exis
 For more information, see [Upgrade Kubernetes Clusters](upgrade.html#upgrade-instances) in _Upgrading <%= vars.product_short %> (Flannel Networking)_.
 
 <br>
-<%= vars.k8s_runtime_abbr %> Control Plane is hosted on a pair of VMs:
+TKGI Control Plane is hosted on a pair of VM groups:
 
-* The [<%= vars.control_plane %> VM](#tkgi-api-vm) hosts cluster management services.
-* The [<%= vars.control_plane_db %> VM](#pks-db-vm) stores cluster management data. 
+* The [<%= vars.control_plane %> VM Group](#tkgi-api-vm) for hosting cluster management services.
+* The [<%= vars.control_plane_db %> VM Cluster](#tkgi-db-vm) to store cluster management data. 
 
-###<a id="tkgi-api-vm"></a><%= vars.control_plane %> VM
+###<a id="tkgi-api-vm"></a><%= vars.control_plane %> VM Group
 
-The <%= vars.control_plane %> VM hosts the following services:
+The instances in the <%= vars.control_plane %> VM Group host the following services:
 
 * User Account and Authentication (UAA)  
 * <%= vars.control_plane %>  
@@ -100,9 +100,9 @@ For <%= vars.product_short %> deployments on vSphere with NSX-T, there is an add
 The <%= vars.control_plane %> communicates with the <%= vars.k8s_runtime_abbr %> NSX-T Proxy Broker, which in turn communicates with the NSX Manager to provision the Node Networking resources.
 The <%= vars.k8s_runtime_abbr %> NSX-T Proxy Broker then forwards the request to the On-Demand Service Broker to deploy the cluster.
 
-###<a id="pks-db-vm"></a><%= vars.control_plane_db %> VM
+###<a id="tkgi-db-vm"></a><%= vars.control_plane_db %> VM Cluster
 
-The <%= vars.control_plane_db %> VM hosts MySQL, proxy, and other data-related services. 
+The instances in the <%= vars.control_plane_db %> VM Cluster host MySQL, proxy, and other data-related services. 
 These data-related functions persist <%= vars.k8s_runtime_abbr %> Control Plane data for the the following services:
 
 * <%= vars.control_plane %>
@@ -110,29 +110,31 @@ These data-related functions persist <%= vars.k8s_runtime_abbr %> Control Plane 
 * Billing
 * Telemetry
 
-##<a id="azs"></a>Availability Zones
+##<a id="overview-ha"></a>High Availability Modes
 
-<%= vars.product_short %> uses Availability Zones (AZs) to provide high availability for Kubernetes cluster workers.
+<%= vars.product_short %> can be configured for <%= vars.k8s_runtime_abbr %> Control Plane and workload high availability.   
 
-When an operator creates Plans for developers, they assign AZs to the Plans. 
-Assigning multiple AZs to a Plan allows developers to provide high-availability for their worker clusters. 
-When a cluster has more than one node, 
-Ops Manager balances those nodes across the Availability Zones assigned to the cluster. 
+####<a id="control-plane-ha"></a><%= vars.k8s_runtime_abbr %> Control Plane High Availability Mode (Beta)
 
-Public-cloud IaaSes such as AWS and Azure provide AZs as part of their service.
-In vSphere with NSX-T, you define and create AZs using vCenter clusters and resource pools.
-See [Step 4: Create Availability Zones](./vsphere-nsxt-om-config.html#create-az) in _Configuring BOSH Director with NSX-T for Tanzu Kubernetes Grid Integrated Edition_ for how to create AZs in NSX-T.
+The <%= vars.k8s_runtime_abbr %> Control Plane can be configured in either standard or high availability (beta) modes.
 
-For instructions on selecting AZs for your <%= vars.product_short %> Plans, 
-see [Plans](installing-nsx-t.html#plans) 
-in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T_.  
+* In standard mode:  
+    * The <%= vars.control_plane %> is hosted on the `pivotal-container-service` VM.
+    * The <%= vars.control_plane_db %> is hosted on the `pks-db` VM.
+* In high availability mode (beta):  
+    * The <%= vars.control_plane %> is hosted on multiple `pivotal-container-service` VMs.
+    * The <%= vars.control_plane_db %> is hosted on three `pks-db` VMs.
+<p class="note warning"><strong>Warning:</strong> High availability mode is a beta feature.
+	Do not scale your <strong><%= vars.k8s_runtime_abbr %> API</strong> or <strong><%= vars.k8s_runtime_abbr %> Database</strong>
+	to more than one instance in production environments.
+</p>
 
-For instructions on selecting the AZ for the <%= vars.product_short %> control plane, 
-see [Assign AZs and Networks](installing-nsx-t.html#azs-networks) 
-in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T_.  
+The following illustrates the interaction between <%= vars.product_short %> components in high availability mode:  
+<br>
+<%= image_tag('images/tkgi-overview-ha.png') %>
+<%# Image source: https://docs.google.com/drawings/d/1hTTmoBpkcjvZJTwlwsXMy9fn91x3KGfIeM4_dzIrW60/edit %>
 
-
-##<a id='windows-ha'></a>Windows Worker-Based Kubernetes Cluster (Beta) High Availability
+####<a id='windows-ha'></a>Windows Worker-Based Kubernetes Cluster (Beta) High Availability
 
 Windows worker-based cluster (beta) Linux nodes can be configured in either standard or high availability modes.
 
