@@ -52,53 +52,42 @@ This section describes how to generate and register the NSX-T root CA certificat
 
 ###<a id="vip1"></a> Step 1: Configure a VIP for the NSX-T Management Cluster
 
-The NSX-T Management Cluster comprises three NSX-T Manager Nodes. To support a single access point for the NSX Manager API, [Assign a Virtual IP Address to the NSX-T Management Cluster](./nsxt-install-mgmt-vip.html). The IP address used for the VIP is used to configure the NSX-T Management Cluster certificate. 
+The NSX-T Management Cluster comprises three NSX-T Manager Nodes. To support a single access point for the NSX Manager API, [Assign a Virtual IP Address to the NSX-T Management Cluster](./nsxt-install-mgmt-vip.html). The IP address used for the VIP, as well as an optional FQDN (Fully Qualified Domain Name), is used to configure the NSX-T Management Cluster certificate.
 
-###<a id="vip2"></a> Step 2: Define the CSR Using the VIP
+###<a id="vip2"></a> Step 2: Define the CSR for the VIP
 
-Below is an example Certificate Signing Request (CSR) named `nsx-cert.cnf`. Copy this example to your Linux-based VM that is on the same network as the PKS Management Plane. In this example, the IP address `10.40.206.5` is the VIP address. Substitute this IP address with your mangement cluster VIP.
+Below is an example Certificate Signing Request (CSR) named `nsx-cert.cnf`. In this example, the IP address `10.40.206.5` is the VIP address and `vip.my.domain` is its FQDN. Substitute this IP address and FQDN with your mangement cluster VIP details, then copy this file to a Linux-based VM.
 
 ```
 [ req ]
 default_bits = 2048
-distinguished_name = req_distinguished_name
-req_extensions = req_ext
+default_md = sha256
 prompt = no
+distinguished_name = req_distinguished_name
+x509_extensions = SAN
+
 [ req_distinguished_name ]
 countryName = US
 stateOrProvinceName = California
 localityName = CA
 organizationName = NSX
-commonName = 10.40.206.5
-[ req_ext ]
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = 10.40.206.5
+commonName = vip.my.domain
+
+[ SAN ]
+subjectAltName = DNS:vip.my.domain,IP:10.40.206.5
 ```
 
-<p class="note"><strong>Note</strong>: The Cluster VIP address must be used as the value for the <code>commonName</code> attribute because the certificate will be registered as a Cluster CA cert, not a Node CA cert. In this case the server response certificate will return with the VIP in it. Therefore, the VIP must be the <code>commonName</code>.</p>
+<p class="note"><strong>Note</strong>: This certificate will be registered in the NSX-T managers as a Cluster CA cert (not a Node CA cert). This is why the FQDN and IP address are those of the VIP.</p>
 
 ###<a id='vip3'></a> Step 3: Generate the VIP Certificate and Private Key
 
-Generate the certificate and private key using the above CSR by running the following set of commands.
-
-Export environment variables, replacing the IP address with your VIP:
+Generate the certificate (`nsx.crt`) and the private key (`nsx.key`) using the above CSR by running the following command:
 
 ```
-export NSX_MANAGER_IP_ADDRESS=10.40.206.5
-export NSX_MANAGER_COMMONNAME=10.40.206.5
+openssl req -newkey rsa -nodes -days 365 -x509 -config nsx-cert.cnf -keyout nsx.key -out nsx.crt
 ```
 
-Generate the certificate (`nsx.crt`) and the private key (`nsx.key`):
-
-```
-openssl req -newkey rsa:2048 -x509 -nodes \
-> -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
-> -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
->  <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_IP_ADDRESS")) -sha256 -days 365
-```
-
-Verify the certificate using the command `# openssl x509 -in nsx.crt -text -noout`.
+Verify the certificate using the command `openssl x509 -in nsx.crt -text -noout`.
 
 ###<a id='vip4'></a> Step 4: Import the VIP Certificate to NSX Manager
 
