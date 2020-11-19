@@ -198,43 +198,34 @@ Complete the following steps to generate and register a SSL certificate and priv
 1. Create a certificate signing request file named `nsx-cert.cnf` and populate it with the contents below.
 
     ```
-    nsx-cert.cnf
     [ req ]
     default_bits = 2048
-    distinguished_name = req_distinguished_name
-    req_extensions = req_ext
+    default_md = sha256
     prompt = no
+    distinguished_name = req_distinguished_name
+    x509_extensions = SAN
+
     [ req_distinguished_name ]
     countryName = US
     stateOrProvinceName = California
     localityName = CA
     organizationName = NSX
-    commonName = 10.173.62.47 		 # REPLACE
-    [ req_ext ]
-    subjectAltName = @alt_names
-    [alt_names]
-    DNS.1 = 10.173.62.47			     # REPLACE
-    ```    
+    commonName = NSX-VIP-FQDN     # REPLACE
 
-1. Replace the IP addresses for `commonName` and `DNS.1` with the VIP address for you NSX-T Management plane.
-
-1. Copy the `nsx-cert.cnf` file to a Linux-based VM that is on the same network as the TKGI Management Plane, and log in to that VM.
-
-1. Create the following environment variables. Replace the IP address with your VIP address.
-
+    [ SAN ]
+    subjectAltName = DNS:NSX-VIP-FQDN,IP:IP-ADDRESS   # REPLACE
     ```
-    export NSX_MANAGER_VIP_ADDRESS=10.173.62.47
-    export NSX_MANAGER_COMMONNAME=10.173.62.47
-    ```
+
+    Where:  
+    * `NSX-VIP-FQDN` is your NSX VIP FQDN.  
+    * `IP-ADDRESS` is your IP address.  
+
+1. Copy the `nsx-cert.cnf` file to a machine with `openssl` if yours doesn't have it.
 
 1. Use [OpenSSL](https://www.openssl.org/) to generate the SSL certificate and private key.
 
     ```
-    openssl req -newkey rsa:2048 -x509 -nodes \
-    > -keyout nsx.key -new -out nsx.crt -subj /CN=$NSX_MANAGER_COMMONNAME \
-    > -reqexts SAN -extensions SAN -config <(cat ./nsx-cert.cnf \
-    > <(printf "[SAN]\nsubjectAltName=DNS:$NSX_MANAGER_COMMONNAME,IP:$NSX_MANAGER_VIP_ADDRESS")) -sha256 -days 1000
-    -----
+    openssl req -newkey rsa -nodes -days 1100 -x509 -config nsx-cert.cnf -keyout nsx.key -out nsx.crt
     ```
 
 1. Verify that you see the following:
@@ -263,9 +254,11 @@ Complete the following steps to generate and register a SSL certificate and priv
     You should see that the common name (CN) and Subject Alternative Name are both the VIP address. For example:
 
     ```
-    Subject: CN = 10.173.62.47
-    Subject Alternative Name: 
-    	DNS:10.173.62.47, IP Address:10.173.62.47
+    Subject: C=US, ST=California, L=CA, O=NSX, CN= myvip.mydomain.com
+    ...
+    X509v3 extensions:
+        X509v3 Subject Alternative Name:
+            DNS:myvip.mydomain.com, IP Address:10.11.12.13
     ```
 
 ###<a id='nsxt30-mgmt-cert-import'></a> Import the SSL Certificate and Private Key to the NSX-T Management Console
