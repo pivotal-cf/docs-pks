@@ -3,15 +3,18 @@ title: Using Helm with Tanzu Kubernetes Grid Integrated Edition
 owner: TKGI
 ---
 
-This topic describes how to use the package manager [Helm 3](https://helm.sh/)
-or its predecessor [Helm 2](https://v2.helm.sh/) for your
-Kubernetes apps running on <%= vars.product_full %>.
+This topic describes how to install the Helm package manager
+on <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>),
+and how to use Helm to install software to Kubernetes clusters deployed by <%= vars.k8s_runtime_abbr %>.
 
 Helm 3 requires less configuration than Helm 2.
 
 ##<a id='overview'></a> Overview
 
-Helm 3 and Helm 2 include the following components:
+Helm is a package manager you can use to deploy <%= vars.k8s_runtime_abbr %> components, such as Wavefront,
+and your <%= vars.k8s_runtime_abbr %> Kubernetes apps.
+
+Helm includes the following components:
 
 <table>
   <tr>
@@ -30,15 +33,23 @@ Helm 3 and Helm 2 include the following components:
     <td>Runs inside your Kubernetes cluster</td>
   </tr>
 </table>
+<br>
+To install Helm, see [Install and Configure Helm](#install-helm).  
+
+To use Helm to deploy components or your apps to <%= vars.k8s_runtime_abbr %> clusters, 
+see [Deploy Apps and Components Using Helm](#deploy-using-helm).  
+
 
 Helm packages are called **charts**. For more information, see
 [Charts](https://docs.helm.sh/developing_charts/) in the Helm documentation.
 
-Examples of charts:
+You can use either [Helm 3](https://helm.sh/)
+or its predecessor [Helm 2](https://v2.helm.sh/) as your <%= vars.k8s_runtime_abbr %> Helm package manager. 
+Helm 3 is more easily installed than Helm 2 and requires less configuration.  
 
-* [Concourse](https://github.com/kubernetes/charts/tree/master/stable/concourse) for CI/CD pipelines
-* [Datadog](https://github.com/kubernetes/charts/tree/master/stable/datadog) for monitoring
-* [MySQL](https://github.com/kubernetes/charts/tree/master/stable/mysql) for storage
+To install and configure Helm 3 for <%= vars.k8s_runtime_abbr %>, see 
+[Install and Configure Helm 3](#helm-3) below. 
+To install Helm 2, see [Install and Configure Helm 2](#helm-2) below.  
 
 For more charts, see the [Helm Charts repository](https://github.com/kubernetes/charts) on GitHub.
 
@@ -49,7 +60,7 @@ https://docs.bitnami.com/kubernetes/get-started-charts-pks/#step-1-install-and-c
 
 ##<a id='helm-2'></a> Install and Configure Helm 2
 
-To use Helm 2 with <%= vars.product_short %>, you must first configure the Tiller component to give it access to the Kubernetes API.
+To use Helm 2 with <%= vars.k8s_runtime_abbr %>, you must first configure the Tiller component to give it access to the Kubernetes API.
 Tiller runs inside the Kubernetes cluster.
 
 To grant API access to Tiller and install Helm 2: 
@@ -101,3 +112,48 @@ To grant API access to Tiller and install Helm 2:
 To apply more granular permissions to the Tiller service account, see the [Helm RBAC](https://github.com/kubernetes/helm/blob/master/docs/rbac.md) documentation.
 
 For more information about securing Helm 2, see the Bitnami article [Exploring the Security of Helm](https://engineering.bitnami.com/articles/helm-security.html).
+
+
+##<a id='deploy-using-helm'></a> Deploy Components and Apps Using Helm
+
+You can use Helm to deploy third-party components or your own apps to <%= vars.k8s_runtime_abbr %> clusters.
+
+###<a id='helm-wavefront'></a> Deploy Wavefront
+
+To use Helm to deploy Wavefront to a <%= vars.k8s_runtime_abbr %> cluster:
+
+1. Run the following:
+
+    ```
+    helm install wavefront wavefront/wavefront --namespace wavefront \
+    --set clusterName=CLUSTER-NAME \
+    --set wavefront.url=https://CLUSTER-NAME.wavefront.com \
+    --set wavefront.token=API-TOKEN \
+    --set collector.usePKSPrefix=true \
+    --set collector.useDaemonset=false
+    ```
+
+    Where:
+    * `CLUSTER-NAME` is the name of your Kubernetes cluster.
+    * `API-TOKEN` is the Wavefront API token for your Wavefront subscription.
+
+###<a id='helm-artifacthub'></a> Deploy Apps Listed in Artifact HUB
+
+To deploy a third-party component on Artifact HUB to a <%= vars.k8s_runtime_abbr %> cluster:  
+
+1. Download the component's Helm chart from the official repositories in the 
+[Artifact HUB](https://artifacthub.io/packages/search?page=1&official=true). 
+
+1. Complete the deployment instructions for the component.   
+
+###<a id='helm-diy'></a> Deploy Your Own Apps
+
+To deploy your app to a <%= vars.k8s_runtime_abbr %> cluster using Helm:
+
+1. Package the app as a _Helm chart_, the package format that the `helm install` command uses.
+  - For example Helm charts, see [Concourse Helm Chart](https://github.com/concourse/concourse-chart), [DataDog Helm Chart](https://github.com/DataDog/helm-charts), or the charts archived in [Helm Charts](https://github.com/kubernetes/charts) on GitHub.
+  - For information on how to create a Helm chart for your app, see 
+[Charts](https://docs.helm.sh/developing_charts/) in the Helm documentation.  
+
+1. Run the `helm install` command, passing in the location of your chart.
+For more information, see the [Helm Docs](https://helm.sh/docs/helm/helm_install/).
