@@ -17,7 +17,7 @@ To create a new create Kubernetes profile:
         ```
         head -c 32 /dev/urandom | base64
         ```
-	    The command will return a base64-encoded, 32-byte key string, for example: `jHc3NMp7s7T7JoJuZF7NUSkHVYCSikJCNJ+LrltbkJk=`
+	    This command returns a base64-encoded, 32-byte key string, for example: `jHc3NMp7s7T7JoJuZF7NUSkHVYCSikJCNJ+LrltbkJk=`
 
 1. To create an encryption provider configuration file, create a file named `encryption-provider-config.yml` 
 containing the following content:
@@ -39,7 +39,7 @@ containing the following content:
 	Where `BASE-64-ENCODED-SECRET` is the secret key string created in the last step.
 
 1. To create a Kubernetes profile configuration file that customizes the kube-apiserver using
-your encryption provider configuration file, create a json file containing the following content:
+your encryption provider configuration file, create a JSON file containing the following content:
 
 	```
 	{
@@ -69,7 +69,8 @@ use the <%= vars.k8s_runtime_abbr %> CLI:
     tkgi create-k8s-profile PROFILE-PATH
     ```
 
-    Where `PROFILE-PATH` is the path and filename of the json profile file you created in the last step.  
+    Where `PROFILE-PATH` is the path and filename of the JSON profile file you created 
+    in the step above.  
 <br>
     For example:  
 	<pre class="terminal">
@@ -139,9 +140,9 @@ To encrypt your existing data:
 After the kube-apiserver restarts, all existing data in its etcd database should be encrypted, 
 and it should encrypt any new data that it stores.
 
-To ensure the etcd data has been encrypted, create and store a new secret and then retrieve it:
+To ensure the etcd data has been encrypted, create and store a test secret and then retrieve it:
 
-1. To create and store a new secret:  
+1. To create and store a test secret:  
 
     ```
 	kubectl create secret generic SECRET-NAME -n NAMESPACE --from-literal=KEY-NAME=KEY-VALUE
@@ -149,9 +150,9 @@ To ensure the etcd data has been encrypted, create and store a new secret and th
 
     Where:  
     * `SECRET-NAME` is the name to apply to the secret.  
-    * `NAMESPACE` is the namespace
-    * `KEY-NAME`
-    * `KEY-VALUE` is the value to encrypt
+    * `NAMESPACE` is the namespace.
+    * `KEY-NAME` is the name of the key.
+    * `KEY-VALUE` is the value to encrypt.
 
 
     For example:
@@ -164,7 +165,7 @@ To ensure the etcd data has been encrypted, create and store a new secret and th
     (https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-secret-generic-em-) 
     in the Kubernetes documentation.  
 
-1. To read the new secret out of etcd, use the etcdctl command line:  
+1. To read the test secret out of etcd, use the etcdctl command line:  
 
     ```
     ETCDCTL_API=3 etcdctl get /registry/secrets/default/SECRET-NAME [ETCD-ARGS] | hexdump -C
@@ -178,7 +179,7 @@ To ensure the etcd data has been encrypted, create and store a new secret and th
 	ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get /registry/secrets/default/secret1
 	</pre>
 
-1. Verify the stored secret is prefixed with `k8s:enc:aescbc:v1:`. For example: 
+1. Review the output and verify the stored test secret is prefixed with `k8s:enc:aescbc:v1:`. For example: 
 
     <pre class="terminal">
 	master/3f9c5ca9-a2b1-469c-9007-6fdd0844a5ec:/var/vcap/bosh_ssh/bosh_2f4aaa514474422# ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get /registry/secrets/default/secret1
@@ -189,14 +190,21 @@ To ensure the etcd data has been encrypted, create and store a new secret and th
 
 	The `k8s:enc:aescbc:v1:` prefix indicates the `aescbc` provider has encrypted the resulting data.
 	
-1. To verify the secret is correctly decrypted when retrieved via the API:  
+1. To retrieve the stored test secret:  
 
     ```
 	kubectl describe secret secret1 -n default
     ```
 
-	Should match `mykey: bXlkYXRh`, mydata is encoded, check [decoding a secret](https://kubernetes.io/docs/concepts/configuration/secret#decoding-a-secret) to completely decode the secret.
+    Where: `SECRET-NAME` is the name of the secret. 
 
+    For example:  
+    <pre class="terminal">
+	kubectl describe secret secret1 -n default
+    </pre>
+
+	Should match `mykey: bXlkYXRh`, mydata is encoded, check [decoding a secret](https://kubernetes.io/docs/concepts/configuration/secret#decoding-a-secret) to completely decode the secret.
+1. Review the output and verify the secret is correctly decrypted. 
 
 ## <a id='rotate'></a> Rotate Encryption Key for Secrets in etcd Database
 
