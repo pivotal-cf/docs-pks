@@ -11,9 +11,9 @@ This topic describes how to enable and use Pod Security Policies in <%= vars.pro
 
 In Kubernetes, a Pod Security Policy (PSP) is a cluster-level resource that controls security sensitive aspects of the pod specification. **PodSecurityPolicy** objects define a set of conditions that a pod must run with in order to be accepted into the system, as well as defaults for related fields. For more information, see [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) in the Kubernetes documentation.
 
-There are various ways to implement the use of PodSecurityPolicy objects in Kubernetes. One common approach is the use of role based access control (RBAC) objects: roles and role bindings. For a PodSecurityPolicy to take effect, the Kubernetes cluster User or ServiceAccount launching a workload must have the `use` permission on the desired PodSecurityPolicy object. 
+There are various ways to implement the use of PodSecurityPolicy objects in Kubernetes. One common approach is the use of role based access control (RBAC) objects: roles and role bindings. For a PodSecurityPolicy to take effect, the Kubernetes cluster User or ServiceAccount launching a workload must have the `use` permission on the desired PodSecurityPolicy object.
 
-A role contains rules that represent a set of permissions. A role can be defined within a namespace with a **Role**, or cluster-wide with a **ClusterRole**. For more information, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) in the Kubenetes documentation. 
+A role contains rules that represent a set of permissions. A role can be defined within a namespace with a **Role**, or cluster-wide with a **ClusterRole**. For more information, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) in the Kubenetes documentation.
 
 A role binding grants the permissions defined in a role to a user or set of users. A role binding holds a list of subjects (users, groups, or service accounts), and a reference to the role being granted. Permissions can be granted within a namespace with a **RoleBinding**, or cluster-wide with a **ClusterRoleBinding**. For more information, see [RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) in the Kubenetes documentation.
 
@@ -25,8 +25,8 @@ A role binding grants the permissions defined in a role to a user or set of user
 
 PSP             | Description
 ----------------|------------
-PKS Privileged  | Allows privileged access to pod containers, which allows the container to do almost everything a host can do. See [Privileged](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privileged) in the Kubernetes PSP documentation for more information. 
-PKS Restricted  | Restricts privileged access to pod containers. 
+PKS Privileged  | Allows privileged access to pod containers, which allows the container to do almost everything a host can do. See [Privileged](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privileged) in the Kubernetes PSP documentation for more information.
+PKS Restricted  | Restricts privileged access to pod containers.
 
 By default, when PSPs are enabled for a plan, the cluster administrator is bound to the PKS Privileged PSP. This policy grant gives the cluster administrator permission to deploy pods. Other users will not be able to deploy pods unless the cluster administrator creates and binds a PSP for such users. The PKS Restricted PSP is example for such purposes.
 
@@ -39,12 +39,14 @@ By default, when PSPs are enabled for a plan, the cluster administrator is bound
 
 Enabling PSPs is done during configuration of <%= vars.product_short %> in the Plan section of the tile configuration. Refer to the <%= vars.k8s_runtime_abbr %> tile configuration documentation for your IaaS for details.
 
+<p class="note"><strong>Note</strong>: Windows in Kubernetes does not support the **PodSecurityPolicy** Admission Plugin feature.</p>
+
   <img src="images/psp-enable.png" alt="Enabling Pod Security Policy" width="225">
 
 A Kubernetes cluster created from a plan with the **PodSecurityPolicy** option enabled will require cluster users to have a binding that grants `use` on an appropriate PSP to deploy pods. Enabling the **PodSecurityPolicy** option is a security feature. The design goal is to make the Kubernetes cluster more secure. Once enabled, **PodSecurityPolicy** acts on creation and modification of pods in that cluster or namespace, and determines the actions that should be permitted based on the requested security context and the applied PSP. See [PSP Policy Order](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#policy-order) for more information on PSP application order when multiple PSPs are in use.
 
-<p class="note"><strong>WARNING</strong>: Enabling the <strong>PodSecurityPolicy</strong> option on install or upgrade 
-  of <%= vars.product_short %> will prevent developers from using the cluster as they would expect unless the proper PSP, 
+<p class="note"><strong>WARNING</strong>: Enabling the <strong>PodSecurityPolicy</strong> option on install or upgrade
+  of <%= vars.product_short %> will prevent developers from using the cluster as they would expect unless the proper PSP,
 role, and role binding are configured by the cluster administrator before cluster deployment.</p>
 
 ###<a id='psp-new-installs'></a> New Installations of <%= vars.k8s_runtime_abbr %>: PSPs Are Not Enabled for Any Plan
@@ -55,7 +57,7 @@ For new <%= vars.product_short %> installations, the **PodSecurityPolicy** optio
 
 On upgrade of <%= vars.product_short %>, existing plans will not have the **PodSecurityPolicy** option enabled. If the PSP option is enabled for a plan that is in use and did not previously leverage PSPs, and the cluster is upgraded, the cluster administrator will need to create the appropriate PSPs, roles, and role bindings **BEFORE** upgrading the clusters associated to that plan. Cluster upgrades when enabling PSPs on an existing plan can have unpredictable results on workloads if the appropriate PSPs are not enabled. If you are considering enabling PSPs on an existing plan to apply to all associated clusters,  the following set of tasks is recommended:
 
-###<a id='psp-enable-workflow'></a> Workflow for Enabling PSPs 
+###<a id='psp-enable-workflow'></a> Workflow for Enabling PSPs
 
 Before you select the **PodSecurityPolicy** check box and enable PSPs for a new or existing plan, complete the following tasks:
 
@@ -136,16 +138,16 @@ spec:
 
 ###<a id='psp-role'></a> Step 2: Create the Role
 
-The following **ClusterRole** grants permission to use the `pks-restricted` PSP resource. 
-You can use this role for onboarding cluster users and granting them cluster access. 
+The following **ClusterRole** grants permission to use the `pks-restricted` PSP resource.
+You can use this role for onboarding cluster users and granting them cluster access.
 
-Below is the system-provided **ClusterRole**.  
+Below is the system-provided **ClusterRole**.
 
 ```
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: psp:restricted 
+  name: psp:restricted
 rules:
 - apiGroups:
   - extensions
@@ -159,18 +161,18 @@ rules:
 
 <p class="note"><strong>Note</strong>: Because this is a <strong>ClusterRole</strong> example, rather than a <strong>Role</strong> example, the namespace is omitted.</p>
 
-For more information about `Role` and `ClusterRole`, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) 
+For more information about `Role` and `ClusterRole`, see [Role and ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole)
 in the Kubernetes documentation.
 
 ###<a id='psp-binding'></a> Step 3: Create the Role Binding
 
-For onboarding cluster users, you have two options based on the mode of authentication you have chosen 
-for <%= vars.k8s_runtime_abbr %>, either internal or external:  
+For onboarding cluster users, you have two options based on the mode of authentication you have chosen
+for <%= vars.k8s_runtime_abbr %>, either internal or external:
 
-* Internal authentication uses a service account mechanism for role binding, 
-such as `SERVICE-UUID-cluster-admin`, for example. 
-* External authentication uses the OpenID Connect (OIDC) 
-identity provider to interface with an external system such as LDAP or AD. 
+* Internal authentication uses a service account mechanism for role binding,
+such as `SERVICE-UUID-cluster-admin`, for example.
+* External authentication uses the OpenID Connect (OIDC)
+identity provider to interface with an external system such as LDAP or AD.
 In this case the role binding references the `user` or `group` name.
 
 **RoleBinding** and **ClusterRoleBinding** configurations adhere to the following format:
@@ -193,15 +195,15 @@ subjects:
 Where:
 
 * `ROLE-BINDING-TYPE` is the binding type, either `RoleBinding` or `ClusterRoleBinding`.
-* `ROLE-BINDING-NAME` is your name for the role binding you are creating.  
-* `NAMESPACE-NAME` is the name of the namespace the binding grants access within. `namespace` is optional for a `ClusterRole` binding.   
-* `ROLE-REF-TYPE` is the `roleRef` type, either `Role` or `ClusterRole`.  
-If the binding type is `Role`, the `namespace` property is required.  
-* `BIND-TO` is the name of the **ClusterRole** to bind to.  
-* `ACCOUNT-TYPE` is the type of account managed by the binding, either `ServiceAccount`, `User`, or `Group`.  
-* `ACCOUNT-ID` is the account managed by the binding. The `ACCOUNT-ID` is case sensitive.  
+* `ROLE-BINDING-NAME` is your name for the role binding you are creating.
+* `NAMESPACE-NAME` is the name of the namespace the binding grants access within. `namespace` is optional for a `ClusterRole` binding.
+* `ROLE-REF-TYPE` is the `roleRef` type, either `Role` or `ClusterRole`.
+If the binding type is `Role`, the `namespace` property is required.
+* `BIND-TO` is the name of the **ClusterRole** to bind to.
+* `ACCOUNT-TYPE` is the type of account managed by the binding, either `ServiceAccount`, `User`, or `Group`.
+* `ACCOUNT-ID` is the account managed by the binding. The `ACCOUNT-ID` is case sensitive.
 
-For example, the following **ClusterRoleBinding** examples bind specific groups or users 
+For example, the following **ClusterRoleBinding** examples bind specific groups or users
 to the `psp:restricted` **ClusterRole**, which provides permissions to use the `pks-restricted` PSP:
 
 * Example of binding a service account user:
@@ -252,11 +254,11 @@ to the `psp:restricted` **ClusterRole**, which provides permissions to use the `
         name: developers # Name is case sensitive
     ```
 
-<p class="note"><strong>Note</strong>: Because these are <strong>ClusterRoleBinding</strong> examples, 
+<p class="note"><strong>Note</strong>: Because these are <strong>ClusterRoleBinding</strong> examples,
   rather than <strong>RoleBinding</strong> examples, the namespace property is omitted.</p>
 
-For more information about `RoleBinding` and `ClusterRoleBinding`, see 
-[RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding) 
+For more information about `RoleBinding` and `ClusterRoleBinding`, see
+[RoleBinding and ClusterRoleBinding](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#rolebinding-and-clusterrolebinding)
 in the Kubernetes documentation.
 
 
