@@ -1,58 +1,39 @@
 ---
-title: Monitoring Master/etcd Node VMs
-owner: PKS
+title: Configuring Telegraf in TKGI
+owner: TKGI
 ---
 
-<strong><%= modified_date %></strong>
-
-This topic describes how platform operators can monitor and retrieve metrics from
-master/etcd node VMs in <%= vars.product_full %> deployments.
+This topic describes how to configure Telegraf in
+<%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>).
 
 ## <a id="overview"></a>Overview
-etcd is an open source distributed key value store.
-In <%= vars.product_short %>, etcd is co-located on Kubernetes master node VMs.
-The master node VMs use etcd for service discovery and configuration sharing within the cluster.
-You can monitor Kubernetes cluster health by using metrics from etcd.
 
-For more information about etcd, see the [etcd documentation](https://github.com/etcd-io/etcd/tree/master/Documentation) in GitHub.
+You can configure Telegraf to collect metrics from TKGI API,
+master node, and worker node VMs and send the metrics to a monitoring service,
+such as Wavefront or Datadog.
 
-For more information about configuring master/etcd nodes in the <%= vars.product_tile %> tile, see the
-Plans section of _Installing <%= vars.product_short %>_ for your IaaS:
+For more information about these metrics, see
+[Metrics: Telegraf](host-monitoring.html#telegraf) in
+_Monitoring <%= vars.k8s_runtime_abbr %> and
+<%= vars.k8s_runtime_abbr %>-Provisioned Clusters_.
 
-* [vSphere](installing-pks-vsphere.html#plans)
-* [vSphere with NSX-T Integration](installing-nsx-t.html#plans)
-* [Google Cloud Platform (GCP)](installing-pks-gcp.html#plans)
-* [Amazon Web Services (AWS)](installing-pks-aws.html#plans)
-* [Azure](installing-pks-azure.html#plans)
+## <a id="collect"></a>Collect Metrics Using Telegraf
 
+To collect metrics using Telegraf:
 
-## <a id="collect"></a>Collect Metrics Using etcd 
-
-You can configure the Telgraf agent to collect metrics from etcd and send the metrics to a third-party monitoring service. The Telgraf agent can read metrics from the following:
-
-+ a `/metric` endpoint exposed by the etcd VM 
-+ the Node Exporter
-
-Node Exporter provides additional infrastructure metrics on the localhost of the master node. For more information, see [node_exporter](https://github.com/prometheus/node_exporter) in GitHub.  <br><br>
-
-To monitor etcd with a third-party monitoring service, do the following:
-
-1. Create a configuration file for your output plugin. See [Create a Configuration File](#toml)
-1. Configure Telegraf in the <%= vars.product_tile %> tile. See [Configure Telegraf in the Tile](#connect). 
-
-For more information about monitoring etcd,
-see [Monitoring etcd](https://github.com/etcd-io/etcd/blob/master/Documentation/op-guide/monitoring.md)
-in GitHub. 
+1. Create a configuration file for your output plugin.
+See [Create a Configuration File](#toml) below.
+1. Configure Telegraf in the <%= vars.product_tile %> tile.
+See [Configure Telegraf in the Tile](#connect) below. 
 
 ### <a id="toml"></a> Create a Configuration File 
 
-To connect a third-party monitoring service to <%= vars.product_short %>, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the <%= vars.product_tile %> tile to connect the service. 
+To connect a monitoring service to <%= vars.k8s_runtime_abbr %>, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the <%= vars.product_tile %> tile to connect the service. 
 
-To create a configuration file your monitoring service, do the following:
+To create a configuration file for your monitoring service:
 
-1. Locate the required format for your monitoring service in the `README.md` file for your service in [telegraf](https://github.com/influxdata/telegraf/tree/1.11.0/plugins/outputs) in GitHub. The etcd documentation recommends using the open source Prometheus monitoring service.<br><br>
-    For more information about using Prometheus, see 
-    [Overview](https://prometheus.io/docs/introduction/overview/) in the Prometheus documentation.
+1. Locate the required format for your monitoring service in the `README.md` file for your service in [telegraf](https://github.com/influxdata/telegraf/tree/1.11.0/plugins/outputs) in GitHub.
+    For example, if you want to collect metrics from etcd, the etcd documentation recommends using the open-source Prometheus monitoring service.
 
 1. Create your configuration file using the required format of your monitoring service.
 For example, if you want to create a configuration file for an HTTP output plugin, create a file similar to the following: 
@@ -61,35 +42,119 @@ For example, if you want to create a configuration file for an HTTP output plugi
     [[outputs.http]]
        url="https://example.com"
        method="POST"
-       data_format="JSON"
+       data_format="json"
     [[processors.override]]
       [processors.override.tags]
         director = "bosh-director-1"
     ```
-    <p class="note"><strong>Note:</strong>  You can add tags to your configuration file to label etcd metrics. For example, the above code snippet adds a <code>bosh-director-1</code> tag to the etcd metrics. If you have multiple BOSH Directors, Pivotal recommends adding tags to filter your metrics in your monitoring service. </p>
+    <p class="note"><strong>Note:</strong>  You can add tags to your configuration file to label etcd metrics. For example, the above code snippet adds a <code>bosh-director-1</code> tag to the etcd metrics. If you have multiple BOSH Directors, <%= vars.recommended_by %> recommends adding tags to filter your metrics in your monitoring service. </p>
 
 ### <a id="connect"></a> Configure Telegraf in the Tile
 
-To connect a monitoring service to etcd, do the following:
+To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
 
-1. From the **Ops Manager Installation Dashboard**, navigate to **<%= vars.product_tile %>** >
-**Settings** > **Monitoring**.
+1. Navigate to the **<%= vars.product_tile %>** tile > **Settings** > **Host Monitoring**.
 
-    ![Monitoring pane](images/monitoring.png)
+1. Under **Enable Telegraf Outputs?**, select **Yes**.
 
-1. (Optional) If you want to send metrics from Node Exporter, select **Enable Node-Exporter on master**
+1. Configure the Telegraf checkboxes as described in the table below.
 
+    Components you enable in this step will be visible to <%= vars.k8s_runtime_abbr %> admins only.
 
-1. For **Setup Telegraf Outputs**, enter the contents of the configuration file
-you created in [Create a Configuration File](#toml) above. 
-If you do not want to output any metrics, leave the default value `[[outputs.discard]]`.
+    <table class="nice">
+      <col width="30%">
+      <col width="70%">
+      <tr>
+        <th>Enable this checkbox...</th>
+        <th>...to send these metrics to your monitoring service</th>
+      </tr>
+      <tr>
+        <td>
+          <strong>Enable node exporter on TKGI API</strong>
+        </td>
+        <td>
+          Node Exporter metrics from the TKGI API VM
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Enable node exporter on master</strong>
+        </td>
+        <td>
+          Node Exporter metrics from Kubernetes master nodes
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include etcd metrics</strong>
+        </td>
+        <td>
+          etcd server and debugging metrics
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Enable node exporter on worker</strong>
+        </td>
+        <td>
+          Node Exporter metrics from Kubernetes worker nodes
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include Kubernetes Controller Manager metrics</strong>
+        </td>
+        <td>
+          Kubernetes controller manager metrics
+          <ul><li>These metrics provide information about the state of each cluster.</li></ul>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include Kubernetes API Server metrics</strong>
+        </td>
+        <td>
+          Kubernetes API server metrics
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include kubelet metrics</strong>
+        </td>
+        <td>
+          kubelet metrics for all workloads running in all your Kubernetes clusters
+          <ul><li>If you enable <strong>Include kubelet metrics</strong>, be prepared for a high volume of metrics.</li></ul></p>
+        </td>
+      </tr>
+    </table>
 
-1. Click **Save**
+1. In **Set Up Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents of the configuration file
+that you created in [Create a Configuration File](#toml) above.
+See the following example for an HTTP output plugin:
 
-1. Click **Apply Changes**.
+    ```
+    [[outputs.http]]
+       url="https://example.com"
+       method="POST"
+       data_format="json"
+    [[processors.override]]
+      [processors.override.tags]
+        director = "bosh-director-1"
+    ```
+1. In **Setup Telegraf Agent**, replace the default Telegraf agent property values 
+with your custom values for interval, buffering and debugging related properties. 
+For more information about the configurable Telegraf agent properties, see [Agent configuration]
+(https://docs.influxdata.com/telegraf/v1.15/administration/configuration/#agent-configuration) 
+in the Telegraf documentation.
+1. Click **Save**.
+
+1. To deploy the <%= vars.product_tile %> tile, return to the Ops Manager
+Installation Dashboard and click **Review Pending Changes** >
+**Apply Changes**.
 
 ## <a id="errors"></a>Troubleshoot etcd
 
-Pivotal recommends working with Pivotal or VMware Support to troubleshoot master/etcd node VMs.
+<%= vars.recommended_by %> recommends working with Support to troubleshoot
+master/etcd node VMs.
 The monitoring and metrics data you retrieve from the master/etcd node VMs
 can help the Support team diagnose and troubleshoot errors.
