@@ -3,19 +3,19 @@ title: Backup and Restore StatefulSet App with Namespace
 owner: TKGI
 ---
 
-This topic describes how to use Velero to backup and restore a statefulset application with namepsace.
+This topic describes how to use Velero to back up and restore a StatefulSet application with namespace.
 
 ##<a id="overview"></a> Overview
 
-This example demonstrates Velero backup and restore for a statefulset application with namespace. The CassandraDB app is used for demonstrating backup and restore with Velero.
+This example demonstrates Velero backup and restore for a StatefulSet application with namespace. The CassandraDB app is used for demonstrating backup and restore with Velero.
 
-When restoring a stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster. If the PVC was using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
+When restoring a stateful application using Velero, the storage class that was used by the PersistentVolumeClaim (PVC) in the application must be present on the Kubernetes cluster. If the PVC was using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
 
 ##<a id="prereqs"></a> Prerequisites
 
 [Install and configure](./velero-install.html) Minio, Velero, and Restic.
 
-The application we are going to use is the CassandraDB statefulset app. Download the [CassandraDB YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/cassandra-db/) to a local known directory:
+The application we are going to use is the CassandraDB StatefulSet app. Download the [CassandraDB YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/cassandra-db/) to a local known directory:
 
 - cassandra-statefulset.yaml
 - cassandra-storageclass.yaml
@@ -23,7 +23,7 @@ The application we are going to use is the CassandraDB statefulset app. Download
 
 ## <a id='storage-class-csi'></a> Create the Storage Class
 
-Modify the storage class **cassandra-storageclass.yaml** to use the generic CSI provisioner:
+Modify the storage class **cassandra-storageclass.yaml** to use the generic Container Storage Interface (CSI) provisioner:
 
 ```
 apiVersion: storage.k8s.io/v1
@@ -72,7 +72,7 @@ kubectl apply -f 1-headless-cassandra-service.yaml -n cassandra
 service/cassandra created
 ```
 
-Deploy CassandraDB app:
+Deploy the CassandraDB app:
 
 ```
 kubectl apply -f 2-cassandra-statefulset.yaml -n cassandra
@@ -101,7 +101,6 @@ statefulset.apps/cassandra   3/3     101m
 kubectl get pvc,pv -n cassandra-cs
 ```
 
-
 Make sure CassandraDB instances are fully participating in the cluster:
 
 ```
@@ -118,7 +117,6 @@ UN  172.16.1.4  109.58 KiB  32           71.4%             4599bc2e-6f7b-4093-93
 ```
 
 ## <a id='cassandra-db-csi'></a> Create and Populate a Database and Table in Cassandra
-
 
 Create the DB:
 
@@ -139,12 +137,13 @@ cqlsh:demodb> CREATE TABLE emp(emp_id int PRIMARY KEY, emp_name text, emp_city t
 cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (100, 'Tom', 'Cork', 999, 1000000);
 cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (101, 'Andrew', 'NY', 1000, 1000000);
 cqlsh:demodb> INSERT INTO emp (emp_id, emp_name, emp_city, emp_phone, emp_sal) VALUES (102, 'Lara', 'Paris', 1001, 1000000);
-cqlsh:demodb> select * from emp;
 ```
 
 Verify:
 
-``` 
+```
+cqlsh:demodb> select * from emp;
+
  emp_id | emp_city | emp_name | emp_phone | emp_sal
 --------+----------+----------+-----------+---------
     100 |     Cork |      Tom |       999 | 1000000
@@ -194,7 +193,7 @@ cqlsh:demodb> select * from emp;
 
 ## <a id='cassandra-annotations-csi'></a> Add Annotations
 
-Add annotations for the stateful pods with the volume name `cassandra-data`.
+Add annotations for the stateful pods with the volume name `cassandra-data`:
 
 ```
 kubectl get pod -n cassandra-csi
@@ -231,7 +230,7 @@ kubectl -n cassandra-csi describe pod/cassandra-2 | grep Annotations
 Annotations:  backup.velero.io/backup-volumes: cassandra-data
 ```
 
-## <a id='cassandra-backup-csi'></a> Backup the CassandraDB App using Namespace
+## <a id='cassandra-backup-csi'></a> Back Up the CassandraDB App using Namespace
 
 Perform the Velero backup:
 
@@ -277,7 +276,6 @@ Restore the CassandraDB app from the Velero backup. Note the following about the
 
 - Pod annotation is still required for Velero backup of PV
 - The namespace 'cassandra' was automatically re-created
-
 
 Delete the namespace:
 
@@ -440,7 +438,3 @@ Key takeaways from the restore operation:
 - Pod annotation is still required for Velero backup of PV
 - The namespace 'cassandra-csi' was automatically re-created
 - Restic works fine with CSI
-
-
-
-
