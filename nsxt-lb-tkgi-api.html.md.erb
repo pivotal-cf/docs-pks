@@ -167,257 +167,139 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-31.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-32.png" width="425">
 
-
-###<a id='attach-lb'></a> Step 4: Attach the Load Balancer to a Logical Router Gateway
+##<a id='attach-lb-router'></a> Step 4: Attach the Load Balancer to a Logical Router
 
 1. In NSX Manager, select Networking > Load Balancing > Load Balancers.
 1. Choose the tkgs-api load balancer you just created.
-1. Click Attach to a Logical Router
+1. Click the gear icon and select **Attach to a Logical Router.**
 1. Choose a Tier-1 logical router that is attached to pks api VMs
+
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-33.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-34.png" width="425">
+
+### Troubleshooting LB-Router Attachment
+
+If you see an Error like the following, you need to create Logical Router that associated with the Edge Cluster:
+
+`The logical router LogicalRouter/b0a65a53-8004-...-6bc29abc37ca does not have associated edge cluster to deploy a load balancer service LoadBalancerService/c0c478b2-...-d72e5e3a5672.
+
+To configure a new Tier-1 router:
+
+1. Select Networking > Tier-1 Logical Routers.
+1. Click Add.
+1. Configure Tier-1 Router
+  - Set the name, for example pks-api
+  - Set Tier-0 Router
+  - Set Edge Cluster
+  - Set Edge Cluster member
+  - Click Add
+1. Configure Route Advertisement for the Tier-1 Router.
+  - Select the Tier-1 Router.
+  - Select the Routing tab.
+  - Select Route Advertisement > Edit.
+  - Enable Route Advertisement for all load balancer VIP routes for the Tier-1 Router:
+  	- Status: enabled
+    - Advertise all LB VIP routes: yes
+    - Advertise all LB SNAT IP routes: yes
+    - Click Save
+1. Attach the Logical Router to Load Balancer.
+1. Click OK to complete the operation.
+
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-35.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-36.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-37.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-38.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-39.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-40.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-41.png" width="425">  
+
+##<a id='attach-lb-vs'></a> Step 5: Attach the Load Balancer to the Virtual Servers
+
+1. Select the Load Balancer.
+1. Click the Settings icon.
+1. Select Attach to a Virtual Server.
+1. Attach the load balancer to the `tkgi-api-server` virtual server. You should see it inside the Virtual Servers tab.
+1. Click Ok.
+1. Click Settings.
+1. Select Attach to a Virtual Server.
+1. Attach to the tkgi-api-uaa virtual server. You should see it inside the Virtual Servers tab.
+1. Click Ok.
+
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-42.png" width="425">  
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-43.png" width="425">  
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-44.png" width="425">  
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-45.png" width="425">  
  
-If you see Errors like :
-The logical router LogicalRouter/b0a65a53-8004-4d2b-8551-6bc29abc37ca does not have associated edge cluster to deploy a load balancer service LoadBalancerService/c0c478b2-67f2-404d-b109-d72e5e3a5672.
-
-Then you need to create Logical Router that associated to a edge cluster
-Optional For troubleshooting
-
-
- 
-
-
-●	Inside NSX Manager UI: Manager on Top Right > Networking > Tier-1 Logical Routers
-●	Click Add
-
-
- 
-
-Configure Tier-1 Router
-●	Set the name, for example pks-api
-●	Set Tier-0 Router
-●	Set Edge Cluster
-●	Set Edge Cluster member
-●	Click Add
-
-
- 
-
-
-
-Configure Route Advertisement for the Tier-1 Router.
-●	Select the Tier-1 Router.
-●	Select the Routing tab.
-●	Select Route Advertisement > Edit.
-●	Enable Route Advertisement for all load balancer VIP routes for the Tier-1 Router:
-○	Status: enabled
-○	Advertise all LB VIP routes: yes
-○	Advertise all LB SNAT IP routes: yes
-○	Click Save
- 
- 
-
-
-
- 
-
-
-
-Attach the Logical Router to Load Balancer 
-●	Click OK
-
-
-###<a id='s5'></a> Step 5: Verify Router and Switch Configuration
-
-Verify successful creation and configuration of the logical switch and router.
-
-- Select the Tier-1 Router.
-- Select the **Configuration** tab and the **Ports** option.
-- Verify that the router has a single linked port connecting the Tier-1 Router to the Tier-0 Router.
-
-###<a id='s6'></a> Step 6: Configure a Small Load Balancer
-
-Create a new small-size Load Balancer and attach it to the Tier1 router previously created.
-
-<p class="note"><strong>Note</strong>: The small-size VM is suitable for the NSX Management Cluster load balancer. Make sure you have enough Edge Cluster resources to provision a small load balancer.</p>
-
-- Select **Load Balancers**.
-- Click **Add**.
-- Enter a **Name** for the load balancer.
-- Select the **SMALL** size load balancer.
-- Click OK.
-
-###<a id='s7'></a> Step 7: Attach the Load Balancer to the Router
-
-Attach the load balancer to the Tier-1 Router previously created.
-
-- Select the load balancer you just provisioned.
-- Select the **Overview** tab.
-- Select **Attachment** > **Edit**.
-- **Tier-1 Logical Router**: Enter the name of the Tier-1 Router you configured, for example `T1-NSX-T-EXTERNAL-LB`.
-- Click **OK**.
-
-###<a id='s8'></a> Step 8: Configure a Virtual Server
-
-Add and configure a virtual server for the load balancer.
-
-- Select **Load Balancers** > **Virtual Servers**.
-- Click **Add**.
-
-Configure **General Properties** for the virtual server:
-
-- **Name**: VS-NSX-T-EXTERNAL-LB
-- **Application Types**: Layer 4 TCP
-- **Application Profile**: default-tcp-lb-app-profile
-- **Access Log**: Disabled
-- Click **Next**
-
-Configure **Virtual Server Identifiers** for the virtual server:
-
-- **IP Address**: Enter an IP address from the floating pool, such as `10.40.14.250`.
-- **Port**: 443
-- Click **Next**.
-
-Configure **Virtual Server Pool** for the virtual server:
-
-- Click **Create a New Server Pool**.
-
-Configure **General Properties** for the server pool:
-
-- **Name**: For example `NSX-T-MGRS-SRV-POOL`
-- **Load Balancing Algorithm**: ROUND_ROBIN
-- Click **Next**
-
-Configure **SNAT Translation** for the server pool:
-
-- **Translation Mode**: IP List
-- **IP address**: Enter the Virtual Switch IP (VIP) address here, for example `10.40.14.250`.
-- Click **Next**.
-
-Configure **Pool Members** for the server pool:
-
-- **Membership Type**: Static.
-- **Static Membership**: Add all 3 NSX Managers as members by entering the node name, IP address, and port (443) for each node.
-- Click **Next**.
-
-Configure **Health Monitors**:
-
-- We will create the Health Monitors separately.
-- Click **Finish**.
-
-Back at the Server Pool screen, click **Next**.
-
-Configure **Load Balancing Profiles** for the load balancer:
-
-- **Persistence Profile** > **Source IP**: Select **default-source-ip-lb-persistence-profile**
-- Click **Finish**.
-
-<p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the PKS Management Plane, do not configure a persistence profile.</p>
-
-###<a id='s9'></a> Step 9: Attach the Virtual Server to the Load Balancer
-
-Attach the virtual switch to the NSX-T load balancer.
-
-- In the **Load Balancing** panel, select the Virtual Server you created.
-- Select the **Load Balancers** tab.
-- Click **Attach**.
-- **Load Balancer**: Select the load balancer to attach, such as `NSX-T-EXTERNAL-LB`.
-- Click **OK**.
-
-###<a id='s10'></a> Step 10: Verify the Load Balancer.
-
-Once the load balancer is configured, verify it by doing the following:
-
-- Ping the NSX-T load balancer VIP address from your local machine.
-- Access the NSX-T Manager interface using the load balancer VIP address, for example `https://10.40.14.250`.
-
-<p class="note"><strong>Note:</strong> The URL redirects to the same NSX-T Manager. Persistence is done on the source IP based on the persistence profile you selected.</p>
-
-###<a id='s11'></a> Step 11: Create an Active Health Monitor (HM)
-
-Create a new Active Health Monitor (HM) for NSX Management Cluster members using the NSX-T Health Check protocol.
-
-- Select **Load Balancers** > **Server Pools**.
-- Select the server pool you created (for example, **NSX-T-MGRS-SRV-POOL**). 
-- Select the **Overview** tab
-- Click **Health Monitor** > **Edit**
-- Click **Create a new active monitor**
-
-Configure **Monitor Properties**:
-
-- **Name**: `NSX-T-Mgr-Health-Monitor`
-- **Health Check Protocol**: `LbHttpsMonitor`
-- **Monitoring Port**: `443`
-
-Configure **Health Check Parameters**. 
-
-Configure the new Active HM with specific HTTP request fields as follows:
-
-- **SSL Protocols**: Select the **TLS_v1** and **TLS_v2** protocols.
-- **SSL Ciphers**: Select **Balanced** (recommended)
-
-Configure the **HTTP Request Configuration** settings for the health monitor:
-
-- **HTTP Method**: `GET`
-- **HTTP Request URL**: `/api/v1/reverse-proxy/node/health`
-- **HTTP Request Version**: `HTTP_VERSION_1_1`
-
-Configure the **HTTP Request Headers** for the health monitor:
-
-- **Authorization**: `Basic YWRtaW46Vk13YXJlMSE=`, which is the base64-encoded value of the NSX-T administrator credentials 
-- **Content-Type**: `application/json`
-- **Accept**: `application/json`
-
-<p class="note"><strong>Note:</strong> In the example, <em>YWRtaW46Vk13YXJlMSE=</em> is the base64-encoded value of the NSX-T administrator credentials, expressed in the form <em>admin-user:password</em>. You can use the free online service <a href="https://www.base64encode.org/">www.base64encode.org</a> to base64 encode your NSX-T administrator credentials.</p>
-
-Configure the **HTTP Response Configuration** for the health monitor:
-
-- **HTTP Response Code**: `200`
-- Click **Finish**.
-
-At the Health Monitors screen, specify the Active Health Monitor you just created:
-
-- **Active Health Monitor**: Enter a name for the health monitor, such as **NSX-T-Mgr-Health-Monitor**.
-- Click **Finish**.
-
-###<a id='s12'></a> Step 12: Create SNAT Rule
-
-If your <%= vars.product_short %> deployment uses NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX-T topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 Router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
-
-To do this you need to retrieve the IP of the T1 uplink (Tier-1 Router that connected the NSX-T LB instance). In the example below, the T1 uplink IP is `100.64.112.37/31`.
-
-Create the following SNAT rule on the Tier-0 Router:
-
-- **Priority**: `2000`
-- **Action**: `SNAT`
-- **Source IP**: `100.64.112.36/31`, for example
-- **Destination IP**: `10.40.206.0/25`, for example
-- **Translated IP**: `10.40.14.251`, for example
-- Click **Save**
-
-- Verify configuration of the SNAT rule and server pool health:
-
-###<a id='s13'></a> Step 13: Verify that NSX Manager Traffic Is Load Balanced
-
-Verify the load balancer and that traffic is load balanced.
-
-- Confirm that the status of the Logical Switch for the load balancer is Up.
-- Confirm that the status of the Virtual Server for the load balancer is Up.
-- Confirm that the status of the Server Pool is Up.
-- Open an HTTPS session using multiple browser clients and confirm that traffic is load-balanced across different NSX-T Managers:
-
-You can use the NSX API to validate that secure HTTP requests against the new VIP address are associated with the load balancer's Virtual Server. Relying on the SuperUser Principal Identity created as part of PKS provisioning steps, you can cURL the NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP. For example:
-
-Before load balancer provisioning is completed:
+##<a id='config-tile'></a> Step 6: Configure TKGI to Use the Load Balancer
+
+Now that the load balancer for the TKGI API control plane is configured, update the TKGI tile to point to the load balancer.
+
+1. Log in to Ops Manager.
+1. Go to PKS Tile Resource Config.
+1. Click PKS API. You will see a drop down for PKS API config.
+1. Change the PKS API Instances Number to 2 or 3 (preferrably 3 for quorum).
+1. Set the NSGroup if you configured Dynamic Server Pool. Otherwise leave it empty.
+1. Set VIF Type PARENT or leave it empty.
+1. Set the Logical Load Balancer as follows:
 
 ```
-curl -k -X GET "https://192.168.6.210/api/v1/trust-management/principal-identities" --cert $(pwd)/pks-nsx-t-superuser.crt --key $(pwd)/pks-nsx-t-superuser.key
+{
+  "server_pools": [
+    {
+      "name": "tkgi-api-server",
+      "port": 9021
+    },
+    {
+      "name": "tkgi-api-uaa",
+      "port": 8443
+    }
+  ]
+}
 ```
 
-After load balancer provisioning is completed:
+1. Click Save.
+1. Click apply-changes and wait for Ops Manager to finish svaing the settings.
+  - For static server pools, this operation will add vm as server pool member
+  - For dynamic server pools, this operation will add vm to the corresponding nsgroup.
+
+    <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-46.png" width="425">  
+
+###<a id='test-lb'></a> Step 7: Test the Load Balancer
+
+1. In NSX Manager, verify that the operatational status of the load balancer is up. 
+1. Make sure the Virtual Servers are up.
+1. Make sure the Server Pools are up.
+1. Test the load balancer as described below.
+
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-47.png" width="425">  
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-48.png" width="425">  
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-49.png" width="425">  
+
+Using your TKGI client jump host, change the TKGI API hostname to resolve to the Load Balancer IP. In this example, `192.168.160.108` is the IP address of the load balancer.
 
 ```
-curl -k -X GET "https://91.0.0.1/api/v1/trust-management/principal-identities" --cert $(pwd)/pks-nsx-t-superuser.crt --key $(pwd)/pks-nsx-t-superuser.key
+kubo@jumper:~$ cat /etc/hosts
+127.0.0.1	localhost
+127.0.1.1	jumper.localdomain	jumper
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+192.168.111.93   vxlan-vm-111-93.vmware.com
+192.168.111.109  nsxmanager.tkgi.vmware.local
+192.168.160.108  tkgi.tkgi-api.cf-app.com
 ```
 
-Key behavioral differences among the two API calls is the fact that the call toward the Virtual Server VIP will effectively Load Balance requests among the NSX-T Server Pool members. On the other hand, the call made toward the HA VIP address would ALWAYS select the same member (the Active Member) of the NSX Management Cluster.
+Now, log in to the TKGI API Server via the load balancer. 
 
-Residual configuration step would be to change PKS Tile configuration for NSX-Manager IP Address to use the newly-provisioned Virtual IP Address. This configuration will enable any component internal to PKS (NCP, NSX OSB Proxy, BOSH CPI, etc.) to use the new Load Balancer functionality.
+```
+kubo@jumper:~$ tkgi login -a tkgi.tkgi-api.cf-app.com -u lana -p password -k && pks clusters
+
+API Endpoint: tkgi.tkgi-api.cf-app.com
+User: lana
+Login successful.
+
+TKGI Version    Name        k8s Version  Plan Name  UUID                                  Status     Action
+1.10.0-build.1  test_one  	1.19.5       Plan 1     33988550-...-28658fe51d8a  succeeded  UPDATE
+```
