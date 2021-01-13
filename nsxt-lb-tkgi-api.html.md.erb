@@ -29,9 +29,9 @@ If you are using a Dynamic Server Pool, create an NSGroup. If you are using a St
 
 ##<a id='create-virtual-servers'></a> Step 2: Create Two Virtual Servers
 
-The TKGI API Sever virtual machine hosts two server processes and exposes two ports: the TKGI API Server on port 9021, and the UAA server on port 8443. Each NSX-T Virtual Server listens on one port. Thus, you need two Virtual Servers, one for the API server and the other for UAA.
+The TKGI API Sever virtual machine hosts two server processes and exposes two ports: the TKGI API Server on port 9021, and the UAA server on port 8443. Each NSX-T Virtual Server listens on one port. Thus, you need two Virtual Servers, one for the TKGI API server and the other for UAA.
 
-###<a id='create-vs-api'></a> Create Virtual Server for the TKGI API
+###<a id='create-vs-api'></a> Create a Virtual Server for the TKGI API Server
 
 1. In NSX Manager, select **Networking > Load Balancing > Virtual Servers**.
 1. Click Add.
@@ -83,8 +83,8 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   - Set the Default Server Pool to what you just created: **tkgi-api-server**
   - Click **Next**
 1. Persistence Profiles is optional. Click **Next**.
-1. Configure Client Side SSL (only needed when L7 Application Type is selected). Use the default certificates. Click **Next**.
-1. Configure Server Side SSL(only needed when L7 Application Type is selected). Use the default certificates. Click **Finish**.
+1. Configure Client Side SSL (only if L7 Application Type is selected). Use the default certificates. Click **Next**.
+1. Configure Server Side SSL(only if L7 Application Type is selected). Use the default certificates. Click **Finish**.
 
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-03.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-04.png" width="425">
@@ -103,113 +103,127 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-17.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-18.png" width="425">
 
-###<a id='create-vs-uaa'></a> Create Virtual Server for UAA
+###<a id='create-vs-uaa'></a> Create a Virtual Server for the UAA Server
 
-Virtual Server for uaa
-●	You can choose pks-api-server Virtual Server and click Clone
-●	Click Edit to change the content
+1. Select the tkgs-api-server Virtual Server you created and and click **Clone**.
+1. Click **Edit** to change the content and configure the virtual server for UAA.
+1. Configure General Properties
+  - Set the Name as **tkgi-api-uaa**
+  - Click **Next**
+1. Configure Virtual Server Identifiers
+  - Set the Port to **8443**
+  - Click **Next**
+1. Configure Server Pool and Rules
+  - Click Create A New Server Pool
+  - Set name to **tkgi-api-uaa**
+  - Click **Next**
+1. Configure SNAT Translation for the Server Pool.
+  - Pool Members should be the same that you configured for the tkgi-api vritual server
+  - Click **Next**
+1. Configure Health Monitors:
+  - Click Create A New Active Monitor
+  - Set Name, for example **tkgi-api-uaa**
+  - Set Health Check Protocol **LBHttpsMonitor**
+  - Set port as **8443**
+  - Leave other fields as default
+  - Click **Next**
+1. Configure Health Check Parameters:
+  - Choose High Security for SSL Ciphers
+  - Select TLS_V1_2 as SSL Protocols
+  - Set HTTP Request URL as /healthz
+  - Set HTTP Request Header as 200
+  - Click **Finish**
+1. Configure a New Server Pool
+  - Set Active Health Monitor to pks-api-uaa
+  - Click **Finish**
+1. Edit Virtual Server
+  - Set Default Server Pool as pks-api-uaa
+  - Click **Next**
+1. Persistence Profiles is optional. Click **Next**.
+1. Configure Client Side SSL (only if L7 Application Type is selected). Use the default certificates. Click **Next**.
+1. Configure Server Side SSL(only if L7 Application Type is selected). Use the default certificates. Click **Finish**. 
 
-Configure General Properties
-●	Set Name as pks-api-uaa
-●	Click Next
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-19.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-20.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-21.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-22.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-23.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-24.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-25.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-26.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-27.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-28.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-29.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-30.png" width="425">
+
+##<a id='create-lb'></a> Step 3: Create Load Balancer
+
+1. In NSX Manager, select Networking > Load Balancing > Load Balancers.
+1. Click Add.
+1. Set the name: for example **tkgi-api**
+1. Choose the Load Balancer Size. The default SMALL should be sufficient for most TKGI deployments. For large-scale deployments, use are larger size load balancer.
+1. Click OK.
+
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-31.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-32.png" width="425">
+
+
+###<a id='attach-lb'></a> Step 4: Attach the Load Balancer to a Logical Router Gateway
+
+1. In NSX Manager, select Networking > Load Balancing > Load Balancers.
+1. Choose the tkgs-api load balancer you just created.
+1. Click Attach to a Logical Router
+1. Choose a Tier-1 logical router that is attached to pks api VMs
+ 
+If you see Errors like :
+The logical router LogicalRouter/b0a65a53-8004-4d2b-8551-6bc29abc37ca does not have associated edge cluster to deploy a load balancer service LoadBalancerService/c0c478b2-67f2-404d-b109-d72e5e3a5672.
+
+Then you need to create Logical Router that associated to a edge cluster
+Optional For troubleshooting
+
 
  
-Configure Virtual Server Identifiers
-●	Set Port to 8443
-●	Click Next
 
- 
-Configure Server Pool and Rules
-●	Click Create A New Server Pool
- 
-Server Pool
 
-Add New Server Pool
-●	Set name to pks-api-uaa
-●	Click Next
-
- 
-Pool Members
-Configure SNAT Translation for the Server Pool, Pool Members are the same when you configure for pks-api
-●	Click Next.
- 
+●	Inside NSX Manager UI: Manager on Top Right > Networking > Tier-1 Logical Routers
+●	Click Add
 
 
  
 
-Health Monitors
-Configure Health Monitors:
-●	Click Create A New Active Monitor
-
- 
-Configure Health Monitors for pks api uaa:
-●	Set Name, for example pks-api-uaa
-●	Set Health Check Protocol LBHttpsMonitor
-●	Set port as 8443
-●	Leave other fields as default
-●	Click Next
+Configure Tier-1 Router
+●	Set the name, for example pks-api
+●	Set Tier-0 Router
+●	Set Edge Cluster
+●	Set Edge Cluster member
+●	Click Add
 
 
  
 
 
-Configure Health Check Parameters
-●	Choose High Security for SSL Ciphers
-●	Select TLS_V1_2 as SSL Protocols
-●	Set HTTP Request URL as /healthz
-●	Set HTTP Request Header as 200
-●	Click Finish
-
-
- 
- 
-
-
-Configure New Server Pool
-●	Set Active Health Monitor to pks-api-uaa
-●	Click Finish
- 
-
-Edit Virtual Server
-●	Set Default Server Pool as pks-api-uaa
-●	Click Next
- 
-
-Persistence Profiles, Client Side SSL, Server Side SSL(only appear if L7 selected) are all optional. You can click Next until Finished
-
-
-
-- Select **Switching**.
-- Click **Add**.
-- Configure the logical switch:
-  - **Name**: Enter a name for the logical switch, such as **LS-NSX-T-EXTERNAL-LB**.
-  - **Transport Zone**: Select the overlay transport zone, such as **TZ-Overlay**.
-- Click **Add**.
-
-###<a id='s3'></a> Step 3: Configure a Tier-1 Logical Router
-
-Configure a new Tier-1 Router in Active/StandBy mode. Create the Tier-1 Router on the same Edge Cluster where the Tier-0 Router that provides external connectivity to vCenter and NSX Manager is located.
-
-- Select **Routers**.
-- Click **Add** > **Tier-1 Router**.
-- Configure the new Tier-1 Router and click **Add**.
-  - **Name**: **T1-NSX-T-EXTERNAL-LB**, for example.
-  - **Tier-0 Router**: Connect the Tier-1 Router to the Tier-0 Router, for example **Shared-T0**.
-  - **Edge Cluster**: Select the same Edge Cluster where the Tier-0 Router is located, such as **edgecluster1**.
-  - **Edge Cluster Members**: Select **nsx-edge-1-tn** and **nsx-edge-2-tn**, for example.
-
-###<a id='s4'></a> Step 4: Advertise the Routes
 
 Configure Route Advertisement for the Tier-1 Router.
+●	Select the Tier-1 Router.
+●	Select the Routing tab.
+●	Select Route Advertisement > Edit.
+●	Enable Route Advertisement for all load balancer VIP routes for the Tier-1 Router:
+○	Status: enabled
+○	Advertise all LB VIP routes: yes
+○	Advertise all LB SNAT IP routes: yes
+○	Click Save
+ 
+ 
 
-- Select the Tier-1 Router.
-- Select the **Routing** tab.
-- Select **Route Advertisement** > **Edit**.
-- Enable Route Advertisement for all load balancer VIP routes for the Tier-1 Router:
-  - **Status**: enabled
-  - **Advertise all LB VIP routes**: yes
-  - **Advertise all LB SNAT IP routes**: yes
-  - Click **Save**
+
+
+ 
+
+
+
+Attach the Logical Router to Load Balancer 
+●	Click OK
+
 
 ###<a id='s5'></a> Step 5: Verify Router and Switch Configuration
 
