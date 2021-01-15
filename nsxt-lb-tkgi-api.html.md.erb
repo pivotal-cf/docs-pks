@@ -11,6 +11,8 @@ NSX-T provides a converged management and control plane that is referred to as t
 
 To provision an NSX-T load balancer for the TKGI API Server VM, complete the following steps.
 
+If you deploy your <%= vars.product_short %> using [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), You can skip to Step 2
+
 ##<a id='create-nsgroup'></a> Step 1: Create NSGroup
 
 If you are using a Dynamic Server Pool, create an NSGroup. If you are using a Static Server Pool, skip this step.
@@ -31,6 +33,8 @@ If you are using a Dynamic Server Pool, create an NSGroup. If you are using a St
 
 The TKGI API Sever virtual machine hosts two server processes and exposes two ports: the TKGI API Server on port 9021, and the UAA server on port 8443. Each NSX-T Virtual Server listens on one port. Thus, you need two Virtual Servers, one for the TKGI API server and the other for UAA.
 
+If you deploy your <%= vars.product_short %> using [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), You only need to deploy ONE virtual Server
+
 ###<a id='create-vs-api'></a> Create a Virtual Server for the TKGI API Server
 
 1. In NSX Manager, select **Networking > Load Balancing > Virtual Servers**.
@@ -38,12 +42,13 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
 1. Configure General Properties for the Virtual Server.
   - Name: `tkgi-api-server`, for example
   - Application Types: Choose **Layer 7 TCP**. Or, you can choose Layer 4, in which case you don't have to configure SSL for the virtual server.
+  For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), Choose Layer 4
   - Application Profile: `default-http-lb-app-profile`
   - Access Log: Disabled
   - Click **Next**
 1. Configure Virtual Server Identifiers.
   - IP Address: Enter an IP address from the floating pool, such as `192/168.160.108`
-  - Port: **9021** (for the TKGS API Server)
+  - Port: **9021** (for the TKGS API Server). For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), Set Port: **9021,8443***
   - Click **Next**
 1. Configure Server Pool and Rules.
   - Click **Create a New Server Pool**
@@ -51,7 +56,7 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   - Load Balancing Algorithm: **ROUND_ROBIN** (for example)
   - Click **Next**
 1. Configure SNAT Translation for the Server Pool:
-  - Translation Mode: Auto Map
+  - Translation Mode: Auto Map. For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), Translation Mode: **IP List**. IP Address: Same IP address entered inside Virtual Server Identifiers.
   - Click **Next**
 1. OPTION 1: Configure Pool Members for the Static Server Pool:
   - Membership Type: **Static**
@@ -61,6 +66,10 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   - Membership Type: **Dynamic**
   - Set NSGroup as the NSGroup name created in Step 1, such as **tkgi-api**
   - Set Max Group IP Address List to 3, since we can only have up to 3 pks api instances
+  - Click **Next**
+  For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias),
+  - Membership Type: **Static**
+  - Static Membership: Add your <%= vars.product_short %> API Server one by one, leave port column empty
   - Click **Next**
 1. Configure Health Monitors for the virtual server:
   - Click **Create A New Active Monitor**
@@ -84,7 +93,7 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   - Click **Next**
 1. Persistence Profiles is optional. Click **Next**.
 1. Configure Client Side SSL (only if L7 Application Type is selected). Use the default certificates. Click **Next**.
-1. Configure Server Side SSL(only if L7 Application Type is selected). Use the default certificates. Click **Finish**.
+1. Configure Server Side SSL (only if L7 Application Type is selected). Use the default certificates. Click **Finish**.
 
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-03.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-04.png" width="425">
@@ -104,6 +113,8 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-18.png" width="425">
 
 ###<a id='create-vs-uaa'></a> Create a Virtual Server for the UAA Server
+
+Skip this if you deploy as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias)
 
 1. Select the tkgs-api-server Virtual Server you created and and click **Clone**.
 1. Click **Edit** to change the content and configure the virtual server for UAA.
@@ -141,7 +152,7 @@ The TKGI API Sever virtual machine hosts two server processes and exposes two po
   - Click **Next**
 1. Persistence Profiles is optional. Click **Next**.
 1. Configure Client Side SSL (only if L7 Application Type is selected). Use the default certificates. Click **Next**.
-1. Configure Server Side SSL(only if L7 Application Type is selected). Use the default certificates. Click **Finish**. 
+1. Configure Server Side SSL (only if L7 Application Type is selected). Use the default certificates. Click **Finish**.
 
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-19.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-20.png" width="425">
@@ -211,7 +222,7 @@ To configure a new Tier-1 router:
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-38.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-39.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-40.png" width="425">
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-41.png" width="425">  
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-41.png" width="425">
 
 ##<a id='attach-lb-vs'></a> Step 5: Attach the Load Balancer to the Virtual Servers
 
@@ -225,12 +236,14 @@ To configure a new Tier-1 router:
 1. Attach to the tkgi-api-uaa virtual server. You should see it inside the Virtual Servers tab.
 1. Click Ok.
 
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-42.png" width="425">  
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-43.png" width="425">  
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-44.png" width="425">  
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-45.png" width="425">  
- 
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-42.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-43.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-44.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-45.png" width="425">
+
 ##<a id='config-tile'></a> Step 6: Configure TKGI to Use the Load Balancer
+
+Skip this if you deployed as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias)
 
 Now that the load balancer for the TKGI API control plane is configured, update the TKGI tile to point to the load balancer.
 
@@ -262,18 +275,18 @@ Now that the load balancer for the TKGI API control plane is configured, update 
   - For static server pools, this operation will add vm as server pool member
   - For dynamic server pools, this operation will add vm to the corresponding nsgroup.
 
-    <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-46.png" width="425">  
+    <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-46.png" width="425">
 
-###<a id='test-lb'></a> Step 7: Test the Load Balancer
+##<a id='test-lb'></a> Step 7: Test the Load Balancer
 
-1. In NSX Manager, verify that the operatational status of the load balancer is up. 
+1. In NSX Manager, verify that the operatational status of the load balancer is up.
 1. Make sure the Virtual Servers are up.
 1. Make sure the Server Pools are up.
 1. Test the load balancer as described below.
 
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-47.png" width="425">  
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-48.png" width="425">  
-  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-49.png" width="425">  
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-47.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-48.png" width="425">
+  <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-49.png" width="425">
 
 Using your TKGI client jump host, change the TKGI API hostname to resolve to the Load Balancer IP. In this example, `192.168.160.108` is the IP address of the load balancer.
 
@@ -291,7 +304,7 @@ ff02::2 ip6-allrouters
 192.168.160.108  tkgi.tkgi-api.cf-app.com
 ```
 
-Now, log in to the TKGI API Server via the load balancer. 
+Now, log in to the TKGI API Server via the load balancer.
 
 ```
 kubo@jumper:~$ tkgi login -a tkgi.tkgi-api.cf-app.com -u lana -p password -k && pks clusters
