@@ -1,0 +1,102 @@
+---
+title: Configure Cluster Proxies
+owner: TKGI
+topic: proxies-cluster
+---
+
+This topic describes how customize HTTP/HTTPS proxies for individual <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) clusters.
+The proxies apply to traffic from the cluster's Kubernetes and Docker processes, such as the Kubernetes API server, Kube Controller, Kubelet, and Docker daemon.
+
+To configure global HTTP/HTTPS proxies for <%= vars.k8s_runtime_abbr %> on vSphere or AWS, see:
+
+- **vSphere**: [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on NSX-T](proxies.html), or
+- **AWS**: [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on AWS](proxies-aws.html)
+
+These two topics also cover how the proxies work, and how they can be useful.
+
+##<a id='settings'></a>Proxy Configuration Settings
+
+To configure HTTP/HTTPS settings for a <%= vars.k8s_runtime_abbr %> cluster, you first define them
+in a cluster configuration JSON file on your local filesystem.
+
+Once the settings are defined in a configuration file, you can pass the file location to the `--config` flag of `tkgi create-cluster` or `tkgi update-cluster`.
+
+<p class="note"><strong>Note:</strong> Cluster configuration files can also include settings for non-proxy features, such as enabling cluster access by Group Managed Service Accounts (GMSAs).
+You combine all such settings into a single, general-purpose configuration file to pass to the <code>--config</code> flag.</p>
+
+Proxy settings that you can configure are:
+
+  - `http_proxy`: HTTP proxy URL and credentials. This overrides the global **HTTP Proxy** settings in the <%= vars.k8s_runtime_abbr %> tile > **Networking** pane.
+  - `https_proxy`: HTTPS proxy URL and credentials. This overrides the global **HTTP Proxy** settings in the <%= vars.k8s_runtime_abbr %> tile.
+  - `no_proxy`: Comma-separated list of IP addresses that bypass the proxy for internal communication. This interacts with the tile's global **No Proxy** setting based on the `global_no_proxy_merge` setting, below.
+  - `global_no_proxy_merge`: Boolean value. The default `false` setting merges the `no_proxy` setting above with the global **No Proxy** list set in the tile. Setting this to `true` overrides the global **No Proxy** list.
+
+For example, this configuration file overrides the **No Proxy** list set in the tile, and sets a complete list of sources to exempt from proxying: 
+
+```
+{
+  "http_proxy":{
+     "url":"http://example.com",
+     "username":"admin",
+     "password":"admin"
+  },
+  "https_proxy":{
+     "url":"http://example.com",
+     "username":"admin",
+     "password":"admin"
+  },
+  "no_proxy":"127.0.0.1,localhost,*.example.com,198.51.100.0/24",
+  "global_no_proxy_merge":true
+}
+```
+
+
+## <a id='create'></a>Create a Cluster with a Custom Proxy Configuration
+
+To create a cluster with a custom proxy configuration:
+
+1. Define the proxy settings in a configuration file, as described in [Proxy Configuration Settings](#settings), above.
+
+1. Pass the file location to the `--config` flag of `tkgi create-cluster`.
+See [Creating Clusters](create-cluster.html) for more information.
+
+
+## <a id='create'></a>Change a Cluster's Proxy Configuration
+
+To change a cluster's proxy configuration:
+
+1. Define the proxy settings in a configuration file, as described in [Proxy Configuration Settings](#settings), above.
+  - To retain a previous setting, do not include it in the configuration file.
+  - To unset a previous setting, set it to `""` in the configuration file.
+
+1. Run the following command to update the cluster with the configuration file:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config CONFIG-FILE-NAME
+    ```
+
+    Where: 
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
+    * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
+
+
+## <a id='list'></a>View a Cluster's Proxy Configuration
+
+You can see a cluster's current proxy configuration by viewing its BOSH manifest:
+
+1. Identify the names of your cluster deployments:
+
+    ```
+    bosh deployments
+    ```
+    <p class="note"><strong>Note:</strong> Cluster deployment names start with <code>service-instance_</code>.</p>
+1. For any cluster you want to view, download its manifest:
+    ```
+    bosh -d DEPLOYMENT-NAME manifest > /tmp/YOUR-DEPLOYMENT-MANIFEST.yml
+    ```
+    
+    Where:
+    * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.
+    * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.
+
+1. Search the manifest for `proxy` to see its proxy settings.
