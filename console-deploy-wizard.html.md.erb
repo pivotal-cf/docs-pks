@@ -16,7 +16,7 @@ This topic describes how to use the configuration wizard to deploy <%= vars.prod
 - Depending on the type of networking you want to use, your infrastructure must meet the appropriate prerequisites. For information about networking prerequisites, see the following topics:
   - [Prerequisites for an Automated NAT Deployment to NSX-T Data Center](console-prereqs-nsxt-automatednat.html)
   - [Prerequisites for a Bring Your Own Topology Deployment to NSX-T Data Center](console-prereqs-nsxt-byot.html)
-  - [Prerequisites for a Flannel Network](console-prereqs-flannel.html)
+  - [Prerequisites for a vSphere Without NSX-T Network](console-prereqs-flannel.html)
 - [Log in to <%= vars.product_short %> Management Console](console-deploy-ova.html#access-console).
 
 ## <a id='launch-wizard'></a>Step 0: Launch the Configuration Wizard
@@ -48,7 +48,7 @@ Provide connection information for the container networking interface to use wit
 
 - **Automated NAT deployment**: Deploy <%= vars.product_short %> to an existing NSX-T Data Center network that you have not fully set up, that <%= vars.product_short %> Management Console configures for you. See [Configure an Automated NAT Deployment to NSX-T Data Center](#nsxt-automated-nat) below for instructions.
 - **Bring your own topology**: Deploy <%= vars.product_short %> to an existing NSX-T Data Center network that you have fully configured yourself. See [Configure a Bring Your Own Topology Deployment to NSX-T Data Center](#nsxt-byot) below for instructions.
-- **Flannel**: Deploy <%= vars.product_short %> to a Flannel network that <%= vars.product_short %> Management Console provisions for you. See [Configure a Flannel Network](#flannel) below for instructions.
+- **Antrea and Flannel**: Deploy <%= vars.product_short %> to a vSphere without NSX-T network that <%= vars.product_short %> Management Console provisions for you. See [Configure a vSphere without NSX-T Network](#flannel) below for instructions.
 
 ![Select Networking](images/console/select-networking.png)
 [View a larger version of this image.](images/console/select-networking.png)
@@ -159,9 +159,9 @@ If you enable hybrid NAT mode, the <%= vars.product_short %> management plane ru
 
 For the next steps, see [Configure Identity Management](#identity).
 
-### <a id='flannel'></a>Configure a Flannel Network
+### <a id='flannel'></a>Configure a vSphere Without NSX-T Network
 
-Provide networking information so that <%= vars.product_short %> Management Console can provision a Flannel network for you during deployment. Make sure that you have the information listed in [Prerequisites for a Flannel Network](console-prereqs-flannel.html) before you begin.
+Provide networking information so that <%= vars.product_short %> Management Console can provision an Antrea or Flannel network for you during deployment. Make sure that you have the information listed in [Prerequisites for a vSphere Without NSX-T Network](console-prereqs-flannel.html) before you begin.
 
 1. Select the **Flannel** radio button.
 1. Configure the Deployment Network Resource options.
@@ -171,7 +171,7 @@ Provide networking information so that <%= vars.product_short %> Management Cons
 	* **Deployment DNS**: Enter the IP address for the deployment network DNS server, for example 192.168.111.155.
 	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
     
-    ![Flannel network configuration](images/console/flannel-network.png)
+    ![vSphere without NSX-T network configuration](images/console/flannel-network.png)
 1. Configure the Service Network Resource options.
 	* **Service Network**: Select a vSphere network to use as the service network.
 	* **Service Network CIDR**: Enter a CIDR range to use for the service network, for example 10.192.182.1/23.
@@ -180,12 +180,12 @@ Provide networking information so that <%= vars.product_short %> Management Cons
 	* **Service Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify the reserved IP range after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
 	* **NTP Server**: Enter the IP address of an NTP server.
     
-    ![Flannel service network configuration](images/console/flannel-service-network.png)
+    ![vSphere without NSX-T service network configuration](images/console/flannel-service-network.png)
 1. Configure the Kubernetes network options.
 	* **Pod Network CIDR**: Enter a CIDR range to use for pods, for example 11.192.182.1/31.
 	* **Service Network CIDR**: Enter a CIDR range to use for the Kubernetes services, for example 10.192.182.1/23.
     
-    ![Flannel Kubernetes network configuration](images/console/flannel-k8s-network.png)
+    ![vSphere without NSX-T Kubernetes network configuration](images/console/flannel-k8s-network.png)
 1. Click **Next** to configure identity management.
 
 ## <a id='identity'></a>Step 3: Configure Identity Management
@@ -387,7 +387,7 @@ A plan is a cluster configuration template that defines the set of resources for
 
 **Notes about Windows Worker Nodes**
 
-- You can use Windows worker nodes if you implement either NSX-T Data Center or Flannel networking.
+- You can use Windows worker nodes if you implement either vSphere with NSX-T or vSphere without NSX-T Data Center networking.
 - You can create a maximum of 3 plans that implement Windows worker nodes in a given <%= vars.product_short %> deployment.
 - If you use Windows worker nodes, certain options are not available, and the default values of other options change. See the option descriptions below for more information.
 - If you use Windows worker nodes, by default one Linux worker node is deployed per Windows cluster. The Linux node provides cluster services to the Windows worker nodes. You can optionally make the cluster services Linux node highly available, in which case two Linux nodes are deployed.
@@ -643,8 +643,8 @@ When all of the sections of the wizard are green, you can generate a YAML config
 	1. Locate the `opsman_fqdn:` entry in the YAML file.
 	1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN:<pre>opsman_fqdn: "myopsman.example.com"</pre>
 	1. Make sure that the FQDN is mapped to the following IP address:
-    	- For NSX-T deployments map it to the first address in the floating IP range.
-    	- For Flannel deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.
+    	- For vSphere with NSX-T deployments map it to the first address in the floating IP range.
+    	- For vSphere without NSX-T deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.
     <br>
     <br>
     If you start the deployment and you have not mapped the FQDN to an IP address, the deployment fails with an error. If this happens, configure the mapping as above, return to the YAML editor, and start the deployment again.
@@ -679,7 +679,7 @@ MIIEpAIBAAKCAQ [...] lOiR19fPqc=
 	1. Locate the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries in the YAML file.
 	1. Update the `additional_dep_reserved_ip_range:` and `additional_svc_reserved_ip_range:` entries to specify reserved IP ranges in the deployment and service networks:
 	   - Deployment network:<pre>additional_dep_reserved_ip_range: "172.16.100.2,172.16.100.3-172.16.100.10"</pre>
-	   - Service network (Flannel only):<pre>additional_svc_reserved_ip_range: ""</pre>
+	   - Service network (vSphere without NSX-T only):<pre>additional_svc_reserved_ip_range: ""</pre>
 
 1. Click **Apply Configuration** then **Continue** to deploy <%= vars.product_short %>.
 
