@@ -1,0 +1,96 @@
+---
+title: Configure Group Managed Service Accounts for Clusters
+owner: TKGI
+topic: gmsa-cluster
+---
+
+This topic describes how customize group Managed Service Account (gMSA) settings for Windows worker-based Kubernetes clusters in <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>).
+
+If you have Windows Server with Active Directory, and you have set up a gMSA, configuring gMSA settings for a <%= vars.k8s_runtime_abbr %> cluster lets your gMSA control access to the cluster's Windows workloads.
+For information about gMSAs see [Group Managed Service Accounts Overview](https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) in the Microsoft Windows Server documentation.
+
+##<a id='settings'></a>GMSA Configuration Settings
+
+To configure gMSA settings for a <%= vars.k8s_runtime_abbr %> cluster, you first define them
+in a cluster configuration JSON file on your local filesystem.
+
+Once the settings are defined in a configuration file, you can pass the file location to the `--config` flag of `tkgi create-cluster` or `tkgi update-cluster`.
+
+<p class="note"><strong>Note:</strong> Cluster configuration files can also include settings for non-gMSA features, such as proxies.
+You combine all such settings into a single, general-purpose configuration file to pass to the <code>--config</code> flag.</p>
+
+gMSA settings that you can configure are:
+
+  - `enable_gmsa`: _Boolean_. `true` to configure gMSA for a cluster.
+  - `domain_controller_ip_address`: Address of Windows Server domain controller in Active Directory (AD) that generates access tokens for the gMSA
+  - `domain_fqdn`: TK
+  - `domain_user_username`: TK for TK
+  - `domain_user_password`: TK for TK
+  - `domain_security_group`: TK in AD
+  - `domain_service_account`: TK in AD
+
+For example, this configuration file sets TK: 
+
+```
+{
+  "enable_gmsa":true,
+  "domain_fqdn":"",
+  "domain_user_username":"",
+  "domain_user_password":"",
+  "domain_":"",
+  "domain_security_group":"",
+  "domain_service_account":""
+}
+```
+
+
+## <a id='create'></a>Create a Cluster with a gMSA Configuration
+
+To create a cluster with a custom gMSA configuration:
+
+1. Define the gMSA settings in a configuration file, as described in [GMSA Configuration Settings](#settings), above.
+
+1. Pass the file location to the `--config` flag of `tkgi create-cluster`.
+See [Creating Clusters](create-cluster.html) for more information.
+
+
+## <a id='create'></a>Change a Cluster's gMSA Configuration
+
+To change a cluster's gMSA configuration:
+
+1. Define the gMSA settings in a configuration file, as described in [GMSA Configuration Settings](#settings), above.
+  - To retain a previous setting, do not include it in the configuration file.
+  - To unset a previous setting, set it to `{}` (for an object) or `""` (for a string) in the configuration file.
+
+
+1. Run the following command to update the cluster with the configuration file:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config CONFIG-FILE-NAME
+    ```
+
+    Where: 
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
+    * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
+
+
+## <a id='list'></a>View a Cluster's gMSA Configuration
+
+You can see a cluster's current gMSA configuration by viewing its BOSH manifest:
+
+1. Identify the names of your cluster deployments:
+
+    ```
+    bosh deployments
+    ```
+    <p class="note"><strong>Note:</strong> Cluster deployment names start with <code>service-instance_</code>.</p>
+1. For any cluster you want to view, download its manifest:
+    ```
+    bosh -d DEPLOYMENT-NAME manifest > /tmp/YOUR-DEPLOYMENT-MANIFEST.yml
+    ```
+    
+    Where:
+    * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.
+    * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.
+
+1. Search the manifest for the [GMSA configuration settings](#settings) above.
