@@ -4,9 +4,25 @@ owner: TKGI
 topic: proxies-cluster
 ---
 
-This topic describes how customize HTTP/HTTPS proxies for individual <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) clusters.
-The proxies apply to traffic from the cluster's Kubernetes and Docker processes, such as the Kubernetes API server, Kube Controller, Kubelet, and Docker daemon.
+This topic describes how customize HTTP/HTTPS proxies for individual 
+<%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) clusters.
 
+##<a id='overview'></a>Overview
+
+<%= vars.k8s_runtime_abbr %> applies your HTTP/HTTPS cluster proxies to traffic from the cluster's Kubernetes 
+and Docker processes, such as the Kubernetes API server, Kube Controller, Kubelet, and Docker daemon.
+
+To create or change a cluster's proxy configuration, see:  
+
+* [Create a Cluster with a Custom Proxy Configuration](#create)  
+* [Change a Cluster's Proxy Configuration](#change)  
+
+<br>
+To view a cluster's proxy configuration, see:  
+
+* [View a Cluster's Proxy Configuration](#list)  
+
+<br>
 To configure global HTTP/HTTPS proxies for <%= vars.k8s_runtime_abbr %> on vSphere or AWS, see:
 
 - **vSphere**: [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on NSX-T](proxies.html), or
@@ -14,24 +30,73 @@ To configure global HTTP/HTTPS proxies for <%= vars.k8s_runtime_abbr %> on vSphe
 
 These two topics also cover how the proxies work, and how they can be useful.
 
+## <a id='create'></a>Create a Cluster with a Custom Proxy Configuration
+
+To create a cluster with a custom proxy configuration:
+
+1. Define the proxy settings in a configuration file, as described in [Proxy Configuration Settings](#settings), below.
+
+1. Pass the file location to the `--config-file` flag of `tkgi create-cluster`.
+See [Creating Clusters](create-cluster.html) for more information.
+
+
+## <a id='change'></a>Change a Cluster's Proxy Configuration
+
+To change a cluster's proxy configuration:
+
+1. Define the proxy settings in a configuration file, as described in [Proxy Configuration Settings](#settings), below.
+  - To retain a previous setting, do not include it in the configuration file.
+  - To unset a previous setting, set it to `{}` (for an object) or `""` (for a string) in the configuration file.
+
+1. Run the following command to update the cluster with the configuration file:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE-NAME
+    ```
+
+    Where: 
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
+    * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
+
+
 ##<a id='settings'></a>Proxy Configuration Settings
 
 To configure HTTP/HTTPS settings for a <%= vars.k8s_runtime_abbr %> cluster, you first define them
 in a cluster configuration JSON file on your local filesystem.
 
-Once the settings are defined in a configuration file, you can pass the file location to the `--config-file` flag of `tkgi create-cluster` or `tkgi update-cluster`.
-
-<p class="note"><strong>Note:</strong> Cluster configuration files can also include settings for non-proxy features, such as enabling cluster access by group Managed Service Accounts (gMSAs).
-You combine all such settings into a single, general-purpose configuration file to pass to the <code>--config-file</code> flag.</p>
-
 Proxy settings that you can configure are:
 
-  - `http_proxy`: HTTP proxy URL and credentials. This overrides the global **HTTP Proxy** settings in the <%= vars.k8s_runtime_abbr %> tile > **Networking** pane.
-  - `https_proxy`: HTTPS proxy URL and credentials. This overrides the global **HTTP Proxy** settings in the <%= vars.k8s_runtime_abbr %> tile.
-  - `no_proxy`: Comma-separated list of IP addresses that bypass the proxy for internal communication. This interacts with the tile's global **No Proxy** setting based on the `global_no_proxy_merge` setting, below.
-  - `global_no_proxy_merge`: Boolean value. The default `false` setting merges the `no_proxy` setting above with the global **No Proxy** list set in the tile. Setting this to `true` overrides the global **No Proxy** list.
+<table>
+  <tr>
+    <th width=25%>Setting</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>http_proxy</code></td>
+    <td>HTTP proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings 
+      in the <%= vars.k8s_runtime_abbr %> tile > <strong>Networking</strong> pane.</td>
+  </tr>
+  <tr>
+    <td><code>https_proxy</code></td>
+    <td>HTTPS proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings 
+      in the <%= vars.k8s_runtime_abbr %> tile.</td>
+  </tr>
+  <tr>
+    <td><code>no_proxy</code></td>
+    <td>Comma-separated list of IP addresses that bypass the proxy for internal communication. 
+      This interacts with the tile's global <strong>No Proxy</strong> setting based on the 
+      <code>global_no_proxy_merge</code> setting, below.</td>
+  </tr>
+  <tr>
+    <td><code>global_no_proxy_merge</code></td>
+    <td>Boolean value. 
+      The default <code>false</code> setting merges the <code>no_proxy</code> setting above with the global 
+      <strong>No Proxy</strong> list set in the tile. Setting this to <code>true</code> overrides the global 
+      <strong>No Proxy</strong> list.</td>
+  </tr>
+</table>
 
-
+<br>
 For example, the following configuration file overrides the `http_proxy` and `https_proxy` sets in the tile 
 and merges `no_proxy` with `no_proxy` sets in the tile:
 
@@ -52,47 +117,21 @@ and merges `no_proxy` with `no_proxy` sets in the tile:
 }
 ```
 
-
-## <a id='create'></a>Create a Cluster with a Custom Proxy Configuration
-
-To create a cluster with a custom proxy configuration:
-
-1. Define the proxy settings in a configuration file, as described in [Proxy Configuration Settings](#settings), above.
-
-1. Pass the file location to the `--config-file` flag of `tkgi create-cluster`.
-See [Creating Clusters](create-cluster.html) for more information.
-
-
-## <a id='create'></a>Change a Cluster's Proxy Configuration
-
-To change a cluster's proxy configuration:
-
-1. Define the proxy settings in a configuration file, as described in [Proxy Configuration Settings](#settings), above.
-  - To retain a previous setting, do not include it in the configuration file.
-  - To unset a previous setting, set it to `{}` (for an object) or `""` (for a string) in the configuration file.
-
-1. Run the following command to update the cluster with the configuration file:
-
-    ```
-    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE-NAME
-    ```
-
-    Where: 
-    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster 
-    * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
+<p class="note"><strong>Note:</strong> Cluster configuration files can also include settings for non-proxy features, such as enabling cluster access by group Managed Service Accounts (gMSAs).
+You combine all such settings into a single, general-purpose configuration file to pass to the <code>--config-file</code> flag.</p>
 
 
 ## <a id='list'></a>View a Cluster's Proxy Configuration
 
 You can see a cluster's current proxy configuration by viewing its BOSH manifest:
 
-1. Identify the names of your cluster deployments:
+1. To identify the names of your cluster deployments:
 
     ```
     bosh deployments
     ```
     <p class="note"><strong>Note:</strong> Cluster deployment names start with <code>service-instance_</code>.</p>
-1. For any cluster you want to view, download its manifest:
+1. To download the manifest for any cluster you want to view:
 
     ```
     bosh -d DEPLOYMENT-NAME manifest > /tmp/YOUR-DEPLOYMENT-MANIFEST.yml
