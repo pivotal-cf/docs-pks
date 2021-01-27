@@ -16,7 +16,7 @@ This topic describes how to use the configuration wizard to deploy <%= vars.prod
 - Depending on the type of networking you want to use, your infrastructure must meet the appropriate prerequisites. For information about networking prerequisites, see the following topics:
   - [Prerequisites for an Automated NAT Deployment to NSX-T Data Center](console-prereqs-nsxt-automatednat.html)
   - [Prerequisites for a Bring Your Own Topology Deployment to NSX-T Data Center](console-prereqs-nsxt-byot.html)
-  - [Prerequisites for a vSphere Without NSX-T Network](console-prereqs-flannel.html)
+  - [Prerequisites for vSphere Without an NSX-T Network](console-prereqs-flannel.html)
 - [Log in to <%= vars.product_short %> Management Console](console-deploy-ova.html#access-console).
 
 ## <a id='launch-wizard'></a>Step 0: Launch the Configuration Wizard
@@ -48,7 +48,7 @@ Provide connection information for the container networking interface to use wit
 
 - **Automated NAT deployment**: Deploy <%= vars.product_short %> to an existing NSX-T Data Center network that you have not fully set up, that <%= vars.product_short %> Management Console configures for you. See [Configure an Automated NAT Deployment to NSX-T Data Center](#nsxt-automated-nat) below for instructions.
 - **Bring your own topology**: Deploy <%= vars.product_short %> to an existing NSX-T Data Center network that you have fully configured yourself. See [Configure a Bring Your Own Topology Deployment to NSX-T Data Center](#nsxt-byot) below for instructions.
-- **Antrea and Flannel**: Deploy <%= vars.product_short %> to a vSphere without NSX-T network that <%= vars.product_short %> Management Console provisions for you. See [Configure a vSphere without NSX-T Network](#flannel) below for instructions.
+- **Antrea and Flannel**: Deploy <%= vars.product_short %> with either an Antrea or Flannel network that <%= vars.product_short %> Management Console provisions for you. See [Configure an Antrea or Flannel Network](#flannel) below for instructions.
 
 ![Select Networking](images/console/select-networking.png)
 [View a larger version of this image.](images/console/select-networking.png)
@@ -87,6 +87,8 @@ Provide information about an NSX-T Data Center network that you have not already
 	* **Nodes DNS**: Enter the Domain Name Server used by the Kubernetes nodes.
 	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment. You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
 	* **Usable range of floating IPs**: Enter the floating IP range, for example **From** 192.168.160.100 **To** 192.168.160.199. Click **Add Range** to add more IP ranges.
+    
+    ![Automated NAT Deployment network resources configuraton](images/console/automatednat-network-resources.png)
 1. Optionally enable **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
 
     <p class="note"><strong>Important</strong>: If NSX-T Data Center uses custom certificates and you do not provide the CA certificate for NSX Manager, <%= vars.product_short %> Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same datacenter as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX-T manager CA certificate.</p>
@@ -101,7 +103,7 @@ Provide information about an NSX-T Data Center network that you have not already
 
     If you do not select **Manage certificates manually for NSX**, the management console generates a certificate for you.
     
-    ![Automated NAT Deployment network resources configuraton](images/console/automatednat-network-resources.png)
+    ![Bring your own topology network options](images/console/byot-network-options.png)
 1. Optionally enable **Disable SSL certificates verification** to allow unsecured connections to NSX Manager.
 1. Click **Next** to configure identity management.
 
@@ -133,12 +135,10 @@ Provide information about an NSX-T Data Center network that you have already ful
     ![Bring your own topology network configuration](images/console/byot-network.png)
 1. Optionally disable **NAT Mode** to implement a routable (No-NAT) topology.
 
-     <%= vars.product_short %> supports NAT topologies, No-NAT with logical switch (NSX-T) topologies, and multiple tier-0 routers for tenant isolation. For information about implementing a routable topology, see [No-NAT Topology](./nsxt-topologies.html#topology-no-nat) in *NSX-T Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition*.
+     <%= vars.product_short %> supports NAT topologies, No-NAT with logical switch (NSX-T) topologies, No-NAT with virtual switch (VSS/VDS) topologies, and multiple tier-0 routers for tenant isolation. For information about implementing a routable topology, see [No-NAT Topology](./nsxt-topologies.html#topology-no-nat) in *NSX-T Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition*.
 1. If you left NAT mode enabled, optionally enable **Hybrid NAT Mode**.
 <br><br>
 If you enable hybrid NAT mode, the <%= vars.product_short %> management plane runs on a routable subnet but the cluster node network uses a non-routable subnet.
-    
-    ![Bring your own topology NAT options](images/console/byot-nat-modes.png)
 1. Optionally enable **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
 
     <p class="note"><strong>Important</strong>: If NSX-T Data Center uses custom certificates and you do not provide the CA certificate for NSX Manager, <%= vars.product_short %> Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same datacenter as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX-T manager CA certificate.</p>
@@ -159,11 +159,13 @@ If you enable hybrid NAT mode, the <%= vars.product_short %> management plane ru
 
 For the next steps, see [Configure Identity Management](#identity).
 
-### <a id='flannel'></a>Configure a vSphere Without NSX-T Network
+### <a id='flannel'></a>Configure an Antrea or Flannel Network
 
-Provide networking information so that <%= vars.product_short %> Management Console can provision an Antrea or Flannel network for you during deployment. Make sure that you have the information listed in [Prerequisites for a vSphere Without NSX-T Network](console-prereqs-flannel.html) before you begin.
+Provide networking information so that <%= vars.product_short %> Management Console can provision an Antrea or Flannel network for you during deployment. Make sure that you have the information listed in [Prerequisites for vSphere Without an NSX-T Network](console-prereqs-flannel.html) before you begin.
 
-1. Select the **Flannel** radio button.
+1. Select either the **Antrea** or **Flannel** radio button.
+<br><br>
+The options for Antrea and Flannel networking are identical.
 1. Configure the Deployment Network Resource options.
 	* **Deployment Network**: Select a vSphere network on which to deploy <%= vars.product_short %>. 
 	* **Deployment Network CIDR**: Enter a CIDR range to use for <%= vars.product_short %> components, for example 10.192.182.1/22.
@@ -346,7 +348,7 @@ You can only select resources that are not already included in another zone. You
 
 ## <a id='storage'></a>Step 5: Configure Resources and Storage
 
-Resource Settings allow you to configure the resources that are allocated to the VM on which the <%= vars.product_short %> API and other component services, such as UAA, run. Allocate resources according to the workloads that TKGI will run.
+Resource Settings allow you to configure the resources that are allocated to the VM on which the <%= vars.product_short %> API and other component services, such as UAA, run. Allocate resources according to the workloads that TKGI will run. You can also enable High Availability for the <%= vars.control_plane_db %> and deploy multiple instances of the TKGI API VM.
 
 <%= vars.product_short %>, the MySQL database runs on a separate VM to the <%= vars.product_short %> API and other components.
 
@@ -360,10 +362,12 @@ You can use different datastores for the storage of permanent and ephemeral data
 
 You can use VMware vSAN, Network File Share (NFS), or VMFS storage for ephemeral, permanent, and Kubernetes persistent storage. Datastores can only be selected if their minimum capacity is greater than 250GB. 
 
+1. Optionally toggle **<%= vars.control_plane_db %>** to enable database HA mode.
 1. For **<%= vars.control_plane_db %> Persistent Disk Size**, select the size of the persistent disk for the <%= vars.product_short %> MySQL database VM.
 <br>Set the <%= vars.control_plane_db %> Persistent Disk Size according to the amount of data that you expect the cluster workload to store.
 1. Use the **<%= vars.control_plane_db %> VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the <%= vars.product_short %> MySQL database VM. 
 <br>Choose the configuration for the <%= vars.control_plane_db %> VM depending on the volume of database operations that it will run.
+1. Use the **TKGI API Instances** drop-down menu to select 1, 2, or 3 instances of the TKGI API VM.
 1. For **<%= vars.control_plane %> Persistent Disk Size**, select the size of the persistent disk for the <%= vars.product_short %> API VM.
 <br>Set the <%= vars.control_plane %> Persistent Disk Size according to the number of pods that you expect the cluster workload to run continuously. It is recommended to allocate 10GB for every 500 pods. For example:
    - For 1000 pods, allocate 20GB
