@@ -185,9 +185,9 @@ A SSL certificate is automatically created for each NSX-T Manager. You can verif
 nsx-manager-1> get certificate cluster
 ```
 
-You will see that common name (CN) listed in the certificate is the hostname of the appliance, for example `CN=nsx-manager-1`. This means the cluster certificate is linked to a particular NSX Manager, in this case NSX-T Manager 1. 
+You will see that Subject Alternative Name (SAN) listed in the certificate is the hostname of the appliance, for example `SAN=nsx-manager-1`. This means the cluster certificate is linked to a particular NSX Manager, in this case NSX-T Manager 1. 
 
-If you go to **System** > **Certificates**, you will see there is no certificate for the NSX-T manager VIP. As such you need to generate a new SSL certificate that uses the NSX-T Management VIP address so that the the cluster certificate contains `CN=VIP-ADDRESS`.
+If you go to **System** > **Certificates**, you will see there is no certificate for the NSX-T manager VIP. As such you need to generate a new SSL certificate that uses the NSX-T Management VIP address so that the the cluster certificate contains `SAN=VIP-ADDRESS`.
 
   <img src="images/nsxt/nsxt-30/nsx-manager-1-34.png">
 
@@ -210,17 +210,17 @@ Complete the following steps to generate and register a SSL certificate and priv
     stateOrProvinceName = California
     localityName = CA
     organizationName = NSX
-    commonName =                # DO NOT USE, USE SAN
+    commonName = VIP-ADDRESS  #CAN ONLY USE IF SAN IS ALSO USED
 
     [ SAN ]
-    subjectAltName = DNS:NSX-VIP-FQDN,IP:IP-ADDRESS   # REPLACE
+    subjectAltName = DNS:NSX-VIP-FQDN,IP:VIP-ADDRESS  #MUST USE
     ```
 
     Where:  
     * `NSX-VIP-FQDN` is your NSX VIP FQDN.  
-    * `IP-ADDRESS` is your IP address.
+    * `VIP-ADDRESS` is the VIP address for the NSX-T Management cluster.
 
-    <p class="note"><strong>Note</strong>: You must use the SAN field, not the CN field.</p>
+    <p class="note"><strong>Note</strong>: At a minimum you must use the SAN field for identifying the NSX Management VIP. You can also use the CN field, as long as the SAN field is populated. If you use only the CN field, the certificate will not be valid for TKGI.</p>
 
 1. Copy the `nsx-cert.cnf` file to a machine with `openssl` if yours doesn't have it.
 
@@ -253,10 +253,10 @@ Complete the following steps to generate and register a SSL certificate and priv
     openssl x509 -in nsx.crt -text -noout
     ```
 
-    You should see that the common name (CN) and Subject Alternative Name are both the VIP address. For example:
+    You should see that the Subject Alternative Name (SAN) and common name (CN) (if used) are both the VIP address. For example:
 
     ```
-    Subject: C=US, ST=California, L=CA, O=NSX, CN= myvip.mydomain.com
+    Subject: C=US, ST=California, L=CA, O=NSX, CN=myvip.mydomain.com
     ...
     X509v3 extensions:
         X509v3 Subject Alternative Name:
