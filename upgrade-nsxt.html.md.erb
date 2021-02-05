@@ -38,17 +38,77 @@ consult [Product Snapshot](release-notes.html) in _Release Notes_ for <%= vars.k
 
 ## <a id="prepare"></a>Prepare to Upgrade
 
-If you have not already, complete all of the steps in
-[Upgrade Preparation Checklist for <%= vars.product_short %> v1.10](checklist.html).
+To prepare for upgrading <%= vars.product_short %> 
+from <%= vars.k8s_runtime_abbr %> v1.9 to <%= vars.k8s_runtime_abbr %> v1.10:  
+
+* Complete all of the steps in
+[Upgrade Preparation Checklist for <%= vars.product_short %> v1.10](checklist.html).  
+* Review the upgrade procedures in [Upgrade Order for <%= vars.product_short %> Environments on vSphere](upgrade-scenarios.html).  
 
 ## <a id="upgrade"></a>Perform the Upgrade
 
 This section describes the steps required to upgrade to <%= vars.k8s_runtime_abbr %> v1.10:
 
+1. [Upgrade NSX-T Data Center v2.5 to v3.0 or v3.1](#upgrade-nsxt)
 1. [Upgrade Ops Manager](#upgrade-opsman)
 1. [Download and Import <%= vars.k8s_runtime_abbr %> v1.10](#stage-tkgi)
 1. [Download and Import Stemcells](#stemcell)
 1. [Upgrade the <%= vars.k8s_runtime_abbr %> Tile](#upgrade-tkgi)
+
+### <a id="upgrade-nsxt"></a>Upgrade NSX-T Data Center to v3.0 or v3.1
+
+<%= vars.product_short %> v1.10 supports running on NSX-T v3.0 and v3.1:  
+
+* If you are using NSX-T v2.5, you must upgrade from NSX-T v2.5 to NSX-T v3.0 or v3.1. 
+* If you are using NSX-T v3.0 or later, you have the option to upgrade to NSX-T v3.1.  
+
+<br>
+To upgrade NSX-T to NSX-T v3.0 or v3.1:  
+
+1. Confirm that you are upgrading NSX-T to a version compatible with
+<%= vars.k8s_runtime_abbr %> v1.10. 
+For a list of NSX-T 3.0 and 3.1 versions compatible with
+<%= vars.k8s_runtime_abbr %> v1.10,
+see [Product Snapshot](release-notes.html) in _Release Notes_ for
+<%= vars.k8s_runtime_abbr %> v1.10.
+  <p class="note warning">
+  <strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.</p>
+<%#
+1. Confirm that you have upgraded all <%= vars.k8s_runtime_abbr 
+% >-provisioned Kubernetes clusters to TKGI v1.10 using **Upgrade all clusters errand** in Ops Manager or using the <%= vars.k8s_runtime_abbr 
+% > CLI.
+
+    <p class="note"><strong>Note:</strong> This updates your Kubernetes clusters to the version of Kubernetes and version of NCP that are included with <%= vars.k8s_runtime_abbr 
+      % > v1.10.</p>
+%>
+1. If upgrading to NSX-T v3.1.0, note the current DRS mode setting, then change DRS mode to **Manual**. 
+For more information, 
+see [Pods Stop After Upgrading From NSX-T v3.0.2 to v3.1.0](release-notes.html#1-10-0-nsxt-302-310)
+in the <%= vars.product_short %> _Release Notes_.
+
+1. Confirm that your vSphere v6.5, v6.7, or v7.0 installation is on the supported version and patch for NSX-T v3.0.
+  - Refer to the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&175=&1=).
+  - If necessary, update to the required vSphere version or patch before proceeding with the upgrade of NSX-T.
+
+1. Upload the NSX-T upgrade bundle using the NSX-T Manager and proceed with the upgrade process by following the instructions in the UI.
+
+    <img src="images/nsxt/nsxt-30/upgrade-09.png">
+
+    For more information, refer to the [NSX-T Data Center Upgrade Guide](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/upgrade/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) documentation.
+
+1. If you set DRS mode to **Manual** above, restore DRS to its original setting.
+1. If you made architectural changes to your NSX-T environment that affect <%= vars.k8s_runtime_abbr %>,
+such as adding or updating a [VIP address](./nsxt-3-0-install.html#nsxt30-t0-router-config), or
+a [load balancer](./nsxt-3-0-install.html#nsxt30-edge-nodes) for the NSX-T Management Cluster,
+update the BOSH Director and <%= vars.k8s_runtime_abbr %> tiles with the new or updated IP addresses:
+  -  In the BOSH Director tile > **vCenter Configuration** pane, update **NSX Address** and **NSX CA Cert**.
+  - In the <%= vars.k8s_runtime_abbr %> tile > **Networking** pane, update **NSX Manager hostname** and **NSX Manager CA Cert**.
+  - After making any updates to the BOSH Director or <%= vars.k8s_runtime_abbr %> tiles:
+      1. On the **Installation Dashboard** in Ops Manager,
+      click **Review Pending Changes**.
+      1. Expand the **Errands** list for <%= vars.k8s_runtime_abbr %>.
+      1. Ensure that the **Upgrade all clusters errand** is selected.
+      1. Click **Apply Changes**.
 
 ### <a id="upgrade-opsman"></a>Upgrade Ops Manager
 
@@ -264,45 +324,6 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
     1.10.0  tkgi-cluster-2-medium      1.18.8       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
     1.10.0  tkgi-cluster-3-large       1.18.8       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
-
-## <a id="upgrade-nsxt"></a>Upgrade NSX-T Data Center v2.5 to v3.0
-
-  <p class="note warning">
-  <strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.</p>
-
-If you are using NSX-T v2.5, you can upgrade to NSX-T v3.0.
-For a list of NSX-T 2.5 and 3.0 versions compatible with
-<%= vars.k8s_runtime_abbr %> v1.10,
-see [Product Snapshot](release-notes.html) in _Release Notes_ for
-<%= vars.k8s_runtime_abbr %> v1.10.
-
-1. Confirm that you have upgraded all <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes clusters to TKGI v1.10 using **Upgrade all clusters errand** in Ops Manager or using the <%= vars.k8s_runtime_abbr %> CLI.
-
-    <p class="note"><strong>Note:</strong> This updates your Kubernetes clusters to the version of Kubernetes and version of NCP that are included with <%= vars.k8s_runtime_abbr %> v1.10.</p>
-
-1. Confirm that your vSphere v6.5, v6.7, or v7.0 installation is on the supported version and patch for NSX-T v3.0.
-  - Refer to the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&175=&1=).
-  - If necessary, update to the required vSphere version or patch before proceeding with the upgrade of NSX-T.
-
-1. Upload the NSX-T upgrade bundle using the NSX-T Manager and proceed with the upgrade process by following the instructions in the UI.
-
-    <img src="images/nsxt/nsxt-30/upgrade-09.png">
-
-    For more information, refer to the [NSX-T Data Center Upgrade Guide](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/upgrade/GUID-E04242D7-EF09-4601-8906-3FA77FBB06BD.html) documentation.
-
-1. If you made architectural changes to your NSX-T environment that affect <%= vars.k8s_runtime_abbr %>,
-such as adding or updating a [VIP address](./nsxt-3-0-install.html#nsxt30-t0-router-config), or
-a [load balancer](./nsxt-3-0-install.html#nsxt30-edge-nodes) for the NSX-T Management Cluster,
-update the BOSH Director and <%= vars.k8s_runtime_abbr %> tiles with the new or updated IP addresses:
-  -  In the BOSH Director tile > **vCenter Configuration** pane, update **NSX Address** and **NSX CA Cert**.
-  - In the <%= vars.k8s_runtime_abbr %> tile > **Networking** pane, update **NSX Manager hostname** and **NSX Manager CA Cert**.
-  - After making any updates to the BOSH Director or <%= vars.k8s_runtime_abbr %> tiles:
-      1. On the **Installation Dashboard** in Ops Manager,
-      click **Review Pending Changes**.
-      1. Expand the **Errands** list for <%= vars.k8s_runtime_abbr %>.
-      1. Ensure that the **Upgrade all clusters errand** is selected.
-      1. Click **Apply Changes**.
-
 
 ##<a id='upgrade-vsphere'></a> Upgrade to vSphere 7
 
