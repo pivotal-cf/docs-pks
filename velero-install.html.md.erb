@@ -262,11 +262,12 @@ pod/restic-wfxmg             0/1     CrashLoopBackOff   1          30s
 pod/velero-8dc7498d9-9v7x4   1/1     Running            0          30s
 ```
 
-###<a id='velero-privileged'></a> Enable Privileged Mode and Modify the Host Path
+###<a id='velero-privileged'></a> Modify the Host Path
 
-To run the 3-pod Restic DaemonSet on a Kubernetes cluster in TKGI, you must modify the Restic DaemonSet spec. For more information as to why, see the [Restic documentation](https://velero.io/docs/v1.1.0/restic/). In addition, the hostPath should be changed from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`. The instructions for both of these configurations are provided below.
-
-In addition, you must enable the **Allow Privileged** option in your plan configuration so that Restic is able to mount the `hostPath`. See [Plan Configuration](./installing-nsx-t.html#plans) in the TKGI documentation for details. If you change the plan, you will need to redeploy the cluster. Note that Because you are allowing privileged containers in the cluster, you should apply PSP to control pod access. See [Enabling Pod Security Policy](./pod-security-policy.html). 
+To run the 3-pod Restic DaemonSet on a Kubernetes cluster in TKGI, you must modify the Restic DaemonSet spec. 
+For more information as to why, see the [Restic documentation](https://velero.io/docs/v1.1.0/restic/). 
+In addition, the hostPath should be changed from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`. 
+The instructions for both of these configurations are provided below.  
 
 Verify the 3-pod Restic DaemonSet: 
 
@@ -372,36 +373,41 @@ aws_secret_access_key = clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx
 	Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
 	</pre>
 
-5. Perform post-installation configurations.
+5. After installing, configure the Restic post-installation settings:  
+    * Customize the Restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) 
+    for the pod during the restore process. 
+    This can be done by creating a configmap and applying it in the velero namespace, such as `kubect apply -f restic-cm.yaml -n velero`. 
+    Download the example configmap [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/velero-restic/) provided for such purposes.
+    * Modify the host path by editing the Restic daemonset manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`. 
+    Verify that the Restic pods are running. 
+    For more information, see [Modify the Host Path](#velero-privileged) above.
+    * (Optional) Increase your Restic timeout: You can increase the Restic timeout
+    for backups 1&nbsp;TB or larger by editing the Velero deployment manifest 
+    and adding `'- --restic-timeout=900m'` to `spec.template.spec.containers`.
+    * (Optional) Adjust your Restic Pod CPU and memory reserves: Depending on your requirements, 
+    you can adjust the CPU and memory reserves and limits for your Velero and Restic Pods. 
+    For more information, see [Adjust Velero Memory Limits (if necessary)](#velero-memory) above.  
+<br>
+        **restic pod**
 
-After install, customize the Restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) for the pod during the restore process. This can be done by creating a configmap and applying it in the velero namespace, such as `kubect apply -f restic-cm.yaml -n velero`. Download the example configmap [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/velero-restic/) provided for such purposes.
+        ```
+        resources:
+        limits:
+        cpu: "1"
+        memory: 1Gi
+        requests:
+        cpu: 500m
+        memory: 512Mi
+        ```
 
-After install, modify the host path by editing the Restic daemonset manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`. Verify that the Restic pods are running. See [Enable Privileged Mode and Modify the Host Path](./velero-install.html#velero-memory).
+        **velero pod**
 
-Optionally, for large backups (such as 1 TB), you can edit the Velero deployment manifest and add `'- --restic-timeout=900m'` to `spec.template.spec.containers`.
-
-Optionally, depending on your requirements, you can adjust the CPU and memory reserves and limits for the Velero and Restic pods. See [Adjust Velero Memory Limits (if necessary)](./velero-install.html#velero-memory).
-
-**restic pod**
-
-```
-resources:
-limits:
-cpu: "1"
-memory: 1Gi
-requests:
-cpu: 500m
-memory: 512Mi
-```
-
-**velero pod**
-
-```
-resources:
-limits:
-cpu: "1"
-memory: 256Mi
-requests:
-cpu: 500m
-memory: 128Mi
-```
+        ```
+        resources:
+        limits:
+        cpu: "1"
+        memory: 256Mi
+        requests:
+        cpu: 500m
+        memory: 128Mi
+        ```
