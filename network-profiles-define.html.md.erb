@@ -1,5 +1,5 @@
 ---
-title: Creating and Administering Network Profiles (NSX-T Only)
+title: Creating and Deleting Network Profiles (NSX-T Only)
 owner: TKGI
 ---
 
@@ -197,32 +197,16 @@ The following is an example of a complete network profile JSON configuration:
 
 ## <a id="change-pod-ips"></a> Update an Existing Network Profile
 
-To update an existing network profile:
+To update an existing cluster's network profile:
 
-1. If the network profile has been applied to an existing cluster, see [Confirm the Network Profile Property Supports Updates](#supports-updates).  
-1. Define a new network profile JSON file with the exact contents of the original network profile.  
-<br>
-   If it is not possible to obtain the original network profile, create a new network profile with a unique <code>name</code> and the original values in all of the fields.  
-1. Modify the network profile property that supports updating:  
-    * If updating the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.  
-
-    <p class="note"><strong>Note:</strong> Update only network profile properties that support being updated.</p>
-
-    For more information on configuring a network profile, see [Network Profile Parameters](#params) above.   
-
-1. Review and save the network profile configuration file.  
-
-1. Apply the network profile:  
-
-    ```
-    tkgi update-cluster CLUSTER-NAME --network-profile
-    ```
-    Where `CLUSTER-NAME` is the unique name of your cluster.
-
+1. [Confirm the Network Profile Property Supports Updates](#supports-updates)
+1. [Create a Modified Network Profile](#create-modified-profile)
+1. [Update the Cluster With a Modified Network Profile](#update-w-modified-profile)
 
 ### <a id="supports-updates"></a> Confirm the Network Profile Property Supports Updates
 
-If a cluster has network profile assigned, you can update the following parameters on the network profile:  
+If a network profile has been applied to an existing cluster, 
+you can update only the following network profile parameters:  
 
 * `pod_ip_block_ids`:  
 <br>
@@ -244,7 +228,63 @@ If a cluster has network profile assigned, you can update the following paramete
 <br>
 Any other change will fail [strict validation rules](network-profiles.html#update-profile) and not be applied. 
 
-### <a id="delete"></a> Delete a Network Profile
+
+### <a id="create-modified-profile"></a> Create a Modified Network Profile
+
+To create a modified version of an existing network profile:
+
+1. Define a new network profile configuration file with the exact same contents as the original network profile configuration.  
+<br>
+   If it is not possible to obtain the original network profile, create a new network profile with a unique <code>name</code> and the original values in all of the fields.  
+1. Modify the network profile property that supports updating:  
+    * If updating the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.  
+<br>
+        For example, the following network profile has two `pod_ip_block_ids`, the first is the original IP block used when creating the cluster, and the second is the new IP block to use for pods. 
+
+        ```
+        {
+            "description": "Example network profile for adding pod IP addresses to an existing cluster",
+            "name": "pod-ips-add",
+            "parameters": {
+              "pod_ip_block_ids": [
+                "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+                "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
+              ]
+            }
+        }
+        ```
+
+    <p class="note"><strong>Note:</strong> Update only network profile properties that support being updated.</p>
+
+    For more information on configuring a network profile, see [Network Profile Parameters](#params) above.   
+
+1. Review and save the network profile configuration file.  
+
+1. To create a network profile from your network profile configuration,
+run the following <%= vars.k8s_runtime_abbr %> CLI command:  
+
+    ```
+    tkgi create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
+    ``` 
+    Where `PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION` is the path to your network profile configuration file.  
+
+### <a id="update-w-modified-profile"></a> Update the Cluster With a Modified Network Profile
+
+To update a cluster with a modified network profile:
+
+1. Apply the network profile:  
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --network-profile NETWORK-PROFILE-NAME
+    ```
+
+    Where:
+    * `CLUSTER-NAME` is the unique name of your cluster.
+    * `NETWORK-PROFILE-NAME` is the name of the network profile you want to use for your cluster.
+
+
+
+## <a id="delete"></a> Delete a Network Profile
 
 <%= vars.k8s_runtime_abbr %> administrators can delete a network profile that is not in use.
 
