@@ -10,15 +10,18 @@ This topic also describes the use cases for when a <%= vars.k8s_runtime_abbr %> 
 
 ## <a id='prerequisites'></a> Prerequisite
 
-To create or delete a network profile, you must be a cluster administrator, `pks.clusters.admin`. 
-To manage or use network profiles, you must be a cluster manager, `pks.clusters.manage`.
+<%= vars.k8s_runtime_abbr %> supports network profiles on <%= vars.k8s_runtime_abbr %> on vSphere with NSX&#8209;T only.  
+
+To manage <%= vars.k8s_runtime_abbr %> network profiles you must be either a cluster manager or cluster administrator:
+
+* To create or delete a network profile, you must be a cluster administrator, `pks.clusters.admin`.
+
+* To use or manage network profiles, you must be a cluster manager, `pks.clusters.manage` or a cluster administrator, `pks.clusters.admin`.
 
 <p class="note"><strong>Note:</strong> If a cluster manager, <code>pks.clusters.manage</code>, attempts to create or delete a network profile, 
 	the following error occurs: "<i>You do not have enough privileges to perform this action. 
 	Please contact the <%= vars.k8s_runtime_abbr %> administrator.</i>"
 </p>
-
-<%= vars.product_short %> supports network profiles on <%= vars.k8s_runtime_abbr %> on vSphere with NSX&#8209;T only.  
 
 ## <a id='overview'></a> Overview
 
@@ -30,7 +33,7 @@ Cluster administrators can administer network profiles in the following ways:
 * [Update an Existing Network Profile](#change-pod-ips)
 * [Delete a Network Profile](#delete)
 
-Cluster administrators can also manage network profiles in all the ways that a cluster manager can:
+Cluster administrators can also use and manage network profiles in all the ways that a cluster manager can:
 
 * [List Network Profiles](network-profiles.html#list-profiles) 
 * [Create a Cluster with a Network Profile](network-profiles.html#create-new)
@@ -42,7 +45,7 @@ For information on when to use network profiles, see [Network Profile Use Cases]
 
 ## <a id="create"></a> Create a Network Profile 
 
-To create a network profile in <%= vars.product_short %>:
+To create a network profile in <%= vars.k8s_runtime_abbr %>:
 
 1. Create a network profile configuration JSON file with the following content:  
 
@@ -199,6 +202,7 @@ It is not intended to be used as a template for a network profile configuration.
 To update an existing cluster's network profile:
 
 1. [Confirm the Network Profile Property Supports Updates](#supports-updates)
+1. [Create a Modified Network Profile Configuration](#create-modified-profile-configuration)
 1. [Create a Modified Network Profile](#create-modified-profile)
 1. [Update the Cluster With a Modified Network Profile](#update-w-modified-profile)
 
@@ -222,7 +226,7 @@ you can update only the following network profile parameters:
     array values removed.  
 <br> 
     For more information on modifying a network profile `pod_ip_block_ids` field, 
-    see [Adding Pods IPs](./network-profiles-pods.html#pods-ips-add) in _Customize Pod Networks_.
+    see [Add Pod IPs](./network-profiles-pods.html#pods-ips-add) in _Customizing Pod Networks_.
     For more information on the `pod_ip_block_ids` field, see [Network Profile Parameters](./network-profiles-define.html#params) above.   
 
 <br>
@@ -230,47 +234,51 @@ You cannot update your existing clusters with any other network profile changes.
 For more information, see [Update-Cluster Network Profile Validation Rules](#update-restrictions) below. 
 
 
-### <a id="create-modified-profile"></a> Create a Modified Network Profile
+### <a id="create-modified-profile-configuration"></a> Create a Modified Network Profile Configuration
 
-To create a modified version of an existing network profile:
+To create a modified network profile configuration file:
 
-1. Define a new network profile configuration file with the exact same contents as the original network profile configuration.  
+1. Make a copy of your original network profile configuration file.  
 <br>
-   If it is not possible to obtain the original network profile, create a new network profile with a unique <code>name</code> and the original values in all of the fields.  
-1. Modify the network profile property that supports updating:  
-    * If updating the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.  
+   If it is not possible to obtain the original network profile, create a new network profile with the original values in all of the fields.  
+1. Change the <code>name</code> field to a unique name.  
+1. If updating the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.  
 <br>
-        For example, the following network profile has two `pod_ip_block_ids`, the first is the original IP block used when creating the cluster, and the second is the new IP block to use for pods. 
+    For example, the following network profile has two `pod_ip_block_ids`, the first is the original IP block used when creating the cluster, and the second is the new IP block to use for pods. 
 
-        ```
-        {
-            "description": "Example network profile for adding pod IP addresses to an existing cluster",
-            "name": "pod-ips-add",
-            "parameters": {
-              "pod_ip_block_ids": [
-                "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-                "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
-              ]
-            }
+    ```
+    {
+        "description": "Example network profile for adding pod IP addresses to an existing cluster",
+        "name": "pod-ips-add",
+        "parameters": {
+          "pod_ip_block_ids": [
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
+          ]
         }
-        ```
+    }
+    ```
 
     <p class="note"><strong>Note:</strong> Update only network profile properties that support being updated.</p>
 
     For more information on configuring a network profile, see [Network Profile Parameters](#params) above.   
 
 1. Review and save the network profile configuration file.  
+1. Store a copy of your network profile configuration in case you need to modify the network profile in the future.  
 
-1. To create a network profile from your network profile configuration,
-run the following <%= vars.k8s_runtime_abbr %> CLI command:  
+### <a id="create-modified-profile"></a> Create a Modified Network Profile
+
+To create a network profile from a configuration file:
+
+1. Run the following <%= vars.k8s_runtime_abbr %> CLI command:  
 
     ```
     tkgi create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
     ``` 
     Where `PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION` is the path to your network profile configuration file.  
-1. Store a copy of your network profile configuration in case you need to modify the network profile in the future.  
 
-### <a id="update-w-modified-profile"></a> Update the Cluster With a Modified Network Profile
+
+### <a id="update-w-modified-profile"></a> Update the Cluster with a Modified Network Profile
 
 To update a cluster with a modified network profile:
 
