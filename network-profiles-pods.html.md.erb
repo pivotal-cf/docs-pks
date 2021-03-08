@@ -1,38 +1,46 @@
 ---
-title: Customize Pod Networks
+title: Customizing Pod Networks (NSX-T Only)
 owner: TKGI
 ---
 
-This topic describes how to define network profiles for pod networks.
+This topic describes how <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) administrators
+can define <%= vars.k8s_runtime_abbr %> network profiles for pod networks on vSphere with NSX&#8209;T integration.
+
+<%= vars.k8s_runtime_abbr %> supports network profiles on <%= vars.k8s_runtime_abbr %> on vSphere with NSX&#8209;T only.  
+
+To create or delete a network profile, you must be a cluster administrator, `pks.clusters.admin`.
+
 
 ##<a name='custom-pods'></a> Custom Pod Networks
 
-When you configure your NSX-T infrastructure for <%= vars.product_short %>, you must create a **Pods IP Block**.
+When you configure your NSX-T infrastructure for <%= vars.k8s_runtime_abbr %>, you must create a **Pods IP Block**.
 For more information, see the [Plan IP Blocks](nsxt-prepare-env.html#plan-ip-blocks) section of _Planning, Preparing, and Configuring NSX-T for <%= vars.product_short %>_.
 
 By default, this subnet is non-routable. When a Kubernetes cluster is deployed, each pod receives an IP address from the **Pods IP Block** you created. Because the pod IP addresses are non-routable, NSX-T creates a SNAT rule on the Tier-0 router to allow network egress from the pods. This configuration is shown in the diagram below:
 
   <img src="images/nsxt/non-routable-pods.png" alt="Non-routable pod network with SNAT">
 
-You can use a network profile to override the global **Pods IP Block** that you specify in the <%= vars.product_tile %> tile with a custom IP block. To use a custom pods network, do the following after you deploy <%= vars.product_short %>:
+You can use a network profile to override the global **Pods IP Block** that you specify in the <%= vars.product_tile %> tile with a custom IP block. To use a custom pods network, do the following after you deploy <%= vars.k8s_runtime_abbr %>:
 
-1. Define a custom IP block in NSX-T. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).
+1. Define a custom IP block in NSX-T. 
+For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).  
 
-2. Define a network profile that references the custom pods IP block.
-For example, the following network profile defines non-routable pod addresses from two IP blocks:
+2. Define a network profile that references the custom pods IP block.  
+<br>
+    For example, the following network profile defines non-routable pod addresses from two IP blocks:
 
-```
-{
-    "description": "Example network profile with 2 non-routable pod networks",
-    "name": "non-routable-pod",
-    "parameters": {
-      "pod_ip_block_ids": [
-        "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-        "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
-      ]
+    ```
+    {
+        "description": "Example network profile with 2 non-routable pod networks",
+        "name": "non-routable-pod",
+        "parameters": {
+          "pod_ip_block_ids": [
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
+          ]
+        }
     }
-}
-```
+    ```
 
 <p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the <%= vars.k8s_runtime_abbr %> Tile. Create a new Pod IP Block ID (UUID) that is not referenced in the <%= vars.k8s_runtime_abbr %> Tile and use it to define a network profile.</p>
 
@@ -40,84 +48,74 @@ For example, the following network profile defines non-routable pod addresses fr
 
 Each time a Kubernetes namespace is created, a subnet from the pods IP block is allocated. The default size of the subnet carved from this block for such purposes is /24. For more information, see the [Pods IP Block](nsxt-prepare-env.html#pods-ip-block) section of _Planning, Preparing, and Configuring NSX-T for <%= vars.product_short %>_.
 
-You can define a Network Profile using the `pod_subnet_prefix` parameter to customize the size of the pod subnet reserved for namespaces. For example, the following network profile specifies /27 for the size of the two custom Pod IP Block IDs:
+You can define a Network Profile using the `pod_subnet_prefix` parameter to customize the size of the pod subnet reserved for namespaces.  
+
+For example, the following network profile specifies /27 for the size of the two custom Pod IP Block IDs:
 
 ```
 {
-	"description": "Example network profile with 2 non-routable pod networks and custom prefix",
-	"name": "non-routable-pod",
-	"parameters": {
-		"pod_subnet_prefix": 27,
-		"pod_ip_block_ids": [
-			"ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-			"ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
-		]
-	}
+  "description": "Example network profile with 2 non-routable pod networks and custom prefix",
+  "name": "non-routable-pod",
+  "parameters": {
+    "pod_subnet_prefix": 27,
+    "pod_ip_block_ids": [
+      "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+      "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
+    ]
+  }
 }
 ```
 
 <p class="note"><strong>Note:</strong> You cannot customize the size of the Pod IP Block ID (UUID) that is specified in the <%= vars.k8s_runtime_abbr %> Tile. To customize the size of the Pod subnet block you must create a new Pod IP Block ID (UUID) that is not referenced in <%= vars.k8s_runtime_abbr %> Tile and use it to define a network profile. </p>
 
 <p class="note"><strong>Note:</strong> The subnet size for a Pods IP Block must be consistent across all Network Profiles.
-<%= vars.product_short %> does not support variable subnet sizes for a given IP Block.</p>
+<%= vars.k8s_runtime_abbr %> does not support variable subnet sizes for a given IP Block.</p>
 
 ##<a id='routable-pods'></a> Routable Pod Networks
 
-Using a network profile, you can assign routable IP addresses from a dedicated routable IP block to pods in your Kubernetes cluster. When a cluster is deployed using that network profile, the routable IP block overrides the default non-routable IP block described created for deploying <%= vars.product_short %>. When you deploy a Kubernetes cluster using that network profile, each pod receives a routable IP address. This configuration is shown in the diagram below. If you use routable pods, the SNAT rule is not created.
+Using a network profile, you can assign routable IP addresses from a dedicated routable IP block to pods in your Kubernetes cluster. When a cluster is deployed using that network profile, the routable IP block overrides the default non-routable IP block described created for deploying <%= vars.k8s_runtime_abbr %>. When you deploy a Kubernetes cluster using that network profile, each pod receives a routable IP address. This configuration is shown in the diagram below. If you use routable pods, the SNAT rule is not created.
 
   <img src="images/nsxt/routable-pods.png" alt="Routable pod network using network profiles">
 
-To use routable pods, do the following after you deploy <%= vars.product_short %>:
+To use routable pods, do the following after you deploy <%= vars.k8s_runtime_abbr %>:
 
 1. Define a routable IP block in NSX-T. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).
 
-2. Define a network profile that references the routable IP block.
-For example, the following network profile defines routable pod addresses from two IP blocks:
+2. Define a network profile that references the routable IP block.  
+<br>
+    For example, the following network profile defines routable pod addresses from two IP blocks:
 
-```
-{
-    "description": "Example network profile with 2 routable pod networks and custom prefix",
-    "name": "small-routable-pod",
-    "parameters": {
-      "pod_routable": true,
-	  "pod_subnet_prefix": 27,     
-      "pod_ip_block_ids": [
-        "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-        "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
-      ]
+    ```
+    {
+        "description": "Example network profile with 2 routable pod networks and custom prefix",
+        "name": "small-routable-pod",
+        "parameters": {
+          "pod_routable": true,
+        "pod_subnet_prefix": 27,     
+          "pod_ip_block_ids": [
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
+          ]
+        }
     }
-}
-```
+    ```
 
 <p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the <%= vars.k8s_runtime_abbr %> Tile. Create a new Pod IP Block ID (UUID) that is not referenced in <%= vars.k8s_runtime_abbr %> Tile and use it to define a network profile.</p>
 
-##<a id='pods-ips-add'></a> Adding Pod IPs
+##<a id='pods-ips-add'></a> Add Pod IPs 
 
-You can use the `pod_ip_block_ids` field in network profile to add pod IP addresses to existing clusters. This may be necessary if a cluster exhausts the number of IP addresses allocated to pods. See [Update Network Profile](./network-profiles-define.html#change-pod-ips) for more information.
+If a cluster exhausts the number of IP addresses allocated to pods, 
+you can use the network profile `pod_ip_block_ids` field to add pod IP addresses to existing clusters. 
 
-The workflow is as follows:
+
+To add pod IP addresses to the network profile on an existing cluster:
 
 1. Create one or more new Pod IP Blocks in NSX-T Manager.
-1. Define a new network profile. In the `pod_ip_block_ids` field, enter the default or original Pod IP Block first followed by the new Pod IP Block(s). See example below.
-1. Assign the network profile to the existing cluster using the command `tkgi update-cluster mycluster --network-profile <new-network-profile>`. 
+1. Follow these procedures in _Creating and Deleting Network Profiles_:
+    1. [Create a Modified Network Profile Configuration](#create-modified-profile-configuration) 
+    1. [Create a Modified Network Profile](#create-modified-profile)
+    1. [Update the Cluster With a Modified Network Profile](#update-w-modified-profile)
 
-On update the cluster will automatically start using IPs from the second block once those from the first block are exhausted.
-
-For example, the following network profile has two `pod_ip_block_ids`, the first is the original IP block used when creating the cluster, and the second is the new IP block to use for pods. 
-
-```
-{
-    "description": "Example network profile for adding pod IP addresses to an existing cluster",
-    "name": "pod-ips-add",
-    "parameters": {
-      "pod_ip_block_ids": [
-        "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-        "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
-      ]
-    }
-}
-```
+On update, the cluster automatically starts using IPs from the second block after the first block is exhausted.
 
 <p class="note"><strong>Note:</strong> You cannot change a cluster's network profile to remove pod IP block IDs.</p>
-
-

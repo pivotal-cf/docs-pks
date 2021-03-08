@@ -1,226 +1,347 @@
 ---
-title: Creating and Managing Network Profiles with the CLI
+title: Creating and Deleting Network Profiles (NSX-T Only)
 owner: TKGI
 ---
 
-This topic describes how <%= vars.product_full %> administrators on vSphere with NSX-T can create and delete network profiles for Kubernetes clusters provisioned by <%= vars.product_short %>.
-It also lists verified use cases for network profiles on <%= vars.product_short %>.
+This topic describes how <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) administrators
+can create and delete network profiles for Kubernetes clusters provisioned by <%= vars.k8s_runtime_abbr %> on vSphere with NSX&#8209;T integration.
 
-For more information on how to use network profiles, see [Using Network Profiles](./network-profiles.html).
+This topic also describes the use cases for when a <%= vars.k8s_runtime_abbr %> administrator should use a network profile.
 
-## <a id="create"></a> Create a Network Profile
+## <a id='prerequisites'></a> Prerequisite
 
-To create a network profile in <%= vars.product_short %>, you:
+<%= vars.k8s_runtime_abbr %> supports network profiles on <%= vars.k8s_runtime_abbr %> on vSphere with NSX&#8209;T only.  
 
-1. Define a network profile in a JSON configuration file, following the [Network Profile Format](#format) below.
+To manage <%= vars.k8s_runtime_abbr %> network profiles you must be either a cluster manager or cluster administrator:
 
-1. Use the <%= vars.k8s_runtime_abbr %> CLI to define the network profile within <%= vars.product_short %>, as described in [The create-network-profile Command](#run-create), below.
+* To create or delete a network profile, you must be a cluster administrator, `pks.clusters.admin`.
 
-### <a id="format"></a> Network Profile Format
+* To use or manage network profiles, you must be a cluster manager, `pks.clusters.manage` or a cluster administrator, `pks.clusters.admin`.
 
-To create a network profile, you must first define it as a JSON file that specifies network parameters, listed in [Network Profile Parameters](#params) below.
+<p class="note"><strong>Note:</strong> If a cluster manager, <code>pks.clusters.manage</code>, attempts to create or delete a network profile, 
+    the following error occurs: "<i>You do not have enough privileges to perform this action. 
+    Please contact the <%= vars.k8s_runtime_abbr %> administrator.</i>"
+</p>
 
-Here is an example network profile that includes all available parameters.
+## <a id='overview'></a> Overview
 
-<p class="note"><strong>Note:</strong> This example network profile is for illustration purposes only. It is not intended to be used as a template for network profile definition.</p>
+You can use network profiles to customize your <%= vars.k8s_runtime_abbr %> Kubernetes clusters on vSphere with NSX&#8209;T.  
 
-```
-{
-	"name": "example-network-profile",
-	"description": "Example Network Profile with All Available Parameters -- FOR ILLUSTRATION PURPOSES ONLY",
-	"parameters": {
-		"lb_size": "large",
-		"pod_ip_block_ids": [
-			"ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
-			"ebe78a74-a5d5-4dde-ba76-9cf4067eee56" ],
-		"pod_subnet_prefix": 27,
-    	"pod_routable": true,
-		"fip_pool_ids": [
-			"e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0",
-			"ebe78a74-a5d5-4dde-ba76-9cf4067eee55" ],
-		"t0_router_id": "5a7a82b2-37e2-4d73-9cb1-97a8329e1a90",
-		"master_vms_nsgroup_id": "9b8d535a-d3b6-4735-9fd0-56305c4a5293",
-		"node_ip_block_ids": [
-			"2250dc43-63c8-4bb8-b8cf-c6e12ccfb7de", "3d577e5c-dcaf-4921-9458-d12b0e1318e6" ],
-		"node_routable": true,
-		"node_subnet_prefix": 20,
-    	"nodes_dns": [
-      		"8.8.8.8", "192.168.115.1", "192.168.116.1" ],		
-		"dns_lookup_mode": "API_INGRESS",
-		"ingress_prefix": "ingress",
-		"single_tier_topology": true,
-		"infrastructure_networks": [
-			"30.0.0.0/24",
-			"192.168.111.0/24",
-			"192.168.115.1" ],
-		"cni_configurations": {
-			"type": "nsxt",
-			"parameters": {
-				"nsx_lb": false,
-				"nsx_ingress_controller": true,			
-				"x_forwarded_for": "insert",
-				"ingress_ip": "192.168.160.212",
-				"log_settings": {
-					"log_level": "DEBUG",
-				"ingress_persistence_settings": {
-					"persistence_type": "cookie",
-					"persistence_timeout": 1 },
-				"max_l4_lb_service": 10,
-				"l4_persistence_type": "source_ip",
-        		"l4_lb_algorithm": "weighted_round_robin",
-        		"top_firewall_section_marker":"section-id",
-        		"bottom_firewall_section_marker":"section-id",
-        		"log_firewall_traffic":"ALL",
-        		"lb_http_request_header_size":60,
-                "lb_http_response_header_size":45,
-                "lb_http_response_timeout":30,
-                "connect_retry_timeout":30
-			}
-		}
-	}
-}
-```
+Cluster administrators can administer network profiles in the following ways:
 
-<p class="note"><strong>WARNING:</strong> None of the parameters defined under `cni_configurations` can be updated.</p>
+* [Create a Network Profile](#create)
+* [Update an Existing Network Profile](#change-pod-ips)
+* [Delete a Network Profile](#delete)
 
-### <a id="params"></a> Network Profile Parameters
-
-The network profile JSON can include the following top-level parameters:
-
-Parameter 					| Type 		| Description 
-----------------------------|-----------|-----------------------------
-| `name` 					| String 	| Name of the network profile. 
-| `description` 			| String 	| Description of the network profile. 
-| `parameters` 				| Map 		| One or more name-value pairs. 
-| `lb_size` 				| String 	| Size of the NSX-T load balancer service: `small` (default), `medium`, and `large`.
-| `pod_ip_block_ids`		| String 	| Array of Pod IP Block UUIDs. 
-| `pod_subnet_prefix`		| Integer 	| Size of the Pods IP Block subnet. 
-| `pod_routable` 			| Boolean 	| Make routable the Pods subnet. Default is `false`. 
-| `fip_pool_ids` 			| String 	| Array of floating IP pool UUIDs defined in NSX-T. 
-| `t0_router_id` 			| String 	| Tenant Tier-0 Router UUID defined in NSX-T. 
-| `master_vms_nsgroup_id` 	| String 	| Namespace Group UUID as defined in NSX-T. 
-| `nodes_dns` 				| String 	| Array (up to 3) of DNS server IP addresses for lookup of Kubernetes nodes and pods. 
-| `dns_lookup_mode` 		| String 	| DNS lookup mode for Kubernetes API load balancer (`API`) and ingress controller (`API_INGRESS`). 
-| `ingress_prefix` 			| String 	| Ingress controller hostname prefix for DNS lookup. 
-| `single_tier_topology` 	| Boolean 	| Use a single Tier-1 Router per cluster (shared). Default is `true`.
-| `infrastructure_networks` | String 	| Array of IP addresses and subnets for Node Networks for use with a Shared Tier-1 topology in a Multi-Tier-0 environment.
-| `cni_configurations`		| Map 		| Map containing key-value pairs for configuring NCP (see table below). 
-
-The network profile JSON accepts the following parameters for `cni_configurations`:
-
-Parameter 							| Type 		| Description 
-------------------------------------|-----------|-----------------------------
-| `type` 							| String 	| Only the constant `nsxt` is accepted. 
-| `parameters` 						| Map 		| One or more name-value pairs for NCP settings. 
-| `x_forwarded_for` 				| String 	| Use the same source IP for calling clients. Accepts `"insert"` and `"replace"`.
-| `nsx_lb`							| Boolean 	| Use NSX-T layer 4 virtual server for each Kubernetes service of type LoadBalancer. Default is `true`.
-| `nsx_ingress_controller` 			| Boolean 	| Use NSX-T layer 7 virtual server as the ingress controller for the Kubernetes cluster. Default is `true`.
-| `ingress_ip`						| String 	| IP address to use for the ingress controller. 
-| `log_settings` 					| Map 		| Parameters for configuring NCP logging. 
-| `log_level` 						| String 	| Accepted values: "INFO", "WARNING", "DEBUG", "ERROR", and "CRITICAL". 
-| `log_dropped_traffic` 			| Boolean 	| Log dropped firewall traffic. Default is `false`. 
-| `ingress_persistence_settings`	| String 	| Parameters for customizing Layer 7 persistence. 
-| `persistence_type` 				| String 	| Specify the ingress persistence type: `none`, `cookie`, or `source_ip`.
-| `persistence_timeout` 			| Integer 	| Persistence timeout interval in seconds. 
-| `max_l4_lb_service` 				| Integer 	| Limit the maximum number of layer 4 virtual servers per cluster. Minimum is `1`.
-| `l4_persistence_type`				| String 	| Connection stickiness based on `source_ip`. 
-| `l4_lb_algorithm`					| String 	| Layer 4 load balancer behavior: `round_robin` (default), `least_connection`, `ip_hash`, `weighted_round_robin`. 
-| `top_firewall_section_marker`		| String 	| UUID of the top `section-id` for the distributed firewall (DFW) section as defined in NSX-T. 
-| `bottom_firewall_section_marker`	| String 	| UUID of the bottom `section-id` for the distributed firewall (DFW) section as defined in NSX-T.
-| `log_firewall_traffic` 			| String 	| Log firewall traffic, such as "ALL".
-| `lb_http_request_header_size`		| Integer 	| Configure HTTP LoadBalancer request header size, such as `60`.
-| `lb_http_response_header_size`	| Integer 	| Configure HTTP LoadBalancer response header size, such as `45`.
-| `lb_http_response_timeout`		| Integer 	| Configure HTTP LoadBalancer response timeout, such as `30`.
-| `connect_retry_timeout`			| Integer 	| Configure HTTP LoadBalancer connection retry timeout, such as `30`.
-
-### <a id="run-create"></a> The create-network-profile Command
-
-After a network profile is defined in a JSON file as described in [Network Profile Format](#format),
-an <%= vars.product_short %> administrator can create the network profile by running the following <%= vars.k8s_runtime_abbr %> CLI command:
-
-```
-tkgi create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
-``` 
-Where `PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION` is the path to the JSON file
-you created when defining the network profile.
-
-For example:
-
-<pre class="terminal">
-$ tkgi create-network-profile np-routable-pods.json
-
-Network profile small-routable-pod successfully created
-</pre>
-
-Only cluster administrators, `pks.clusters.admin`, can create network profiles.
-If a cluster manager, `pks.clusters.manage`, attempts to create a network profile, the following error occurs:
-
-```
-You do not have enough privileges to perform this action. Please contact the <%= vars.k8s_runtime_abbr %> administrator.
-```
-
-After an administrator creates a network profile, cluster managers can create clusters with it or assign it to existing clusters.
-For more information, see the [Using Network Profiles](./network-profiles.html) topic.
-
-## <a id="manage"></a> Manage Network Profiles
-
-<%= vars.product_short %> administrators can delete network profiles.
-Administrators can also perform the same operations that cluster managers use to list network profiles and manage how clusters use them.
-
-### <a id="delete"></a> Delete a Network Profile
-
-To delete a network profile, run the following command:
-
-```
-tkgi delete-network-profile NETWORK-PROFILE-NAME
-```
-
-Where `NETWORK-PROFILE-NAME` is the name of the network profile you want to delete.
-
-<p class="note"><strong>Note:</strong> You cannot delete a network profile that is in use.</p>
-
-Only cluster administrators, `pks.clusters.admin`, can delete network profiles.
-If a cluster manager, `pks.clusters.manage`, attempts to delete a network profile,
-the following error occurs:
-
-```
-You do not have enough privileges to perform this action. Please contact the <%= vars.k8s_runtime_abbr %> administrator.
-```
-
-### <a id="user-ops"></a> Cluster Manager Operations
-
-The following sections link to operations that both <%= vars.product_short %> administrators and cluster managers can perform on network profiles,
-documented in the [Using Network Profiles (NSX-T Only)](network-profiles.html) topic.
+Cluster administrators can also use and manage network profiles in all the ways that a cluster manager can:
 
 * [List Network Profiles](network-profiles.html#list-profiles) 
 * [Create a Cluster with a Network Profile](network-profiles.html#create-new)
-* [Assign a Network Profile to an Existing Cluster](network-profiles.html#assign-profile)
-  - Use this operation to assign a network profile to a cluster that does not have one.
-* [Update an Existing Network Profile](network-profiles.html#update-profile).
-  - Use this operation to update add or reorder elements in the `pod_ip_block_ids` field. See [Update Network Profile](./network-profiles-define.html#change-pod-ips).
+* [Assign a Network Profile to an Existing Cluster](network-profiles.html#assign-profile)  
+<br>
+    For information on managing network profiles, see [Using and Managing Network Profiles](network-profiles.html).  
 
-### <a id="change-pod-ips"></a> Update Network Profile
+For information on when to use network profiles, see [Network Profile Use Cases](#use-cases) below.  
 
-If a cluster has network profile assigned, the only field you can update is the `pod_ip_block_ids` array parameter. Any other change will fail [strict validation rules](network-profiles.html#update-profile) and not be applied. For more information on the `pod_ip_block_ids` field, see [Network Profile Parameters](./network-profiles-define.html#params).
+## <a id="create"></a> Create a Network Profile 
 
-You cannot remove a cluster's pod IP block IDs by creating and assigning a new network profile with `pod_ip_block_ids` array values removed. You only can change the `pod_ip_block_ids` field as follows:
+To create a network profile in <%= vars.k8s_runtime_abbr %>:
 
-- Add more IP Block IDs in the array
-- Reorder the IP Block IDs in the array
+1. Create a network profile configuration JSON file with the following content:  
 
-The primary [network profile use case](./network-profiles-define.html#use-cases) for updating the `pod_ip_block_ids` field is to add additional IP addresses for pods when a cluster is at or near the point exhausting all available public IP addresses for pods. For an example, see [Adding Pods IPs](./network-profiles-pods.html#pods-ips-add).
+    ```
+    {
+        "name": "PROFILE-NAME",
+        "description": "PROFILE-DESCRIP",
+        "parameters": {
 
-To update the `pod_ip_block_ids` network profile field for a cluster, do the following:
+        }
+    }
+    ```
 
-1. Define a new network profile. In the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.
-For more information on defining the network profile JSON file, see [Defining Network Profiles](./network-profiles-define.html).
+    Where:
+    * `PROFILE-NAME` is the internal name for your network profile.
+    * `PROFILE-DESCRIP` is an internal description for your network profile.
 
-    <p class="note"><strong>Note:</strong> If possible, start with the exact contents of the original network profile and update the <code>pod_ip_block_ids</code> field, as well as the <code>name</code> field. If it is not possible to obtain the original network profile, create a new network profile with a unique <code>name</code> and the original values in the <code>pod_ip_block_ids</code> field. Then reorder or add IPs as desired.</p>
+1. Edit the file to specify your network parameters.
+For information about the available network parameters, see [Network Profile Parameters](#params) below.
 
-1. Apply the network profile using the command `tkgi update-cluster --network-profile`.
+1. Review your network profile configuration carefully. 
+You can modify only a cluster's `pod_ip_block_ids` network profile parameter after applying a network profile to a cluster.  
+
+1. To create a network profile from your network profile configuration,
+run the following <%= vars.k8s_runtime_abbr %> CLI command:  
+
+    ```
+    tkgi create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
+    ``` 
+    Where `PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION` is the path to your network profile configuration file.
+<br><br>
+    For example:
+
+    <pre class="terminal">
+    $ tkgi create-network-profile np-routable-pods.json
+
+    Network profile example-network-profile successfully created
+    </pre>
+1. Store a copy of your network profile configuration in case you need to modify the network profile in the future.  
+
+Cluster managers can create new clusters with your network profile and assign your network profile to existing clusters.
+For information on managing network profiles, see [Using and Managing Network Profiles](network-profiles.html).  
+
+### <a id="params"></a> Network Profile Parameters
+
+<%= vars.k8s_runtime_abbr %> supports the following top-level network profile parameters.
+
+<p class="note"><strong>Note:</strong> Only the <code>pod_ip_block_ids</code> parameter can be updated after applying a network profile to a cluster.</p>
+
+Parameter                   | Type      | Description 
+----------------------------|-----------|-----------------------------
+| `name`                    | String    | Name of the network profile. 
+| `description`             | String    | Description of the network profile. 
+| `parameters`              | Map       | One or more name-value pairs. 
+| `lb_size`                 | String    | Size of the NSX-T load balancer service: `"small"` (default), `"medium"`, and `"large"`.
+| `pod_ip_block_ids`        | String    | Array of Pod IP Block UUIDs. 
+| `pod_subnet_prefix`       | Integer   | Size of the Pods IP Block subnet. 
+| `pod_routable`            | Boolean   | Make routable the Pods subnet. Default is `false`. 
+| `fip_pool_ids`            | String    | Array of floating IP pool UUIDs defined in NSX-T. 
+| `t0_router_id`            | String    | Tenant Tier-0 Router UUID defined in NSX-T. 
+| `master_vms_nsgroup_id`   | String    | Namespace Group UUID as defined in NSX-T. 
+| `nodes_dns`               | String    | Array (up to 3) of DNS server IP addresses for lookup of Kubernetes nodes and pods. 
+| `dns_lookup_mode`         | String    | DNS lookup mode: `"API"` for Kubernetes API load balancer and `"API_INGRESS"` for ingress controller. 
+| `ingress_prefix`          | String    | Ingress controller hostname prefix for DNS lookup. 
+| `single_tier_topology`    | Boolean   | Use a single Tier-1 Router per cluster (shared). Default is `true`.
+| `infrastructure_networks` | String    | Array of IP addresses and subnets for Node Networks for use with a Shared Tier-1 topology in a Multi-Tier-0 environment.
+| `cni_configurations`      | Map       | Map containing key-value pairs for configuring NCP (see table below). 
+
+#### <a id="cni-params"></a> cni_configurations Network Profile Parameters
+
+<%= vars.k8s_runtime_abbr %> supports the following `cni_configurations` parameters:  
+
+Parameter                           | Type      | Description 
+------------------------------------|-----------|-----------------------------
+| `type`                            | String    | Only the constant `"nsxt"` is accepted. 
+| `parameters`                      | Map       | One or more name-value pairs for NCP settings. 
+| `x_forwarded_for`                 | String    | Use the same source IP for calling clients. Accepts `"insert"` and `"replace"`.
+| `nsx_lb`                          | Boolean   | Use NSX-T layer 4 virtual server for each Kubernetes service of type LoadBalancer. Default is `true`.
+| `nsx_ingress_controller`          | Boolean   | Use NSX-T layer 7 virtual server as the ingress controller for the Kubernetes cluster. Default is `true`.
+| `ingress_ip`                      | String    | IP address to use for the ingress controller. 
+| `log_settings`                    | Map       | Parameters for configuring NCP logging. 
+| `log_level`                       | String    | Accepts: `"INFO"`, `"WARNING"`, `"DEBUG"`, `"ERROR"`, and `"CRITICAL"`. 
+| `log_dropped_traffic`             | Boolean   | Log dropped firewall traffic. Default is `false`. 
+| `ingress_persistence_settings`    | String    | Parameters for customizing Layer 7 persistence. 
+| `persistence_type`                | String    | Specify the ingress persistence type: `"none"`, `"cookie"`, or `"source_ip"`.
+| `persistence_timeout`             | Integer   | Persistence timeout interval in seconds. 
+| `max_l4_lb_service`               | Integer   | Limit the maximum number of layer 4 virtual servers per cluster. Minimum is `1`.
+| `l4_persistence_type`             | String    | Connection stickiness based on `source_ip`. 
+| `l4_lb_algorithm`                 | String    | Layer 4 load balancer behavior: `"round_robin"` (default), `"least_connection"`, `"ip_hash"`, `"weighted_round_robin"`. 
+| `top_firewall_section_marker`     | String    | UUID of the top `section-id` for the distributed firewall (DFW) section as defined in NSX-T. 
+| `bottom_firewall_section_marker`  | String    | UUID of the bottom `section-id` for the distributed firewall (DFW) section as defined in NSX-T.
+| `log_firewall_traffic`            | String    | Log firewall traffic, such as "ALL".
+| `lb_http_request_header_size`     | Integer   | Configure HTTP LoadBalancer request header size, such as `60`.
+| `lb_http_response_header_size`    | Integer   | Configure HTTP LoadBalancer response header size, such as `45`.
+| `lb_http_response_timeout`        | Integer   | Configure HTTP LoadBalancer response timeout, such as `30`.
+| `connect_retry_timeout`           | Integer   | Configure HTTP LoadBalancer connection retry timeout, such as `30`.
+
+#### <a id="profile-example"></a> Network Profile Example
+
+The following is an example of a complete network profile JSON configuration:
+
+```
+{
+    "name": "example-network-profile",
+    "description": "Example Network Profile with All Available Parameters -- FOR ILLUSTRATION PURPOSES ONLY",
+    "parameters": {
+        "lb_size": "large",
+        "pod_ip_block_ids": [
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee56" ],
+        "pod_subnet_prefix": 27,
+        "pod_routable": true,
+        "fip_pool_ids": [
+            "e50e8f6e-1a7a-45dc-ad49-3a607baa7fa0",
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee55" ],
+        "t0_router_id": "5a7a82b2-37e2-4d73-9cb1-97a8329e1a90",
+        "master_vms_nsgroup_id": "9b8d535a-d3b6-4735-9fd0-56305c4a5293",
+        "node_ip_block_ids": [
+            "2250dc43-63c8-4bb8-b8cf-c6e12ccfb7de", "3d577e5c-dcaf-4921-9458-d12b0e1318e6" ],
+        "node_routable": true,
+        "node_subnet_prefix": 20,
+        "nodes_dns": [
+            "8.8.8.8", "192.168.115.1", "192.168.116.1" ],      
+        "dns_lookup_mode": "API_INGRESS",
+        "ingress_prefix": "ingress",
+        "single_tier_topology": true,
+        "infrastructure_networks": [
+            "30.0.0.0/24",
+            "192.168.111.0/24",
+            "192.168.115.1" ],
+        "cni_configurations": {
+            "type": "nsxt",
+            "parameters": {
+                "nsx_lb": false,
+                "nsx_ingress_controller": true,         
+                "x_forwarded_for": "insert",
+                "ingress_ip": "192.168.160.212",
+                "log_settings": {
+                    "log_level": "DEBUG",
+                "ingress_persistence_settings": {
+                    "persistence_type": "cookie",
+                    "persistence_timeout": 1 },
+                "max_l4_lb_service": 10,
+                "l4_persistence_type": "source_ip",
+                "l4_lb_algorithm": "weighted_round_robin",
+                "top_firewall_section_marker":"section-id",
+                "bottom_firewall_section_marker":"section-id"
+                "bottom_firewall_section_marker":"section-id",
+                "log_firewall_traffic":"ALL",
+                "lb_http_request_header_size":60,
+                "lb_http_response_header_size":45,
+                "lb_http_response_timeout":30,
+                "connect_retry_timeout":30 
+            }
+        }
+    }
+}
+```
+<p class="note"><strong>Note:</strong> This example network profile is for illustration purposes only. 
+It is not intended to be used as a template for a network profile configuration.</p>
+
+
+## <a id="change-pod-ips"></a> Update an Existing Network Profile
+
+To update an existing cluster's network profile:
+
+1. [Confirm the Network Profile Property Supports Updates](#supports-updates)
+1. [Create a Modified Network Profile Configuration](#create-modified-profile-configuration)
+1. [Create a Modified Network Profile](#create-modified-profile)
+1. [Update the Cluster With a Modified Network Profile](#update-w-modified-profile)
+
+### <a id="supports-updates"></a> Confirm the Network Profile Property Supports Updates
+
+If a network profile has been applied to an existing cluster, 
+you can update only the following network profile parameters:  
+
+* `pod_ip_block_ids`:  
+<br>
+    The primary use case for updating the network profile `pod_ip_block_ids` field 
+    is to add additional IP addresses for pods when a cluster is at or near the point exhausting all available public IP addresses 
+    for pods.  
+<br>
+    You can change the `pod_ip_block_ids`  array parameter as follows:
+
+    - Add more IP Block IDs in the array
+    - Reorder the IP Block IDs in the array
+
+    You cannot remove existing pod IP block IDs from a cluster by creating and assigning a new network profile with `pod_ip_block_ids` 
+    array values removed.  
+<br> 
+    For more information on modifying a network profile `pod_ip_block_ids` field, 
+    see [Add Pod IPs](./network-profiles-pods.html#pods-ips-add) in _Customizing Pod Networks_.
+    For more information on the `pod_ip_block_ids` field, see [Network Profile Parameters](./network-profiles-define.html#params) above.   
+
+<br>
+You cannot update your existing clusters with any other network profile changes. 
+For more information, see [Update-Cluster Network Profile Validation Rules](#update-restrictions) below. 
+
+
+### <a id="create-modified-profile-configuration"></a> Create a Modified Network Profile Configuration
+
+To create a modified network profile configuration file:
+
+1. Make a copy of your original network profile configuration file.  
+<br>
+   If it is not possible to obtain the original network profile, create a new network profile with the original values in all of the fields.  
+1. Change the <code>name</code> field to a unique name.  
+1. If updating the `pod_ip_block_ids` field, reorder the IP Block IDs or add additional IP Block IDs.  
+<br>
+    For example, the following network profile has two `pod_ip_block_ids`, the first is the original IP block used when creating the cluster, and the second is the new IP block to use for pods. 
+
+    ```
+    {
+        "description": "Example network profile for adding pod IP addresses to an existing cluster",
+        "name": "pod-ips-add",
+        "parameters": {
+          "pod_ip_block_ids": [
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
+            "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
+          ]
+        }
+    }
+    ```
+
+    <p class="note"><strong>Note:</strong> Update only network profile properties that support being updated.</p>
+
+    For more information on configuring a network profile, see [Network Profile Parameters](#params) above.   
+
+1. Review and save the network profile configuration file.  
+1. Store a copy of your network profile configuration in case you need to modify the network profile in the future.  
+
+### <a id="create-modified-profile"></a> Create a Modified Network Profile
+
+To create a network profile from a configuration file:
+
+1. Run the following <%= vars.k8s_runtime_abbr %> CLI command:  
+
+    ```
+    tkgi create-network-profile PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION
+    ``` 
+    Where `PATH-TO-YOUR-NETWORK-PROFILE-CONFIGURATION` is the path to your network profile configuration file.  
+
+
+### <a id="update-w-modified-profile"></a> Update the Cluster with a Modified Network Profile
+
+To update a cluster with a modified network profile:
+
+1. To apply the network profile created above to your cluster, run the following command::  
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --network-profile NETWORK-PROFILE-NAME
+    ```
+
+    Where:
+    * `CLUSTER-NAME` is the unique name of your cluster.
+    * `NETWORK-PROFILE-NAME` is the name of the network profile you want to use for your cluster.
+
+<%= vars.k8s_runtime_abbr %> validates the network profile before updating the cluster with the new network profile. 
+For more information, see [Update-Cluster Network Profile Validation Rules](#update-restrictions) below.  
+
+
+### <a id="update-restrictions"></a> Update-Cluster Network Profile Validation Rules
+
+<%= vars.k8s_runtime_abbr %> uses strict validation rules before applying a network profile to a cluster
+with an existing network profile:
+
+- If a field in the original network profile is empty, the system ignores the empty field even if the field is included in the new network profile.  
+- If a field in the new network profile is empty, the system ignores the field even if the field is not empty in the original network profile.  
+- If the `pod_ip_block_ids` field in the new network profile contains the same entries as the existing network profile, 
+the entry passes validation.  
+- If a field in the new network profile conflicts with the field in the existing network profile, the system reports the conflict and fails the validation.  
+
+
+## <a id="delete"></a> Delete a Network Profile
+
+<%= vars.k8s_runtime_abbr %> administrators can delete a network profile that is not in use.
+
+To delete a network profile:  
+
+1. Run the following <%= vars.k8s_runtime_abbr %> CLI command:
+
+    ```
+    tkgi delete-network-profile NETWORK-PROFILE-NAME
+    ```
+
+    Where `NETWORK-PROFILE-NAME` is the name of the network profile you want to delete.
+
+<p class="note"><strong>Note:</strong> You cannot delete a network profile that is in use.</p>
+
+
 
 ## <a id='use-cases'></a> Network Profile Use Cases
 
-Network profiles let you customize NSX-T configuration parameters at the time of cluster creation. Use cases for network profiles include:
+Network profiles let you customize configuration parameters for 
+Kubernetes clusters provisioned by <%= vars.k8s_runtime_abbr %> on vSphere with NSX&#8209;T.  
+
+You can apply a network profile to a Kubernetes cluster for the following scenarios:
 
 <%= partial 'network-profiles-uses' %>
