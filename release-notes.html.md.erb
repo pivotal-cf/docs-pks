@@ -127,7 +127,7 @@ This section describes new features and changes in <%= vars.product_full %> v1.9
 * **[Enhancement]** Reduced the possibility of <%= vars.k8s_runtime_abbr %> CLI `get-credentials` returning the error 
 “_od-broker is processing a request for the same instance... please try again later_” during periods of intermittent latency.  
 * **[Bug Fix]** Fixes [Upgrading a Three-Node Pod Fails When Upgrading the Second Node](#bosh-stop-doesnt-drain).  
-
+* **[Bug Fix]** Fixes [Pods are Stuck in the Init State and Return the `DeadlineExceeded` RPC Error](#rpc-deadline-exceeded).
 <%#
 * **[Enhancement]** 
 * **[Bug Fix]** 
@@ -1479,6 +1479,42 @@ Your cluster upgrades fail when upgrading the second node of a three-node Pod.
 Draining a worker node has triggered the removal of a container interface on the node, 
 blocking all network traffic from the Pod.
 
+#### <a id="rpc-deadline-exceeded"></a>Pods are Stuck in the Init State and Return the `DeadlineExceeded` RPC Error
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.9.5](#1-9-5-features).
+
+**Symptom**
+
+Your pods are stuck in the Init state and `kubelet describe pod` returns the following:
+
+```
+Failed to create pod sandbox: rpc error: code = DeadlineExceeded desc = context deadline exceeded
+```
+
+Your `kubelet.stderr.log` log might also include errors for `Failed to stop sandbox` and:  
+
+```
+CNI failed to retrieve network namespace path: cannot find network namespace for the terminated container
+```
+<br>
+**Workaround**
+
+To remove this issue, restart the nsx-node-agent process:
+
+1. To access the worker node, use bosh ssh,
+1. Run the following commands:
+
+    ```
+    sudo -i
+    monit restart nsx-node-agent
+    ```
+1. To confirm the nsx-node-agent status, run the following:
+
+    ```
+    watch monit summary
+    ```
+
+1. Wait for nsx-node-agent to restart.
 
 ## <a id="management-console-1.9.5"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.9.5
 
