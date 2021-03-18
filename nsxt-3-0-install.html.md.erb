@@ -328,46 +328,9 @@ Tunnel endpoints (TEPs) are the source and destination IP addresses used in the 
 1. Verify that the pool is added.
   <img src="images/nsxt/nsxt-30/ip-pool-03.png">
 
-##<a id='nsxt30-tzs'></a> Create Transport Zones
+##<a id='nsxt30-tzs'></a> Configure Transport Zones
 
-You need two transport zones for TKGI: an Overlay TZ for Transport Nodes and a VLAN TZ for Edge Nodes. You have two options: use the defeault transport zones or create custom ones.
-
-By default NSX-T v3.0 creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. To use the default transport zones with TKGI, when you [configure the NSX-T Edge Nodes](#nsxt30-edge-nodes), you **MUST** use the exact N-VDS switch name to be the same that is defined on the default transport zones, which is `nsxHostSwitch`. 
-
-Alternatively, you can create custom transport zones for the Edge Nodes and use your own switch names, for example:
-
-- `tz-overlay` (switch name: `switch-overlay`), and
-- `tz-vlan` (switch name: `switch-vlan`)
-
-The advantage of using the default transport zones is that you only need a single N-VDS for the Edge Nodes. The caveat is that you must specify this exact switch name `nsxHostSwitch`. If you are going to use the default transport zones, skip to the next section. To create custom transport zones, follow the steps below.
-
-<p class="note"><strong>Note:</strong> If you use the default transport zones, but do not use the exact name `nsxHostSwitch` when configuring the Edge Node N-VDS switch, you will receive the  `pks-nsx-t-osb-proxy` BOSH error when you try to deploy TKGI. Refer to the <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.0/installation/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html">NSX-T documentation</a> for more information.</p>
-
-###<a id='nsxt30-overlay-tz'></a> Create the Overlay TZ
-
-1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
-  <img src="images/nsxt/nsxt-30/tz-01.png">
-1. Click **Add**.
-1. Enter a Name, such as `tz-overlay`.
-1. Enter a switch name, such as `switch-overlay`.
-1. For the **Traffic Type**, select `Overlay`.
-1. Click **Add**.
-  <img src="images/nsxt/nsxt-30/tz-02.png">
-1. Verify that you see the newly created TZ named `tz-overlay` in the list.
-  <img src="images/nsxt/nsxt-30/tz-03.png">
-
-###<a id='nsxt30-vlan-tz'></a> Create the VLAN TZ
-
-1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
-  <img src="images/nsxt/nsxt-30/tz-01.png">
-1. Click **Add**.
-1. Enter a name, such as `tz-vlan`.
-1. Enter a switch name, such as `switch-vlan`.
-1. For the **Traffic Type**, select `VLAN`.
-  <img src="images/nsxt/nsxt-30/tz-04.png">
-1. Click **Add**.
-1. Verify that you see the newly created TZ named `tz-vlan` in the list. 
-  <img src="images/nsxt/nsxt-30/tz-05.png">
+Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html.md.erb).
 
 ##<a id='nsxt30-esxi-vswitch'></a> Configure vSphere Networking for ESXi Hosts
 
@@ -438,7 +401,7 @@ The number of virtual servers that can be run depends on the size of the load ba
 
 For this installation, we use the Large VM form factor for the Edge Node. See [VMware Configuration Maximums](https://configmax.vmware.com/guest?vmwareproduct=VMware%20NSX-T&release=NSX-T%20Data%20Center%203.0.0&categories=17-0) for more information.
 
-###<a id='nsxt30-edge-node-1'></a> Install Edge Node 1 
+###<a id='nsxt30-edge-node-1'></a> Install and Configure Edge Node 1 
 
 Deploy the Edge Node 1 VM using the NSX-T Manager interface.
 
@@ -477,50 +440,9 @@ Deploy the Edge Node 1 VM using the NSX-T Manager interface.
   - **Management Interface**: PG-MGMT-VLAN-1548, for example
   <img src="images/nsxt/nsxt-30/edge-node-05.png">
 
-####<a id='nsxt30-edge-node-1-nvds'></a> Configure the N-VDS Switch
+####<a id='nsxt30-edge-node-1-nvds'></a> Configure the N-VDS Switch or Switches for Edge Node 1
 
-The next step is to configure the N-VDS switch and transport zones for the NSX Edge Node. 
-
-How you do this differs depending on if you are using the default or custom [transport zones](#nsxt30-tzs). 
-- If you are using the default [transport zones](#nsxt30-tzs), configure a single switch, use the `nsxHostSwitch` name, and specify both default transport zones, `nsx-overlay-transportzone` and `nsx-vlan-transportzone`, in the same N-VDS configuration.
-- If you are using custom [transport zones](#nsxt30-tzs), configure two N-VDS switches, specify the custom transports names for each, and the corresponding custom switch name for each.
-
-**N-VDS Configuration for Default Transport Zones**
-
-Configure the NSX switch for the Edge Node as follows:
-
-  - **Edge Switch Name**: Use the following switch name:
-  		- `nsxHostSwitch` 
-  - **Transport Zone**: Select both the of the default [transport zones](#nsxt30-tzs):
-    	- `nsx-overlay-transportzone`
-    	- `nsx-vlan-transportzone`
-  - **Uplink Profile**: `nsx-edge-single-nic-uplink-profile`
-  - **IP Assignment**: Use IP Pool
-  - **IP Pool**: TEP-IP-POOL
-  - **Uplinks**: uplink-1 / EDGE-VTEP-PG
-
-**N-VDS Configuration for Custom Transport Zones**
-
-Configure the first NSX switch for the Edge Node as follows:
-
-  - **Edge Switch Name**:
-    	- `switch-overlay` (use the exact switch name that was configured for the custom transport zone `tz-overlay`)
-  - **Transport Zone**:
-    	- `tz-overlay` (example custom transport zone)
-  - **Uplink Profile**: `nsx-edge-single-nic-uplink-profile`
-  - **IP Assignment**: Use IP Pool
-  - **IP Pool**: TEP-IP-POOL
-  - **Uplinks**: uplink-1 / EDGE-VTEP-PG
-
-Configure the second NSX switch for the Edge Node as follows:
-
-  - Click **Add Switch** (at the top of the dialog)
-  - **Edge Switch Name**:
-    	- `switch-vlan` (use the exact switch name that was configured for the custom transport zone `tz-vlan`)
-  - **Transport Zone**:
-    	- `tz-vlan` (example custom transport zone)
-  - **Uplink Profile**: `nsx-edge-single-nic-uplink-profile`
-  - **Uplinks**: uplink-1 / EDGE-UPLINK-PG
+The next step is to configure the N-VDS switch and Transport Zones for NSX Edge Node 1. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html.md.erb).
 
 ####<a id='nsxt30-edge-node-1-complete'></a> Complete the Edge Node 1 Installation
 
@@ -531,41 +453,61 @@ Configure the second NSX switch for the Edge Node as follows:
 1. Once the process completes, you should see the Edge Node 1 deployed successfully in NSX-T Manager.
   <img src="images/nsxt/nsxt-30/edge-node-08.png">
 
-1. Click the N-VDS link and verify that you see both switches.
+1. Click the N-VDS link and verify that you see the switch or switches.
   <img src="images/nsxt/nsxt-30/edge-node-09.png">
 
 1. In vCenter verify that the Edge Node is created.
   <img src="images/nsxt/nsxt-30/edge-node-10.png">
 
-###<a id='nsxt30-edge-node-2'></a> Install Edge Node 2
+###<a id='nsxt30-edge-node-2'></a> Install and Configure Edge Node 2
 
-Repeat the same operation for Edge Node 2, and for each additional NSX Edge Node pair you intend to use for <%= vars.product_short %>. 
+Deploy the Edge Node 2 VM using the NSX-T Manager interface.
 
-1. Install `nsx-edge-2` following the same procedure as `nsx-edge-1`.
-  - name: `edge-node-2`
-  - hostname/FQDN: `edge-node-2.lab.com`, for example
-  - Form Factor: Large
-  - IP Assignment: Static
-  - IP: 10.173.62.58/24, for example
-  - GW: 10.173.62.253, , for example
-  - Management Interface: `PG-MGMT-VLAN-1548`
-  - Edge Switch 1: Name: 
-      - `nsxHostSwitch` (if you are using the default TZs) 
-      - `switch-overlay` (if you are using a custom TZ)
-  - Edge Switch 1: Transport Zone: 
-      - `nsx-overlay-transportzone` and `nsx-vlan-transportzone` (if you are using the default TZs)
-      - `tz-overlay` (if you are using a custom TZ)
-    - Uplink Profile: `nsx-edge-single-nic-uplink-profile`
-    - IP Assignment: `Use IP Pool`
-    - IP Pool: `TEP-IP-POOL`
-    - Uplinks: `uplink-1` / `EDGE-VTEP-PG`
-  - Edge Switch 2: (only required if you are using a custom TZ)
-      - Name: `switch-vlan` (use the same switch name that was configured for tz-vlan)
-      - Transport Zone: `tz-vlan`
-      - Uplink Profile: `nsx-edge-single-nic-uplink-profile`
-      - Uplinks: `uplink-1` / `EDGE-UPLINK-PG`
+1. In NSX Manager, go to **System** > **Fabric** > **Nodes** > **Edge Transport Nodes**.
 
-1. Once done, you should be able to see both Edge Nodes in NSX Manager.
+1. Click **Add Edge VM**.
+
+1. Configure the Edge VM as follows:
+  - **Name**: `edge-node-2`
+  - **Host name/FQDN**: `edge-node-2.lab.com`
+  - **Form Factor**: **Large**
+
+1. Configure **Credentials** as follows:
+  - **CLI User Name**: `admin`
+  - **CLI Password**: Enter a strong password for the `admin` user that complies with the NSX-T requirements.
+  - **Enable SSH Login**: Yes
+  - **System Root Password**: Enter a strong password for the `root` user that complies with the NSX-T requirements.
+  - **Enable Root SSH Login**: Yes
+  - **Audit Credentials**: Enter an `audit` user name and password.
+
+1. Configure the deployment as follows:
+  - **Compute Manager**: vCenter
+  - **Cluster**: MANAGEMENT-Cluster
+  - **Datastore**: Select the datastore
+
+1. Configure the node settings as follows:
+  - **IP Assignment**: Static
+  - **Management IP**: 10.173.62.58/24, for example
+  - **Default Gateway**: 10.173.62.253, , for example
+  - **Management Interface**: PG-MGMT-VLAN-1548, for example
+
+####<a id='nsxt30-edge-node-2-nvds'></a> Configure the N-VDS Switch or Switches for Edge Node 2
+
+The next step is to configure the N-VDS switch and transport zones for NSX Edge Node 2. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html.md.erb).
+
+####<a id='nsxt30-edge-node-2-complete'></a> Complete the Installation of Edge Node 2
+
+1. Click **Finish** to complete the configuration. The installation begins.
+
+1. In vCenter, use the **Recent Tasks** panel at the bottom of the page to verify that you see the Edge Node 1 VM being deployed.
+
+1. Once the process completes, you should see the Edge Node 2 deployed successfully in NSX-T Manager.
+
+1. Click the N-VDS link and verify that you see the N-VDS switch or swtiches.
+
+1. In vCenter verify that Edge Node 2 is created.
+
+1. In NSX Manager, verify that you see both Edge Nodes.
   <img src="images/nsxt/nsxt-30/edge-node-11.png">
 
 ##<a id='nsxt30-uplink-profile'></a> Create Uplink Profile for ESXi Transport Node
