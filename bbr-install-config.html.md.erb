@@ -7,7 +7,10 @@ This topic describes how to install BOSH Backup and Restore (BBR).
 
 ##<a id="overview"></a> Overview
 
-To install BBR, first validate that your jumpbox VM is a valid BOSH backup host, then copy the BBR executable to the jumpbox. 
+To install BBR, first validate that your jumpbox VM is a valid BOSH backup host, 
+then copy the `bbr` executable to the jumpbox and configure BBR.  
+
+For more information, see [Install and Configure BOSH Backup and Restore](#install-bbr-overview) below.
 
 After installing BBR, you can run `bbr` commands to back up and restore your <%= vars.product_short %>
 deployment.
@@ -17,32 +20,54 @@ For more information about using BOSH Backup and Restore, see:
 * To backup and restore Kubernetes clusters provisioned by TKGI, see [Backing Up and Rrestoring TKGI Clusters](backup-and-restore-clusters.html).  
 * To backup and restore TKGI Management Plane Components, see [Backing Up and Rrestoring TKGI Managmenent Plane](backup-and-restore-tkgi.html).  
 
-##<a id="prerequisites"></a> Prerequisite
+##<a id="prerequisites"></a> Prerequisites
 
 Using BBR requires the following:  
 
 * A jumpbox. You must have a jumpbox before you can install BBR to the jumpbox.  
-* A bbr executable file. You must have the correct BBR executable version for your <%= vars.k8s_runtime_abbr %> installation. 
+<br>
+    A jumpbox is a separate, hardened server on your network that provides a controlled means of accessing the other VMs on your network. 
+    See the [jumpbox-deployment](https://github.com/cloudfoundry/jumpbox-deployment) GitHub repository for an example jumpbox deployment.
+<br>
+* The OpenBSD version of netcat must be installed on the jumpbox host.  
 
-A jumpbox is a separate, hardened server on your network that provides a controlled means of accessing the other VMs on your network. 
-See the [jumpbox-deployment](https://github.com/cloudfoundry/jumpbox-deployment) GitHub repository for an example jumpbox deployment.  
+* A `bbr` executable file. You must have the correct BBR executable version for your <%= vars.k8s_runtime_abbr %> installation. 
 
-To determine the correct version of BBR for your deployment, see the [<%= vars.product_short %> Release Notes](release-notes.html).
-To download a BBR installation file, see [BOSH Backup and Restore](https://network.pivotal.io/products/p-bosh-backup-and-restore) on the VMware Tanzu Network.
+    * To determine the correct version of BBR for your deployment, see the [<%= vars.product_short %> Release Notes](release-notes.html).
+    * To download a BBR installation file, see [BOSH Backup and Restore](https://network.pivotal.io/products/p-bosh-backup-and-restore) on the VMware Tanzu Network.
 
-##<a id="bbr-jumpbox"></a> Configure Your Jumpbox for BBR
+<p class="note"><strong>Note</strong>: BBR does not support SSH gateways.</p>
 
-Configure your jumpbox to meet the following requirements:
+##<a id="install-bbr-overview"></a> Install and Configure BOSH Backup and Restore
 
-* Your jumpbox must be able to communicate with the network that contains your <%= vars.product_short %> deployment. You
-can use the Ops Manager VM as your jumpbox.
-* Your jumpbox must have sufficient space for the backup.
-* Your jumpbox must be in the same network as the deployed VMs because BBR connects to the VMs at their private IP addresses. BBR does not support SSH gateways.
-* Your jumpbox should be a host with minimal network latency to the source VMs you are configuring BBR to backup.
+To install and configure BBR:
 
-<p class="note"><strong>Note</strong>: BBR uses SSH to orchestrate the backup of your <%= vars.product_short %> instances using port 22 by default.</p>
+1. [Configure Your Jumpbox for BBR](#bbr-jumpbox)  
+1. [Install BBR on Your Jumpbox](#bbr-install)
+1. [Verify Your BBR Installation](#bbr-install)
+1. [Configure BBR Logging](#bbr-logging)
 
-## <a id='bbr-install'></a> Install BBR on Your Jumpbox
+###<a id="bbr-jumpbox"></a> Configure Your Jumpbox for BBR
+
+Your jumpbox must meet or exceed minimum BBR requirements. 
+You can use the Ops Manager VM as your jumpbox if it can be configured to meet all of the requirements below.  
+
+
+
+To configure your jumpbox to meet BBR requirements:  
+
+1. Size the jumpbox to have sufficient storage space for your backups.  
+1. Ensure the jumpbox can communicate with the network containing your <%= vars.product_short %> deployment.  
+<br>
+    BBR uses SSH to orchestrate the backup of your <%= vars.product_short %> instances using port 22 by default.
+
+1. Configure the jumpbox to be in the same network as the deployed VMs.  
+<br>
+    BBR connects to the deployed VMs at their private IP addresses.  
+
+1. Ensure there is minimal network latency between the jumpbox and the source VMs BBR backs up.  
+
+###<a id='bbr-install'></a> Install BBR on Your Jumpbox
 
 Copy the `bbr` executable to a local disk then upload the executable to the jumpbox:
 
@@ -63,30 +88,38 @@ Copy the `bbr` executable to a local disk then upload the executable to the jump
     * `JUMPBOX-USER` is the ssh username for connecting to the jumpbox.
     * `JUMPBOX-ADDRESS` is the IP address, or hostname, of the jumpbox.
 
-## <a id='bbr-install'></a> Verify BBR Installation
+###<a id='bbr-install'></a> Verify Your BBR Installation
 
-To verify the that BBR is installed, run the following command:
+To verify the that BBR is installed:
 
-```
-bbr version  
-```
+1. Run the following command:
 
-## <a id='bbr-logging'></a>Configure BBR Logging
+    ```
+    bbr version  
+    ```
 
-By default, BBR displays the following:
-
-* The backup and restore scripts that it finds
-* When it starts or finishes a stage, such as `pre-backup scripts` or `backup scripts`
-* When the process is complete
-* When any error occurs
-
-BBR writes any errors associated with stack traces to a file in of the form `bbr-TIMESTAMP.err.log` in the current directory.
-
-To troubleshoot a failed backup or restore using BBR, you can enable verbose logging using the . If more logging is needed, use the optional `--debug` flag to print the following information:
-
-* Logs about the API requests made to the BOSH server
-* All commands executed on remote instances
-* All commands executed on local environment
-* Standard in and standard out streams for the backup and restore scripts when they are executed
+    Verify the returned BBR version.  
 
 
+###<a id='bbr-logging'></a>Configure BBR Logging
+
+BBR writes backup and restore logs to the current directory in a file named `bbr-TIMESTAMP.err.log`.
+
+By default BBR writes errors associated with stack traces to the log file.
+
+BBR also reports default information about the backup and restore run:  
+
+* The backup and restore scripts that it finds.  
+* When it starts or finishes a stage, such as `pre-backup scripts` or `backup scripts`.  
+* When the process is complete.  
+* When any error occurs.  
+
+To troubleshoot a failed BBR run, enable verbose logging. 
+When executed in verbose mode, BBR reports the following additional information:  
+
+* Logs about the API requests made to the BOSH server.  
+* All commands executed on remote instances.  
+* All commands executed on local environment.  
+* Standard in and standard out streams for the backup and restore scripts when they are executed.  
+
+Enable verbose logging by using the optional `--debug` flag.  
