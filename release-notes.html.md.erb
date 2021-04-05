@@ -312,7 +312,7 @@ See the <%= vars.k8s_runtime_abbr %>  Management Console v1.10.0 [Known Issues](
     </tr>
 </table>
 
-### <a id='1-10-0-upgrade'></a>Upgrade Path <%#CONFIRM BEFORE GA%>
+### <a id='1-10-0-upgrade'></a>Upgrade Path
 
 The supported upgrade paths to <%= vars.k8s_runtime_abbr %> v1.10.0 are from <%= vars.product_short %> v1.9.0 and later.
 
@@ -336,11 +336,12 @@ You can now scale the number of VM instances for the following <%= vars.product_
 * **[Enhancement]** Improves error messages for cluster creation, update and upgrade failures. 
 For more information, see [Cluster Creation, Update and Upgrade Failure Error Messages No Longer Truncated](#1-10-0-cluster-errors) in _Breaking Changes_ below.
 * **[Security Fix]** Passes additional CIS Kubernetes Benchmarks. See [<%= vars.k8s_runtime_abbr %> Cluster Benchmarks](./security.html#benchmarks) for details.
+* **[Bug Fix]** The VMware vRealize Log Insight Integration (vRLI) **Rate limiting** feature has been restored. For information about configuring vRLI rate limiting, see [Host Monitoring](installing-nsx-t.html#syslog) in _Installing <%= vars.product_short %> on vSphere with NSX-T_.
 * **[Bug Fix]** Fixes [Your <%= vars.k8s_runtime_abbr %> Cluster Fails to Start After Changing Your Worker Node's Compute Profile AZ](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-2-compute-profile-az-worker).
 * **[Bug Fix]** Fixes [<%= vars.k8s_runtime_abbr %> Upgrade or Install Fails with Error "x509: certificate relies on legacy Common Name field"](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-failed-upgrade). 
 * **[Bug Fix]** Fixes [Cluster Creation Fails During the 'Creating Load Balancer' Step](https://docs-pcf-staging.cfapps.io/tkgi/1-9/release-notes.html#1-9-0-401-403). 
 * **[Bug Fix]** Fixes [Network Profile Required with Compute Profile](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-az-network-profile).  
-* **[Bug Fix]** Fixes [Kubernetes Worker Nodes Run Out of Space](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-k8s-race-condition).  
+* **[Bug Fix]** Fixes [Kubernetes Worker Nodes Run Out of Space](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-k8s-race-condition).
 
 <%#
 * **[Bug Fix]** Fixes [You Cannot Change a Master Node's AZ](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-compute-profile-az-master).  
@@ -404,6 +405,7 @@ The following components have been updated:
 * Bumps UAA to v74.5.21.
 
 ### <a id="1-10-0-breaking-changes"></a> Breaking Changes
+
 TKGI v1.10.0 has the following breaking changes. 
 
 #### <a id='1-10-0-nsxt-3'></a> <%= vars.k8s_runtime_abbr %> v1.10 Is Not Compatible with NSX-T v2.5.2 or Earlier 
@@ -426,6 +428,12 @@ You cannot enable swap through the TKGI CLI, and manually configuring swap is no
 Previously, error messages greater than 128 bytes were truncated. In <%= vars.k8s_runtime_abbr %> v1.10 
 logged cluster creation and upgrade failure error messages are no longer truncated. 
 
+
+#### <a id='1-10-0-node-names-match'></a> On NSX-T v3.1 the Transport Zone and Edge Transport Node Switch Names Must be Identical 
+
+The NSX-T Transport Zone and Edge Transport Node switch names must be identical if <%= vars.k8s_runtime_abbr %> v1.10 is installed on NSX-T v3.1. 
+For more information, see [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for <%= vars.product_short %>]
+(nsxt-3-1-install-delta.html).
 
 ###<a id='1-10-0-known-issues'></a>Known Issues
 
@@ -596,7 +604,7 @@ the cluster's compute profile will be dropped.
 
 **Symptom**
 
-After you delete a VM using your IAAS' management console you notice a Windows worker node
+After you delete a VM using the management console of your infrastructure provider, you notice a Windows worker node
 that had been on that VM is now in a `notReady` state.
 
 **Solution**
@@ -833,6 +841,24 @@ Monit processes have stopped before kubelet has completely drained the Pod.
 Draining a worker node has triggered the removal of a container interface on the node, 
 blocking all network traffic from the Pod.
 
+#### <a id='1-10-0-do-notuse-resize-cluster'></a> The <%= vars.k8s_runtime_abbr %> CLI Resize and Update Cluster Commands Remove the Network Profile CNI Configuration from a Cluster
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.1](#1-10-1-features).
+
+**Symptom**
+
+In <%= vars.k8s_runtime_abbr %> v1.10.0, the network profile CNI configuration is dropped 
+when updating the cluster using the `tkgi resize` or `tkgi update-cluster` CLI commands.  
+
+**Solution**
+
+To restore a CNI network profile configuration:  
+
+1. Upgrade <%= vars.k8s_runtime_abbr %> to v1.10.1 or later.  
+1. Upgrade your <%= vars.k8s_runtime_abbr %>-provisioned cluster to <%= vars.k8s_runtime_abbr %> v1.10.1 or later.  
+1. To restore the network profile CNI configuration, modify the cluster using `tkgi update-cluster` or `tkgi resize`. 
+You can run the `tkgi update-cluster` command with or without stating the network profile name.  
+
 
 ## <a id="management-console-1.10.0"></a> <%= vars.k8s_runtime_abbr %> Management Console 1.10.0
 
@@ -1018,3 +1044,4 @@ Harbor does not support modifying an existing Harbor installation's storage conf
 
 To modify your Harbor storage configuration,
 re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
+
