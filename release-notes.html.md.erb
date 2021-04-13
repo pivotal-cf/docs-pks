@@ -149,9 +149,9 @@ See the <%= vars.k8s_runtime_abbr %> v1.10.0 [Known Issues](#1-10-0-known-issues
 
 #### <a id='1-10-1-drain-dynamic-pvs'></a> Workloads Using Dynamic PVs Must be Removed Before Deleting a Cluster
 
-**Symptom**
+**Symptom**  
 
-Your workloads with dynamic persistent volumes hang while `bosh delete-deployment` deletes a worker VM containing a Pod bound to the PV.  
+Your `tkgi delete-cluster` operation hangs while draining a worker VM containing a Pod bound to one or more dynamic persistent volumes.  
 
 **Workaround** 
 
@@ -160,26 +160,56 @@ Before deleting the cluster, remove all workloads.
 If you have already attempted to delete a cluster and your workloads with dynamic PVs have stopped, 
 complete the following steps:  
 
-1. To fetch the VM CID for the affected worker VM, run the following:  
+1. To fetch the VM CID for the affected worker VM:  
 
-    ```
-    bosh vms
-    ```
-1. Determine the vmdk file paths for all of the dynamic PVs attached to the worker VM.
-1. Power off the worker VM. To power off the worker VM on vSphere, use the vCenter webUI.    
-1. Delete the worker VM from disk. 
-To delete a worker VM using the vCenter webUI:
+    1. To fetch the task ID for tasks on your deployment:  
+
+        ```
+        bosh -d DEPLOYMENT-ID tasks -r
+        ```
+        Where `DEPLOYMENT-ID` is your deployment name.  
+<br>
+    1. To fetch the name of the worker VM BOSH has blocked on:  
+
+        ```
+        bosh task TASK-ID
+        ```
+        Where `TASK-ID` is the ID you fetched in the last step.  
+<br>
+        This will return a worker VM name in a format similar to the following: "_worker/547a4c8d-a8b7-4640-ac8c-10712925987_".  
+<br>
+    1. To fetch the VM CID for the affected worker VM:  
+
+        ```
+        bosh vms | grep WORKER-VM-ID
+        ```
+        Where `WORKER-VM-ID` is the worker VM name you fetched in the last step.  
+1. Determine the vmdk file paths for all of the dynamic PVs attached to the worker VM.  
+<br>
+    To determine the vmdk file paths for dynamic PVs using the vCenter webUI:  
+    1. Select the worker VM.  
+    1. Right-click the worker VM.  
+    1. Select `Edit Settings`.  
+    1. Select `Yes`.  
+<br>
+        You can now see all disks and file paths.  
+1. Power off the worker VM.  
+<br>
+    To power off the worker VM on vSphere, use the vCenter webUI.    
+1. Delete the worker VM from disk.  
+<br>
+    To delete a worker VM using the vCenter webUI:
     1. Select the worker VM.
     1. Right-click the worker VM.
     1. Select `Delete from disk`.
-1. Remove the vmdk files at the file paths you collected above. 
-To remove a vmdk file using the vCenter webUI:
+1. Remove the vmdk files at the file paths you collected above.  
+<br>
+    To remove a vmdk file using the vCenter webUI:
     1. Open the vCenter Storage page.
     1. Remove the vmdk files for the dynamic PVs attached to the worker VM.  
-        <p class="note warning"><strong>Warning:</strong> 
-        Remove only the vmdk files for the dynamic PVs attached to the problematic worker VM.</p>
 
-
+    <p class="note warning"><strong>Warning:</strong> 
+    Remove only the vmdk files for the dynamic PVs attached to the problematic worker VM.</p>
 
 ## <a id="management-console-1-10-1"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.10.1
 
