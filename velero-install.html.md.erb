@@ -473,7 +473,7 @@ The instructions use Harbor.
 ###<a id='velero-cluster-install-airgapped-procedure'></a> Procedure
 
 1. Open the VMware Velero downloads page for your version of <%= vars.k8s_runtime_abbr %> linked-to from the [Product Snapshot](release-notes.html) of the _Release Notes_ topic.
-1. Download the Velero CLI and Velero with Restic Dockers images for your version of <%= vars.k8s_runtime_abbr %>.
+1. Download the Velero CLI and Velero with Restic Docker images for your version of <%= vars.k8s_runtime_abbr %>:  
   - velero-plugin-for-aws-v1.1.0-beta.1.tar.gz
   - velero-v1.4.2_vmware.1.tar.gz
   - velero-restic-restore-helper-v1.4.2_vmware.1.tar.gz
@@ -515,21 +515,31 @@ The instructions use Harbor.
     and [Restic installation](https://velero.io/docs/main/restic/#install-restic) 
     in the Velero documentation.
 
+5. Customize the Restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) 
+for the Pod during the restore process:  
+    1. Download the example configmap from: [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/velero-restic/).
+    1. Use the example configmap to create a new configmap.
+    1. To apply the new configmap in the `velero` namespace:  
 
-5. After installing, configure the Restic post-installation settings:  
-    * Customize the Restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) 
-    for the pod during the restore process. 
-    This can be done by creating a configmap and applying it in the velero namespace, such as `kubect apply -f restic-cm.yaml -n velero`. 
-    Download the example configmap [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/velero-restic/) provided for such purposes.
-    * Modify the host path by editing the Restic daemonset manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`. 
-    Verify that the Restic pods are running. 
-    For more information, see [Modify the Host Path](#velero-privileged) above.
-    * (Optional) Increase your Restic timeout: You can increase the Restic timeout
-    for backups 1&nbsp;TB or larger by editing the Velero deployment manifest 
-    and adding `'- --restic-timeout=900m'` to `spec.template.spec.containers`.
-    * (Optional) Adjust your Restic Pod CPU and memory reserves: Depending on your requirements, 
-    you can adjust the CPU and memory reserves and limits for your Velero and Restic Pods. 
-    For more information, see [Adjust Velero Memory Limits (if necessary)](#velero-memory) above.  
+    ```
+    kubect apply -f restic-cm.yaml -n velero
+    ```
+6. Correct the host path:  
+    1. Open the Restic daemonset manifest in an editor.  
+    1. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`.  
+    1. Verify that the Restic Pods are running.  
+
+    For more information, see [Modify the Host Path](#velero-privileged) above.  
+5. Configure the optional Restic post-installation settings:  
+    * (Optional) For backups 1&nbsp;TB or larger, increase your Restic timeout:  
+        1. Open the Velero deployment manifest in an editor.  
+        1. Locate `spec.template.spec.containers` within the deployment manifest.  
+        1. Add `'- --restic-timeout=900m'` to `spec.template.spec.containers`.  
+    * (Optional) Adjust the CPU and memory reserves for your Velero and Restic Pods.  
+<br>
+        Depending on your requirements, 
+        you might need to adjust the CPU and memory reserves and limits for your Velero and Restic Pods. 
+        For more information, see [Adjust Velero Memory Limits (if necessary)](#velero-memory) above.  
 <br>
         **restic pod**
 
