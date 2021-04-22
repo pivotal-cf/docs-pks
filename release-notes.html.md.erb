@@ -35,7 +35,7 @@ review the <a href="#1-11-0-breaking-changes">Breaking Changes</a> below.
     </tr>
     <tr>
         <td>Kubernetes</td>
-        <td>v1.19.9</td>
+        <td>v1.20.5</td>
     </tr>
     <tr>
         <td>CoreDNS</td>
@@ -58,7 +58,7 @@ review the <a href="#1-11-0-breaking-changes">Breaking Changes</a> below.
     </tr>
     <tr>
         <td>NCP</td>
-        <td>v3.1.0.1</td>
+        <td><strong>PENDING: v3.1.2</strong></td>
     </tr>
     <tr>
         <td>Percona XtraDB Cluster (PXC)</td>
@@ -74,15 +74,15 @@ review the <a href="#1-11-0-breaking-changes">Breaking Changes</a> below.
     </tr>
     <tr>
         <td>VMware Cloud Foundation (VCF)</td>
-        <td>v4.2.0</td>
+        <td><strong>PENDING: v4.3 L1</strong></td>
     </tr>
     <tr>
         <td>Ops Manager</td>
-        <td> Ops Manager 2.10.8 or later.</td>
+        <td>Ops Manager 2.10.8 or later or 2.11.0 or later.</td>
     </tr>
     <tr>
         <td>Xenial stemcells</td>
-        <td>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/863377"><%= vars.product_network %>.</a></td>
+        <td>See <a href="https://network.pivotal.io/products/pivotal-container-service/"><%= vars.product_network %>.</a></td>
     </tr>
     <tr>
         <td>Windows stemcells</td>
@@ -90,18 +90,18 @@ review the <a href="#1-11-0-breaking-changes">Breaking Changes</a> below.
     </tr>
     <tr>
         <td>vSphere</td>
-        <td rowspan=2>See <a href="https://interopmatrix.vmware.com/#/Interoperability?isHideGenSupported=false&isHideTechSupported=false&isHideCompatible=false&isHideIncompatible=false&isHideNTCompatible=true&isHideNotSupported=true&isCollection=false&col=644,4803&row=2,5088,4276,3496,3457,3222,2862,2736,3364,2732,2332,2132,2136,998,695,431,792,611,578,508,1034,442,444,448,254,1035,462,392,252,140,2981,194,172,38,242,173,37,36,35%26175,4926,4090,5371,4729,4198,3413,5316,4232,3787,3394,3777,3645,3451,2852,3216,2714,2595,2526,2176,1689">VMware Product Interoperability Matrices.</a></td></td>
+        <td rowspan=2>See <a href="https://interopmatrix.vmware.com/#/Interoperability?isHideGenSupported=true&isHideTechSupported=true&isHideCompatible=false&isHideIncompatible=false&isHideNTCompatible=false&isHideNotSupported=true&isCollection=false&col=644&row=0,">VMware Product Interoperability Matrices.</a></td></td>
     </tr>
     <tr>
         <td>NSX-T</td>
     </tr>
     <tr>
         <td>CNS for vSphere</td>
-        <td>v2.0.0, v1.0.2</td>
+        <td>v2.2.0</td>
     </tr>
     <tr>
         <td>Harbor</td>
-        <td>v2.1.3</td>
+        <td>v2.2.x</td>
     </tr>
     <tr>
         <td>Velero</td>
@@ -158,6 +158,379 @@ The following components have been updated:
 ###<a id='1-11-0-known-issues'></a>Known Issues
 
 <%= vars.k8s_runtime_abbr %> v1.11.0 has the following known issues: 
+
+
+#### <a id="1-11-0-nsxt-302-310"></a> Pods Stop After Upgrading From NSX-T v3.0.2 to v3.1.0 on vSphere 7.0 and 7.0.1
+
+**Symptom**
+
+Your TKGI-provisioned Pods stop after upgrading from NSX-T v3.0.2 to NSX-T v3.1.0 on vSphere 7.0 and 7.0.1.
+
+**Explanation**
+
+For information, see [Issue 2603550: Some VMs are vMotioned and lose network connectivity during UA nodes upgrade]
+(https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.1/rn/VMware-NSX-T-Data-Center-311-Release-Notes.html#2603550) in the _VMware NSX-T Data Center 3.1.1 Release Notes_.
+
+**Workaround**
+
+To avoid the loss of network connectivity during UA node upgrade, ensure DRS is set to manual mode during your upgrade from NSX-T v3.0.2 to v3.1.0.
+
+If you upgraded to NSX-T v3.1.0 with DRS in automation mode, run the following on the affected Pods' master VMs to restore Pod connectivity:
+
+```
+
+monit restart ncp
+
+```
+
+For more information on upgrading NSX-T v3.0.2 to NSX-T v3.1.0, see [Upgrade NSX-T Data Center to v3.0 or v3.1](upgrade-nsxt.html#upgrade-nsxt).  
+
+#### <a id="1-11-0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
+
+**Symptom**
+
+After clicking **Apply Changes** on the <%= vars.k8s_runtime_abbr %> tile in an Azure environment, you experience
+an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
+
+* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_
+* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
+
+For example:
+
+```
+INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
+2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
+HTTP/1.1 500 Internal Server Error
+Transfer-Encoding: chunked
+Cache-Control: no-cache, no-store
+Connection: keep-alive
+Content-Type: application/json; charset=utf-8
+Date: Mon, 21 Sep 2020 17:51:50 GMT
+Expires: Fri, 01 Jan 1990 00:00:00 GMT
+Pragma: no-cache
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Ops Manager
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-Request-Id: f5fc99c1-21a7-45c3-7f39
+X-Runtime: 9.905591
+X-Xss-Protection: 1; mode=block
+
+44
+{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
+0
+```
+
+**Explanation**
+
+The Azure CPI endpoint used by Ops Manager has been changed and
+your installed version of Ops Manager is not compatible with the new endpoint.
+
+**Workaround**
+
+Run the following Ops Manager CLI command:
+
+```
+om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
+```
+
+Where:
+
+* `USERNAME` is the account to use to run Ops Manager API commands.
+* `PASSWORD` is the password for the account.
+* `OPSMAN-API` is the IP address for the Ops Manager API
+
+
+For more information, see [Error 'undefined method location' is received when running Apply Change on Azure]
+(https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US)
+in the VMware Tanzu Knowledge Base.
+
+#### <a id="1-11-0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
+
+VMware vRealize Operations (vROPs) does not support Windows worker-based Kubernetes clusters and cannot be used to
+manage <%= vars.k8s_runtime_abbr %>-provisioned Windows workers.
+
+
+#### <a id='1-11-0-wavefront-no-win'></a><%= vars.k8s_runtime_abbr %> Wavefront Requires Manual Installation for Windows Workers
+
+To monitor Windows-based worker node clusters with a Wavefront collector and proxy, you must first install Wavefront on the clusters manually, using Helm.
+For instructions, see the [Wavefront](windows-monitoring.html#wavefront) section of the _Monitoring Windows Worker Clusters and Nodes_ topic.
+
+#### <a id='1-11-0-ping'></a>Pinging Windows Worker Kubernetes Clusters Does Not Work
+
+<%= vars.k8s_runtime_abbr %>-provisioned Windows worker-based Kubernetes clusters inherit a Kubernetes limitation that prevents
+outbound ICMP communication from workers.
+As a result, pinging Windows workers does not work.
+
+For information about this limitation, see [Limitations > Networking](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#networking-1)
+in the _Windows in Kubernetes_ documentation.
+
+#### <a id="1-11-0-windows-velero-limitations"></a> Velero Does Not Support Backing Up Stateful Windows Workloads
+
+You can use Velero to backup stateless <%= vars.k8s_runtime_abbr %>-provisioned Windows workers.
+Velero can back up stateless Windows workloads only, and cannot be used to backup stateful Windows applications.
+For more information, see [Velero on Windows](https://velero.io/docs/v1.4/basic-install/#velero-on-windows) in
+_Basic Install_ in the Velero documentation.
+
+#### <a id="1-11-0-tmc-on-gcp"></a>Tanzu Mission Control Integration Not Supported on GCP
+
+<%= vars.k8s_runtime_abbr %> on Google Cloud Platform (GCP) does not support
+Tanzu Mission Control (TMC) integration, which is configured in
+the **<%= vars.product_tile %>** tile > the **Tanzu Mission Control (Experimental)** pane.
+
+If you intend to run <%= vars.k8s_runtime_abbr %> on GCP,
+skip this pane when configuring the <%= vars.product_tile %> tile.
+
+#### <a id='1-11-0-tmc-restic'></a>TMC Data Protection Feature Requires Privileged <%= vars.k8s_runtime_abbr %> Containers
+TMC Data Protection feature supports privileged <%= vars.k8s_runtime_abbr %> containers only.
+For more information, see [Plans](installing-vsphere.html#plans) in the _Installing TKGI_ topic for your IaaS.
+
+#### <a id="1-11-0-profile-no-win-gmsa"></a>Windows Worker Kubernetes Clusters with Group Managed Service Account Do Not Support Compute Profiles 
+
+Windows worker-based Kubernetes clusters integrated with group Managed Service Account (gMSA) cannot be managed using compute profiles.  
+
+#### <a id="1-11-0-profile-no-win-flannel"></a> Windows Worker Kubernetes Clusters on Flannel Do Not Support Compute Profiles
+
+On vSphere with NSX-T networking you can use compute profiles with both Linux and Windows worker&#8209;based Kubernetes clusters.
+On vSphere with Flannel networking, you can apply compute profiles only to Linux clusters.
+
+
+#### <a id="1-11-0-profile-resize-down"></a>TKGI CLI Does Not Prevent Reducing the Control Plane Node Count
+
+TKGI CLI does not prevent accidentally reducing a cluster's control plane node count using a compute profile.
+
+<p class="note warning"><strong>Warning:</strong>
+    Reducing a cluster's control plane node count can destroy the cluster.
+    Do not scale out or scale in existing master nodes by reconfiguring the TKGI tile or by using a compute profile.
+    Reducing a cluster's number of control plane nodes may remove a master node and cause the cluster to become inactive.
+</p>
+
+#### <a id="1-11-0-profile-bosh-upgrade"></a>Compute Profile Dropped From Clusters During BOSH Upgrade
+
+If a cluster created using a compute profile is upgraded using `tkgi upgrade-cluster`,
+the cluster's compute profile will be dropped.
+
+#### <a id="1-11-0-in-windows-notready-nodes"></a> Windows Cluster Nodes Not Deleted After VM Deleted
+
+**Symptom**
+
+After you delete a VM using the management console of your infrastructure provider, you notice a Windows worker node
+that had been on that VM is now in a `notReady` state.
+
+**Solution**
+
+1. To identify the leftover node:
+
+    ```
+    kubectl get no -o wide
+    ```
+1. Locate nodes on the returned list that are in a `notReady` state and have the same IP address as another node in the list.
+1. To manually delete a `notReady` node:
+
+    ```
+    kubectl delete node NODE-NAME
+    ```
+    Where `NODE-NAME` is the name of the node in the `notReady` state.
+
+#### <a id="1-11-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login
+
+**Symptom**
+
+You experience a "502 Bad Gateway" error from the NSX load balancer after you log in to OIDC.
+
+**Explanation**
+
+A large response header has exceeded your NSX-T load balancer maximum
+response header size. The default maximum response header size is 10,240 characters and should
+be resized to 50,000.
+
+**Workaround**
+
+If you experience this issue, manually reconfigure your NSX-T `request_header_size`
+and `response_header_size` to 50,000 characters.
+For information about configuring NSX-T default header sizes,
+see [OIDC Response Header Overflow](https://community.pivotal.io/s/article/OIDC-Response-Header-overflow) in the Knowledge Base.
+
+
+#### <a id='1-11-0-eight-cores-error'></a> NSX-T Pre-Check Errand Fails Due to Edge Node Configuration
+
+**Symptom**
+
+You have configured your NSX-T Edge Node VM as `medium` size,
+and the NSX-T Pre-Check Errand fails with the following error:
+"_ERROR: NSX-T Precheck failed due to Edge Node ... no of cpu cores is less than 8_".
+
+**Explanation**
+
+The NSX-T Pre-Check Errand is erroneously returning the "_cpu cores is less than 8_" error.
+
+**Solution**
+
+You can safely configure your NSX-T Edge Node VMs as `medium` size and ignore the error.
+
+#### <a id='1-11-0-windows-proxy'></a> Difficulty Changing Proxy for Windows Workers
+
+You must configure a global proxy in the <%= vars.product_tile %> tile > **Networking** pane before you create any Windows workers that use the proxy.
+
+You cannot change the proxy configuration for Windows workers in an existing cluster.
+
+#### <a id='1-11-0-http-proxy-password'></a> Character Limitations in HTTP Proxy Password
+
+For vSphere with NSX-T, the HTTP Proxy password field does not support the following special characters: `&` or `;`.
+
+#### <a id='1-11-0-harbor-storage-config'></a> Error After Modifying Your Harbor Storage Configuration
+
+**Symptom**
+
+You receive the following error after modifying your existing Harbor installation's storage configuration:
+
+```
+Error response from daemon: manifest for ... not found: manifest unknown: manifest unknown
+```
+
+
+**Explanation**
+
+Harbor does not support modifying an existing Harbor installation's storage configuration.
+
+**Workaround**
+
+To modify your Harbor storage configuration,
+re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
+
+#### <a id='1-11-0-antrea-logging-interupt'></a> Unexplained Errors After Interrupting a Log Stream When Using Antrea Networking 
+
+**Symptom**
+
+While using Antrea networking, you observe unexplainable errors after you interrupt a log stream started using `kubectl logs -f POD-NAME`. 
+The errors could include any of the following:  
+
+* kubectl returns the error: "_Error from server (TooManyRequests): the server has received too many_".   
+* `kube-apiserver` returns an http code `429`. 
+
+**Explanation**
+
+When using Antrea networking there is a chance that `konnectivity-agent` will become unstable after interrupting your kubectl log steam.
+
+**Workaround**
+
+To resolve the issue:  
+
+1. Log in to the master VM:
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/0
+    ````
+
+1. Change to root:
+
+    ```
+    sudo -i
+    ```
+
+1. Restart `proxy-server`:
+
+    ```
+    monit restart proxy-server
+    ```
+
+1. Wait for `proxy-server` restart:
+
+    ```
+    monit summary
+    ```
+
+
+#### <a id='1-11-0-resizing-worker-nodes'></a> Ingress Controller Statefulset Fails to Start After Resizing Worker Nodes
+
+**Symptom**  
+
+Permissions are removed from your cluster’s files and processes after resizing the persistent disk 
+during a cluster upgrade. The ingress controller statefulset fails to start.
+
+**Explanation**  
+
+When resizing a persistent disk, Bosh migrates the data from the old disk to the new disk but 
+does not copy the files’ extended attributes.
+
+**Workaround**  
+
+To resolve the problem, complete the steps in 
+[Ingress controller statefulset fails to start after resize of worker nodes with permission denied]
+(https://community.pivotal.io/s/article/5000e00001nCJxT1603094435795?language=en_US)
+in the VMware Tanzu Knowledge Base.
+
+#### <a id="security-group"></a>Azure Default Security Group Is Not Automatically Assigned to Cluster VMs
+
+**Symptom**
+
+You experience issues when configuring a load balancer for a multi-master Kubernetes cluster or creating a service of type `LoadBalancer`.
+Additionally, in the Azure portal, the **VM** > **Networking** page does not display
+any inbound and outbound traffic rules for your cluster VMs.
+
+**Explanation**
+
+As part of configuring the <%= vars.product_tile %> tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
+When you create a Kubernetes cluster, <%= vars.product_short %> automatically assigns this security group to each VM in the cluster.
+However, on Azure the automatic assignment may not occur.
+
+As a result, your inbound and outbound traffic rules defined in the security group are not applied to the cluster VMs.
+
+**Workaround**
+
+If you experience this issue, manually assign the default security group to each VM NIC in your cluster.
+
+
+#### <a id='1-11-0-uuid-length'></a> One Plan ID Longer than Other Plan IDs
+
+**Symptom**
+
+One of your plan IDs is one character longer than your other plan IDs.
+
+**Explanation**
+
+In <%= vars.k8s_runtime_abbr %>, each plan has a unique plan ID.
+A plan ID is normally a UUID consisting of 32 alphanumeric characters and 4 hyphens.
+However, the **Plan 4** ID consists of 33 alphanumeric characters and 4 hyphens.
+
+**Solution**
+
+You can safely configure and use **Plan 4**.
+The length of the **Plan 4** ID does not affect the functionality of **Plan 4** clusters.
+
+If you require all plan IDs to have identical length, do not activate or use **Plan 4**.
+
+#### <a id='1-11-0-uppercase-bosh-dns'></a> FQDNs for vCenter Cannot Contain Uppercase Letters
+
+**Symptom**
+
+<%= vars.k8s_runtime_abbr %> CLI commands fail with error:
+
+```
+Error: An error occurred in the PKS API when processing
+```
+
+<%= vars.control_plane %> logs include errors like:
+
+```
+Caused by: java.net.UnknownHostException: fqdn.example.com: Name or service not known
+        at java.base/java.net.Inet4AddressImpl.lookupAllHostAddr(Native Method) ~[na:na]
+        at java.base/java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929) ~[na:na]
+```
+
+**Explanation**
+
+The fully-qualified domain names (FQDNs) that you use for vCenter contains uppercase letters.  
+
+BOSH DNS, which <%= vars.k8s_runtime_abbr %> uses for its internal DNS, does not support uppercase letters in FQDNs.
+
+**Workaround**
+
+Use only lowercase letters in FQDNs that you assign to your vCenter or <%= vars.control_plane %> VM in <%= vars.k8s_runtime_abbr %>.  
+
 
 
 ## <a id="management-console-1-11-0"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.11.0
@@ -228,1091 +601,7 @@ The <%= vars.product_short %> Management Console v1.11.0 has the following known
 
 
 
-
-
-
-
-
-
-
-
-
-
-## <a id="1-10-1"></a><%= vars.k8s_runtime_abbr %> v1.10.1
-
-**Release Date**: April 12, 2021
-
-### <a id='1-10-1-snapshot'></a><a id='product-snapshot'></a>Product Snapshot
-
-<table class="nice">
-    <tr>
-        <th>Release</th>
-        <th>Details</th>
-    </tr>
-    <tr>
-        <td>Version</td>
-        <td>v1.10.1</td>
-    </tr>
-    <tr>
-        <td>Release date</td>
-        <td>April 12, 2021</td>
-    </tr>
-    <tr>
-        <th>Component</th>
-        <th>Version</th>
-    </tr>
-    <tr>
-        <td>Kubernetes</td>
-        <td>v1.19.9</td>
-    </tr>
-    <tr>
-        <td>CoreDNS</td>
-        <td>v1.7.0+vmware.8</td>
-    </tr>
-    <tr>
-        <td>Docker</td>
-        <td>
-            Linux: v19.03.14<br>
-            Windows: v19.03.14
-        </td>
-    </tr>
-    <tr>
-        <td>etcd</td>
-        <td>v3.4.13</td>
-    </tr>
-    <tr>
-        <td>Metrics Server</td>
-        <td>v0.3.6</td>
-    </tr>
-    <tr>
-        <td>NCP</td>
-        <td>v3.1.0.1</td>
-    </tr>
-    <tr>
-        <td>Percona XtraDB Cluster (PXC)</td>
-        <td>v0.33.0</td>
-    </tr>
-    <tr>
-        <td>UAA</td>
-        <td>v74.5.22</td>
-    </tr>
-    <tr>
-        <th>Compatibilities</th>
-        <th>Versions</th>
-    </tr>
-    <tr>
-        <td>VMware Cloud Foundation (VCF)</td>
-        <td>v4.2.0</td>
-    </tr>
-    <tr>
-        <td>Ops Manager</td>
-        <td> Ops Manager 2.10.8 or later.</td>
-    </tr>
-    <tr>
-        <td>Xenial stemcells</td>
-        <td>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/863377"><%= vars.product_network %>.</a></td>
-    </tr>
-    <tr>
-        <td>Windows stemcells</td>
-        <td>v2019.34+</td>
-    </tr>
-    <tr>
-        <td>vSphere</td>
-        <td rowspan=2>See <a href="https://interopmatrix.vmware.com/#/Interoperability?isHideGenSupported=false&isHideTechSupported=false&isHideCompatible=false&isHideIncompatible=false&isHideNTCompatible=true&isHideNotSupported=true&isCollection=false&col=644,4803&row=2,5088,4276,3496,3457,3222,2862,2736,3364,2732,2332,2132,2136,998,695,431,792,611,578,508,1034,442,444,448,254,1035,462,392,252,140,2981,194,172,38,242,173,37,36,35%26175,4926,4090,5371,4729,4198,3413,5316,4232,3787,3394,3777,3645,3451,2852,3216,2714,2595,2526,2176,1689">VMware Product Interoperability Matrices.</a></td></td>
-    </tr>
-    <tr>
-        <td>NSX-T</td>
-    </tr>
-    <%#not in interop matrix
-    <tr>
-        <td>Backup and Restore SDK</td>
-        <td></td>
-    </tr>
-    %>
-    <tr>
-        <td>CNS for vSphere</td>
-        <td>v2.0.0, v1.0.2</td>
-    </tr>
-    <tr>
-        <td>Harbor</td>
-        <td>v2.1.3</td>
-    </tr>
-    <tr>
-        <td>Velero</td>
-        <td><a href="https://my.vmware.com/en/group/vmware/downloads/details?downloadGroup=VELERO-142&productId=1113&rPId=58884">v1.4.2</a></td>
-    </tr>
-</table>
-
-### <a id='1-10-1-upgrade'></a>Upgrade Path
-
-The supported upgrade paths to <%= vars.k8s_runtime_abbr %> v1.10.1 are from <%= vars.product_short %> v1.9.0 and later.
-
-### <a id="1-10-1-features"></a>Features
-
-This section describes new features and changes in <%= vars.product_short %> v1.10.1.  
-
-* **[Bug Fix]** Fixes [Certain Linux Pods are Unable to Complete the Drain Process during a TKGI Upgrade](#bosh-stop-doesnt-drain).  
-* **[Bug Fix]** Fixes [Windows Pods Are Unable to Complete the Drain Process during a TKGI Upgrade or Update](#1-10-0-windows-drain-error).  
-* **[Bug Fix]** Fixes [The TKGI CLI Resize and Update Cluster Commands Remove the Network Profile CNI Configuration from a Cluster]
-(#1-10-0-do-notuse-resize-cluster).
-* **[Bug Fix]** Fixes [<%= vars.k8s_runtime_abbr %> CLI `get-credentials` Returns an “od-broker" Error](#1-10-0-od-broker).  
-* **[Bug Fix]** Fixes [Your Cluster Returns the Error 'PodCIDR is Empty for Node'](#1-10-0-stale-ip-problem).  
-* **[Bug Fix]** Fixes [Cluster Resize Fails for a Cluster Configured With a Network Profile Containing the `failover_mode` Parameter](#1-10-0-failover-mode).  
-* **[Enhancement]** <%= vars.k8s_runtime_abbr %> v1.10.1 supports uppercase characters in <%= vars.k8s_runtime_abbr %> API command lines. 
-For more information, see [FQDNs for <%= vars.k8s_runtime_abbr %> API and vCenter Cannot Contain Uppercase Letters](#1-10-0-uppercase-bosh-dns).  
-* **[Enhancement]** <%= vars.k8s_runtime_abbr %> v1.10.1 returns an error if a network profile configuration changes a parameter that does not support 
-modification.  
-* **[Enhancement]** <%= vars.k8s_runtime_abbr %> v1.10.1 supports updating a cluster with a network profile containing the `failover_mode` parameter.
-For more information, see [Cluster Resize Fails for a Cluster Configured With a Network Profile Containing a Parameter That Cannot Be Updated](#1-10-0-failover-mode).  
-
-#### <a id="1-10-1-component-updates"></a>Component Updates
-
-The following components have been updated:
-
-* Bumps Kubernetes to v1.19.4.
-
-###<a id='1-10-1-known-issues'></a>Known Issues
-
-Except where noted, the known issues in <%= vars.product_short %> v1.10.0 are also in <%= vars.product_short %> v1.10.1. 
-See the <%= vars.k8s_runtime_abbr %> v1.10.0 [Known Issues](#1-10-0-known-issues) below.
-
-## <a id="management-console-1-10-1"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.10.1
-
-**Release Date**: April 12, 2021
-
-### <a id="management-console-1-10-1-features"></a>Features
-
-<%= vars.product_short %> Management Console v1.10.1 updates include:  
-
-
-* **[Bug Fix]** Fixes [Management Console UI Does Not Open If the Management Console Uses Custom Certificates](#management-console-1.10.0-ui-customcerts).  
-* **[Enhancement]** TKGI Management Console v1.10.1 can retrieve the transport zone of an NSX-T v3.1 edge node transport node. 
-For more information, see [On NSX-T v3.1 the Transport Zone and Edge Transport Node Switch Names Must be Identical](#1-10-0-node-names-match).  
-
-### <a id="management-console-1.10.1-snapshot"></a>Product Snapshot
-
-<p class="note"><strong>Note</strong>: <%= vars.product_short %> Management Console provides an opinionated
-    installation of <%= vars.k8s_runtime_abbr %>. The supported versions may differ from or be more limited than
-    what is generally supported by <%= vars.k8s_runtime_abbr %>.
-</p>
-
-<table class="nice">
-    <th>Element</th>
-    <th>Details</th>
-    <tr>
-      <td>Version</td>
-      <td>v1.10.1</td>
-    </tr>
-    <tr>
-      <td>Release date</td>
-      <td>April 12, 2021</td>
-    </tr>
-    <tr>
-      <td>Installed Tanzu Kubernetes Grid Integrated Edition version</td>
-      <td>v1.10.1</td>
-    </tr>
-    <tr>
-      <td>Installed Ops Manager version</td>
-      <td>2.10.8</td>
-    </tr>
-    <tr>
-      <td>Installed Kubernetes version</td>
-        <td>1.19.9</td>
-    </tr>
-    <tr>
-      <td>Installed Harbor Registry version</td>
-      <td>2.1.3</td>
-    </tr>
-        <tr>
-        <td>Linux stemcell</td>
-        <td>621.117</td>
-    </tr>
-    <tr>
-        <td>Windows stemcells</td>
-        <td>&gt;=2019.31</td>
-    </tr>
-</table>
-
-<br>
-### <a id='management-console-1-10-1-upgrade'></a>Upgrade Path
-
-The supported upgrade path to <%= vars.product_short %> Management Console v1.10.1 is from
-<%= vars.product_short %> v1.10.0 and later and <%= vars.product_short %> v1.9.0 and later.
-
-### <a id="management-console-1-10-1-known-issues"></a> Known Issues
-
-Except where noted, the known issues in <%= vars.product_short %> Management Console v1.10.0 
-are also in <%= vars.product_short %> Management Console v1.10.1. 
-See the <%= vars.k8s_runtime_abbr %>  Management Console v1.10.0 [Known Issues](#management-console-1.10.0-known-issues) below.
-
-## <a id="1.10.0"></a><%= vars.k8s_runtime_abbr %> v1.10.0
-
-**Release Date**: January 28, 2021
-
-### <a id='1-10-0-snapshot'></a><a id='product-snapshot'></a>Product Snapshot
-
-<table class="nice">
-    <tr>
-        <th>Release</th>
-        <th>Details</th>
-    </tr>
-    <tr>
-        <td>Version</td>
-        <td>v1.10.0</td>
-    </tr>
-    <tr>
-        <td>Release date</td>
-        <td>January 28, 2021</td>
-    </tr>
-    <tr>
-        <th>Component</th>
-        <th>Version</th>
-    </tr>
-    <tr>
-        <td>Kubernetes</td>
-        <td>v1.19.6</td>
-    </tr>
-    <tr>
-        <td>CoreDNS</td>
-        <td>v1.7.0+vmware.5</td>
-    </tr>
-    <tr>
-        <td>Docker</td>
-        <td>
-            Linux: v19.03.14<br>
-            Windows: v19.03.14
-        </td>
-    </tr>
-    <tr>
-        <td>etcd</td>
-        <td>v3.4.13</td>
-    </tr>
-    <tr>
-        <td>Metrics Server</td>
-        <td>v0.3.6</td>
-    </tr>
-    <tr>
-        <td>NCP</td>
-        <td>v3.1.0.1</td>
-    </tr>
-    <tr>
-        <td>Percona XtraDB Cluster (PXC)</td>
-        <td>v0.31.0</td>
-    </tr>
-    <tr>
-        <td>UAA</td>
-        <td>v74.5.21</td>
-    </tr>
-    <tr>
-        <th>Compatibilities</th>
-        <th>Versions</th>
-    </tr>
-    <tr>
-        <td>VMware Cloud Foundation (VCF)</td>
-        <td>v4.2.0</td>
-    </tr>
-    <tr>
-        <td>Ops Manager</td>
-        <td> Ops Manager 2.10.4 or later, or 2.9.15 or later.</td>
-    </tr>
-    <tr>
-        <td>Xenial stemcells</td>
-        <td>See <a href="https://network.pivotal.io/products/pivotal-container-service#/releases/820908"><%= vars.product_network %>.</a></td>
-    </tr>
-    <tr>
-        <td>Windows stemcells</td>
-        <td>v2019.29+</td>
-    </tr>
-    <tr>
-        <td>vSphere</td>
-        <td rowspan=2>See <a href="https://interopmatrix.vmware.com/#/Interoperability?isHideGenSupported=false&isHideTechSupported=false&isHideCompatible=false&isHideIncompatible=false&isHideNTCompatible=true&isHideNotSupported=true&isCollection=false&col=644,4803&row=2,5088,4276,3496,3457,3222,2862,2736,3364,2732,2332,2132,2136,998,695,431,792,611,578,508,1034,442,444,448,254,1035,462,392,252,140,2981,194,172,38,242,173,37,36,35%26175,4926,4090,5371,4729,4198,3413,5316,4232,3787,3394,3777,3645,3451,2852,3216,2714,2595,2526,2176,1689">VMware Product Interoperability Matrices.</a></td></td>
-    </tr>
-    <tr>
-        <td>NSX-T</td>
-    </tr>
-    <%#not in interop matrix
-    <tr>
-        <td>Backup and Restore SDK</td>
-        <td></td>
-    </tr>
-    %>
-    <tr>
-        <td>CNS for vSphere</td>
-        <td>v2.0.0, v1.0.2</td>
-    </tr>
-    <tr>
-        <td>Harbor</td>
-        <td>v2.1.1</td>
-    </tr>
-    <tr>
-        <td>Velero</td>
-        <td><a href="https://my.vmware.com/en/group/vmware/downloads/details?downloadGroup=VELERO-142&productId=1113&rPId=58884">v1.4.2</a></td>
-    </tr>
-</table>
-
-### <a id='1-10-0-upgrade'></a>Upgrade Path
-
-The supported upgrade paths to <%= vars.k8s_runtime_abbr %> v1.10.0 are from <%= vars.product_short %> v1.9.0 and later.
-
-### <a id="1-10-0-features"></a>Features
-
-This section describes new features and changes in <%= vars.product_full %> v1.10.0.
-
-* (Beta) Supports high availability (HA) mode in <%= vars.product_short %>.
-You can now scale the number of VM instances for the following <%= vars.product_short %> control plane jobs:
-
-    * <%= vars.product_short %> API and UAA
-    * <%= vars.product_short %> database
-
-    To configure HA (beta) for new <%= vars.k8s_runtime_abbr %> v1.10 installations, see [Resource Config](installing-vsphere.html#resource-config) in the _Installing_ topic for your IaaS.
-    To configure HA (beta) for <%= vars.product_short %> v1.10 upgrades from v1.9, see [Upgrading Enterprise PKS](upgrade.html) or [Upgrading Enterprise PKS with NSX-T](upgrade-nsxt.html)
-    and follow the instructions in _(Optional) Scale to <%= vars.k8s_runtime_abbr %> High Availability Mode_.
-    <p class="note warning"><strong>Warning:</strong> HA mode is a beta feature. Do not scale your <strong><%= vars.k8s_runtime_abbr %> API</strong> or <strong><%= vars.k8s_runtime_abbr %> Database</strong> to more than one instance in production environments.</p>
-* Removes **Wavefront Alert Recipient**, **Create pre-defined Wavefront alerts errand**, and **Delete pre-defined Wavefront alerts errand** from the <%= vars.product_short %> tile. For more information, see [<%= vars.k8s_runtime_abbr %>-Defined Wavefront Alerts Removed from the Tile](#1-10-0-wavefront-integration) below.
-* **[Enhancement]** Reduced the possibility of <%= vars.k8s_runtime_abbr %> CLI `get-credentials` returning the error “_od-broker is processing a request for the same instance... please try again later_” during periods of intermittent latency.
-* **[Enhancement]** Swap is now disabled by default. For more information, see [Swap Is Disabled by Default ](#1-10-0-swap-disabled) in _Breaking Changes_ below.
-* **[Enhancement]** Improves error messages for cluster creation, update and upgrade failures. 
-For more information, see [Cluster Creation, Update and Upgrade Failure Error Messages No Longer Truncated](#1-10-0-cluster-errors) in _Breaking Changes_ below.
-* **[Security Fix]** Passes additional CIS Kubernetes Benchmarks. See [<%= vars.k8s_runtime_abbr %> Cluster Benchmarks](./security.html#benchmarks) for details.
-* **[Bug Fix]** The VMware vRealize Log Insight Integration (vRLI) **Rate limiting** feature has been restored. For information about configuring vRLI rate limiting, see [Host Monitoring](installing-nsx-t.html#syslog) in _Installing <%= vars.product_short %> on vSphere with NSX-T_.
-* **[Bug Fix]** Fixes [Your <%= vars.k8s_runtime_abbr %> Cluster Fails to Start After Changing Your Worker Node's Compute Profile AZ](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-2-compute-profile-az-worker).
-* **[Bug Fix]** Fixes [<%= vars.k8s_runtime_abbr %> Upgrade or Install Fails with Error "x509: certificate relies on legacy Common Name field"](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-failed-upgrade). 
-* **[Bug Fix]** Fixes [Cluster Creation Fails During the 'Creating Load Balancer' Step](https://docs-pcf-staging.cfapps.io/tkgi/1-9/release-notes.html#1-9-0-401-403). 
-* **[Bug Fix]** Fixes [Network Profile Required with Compute Profile](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-az-network-profile).  
-* **[Bug Fix]** Fixes [Kubernetes Worker Nodes Run Out of Space](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-k8s-race-condition).
-
-<%#
-* **[Bug Fix]** Fixes [You Cannot Change a Master Node's AZ](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-0-compute-profile-az-master).  
-%>
-
-#### <a id="1-10-0-proxy"></a>Cluster-Specific Proxy Settings (NSX-T and AWS)
-
-You can configure proxy settings specific to individual <%= vars.k8s_runtime_abbr %> clusters,
-overriding the global settings in the <%= vars.k8s_runtime_abbr %> tile > **Networking** pane.
-For more information, see [Configure Cluster Proxies](proxies-cluster.html).
-
-
-#### <a id="1-10-0-antrea-cni"></a>Supports the Antrea CNI
-
-<%= vars.product_short %> now provides the option to use the Antrea Container Network Interface (CNI) as
-the CNI for new <%= vars.k8s_runtime_abbr %>-provisioned clusters. For more information about 
-using Antrea as your CNI, see [About Upgrading from the Flannel CNI to the Antrea CNI](understanding-upgrades.html#cni) 
-in _About <%= vars.product_short %> Upgrades_.
-
-#### <a id="1-10-0-cert-rotate"></a>NSX-T Certificate Rotation
-
-You can now rotate TKGI-provisioned Kubernetes cluster NSX-T TLS certificates using a TKGI CLI command. 
-For more information, see [Certificate Rotation](nsxt-certs-rotate.html).
-
-#### <a id="1-10-0-node-labels-and-taints"></a>Apply Persistent Node Labels and Node Taints Using Compute Profiles
-
-On vSphere and vSphere with NSX-T, <%= vars.product_short %> supports applying persistent labels and taints to a Kubernetes node using Compute Profiles. 
-For more information see [`node_pools` Block](compute-profiles-manage.html#worker-nodes) 
-in _Creating and Managing Compute Profiles with the CLI (vSphere)_.
-
-#### <a id="1-10-0-windows-ad-support"></a>Windows Worker Kubernetes Clusters Support Active Directory
-
-Windows Server with Active Directory can now control access to <%= vars.k8s_runtime_abbr %> Windows worker-based Kubernetes clusters 
-through integration with group Managed Service Account (gMSA). For more information, see [Authenticate Windows Clusters with Active Directory](gmsa.html).
-
-#### <a id="1-10-0-wavefront-integration"></a> <%= vars.k8s_runtime_abbr %>-Defined Wavefront Alerts Removed from the Tile
-
-<%= vars.k8s_runtime_abbr %> v1.10 removes the following configuration options from the Wavefront integration in the tile:
-
-* **Create pre-defined Wavefront alerts errand**
-* **Delete pre-defined Wavefront alerts errand**
-* **Wavefront Alert Recipient**
-
-If you want to enable pre-defined Wavefront alerts for <%= vars.k8s_runtime_abbr %> v1.10, configure your alert targets in Wavefront. For a list of available alerts, see [Predefined Alerts for the Integration](https://docs.wavefront.com/integrations_tkgi.html#predefined-alerts-for-the-integration).
-
-If you enabled the **Create pre-defined Wavefront alerts errand** and **Wavefront Alert Recipient** in an earlier version of
-<%= vars.k8s_runtime_abbr %> and you upgrade your environment to v1.10, you will continue to receive the
-<%= vars.k8s_runtime_abbr %>-defined alerts. Uninstall these alerts in the Wavefront UI if you plan to configure alert targets for TKGI in Wavefront, by following the instructions below:
-
-1. In Wavefront, navigate to **Integrations** --> **VMware Tanzu™ Kubernetes Grid™ Integrated Edition**.
-1. Click the **Alerts** tab and then click **Uninstall All**.
-
-#### <a id="1-10-0-component-updates"></a>Component Updates
-
-The following components have been updated:
-
-* Bumps Kubernetes to v1.19.4.
-* Bumps Xenial stemcell to v621.94.
-* Bumps NCP to v3.1.0.17170700.
-* Bumps PXC to v0.31.0.
-* Bumps UAA to v74.5.21.
-
-### <a id="1-10-0-breaking-changes"></a> Breaking Changes
-
-TKGI v1.10.0 has the following breaking changes. 
-
-#### <a id='1-10-0-nsxt-3'></a> <%= vars.k8s_runtime_abbr %> v1.10 Is Not Compatible with NSX-T v2.5.2 or Earlier 
-
-<%= vars.k8s_runtime_abbr %> v1.10 is not compatible with NSX-T v2.5.2 or earlier. 
-If you are deploying <%= vars.k8s_runtime_abbr %> v1.10 to NSX-T, your NSX-T version must be 
-NSX-T v3.0.1 or later. For more information about upgrading NSX-T and <%= vars.k8s_runtime_abbr %>, 
-see [Upgrade Order for Tanzu Kubernetes Grid Integrated Edition Environments on vSphere](upgrade-scenarios.html) 
-and [Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX-T Networking)](upgrade-nsxt.html).  
-
-#### <a id='1-10-0-swap-disabled'></a> Swap Is Disabled by Default  
-
-Swap is now disabled on all worker nodes. 
-In previous versions of <%= vars.product_short %>, Swap was enabled, but upstream Kubernetes does not support this setting. 
-You cannot enable swap through the TKGI CLI, and manually configuring swap is not permitted. 
-
-#### <a id='1-10-0-cluster-errors'></a> Cluster Creation, Update and Upgrade Failure Error Messages No Longer Truncated
-
-<%= vars.product_short %> v1.10 includes improved error messages for cluster creation, update and upgrade failures. 
-Previously, error messages greater than 128 bytes were truncated. In <%= vars.k8s_runtime_abbr %> v1.10 
-logged cluster creation and upgrade failure error messages are no longer truncated. 
-
-
-#### <a id='1-10-0-node-names-match'></a> On NSX-T v3.1 the Transport Zone and Edge Transport Node Switch Names Must be Identical 
-
-The NSX-T Transport Zone and Edge Transport Node switch names must be identical if <%= vars.k8s_runtime_abbr %> v1.10 is installed on NSX-T v3.1. 
-For more information, see [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for <%= vars.product_short %>]
-(nsxt-3-1-install-delta.html).
-
-###<a id='1-10-0-known-issues'></a>Known Issues
-
-<%= vars.k8s_runtime_abbr %> v1.10.0 has the following known issues:
-
-#### <a id="1-10-0-nsxt-302-310"></a> Pods Stop After Upgrading From NSX-T v3.0.2 to v3.1.0 on vSphere 7.0 and 7.0.1
-
-**Symptom**
-
-Your TKGI-provisioned Pods stop after upgrading from NSX-T v3.0.2 to NSX-T v3.1.0 on vSphere 7.0 and 7.0.1.
-
-**Explanation**
-
-For information, see [Issue 2603550: Some VMs are vMotioned and lose network connectivity during UA nodes upgrade]
-(https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.1/rn/VMware-NSX-T-Data-Center-311-Release-Notes.html#2603550) in the _VMware NSX-T Data Center 3.1.1 Release Notes_.
-
-**Workaround**
-
-To avoid the loss of network connectivity during UA node upgrade, ensure DRS is set to manual mode during your upgrade from NSX-T v3.0.2 to v3.1.0.
-
-If you upgraded to NSX-T v3.1.0 with DRS in automation mode, run the following on the affected Pods' master VMs to restore Pod connectivity:
-
-```
-
-monit restart ncp
-
-```
-
-For more information on upgrading NSX-T v3.0.2 to NSX-T v3.1.0, see [Upgrade NSX-T Data Center to v3.0 or v3.1](upgrade-nsxt.html#upgrade-nsxt).  
-
-#### <a id="1-10-0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
-
-**Symptom**
-
-After clicking **Apply Changes** on the <%= vars.k8s_runtime_abbr %> tile in an Azure environment, you experience
-an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
-
-* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_
-* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
-
-For example:
-
-```
-INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
-2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
-HTTP/1.1 500 Internal Server Error
-Transfer-Encoding: chunked
-Cache-Control: no-cache, no-store
-Connection: keep-alive
-Content-Type: application/json; charset=utf-8
-Date: Mon, 21 Sep 2020 17:51:50 GMT
-Expires: Fri, 01 Jan 1990 00:00:00 GMT
-Pragma: no-cache
-Referrer-Policy: strict-origin-when-cross-origin
-Server: Ops Manager
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-X-Content-Type-Options: nosniff
-X-Download-Options: noopen
-X-Frame-Options: SAMEORIGIN
-X-Permitted-Cross-Domain-Policies: none
-X-Request-Id: f5fc99c1-21a7-45c3-7f39
-X-Runtime: 9.905591
-X-Xss-Protection: 1; mode=block
-
-44
-{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
-0
-```
-
-**Explanation**
-
-The Azure CPI endpoint used by Ops Manager has been changed and
-your installed version of Ops Manager is not compatible with the new endpoint.
-
-**Workaround**
-
-Run the following Ops Manager CLI command:
-
-```
-om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
-```
-
-Where:
-
-* `USERNAME` is the account to use to run Ops Manager API commands.
-* `PASSWORD` is the password for the account.
-* `OPSMAN-API` is the IP address for the Ops Manager API
-
-
-For more information, see [Error 'undefined method location' is received when running Apply Change on Azure]
-(https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US)
-in the VMware Tanzu Knowledge Base.
-
-#### <a id="1-10-0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
-
-VMware vRealize Operations (vROPs) does not support Windows worker-based Kubernetes clusters and cannot be used to
-manage <%= vars.k8s_runtime_abbr %>-provisioned Windows workers.
-
-
-#### <a id='1-10-0-wavefront-no-win'></a><%= vars.k8s_runtime_abbr %> Wavefront Requires Manual Installation for Windows Workers
-
-To monitor Windows-based worker node clusters with a Wavefront collector and proxy, you must first install Wavefront on the clusters manually, using Helm.
-For instructions, see the [Wavefront](windows-monitoring.html#wavefront) section of the _Monitoring Windows Worker Clusters and Nodes_ topic.
-
-#### <a id='1-10-0-ping'></a>Pinging Windows Worker Kubernetes Clusters Does Not Work
-
-<%= vars.k8s_runtime_abbr %>-provisioned Windows worker-based Kubernetes clusters inherit a Kubernetes limitation that prevents
-outbound ICMP communication from workers.
-As a result, pinging Windows workers does not work.
-
-For information about this limitation, see [Limitations > Networking](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#networking-1)
-in the _Windows in Kubernetes_ documentation.
-
-#### <a id="1-10-0-windows-velero-limitations"></a> Velero Does Not Support Backing Up Stateful Windows Workloads
-
-You can use Velero to backup stateless <%= vars.k8s_runtime_abbr %>-provisioned Windows workers.
-Velero can back up stateless Windows workloads only, and cannot be used to backup stateful Windows applications.
-For more information, see [Velero on Windows](https://velero.io/docs/v1.4/basic-install/#velero-on-windows) in
-_Basic Install_ in the Velero documentation.
-
-#### <a id="1-10-0-tmc-on-gcp"></a>Tanzu Mission Control Integration Not Supported on GCP
-
-<%= vars.k8s_runtime_abbr %> on Google Cloud Platform (GCP) does not support
-Tanzu Mission Control (TMC) integration, which is configured in
-the **<%= vars.product_tile %>** tile > the **Tanzu Mission Control (Experimental)** pane.
-
-If you intend to run <%= vars.k8s_runtime_abbr %> v1.9 on GCP,
-skip this pane when configuring the <%= vars.product_tile %> tile.
-
-#### <a id='1-10-0-tmc-restic'></a>TMC Data Protection Feature Requires Privileged <%= vars.k8s_runtime_abbr %> Containers
-TMC Data Protection feature supports privileged <%= vars.k8s_runtime_abbr %> containers only.
-For more information, see [Plans](installing-vsphere.html#plans) in the _Installing TKGI_ topic for your IaaS.
-
-#### <a id="1-10-0-profile-no-win-gmsa"></a>Windows Worker Kubernetes Clusters with Group Managed Service Account Do Not Support Compute Profiles 
-
-Windows worker-based Kubernetes clusters integrated with group Managed Service Account (gMSA) cannot be managed using compute profiles.  
-
-#### <a id="1-10-0-profile-no-win-flannel"></a> Windows Worker Kubernetes Clusters on Flannel Do Not Support Compute Profiles
-
-On vSphere with NSX-T networking you can use compute profiles with both Linux and Windows worker&#8209;based Kubernetes clusters.
-On vSphere with Flannel networking, you can apply compute profiles only to Linux clusters.
-
-#### <a id="1-10-0-old-profile-no-cli"></a><%= vars.k8s_runtime_abbr %> Does Not Support Managing Pre-<%= vars.k8s_runtime_abbr %> v1.9 Compute Profiles
-
-Compute profiles created in <%= vars.k8s_runtime_abbr %> v1.8 and earlier have a different format
-from current compute profiles.
-
-<%= vars.k8s_runtime_abbr %> v1.10 does not support resizing, updating, upgrading, or
-managing compute profiles using `tkgi` CLI compute profile commands,
-on a cluster that has a compute profile created in <%= vars.k8s_runtime_abbr %> v1.8 and earlier.
-
-#### <a id="1-10-0-profile-resize-down"></a>TKGI CLI Does Not Prevent Reducing the Control Plane Node Count
-
-TKGI CLI does not prevent accidentally reducing a cluster's control plane node count using a compute profile.
-
-<p class="note warning"><strong>Warning:</strong>
-    Reducing a cluster's control plane node count can destroy the cluster.
-    Do not scale out or scale in existing master nodes by reconfiguring the TKGI tile or by using a compute profile.
-    Reducing a cluster's number of control plane nodes may remove a master node and cause the cluster to become inactive.
-</p>
-
-#### <a id="1-10-0-profile-bosh-upgrade"></a>Compute Profile Dropped From Clusters During BOSH Upgrade
-
-If a cluster created using a compute profile is upgraded using `tkgi upgrade-cluster`,
-the cluster's compute profile will be dropped.
-
-#### <a id="1-10-0-in-windows-notready-nodes"></a> Windows Cluster Nodes Not Deleted After VM Deleted
-
-**Symptom**
-
-After you delete a VM using the management console of your infrastructure provider, you notice a Windows worker node
-that had been on that VM is now in a `notReady` state.
-
-**Solution**
-
-1. To identify the leftover node:
-
-    ```
-    kubectl get no -o wide
-    ```
-1. Locate nodes on the returned list that are in a `notReady` state and have the same IP address as another node in the list.
-1. To manually delete a `notReady` node:
-
-    ```
-    kubectl delete node NODE-NAME
-    ```
-    Where `NODE-NAME` is the name of the node in the `notReady` state.
-
-#### <a id="1-10-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login
-
-**Symptom**
-
-You experience a "502 Bad Gateway" error from the NSX load balancer after you log in to OIDC.
-
-**Explanation**
-
-A large response header has exceeded your NSX-T load balancer maximum
-response header size. The default maximum response header size is 10,240 characters and should
-be resized to 50,000.
-
-**Workaround**
-
-If you experience this issue, manually reconfigure your NSX-T `request_header_size`
-and `response_header_size` to 50,000 characters.
-For information about configuring NSX-T default header sizes,
-see [OIDC Response Header Overflow](https://community.pivotal.io/s/article/OIDC-Response-Header-overflow) in the Knowledge Base.
-
-
-#### <a id='1-10-0-eight-cores-error'></a> NSX-T Pre-Check Errand Fails Due to Edge Node Configuration
-
-**Symptom**
-
-You have configured your NSX-T Edge Node VM as `medium` size,
-and the NSX-T Pre-Check Errand fails with the following error:
-"_ERROR: NSX-T Precheck failed due to Edge Node ... no of cpu cores is less than 8_".
-
-**Explanation**
-
-The NSX-T Pre-Check Errand is erroneously returning the "_cpu cores is less than 8_" error.
-
-**Solution**
-
-You can safely configure your NSX-T Edge Node VMs as `medium` size and ignore the error.
-
-#### <a id='1-10-0-windows-proxy'></a> Difficulty Changing Proxy for Windows Workers
-
-You must configure a global proxy in the <%= vars.product_tile %> tile > **Networking** pane before you create any Windows workers that use the proxy.
-
-You cannot change the proxy configuration for Windows workers in an existing cluster.
-
-#### <a id='1-10-0-http-proxy-password'></a> Character Limitations in HTTP Proxy Password
-
-For vSphere with NSX-T, the HTTP Proxy password field does not support the following special characters: `&` or `;`.
-
-#### <a id='1-10-0-harbor-storage-config'></a> Error After Modifying Your Harbor Storage Configuration
-
-**Symptom**
-
-You receive the following error after modifying your existing Harbor installation's storage configuration:
-
-```
-Error response from daemon: manifest for ... not found: manifest unknown: manifest unknown
-```
-
-
-**Explanation**
-
-Harbor does not support modifying an existing Harbor installation's storage configuration.
-
-**Workaround**
-
-To modify your Harbor storage configuration,
-re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
-
-#### <a id='1-10-0-antrea-logging-interupt'></a> Unexplained Errors After Interrupting a Log Stream When Using Antrea Networking 
-
-**Symptom**
-
-While using Antrea networking, you observe unexplainable errors after you interrupt a log stream started using `kubectl logs -f POD-NAME`. 
-The errors could include any of the following:  
-
-* kubectl returns the error: "_Error from server (TooManyRequests): the server has received too many_".   
-* `kube-apiserver` returns an http code `429`. 
-
-**Explanation**
-
-When using Antrea networking there is a chance that `konnectivity-agent` will become unstable after interrupting your kubectl log steam.
-
-**Workaround**
-
-To resolve the issue:  
-
-1. Log in to the master VM:
-
-    ```
-    bosh -d DEPLOYMENT-NAME ssh master/0
-    ````
-
-1. Change to root:
-
-    ```
-    sudo -i
-    ```
-
-1. Restart `proxy-server`:
-
-    ```
-    monit restart proxy-server
-    ```
-
-1. Wait for `proxy-server` restart:
-
-    ```
-    monit summary
-    ```
-
-
-#### <a id='1-10-0-resizing-worker-nodes'></a> Ingress Controller Statefulset Fails to Start After Resizing Worker Nodes
-
-**Symptom**  
-
-Permissions are removed from your cluster’s files and processes after resizing the persistent disk 
-during a cluster upgrade. The ingress controller statefulset fails to start.
-
-**Explanation**  
-
-When resizing a persistent disk, Bosh migrates the data from the old disk to the new disk but 
-does not copy the files’ extended attributes.
-
-**Workaround**  
-
-To resolve the problem, complete the steps in 
-[Ingress controller statefulset fails to start after resize of worker nodes with permission denied]
-(https://community.pivotal.io/s/article/5000e00001nCJxT1603094435795?language=en_US)
-in the VMware Tanzu Knowledge Base.
-
-#### <a id="security-group"></a>Azure Default Security Group Is Not Automatically Assigned to Cluster VMs
-
-**Symptom**
-
-You experience issues when configuring a load balancer for a multi-master Kubernetes cluster or creating a service of type `LoadBalancer`.
-Additionally, in the Azure portal, the **VM** > **Networking** page does not display
-any inbound and outbound traffic rules for your cluster VMs.
-
-**Explanation**
-
-As part of configuring the <%= vars.product_tile %> tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
-When you create a Kubernetes cluster, <%= vars.product_short %> automatically assigns this security group to each VM in the cluster.
-However, on Azure the automatic assignment may not occur.
-
-As a result, your inbound and outbound traffic rules defined in the security group are not applied to the cluster VMs.
-
-**Workaround**
-
-If you experience this issue, manually assign the default security group to each VM NIC in your cluster.
-
-
-#### <a id='1-10-0-uuid-length'></a> One Plan ID Longer than Other Plan IDs
-
-**Symptom**
-
-One of your plan IDs is one character longer than your other plan IDs.
-
-**Explanation**
-
-In <%= vars.k8s_runtime_abbr %>, each plan has a unique plan ID.
-A plan ID is normally a UUID consisting of 32 alphanumeric characters and 4 hyphens.
-However, the **Plan 4** ID consists of 33 alphanumeric characters and 4 hyphens.
-
-**Solution**
-
-You can safely configure and use **Plan 4**.
-The length of the **Plan 4** ID does not affect the functionality of **Plan 4** clusters.
-
-If you require all plan IDs to have identical length, do not activate or use **Plan 4**.
-
-#### <a id='1-10-0-uppercase-bosh-dns'></a> FQDNs for <%= vars.k8s_runtime_abbr %> API and vCenter Cannot Contain Uppercase Letters
-
-<%= vars.k8s_runtime_abbr %> v1.10.1 Enhancement: <%= vars.k8s_runtime_abbr %> v1.10.1 supports uppercase characters in <%= vars.k8s_runtime_abbr %> API command lines.
-
-**Symptom**
-
-<%= vars.k8s_runtime_abbr %> CLI commands fail with error:
-
-```
-Error: An error occurred in the PKS API when processing
-```
-
-<%= vars.control_plane %> logs include errors like:
-
-```
-Caused by: java.net.UnknownHostException: fqdn.example.com: Name or service not known
-        at java.base/java.net.Inet4AddressImpl.lookupAllHostAddr(Native Method) ~[na:na]
-        at java.base/java.net.InetAddress$PlatformNameService.lookupAllHostAddr(InetAddress.java:929) ~[na:na]
-```
-
-The fully-qualified domain names (FQDNs) that you use for vCenter or the <%= vars.control_plane %> VM contain uppercase letters.
-
-Running `nslookup` from your <%= vars.control_plane %> VM succeeds with the FQDN with uppercase letters, but fails when you convert them to lowercase.
-
-**Explanation**
-
-BOSH DNS, which <%= vars.k8s_runtime_abbr %> uses for its internal DNS, does not support uppercase letters in FQDNs.
-
-**Workaround**
-
-Use only lowercase letters in FQDNs that you assign to your vCenter or <%= vars.control_plane %> VM in <%= vars.k8s_runtime_abbr %>.  
-
-#### <a id='1-10-0-od-broker'></a> <%= vars.k8s_runtime_abbr %> CLI `get-credentials` Returns an “od-broker" Error
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.1](#1-10-1-features).  
-The probability of encountering this issue has been reduced in [<%= vars.k8s_runtime_abbr %> v1.10.0](#1-10-0-features).  
-
-**Symptom**
-
-The <%= vars.k8s_runtime_abbr %> CLI `get-credentials` occasionally returns the error “_od-broker is processing a request for the same instance... please try again later_” during periods of intermittent latency.
-
-
-#### <a id="bosh-stop-doesnt-drain"></a>Certain Linux Pods are Unable to Complete the Drain Process during a TKGI Upgrade
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.1](#1-10-1-features).
-
-**Symptom**
-
-You may experience one or more of the following:  
-
-* Your cluster upgrades are interrupted when upgrading the second node of a three-node Pod.  
-* Pod eviction fails when either `bosh stop` or `tkgi upgrade-cluster` initiates kubectl drain.
-
-<br>
-**Explanation**
-
-Monit processes have stopped before kubelet has completely drained the Pod. 
-Draining a worker node has triggered the removal of a container interface on the node, 
-blocking all network traffic from the Pod.
-
-
-
-
-#### <a id='1-10-0-do-notuse-resize-cluster'></a> The <%= vars.k8s_runtime_abbr %> CLI Resize and Update Cluster Commands Remove the Network Profile CNI Configuration from a Cluster
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.1](#1-10-1-features).
-
-**Symptom**
-
-In <%= vars.k8s_runtime_abbr %> v1.10.0, the network profile CNI configuration is dropped 
-when updating the cluster using the `tkgi resize` or `tkgi update-cluster` CLI commands.  
-
-**Solution**
-
-To restore a CNI network profile configuration:  
-
-1. Upgrade <%= vars.k8s_runtime_abbr %> to v1.10.1 or later.  
-1. Upgrade your <%= vars.k8s_runtime_abbr %>-provisioned cluster to <%= vars.k8s_runtime_abbr %> v1.10.1 or later.  
-1. To restore the network profile CNI configuration to your cluster, modify the cluster using either of the following:
-    * The <%= vars.k8s_runtime_abbr %> CLI `resize` command:  
-
-        ```
-        tkgi resize CLUSTER-NAME
-        ```
-        Where `CLUSTER-NAME` is the name of your cluster.  
-<br>
-    * The <%= vars.k8s_runtime_abbr %> CLI `update-cluster` command:  
-
-        ```
-        tkgi update-cluster CLUSTER-NAME --network-profile PROFILE-NAME
-        ```
-        Where:  
-        * `CLUSTER-NAME` is the name of your cluster.
-        * `PROFILE-NAME` is the name of the network profile previously applied to the cluster.
-
-#### <a id='1-10-0-stale-ip-problem'></a> Your Cluster Returns the Error 'PodCIDR is Empty for Node'
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.1](#1-10-1-features).
-
-**Symptom**
-
-While using Antrea as your CNI, your cluster experiences connectivity issues, 
-such as the overlay network failing to communicate with worker nodes. 
-Your logs include errors, such as "_PodCIDR is empty for Node..._",
-even though podCIDR is correctly configured and all Pods in your cluster have a running status.  
-
-**Explanation**  
-
-There is a stale IP address in a Pod in your cluster and the current version of Antrea cannot remove it.
-
-**Workaround**
-
-To remove a stale IP address:  
-
-1. To locate a stale IP address:
-    1. Verify the Antrea gateway interface has more than one IP address.
-    1. If it does have more than one IP address, review the logs for when the IP addresses are initialized. 
-    The last Antrea gateway interface IP address in the log is the only valid IP address for the interface. The preceding IP address(es) are stale
-     and should be removed.  
-1. To delete a stale IP address, run the following:
-
-    ```
-    ip addr del IP-ADDRESS dev GATEWAY-NAME
-    ```
-    Where:
-    * `IP-ADDRESS` is the IP address to be removed.
-    * `GATEWAY-NAME` is the name of your Antrea gateway.
-
-    For example:
-    <pre class="terminal">
-    ip addr del 10.200.1.1/24 dev2 antrea-gw0
-    </pre>
-
-#### <a id='1-10-0-failover-mode'></a> Cluster Resize Fails for a Cluster Configured With a Network Profile Containing the `failover_mode` Parameter
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.1](#1-10-1-features).  
-
-**Symptom**
-
-When you attempt to resize or update a cluster, the operation fails with logged errors similar to the following:  
-
-```
-Error processing update parameters: Unexpected field 'failover_mode'
-```
-
-**Explanation** 
-
-The `failover_mode` network profile parameter has been incorrectly flagged as an unsupported parameter.  
-
-**Workaround**  
-
-To remove the `failover_mode` parameter from a network profile:  
-
-1. Create a copy of the network profile configuration file used by your cluster.  
-1. Remove the `failover_mode` parameter from the copy of the configuration file. 
-For example, remove:  
-
-    ```
-    "failover_mode":"PREEMPTIVE",
-    ```
-1. Update the network profile for the cluster using the revised configuration file.  
-
-You can now resize your cluster.  
-
-#### <a id='1-10-0-windows-drain-error'></a> Windows Pods Are Unable to Complete the Drain Process during a TKGI Upgrade or Update
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.1](#1-10-1-features).
-
-**Symptom**
-
-While upgrading or updating a Windows worker node, 
-the procedure logs errors similar to the following and never completes:  
-
-```
-run cordon_node
-node/95eefa70-2028-23vv-8b22-420ece043e21 cordoned
-Successfully cordon_node
-run drain_kubelet
-node/95eefa70-2028-23vv-8b22-420ece043e21 already cordoned
-node/95eefa70-2028-23vv-8b22-420ece043e21 drained
-
-Successfully drain_kubelet
-checking for attached PVs...
-read non-k8s disk info from file
-2 disks still attached
-2 disks still attached
-2 disks still attached
-```
-
-**Explanation**  
-
-The drain process was unsuccessful because Windows Host Compute Service (HCS) created a virtual ephemeral disk 
-for each container and DaemonSet can’t be drained. 
-For more information, see [How Daemon Pods are scheduled]
-(https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/#how-daemon-pods-are-scheduled) 
-in the Kubernetes documentation.  
-
-## <a id="management-console-1.10.0"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.10.0
-
-**Release Date**: January 28, 2021
-
-### <a id="management-console-1.10.0-features"></a>Features
-
-<%= vars.product_short %> Management Console v1.10.0 updates include:  
-
-* **[Bug Fix]** Fixes [TKGI Management Console regenerates certificates if the NSX Manager admin password changes](https://docs.pivotal.io/tkgi/1-9/release-notes.html#1-9-1-nsxt-cert).
-* **[BETA]** Supports high availability (HA) mode in <%= vars.product_short %> Management Console.
-You can now scale the number of VM instances for the following <%= vars.product_short %> control plane jobs:
-
-    * <%= vars.product_short %> API and UAA
-    * <%= vars.product_short %> database
-* Adds support for Antrea CNI when deploying to vSphere without NSX-T networking.
-* Adds support for a No-NAT with virtual switch (VSS/VDS) topology.
-* Adds support for changing the compute profile after cluster creation.
-* Adds support for adding labels and taints to nodes when creating compute profiles.
-* Enforces the vSphere standard for passwords when creating local user accounts.
-
-### <a id="management-console-1.10.0-snapshot"></a>Product Snapshot
-
-<p class="note"><strong>Note</strong>: <%= vars.product_short %> Management Console provides an opinionated
-    installation of <%= vars.k8s_runtime_abbr %>. The supported versions may differ from or be more limited than
-    what is generally supported by <%= vars.k8s_runtime_abbr %>.</p>
-
-<table class="nice">
-    <th>Element</th>
-    <th>Details</th>
-    <tr>
-      <td>Version</td>
-      <td>v1.10.0</td>
-    </tr>
-    <tr>
-      <td>Release date</td>
-      <td>January 28, 2021</td>
-    </tr>
-    <tr>
-      <td>Installed Tanzu Kubernetes Grid Integrated Edition version</td>
-      <td>v1.10.0</td>
-    </tr>
-    <tr>
-      <td>Installed Ops Manager version</td>
-      <td>2.10.5</td>
-    </tr>
-    <tr>
-      <td>Installed Kubernetes version</td>
-        <td>1.19.6</td>
-    </tr>
-    <tr>
-      <td>Installed Harbor Registry version</td>
-      <td>2.1.2</td>
-    </tr>
-        <tr>
-        <td>Linux stemcell</td>
-        <td>621.97</td>
-    </tr>
-    <tr>
-        <td>Windows stemcells</td>
-        <td>&gt;=2019.29</td>
-    </tr>
-</table>
-
-### <a id='management-console-1-10-0-upgrade'></a>Upgrade Path <%#CONFIRM BEFORE GA%>
-
-The supported upgrade path to <%= vars.product_short %> Management Console v1.10.0 is from
-<%= vars.product_short %> v1.9.0 and later.
-
-### <a id="management-console-1.10.0-known-issues"></a> Known Issues
-
-The <%= vars.product_short %> Management Console v1.10.0 has the following known issues:
-
-#### <a id="management-console-1.10.0-ui-customcerts"></a> Management Console UI Does Not Open If the Management Console Uses Custom Certificates
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> MC v1.10.1](#management-console-1-10-1-features).
-
-**Symptom**
-
-If you configure <%= vars.product_short %> Management console with custom certificates, the management console interface fails to open. This is caused by the failure of the script `/etc/vmware/pks-appliance-tls.sh` on the management console VM.
-
-**Workaround**
-
-1. Use SSH to log in to the management console VM.
-1. Open `/etc/vmware/pks-appliance-tls.sh` in a text editor.
-1. Replace line 32 with the following code: <pre>sed -i '/^$/d' $file</pre>
-1. Reboot the management console VM.
-
-#### <a id="management-console-1.10.0-vrli-https"></a> vRealize Log Insight Integration Does Not Support HTTPS Connections
+#### <a id="management-console-1-11-0-vrli-https"></a> vRealize Log Insight Integration Does Not Support HTTPS Connections
 
 **Symptom**
 
@@ -1345,7 +634,7 @@ The <%= vars.product_short %> Management Console integration to vRealize Log Ins
 
 <%= vars.product_short %> Management Console can now send logs to the HTTPS port on the vRealize Log Insight server.
 
-#### <a id="management-console-1.10.0-vsphere-ha"></a> vSphere HA causes Management Console ovfenv Data Corruption
+#### <a id="management-console-1-11-0-vsphere-ha"></a> vSphere HA causes Management Console ovfenv Data Corruption
 
 **Symptom**
 
@@ -1359,7 +648,7 @@ If you enable vSphere HA on a cluster, if the TKGI Management Console appliance 
 - Verify under Recent Tasks that a `Reconfigure virtual machine` task has run on the appliance VM.
 - Power on the appliance VM.
 
-#### <a id="management-console-1.10.0-k8s-profile"></a> Base64 encoded file arguments are not decoded in Kubernetes profiles
+#### <a id="management-console-1-11-0-k8s-profile"></a> Base64 encoded file arguments are not decoded in Kubernetes profiles
 
 **Symptom**
 
@@ -1370,7 +659,7 @@ some file arguments are not decoded.
 
 Run `echo "$content" | base64 --decode`
 
-#### <a id="management-console-1.10.0-network-profile"></a> Network profiles not immediately selectable
+#### <a id="management-console-1-11-0-network-profile"></a> Network profiles not immediately selectable
 
 **Symptom**
 
@@ -1381,7 +670,7 @@ are not available for selection.
 
 Log out of the management console and log back in again.
 
-#### <a id="management-console-1.10.0-cluster-summary"></a> Real-Time IP information not displayed for network profiles
+#### <a id="management-console-1-11-0-cluster-summary"></a> Real-Time IP information not displayed for network profiles
 
 **Symptom**
 
@@ -1392,7 +681,7 @@ rather than the real-time values from the associated network profile.
 
 None
 
-#### <a id='management-console-1-10-0-harbor-storage-config'></a> Error After Modifying Your Harbor Storage Configuration
+#### <a id='management-console-1-11-0-harbor-storage-config'></a> Error After Modifying Your Harbor Storage Configuration
 
 **Symptom**
 
@@ -1411,4 +700,3 @@ Harbor does not support modifying an existing Harbor installation's storage conf
 
 To modify your Harbor storage configuration,
 re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
-
