@@ -1,49 +1,71 @@
 ---
-title: Cloud Native Storage (CNS) on vSphere
+title: Deploying Cloud Native Storage (CNS) on vSphere
 owner: TKGI
 ---
 
-This topic explains how to integrate Cloud Native Storage (CNS) with <%= vars.product_full %> with a Cloud Storage Interface (CSI).
-This integration enables <%= vars.k8s_runtime_abbr %> clusters to use external container storage.
-
-This topic provides procedures for installing CSI on a TKGI cluster, verifying the installation and resizing persistent volumes.
+This topic describes <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) integration with Cloud Native Storage (CNS) using a Cloud Storage Interface (CSI).
+CNS integration enables <%= vars.k8s_runtime_abbr %> clusters to use external container storage.
 
 ## <a id='overview'></a>Overview
 
 Cloud Native Storage (CNS) provides comprehensive data management for stateful, containerized apps,
 enabling apps to survive restarts and outages.
-Stateful containers can use vSphere storage primitives such as standard volume, persistent volume, and dynamic provisioning, independent of VM and container lifecycle.
+Stateful containers can use vSphere storage primitives such as standard volume, persistent volume, and dynamic provisioning, 
+independent of VM and container lifecycle.  
 
-vSphere storage backs the volumes, and you can set a storage policy directly on the volumes.
-After you create the volumes, you can use the vSphere client to review the volumes and their backing virtual disks, and monitor their storage policy compliance.
+Your <%= vars.k8s_runtime_abbr %> administrator has the option to enable automatic vSphere CSI Driver Integration on your clusters:  
 
+* To review persistent volumes automatically created on your clusters by <%= vars.k8s_runtime_abbr %> using VMware CNS, 
+    see [Verify and Configure Automatically Installed CNS](#automatic-cns).  
+* To migrate manually installed CNS to automatically installed CNS, 
+    see [Migrate Manually Installed CNS to Automatically Installed CNS](#migrate-to-automatic-cns).  
+* To manually create persistent volumes using CNS on vSphere, see [Manually Install CNS](#manual-cns).  
+    <p class="note"><strong>Note</strong>: Do not manually deploy CNS in environments where automatic CNS deployment is enabled.
+    </p>
 
-To create persistent volumes using CNS on vSphere, see:  
+For information on enabling automatic CNS integration on <%= vars.k8s_runtime_abbr %>-provisioned clusters, 
+see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere_.  
 
-* [Prerequisites for CNS with <%= vars.k8s_runtime_abbr %>](#prereq)  
-* [Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster](#manual)  
-* [Verify a CSI Installation](#verify)  
-* [Create a vSphere Storage Class](#create-storage)  
+With CNS enabled on your clusters, use the vSphere client to review your cluster storage volumes and their backing virtual disks, and monitor their storage policy compliance. 
+You can set a storage policy directly on the volumes. Also, vSphere storage backs up your cluster volumes while CNS is enabled.    
+
+For more information on VMware CNS, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).  
 
 <br>
 To resize a persistent volume, see:  
 
 * [Resize a Persistent Volume](#resize-pv)
 
-<br>
-For more information, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).
+## <a id='automatic-cns'></a>Verify and Configure Automatically Installed CNS
 
-<p class="note"><strong>Note</strong>: The following procedures describe configuration of CNS v2.0 and later.
-To configure CNS v1.0.2, see <a href="https://docs.pivotal.io/tkgi/1-8/vsphere-cns.html">Cloud Native Storage (CNS) on vSphere</a> 
-in the <%= vars.k8s_runtime_abbr %> v1.8 documentation.
-</p>
+If your administrator has enabled automatic vSphere CSI Driver Integration, your clusters are automatically configured with CNS.
 
-## <a id='prereq'></a>Prerequisites for CNS with <%= vars.k8s_runtime_abbr %>
+To validate automatic creation of persistent volumes using CNS on vSphere, and resize the persistent volumes:  
+
+* [Verify a CSI Installation](#verify)  
+* [Create a vSphere Storage Class](#create-storage)  
+* [Resize a Persistent Volume](#resize-pv)  
+
+
+## <a id='manual-cns'></a>Manually Install CNS
+
+This section explains how to manually integrate CNS with <%= vars.k8s_runtime_abbr %>-provisioned clusters with a CSI 
+in environments where automatic vSphere CSI Driver Integration has not been enabled.
+
+Complete the following procedures to install a CSI on a <%= vars.k8s_runtime_abbr %> cluster, 
+verify the installation and resize the persistent volumes:  
+
+* [Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>](#prereq)  
+* [Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster](#manual)  
+* [Verify a CSI Installation](#verify)  
+* [Create a vSphere Storage Class](#create-storage) 
+* [Resize a Persistent Volume](#resize-pv)
+
+
+### <a id='prereq'></a>Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>
 
 - **CNS** v2.0 or later
-  - If you are using CNS v1.0.2, see 
-  [Cloud Native Storage (CNS) on vSphere](https://docs.pivotal.io/tkgi/1-8/vsphere-cns.html) 
-  in the <%= vars.k8s_runtime_abbr %> v1.8 documentation
+
 - **vSphere** v6.7U3 or later, or vSphere v7.0 or later
   - [vSphere definition](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere)
   <%#
@@ -53,7 +75,7 @@ in the <%= vars.k8s_runtime_abbr %> v1.8 documentation.
   - NSX-T v2.5.0 and later are compatible with vSphere v6.7U3
   - See the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&1=&175=) for other version compatibilities
   %>
-- **<%= vars.k8s_runtime_abbr %>** v1.7 or later
+- **<%= vars.k8s_runtime_abbr %>** v1.11.0 or later
   - Support upgrading virtual hardware version on Kubernetes cluster VMs
 - **Firewall and network configuration**:
   - Enable the following components to access vCenter:
@@ -64,7 +86,7 @@ in the <%= vars.k8s_runtime_abbr %> v1.8 documentation.
   - In the <%= vars.k8s_runtime_abbr %> tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode
 
 
-## <a id='manual'></a>Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster
+### <a id='manual'></a>Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster
 
 This section provides procedures for manually installing CSI on a TKGI cluster.
 Installing CSI on a TKGI cluster requires a number of steps:
@@ -74,7 +96,7 @@ Installing CSI on a TKGI cluster requires a number of steps:
 * [Create RBAC for CSI Access](#create-rbac)
 * [Install the vSphere CSI Driver](#create-driver)
 
-### <a id='create-cluster'></a>Create a <%= vars.k8s_runtime_abbr %> cluster
+#### <a id='create-cluster'></a>Create a <%= vars.k8s_runtime_abbr %> cluster
 
 To create a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster:  
 
@@ -104,7 +126,7 @@ To create a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster:
 
     ![VM Instance Summary pane in vCenter](images/vsphere/vm-cns.png)
 
-### <a id='create-secret'></a>Create a CSI Secret
+#### <a id='create-secret'></a>Create a CSI Secret
 
 To create a CSI secret:  
 
@@ -174,7 +196,7 @@ To create a CSI secret:
 
 Fore more information about secrets, see [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) in the Kubernetes documentation.  
 
-### <a id='create-rbac'></a>Create RBAC for CSI Access
+#### <a id='create-rbac'></a>Create RBAC for CSI Access
 
 To create role-based access control (RBAC) of the CSI:
 
@@ -195,7 +217,7 @@ To create role-based access control (RBAC) of the CSI:
     clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding created
     </pre>
 
-### <a id='create-driver'></a>Install the vSphere CSI Driver
+#### <a id='create-driver'></a>Install the vSphere CSI Driver
 
 To install the vSphere CSI driver:  
 
@@ -1012,3 +1034,24 @@ spec:
         - effect: NoSchedule
           operator: Exists
 ```
+
+## <a id='migrate-to-automatic-cns'></a>Migrate Manually Installed CNS to Automatically Installed CNS
+
+If have manually deployed CSI on your clusters and your administrator has enabled 
+automatic CNS, you must migrate those clusters off of the manual CSI configuration.
+
+To migrate from manually deployed CSI to automatically deployed CSI:
+
+1. Confirm your <%= vars.k8s_runtime_abbr %> administrator has enabled automatic **vSphere CSI Driver Integration** on the <%= vars.k8s_runtime_abbr %> tile.
+2. Upgrade your Kubernetes cluster to <%= vars.k8s_runtime_abbr %> v1.11.
+3. Manually remove the manually deployed CSI driver from the cluster.
+4. Validate that CNS recognizes the existing storage by completing the step in [Verify a CSI Installation](#verify) above.
+
+<%#
+If users manually deployed the vSphere CSI Driver previously, and they want to enable vSphere CSI Driver in TKGI 1.11 tile, 
+then they must manually delete the manually deployed CSI Drive after successfully upgrading the K8S cluster to TKGI 1.11. 
+Please note that the key point is the timing, in other words, 
+they can't delete the manually deployed vSphere CSI Driver before upgrading the existing cluster(s); 
+Instead, they should perform the operation after upgrading the existing cluster(s). 
+We need to get the above info included in the document. #%>
+
