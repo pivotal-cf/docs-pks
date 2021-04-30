@@ -9,17 +9,17 @@ For more information and other uses of Kubernetes profiles, see [Using Kubernete
 
 ## <a id='profile'></a> Create Kubernetes Profile
 
-To create a new create Kubernetes profile: 
+To create a new create Kubernetes profile:
 
-1. Create a new a base64-encoded, 32-byte random key string to use as a secret.  
-    * On Linux or MacOS, you can generate the secret by running:  
+1. Create a new a base64-encoded, 32-byte random key string to use as a secret.
+    * On Linux or MacOS, you can generate the secret by running:
 
         ```
         head -c 32 /dev/urandom | base64
         ```
 	    This command returns a base64-encoded, 32-byte key string, for example: `jHc3NMp7s7T7JoJuZF7NUSkHVYCSikJCNJ+LrltbkJk=`
 
-1. To create an encryption provider configuration file, create a file named `encryption-provider-config.yml` 
+1. To create an encryption provider configuration file, create a file named `encryption-provider-config.yml`
 containing the following content:
 
 	```
@@ -30,7 +30,6 @@ containing the following content:
 	    - secrets
 	    providers:
 	    - aescbc:
-
 	        keys:
 	        - name: key1
 	          secret: BASE-64-ENCODED-SECRET
@@ -38,7 +37,7 @@ containing the following content:
 	```
 	Where `BASE-64-ENCODED-SECRET` is the secret key string created in the last step.
 
-    <p class="note"><strong>Note:</strong> To read unencrypted secrets, 
+    <p class="note"><strong>Note:</strong> To read unencrypted secrets,
     include the <code>identity</code> provider as the last provider as shown above.</p>
 
 1. To create a Kubernetes profile configuration file that customizes the kube-apiserver using
@@ -60,22 +59,22 @@ your encryption provider configuration file, create a JSON file containing the f
 	  ]
 	}
 	```
-	Where:  
-	* `PROFILE-TITLE` is the name of your profile, for example `profile1`.  
-	* `PROFILE-DESC` is the description you want to use for the profile.  
-	* `LOCAL-DIR` is the directory containing your encryption provider configuration file.  
+	Where:
+	* `PROFILE-TITLE` is the name of your profile, for example `profile1`.
+	* `PROFILE-DESC` is the description you want to use for the profile.
+	* `LOCAL-DIR` is the directory containing your encryption provider configuration file.
 
-1. To create a Kubernetes profile based on your profile configuration file, 
+1. To create a Kubernetes profile based on your profile configuration file,
 use the <%= vars.k8s_runtime_abbr %> CLI:
 
     ```
     tkgi create-k8s-profile PROFILE-PATH
     ```
 
-    Where `PROFILE-PATH` is the path and filename of the JSON profile file you created 
-    in the step above.  
+    Where `PROFILE-PATH` is the path and filename of the JSON profile file you created
+    in the step above.
 <br>
-    For example:  
+    For example:
 	<pre class="terminal">
 	$ tkgi create-k8s-profile /tmp/profile1.json
 	Kubernetes profile profile1 successfully created
@@ -85,28 +84,28 @@ use the <%= vars.k8s_runtime_abbr %> CLI:
 
 To create a Kubernetes cluster based on a Kubernetes profile:
 
-1. To create a cluster based on a Kubernetes profile, use the <%= vars.k8s_runtime_abbr %> CLI:  
+1. To create a cluster based on a Kubernetes profile, use the <%= vars.k8s_runtime_abbr %> CLI:
 
     ```
     tkgi create-cluster CLUSTER-NAME -e EXTERNAL-HOSTNAME -p small -n 1 --kubernetes-profile K8S-PROFILE
     ```
 
-    Where:  
-    * `CLUSTER-NAME` is the name to apply to the new cluster.  
-        <p class="note"><strong>Note</strong>: Use only lowercacse characters when naming your cluster 
+    Where:
+    * `CLUSTER-NAME` is the name to apply to the new cluster.
+        <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster
         if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
         </p>
-    * `EXTERNAL-HOSTNAME` is the address to use to access Kubernetes API.  
-    * `K8S-PROFILE` is the Kubernetes profile filename. 
-    For more information, see [`tkgi create-cluster`](./cli/index.html#create-cluster) in _<%= vars.k8s_runtime_abbr %> CLI_.  
+    * `EXTERNAL-HOSTNAME` is the address to use to access Kubernetes API.
+    * `K8S-PROFILE` is the Kubernetes profile filename.
+    For more information, see [`tkgi create-cluster`](./cli/index.html#create-cluster) in _<%= vars.k8s_runtime_abbr %> CLI_.
 
-    Running this command restarts your kube-apiserver with your encryption provider configuration file 
-    set as the `--encryption-provider-config` parameter.  
+    Running this command restarts your kube-apiserver with your encryption provider configuration file
+    set as the `--encryption-provider-config` parameter.
 <br>
     For example:
     <pre class="terminal">
     $ tkgi create-cluster cluster1 -e cluster1-internal.com -p small -n 1 --kubernetes-profile profile1
-    <%= vars.k8s_runtime_abbr %> Version:              1.8.0-build.8
+    <%= vars.k8s_runtime_abbr %> Version:             1.8.0-build.8
     Name:                     cluster1
     K8s Version:              1.17.5
     Plan Name:                small
@@ -122,10 +121,10 @@ To create a Kubernetes cluster based on a Kubernetes profile:
     Kubernetes Profile Name:  profile1
     Tags:
     </pre>
-	
+
 ## <a id='ensure-existing'></a> Ensure Existing Data is Encrypted
 
-If you have existing data, the data has been stored without being encrypted. 
+If you have existing data, the data has been stored without being encrypted.
 
 To encrypt your existing data:
 
@@ -135,27 +134,27 @@ To encrypt your existing data:
     kubectl get secrets --all-namespaces -o json | kubectl replace -f -
     ```
 
-    This command reads all secrets, applies encryption, and saves the data encrypted. 
+    This command reads all secrets, applies encryption, and saves the data encrypted.
     For more information, see [Ensure all secrets are encrypted](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#ensure-all-secrets-are-encrypted)
-    in the Kubernetes documentation.  
+    in the Kubernetes documentation.
 
-1. Be sure to complete the steps in [Verify Your Data is Encrypted](#verify-encryption) below.  
+1. Be sure to complete the steps in [Verify Your Data is Encrypted](#verify-encryption) below.
 
 ## <a id='verify-encryption'></a> Verify Your Data is Encrypted
 
-After the kube-apiserver restarts, all existing data in its etcd database should be encrypted, 
+After the kube-apiserver restarts, all existing data in its etcd database should be encrypted,
 and it should encrypt any new data that it stores.
 
 To ensure the etcd data has been encrypted, create and store a test secret and then retrieve it:
 
-1. To create and store a test secret:  
+1. To create and store a test secret:
 
     ```
 	kubectl create secret generic SECRET-NAME -n NAMESPACE --from-literal=KEY-NAME=KEY-VALUE
     ```
 
-    Where:  
-    * `SECRET-NAME` is the name to apply to the secret.  
+    Where:
+    * `SECRET-NAME` is the name to apply to the secret.
     * `NAMESPACE` is the namespace.
     * `KEY-NAME` is the name of the key.
     * `KEY-VALUE` is the value to encrypt.
@@ -164,28 +163,27 @@ To ensure the etcd data has been encrypted, create and store a test secret and t
     For example:
 
     <pre class="terminal">
-	kubectl create secret generic secret1 -n default --from-literal=mykey=mydata
+	$ kubectl create secret generic secret1 -n default --from-literal=mykey=mydata
 	</pre>
 
-    For more information, see [`create secret generic`]
-    (https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-secret-generic-em-) 
-    in the Kubernetes documentation.  
+    For more information, see [`create secret generic`](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-secret-generic-em-)
+    in the Kubernetes documentation.
 
-1. To read the test secret out of etcd, use the etcdctl command line:  
+1. To read the test secret out of etcd, use the etcdctl command line:
 
     ```
     ETCDCTL_API=3 etcdctl get /registry/secrets/default/SECRET-NAME [ETCD-ARGS] | hexdump -C
     ```
-    Where:  
-    * `SECRET-NAME` is the name to apply to the secret. 
+    Where:
+    * `SECRET-NAME` is the name to apply to the secret.
     * `ETCD-ARGS` are the additional arguments for connecting to the etcd server.
 
-	For example, if you SSH into your master node and with admin privileges you could run the following command to get the secret and view it. 
+	For example, if you SSH into your master node and with admin privileges you could run the following command to get the secret and view it.
     <pre class="terminal">
-	ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get /registry/secrets/default/secret1
+	$ ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get /registry/secrets/default/secret1
 	</pre>
 
-1. Review the output and verify the stored test secret is prefixed with `k8s:enc:aescbc:v1:`. For example: 
+1. Review the output and verify the stored test secret is prefixed with `k8s:enc:aescbc:v1:`. For example:
 
     <pre class="terminal">
 	master/3f9c5ca9-a2b1-469c-9007-6fdd0844a5ec:/var/vcap/bosh_ssh/bosh_2f4aaa514474422# ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get /registry/secrets/default/secret1
@@ -195,37 +193,37 @@ To ensure the etcd data has been encrypted, create and store a test secret and t
 	</pre>
 
 	The `k8s:enc:aescbc:v1:` prefix indicates the `aescbc` provider has encrypted the resulting data.
-	
-1. To retrieve the stored test secret:  
+
+1. To retrieve the stored test secret:
 
     ```
-	kubectl describe secret secret1 -n default
+	kubectl describe secret SECRET-NAME -n default
     ```
 
-    Where: `SECRET-NAME` is the name of the secret.  
+    Where: `SECRET-NAME` is the name of the secret.
 <br>
-    For example:  
+    For example:
     <pre class="terminal">
-	kubectl describe secret secret1 -n default
+	$ kubectl describe secret secret1 -n default
     </pre>
 
-1. Review the output and verify the secret is correctly decrypted. 
-The `mydata` content is returned encoded. For information on how to decode `mydata`, see 
-[decoding a secret](https://kubernetes.io/docs/concepts/configuration/secret#decoding-a-secret).  
+1. Review the output and verify the secret is correctly decrypted.
+The `mydata` content is returned encoded. For information on how to decode `mydata`, see
+[decoding a secret](https://kubernetes.io/docs/concepts/configuration/secret#decoding-a-secret) in the Kubernetes documentation.
 
 ## <a id='rotate'></a> Rotate Encryption Key for Secrets in etcd Database
 
-This section describes how to use `encryption provider config` to rotate a key. 
-For highly-available deployments running multiple kube-apiserver processes, changing a secret 
+This section describes how to use `encryption provider config` to rotate a key.
+For highly-available deployments running multiple kube-apiserver processes, changing a secret
 without incurring downtime requires a multi-step process.
 
-To rotate an encryption key for a secret in an etcd database:  
+To rotate an encryption key for a secret in an etcd database:
 
 1. Generate a new key. For more information, see [Create Kubernetes Profile](#profile) above.
 1. Add the new key as the second key entry for the
-current provider in your encryption-provider-config.yml `keys:` list.  
+current provider in your encryption-provider-config.yml `keys` list.
 <br>
-    For example:  
+    For example:
 
 	```
 	apiVersion: apiserver.config.k8s.io/v1
@@ -242,12 +240,12 @@ current provider in your encryption-provider-config.yml `keys:` list.
 	          secret: MNI7xeE48/1dH+pE5LLHblhId6AjbzdN2I6rubh8AfE=
 	    - identity: {}
 	```
-    <p class="note"><strong>Note:</strong> To read unencrypted secrets, 
+    <p class="note"><strong>Note:</strong> To read unencrypted secrets,
     include the <code>identity</code> provider as the last provider, as shown above.</p>
 
-1. Create a Kubernetes profile configuration file that references the modified `encryption-provider-config.yml`.   
+1. Create a Kubernetes profile configuration file that references the modified `encryption-provider-config.yml`.
 <br>
-    For example:  
+    For example:
 
 	```json
 	{
@@ -265,19 +263,19 @@ current provider in your encryption-provider-config.yml `keys:` list.
 	}
 	```
 
-    For information on how to create a Kubernetes profile configuration file, 
-    see [Create Kubernetes Profile](#profile) above.  
+    For information on how to create a Kubernetes profile configuration file,
+    see [Create Kubernetes Profile](#profile) above.
 
-1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based on the configuration file.  
+1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based on the configuration file.
 <br>
-    For example:  
+    For example:
 
 	<pre class="terminal">
 	$ tkgi create-k8s-profile /tmp/profile2.json
 	Kubernetes profile profile2 successfully created
     </pre>
-    For information on how to use the <%= vars.k8s_runtime_abbr %> CLI to create a Kubernetes profile, 
-    see [Create Kubernetes Profile](#profile) above.  
+    For information on how to use the <%= vars.k8s_runtime_abbr %> CLI to create a Kubernetes profile,
+    see [Create Kubernetes Profile](#profile) above.
 
 1.  Update the cluster with this new profile.
 
@@ -285,11 +283,11 @@ current provider in your encryption-provider-config.yml `keys:` list.
     tkgi update-cluster CLUSTER-NAME --kubernetes-profile PROFILE-TITLE
     ```
 
-    Where:  
-    * `CLUSTER-NAME` is the name to apply to the new cluster. 
-    * `PROFILE-TITLE` is the name of your profile, for example `profile2`.  
+    Where:
+    * `CLUSTER-NAME` is the name to apply to the new cluster.
+    * `PROFILE-TITLE` is the name of your profile, for example `profile2`.
 
-    For example:  
+    For example:
 
 	<pre class="terminal">
 	$ tkgi update-cluster cluster1 --kubernetes-profile profile2
@@ -300,14 +298,14 @@ current provider in your encryption-provider-config.yml `keys:` list.
 	Use 'tkgi cluster cluster1' to monitor the state of your cluster
   </pre>
 
-  	Running this command restarts your kube-apiserver with your encryption provider configuration file 
-    set as the `--encryption-provider-config` parameter. 
+  	Running this command restarts your kube-apiserver with your encryption provider configuration file
+    set as the `--encryption-provider-config` parameter.
   	This ensures that each server can decrypt using the new key.
 
 1. Edit the encryption provider configuration file so that it lists the new key
-as the first entry in the `keys:` property, swapping its position with the old key.  
+as the first entry in the `keys` property, swapping its position with the old key.
 <br>
-    For example:  
+    For example:
 
 	```
 	apiVersion: apiserver.config.k8s.io/v1
@@ -325,9 +323,9 @@ as the first entry in the `keys:` property, swapping its position with the old k
 	    - identity: {}
 	```
 
-1. Create a Kubernetes profile configuration file that references the modified `encryption-provider-config.yml`.  
+1. Create a Kubernetes profile configuration file that references the modified `encryption-provider-config.yml`.
 <br>
-    For example:  
+    For example:
 
 	```
 	{
@@ -345,23 +343,23 @@ as the first entry in the `keys:` property, swapping its position with the old k
 	}
 	```
 
-1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based on 
-the new Kubernetes profile configuration file.  
+1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based on
+the new Kubernetes profile configuration file.
 <br>
-    For example:  
+    For example:
 
 	<pre class="terminal">
 	$ tkgi create-k8s-profile /tmp/profile3.json
 	Kubernetes profile profile2 successfully created
   </pre>
 
-1.  Update the cluster with the new profile.  
+1.  Update the cluster with the new profile.
 <br>
-    For example:  
+    For example:
 
 	<pre class="terminal">
 	$ tkgi update-cluster cluster1 --kubernetes-profile profile3
-	
+
 	Update summary for cluster cluster1:
 	Kubernetes Profile Name: profile3
 	Are you sure you want to continue? (y/n): y
@@ -369,17 +367,17 @@ the new Kubernetes profile configuration file.
 	</pre>
 
 	This restarts the kube-apiserver processes to ensure that
-    each server now encrypts using the new key. 
+    each server now encrypts using the new key.
 
-1. To encrypt all existing secrets with the new key:  
+1. To encrypt all existing secrets with the new key:
 
     ```
-    kubectl get secrets --all-namespaces -o json | kubectl replace -f - 
+    kubectl get secrets --all-namespaces -o json | kubectl replace -f -
     ```
 
-1. Back up etcd, snapshotting it with the new key.  
+1. Back up etcd, taking a snapshot with the new key.
 
-1. Edit the `encryption-provider-config.yml` again to remove the old decryption key from the config `keys:` list.  
+1. Edit the `encryption-provider-config.yml` again to remove the old decryption key from the config `keys` list.
 <br>
     For example:
 
@@ -391,15 +389,15 @@ the new Kubernetes profile configuration file.
 	    - secrets
 	    providers:
 	    - aescbc:
-	        Keys:
+	        keys:
 	        - name: key2
 	          secret: MNI7xeE48/1dH+pE5LLHblhId6AjbzdN2I6rubh8AfE=
 	    - identity: {}
 	```
 
-1. Create a new Kubernetes profile configuration file that references the modified `encryption-provider-config.yml`.  
+1. Create a new Kubernetes profile configuration file that references the modified `encryption-provider-config.yml`.
 <br>
-    For example:  
+    For example:
 
 	```
 	{
@@ -417,11 +415,11 @@ the new Kubernetes profile configuration file.
 	}
     ```
 
-    For information on how to create a Kubernetes profile configuration file, 
-    see [Create Kubernetes Profile](#profile) above. 
+    For information on how to create a Kubernetes profile configuration file,
+    see [Create Kubernetes Profile](#profile) above.
 
-1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based on 
-the new Kubernetes profile configuration file.  
+1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based on
+the new Kubernetes profile configuration file.
 <br>
     For example:
 
@@ -430,9 +428,9 @@ the new Kubernetes profile configuration file.
 	Kubernetes profile profile4 successfully created
     </pre>
 
-1. Update the cluster with the new profile.  
+1. Update the cluster with the new profile.
 <br>
-    For example: 
+    For example:
 
 	<pre class="terminal">
 	$ tkgi update-cluster cluster1 --kubernetes-profile profile4
@@ -444,15 +442,15 @@ the new Kubernetes profile configuration file.
 	</pre>
 
     This restarts the kube-apiserver processes to ensure that each server now encrypts using the new key.
-    
+
 1. Verify the stored secret is prefixed with `k8s:enc:aescbc:v1:key2`
-which indicates the `aescbc` provider has encrypted the resulting data.  
+which indicates the `aescbc` provider has encrypted the resulting data.
 <br>
-    For example:  
+    For example:
 
 	<pre class="terminal">
-	master/3f9c5ca9-a2b1-469c-9007-6fdd0844a5ec:/var/vcap/bosh\_ssh/bosh\_2f4aaa514474422\#
-	ETCDCTL\_API=3 /var/vcap/packages/etcdctl/etcdctl --endpoints
+	master/3f9c5ca9-a2b1-469c-9007-6fdd0844a5ec:/var/vcap/bosh_ssh/bosh_2f4aaa514474422\#
+	ETCDCTL_API=3 /var/vcap/packages/etcdctl/etcdctl --endpoints
 	https://master-0.etcd.cfcr.internal:2379 --cert
 	/var/vcap/jobs/etcd/config/etcdctl.crt --key
 	/var/vcap/jobs/etcd/config/etcdctl.key --cacert
@@ -466,10 +464,10 @@ which indicates the `aescbc` provider has encrypted the resulting data.
 
 ## <a id='decrypt'></a> Decrypt Secrets in the etcd Database
 
-1. To disable encryption of data at rest, place the identity provider as the first entry 
-in the encryption provider configuration file.  
+1. To disable encryption of data at rest, place the identity provider as the first entry
+in the encryption provider configuration file.
 <br>
-    For example:  
+    For example:
 
 	```
 	apiVersion: apiserver.config.k8s.io/v1
@@ -482,14 +480,13 @@ in the encryption provider configuration file.
 	    - aescbc:
 	        keys:
 	        - name: key1
-	          secret: <BASE 64 ENCODED SECRET>
-
+	          secret: BASE-64-ENCODED-SECRET
 	```
 
-1. Create a new Kubernetes profile configuration file that references the modified 
-`encryption-provider-config.yml`.  
+1. Create a new Kubernetes profile configuration file that references the modified
+`encryption-provider-config.yml`.
 <br>
-    For example:  
+    For example:
 
 	```
 	{
@@ -506,11 +503,11 @@ in the encryption provider configuration file.
 	  ]
 	}
 	```
-    For information on how to create a Kubernetes profile configuration file, 
-    see [Create Kubernetes Profile](#profile) above. 
+    For information on how to create a Kubernetes profile configuration file,
+    see [Create Kubernetes Profile](#profile) above.
 
-1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based 
-on the modified Kubernetes profile configuration file.  
+1. Use the <%= vars.k8s_runtime_abbr %> CLI to create a profile based
+on the modified Kubernetes profile configuration file.
 <br>
     For example:
 
@@ -518,8 +515,8 @@ on the modified Kubernetes profile configuration file.
 	$ tkgi create-k8s-profile /tmp/profile5.json
 	Kubernetes profile profile5 successfully created
     </pre>
-	
-1.  Update the cluster with the new profile.  
+
+1.  Update the cluster with the new profile.
 <br>
     For example:
 
@@ -534,7 +531,7 @@ on the modified Kubernetes profile configuration file.
 
     For information on how to use `update-cluster`, see [Rotate Encryption Key for Secrets in etcd Database](#rotate) above.
 
-1. To force all secrets to be decrypted:  
+1. To force all secrets to be decrypted:
 
     ```
     kubectl get secrets --all-namespaces -o json | kubectl replace -f -
