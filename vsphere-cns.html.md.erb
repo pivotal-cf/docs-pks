@@ -1,5 +1,5 @@
 ---
-title: Deploying Cloud Native Storage (CNS) on vSphere
+title: Deploying and Managing Cloud Native Storage (CNS) on vSphere
 owner: TKGI
 ---
 
@@ -13,15 +13,48 @@ enabling apps to survive restarts and outages.
 Stateful containers can use vSphere storage primitives such as standard volume, persistent volume, and dynamic provisioning, 
 independent of VM and container lifecycle.  
 
-Your <%= vars.k8s_runtime_abbr %> administrator has the option to enable automatic vSphere CSI Driver Integration on your clusters:  
+For more information on VMware CNS, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).  
 
-* To review persistent volumes automatically created on your clusters by <%= vars.k8s_runtime_abbr %> using VMware CNS, 
-    see [Verify and Configure Automatically Installed CNS](#automatic-cns).  
-* To migrate manually installed CNS to automatically installed CNS, 
-    see [Migrate Manually Installed CNS to Automatically Installed CNS](#migrate-to-automatic-cns).  
-* To manually create persistent volumes using CNS on vSphere, see [Manually Install CNS](#manual-cns).  
-    <p class="note"><strong>Note</strong>: Do not manually deploy CNS in environments where automatic CNS deployment is enabled.
-    </p>
+Your <%= vars.k8s_runtime_abbr %> administrator has the option to enable 
+automatic vSphere CSI Driver Integration on your clusters.  
+
+If your administrator has enabled automatic vSphere CSI Driver Integration and you have a cluster that uses a manually deployed vSphere CSI Driver, see
+[Migrate From a Manually Deployed vSphere CSI Driver to Automatic vSphere CSI Driver Integration](#migrate-csi) below.  
+
+To deploy vSphere CNS volumes using an automatically deployed vSphere CSI Driver, see 
+[Create CNS Volumes With Automatic vSphere CSI Driver Integration](#deploy-to-automatic) below.  
+
+To deploy vSphere CNS volumes using a manually deployed vSphere CSI Driver, see 
+[Create CNS Volumes With a Manually Deployed vSphere CSI Driver](#deploy-to-manual) below. 
+
+To manage an existing vSphere CNS volume, see
+
+
+
+## <a id='migrate-csi'></a>Migrate From a Manually Deployed vSphere CSI Driver to Automatic vSphere CSI Driver Integration
+
+If your administrator has enabled automatic vSphere CSI Driver Integration and you have a cluster that uses a manually deployed vSphere CSI Driver, 
+the manually deployed driver will no longer function after upgrading the cluster.  
+
+To enable the automatic CNS on your existing cluster, remove the manually deployed CSI driver immediately after upgrading the cluster. See:  
+
+* [Remove a Manually Installed vSphere CSI Driver](#remove-manual-csi)
+* [Verify the Installed vSphere CSI Driver](#automatic-cns) 
+
+After migrating the CSI driver to automatic vSphere CSI driver integration, see 
+[Create CNS Volumes With Automatic vSphere CSI Driver Integration](#deploy-to-automatic) below.  
+
+
+## <a id='deploy-to-automatic'></a>Create CNS Volumes With Automatic vSphere CSI Driver Integration
+
+If your cluster has automatically deployed vSphere CSI Driver Integration, you can deploy CNS using the automatically deployed CSI driver:  
+
+* If you do not have existing clusters with manually deployed vSphere CSI drivers: 
+    * [Verify the Installed vSphere CSI Driver](#automatic-cns)  
+    * [Create and Manage vSphere CNS Volumes](#overview-managing)  
+* If you have existing clusters with manually deployed vSphere CSI drivers, then 
+uninstall the old vSphere CSI Driver. 
+See [Migrate Manually Installed CSI to Automatically Installed CSI](#migrate-to-automatic-cns).  
 
 For information on enabling automatic CNS integration on <%= vars.k8s_runtime_abbr %>-provisioned clusters, 
 see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere_.  
@@ -29,14 +62,17 @@ see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vS
 With CNS enabled on your clusters, use the vSphere client to review your cluster storage volumes and their backing virtual disks, and monitor their storage policy compliance. 
 You can set a storage policy directly on the volumes. Also, vSphere storage backs up your cluster volumes while CNS is enabled.    
 
-For more information on VMware CNS, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).  
+### <a id='overview-disabled'></a>Deploying Without Automatic vSphere CSI Driver Integration
 
-<br>
-To resize a persistent volume, see:  
+If your admin has not enabled automatic vSphere CSI Driver Integration,
+then manually install the vSphere CSI Driver, see [Manual CSI Installation](#manual-csi) below.  
 
-* [Resize a Persistent Volume](#resize-pv)
+## <a id='overview-managing'></a>Create and Manage vSphere CNS Volumes
 
-## <a id='automatic-cns'></a>Verify and Configure Automatically Installed CNS
+To create and manage persistent volumes using CNS on vSphere, see:  
+
+* [Create a vSphere Storage Class](#create-storage)  
+* [Resize a Persistent Volume](#resize-pv)  
 
 If your administrator has enabled automatic vSphere CSI Driver Integration, your clusters are automatically configured with CNS.
 
@@ -47,20 +83,21 @@ To validate automatic creation of persistent volumes using CNS on vSphere, and r
 * [Resize a Persistent Volume](#resize-pv)  
 
 
-## <a id='manual-cns'></a>Manually Install CNS
+## <a id='manual-csi'></a>Manual CSI Installation
 
 This section explains how to manually integrate CNS with <%= vars.k8s_runtime_abbr %>-provisioned clusters with a CSI 
 in environments where automatic vSphere CSI Driver Integration has not been enabled.
 
-Complete the following procedures to install a CSI on a <%= vars.k8s_runtime_abbr %> cluster, 
-verify the installation and resize the persistent volumes:  
+<p class="note"><strong>Note</strong>: If your admin has enabled automatic vSphere CSI Driver Integration,
+ do not manually deploy the vSphere CSI Driver.
+</p>
+
+Complete the following procedures to install the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> cluster, 
+verify the installation:  
 
 * [Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>](#prereq)  
 * [Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster](#manual)  
 * [Verify a CSI Installation](#verify)  
-* [Create a vSphere Storage Class](#create-storage) 
-* [Resize a Persistent Volume](#resize-pv)
-
 
 ### <a id='prereq'></a>Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>
 
