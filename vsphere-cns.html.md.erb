@@ -18,291 +18,62 @@ For more information on VMware CNS, see [Getting Started with VMware Cloud Nativ
 Your <%= vars.k8s_runtime_abbr %> administrator has the option to enable 
 automatic vSphere CSI Driver Integration on your clusters.  
 
-If your administrator has enabled automatic vSphere CSI Driver Integration and you have a cluster that uses a manually deployed vSphere CSI Driver, see
-[Migrate From a Manually Deployed vSphere CSI Driver to Automatic vSphere CSI Driver Integration](#migrate-csi) below.  
+If your administrator has enabled automatic vSphere CSI Driver Integration:
 
-To deploy vSphere CNS volumes using an automatically deployed vSphere CSI Driver, see 
-[Create CNS Volumes With Automatic vSphere CSI Driver Integration](#deploy-to-automatic) below.  
+* You can deploy and manage vSphere CNS volumes using the automatically deployed vSphere CSI Driver. For more information, see 
+[Create and Manage vSphere CNS Volumes](#overview-managing) below.  
 
-To deploy vSphere CNS volumes using a manually deployed vSphere CSI Driver, see 
-[Create CNS Volumes With a Manually Deployed vSphere CSI Driver](#deploy-to-manual) below. 
+* If have an existing cluster that uses a manually deployed vSphere CSI Driver, you must manually uninstall the manually deployed driver.
+For more information, see [Migrate From a Manually Deployed vSphere CSI Driver to Automatic vSphere CSI Driver Integration](#migrate-csi) below.  
 
-To manage an existing vSphere CNS volume, see
+<br>
+If your administrator has not enabled automatic vSphere CSI Driver Integration:
 
+* You can deploy vSphere CNS volumes using a manually installed vSphere CSI Driver. For more information, see 
+[Create and Manage vSphere CNS Volumes Using a Manually Installed CSI Driver](#overview-managing-manual) below.  
 
-
-## <a id='migrate-csi'></a>Migrate From a Manually Deployed vSphere CSI Driver to Automatic vSphere CSI Driver Integration
-
-If your administrator has enabled automatic vSphere CSI Driver Integration and you have a cluster that uses a manually deployed vSphere CSI Driver, 
-the manually deployed driver will no longer function after upgrading the cluster.  
-
-To enable the automatic CNS on your existing cluster, remove the manually deployed CSI driver immediately after upgrading the cluster. See:  
-
-* [Remove a Manually Installed vSphere CSI Driver](#remove-manual-csi)
-* [Verify the Installed vSphere CSI Driver](#automatic-cns) 
-
-After migrating the CSI driver to automatic vSphere CSI driver integration, see 
-[Create CNS Volumes With Automatic vSphere CSI Driver Integration](#deploy-to-automatic) below.  
-
-
-## <a id='deploy-to-automatic'></a>Create CNS Volumes With Automatic vSphere CSI Driver Integration
-
-If your cluster has automatically deployed vSphere CSI Driver Integration, you can deploy CNS using the automatically deployed CSI driver:  
-
-* If you do not have existing clusters with manually deployed vSphere CSI drivers: 
-    * [Verify the Installed vSphere CSI Driver](#automatic-cns)  
-    * [Create and Manage vSphere CNS Volumes](#overview-managing)  
-* If you have existing clusters with manually deployed vSphere CSI drivers, then 
-uninstall the old vSphere CSI Driver. 
-See [Migrate Manually Installed CSI to Automatically Installed CSI](#migrate-to-automatic-cns).  
-
-For information on enabling automatic CNS integration on <%= vars.k8s_runtime_abbr %>-provisioned clusters, 
-see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere_.  
-
-With CNS enabled on your clusters, use the vSphere client to review your cluster storage volumes and their backing virtual disks, and monitor their storage policy compliance. 
-You can set a storage policy directly on the volumes. Also, vSphere storage backs up your cluster volumes while CNS is enabled.    
-
-### <a id='overview-disabled'></a>Deploying Without Automatic vSphere CSI Driver Integration
-
-If your admin has not enabled automatic vSphere CSI Driver Integration,
-then manually install the vSphere CSI Driver, see [Manual CSI Installation](#manual-csi) below.  
 
 ## <a id='overview-managing'></a>Create and Manage vSphere CNS Volumes
 
-To create and manage persistent volumes using CNS on vSphere, see:  
+If your cluster has automatically installed vSphere CSI Driver Integration, you can deploy CNS using the automatically installed CSI driver.  
 
+With CNS enabled on your clusters, use the vSphere client to review your cluster storage volumes and their backing virtual disks, 
+and monitor their storage policy compliance. You can set a storage policy directly on the volumes. 
+
+Also, vSphere storage backs up your cluster volumes while CNS is enabled.  
+
+To create persistent volumes using CNS on vSphere, see:  
+
+* [Verify the Installed vSphere CSI Driver](#verify)  
 * [Create a vSphere Storage Class](#create-storage)  
+
+To manage persistent volumes using CNS on vSphere, see:  
+
 * [Resize a Persistent Volume](#resize-pv)  
 
-If your administrator has enabled automatic vSphere CSI Driver Integration, your clusters are automatically configured with CNS.
+<br>
+For information on enabling automatic CNS integration on <%= vars.k8s_runtime_abbr %>-provisioned clusters, 
+see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere_. 
 
-To validate automatic creation of persistent volumes using CNS on vSphere, and resize the persistent volumes:  
-
-* [Verify a CSI Installation](#verify)  
-* [Create a vSphere Storage Class](#create-storage)  
-* [Resize a Persistent Volume](#resize-pv)  
-
-
-## <a id='manual-csi'></a>Manual CSI Installation
-
-This section explains how to manually integrate CNS with <%= vars.k8s_runtime_abbr %>-provisioned clusters with a CSI 
-in environments where automatic vSphere CSI Driver Integration has not been enabled.
-
-<p class="note"><strong>Note</strong>: If your admin has enabled automatic vSphere CSI Driver Integration,
- do not manually deploy the vSphere CSI Driver.
+<p class="note"><strong>Note</strong>: If you have existing clusters with manually installed vSphere CSI drivers, then 
+uninstall the old vSphere CSI Driver. 
+For more information, see <a href="#migrate-csi">Migrate From a Manually Installed vSphere CSI Driver to Automatic vSphere CSI Driver Integration</a> below.
 </p>
 
-Complete the following procedures to install the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> cluster, 
-verify the installation:  
 
-* [Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>](#prereq)  
-* [Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster](#manual)  
-* [Verify a CSI Installation](#verify)  
-
-### <a id='prereq'></a>Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>
-
-- **CNS** v2.0 or later
-
-- **vSphere** v6.7U3 or later, or vSphere v7.0 or later
-  - [vSphere definition](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere)
-  <%#
-  Removed as part of #174999005. I'm feeling like this will turn out to be a misunderstanding so I'm making it easy to restore.
-
-- **NSX-T** version compatible with vSphere version above
-  - NSX-T v2.5.0 and later are compatible with vSphere v6.7U3
-  - See the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&1=&175=) for other version compatibilities
-  %>
-- **<%= vars.k8s_runtime_abbr %>** v1.11.0 or later
-  - Support upgrading virtual hardware version on Kubernetes cluster VMs
-- **Firewall and network configuration**:
-  - Enable the following components to access vCenter:
-      - Cluster master nodes
-      - Cluster worker nodes, so their CSI components can provision their disks
-      - All Pods running CSI components
-- **<%= vars.k8s_runtime_abbr %> plan configuration**:
-  - In the <%= vars.k8s_runtime_abbr %> tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode
-
-
-### <a id='manual'></a>Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster
-
-This section provides procedures for manually installing CSI on a TKGI cluster.
-Installing CSI on a TKGI cluster requires a number of steps:
-
-* [Create a <%= vars.k8s_runtime_abbr %> cluster](#create-cluster)
-* [Create a CSI Secret](#create-secret)
-* [Create RBAC for CSI Access](#create-rbac)
-* [Install the vSphere CSI Driver](#create-driver)
-
-#### <a id='create-cluster'></a>Create a <%= vars.k8s_runtime_abbr %> cluster
-
-To create a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster:  
-
-1. Create a cluster using [<%= vars.k8s_runtime_abbr %> create-cluster](cli/index.html#create-cluster):
-
-    ```
-    tkgi create-cluster CLUSTER-NAME --external-hostname EXTERNAL-HOSTNAME  \
-    --plan PLAN-NAME --num-nodes 3 --network-profile single-tier-profile
-    ```
-    Where:
-    * `CLUSTER-NAME` is the name you want to apply to your new cluster.  
-        <p class="note"><strong>Note</strong>: Use only lowercacse characters when naming your cluster 
-        if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
-        </p>
-    * `EXTERNAL-HOSTNAME` is the address from which to access Kubernetes API.
-    * `PLAN-NAME` is the name of the plan to base the new cluster on.
-    To provide the ability to resize the cluster's persistent volume chose a plan
-    where **Allow Privileged** is selected. For more information, 
-    see [Plans](installing-nsx-t.html#plans) 
-    in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T_.
-
-    <pre class="terminal">
-    &gt; tkgi create-cluster tkgi-cluster-5-shared-t1 --external-hostname tkgi-cluster-5-shared-t1 --plan large --num-nodes 3 --network-profile single-tier-profile
-    </pre>
-
-1. Confirm that all of the VMs in the Kubernetes cluster have hardware compatible with VMware version 15.
-
-    ![VM Instance Summary pane in vCenter](images/vsphere/vm-cns.png)
-
-#### <a id='create-secret'></a>Create a CSI Secret
-
-To create a CSI secret:  
-
-1. Create the following configuration file `csi-vsphere.conf` anywhere in your system:
-
-    ```
-    [Global]
-    cluster-id = CLUSTER-ID
-
-    [VirtualCenter "VCENTER-ADDRESS"]
-    insecure-flag = "true"
-    user = "USERNAME"
-    password = "PASSWORD"
-    port = "PORT"
-    datacenters = "DATACENTERS"
-    ```
-
-    Where:  
-    * `VCENTER-ADDRESS` is the IP address of your vCenter.
-    * `insecure-flag` if set to 'true' this flag disables certificate validation
-    * `USERNAME` is the username of the account to manage vCenter resources.  
-    * `PASSWORD` is the password for the vCenter user.  
-    * `PORT` is the port to use to reach the vCenter.  
-    * `CLUSTER-ID` is an unique identifier, such as the cluster name.
-    * `DATACENTERS` is the name of your datacenter.  
-
-    For example:  
-
-    <pre class="terminal">
-    [Global]
-    cluster-id = CLUSTER-ID
-
-    [VirtualCenter "10.1.1.1"]
-    insecure-flag = "true"
-    user = "administrator@vsphere.local"
-    password = "abc123!"
-    port = "443"
-    datacenters = "vSAN_Datacenter"
-    </pre>
-
-1. Create a secret based on the configuration file:
-
-    ```
-    kubectl create secret generic vsphere-config-secret \
-    --from-file=csi-vsphere.conf --namespace=kube-system
-    ```
-
-    For example:
-    <pre class="terminal">
-    &gt; kubectl create secret generic vsphere-config-secret \
-    --from-file=csi-vsphere.conf --namespace=kube-system  
-    secret/vsphere-config-secret created  
-    </pre>
-
-1. Confirm that the secret exists:
-
-    ```
-    kubectl get secret/vsphere-config-secret -n kube-system
-    ```
-
-    For example:
-    <pre class="terminal">
-    &gt; kubectl get secret/vsphere-config-secret -n kube-system  
-    NAME                    TYPE     DATA   AGE
-    vsphere-config-secret   Opaque   1      37s
-    </pre>
-
-Fore more information about secrets, see [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) in the Kubernetes documentation.  
-
-#### <a id='create-rbac'></a>Create RBAC for CSI Access
-
-To create role-based access control (RBAC) of the CSI:
-
-1. Create a manifest `vsphere-csi-controller-rbac.yaml` that defines RBAC of the CSI with a `ServiceAccount`, `ClusterRole`, and `ClusterRoleBinding`.
-  - For an example manifest template, use the [RBAC Manifest](#rbac-template) template below.
-
-1. Create the RBAC objects:
-
-    ```
-    kubectl apply -f vsphere-csi-controller-rbac.yaml 
-    ```
-
-    For example:
-    <pre class="terminal">
-    &gt; kubectl apply -f vsphere-csi-controller-rbac.yaml  
-    serviceaccount/vsphere-csi-controller created
-    clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role created
-    clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding created
-    </pre>
-
-#### <a id='create-driver'></a>Install the vSphere CSI Driver
-
-To install the vSphere CSI driver:  
-
-1. Create a manifest `vsphere-csi-controller-deployment.yaml` that defines deployment and `CSIDriver` objects for installing the CSI controller.
-  - For an example manifest template, use the [CSI Driver Manifest](#driver-template) template below.
-
-1. Create the CSI driver objects:
-
-    ```
-    kubectl apply -f vsphere-csi-controller-deployment.yaml
-    ```
-
-    For example:
-    <pre class="terminal">
-    &gt; kubectl apply -f vsphere-csi-controller-deployment.yaml  
-    statefulset.apps/vsphere-csi-controller created
-    csidriver.storage.k8s.io/csi.vsphere.vmware.com created  
-    </pre>
-
-1. Create a manifest `vsphere-csi-node-ds.yaml` that defines the `DaemonSet` for the CSI controller.
-  - For an example manifest template, use the [DaemonSet Manifest](#daemonset-template) template below.
-
-1. Create the DaemonSet:
-
-    ```
-    kubectl apply -f vsphere-csi-node-ds.yaml
-    ```
-
-    For example:
-    <pre class="terminal">
-    &gt; kubectl apply -f vsphere-csi-node-ds.yaml  
-    daemonset.apps/vsphere-csi-node created
-    </pre>
-
-
-## <a id='verify'></a>Verify a CSI Installation
+## <a id='verify'></a>Verify the Installed vSphere CSI Driver
 
 This section provides procedures for verifying the CSI installation.
 Verifying CSI on a TKGI cluster requires a number of steps:
 
-* [Verify that CSI Deployed Successfully](#deploy-success)
+* [Verify that CSI Installed Successfully](#deploy-success)
 * [Verify that All Pods Can Access vCenter](#pod-access)
 * [Verify that CSI Custom Resource Definitions are Working](#resource-defs)
 * [Verify that ProviderID was Added to Nodes](#provider-id)
 
-### <a id='deploy-success'></a>Verify that CSI Deployed Successfully
+### <a id='deploy-success'></a>Verify that CSI Installed Successfully
 
-To verify that CSI was successfully deployed:  
+To verify that CSI was successfully installed:  
 
 1. Run the following `kubectl` commands:  
 
@@ -579,145 +350,7 @@ To create a vSphere Storage Class:
       datastoreurl: "ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/"
     ```
 
-## <a id='resize-pv'></a>Resize a Persistent Volume
 
-Persistent volumes created using the CNS v2.0 `StorageClass` procedures above can be resized. 
-CNS supports persistent volume resizing of only off-line volumes.
-
-To resize a persistent volume:
-
-1. Stop all pods connected to the persistent volume.  
-1. Wait until all pods have stopped. To determine if the pods have stopped running:
-
-    ```
-    kubectl  get statefulset -n NAMESPACE
-    ```
-    Where `NAMESPACE` is the namespace the persistent volume is in.  
-<br>
-    For example:
-    <pre class="terminal">
-    &gt; kubectl  get statefulset -n csi-namespace
-    NAME          READY   AGE
-    postgres-wl   0/0     15m  
-    &gt; kubectl  get pods -n csi-namespace
-    No resources found in csi-resize-test namespace.  
-    &gt; kubectl  get pvc -n csi-namespace
-    NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             AGE
-    postgredb-postgres-wl-0   Bound    pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a   1Gi        RWO            postgres-sc-csi-resize   15m
-    </pre>
-
-1. Wait until all pods have stopped.  
-1. Edit the persistent volume:
-    
-    ```
-    kubectl edit pvc STATEFUL-SET-NAME -n NAMESPACE
-    ```
-
-    Where:
-    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
-    * `NAMESPACE` is the namespace the Pod is in.
-
-    For example:
-    
-    <pre class="terminal">
-    &gt; kubectl  edit pvc postgredb-postgres-wl-0 -n csi-namespace
-
-    spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: postgres-sc-csi-resize
-  volumeMode: Filesystem
-  volumeName: pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a
-    </pre>
-
-1. Modify the storage size.
-
-    <p class="note"><strong>Note</strong>: Kubernetes does not support shrinking of persistent volumes.
-    </p>
-
-1. Restart the Pod using `kubectl  scale`:
-
-    ```
-    kubectl scale statefulset STATEFUL-SET-NAME  -n NAMESPACE --replicas=1
-    ```
-    Where:
-    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
-    * `NAMESPACE` is the namespace the Pod is in.
-
-    For example:
-
-    <pre class="terminal">
-    &gt; kubectl scale statefulset postgres-wl  -n csi-namespace --replicas=1
-    </pre>
-
-1. Confirm the Pod is running:
-
-    ```
-    kubectl get statefulset -n NAMESPACE
-    kubectl get pods -n NAMESPACE
-    kubectl get pvc -n NAMESPACE
-    kubectl get pv | grep STATEFUL-SET-NAME
-    ```
-
-    Where:
-    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
-    * `NAMESPACE` is the namespace the Pod is in.
-
-    For example: 
-
-    <pre class="terminal">
-    &gt; kubectl  get statefulset -n csi-namespace
-    NAME          READY   AGE
-    postgres-wl   1/1     24m  
-
-    &gt; kubectl get pods -n csi-namespace
-    NAME            READY   STATUS    RESTARTS   AGE
-    postgres-wl-0   2/2     Running   0          49s  
-
-    &gt; kubectl  get pvc -n csi-namespace
-    NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             AGE
-    postgredb-postgres-wl-0   Bound    pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a   5Gi        RWO            postgres-sc-csi-resize   24m  
-
-    &gt; kubectl  get pv | grep test
-    pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a   5Gi        RWO            Delete           Bound    csi-namespace/postgredb-postgres-wl-0   postgres-sc-csi-resize            23m
-    </pre>
-
-1. Confirm the Pod's persistent volume has been resized:
-
-    ```
-    kubectl  exec -it STATEFUL-SET-NAME -n NAMESPACE -- sh
-    ```
-
-    Where:
-    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
-    * `NAMESPACE` is the namespace the Pod is in.
-
-    For example:
-
-    <pre class="terminal">
-    &gt; kubectl  exec -it postgres-wl-0 -n csi-namespace -- sh
-    # df -h
-    Filesystem      Size  Used Avail Use% Mounted on
-    overlay          30G  1.8G   27G   7% /
-    tmpfs            64M     0   64M   0% /dev
-    tmpfs           7.9G     0  7.9G   0% /sys/fs/cgroup
-    /dev/sdb2        48G  3.1G   42G   7% /etc/hosts
-    /dev/sdc1        30G  1.8G   27G   7% /etc/hostname
-    shm              64M  8.0K   64M   1% /dev/shm
-    /dev/sdd        4.9G  847M  3.9G  18% /var/lib/postgresql/data
-    tmpfs           7.9G   12K  7.9G   1% /run/secrets/kubernetes.io/serviceaccount
-
-    </pre>
-
-
-
-For more information about resizing persistent volumes, 
-see [Resizing Persistent Volumes using Kubernetes]
-(https://kubernetes.io/blog/2018/07/12/resizing-persistent-volumes-using-kubernetes/) 
-in the Kubernetes documentation.  
 
 ## <a id='templates'></a>Configuration File Templates
 
@@ -1072,17 +705,406 @@ spec:
           operator: Exists
 ```
 
-## <a id='migrate-to-automatic-cns'></a>Migrate Manually Installed CNS to Automatically Installed CNS
 
-If have manually deployed CSI on your clusters and your administrator has enabled 
+## <a id='overview-managing-manual'></a>Create and Manage vSphere CNS Volumes Using a Manually Installed CSI Driver
+
+If your cluster does not have automatically installed vSphere CSI Driver Integration, you can manually install the vSphere CSI Driver.  
+
+With CNS enabled on your clusters, use the vSphere client to review your cluster storage volumes and their backing virtual disks, 
+and monitor their storage policy compliance. You can set a storage policy directly on the volumes. 
+
+Also, vSphere storage backs up your cluster volumes while CNS is enabled.  
+
+To manually install the vSphere CSI Driver on a cluster:
+
+* [Manual CSI Installation](#manual-csi)  
+
+To create persistent volumes using vSphere CNS, see:  
+
+* [Create a vSphere Storage Class](#create-storage)  
+
+To manage persistent volumes using vSphere CNS, see:  
+
+* [Resize a Persistent Volume](#resize-pv)  
+
+<br>
+For information on enabling automatic vSphere CSI Driver Integration on <%= vars.k8s_runtime_abbr %>-provisioned clusters, 
+see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere_. 
+
+## <a id='manual-csi'></a>Manual CSI Installation
+
+This section explains how to manually integrate CNS with <%= vars.k8s_runtime_abbr %>-provisioned clusters with a CSI 
+in environments where automatic vSphere CSI Driver Integration has not been enabled.
+
+<p class="note"><strong>Note</strong>: If your admin has enabled automatic vSphere CSI Driver Integration,
+ do not manually install the vSphere CSI Driver.
+</p>
+
+Complete the following procedures to install the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> cluster, 
+verify the installation:  
+
+* [Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>](#prereq)  
+* [Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster](#manual)  
+* [Verify the Installed vSphere CSI Driver](#verify)  
+
+### <a id='prereq'></a>Prerequisites for Manually Installed CSI with <%= vars.k8s_runtime_abbr %>
+
+- **CNS** v2.0 or later
+
+- **vSphere** v6.7U3 or later, or vSphere v7.0 or later
+  - [vSphere definition](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere)
+  <%#
+  Removed as part of #174999005. I'm feeling like this will turn out to be a misunderstanding so I'm making it easy to restore.
+
+- **NSX-T** version compatible with vSphere version above
+  - NSX-T v2.5.0 and later are compatible with vSphere v6.7U3
+  - See the [VMware Product Interoperability Matrices](https://www.vmware.com/resources/compatibility/sim/interop_matrix.php#interop&1=&175=) for other version compatibilities
+  %>
+- **<%= vars.k8s_runtime_abbr %>** v1.11.0 or later
+  - Support upgrading virtual hardware version on Kubernetes cluster VMs
+- **Firewall and network configuration**:
+  - Enable the following components to access vCenter:
+      - Cluster master nodes
+      - Cluster worker nodes, so their CSI components can provision their disks
+      - All Pods running CSI components
+- **<%= vars.k8s_runtime_abbr %> plan configuration**:
+  - In the <%= vars.k8s_runtime_abbr %> tile, configure a **Plan** with the **Allow Privileged** checkbox enabled, so containers run in privileged mode
+
+
+### <a id='manual'></a>Manually Install CSI on a <%= vars.k8s_runtime_abbr %> Cluster
+
+This section provides procedures for manually installing CSI on a TKGI cluster.
+Installing CSI on a TKGI cluster requires a number of steps:
+
+* [Create a <%= vars.k8s_runtime_abbr %> cluster](#create-cluster)
+* [Create a CSI Secret](#create-secret)
+* [Create RBAC for CSI Access](#create-rbac)
+* [Install the vSphere CSI Driver](#create-driver)
+
+#### <a id='create-cluster'></a>Create a <%= vars.k8s_runtime_abbr %> cluster
+
+To create a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster:  
+
+1. Create a cluster using [<%= vars.k8s_runtime_abbr %> create-cluster](cli/index.html#create-cluster):
+
+    ```
+    tkgi create-cluster CLUSTER-NAME --external-hostname EXTERNAL-HOSTNAME  \
+    --plan PLAN-NAME --num-nodes 3 --network-profile single-tier-profile
+    ```
+    Where:
+    * `CLUSTER-NAME` is the name you want to apply to your new cluster.  
+        <p class="note"><strong>Note</strong>: Use only lowercacse characters when naming your cluster 
+        if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
+        </p>
+    * `EXTERNAL-HOSTNAME` is the address from which to access Kubernetes API.
+    * `PLAN-NAME` is the name of the plan to base the new cluster on.
+    To provide the ability to resize the cluster's persistent volume chose a plan
+    where **Allow Privileged** is selected. For more information, 
+    see [Plans](installing-nsx-t.html#plans) 
+    in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T_.
+
+    <pre class="terminal">
+    &gt; tkgi create-cluster tkgi-cluster-5-shared-t1 --external-hostname tkgi-cluster-5-shared-t1 --plan large --num-nodes 3 --network-profile single-tier-profile
+    </pre>
+
+1. Confirm that all of the VMs in the Kubernetes cluster have hardware compatible with VMware version 15.
+
+    ![VM Instance Summary pane in vCenter](images/vsphere/vm-cns.png)
+
+#### <a id='create-secret'></a>Create a CSI Secret
+
+To create a CSI secret:  
+
+1. Create the following configuration file `csi-vsphere.conf` anywhere in your system:
+
+    ```
+    [Global]
+    cluster-id = CLUSTER-ID
+
+    [VirtualCenter "VCENTER-ADDRESS"]
+    insecure-flag = "true"
+    user = "USERNAME"
+    password = "PASSWORD"
+    port = "PORT"
+    datacenters = "DATACENTERS"
+    ```
+
+    Where:  
+    * `VCENTER-ADDRESS` is the IP address of your vCenter.
+    * `insecure-flag` if set to 'true' this flag disables certificate validation
+    * `USERNAME` is the username of the account to manage vCenter resources.  
+    * `PASSWORD` is the password for the vCenter user.  
+    * `PORT` is the port to use to reach the vCenter.  
+    * `CLUSTER-ID` is an unique identifier, such as the cluster name.
+    * `DATACENTERS` is the name of your datacenter.  
+
+    For example:  
+
+    <pre class="terminal">
+    [Global]
+    cluster-id = CLUSTER-ID
+
+    [VirtualCenter "10.1.1.1"]
+    insecure-flag = "true"
+    user = "administrator@vsphere.local"
+    password = "abc123!"
+    port = "443"
+    datacenters = "vSAN_Datacenter"
+    </pre>
+
+1. Create a secret based on the configuration file:
+
+    ```
+    kubectl create secret generic vsphere-config-secret \
+    --from-file=csi-vsphere.conf --namespace=kube-system
+    ```
+
+    For example:
+    <pre class="terminal">
+    &gt; kubectl create secret generic vsphere-config-secret \
+    --from-file=csi-vsphere.conf --namespace=kube-system  
+    secret/vsphere-config-secret created  
+    </pre>
+
+1. Confirm that the secret exists:
+
+    ```
+    kubectl get secret/vsphere-config-secret -n kube-system
+    ```
+
+    For example:
+    <pre class="terminal">
+    &gt; kubectl get secret/vsphere-config-secret -n kube-system  
+    NAME                    TYPE     DATA   AGE
+    vsphere-config-secret   Opaque   1      37s
+    </pre>
+
+Fore more information about secrets, see [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) in the Kubernetes documentation.  
+
+#### <a id='create-rbac'></a>Create RBAC for CSI Access
+
+To create role-based access control (RBAC) of the CSI:
+
+1. Create a manifest `vsphere-csi-controller-rbac.yaml` that defines RBAC of the CSI with a `ServiceAccount`, `ClusterRole`, and `ClusterRoleBinding`.
+  - For an example manifest template, use the [RBAC Manifest](#rbac-template) template below.
+
+1. Create the RBAC objects:
+
+    ```
+    kubectl apply -f vsphere-csi-controller-rbac.yaml 
+    ```
+
+    For example:
+    <pre class="terminal">
+    &gt; kubectl apply -f vsphere-csi-controller-rbac.yaml  
+    serviceaccount/vsphere-csi-controller created
+    clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role created
+    clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding created
+    </pre>
+
+#### <a id='create-driver'></a>Install the vSphere CSI Driver
+
+To install the vSphere CSI driver:  
+
+1. Create a manifest `vsphere-csi-controller-deployment.yaml` that defines deployment and `CSIDriver` objects for installing the CSI controller.
+  - For an example manifest template, use the [CSI Driver Manifest](#driver-template) template below.
+
+1. Create the CSI driver objects:
+
+    ```
+    kubectl apply -f vsphere-csi-controller-deployment.yaml
+    ```
+
+    For example:
+    <pre class="terminal">
+    &gt; kubectl apply -f vsphere-csi-controller-deployment.yaml  
+    statefulset.apps/vsphere-csi-controller created
+    csidriver.storage.k8s.io/csi.vsphere.vmware.com created  
+    </pre>
+
+1. Create a manifest `vsphere-csi-node-ds.yaml` that defines the `DaemonSet` for the CSI controller.
+  - For an example manifest template, use the [DaemonSet Manifest](#daemonset-template) template below.
+
+1. Create the DaemonSet:
+
+    ```
+    kubectl apply -f vsphere-csi-node-ds.yaml
+    ```
+
+    For example:
+    <pre class="terminal">
+    &gt; kubectl apply -f vsphere-csi-node-ds.yaml  
+    daemonset.apps/vsphere-csi-node created
+    </pre>
+
+
+
+## <a id='resize-pv'></a>Resize a Persistent Volume
+
+Persistent volumes created using the CNS v2.0 `StorageClass` procedures above can be resized. 
+CNS supports persistent volume resizing of only off-line volumes.
+
+To resize a persistent volume:
+
+1. Stop all pods connected to the persistent volume.  
+1. Wait until all pods have stopped. To determine if the pods have stopped running:
+
+    ```
+    kubectl  get statefulset -n NAMESPACE
+    ```
+    Where `NAMESPACE` is the namespace the persistent volume is in.  
+<br>
+    For example:
+    <pre class="terminal">
+    &gt; kubectl  get statefulset -n csi-namespace
+    NAME          READY   AGE
+    postgres-wl   0/0     15m  
+    &gt; kubectl  get pods -n csi-namespace
+    No resources found in csi-resize-test namespace.  
+    &gt; kubectl  get pvc -n csi-namespace
+    NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             AGE
+    postgredb-postgres-wl-0   Bound    pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a   1Gi        RWO            postgres-sc-csi-resize   15m
+    </pre>
+
+1. Wait until all pods have stopped.  
+1. Edit the persistent volume:
+    
+    ```
+    kubectl edit pvc STATEFUL-SET-NAME -n NAMESPACE
+    ```
+
+    Where:
+    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
+    * `NAMESPACE` is the namespace the Pod is in.
+
+    For example:
+    
+    <pre class="terminal">
+    &gt; kubectl  edit pvc postgredb-postgres-wl-0 -n csi-namespace
+
+    spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: postgres-sc-csi-resize
+  volumeMode: Filesystem
+  volumeName: pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a
+    </pre>
+
+1. Modify the storage size.
+
+    <p class="note"><strong>Note</strong>: Kubernetes does not support shrinking of persistent volumes.
+    </p>
+
+1. Restart the Pod using `kubectl  scale`:
+
+    ```
+    kubectl scale statefulset STATEFUL-SET-NAME  -n NAMESPACE --replicas=1
+    ```
+    Where:
+    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
+    * `NAMESPACE` is the namespace the Pod is in.
+
+    For example:
+
+    <pre class="terminal">
+    &gt; kubectl scale statefulset postgres-wl  -n csi-namespace --replicas=1
+    </pre>
+
+1. Confirm the Pod is running:
+
+    ```
+    kubectl get statefulset -n NAMESPACE
+    kubectl get pods -n NAMESPACE
+    kubectl get pvc -n NAMESPACE
+    kubectl get pv | grep STATEFUL-SET-NAME
+    ```
+
+    Where:
+    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
+    * `NAMESPACE` is the namespace the Pod is in.
+
+    For example: 
+
+    <pre class="terminal">
+    &gt; kubectl  get statefulset -n csi-namespace
+    NAME          READY   AGE
+    postgres-wl   1/1     24m  
+
+    &gt; kubectl get pods -n csi-namespace
+    NAME            READY   STATUS    RESTARTS   AGE
+    postgres-wl-0   2/2     Running   0          49s  
+
+    &gt; kubectl  get pvc -n csi-namespace
+    NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             AGE
+    postgredb-postgres-wl-0   Bound    pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a   5Gi        RWO            postgres-sc-csi-resize   24m  
+
+    &gt; kubectl  get pv | grep test
+    pvc-c22811a5-0650-4492-a7f0-0d21a4971c5a   5Gi        RWO            Delete           Bound    csi-namespace/postgredb-postgres-wl-0   postgres-sc-csi-resize            23m
+    </pre>
+
+1. Confirm the Pod's persistent volume has been resized:
+
+    ```
+    kubectl  exec -it STATEFUL-SET-NAME -n NAMESPACE -- sh
+    ```
+
+    Where:
+    * `STATEFUL-SET-NAME` is the name of the Pod with the persistent volume you are resizing.
+    * `NAMESPACE` is the namespace the Pod is in.
+
+    For example:
+
+    <pre class="terminal">
+    &gt; kubectl  exec -it postgres-wl-0 -n csi-namespace -- sh
+    # df -h
+    Filesystem      Size  Used Avail Use% Mounted on
+    overlay          30G  1.8G   27G   7% /
+    tmpfs            64M     0   64M   0% /dev
+    tmpfs           7.9G     0  7.9G   0% /sys/fs/cgroup
+    /dev/sdb2        48G  3.1G   42G   7% /etc/hosts
+    /dev/sdc1        30G  1.8G   27G   7% /etc/hostname
+    shm              64M  8.0K   64M   1% /dev/shm
+    /dev/sdd        4.9G  847M  3.9G  18% /var/lib/postgresql/data
+    tmpfs           7.9G   12K  7.9G   1% /run/secrets/kubernetes.io/serviceaccount
+
+    </pre>
+
+
+
+For more information about resizing persistent volumes, 
+see [Resizing Persistent Volumes using Kubernetes]
+(https://kubernetes.io/blog/2018/07/12/resizing-persistent-volumes-using-kubernetes/) 
+in the Kubernetes documentation.  
+
+
+## <a id='migrate-csi'></a>Migrate From a Manually Installed vSphere CSI Driver to Automatic vSphere CSI Driver Integration
+
+If your administrator has enabled automatic vSphere CSI Driver Integration and you have a cluster that uses a manually installed vSphere CSI Driver, 
+the manually installed driver will no longer function after upgrading the cluster. 
+You must manually migrate your cluster off of the manual CSI configuration.
+
+To enable the automatic CNS on your existing cluster, remove the manually installed CSI driver immediately after upgrading the cluster:  
+
+* [Remove a Manually Installed vSphere CSI Driver](#remove-manual-csi)
+
+After removing the manually installed vSphere CSI Driver, see 
+[Create and Manage vSphere CNS Volumes](#overview-managing) above.
+
+
+### <a id='migrate-to-automatic-cns'></a>Remove a Manually Installed vSphere CSI Driver
+
+If have manually installed CSI on your clusters and your administrator has enabled 
 automatic CNS, you must migrate those clusters off of the manual CSI configuration.
 
-To migrate from manually deployed CSI to automatically deployed CSI:
+To migrate from manually installed CSI to automatic vSphere CSI Driver integration:
 
 1. Confirm your <%= vars.k8s_runtime_abbr %> administrator has enabled automatic **vSphere CSI Driver Integration** on the <%= vars.k8s_runtime_abbr %> tile.
 2. Upgrade your Kubernetes cluster to <%= vars.k8s_runtime_abbr %> v1.11.
-3. Manually remove the manually deployed CSI driver from the cluster.
-4. Validate that CNS recognizes the existing storage by completing the step in [Verify a CSI Installation](#verify) above.
+3. Manually remove the manually installed CSI driver from the cluster.
+4. Validate that CNS recognizes the existing storage by completing the step in [Verify the Installed vSphere CSI Driver](#verify) above.
 
 <%#
 If users manually deployed the vSphere CSI Driver previously, and they want to enable vSphere CSI Driver in TKGI 1.11 tile, 
