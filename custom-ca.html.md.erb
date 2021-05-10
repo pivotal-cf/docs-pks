@@ -19,8 +19,8 @@ The CA is named `kubo_master_ca_2021` and signs the following cluster certificat
 - tls-nsx-kube-proxy-2018 (with NSX-T)
 
 <%= vars.k8s_runtime_abbr %> manages the lifecycle of the per-cluster CA and the certificates it signs.
-For example, the certificates are automatically renewed when you upgrade that cluster. 
-You cannot manually rotate or update the system-managed certificates.
+You cannot manually rotate or update the system-managed certificates. Functionality to support this 
+will be introduced in an upcoming release.
 
 ##<a id='custom-ca'></a> Custom CA Support
 
@@ -35,7 +35,14 @@ you are responsible for managing the lifecycle of the CA, including [certificate
 
 ##<a id='ca-custom-new'></a> Custom CA for New Kubernetes Clusters
 
-To use a custom CA with a new Kubernetes cluster, specify the custom CA using the `--config-file` option during cluster creation. For example:
+Instead of using the system-managed cluster CA, you can create a new 
+Kubernetes cluster with a custom CA. To do so, complete the following procedure.
+
+1. Upgrade <%= vars.product_short %> to the version that supports custom CA.
+1. Create a new Kubernetes cluster.
+1. During the cluster creation process, specify the custom CA using the `--config-file` option. 
+
+For example:
 
 ```
 tkgi create-cluster <clustername> --external-hostname <clustername.example.com> --plan 'Plan 1' --config-file custom_ca.yaml
@@ -78,8 +85,15 @@ Alternatively, you can use JSON, where an example `custom_ca.json` has the follo
 
 ##<a id='ca-custom-upgrade'></a> Custom CA for Upgraded Kubernetes Clusters
 
-To apply a custom CA to a Kubernetes cluster that has been upgraded to the supported version, 
-specify the custom CA using the `--config-file` option during the cluster update process. For example:
+Instead of using the system-managed cluster CA, you can provide your own custom CA 
+to an existing existing Kubernetes cluster. To do so, complete the following procedure:
+
+1. Upgrade <%= vars.product_short %> to the version that supports custom CA.
+1. Upgrade the Kubernetes cluster to the version that supports custom CA.
+1. Update the cluster.
+1. During the cluster update process, specify the custom CA using the `--config-file` option. 
+
+For example:
 
 ```
 tkgi update-cluster <clustername> --config-file custom_ca.yaml
@@ -119,10 +133,53 @@ Alternatively, you can use JSON, where an example `custom_ca.json` has the follo
   }
 }
 ```
+
 ##<a id='ca-custom-rotate'></a> Custom CA Certificate Rotation
 
-If you apply a custom CA to a new or upgraded Kubernetes cluster, you are responsible for managing the lifecycle of the CA, 
-including the certificates and keys signed by it. To manually rotate cluster certificates, 
-refer to the topic [Rotating Cluster Certificates](rotate-cluster-certificates.html).
+If you have applied a custom cluster CA, either to a new Kubernetes cluster 
+or during a cluster update, you can rotate the custom CA by updating the cluster with the new CA. 
 
+<p class="note"><strong>Note:</strong> The procedure is designed to work if the CA you are 
+replacing has not expired. You must monitor the expiry date of the custom CA, 
+and rotate it while it is still valid.</p>
 
+For example:
+
+```
+tkgi update-cluster <clustername> --config-file custom_ca_new.yaml
+```	
+
+Where an example `custom_ca_new.yaml` has the following custom CA contents:
+
+```
+# YAML for custom CA certificate and keys
+---
+custom_ca:
+  certificate: |
+    -----BEGIN CERTIFICATE-----
+    MIIDdTCCAl2gAwIBAgIUAyYwzsbEoRKrd+j2L74Noh3CDEEwDQYJKoZIhvcNAQEL
+    ...
+    BWlVhWvqBkTMTCNE83gGLPvRgTWqSqsd+Q==
+    -----END CERTIFICATE-----
+  private_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEowIBAAKCAQEAti6NiJny8D+dfFZ2TXY4VWTyjyr/tFuVLr9XcwOhe9q/lQ6E
+    ...
+    vf3/DKcf9K/iHfdrfDDO/fVE/TO/4Gc1qmc2Arw1uWruXlqV2+6w
+    -----END RSA PRIVATE KEY-----
+```
+
+Alternatively, you can use JSON, where an example `custom_ca_new.json` has the following custom CA contents:
+
+```
+{
+  "custom_ca": {
+    "certificate": "-----BEGIN CERTIFICATE-----\
+    ...
+    \n-----END CERTIFICATE-----\n",
+    "private_key": "-----BEGIN RSA PRIVATE KEY-----\
+    ...
+    \n-----END RSA PRIVATE KEY-----\n"
+  }
+}
+```
