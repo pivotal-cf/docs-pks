@@ -3,55 +3,55 @@ title: Installing Velero and Restic
 owner: TKGI
 ---
 
-This topic describes how to install Velero and Restic for backing up and restoring <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)-provisioned Kubernetes workloads. 
+This topic describes how to install Velero and Restic for backing up and restoring <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)-provisioned Kubernetes workloads.
 This topic also describes how to install MinIO for Velero with Restic backup storage.
 
 ##<a id="prereqs"></a> Prerequisites
 
-Ensure the following before installing Velero and Restic for backing up and restoring <%= vars.k8s_runtime_abbr %>: 
+Ensure the following before installing Velero and Restic for backing up and restoring <%= vars.k8s_runtime_abbr %>:
 
 * You have read: [Tanzu Kubernetes Workload Backup and Restore Requirements](./backup-and-restore-work.html#requirements)
 in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero with Restic_.
-* You have a Linux VM with sufficient storage to store several workload backups. 
-You will install MinIO on this VM. For more information, see 
+* You have a Linux VM with sufficient storage to store several workload backups.
+You will install MinIO on this VM. For more information, see
 [Quick start evaluation install with Minio](https://velero.io/docs/main/contributions/minio/) in the Velero documentation.
-* You have a <%= vars.k8s_runtime_abbr %> Client VM (Linux) where CLI tools are installed, such as the <%= vars.k8s_runtime_abbr %> CLI, kubectl, and others. 
-You will install the Velero CLI on this client VM. 
+* You have a <%= vars.k8s_runtime_abbr %> Client VM (Linux) where CLI tools are installed, such as the <%= vars.k8s_runtime_abbr %> CLI, kubectl, and others.
+You will install the Velero CLI on this client VM.
 If you do not have such a VM, you can install the Velero CLI locally, but you must adjust the following installation steps accordingly.
-* The Kubernetes environment has internet access and can be reached by the client VM. 
-If the environment does not have internet access, refer to 
+* The Kubernetes environment has internet access and can be reached by the client VM.
+If the environment does not have internet access, refer to
 [Install Velero and Restic in an Air-Gapped Environment](velero-install.html#velero-cluster-install-airgapped) below.
 
 ##<a id="minio-deploy"></a> Deploy an Object Store
 
-Restic requires an object store as the backup destination for workload backups. 
+Restic requires an object store as the backup destination for workload backups.
 
 To deploy and configure a MinIO Server on a Linux Ubuntu VM as the Velero and Restic backend object store:
 
-1. [Install MinIO](#minio-install)  
-1. [Enable MinIO as a Service](#minio-service)  
-1. [Create MinIO Bucket](#minio-create)  
-1. [Configure MinIO Bucket](#minio-config)  
+1. [Install MinIO](#minio-install)
+1. [Enable MinIO as a Service](#minio-service)
+1. [Create MinIO Bucket](#minio-create)
+1. [Configure MinIO Bucket](#minio-config)
 
-For more information about MinIO, see the [MinIO Quick Start Guide](https://docs.min.io/docs/minio-quickstart-guide.html).  
+For more information about MinIO, see the [MinIO Quick Start Guide](https://docs.min.io/docs/minio-quickstart-guide.html).
 
 ### <a id='minio-install'></a> Install MinIO
 
 To install MinIO:
 
-1. To install the MinIO app:  
+1. Install the MinIO app:
 
     ```
     wget https://dl.min.io/server/minio/release/linux-amd64/minio
     ```
 
-1. To grant execute permissions:  
+1. Grant execute permissions to the MinIO app:
 
     ```
     chmod +x minio
     ```
 
-1. To create a directory where MinIO data will be stored:
+1. Create a directory where MinIO data will be stored:
 
     ```
     mkdir /DATA-MINIO
@@ -61,30 +61,30 @@ To install MinIO:
 
 To prepare the MinIO server:
 
-1. To start the MinIO server:
+1. Start the MinIO server:
 
     ```
     ./minio server /DATA-MINIO
     ```
 
-    After the MinIO server has started, you are provided with the data store instance endpoint URL, AccessKey, and SecretKey.  
+    After the MinIO server has started, you are provided with the data store instance endpoint URL, AccessKey, and SecretKey.
 
 1. Record the MinIO server endpoint URL, AccessKey, and SecretKey information for the data store instance.
 
-1. To browse to the MinIO data store, open a browser to the MinIO server endpoint URL. 
-For example: <http://10.199.17.63:9000/minio/login/>.
+1. Browse to the MinIO data store by opening a browser to the MinIO server endpoint URL.
+For example: [http://10.199.17.63:9000/minio/login/](http://10.199.17.63:9000/minio/login/).
 
     <a href="images/backup-restore/minio-01.png"><img src="images/backup-restore/minio-01.png" alt="MinIO Data Store" width="538"></a>
 
-1. To log in to the MinIO server, provide the AccessKey and ScretKey.
+1. Log in to the MinIO server and provide the AccessKey and SecretKey.
 
     <a href="images/backup-restore/minio-02.png"><img src="images/backup-restore/minio-02.png" alt="MinIO Log In" width="538"></a>
 
 ### <a id='minio-service'></a> Enable MinIO as a Service
 
-To enable MinIO as a service, configure MinIO for automatic startup:  
+To enable MinIO as a service, configure MinIO for automatic startup:
 
-1. To download the `minio.service` script:
+1. Download the `minio.service` script:
 
     ```
     curl -O https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service
@@ -96,24 +96,24 @@ To enable MinIO as a service, configure MinIO for automatic startup:
     ExecStart=/usr/local/bin/minio server /DATA-MINIO path
     ```
 
-1. Save the revised script.  
+1. Save the revised script.
 
-1. To configure the MinIO service, run the following series of commands:
+1. Configure the MinIO service by running the following commands:
 
     ```
     cp minio.service /etc/systemd/system
     cp minio /usr/local/bin/
     systemctl daemon-reload
-    systemctl start  minio
+    systemctl start minio
     systemctl status minio
     systemctl enable minio
     ```
 
 ### <a id='minio-create'></a> Create MinIO Bucket
 
-To create a MinIO bucket for <%= vars.k8s_runtime_abbr %> workload backup and restore:  
+To create a MinIO bucket for <%= vars.k8s_runtime_abbr %> workload backup and restore:
 
-1. Launch the Mino browswer and log in to your object store.
+1. Launch the Mino browser and log in to your object store.
 1. Click the Create Bucket icon.
 
     <a  href="images/backup-restore/minio-03.png"><img src="images/backup-restore/minio-03.png" alt="MinIO Create Bucket" width="538"></a>
@@ -128,40 +128,40 @@ To create a MinIO bucket for <%= vars.k8s_runtime_abbr %> workload backup and re
 
 By default, a new MinIO bucket is read-only, but for our Velero backup and restore the MinIO bucket must be read-write.
 
-To change the new `tkgi-velero` bucket to read-write:
+To set the new `tkgi-velero` bucket to read-write:
 
 1. Select the bucket and click on the dots link.
-1. Select **Edit Policy**.  
+1. Select **Edit Policy**.
     <a href="images/backup-restore/minio-06.png"><img src="images/backup-restore/minio-06.png" alt="MinIO Name Bucket" width="538"></a>
 1. Change the policy to `Read and Write`.
     <a href="images/backup-restore/minio-07.png"><img src="images/backup-restore/minio-07.png" alt="MinIO Name Bucket" width="538"></a>
-1. Click **Add**.  
+1. Click **Add**.
 1. To close the dialog box, click **X**.
     <a href="images/backup-restore/minio-08.png"><img src="images/backup-restore/minio-08.png" alt="MinIO Name Bucket" width="538"></a>
 
 ##<a id="velero-deploy"></a> Install the Velero CLI on Your Workstation
 
-To install the Velero CLI on your workstation:  
+To install the Velero CLI on your workstation:
 
 1. [Download the Velero CLI Binary](#velero-download)
 1. [Install the Velero CLI](#velero-cli-install)
 
 ### <a id='velero-download'></a> Download the Velero CLI Binary
 
-To download the Velero CLI Binary: 
+To download the Velero CLI Binary:
 
-1. Download the supported version of the signed Velero binary for your version of <%= vars.k8s_runtime_abbr %> from the 
-<%= vars.k8s_runtime_abbr %> product downloads page at myVMware. 
-For more information on the currently supported Velero version(s), see [Product Snapshot](release-notes.html) in _Release Notes_.
+1. Download the supported version of the signed Velero binary for your version of <%= vars.k8s_runtime_abbr %> from the
+<%= vars.k8s_runtime_abbr %> product downloads page at myVMware.
+For more information about the currently supported Velero versions, see the _Product Snapshot_ section of the [Release Notes](release-notes.html).
 
     <p class="note"><strong>Note</strong>: You must use the Velero binary signed by VMware to be eligible for support from VMware.</p>
 
 ### <a id='velero-cli-install'></a> Install the Velero CLI
 
-To install the Velero CLI on the <%= vars.k8s_runtime_abbr %> client or on your local machine:  
+To install the Velero CLI on the <%= vars.k8s_runtime_abbr %> client or on your local machine:
 
 1. Open a command line and change directory to the Velero CLI download.
-1. To unzip the download file:
+1. Unzip the download file:
 
     ```
     gunzip velero-linux-v1.4.2_vmware.1.gz
@@ -172,20 +172,20 @@ To install the Velero CLI on the <%= vars.k8s_runtime_abbr %> client or on your 
     ```
     ls -l
     ```
-    For example:  
+    For example:
     <pre class="terminal">
-    ls -l
+    $ ls -l
 
     -rw-r--r-- 1 root root 57819586 Sep 14 16:19 velero-linux-v1.4.2_vmware.1
     </pre>
 
-1. To change the permissions and put the Velero CLI in the system path:
+1. Grant execute permissions to the Velero CLI:
 
     ```
     chmod +x velero-linux-v1.4.2_vmware.1
     ```
 
-1. To make the Velero CLI globally available, move the CLI to the system path:  
+1. Make the Velero CLI globally available by moving it to the system path:
 
     ```
     cp velero-linux-v1.4.2_vmware.1 /usr/local/bin/velero
@@ -196,10 +196,10 @@ To install the Velero CLI on the <%= vars.k8s_runtime_abbr %> client or on your 
     ```
     velero version
     ```
-    For example:  
+    For example:
 
     <pre class="terminal">
-    velero version
+    $ velero version
 
     Client:
         Version: v1.4.2
@@ -207,7 +207,7 @@ To install the Velero CLI on the <%= vars.k8s_runtime_abbr %> client or on your 
 
 ##<a id='velero-cluster-install'></a> Install Velero and Restic on the Target Kubernetes Cluster
 
-To install the Velero and Restic pods on each Kubernetes cluster whose workloads you want to backup, complete the following: 
+To install the Velero and Restic pods on each Kubernetes cluster whose workloads you want to backup, complete the following:
 
 1. [Prerequisites](#velero-cluster-install-prereqs)
 1. [Set Up the kubectl Context](#velero-cluster-setup)
@@ -215,30 +215,30 @@ To install the Velero and Restic pods on each Kubernetes cluster whose workloads
 
 ###<a id='velero-cluster-install-prereqs'></a>Prerequisites
 
-The following steps require:  
+The following steps require that:
 
-* You have installed MinIO as your backup object store. 
-For more information, see [Deploy an Object Store](#minio-deploy) above.  
+* You have installed MinIO as your backup object store.
+For more information, see [Deploy an Object Store](#minio-deploy) above.
 * Your Kubernetes cluster has internet access.
 
-###<a id='velero-cluster-setup'></a>Set Up the kubectl Context  
+###<a id='velero-cluster-setup'></a>Set Up the kubectl Context
 
-The Velero CLI context will automatically follow the kubectl context. 
-Before running Velero CLI commands to install Velero and Restic on the target cluster, set the kubectl context: 
+The Velero CLI context will automatically follow the kubectl context.
+Before running Velero CLI commands to install Velero and Restic on the target cluster, set the kubectl context:
 
-1. Retrieve the name of the MinIO bucket. For example, `tkgi-velero`.  
-1. Get the AccessKey and SecretKey for the MinIO bucket. 
+1. Retrieve the name of the MinIO bucket. For example, `tkgi-velero`.
+1. Get the AccessKey and SecretKey for the MinIO bucket.
 For example, AccessKey: `0XXNO8JCCGV41QZBV0RQ` and SecretKey: `clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx`.
-1. Verify `kubectl` works against the cluster. If needed, use `tkgi get-credentials`.  
-1. Get the context for the target Kubernetes cluster so that the Velero CLI knows which cluster to work on.  
+1. Verify `kubectl` works against the cluster. If needed, use `tkgi get-credentials`.
+1. Set the context for the target Kubernetes cluster so that the Velero CLI knows which cluster to work on by running:
 
-    ````
+    ```
     tkgi get-credentials CLUSTER-NAME
-    ````
-    Where `CLUSTER-NAME` is the name of the cluster.
+    ```
+    Where `CLUSTER-NAME` is the name of the cluster. For example:
 
     <pre class="terminal">
-    tkgi get-credentials cluster-1
+    $ tkgi get-credentials cluster-1
 
     Fetching credentials for cluster cluster-1.
     Password: ********
@@ -248,11 +248,10 @@ For example, AccessKey: `0XXNO8JCCGV41QZBV0RQ` and SecretKey: `clZ1bf8Ljkvkmq7fH
     $kubectl config use-context &lt;cluster-name&gt;
     </pre>
 
+    You can also run `kubectl config use-context CLUSTER-NAME` to set context.
 
-    You could also run `kubectl config use-context CLUSTER-NAME` to set context.
-
-1. To create a secrets file, create a file named `credentials-minio`. 
-Update the file with the MinIO server access credentials you collected above:  
+1. To create a secrets file, create a file named `credentials-minio`.
+Update the file with the MinIO server access credentials that you collected above:
 
     ```
     aws_access_key_id = ACCESS-KEY
@@ -261,10 +260,10 @@ Update the file with the MinIO server access credentials you collected above:
     ```
 
     Where:
-    * `ACCESS-KEY` is the AccessKey you collected above.  
-    * `SECRET-KEY` is the SecretKey you collected above.  
+    * `ACCESS-KEY` is the AccessKey that you collected above.
+    * `SECRET-KEY` is the SecretKey that you collected above.
 
-    For example:  
+    For example:
 
     ```
     aws_access_key_id = 0XXNO8JCCGV41QZBV0RQ
@@ -272,8 +271,8 @@ Update the file with the MinIO server access credentials you collected above:
     aws_secret_access_key = clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx
     ```
 
-1. Save the file.  
-1. To verify the file is in place:
+1. Save the file.
+1. Verify that the file is in place:
 
     ```
     ls
@@ -281,7 +280,7 @@ Update the file with the MinIO server access credentials you collected above:
 
     For example:
     <pre class="terminal">
-    ls
+    $ ls
 
     credentials-minio
     </pre>
@@ -308,7 +307,7 @@ To install Velero and Restic:
     For example:
 
     <pre class="terminal">
-    velero install  --provider aws  --plugins velero/velero-plugin-for-aws:v1.0.0 \
+    $ velero install  --provider aws  --plugins velero/velero-plugin-for-aws:v1.0.0 \
     --bucket tkgi-velero  --secret-file ./credentials-minio  --use-volume-snapshots=false \
     --use-restic  --backup-location-config \
     region=minio,s3ForcePathStyle=“true”,s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
@@ -321,13 +320,13 @@ To install Velero and Restic:
     Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
     </pre>
 
-1. To verify the installation of Velero and Restic:
+1. Verify the installation of Velero and Restic:
 
     ```
     kubectl logs deployment/velero -n velero
     ```
 
-1. To verify the `velero` namespace:
+1. Verify the `velero` namespace:
 
     ```
     kubectl get ns
@@ -335,7 +334,7 @@ To install Velero and Restic:
 
     For example:
     <pre class="terminal">
-    kubectl get ns
+    $ kubectl get ns
 
     NAME              STATUS   AGE
     default           Active   13d
@@ -347,7 +346,7 @@ To install Velero and Restic:
     </pre>
 
 
-1. To verify the `velero` and `restic` pods.
+1. Verify the `velero` and `restic` pods.
 
     ```
     kubectl get all -n velero
@@ -355,7 +354,7 @@ To install Velero and Restic:
 
     For example:
     <pre class="terminal">
-    kubectl get all -n velero
+    $ kubectl get all -n velero
 
     NAME                         READY   STATUS             RESTARTS   AGE
     pod/restic-25chx             0/1     CrashLoopBackOff   1          30s
@@ -366,12 +365,12 @@ To install Velero and Restic:
 
 ###<a id='velero-privileged'></a> Modify the Host Path
 
-To run the three-pod Restic DaemonSet on a Kubernetes cluster in <%= vars.k8s_runtime_abbr %>, 
-you must modify the Restic DaemonSet spec and modify the hostpath. 
+To run the three-pod Restic DaemonSet on a Kubernetes cluster in <%= vars.k8s_runtime_abbr %>,
+you must modify the Restic DaemonSet spec and modify the hostpath.
 
 To modify the Restic DaemonSet:
 
-1. Verify the three-pod Restic DaemonSet:  
+1. Verify the three-pod Restic DaemonSet:
 
     ```
     kubectl get pod -n velero
@@ -379,7 +378,7 @@ To modify the Restic DaemonSet:
 
     For example:
     <pre class="terminal">
-    kubectl get pod -n velero
+    $ kubectl get pod -n velero
 
     NAME                          READY   STATUS             RESTARTS   AGE
     pod/restic-p5bdz              0/1     CrashLoopBackOff   4          3m8s
@@ -404,13 +403,13 @@ To modify the Restic DaemonSet:
 
 1. Save the file.
 
-1. To verify the three-pod Restic DaemonSet: 
+1. To verify the three-pod Restic DaemonSet:
 
     ```
     kubectl get pod -n velero
     ```
 
-    For example: 
+    For example:
     <pre class="terminal">
     kubectl get pod -n velero
 
@@ -421,23 +420,23 @@ To modify the Restic DaemonSet:
     velero-68f47744f5-lb5df   1/1     Running   0          10m
     </pre>
 
-For information on why you must modify the Restic DaemonSet spec, 
-see [Restic Integration](https://velero.io/docs/v1.1.0/restic/) in the velero documentation.  
+For information about the need to modify the Restic DaemonSet spec,
+see [Restic Integration](https://velero.io/docs/v1.1.0/restic/) in the Velero documentation.
 
-###<a id='velero-memory'></a> Adjust Velero Memory Limits (if necessary)
+###<a id='velero-memory'></a> Adjust Velero Memory Limits If Necessary
 
-If your Velero backup returns `status=InProgress` for many hours, 
-increase the limits and requests memory settings.  
+If your Velero backup returns `status=InProgress` for many hours,
+increase the limits and requests memory settings.
 
 To increase limits and requests memory settings:
 
-1. Run the following command:  
+1. Run the following command:
 
     ```
-    kubectl edit deployment/velero -n velero 
+    kubectl edit deployment/velero -n velero
     ```
 
-1. Change the limits and request memory settings from the default of 
+1. Change the limits and request memory settings from the default of
 `256Mi` and `128Mi` to `512Mi` and `256Mi`:
 
     ```
@@ -459,21 +458,21 @@ To increase limits and requests memory settings:
 
 ##<a id='velero-cluster-install-airgapped'></a> Install Velero and Restic in an Air-Gapped Environment
 
-If you are working in an air-gapped environment, you can install Velero and Restic using an internal registry. 
+If you are working in an air-gapped environment, you can install Velero and Restic using an internal registry.
 For more information, see [Air-gapped deployments](https://velero.io/docs/v1.4/on-premises/#air-gapped-deployments)
 in the Velero documentation.
 
 ###<a id='velero-cluster-install-airgapped-prereqs'></a> Prerequisites
 
-- A private container registry is installed and configured. 
+- A private container registry is installed and configured.
 The instructions use Harbor.
 - Docker is installed on the workstation or <%= vars.k8s_runtime_abbr %> jump host.
 - kubectl context has been set and the MinIO `credentials-minio` file exists. For more information, see [Set Up the kubectl Context ](#velero-cluster-setup) above.
 
 ###<a id='velero-cluster-install-airgapped-procedure'></a> Procedure
 
-1. Open the VMware Velero downloads page for your version of <%= vars.k8s_runtime_abbr %> linked-to from the [Product Snapshot](release-notes.html) of the _Release Notes_ topic.
-1. Download the Velero CLI and Velero with Restic Dockers images for your version of <%= vars.k8s_runtime_abbr %>.
+1. Open the VMware Velero downloads page for your version of <%= vars.k8s_runtime_abbr %> linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html).
+1. Download the Velero CLI and Velero with Restic Docker images for your version of <%= vars.k8s_runtime_abbr %>:
   - velero-plugin-for-aws-v1.1.0-beta.1.tar.gz
   - velero-v1.4.2_vmware.1.tar.gz
   - velero-restic-restore-helper-v1.4.2_vmware.1.tar.gz
@@ -483,9 +482,9 @@ The instructions use Harbor.
 
     ```
   docker login harbor.example.com
-  docker load -i velero-plugin-for-aws-v1.1.0-beta.1.tar.gz 
+  docker load -i velero-plugin-for-aws-v1.1.0-beta.1.tar.gz
   docker tag vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1 harbor.example.com/vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1
-  docker load -i velero-restic-restore-helper-v1.4.2_vmware.1.tar.gz 
+  docker load -i velero-restic-restore-helper-v1.4.2_vmware.1.tar.gz
   docker tag vmware-tanzu/velero-restic-restore-helper:v1.4.2_vmware.1 harbor.example.com/vmware-tanzu/velero-restic-restore-helper:v1.4.2_vmware.1
   docker load -i velero-v1.4.2_vmware.1.tar.gz
   docker tag vmware-tanzu/velero:v1.4.2_vmware.1 harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1
@@ -494,42 +493,42 @@ The instructions use Harbor.
   docker push harbor.example.vmware.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1
     ```
 
-4. Install Velero with Restic: 
+4. Install Velero with Restic:
 
     ```
     velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1 \
     --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1 \
     --provider aws --bucket velero --secret-file ./credentials-minio \
-    --use-volume-snapshots=false    \
+    --use-volume-snapshots=false \
     --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-restic
     ```
 
     For example:
     <pre class="terminal">
-    velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1 --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1 --provider aws --bucket velero --secret-file ./credentials-minio --use-volume-snapshots=false    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http<span>:</span>//20.20.224.27:9000,publicUrl=http<span>:</span>//20.20.224.27:9000 --use-restic
+    $ velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:v1.4.2_vmware.1 --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:v1.1.0-beta.1 --provider aws --bucket velero --secret-file ./credentials-minio --use-volume-snapshots=false    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http<span>:</span>//20.20.224.27:9000,publicUrl=http<span>:</span>//20.20.224.27:9000 --use-restic
     Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
     </pre>
 
-    For more information on installing Velero and Restic, see 
-    [On-Premises Environments](https://velero.io/docs/main/on-premises/) 
-    and [Restic installation](https://velero.io/docs/main/restic/#install-restic) 
+    For more information about installing Velero and Restic, see
+    [On-Premises Environments](https://velero.io/docs/main/on-premises/)
+    and [Restic installation](https://velero.io/docs/main/restic/#install-restic)
     in the Velero documentation.
 
 
-5. After installing, configure the Restic post-installation settings:  
-    * Customize the Restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) 
-    for the pod during the restore process. 
-    This can be done by creating a configmap and applying it in the velero namespace, such as `kubect apply -f restic-cm.yaml -n velero`. 
-    Download the example configmap [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/velero-restic/) provided for such purposes.
-    * Modify the host path by editing the Restic daemonset manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`. 
-    Verify that the Restic pods are running. 
+5. After installing, configure the Restic post-installation settings:
+    * Customize the Restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+    for the pod during the restore process.
+    You can do this by creating a configmap and applying it in the Velero namespace, for example `kubect apply -f restic-cm.yaml -n velero`.
+    Download the example configmap [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/1.9/demos/velero-restic/) provided for this purpose.
+    * Modify the host path by editing the Restic daemonset manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`.
+    Verify that the Restic pods are running.
     For more information, see [Modify the Host Path](#velero-privileged) above.
     * (Optional) Increase your Restic timeout: You can increase the Restic timeout
-    for backups 1&nbsp;TB or larger by editing the Velero deployment manifest 
+    for backups 1&nbsp;TB or larger by editing the Velero deployment manifest
     and adding `'- --restic-timeout=900m'` to `spec.template.spec.containers`.
-    * (Optional) Adjust your Restic Pod CPU and memory reserves: Depending on your requirements, 
-    you can adjust the CPU and memory reserves and limits for your Velero and Restic Pods. 
-    For more information, see [Adjust Velero Memory Limits (if necessary)](#velero-memory) above.  
+    * (Optional) Adjust your Restic Pod CPU and memory reserves: Depending on your requirements,
+    you can adjust the CPU and memory reserves and limits for your Velero and Restic Pods.
+    For more information, see [Adjust Velero Memory Limits (if necessary)](#velero-memory) above.
 <br>
         **restic pod**
 
