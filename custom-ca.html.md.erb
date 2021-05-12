@@ -1,46 +1,43 @@
 ---
-title: Using Custom CA for Kubernetes Clusters
+title: Using a Custom CA for Kubernetes Clusters
 owner: PKS-SECURITY
 ---
 
-This topic describes how to use custom TLS certificate authority (CA) for Kubernetes clusters provisioned by <%= vars.product_short %> v1.11 and later.
+This topic describes how to use a custom CA to secure your Kubernetes clusters provisioned by <%= vars.product_short %> v1.11 and later.
 
-##<a id='per-cluster-ca'></a> Per Cluster CA
+##<a id='cluster-ca'></a> Per-Cluster CA
 
-<%= vars.k8s_runtime_abbr %> uses Transport Layer Security (TLS) to encrypt the data used by the <%= vars.product_short %> control plane 
-and the data used by the Kubernetes clusters provisioned by <%= vars.product_short %>. 
-For more information, see [Tanzu Kubernetes Grid Integrated Edition Certificates](certificate-concepts.html).
+<%= vars.k8s_runtime_abbr %> uses TLS to encrypt the data used by the control plane and the data used by Kubernetes clusters. 
+For more information, see [TKGI Certificates](certificate-concepts.html).
 
 <%= vars.product_short %> v1.11 introduces a per-cluster CA for Kubernetes clusters. 
-The CA is named `kubo_master_ca_2021` and signs the following cluster certificates:
+The per-cluster CA is named `kubo_master_ca_2021` and signs the following cluster certificates:
 
 - tls-kubernetes-2018
 - tls-ncp-2018 (with NSX-T)
 - tls-nsx-kube-proxy-2018 (with NSX-T)
 
-<%= vars.k8s_runtime_abbr %> manages the lifecycle of the per-cluster CA and the certificates it signs.
-You cannot manually rotate or update the system-managed certificates. Functionality to support this 
-will be introduced in an upcoming release.
+By default <%= vars.k8s_runtime_abbr %> creates a new CA for each Kubernetes cluster.
+<%= vars.k8s_runtime_abbr %> manages the lifecycle of the cluster CA and the certificates it signs.
+Functionality to support rotation of the system-managed CA will be introduced in an upcoming release. 
 
-##<a id='custom-ca'></a> Custom CA Support
+##<a id='custom-ca'></a> Custom CA
 
-For <%= vars.product_short %> v1.11 and later, the default behavior is to create a new `CA kubo_master_ca_2021` for each Kubernetes cluster. 
-For most use cases, the system-provided and -managed [per-cluster CA](#per-cluster-ca) is appropriate. 
-If requirements dictate, you can apply a custom CA for a Kubernetes cluster, 
-either during [cluster creation](#ca-custom-new) or [cluster update](#ca-custom-update).
+For most use cases, the system-managed [per-cluster CA](#cluster-ca) is appropriate. 
+Alternatively, you can apply a custom CA to a Kubernetes cluster provisioned by <%= vars.k8s_runtime_abbr %>, 
+either [at creation](#custom-ca-new) or [on update](#custom-ca-update).
 
-Providing your own custom CA for Kubernetes clusters is an advanced operation. 
-If you implement a custom CA for one or more Kubernetes clusters, 
-you are responsible for managing the lifecycle of the CA, including [certificate rotation](#ca-custom-rotate).
+Applying a custom CA to a Kubernetes cluster is an advanced operation. If you use a custom CA, 
+you are responsible for managing its lifecycle, including monitoring its expiry  
+and [rotating it](#custom-ca-rotate) while it is still valid.
 
-To apply a custom CA to a [new cluster](#ca-custom-new), <%= vars.product_short %> must be v1.11 or later.
-To apply a custom CA to an [existing cluster](#ca-custom-update), the cluster must have been upgraded so that
-it is using a [system-managed CA](#per-cluster-ca).
+To apply a custom CA to a [new cluster](#custom-ca-new), <%= vars.product_short %> must be v1.11 or later.
+To apply a custom CA to an [existing cluster](#custom-ca-update), it must be upgraded to use [per-cluster CA](#cluster-ca).
 
-##<a id='ca-custom-new'></a> Custom CA for New Clusters
+##<a id='custom-ca-new'></a> Create Cluster with Custom CA
 
-You can apply a custom CA to a new Kubernetes cluster. To do this, specify the custom CA 
-using the `--config-file` option with the `create-cluster` operation.
+You can apply a custom CA to a new cluster provisioned by <%= vars.product_short %> v1.11 or later. 
+To do this, specify the custom CA using the `--config-file` option with the `create-cluster` operation.
 
 For example:
 
@@ -83,9 +80,9 @@ Alternatively, you can use JSON, where an example `custom_ca.json` has the follo
 }
 ```
 
-##<a id='ca-custom-update'></a> Apply a Custom CA During Cluster Update
+##<a id='custom-ca-update'></a> Update Cluster with Custom CA
 
-You can apply a custom CA to an existing cluster that is using a system-managed cluster CA. 
+You can apply a custom CA to an existing cluster that has been upgraded to use [per-cluster CA](#cluster-ca).
 To do this, specify the custom CA using the `--config-file` option with the `update-cluster` operation. 
 
 For example:
@@ -129,14 +126,13 @@ Alternatively, you can use JSON, where an example `custom_ca.json` has the follo
 }
 ```
 
-##<a id='ca-custom-rotate'></a> Custom CA Certificate Rotation
+##<a id='custom-ca-rotate'></a> Rotate Custom CA
 
-If you have applied a custom cluster CA, either to a new cluster or during a cluster update, 
+If you have applied a [custom CA](#custom-ca) to a [new](#custom-ca-new) or [existing](#custom-ca-update) cluster, 
 you can rotate the custom CA by updating the cluster with the new CA. 
 
-<p class="note"><strong>Note:</strong> The procedure is designed to work if the CA you are 
-replacing has not expired. You must monitor the expiry date of the custom CA, 
-and rotate it while it is still valid.</p>
+<p class="note"><strong>Note:</strong> This procedure is designed to work if the custom CA you are 
+replacing has not expired.</p>
 
 For example:
 
@@ -144,37 +140,9 @@ For example:
 tkgi update-cluster <clustername> --config-file custom_ca_new.yaml
 ```	
 
-Where an example `custom_ca_new.yaml` has the following custom CA contents:
+Or:
 
 ```
-# YAML for custom CA certificate and keys
----
-custom_ca:
-  certificate: |
-    -----BEGIN CERTIFICATE-----
-    MIIDdTCCAl2gAwIBAgIUAyYwzsbEoRKrd+j2L74Noh3CDEEwDQYJKoZIhvcNAQEL
-    ...
-    BWlVhWvqBkTMTCNE83gGLPvRgTWqSqsd+Q==
-    -----END CERTIFICATE-----
-  private_key: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIEowIBAAKCAQEAti6NiJny8D+dfFZ2TXY4VWTyjyr/tFuVLr9XcwOhe9q/lQ6E
-    ...
-    vf3/DKcf9K/iHfdrfDDO/fVE/TO/4Gc1qmc2Arw1uWruXlqV2+6w
-    -----END RSA PRIVATE KEY-----
-```
+tkgi update-cluster <clustername> --config-file custom_ca_new.json
+``` 
 
-Alternatively, you can use JSON, where an example `custom_ca_new.json` has the following custom CA contents:
-
-```
-{
-  "custom_ca": {
-    "certificate": "-----BEGIN CERTIFICATE-----\
-    ...
-    \n-----END CERTIFICATE-----\n",
-    "private_key": "-----BEGIN RSA PRIVATE KEY-----\
-    ...
-    \n-----END RSA PRIVATE KEY-----\n"
-  }
-}
-```
