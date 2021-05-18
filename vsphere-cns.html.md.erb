@@ -14,43 +14,55 @@ enabling apps to survive restarts and outages.
 Stateful containers can use vSphere storage primitives such as standard volume, persistent volume, and dynamic provisioning, 
 independent of VM and container lifecycle.  
 
-For more information on VMware CNS, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).  
-
 Your <%= vars.k8s_runtime_abbr %> administrator has the option to enable 
-automatic vSphere CSI Driver Integration on your clusters. To enable automatic CSI driver integration on <%= vars.k8s_runtime_abbr %>-provisioned clusters, 
-see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere_.  
+automatic vSphere CSI Driver Integration on your clusters:
 
 * After your administrator has enabled automatic vSphere CSI Driver Integration, 
 deploy and manage vSphere CNS volumes using the automatically deployed vSphere CSI Driver. 
 You can use the default vSphere CSI driver configuration and datastore or you can customize your CNS configuration.  
 <br>
-    * To customize your file volume configuration, see [Create or Manage vSphere File Volumes](#create-file-volumes) below.
-    * To create a PersistentVolumeClaim, see [Create a PersistentVolumeClaim](#persistent-volumes-create) below.
-    * To create workloads, see [Create Workloads Using Persistent Volumes](#persistent-volumes-workloads) below.
-
-    <p class="note"><strong>Note</strong>: If you have an existing cluster with a manually installed vSphere CSI driver, then 
-    uninstall the old vSphere CSI Driver. 
-    For more information, see <a href="#migrate-csi">Migrate From a Manually Installed vSphere CSI Driver to Automatic vSphere CSI Driver Integration</a> below.
-    </p>
+    See [Use the vSphere CSI Driver to Create or Manage Volumes](#use-csi-driver) below.  
 
 * If your administrator has not enabled automatic vSphere CSI Driver Integration, 
-they might have provided the option of deploying vSphere CNS volumes using a manually installed vSphere CSI Driver. 
-<br>    
+they might have provided the option of deploying vSphere CNS volumes using a manually installed vSphere CSI Driver.  
+<br>
     For more information on manually installing a vSphere CSI Driver, 
     see [Deploying and Managing Cloud Native Storage (CNS) on vSphere](https://docs.pivotal.io/tkgi/1-10/vsphere-cns.html)
     in the <%= vars.product_short %> v1.10 documentation.  
+<br>
+    To enable automatic CSI driver integration on <%= vars.k8s_runtime_abbr %>-provisioned clusters, 
+see [Storage](#storage-config) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere_.  
 
 Use the vSphere client to review your cluster storage volumes and their backing virtual disks, 
 and monitor their storage policy compliance. You can set a storage policy directly on the volumes. 
 Also, while vSphere CNS integration is enabled, vSphere storage backs up your cluster volumes.  
 
-## <a id='create-file-volumes'></a>Create or Manage vSphere File Volumes
+For more information on VMware CNS, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).  
 
+<p class="note"><strong>Note</strong>: If you have an existing cluster with a manually installed vSphere CSI driver 
+and your administrator has enabled automatic vSphere CSI Driver Integration, you must uninstall the old vSphere CSI Driver 
+from your cluster. 
+For more information, see <a href="#migrate-csi">Migrate From a Manually Installed vSphere CSI Driver to Automatic vSphere CSI Driver Integration</a> below.
+</p>
+
+## <a id='use-csi-driver'></a>Use the vSphere CSI Driver to Create or Manage Volumes
+
+The vSphere CSI Driver supports both Block and File Volumes. 
 If you decide to customize your vSphere CSI configurations:  
 
-* To create a cluster with a customized vSphere file volume, see [Create a Cluster With Customized File Volume Parameters](#file-volumes-create) below.  
-* To modify a cluster with a customized vSphere file volume, see [Modify a Cluster With Customized File Volume Parameters](#file-volumes-modify) below.  
-* To remove vSphere file volume properties from a cluster, see [Remove File Volume Parameters from a Cluster](#file-volumes-remove) below.  
+* To customize File Volumes, see [Create or Manage vSphere File Volumes](#create-file-volumes) below.
+* To use CNS Volumes using the vSphere CSI Driver, see [Create or Use CNS Block Volumes](#use-cns) below.
+
+For more information on how to use the Kubernetes CSI Driver, see
+[Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.  
+
+## <a id='create-file-volumes'></a>Create or Manage vSphere File Volumes
+
+To create, modify or remove a customized vSphere file volume:  
+
+* [Create a Cluster With Customized File Volume Parameters](#file-volumes-create)  
+* [Modify a Cluster With Customized File Volume Parameters](#file-volumes-modify)  
+* [Remove File Volume Parameters from a Cluster](#file-volumes-remove)  
 
 ### <a id='file-volumes-prereqs'></a>Prerequisites 
 
@@ -124,7 +136,7 @@ For information, see [File Volume Configuration](#file-volumes-params) below.
 
 <%# Examples: https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=PKS&title=Detailed+design+document+for+supporting+file+volume+specific+configurations #%>
 
-## <a id='file-volumes-params'></a>File Volume Configuration
+### <a id='file-volumes-params'></a>File Volume Configuration
 
 To customize a vSphere file volume, create a JSON or YAML formatted file volume configuration file using the supported file volume parameters below.  
 
@@ -213,87 +225,18 @@ The following are supported NetPermission object configuration file parameters:
 
 <%#FROM Confluence:  PKS Core pks-api/spec.yaml: https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=PKS&title=Detailed+design+document+for+supporting+file+volume+specific+configurations #%>
 
+## <a id='use-cns'></a> Create or Use CNS Block Volumes
 
-## <a id='persistent-volumes-create'></a>Create a PersistentVolumeClaim
+To dynamically provision a block volume using the vSphere CSI Driver:  
 
-To create a Persistent Volume using the vSphere CSI Driver:
+1. [Create a vSphere Storage Class](#create-storage)
+1. [Create a PersistentVolumeClaim](#persistent-volumes-create)
+1. [Create Workloads Using Persistent Volumes](#persistent-volumes-workloads)
 
-1. Create a Storage Class. For more information, see [Create a vSphere Storage Class](#create-storage) below.  
-1. To apply the StorageClass configuration:
-    ```
-    kubectl apply -f CONFIG-FILE
-    ```
-    Where `CONFIG-FILE` is the name of your StorageClass configuration file. 
-1. Create the PersistentVolumeClaim configuration for the file volume.
-For information about configuring a PVC, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.      
-<br>
-     <%# (Note only for Ollie: When the PVC is created then the corresponding PV will be created automatically, but could be delayed based on StorageClass config)
-     FROM github:  https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/example/vanilla-k8s-block-driver
-     Use example of example-pvc.yaml: https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/master/example/vanilla-k8s-block-driver/example-pvc.yaml #%>
-    For example:
-
-    ```
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: example-vanilla-block-pvc
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 5Gi
-      storageClassName: example-vanilla-block-sc
-    ```
-1. To apply the PVC configuration:  
-
-    ```
-    kubectl apply -f CONFIG-FILE 
-    ```
-
-    Where `CONFIG-FILE` is the name of your PVC configuration file.  
+For more information on vSphere CSI Driver configuration, see [vsphere-csi-driver](https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/example/vanilla-k8s-block-driver) in the VMware kubernetes-sigs GitHub repo.
 
 
-## <a id='persistent-volumes-workloads'></a>Create Workloads Using Persistent Volumes
-
-1. Create a Pod configuration file containing `volumeMounts` and `volumes` parameters.  
-<br>
-    For example:
-
-    ```
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: example-vanilla-block-pod
-    spec:
-      containers:
-        - name: test-container
-          image: gcr.io/google_containers/busybox:1.24
-          command: ["/bin/sh", "-c", "echo 'hello' > /mnt/volume1/index.html  && chmod o+rX /mnt /mnt/volume1/index.html && while true ; do sleep 2 ; done"]
-          volumeMounts:
-            - name: test-volume
-              mountPath: /mnt/volume1
-      restartPolicy: Never
-      volumes:
-        - name: test-volume
-          persistentVolumeClaim:
-            claimName: example-vanilla-block-pvc
-    ```
-    <%# example-pod.yaml  https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/master/example/vanilla-k8s-block-driver/example-pod.yaml #%>
-
-1. To apply the Pod configuration to your workload:  
-
-    ```
-    kubectl apply -f CONFIG-FILE 
-    ```
-
-    Where `CONFIG-FILE` is the name of your configuration file.  
-
-For more information and examples of Pod configurations, see [Example](https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/example) in the vSphere CSI driver repo.  
-
-
-
-## <a id='create-storage'></a>Create a vSphere Storage Class
+### <a id='create-storage'></a>Create a vSphere Storage Class
 
 To create a vSphere Storage Class:
 
@@ -344,48 +287,82 @@ For more information about StorageClass, see [Storage Classes](https://kubernete
 
 
 
+### <a id='persistent-volumes-create'></a>Create a PersistentVolumeClaim
+
+To create a Persistent Volume using the vSphere CSI Driver:
+
+1. Create a Storage Class. For more information, see [Create a vSphere Storage Class](#create-storage) below.  
+1. To apply the StorageClass configuration:
+    ```
+    kubectl apply -f CONFIG-FILE
+    ```
+    Where `CONFIG-FILE` is the name of your StorageClass configuration file. 
+1. Create the PersistentVolumeClaim configuration for the file volume.
+For information about configuring a PVC, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.      
+<br>
+     <%# (Note only for Ollie: When the PVC is created then the corresponding PV will be created automatically, but could be delayed based on StorageClass config)
+     FROM github:  https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/example/vanilla-k8s-block-driver
+     Use example of example-pvc.yaml: https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/master/example/vanilla-k8s-block-driver/example-pvc.yaml #%>
+    For example:
+
+    ```
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: example-vanilla-block-pvc
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi
+      storageClassName: example-vanilla-block-sc
+    ```
+1. To apply the PVC configuration:  
+
+    ```
+    kubectl apply -f CONFIG-FILE 
+    ```
+
+    Where `CONFIG-FILE` is the name of your PVC configuration file.  
 
 
-## <a id='overview-managing'></a>Create and Manage vSphere CNS Volumes
+### <a id='persistent-volumes-workloads'></a>Create Workloads Using Persistent Volumes
 
-If your cluster has automatically installed vSphere CSI Driver Integration, you can deploy CNS using the automatically installed CSI driver.  
+1. Create a Pod configuration file containing `volumeMounts` and `volumes` parameters.  
+<br>
+    For example:
 
-With automatic CNS enabled, the vSphere CSI Driver is automatically installed to your clusters. 
-You can deploy CNS volumes dynamically or statically:  
+    ```
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: example-vanilla-block-pod
+    spec:
+      containers:
+        - name: test-container
+          image: gcr.io/google_containers/busybox:1.24
+          command: ["/bin/sh", "-c", "echo 'hello' > /mnt/volume1/index.html  && chmod o+rX /mnt /mnt/volume1/index.html && while true ; do sleep 2 ; done"]
+          volumeMounts:
+            - name: test-volume
+              mountPath: /mnt/volume1
+      restartPolicy: Never
+      volumes:
+        - name: test-volume
+          persistentVolumeClaim:
+            claimName: example-vanilla-block-pvc
+    ```
+    <%# example-pod.yaml  https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/master/example/vanilla-k8s-block-driver/example-pod.yaml #%>
 
-* [Create Dynamic CNS Volumes](#create-dynamic)
-* [Create Static CNS Volumes](#create-static)
+1. To apply the Pod configuration to your workload:  
 
-<p class="note"><strong>Note</strong>: If you have existing clusters with manually installed vSphere CSI drivers, 
-and you would prefer they used an automatically installed vSphere CSI driver, 
-see <a href="#migrate-csi">Migrate From a Manually Installed vSphere CSI Driver to Automatic vSphere CSI Driver Integration</a> below.
-</p>
+    ```
+    kubectl apply -f CONFIG-FILE 
+    ```
 
-### <a id='create-dynamic'></a>Create Dynamic CNS Volumes
+    Where `CONFIG-FILE` is the name of your configuration file.  
 
-You can configure a cluster to use a dynamic persistent volume for CNS. 
-
-To use a dynamic CNS volume:  
-
-1. Create your cluster using `tkgi create-cluster`.
-1. To create a StorageClass for your dynamic volumes, complete [Create a vSphere Storage Class](#create-storage) below. 
-For more information, see [Dynamic Provisioning](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/policy-based-mgmt.html) in the vSphere documentation.  
-1. To create a PersistentVolumeClaim for your dynamic volumes, complete [Create a PersistentVolumeClaim](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/policy-based-mgmt.html#create-a-persistentvolumeclaim) 
-in _Dynamic Provisioning_ in the vSphere documentation.  
-1. **NOT SURE HOW TO INTEGRATE THIS WITH THE EXISTING CREATE/MANAGE WORKLOADS**  
-
-### <a id='create-static'></a>Create Static CNS Volumes
-
-You can configure a cluster to use an existing static persistent volume for CNS. 
-
-To use a static CNS volume:  
-
-1. Create your cluster using `tkgi create-cluster`.
-1. To create a Persistent Volume for your static volumes, complete [Create a PersistentVolume](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/persistent-vols-claims.html#create-a-persistentvolume) 
-in _Static Provisioning_ in the vSphere documentation.  
-1. To create a Persistent Volume Claim for your static volume, complete [Create a PersistentVolumeClaim](https://vmware.github.io/vsphere-storage-for-kubernetes/documentation/persistent-vols-claims.html#create-a-persistentvolumeclaim) 
-in _Static Provisioning_ in the vSphere documentation.  
-1. **NOT SURE HOW TO INTEGRATE THIS WITH THE EXISTING CREATE/MANAGE WORKLOADS**
+For more information and examples of Pod configurations, see [Example](https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/example) in the vSphere CSI driver repo.  
 
 
 ## <a id='migrate-csi'></a>Migrate From a Manually Installed vSphere CSI Driver to Automatic vSphere CSI Driver Integration
