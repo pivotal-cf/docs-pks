@@ -3,42 +3,42 @@ title: Deploying and Exposing Basic Windows Workloads
 owner: TKGI
 ---
 
-This topic describes deploying Windows worker-based Kubernetes clusters in <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>). 
+This topic describes deploying Windows worker-based Kubernetes clusters in <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>).
 
 ## <a id='overview'></a>Overview
 
 In <%= vars.product_short %>, you can deploy Windows-based workloads to Kubernetes clusters on vSphere with NSX-T.
-Additionally, <%= vars.k8s_runtime_abbr %> provides beta support for deploying Windows-based workloads to 
-Kubernetes clusters on vSphere with Flannel.  
+Additionally, <%= vars.k8s_runtime_abbr %> provides beta support for deploying Windows-based workloads to
+Kubernetes clusters on vSphere with Flannel.
 
-To deploy a new Windows-based workload to a new pod, do the following:  
+To deploy a new Windows-based workload to a new pod, do the following:
 
-1. [Access Your Windows-Based Cluster](#access-cluster)  
-1. [Configure a Pod Deployment Manifest](#configure-pod)  
-1. [Deploy the Pod](#deploy-pod-steps)  
-1. [Configure a Service Manifest](#configure-service)  
-1. [Deploy the Service](#deploy-service-steps)  
+1. [Access Your Windows-Based Cluster](#access-cluster)
+1. [Configure a Pod Deployment Manifest](#configure-pod)
+1. [Deploy the Pod](#deploy-pod-steps)
+1. [Configure a Service Manifest](#configure-service)
+1. [Deploy the Service](#deploy-service-steps)
 
-<p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is enabled for 
-  <%= vars.k8s_runtime_abbr %> on vSphere with NSX-T and as a beta feature for <%= vars.k8s_runtime_abbr %> on vSphere with Flannel. 
-<br><br>Do not enable this feature if you are using <%= vars.k8s_runtime_abbr %> 
+<p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is enabled for
+  <%= vars.k8s_runtime_abbr %> on vSphere with NSX-T and as a beta feature for <%= vars.k8s_runtime_abbr %> on vSphere with Flannel.
+<br><br>Do not enable this feature if you are using <%= vars.k8s_runtime_abbr %>
 with Google Cloud Platform (GCP), Azure, or Amazon Web Services (AWS).<br>
 </p>
- 
+
 ## <a id='prerequisites'></a>Prerequisites
 
-You can deploy Windows workloads to Windows-based clusters only.  
+You can deploy Windows workloads to Windows-based clusters only.
 
-You must configure the <%= vars.product_tile %> tile to support Windows-based clusters 
-before you can use Windows-based clusters in <%= vars.k8s_runtime_abbr %>. 
-For instructions on configuring the <%= vars.product_tile %> tile, 
-see [Configuring Windows Worker-Based Clusters](windows-workers.html). 
+You must configure the <%= vars.product_tile %> tile to support Windows-based clusters
+before you can use Windows-based clusters in <%= vars.k8s_runtime_abbr %>.
+For instructions on configuring the <%= vars.product_tile %> tile,
+see [Configuring Windows Worker-Based Clusters](windows-workers.html).
 
 ## <a id='access-cluster'></a>Access Your Windows-Based Cluster
 
 Your command line must have access to your Windows-based cluster to deploy Windows VMs and workloads to the cluster.
 
-1. To determine which of your existing clusters is Windows-based, use the following command:  
+1. To determine which of your existing clusters is Windows-based, use the following command:
 
     ```
     tkgi clusters
@@ -47,7 +47,6 @@ Your command line must have access to your Windows-based cluster to deploy Windo
     For example:
     <pre class='terminal'>
     $ tkgi clusters
-
     Name                Plan Name             UUID                                  Status     Action
     windows-k8s         Plan-11-Windows-Beta  881543kd-64fg-7826-hea6-3h7g1o04kh0e  succeeded  Create
     second-windows-k8s  Plan-11-Windows-Beta  951547dl-67kg-9631-bju8-7h9s3o98br0q  succeeded  Create
@@ -60,19 +59,17 @@ Your command line must have access to your Windows-based cluster to deploy Windo
     ```
     tkgi get-credentials CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of your Windows-based cluster.  
-  </br>
-    For example: 
+    Where `CLUSTER-NAME` is the name of your Windows-based cluster.
+
+    For example:
     <pre class="terminal">$ tkgi get-credentials windows-k8s
-
     Fetching credentials for cluster windows-k8s.
-    Context set for cluster windows-k8s.
-
+    Context set for cluster windows-k8s.<br>
     You can now switch between clusters by using:
     $kubectl config use-context &lt;cluster-name&gt;
     </pre>
-    The `tkgi get-credentials` command creates a local `kubeconfig`, allowing you to manage the cluster from the command line. 
-    For more information about the `tkgi get-credentials` command, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html). 
+    The `tkgi get-credentials` command creates a local `kubeconfig`, allowing you to manage the cluster from the command line.
+    For more information about the `tkgi get-credentials` command, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html).
 
 1. To verify you have established access to the correct cluster, run the following command:
 
@@ -80,21 +77,21 @@ Your command line must have access to your Windows-based cluster to deploy Windo
     kubectl cluster-info
     ```
 
-1. (Optional) To review the existing pods in the cluster, run the following command:  
+1. (Optional) To review the existing pods in the cluster, run the following command:
 
     ```
     kubectl get pods
     ```
 
 ## <a id='deploy-pod'></a> Deploy a Windows Worker Pod
- 
+
 A pod deployment manifest file configures the VMs deployed to a pod.
 
 ### <a id='configure-pod'></a> Configure a Pod Deployment Manifest
 
-You must create a Windows worker deployment manifest before deploying your new Windows worker pod.  
+You must create a Windows worker deployment manifest before deploying your new Windows worker pod.
 
-1. To create a Windows worker deployment manifest, create a new YAML file containing the following:  
+1. To create a Windows worker deployment manifest, create a new YAML file containing the following:
 
     ```
     ---
@@ -132,13 +129,13 @@ You must create a Windows worker deployment manifest before deploying your new W
             value: "2019"
             effect: "NoSchedule"
     ```
-    Where:  
-    * `POD-NAME` is the name of your pod.  
-    * `CONTAINER-NAME` is the internal name of your container.  
+    Where:
+    * `POD-NAME` is the name of your pod.
+    * `CONTAINER-NAME` is the internal name of your container.
     * `CONTAINER-FILE` is the filename of your container.
-    * `VERSION` is the version of the image to use, for example `latest`.    
+    * `VERSION` is the version of the image to use, for example `latest`.
 
-    For example:  
+    For example:
 
     ```
     ---
@@ -175,7 +172,7 @@ You must create a Windows worker deployment manifest before deploying your new W
             operator: "Equal"
             value: "2019"
             effect: "NoSchedule"
-    ```    
+    ```
 
 ### <a id='deploy-pod-steps'></a> Deploy the Pod
 
@@ -185,7 +182,7 @@ You must create a Windows worker deployment manifest before deploying your new W
     kubectl apply -f POD-CONFIG-FILE
     ```
 
-    Where `POD-CONFIG-FILE` is the filename of the Windows worker deployment manifest created above.  
+    Where `POD-CONFIG-FILE` is the filename of the Windows worker deployment manifest created above.
 
 1. To confirm the status of the new pod, and the creation of new Windows worker nodes, run the following commands:
 
@@ -194,15 +191,13 @@ You must create a Windows worker deployment manifest before deploying your new W
     kubectl get nodes -o wide
     ```
 
-    For example:  
+    For example:
     <pre class="terminal">
     $ kubectl apply -f first-k8s.yml
-    deployment.extensions/win-webserver created
-
+    deployment.extensions/win-webserver created<br>
     $ kubectl get pods  -o wide
     NAME                             READY  STATUS   RESTARTS  AGE  IP            NODE                                  NOMINATED NODE   READINESS GATES
-    win-webserver-795g866cd7-58oct   1/1    Running  0         88s  10.200.42.4   0983934a-6d69-8e5g-g3k1-98r8r56l345j  &lt;none&gt;           &lt;none&gt;         
-
+    win-webserver-795g866cd7-58oct   1/1    Running  0         88s  10.200.42.4   0983934a-6d69-8e5g-g3k1-98r8r56l345j  &lt;none&gt;           &lt;none&gt;<br>
     $ kubectl get nodes -o wide
     NAME                                    STATUS   ROLES    AGE    VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                          KERNEL-VERSION      CONTAINER-RUNTIME
     0983934a-6d69-8e5g-g3k1-98r8r56l345j    Ready    &lt;none&gt;   19d    v1.14.1    10.85.41.118  10.85.41.118  Windows Server 2019 Datacenter    10.0.17763.503      docker://18.9.0
@@ -211,24 +206,24 @@ You must create a Windows worker deployment manifest before deploying your new W
     406d694a-9g96-2d3g-f3j1-32r1r44l342x    Ready    &lt;none&gt;   19d    v1.14.1    10.85.41.116  10.85.41.116  Windows Server 2019 Datacenter    10.0.17763.503      docker://18.9.0
     </pre>
 
-    In the preceding example a new pod is created, and creation and status of the new pod and new nodes verified. 
+    In the preceding example a new pod is created, and creation and status of the new pod and new nodes verified.
 
 <p class="note"><strong>Note: </strong>
 The <code>ping</code> command does not work reliably for Windows workers.
-For more information, see <a href="./release-notes.html#1-8-0-ping">Pinging Windows Workers Does Not Work</a> 
+For more information, see <a href="./release-notes.html#1-8-0-ping">Pinging Windows Workers Does Not Work</a>
 in <em>Release Notes</em>.
 </p>
 
 
 ## <a id='deploy-service'></a> Deploy a Service to a Windows Worker Pod
- 
-A service deployment manifest file configures your service, defining how your service will run and how it will be exposed.  
+
+A service deployment manifest file configures your service, defining how your service will run and how it will be exposed.
 
 ### <a id='configure-service'></a> Configure a Service Manifest
 You must create a Windows service deployment manifest before deploying your Windows worker workload.
 
-1. To create a Windows service deployment manifest, create a new YAML file containing the following:  
-  
+1. To create a Windows service deployment manifest, create a new YAML file containing the following:
+
     ```
     ---
     apiVersion: v1
@@ -246,10 +241,10 @@ You must create a Windows service deployment manifest before deploying your Wind
         app: APP-NAME
       type: LoadBalancer
     ```
-    Where `APP-NAME` is the name of your Windows service.  
+    Where `APP-NAME` is the name of your Windows service.
 <br>
-    For example:  
-  
+    For example:
+
     ```
     ---
     apiVersion: v1
@@ -266,33 +261,31 @@ You must create a Windows service deployment manifest before deploying your Wind
       selector:
         app: win-webserver
       type: LoadBalancer
-  
+
     ```
 
 ### <a id='deploy-service-steps'></a> Deploy the Service
 
-1. To expose your service on a LoadBalancer, run the following command:  
+1. To expose your service on a LoadBalancer, run the following command:
 
     ```
     kubectl apply -f SERVICE-CONFIG-FILE
     ```
 
-    Where `SERVICE-CONFIG-FILE` is the filename of your Windows service deployment manifest created above.  
+    Where `SERVICE-CONFIG-FILE` is the filename of your Windows service deployment manifest created above.
 <br>
-    For example:  
+    For example:
     <pre class="terminal">
     $ kubectl get services
     NAME          TYPE          CLUSTER-IP      EXTERNAL-IP    PORT(S)    AGE
-    kubernetes    ClusterIP     10.100.200.1    &lt;none&gt;         443/TCP    20d
-    
+    kubernetes    ClusterIP     10.100.200.1    &lt;none&gt;         443/TCP    20d<br>
     $ kubectl apply -f first-k8s-service.yml
-    service/win-webserver created
-    
+    service/win-webserver created<br>
     $ kubectl get services
     NAME          TYPE         CLUSTER-IP        EXTERNAL-IP  PORT(S)        AGE
     kubernetes    ClusterIP    10.100.200.1      &lt;none&gt;       443/TCP        20d
-    win-webserver LoadBalancer 10.100.200.221    &lt;none&gt;	    80:32073/TCP   5s
-    
+    win-webserver LoadBalancer 10.100.200.221    &lt;none&gt;	    80:32073/TCP   5s<br>
+
     $ curl 10.85.41.118:32073
     &lt;pre&gt;
 	    &lt;a href="License.txt">License.txt&lt;/a&gt;
@@ -304,4 +297,4 @@ You must create a Windows service deployment manifest before deploying your Wind
 	    &lt;a href="webserver.exe">webserver.exe&lt;/a&gt;
     &lt;/pre&gt;
     </pre>
-    In the preceding example a new service is created, verified, and validated.    
+    In the preceding example a new service is created, verified, and validated.
