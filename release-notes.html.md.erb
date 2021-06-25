@@ -133,6 +133,7 @@ This section describes new features and changes in <%= vars.product_short %> v1.
 * **[Bug Fix]** Fixes [ClusterLogSink Fails While CEIP Telemetry Services Are Disabled](#1-10-0-fluentbit-clusterlogsink).  
 * **[Bug Fix]** Fixes [Windows Workloads With Attached Dynamic PVs Must Be Removed before Deleting a Cluster](#1-10-0-windows-dynamic-pvs).  
 * **[Bug Fix]** Fixes [Cluster Fails to Restart](#1-10-0-ncp-port-protocol-limit).  
+* **[Bug Fix]** Fixes [You Cannot Use vRealize Log Insight (vRLI) to Monitor NCP](#1-10-0-ncp-not-in-vrli).  
 * **[Security Fix]** Component bumps fix the following CVEs:  
 
     * runc [CVE-2021-30465](https://github.com/opencontainers/runc/security/advisories/GHSA-c3xm-pvg7-gh7r): 
@@ -618,21 +619,6 @@ failed to collect filesystem stats - rootDiskErr: could not stat .. to get inode
 The runc component has introduced instability into nodes consisting of 50 or more Pods or 30 or more statefulset Pods. 
 For more information, see [loading seccomp filter: invalid argument](https://github.com/opencontainers/runc/issues/2865) 
 in the runc GitHub repository.  
-
-
-
-#### <a id="1-10-2-fluentd-logs"></a> fluentd Does Not Send Logs to VRLI
-
-**Symptom**  
-
-fluentd fails to send logs to VRLI, and the following `Bad Request` error is in the fluentd stdout log:
-
-```
-2021-05-19 04:07:02 +0000 [warn]: Failed to POST...
-(Response Code: 400
-Response Message: Bad Request
-Response Body: {"errorMessage":"Cannot use reserved field 'timestamp'"})
-```
 
 
 ## <a id="management-console-1-10-2"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.10.2 - Withdrawn
@@ -1884,6 +1870,40 @@ This problem occurs on clusters with a network policy with more than twelve port
 **Workaround**
 
 Modify the cluster network policy to have twelve or fewer port-protocol fields.
+
+
+#### <a id='1-10-0-ncp-not-in-vrli'></a> You Cannot Use vRealize Log Insight (vRLI) to Monitor NCP
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.10.4](#1-10-4-features).  
+
+**Symptom**  
+
+vRLI monitoring does not include NCP stdout or stderror.  
+
+**Explanation** 
+
+A bug in the vRLI configuration prevents inclusion of NCP stdout and stderror in vRLI.
+
+**Workaround**
+
+To write NCP logs for a cluster to vRLI:  
+
+1. Confirm you have admin access to the master node.
+1. Open `/var/vcap/jobs/fluentd/config/config.d/nsx-t.conf`.
+1. Replace:  
+
+    ```
+    expression /^(?<num>[\w]+) (?<time>[^ ]+) (?<nsx_uuid>[^ ]+) (?<nsx_component>[^ ]+) (?<pid>[^ ]+) - \[.* level="(?<severity>[^\"]+)".*\] (?<message>.+)/
+    ```
+
+    with: 
+
+    ```
+    expression /^(?<time>[^ ]+) (?<nsx_uuid>[^ ]+) (?<nsx_component>[^ ]+) (?<pid>[^ ]+) - \[.* level="(?<severity>[^\"]+)".*\] (?<message>.+)/
+    ```
+
+<p class="note"><strong>Note</strong>: This workaround affects only the cluster you modified and does not persist.
+</p>
 
 
 ## <a id="management-console-1-10-0"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.10.0
