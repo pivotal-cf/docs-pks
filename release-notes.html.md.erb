@@ -1282,24 +1282,76 @@ To write NCP logs for a cluster to vRLI:
 
 
 <hr>
-#### <a id='1-11-0-fluentd-log-overflow'></a> The <%= vars.k8s_runtime_abbr %> API VM fluentd.stdout.log Grows While vRealize Log Insight is Disabled
+#### <a id='1-11-0-fluentd-log-overflow'></a> The <%= vars.control_plane %> VM fluentd.stdout.log Grows While vRealize Log Insight is Disabled
 
 This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.11.2](#1-11-2-bug-fixes).  
 
 **Symptom**  
 
-While vRealize Log Insight (vRLI) is disabled, the log for `fluentd.stdout` on the <%= vars.k8s_runtime_abbr %> API VM  
+While vRealize Log Insight (vRLI) is disabled, the log for `fluentd.stdout` on the <%= vars.control_plane %> VM  
 grows quite large and rolls over frequently.
 
 
 **Explanation** 
 
-The fluentd job on the <%= vars.k8s_runtime_abbr %> API VM automatically starts when vRLI is disabled. 
+The fluentd job on the <%= vars.control_plane %> VM automatically starts when vRLI is disabled. 
 This fluentd job runs continuously, frequently writing inaccessible hostname errors to stdout 
 for the non-existent vRLI endpoint. 
-The fluentd stdout on the <%= vars.k8s_runtime_abbr %> API VM is logged in: 
+The fluentd stdout on the <%= vars.control_plane %> VM is logged in: 
 `/var/vcap/sys/log/pks-vrli-control-plane-fluentd/fluentd.stdout.log`.
 
+
+<hr>
+#### <a id='1-11-0-invalid-gateway-from-subnet-range'></a> 'Invalid Gateway for Network' Error after Creating or Updating a Cluster with Both nodes_dns And IP Subnet Range Parameters
+
+
+**Symptom**
+
+After creating or updating a cluster with a network profile that specifies a `nodes_dns` parameter 
+and an IP subnet range other than the typical `x.x.x.x/24` range, for example, `1.1.1.64/26`, 
+you see the following error:
+
+```
+
+operation: update, error-message: Invalid gateway for network 'pks-...': must be inside the range
+
+```
+
+Subsequently, when you create or update a valid cluster, the process returns the same "_Invalid gateway for network_" error message.
+
+ 
+
+**Explanation**
+
+The error is reported because <%= vars.k8s_runtime_abbr %> has incorrectly updated the gateway IP to `x.x.x.1`, 
+which is outside of your designated IP range.  
+
+Additionally, BOSH validates all cloud-configs when creating deployments. 
+The invalid cloud-config created by the error cluster blocks subsequent create and update cluster processes, 
+including processes for valid clusters, and returns the same "_Invalid gateway for network_" error message.  
+
+Avoid updating and resizing clusters with an IP subnet range other than `x.x.x.x/24`.  
+
+For additional information, see 
+[TKGI cluster update failing with error: “Invalid gateway for network 'xxx': must be inside the range” (85101)](https://kb.vmware.com/s/article/85101) 
+in the Knowledge Base.
+
+
+**Workaround**
+
+If you've already encountered this issue, delete the cluster with this error to avoid the subsequent BOSH issue.
+
+ 
+
+To update an existing cluster:
+
+* Remove the `nodes_dns` parameter from the network profile and update the cluster with the modified network profile.  
+
+To create a new cluster, do one of the following:
+
+* Create the cluster using a typical `x.x.x.x/24` IP subnet range.  
+* Configure `nodes_dns` for the cluster through your <%= vars.product_tile %> tile configuration and 
+remove the `nodes_dns` parameter from the network profile.
 
 
 <hr>
