@@ -26,7 +26,7 @@ topic to locate the source file of the topic.
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.12` | TKGI 1.12 pre-release content       | [not published] |
+| `1.12` | TKGI 1.12 pre-release content       | [internal staging site] |
 | `1.11` | TKGI 1.11 released content          | https://docs.pivotal.io/tkgi/1-11/index.html |
 | `1.10` | TKGI 1.10 released content          | https://docs.pivotal.io/tkgi/1-10/index.html |
 | `1.9`  | TKGI 1.9 released content           | https://docs.pivotal.io/tkgi/1-9/index.html  |
