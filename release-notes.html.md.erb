@@ -2050,6 +2050,47 @@ The fluentd stdout on the <%= vars.k8s_runtime_abbr %> API VM is logged in:
 
 
 <hr>
+#### <a id='1-10-0-dual-wavefront-collectors'></a> Wavefront Collector is Duplicated or Not Collecting from <%= vars.k8s_runtime_abbr %> Namespaces
+
+**Symptom**
+
+After upgrading <%= vars.k8s_runtime_abbr %> to <%= vars.k8s_runtime_abbr %> v1.10.0 or later, you observe that two Wavefront collectors are running instead of one. 
+If one of the collectors stops, the remaining collector alternates between collecting metrics as itself and as the stopped collector. 
+The `pks.kubernetes.daemonset.` and `pks.kubernetes.deployment.` namespaces may stop reporting.
+
+**Explanation**
+
+Two instances of Wavefront collector are currently installed and running: a v1.20 DaemonSet collector and a v1.26 Deployment collector. 
+Both Wavefront collectors are running and collecting metrics. 
+Only the v1.26 Deployment collector instance should be running. 
+
+**Workaround**
+
+You must remove the v1.20 DaemonSet Wavefront collector and leave the v1.26 Deployment collector running.
+
+To remove the DaemonSet Wavefront collector:
+
+1. Save the DaemonSet yaml creation file as `wf_daemonset.yaml`.
+
+1. To delete the Wavefront Collector DaemonSet:
+
+    ```
+    kubectl delete daemonset wavefront-collector -n pks-system
+    ```
+
+1. Keep a copy of the DaemonSet yaml creation file in case the DaemonSet Wavefront collector needs to be restored.
+
+If you later decide that you need to restore the DaemonSet collector, 
+you can restore using the DaemonSet yaml creation file you saved earlier.
+
+1. To restore the DaemonSet collector:
+
+    ```
+    kubectl apply -f wf_daemonset.yaml 
+    kubetcl get daemonset/wavefront-collector -n pks-system -o yaml > wf_daemonset.yaml
+    ```
+
+<hr>
 
 ## <a id="management-console-1-10-0"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.10.0
 
