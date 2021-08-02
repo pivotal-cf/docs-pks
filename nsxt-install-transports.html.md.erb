@@ -1,0 +1,170 @@
+---
+title: Installing and Configuring NSX-T Transport Nodes
+owner: TKGI-NSXT
+---
+
+This topic provides instructions for installing and configuring NSX-T Data Center v3.0 for use with <%= vars.product_full %> on vSphere.
+
+##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for <%= vars.product_short %>
+
+To perform a new installation of NSX-T Data Center for <%= vars.product_short %>, complete the following steps in the order presented.
+
+
+##<a id='nsxt30-esxi-tn'></a> Deploy ESXi Host Transport Nodes Using VDS
+
+Deploy each ESXi host in the COMPUTE-cluster as an ESXi host transport node (TN) in NSX-T. If you have not created a separate COMPUTE-cluster for ESXi hosts, deploy each ESXi host in the vSphere cluster as a host transport node in NSX-T.
+
+1. Go to **System** > **Fabric** > **Nodes** > **Host Transport Nodes**.
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-01.png">
+
+1. Expand the Compute Manager and select the ESXi host in the COMPUTE-cluster, or each ESXi host in the vSphere cluster.
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-02.png">
+ 
+1. Click **Configure NSX**.
+
+1. In the **Host Details** tab, enter a name, such as `10.172.210.57`.
+
+1. In the **Configure NSX** tab, configure the transport node as follows:
+  - **Type**: `VDS` (do not select the N-VDS option)
+  - **Name**: `switch-overlay` (you must use the same switch name that was configured for `tz-overlay` transport zone)
+  - **Transport Zone**: `tz-overlay`
+  - **NIOC Profile**: `nsx-default-nioc-hostswitch-profile`
+  - **Uplink Profile**: `nsx-esxi-uplink-hostswitch-profile`
+  - **LLDP Profile**: `LLDP [Send Packet Disabled]`
+  - **IP Assignment**: `Use IP Pool`
+  - **IP Pool**: `TEP-IP-POOL`
+  - **Teaming Policy Switch Mapping**
+     - **Uplinks**: `uplink-1`
+     - **Physical NICs**: `vmnic1`
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-33.png">
+
+1. Click **Finish**.
+
+1. Verify that the host TN is configured.
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-04.png">
+
+##<a id='nsxt30-check-tep'></a> Verify TEP to TEP Connectivity
+
+To avoid any overlay communication in the future due to MTU issue, test TEP to TEP connectivity and verify that it is working.
+
+1. SSH to edge-node-1 and get the local TEP IP address, such as `192.23.213.1`. Use the command `get vteps` to get the IP.
+
+1. SSH to edge-node-2 and get the local TEP IP address, ushc as `192.23.213.2`. Use the command `get vteps` to get the IP.
+
+1. SSH to the ESXi host and get the TEP IP address, such as `192.23.213.3`. Use the command `esxcfg-vmknic -l` to get the IP. The interface will be `vmk10` and the NetStack will be `vxlan`.
+
+1. From each ESXi transport node, test the connections to each NSX-T Edge Node, for example:
+
+    ```
+    # vmkping ++netstack=vxlan 192.23.213.1 -d -s 1572 -I vmk10: OK
+    # vmkping ++netstack=vxlan 192.23.213.2 -d -s 1572 -I vmk10: OK
+    ```
+
+    1. Test the connection from NSX-T edge node 1 and edge node 2 to ESXi TN:
+
+        ```
+        > vrf 0
+        > ping 192.23.213.1 size 1572 dfbit enable: OK
+        ```
+
+    1. Test the connection from NSX-T edge node 1 to NSX-T edge node 2:
+
+        ```
+        > vrf 0
+        > ping 192.23.213.2 size 1572 dfbit enable: OK
+        ```
+
+##<a id='nsxt30-edge-cluster'></a> Create NSX-T Edge Cluster
+
+1. Go to **System** > **Fabric** > **Nodes** > **Edge Clusters**.
+  <img src="images/nsxt/nsxt-30/edge-cluster-01.png">
+ 
+1. Click **Add**.
+  - Enter a name, such as `edge-cluster-1`.
+  - Add members, including `edge-node-1` and `edge-node-2`.
+  <img src="images/nsxt/nsxt-30/edge-cluster-02.png">
+
+1. Click **Add**.
+
+1. Verify.
+  <img src="images/nsxt/nsxt-30/edge-cluster-03.png">
+
+##<a id='nsxt30-uplink-ls'></a> Create Uplink Logical Switch
+
+Create an uplink Logical Switch to be used for the Tier-0 Router.
+
+1. At upper-right, select the **Manager** tab.
+
+1. Go to **Networking** > **Logical Switches**.
+  <img src="images/nsxt/nsxt-30/uplink-ls-01.png">
+
+1. Click **Add**.
+
+1. Configure the new logical switch as follows: 
+  - Name: `LS-T0-uplink`
+  - Transport Zone: `tz-vlan`
+  - VLAN: `1548`
+  <img src="images/nsxt/nsxt-30/uplink-ls-02.png">
+
+1. Click **Add**.
+
+1. Verify.
+  <img src="images/nsxt/nsxt-30/uplink-ls-03.png">
+
+##<a id='nsxt30-t0-router-create'></a> Create Tier-0 Router
+
+1. Select **Networking** from the **Manager** tab.
+  <img src="images/nsxt/nsxt-30/tier-0-01.png">
+ 
+1. Select **Tier-0 Logical Router**.
+  <img src="images/nsxt/nsxt-30/tier-0-02.png">
+ 
+1. Click **Add**.
+
+1. Configure the new Tier-0 Router as follows:
+  - **Name**: `T0-router`
+  - **Edge Cluster**: `edge-cluster-1`
+  - **HA mode**: `Active-Standby`
+  - **Failover mode**: `Non-Preemptive`
+  <img src="images/nsxt/nsxt-30/tier-0-03.png">
+
+1. Click **Save** and verify.
+  <img src="images/nsxt/nsxt-30/tier-0-04.png">
+ 
+1. Select the T0 router.
+  <img src="images/nsxt/nsxt-30/tier-0-05.png">
+
+1. Select **Configuration** > **Router Ports**.
+ 
+1. Click **Add**.
+
+1. Configure a new router port as follows: 
+  - **Name**: T0-uplink-1
+  - **Type**: uplink
+  - **Transport Node**: edge-node-1
+  - **Logical Switch**: LS-T0-uplink
+  - **Logical Switch Port**: Attach to a new switch port
+  - **Subnet**: 10.173.62.50 / 24
+  <img src="images/nsxt/nsxt-30/tier-0-06.png">
+
+1. Click **Add** and verify.
+  <img src="images/nsxt/nsxt-30/tier-0-07.png">
+
+1. Select the T0 router.
+
+1. Select **Configuration** > **Router Ports**.
+
+1. Add a second uplink by creating a second router port for edge-node-2:
+  - **Name**: T0-uplink-1
+  - **Type**: uplink
+  - **Transport Node**: edge-node-2
+  - **Logical Switch**: LS-T0-uplink
+  - **Logical Switch Port**: Attach to a new switch port
+  - **Subnet**: 10.173.62.51 / 24
+
+1. Once completed, verify that you have two connected router ports.
+  <img src="images/nsxt/nsxt-30/tier-0-08.png">
+
+##<a id='next'></a> Next Steps
+
+[Create NSX-T Objects for Kubernetes Clusters Provisioned by TKGI](./nsxt-install-objects-k8s.html).
