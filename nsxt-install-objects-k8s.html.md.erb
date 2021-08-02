@@ -1,0 +1,204 @@
+---
+title: Create the NSX-T Objects for Kubernetes Clusters Provisioned by TKGI
+owner: TKGI-NSXT
+---
+
+This topic provides instructions for creating the NSX-T objects for the <%= vars.product_short %> control plane where Kubernetes clusters run.
+
+##<a id='nsxt-install-prereqs'></a> Prerequisites
+
+Before completing this section, make sure you have completed the following sections:
+
+<ul>
+  <li>
+    <a href="./nsxt-install-prereqs.html">NSX-T Installation Prerequisites</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-managers.html">Install and Configure the NSX-T Manager Hosts</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tls-certs.html">Generate and Register the NSX-T TLS Certificate and Private Key</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-vtep.html">Create an IP Pool for VTEP</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tzs.html">Configure Transport Zones</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-vsphere-net.html">Configure vSphere Networking for ESXi Hosts</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-edges.html">Deploy NSX-T Edge Nodes</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-transports.html">Deploy NSX-T Transport Nodes</a>
+  </li>
+</ul>
+
+##<a id='nsxt-control-plane-reqs'></a> Required NSX-T Objects for the <%= vars.product_short %> Control Plane
+
+To install TKGI on vSpher with NSX-T, you need the following NSX-T objects: 
+
+- Tier-0 Gateway (also known as a Router)
+- Pods IP Block
+- Nodes IP Block 
+- Floating IP Pool
+
+  <img src="images/nsxt-objects-k8s.png">
+
+For more information, see [Required NSX-T Objects for TKGI](./nsxt-create-objects.html).
+
+The following instructions despribe how to create these objects. You will need to create them using the appropriate tab. If you are using the Policy API, create these objects using the Policy tab. If you are using the Management API, create them using the Manager tab.
+
+##<a id='nsxt30-t0-router-create'></a> Create Tier-0 Router
+
+1. Select **Networking** from the **Policy** tab or the **Manager** tab depnding on which API you are using.
+  <img src="images/nsxt/nsxt-30/tier-0-01.png">
+ 
+1. Select **Tier-0 Logical Router**.
+  <img src="images/nsxt/nsxt-30/tier-0-02.png">
+ 
+1. Click **Add**.
+
+1. Configure the new Tier-0 Router as follows:
+  - **Name**: `T0-router`
+  - **Edge Cluster**: `edge-cluster-1`
+  - **HA mode**: `Active-Standby`
+  - **Failover mode**: `Non-Preemptive`
+  <img src="images/nsxt/nsxt-30/tier-0-03.png">
+
+1. Click **Save** and verify.
+  <img src="images/nsxt/nsxt-30/tier-0-04.png">
+ 
+1. Select the T0 router.
+  <img src="images/nsxt/nsxt-30/tier-0-05.png">
+
+1. Select **Configuration** > **Router Ports**.
+ 
+1. Click **Add**.
+
+1. Configure a new router port as follows: 
+  - **Name**: T0-uplink-1
+  - **Type**: uplink
+  - **Transport Node**: edge-node-1
+  - **Logical Switch**: LS-T0-uplink
+  - **Logical Switch Port**: Attach to a new switch port
+  - **Subnet**: 10.173.62.50 / 24
+  <img src="images/nsxt/nsxt-30/tier-0-06.png">
+
+1. Click **Add** and verify.
+  <img src="images/nsxt/nsxt-30/tier-0-07.png">
+
+1. Select the T0 router.
+
+1. Select **Configuration** > **Router Ports**.
+
+1. Add a second uplink by creating a second router port for edge-node-2:
+  - **Name**: T0-uplink-1
+  - **Type**: uplink
+  - **Transport Node**: edge-node-2
+  - **Logical Switch**: LS-T0-uplink
+  - **Logical Switch Port**: Attach to a new switch port
+  - **Subnet**: 10.173.62.51 / 24
+
+1. Once completed, verify that you have two connected router ports.
+  <img src="images/nsxt/nsxt-30/tier-0-08.png">
+
+##<a id='nsxt30-t0-router-config'></a> Configure and Test the Tier-0 Router
+
+Create an HA VIP for the T0 router, and a default route for the T0 router. Then test the T0 router.
+
+1. Select the Tier-0 Router you created.
+
+1. Select **Configuration** > **HA VIP**.
+
+1. Click **Add**.
+  <img src="images/nsxt/nsxt-30/tier-0-09.png">
+
+1. Configure the HA VIP as follows:
+  - **VIP address**: 10.173.62.52/24, for example
+  - **Uplink ports**: T0-uplink-1 and T0-uplink-2
+  <img src="images/nsxt/nsxt-30/tier-0-10.png">
+
+1. Click **Add** and verify.
+  <img src="images/nsxt/nsxt-30/tier-0-11.png">
+
+1. Select **Routing** > **Static Routes**.
+  <img src="images/nsxt/nsxt-30/tier-0-12.png">
+
+1. Click **Add**.
+  - **Network**: `0.0.0.0/0`
+  - **Next Hop**: `10.173.62.253`
+  <img src="images/nsxt/nsxt-30/tier-0-13.png">
+
+1. Click **Add** and verify. 
+  <img src="images/nsxt/nsxt-30/tier-0-14.png">
+
+1. Verify the Tier 0 router by making sure the T0 uplinks and HA VIP are reachable from your laptop.
+
+For example:
+
+```
+> ping 10.173.62.50
+PING 10.173.62.50 (10.173.62.50): 56 data bytes
+Request timeout for icmp_seq 0
+64 bytes from 10.173.62.50: icmp_seq=1 ttl=58 time=71.741 ms
+64 bytes from 10.173.62.50: icmp_seq=0 ttl=58 time=1074.679 ms
+
+> ping 10.173.62.51
+PING 10.173.62.51 (10.173.62.51): 56 data bytes
+Request timeout for icmp_seq 0
+64 bytes from 10.173.62.51: icmp_seq=0 ttl=58 time=1156.627 ms
+64 bytes from 10.173.62.51: icmp_seq=1 ttl=58 time=151.413 ms
+
+> ping 10.173.62.52
+PING 10.173.62.52 (10.173.62.52): 56 data bytes
+64 bytes from 10.173.62.52: icmp_seq=0 ttl=58 time=6.864 ms
+64 bytes from 10.173.62.52: icmp_seq=1 ttl=58 time=7.776 ms
+```
+
+##<a id='nsxt30-ip-blocks-pool'></a> Create IP Blocks and Pool for Compute Plane
+
+TKGI requires a Floating IP Pool for NSX-T load balancer assignment and the following 2 IP blocks for Kubernetes pods and nodes:
+
+- PKS-POD-IP-BLOCK: 172.16.0.0/16
+- PKS-NODE-IP-BLOCK: 172.23.0.0/16 
+
+1. In the **Manager** interface, go to **Networking** > **IP Address Pools** > **IP Block**.
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-01.png">
+
+1. Click **Add**.
+
+1. Configure the Pod IP Block as follows:
+  - **Name**: PKS-POD-IP-BLOCK
+  - **CIDR**: 172.16.0.0/16
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-02.png">
+
+1. Click **Add** and verify.
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-03.png">
+
+1. Repeat same operation for the Node IP Block.
+  - **Name**: PKS-NODE-IP-BLOCK
+  - **CIDR**: 172.23.0.0/16
+
+1. Click **Add** and verify. 
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-04.png">
+
+1. Select **IP Pools** tab.
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-05.png">
+
+1. Click **Add**.
+
+1. Configure the IP pool as follows: 
+  - **Name**: PKS-FLOATING-IP-POOL
+  - **IP ranges**: 10.173.62.111 - 10.173.62.150
+  - **CIDR**: 10.173.62.0/24
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-06.png">
+
+1. Click **Add** and verify.
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-07.png">
+
+##<a id='next'></a> Next Steps
+
+<a href="./nsxt-install-objects-mgmt.html">Create NSX-T Objects for TKGI Management Plane Components</a>

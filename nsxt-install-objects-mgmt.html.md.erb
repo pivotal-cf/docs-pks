@@ -1,0 +1,151 @@
+---
+title: Create NSX-T Objects for the Management Plane
+owner: TKGI-NSXT
+---
+
+This topic provides instructions for creating the NSX-T objects for the <%= vars.k8s_runtime_abbr %> Management Plane.
+
+##<a id='nsxt-install-prereqs'></a> Prerequisites
+
+Before completing this section, make sure you have completed the following sections:
+
+<ul>
+  <li>
+    <a href="./nsxt-install-prereqs.html">NSX-T Installation Prerequisites</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-managers.html">Install and Configure the NSX-T Manager Hosts</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tls-certs.html">Generate and Register the NSX-T TLS Certificate and Private Key</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-vtep.html">Create an IP Pool for VTEP</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tzs.html">Configure Transport Zones</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-vsphere-net.html">Configure vSphere Networking for ESXi Hosts</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-edges.html">Deploy NSX-T Edge Nodes</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-transports.html">Deploy NSX-T Transport Nodes</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-objects-k8s.html">Create NSX-T Objects for Kubernetes Clusters Provisioned by TKGI</a>
+  </li>    
+</ul>
+
+##<a id='nsxt30-mgmt-plane'></a> Create Management Plane
+
+Networking for the <%= vars.k8s_runtime_abbr %> Management Plane consists of a [Tier-1 Router and Switch](#nsxt30-t1-router) with [NAT Rules](#nsxt30-t0-nat) for the Management Plane VMs.
+
+###<a id='nsxt30-t1-router'></a> Create Tier-1 Router and Switch 
+
+Create Tier-1 Logical Switch and Router for TKGI Management Plane VMs. Complete the configuration by enabling Route Advertisement on the T1 router.
+
+1. In the NSX Management console, navigate to **Networking > Logical Switches**.
+
+1. Click **Add**.
+
+1. Create the LS for TKGI Management plane VMs:
+  - **Name**: LS-PKS-MGMT
+  - **Transport Zone**: tz-overlay
+  <img src="images/nsxt/nsxt-30/tier-1-01.png">
+
+1. Click **Add** and verify creation of the T1 logical switch.
+  <img src="images/nsxt/nsxt-30/tier-1-02.png">
+
+1. Go to **Networking** > **Tier-1 Logical Router**.
+  <img src="images/nsxt/nsxt-30/tier-1-03.png">
+
+1. Click **Add**.
+
+1. Configure the Tier-1 logical router as follows:
+  - **Name**: T1-PKS-MGMT
+  - **To router**: T0-router
+  - **Edge Cluster**: edge-cluster-1
+  - **Edge Cluster Members**: edge-node-1 and edge-node-2
+  <img src="images/nsxt/nsxt-30/tier-1-04.png">
+
+1. Click **Add** and verify.
+  <img src="images/nsxt/nsxt-30/tier-1-05.png">
+
+1. Select the T1 router and go to **Configuration** > **Router port**.
+  <img src="images/nsxt/nsxt-30/tier-1-06.png">
+
+1. Click **Add**.
+
+1. Configure the T1 router port as follows:
+  - **Name**: T1-PKS-MGMT-port
+  - **Logical Switch**: LS-PKS-MGMT
+  - **Subnet**: 10.1.1.1/24
+  <img src="images/nsxt/nsxt-30/tier-1-07.png">
+
+1. Click **Add** and verify.
+  <img src="images/nsxt/nsxt-30/tier-1-08.png">
+
+1. Select **Routing** tab.
+  <img src="images/nsxt/nsxt-30/tier-1-09.png">
+
+1. Click **Edit** and configure route advertisement as follows:
+  - **Status**: Enabled
+  - **Advertise All Connected Routes**: Yes
+  <img src="images/nsxt/nsxt-30/tier-1-10.png">
+
+1. Click **Save** and verify.
+  <img src="images/nsxt/nsxt-30/tier-1-11.png">
+
+###<a id='nsxt30-t0-nat'></a> Create NAT Rules 
+
+You need to create the following NAT rules on the Tier-0 router for the TKGI Management Plane VMs.
+
+- DNAT: `10.173.62.220` (for example) to access Ops Manager
+- DNAT: `10.173.62.221` (for example) to access Harbor
+- SNAT: `10.173.62.222` (for example) for all TKGI management plane VM traffic destined to the outside world
+
+1. In the NSX Management console, navigate to **Networking** > **NAT**.
+
+1. In the Logical Router field, select the T0-router you defined for TKGI.
+  <img src="images/nsxt/nsxt-30/tier-0-nat-01.png">
+
+1. Click **Add**.
+
+1. Configure the Ops Manager DNAT rule as follows:
+  - **Priority**: `1000`
+  - **Action**: `DNAT`
+  - **Protocol**: `Any Protocol`
+  - **Destination IP**: `10.173.62.220`, for example
+  - **Translated IP**: `10.1.1.2`, for example
+  <img src="images/nsxt/nsxt-30/tier-0-nat-02.png">
+
+1. Click **Add** and verify. 
+  <img src="images/nsxt/nsxt-30/tier-0-nat-03.png">
+
+1. Add a second DNAT rule for Harbor by repeating the same operation.
+  - **Priority**: `1000`
+  - **Action**: `DNAT`
+  - **Protocol**: `Any Protocol`
+  - **Destination IP**: `10.173.62.221`, for example
+  - **Translated IP**: `10.1.1.6`, for example
+
+1. Verify the creation of the DNAT rules.
+  <img src="images/nsxt/nsxt-30/tier-0-nat-04.png">
+
+1. Create the SNAT rule for the management plane traffic as follows:
+  - **Priority**: `9024`
+  - **Action**: `SNAT`
+  - **Protocol**: `Any Protocol`
+  - **Source IP**: `10.1.1.0/24`, for example
+  - **Translated IP**: `10.173.62.222`, for example
+    <img src="images/nsxt/nsxt-30/tier-0-nat-05.png">
+
+1. Verify the creation of the SNAT rule. 
+  <img src="images/nsxt/nsxt-30/tier-0-nat-06.png">
+
+##<a id='next'></a> Next Steps
+
+[Configure the NSX-T Password Interval](./nsxt-install-password.html)

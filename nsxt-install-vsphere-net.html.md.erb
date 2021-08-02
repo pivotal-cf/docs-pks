@@ -1,0 +1,87 @@
+---
+title: Configure vSphere Networking for ESXi Hosts
+owner: TKGI-NSXT
+---
+
+This topic provides instructions for configuring vSphere Networking for ESXi Hosts.
+
+##<a id='nsxt-install-prereqs'></a> Prerequisites
+
+Before completing this section, make sure you have completed the following sections:
+
+<ul>
+  <li>
+    <a href="./nsxt-install-prereqs.html">NSX-T Installation Prerequisites</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-managers.html">Install and Configure the NSX-T Manager Hosts</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tls-certs.html">Generate and Register the NSX-T TLS Certificate and Private Key</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-vtep.html">Create an IP Pool for VTEP</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tzs.html">Configure Transport Zones</a>
+  </li>
+</ul>
+
+
+
+##<a id='nsxt30-esxi-vswitch'></a> Configure vSphere Networking for ESXi Hosts
+
+In this section of the [NSX-T installation for TKGI](./nsxt-3-0-install.html), you configure the vSphere networking and port groups for ESXi hosts (the vSwitch). If you have created separate vSphere clusters for Management and Compute, perform this operation on each ESXi host in the Management cluster. If you have not created separate vSphere clusters, perform this operation on each ESXi host in the cluster.
+
+The following instructions describe how to configure a vSphere Virtual Standard vSwitch (VSS). For production environments, it is recommended that you configure a Virtual Distributed vSwitch (VDS). You configure the VDS from the vCenter **Networking** tab and then add the ESXi hosts to the VDS. The configuration settings for the VDS are similar to the VSS configuration described below. For instructions on configuring the VDS, see <a href="https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.networking.doc/GUID-D21B3241-0AC9-437C-80B1-0C8043CC1D7D.html">Create a vSphere Distributed Switch</a> in the vSphere 7 documentation.
+
+Refer to the [Release Notes](./release-notes.html) for details on TKGI support for vSphere 7 VDS for NSX-T transport node traffic.
+
+##<a id='nsxt30-esxi-pgs'></a> Create vSwitch Port-Groups for Edge Nodes
+
+Create vSwitch Port-Groups for the Edge Nodes on the ESXi hosts in the MANAGEMENT-cluster.
+
+For each ESXi host in the MANAGEMENT-cluster, create the following vSwitch Port Groups:
+
+- EDGE-VTEP-PG: VLAN 3127
+- EDGE-UPLINK-PG: VLAN trunk (All (4095))
+
+1. Log in to the vCenter Server.
+1. Select the ESXi host in the MANAGEMENT-cluster.
+  <img src="images/nsxt/nsxt-30/vswitch-01.png">
+1. Select **Configure** > **Virtual switches**. 
+1. Select A**dd Networking** (upper right).
+1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**. 
+  <img src="images/nsxt/nsxt-30/vswitch-02.png">               
+1. Select the existing standard switch named `vSwitch0` and click **Next**.
+  <img src="images/nsxt/nsxt-30/vswitch-03.png">
+1. Enter a **Network Label**, such as `EDGE-VTEP-PG`.
+1. Enter a **VLAN ID**, such as `3127`.
+  <img src="images/nsxt/nsxt-30/vswitch-04.png">
+1. Click **Finish**.
+  <img src="images/nsxt/nsxt-30/vswitch-05.png">
+1. Verify that you see the newly created port group.
+  <img src="images/nsxt/nsxt-30/vswitch-07.png">
+1. Select **Add Networking** (upper right).
+1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**.                
+1. Select the existing standard switch named `vSwitch0` and click **Next**.
+1. Enter a **Network Label**, such as `EDGE-UPLINK-PG`.
+1. For the **VLAN ID**, select `All (4095)` from the drop-down.
+  <img src="images/nsxt/nsxt-30/vswitch-04.png">
+1. Click **Finish**.
+1. Verify that you see the newly created port group.
+  <img src="images/nsxt/nsxt-30/vswitch-09.png">
+
+##<a id='nsxt30-esxi-mtu'></a> Set vSwitch0 with MTU at 9000
+ 
+For each ESXi host in the MANAGEMENT-cluster, or each ESXi host in the vCenter cluster if you have not created separate Management and Compute clusters, you must enable the virtual switch with jumbo MTU, that is, set vSwitch0 with MTU=9000. If you do not do this, network overlay traffic will jam. The TEP interface for the NSX-T Edge Nodes must be connected to a port group that supports > 1600 bytes. The default is 1500.
+
+1. Select the Virtual Switch on each ESXi host in the MANAGEMENT-cluster, or each host in the vCenter cluster.
+1. Click Edit. 
+1. For the MTU (bytes) setting, enter `9000`.
+  <img src="images/nsxt/nsxt-30/vswitch-11.png">
+1. Click OK to complete the operation.
+
+##<a id='next'></a> Next Step
+
+[Deploy NSX-T Edge Nodes](./nsxt-install-edges.html).

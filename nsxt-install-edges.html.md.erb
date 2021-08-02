@@ -1,0 +1,160 @@
+---
+title: Install and Configure the NSX-T Edge Nodes
+owner: TKGI-NSXT
+---
+
+This topic provides instructions for installing and configuring NSX-T Data Center v3.0 for use with <%= vars.product_full %> on vSphere.
+
+##<a id='nsxt-install-prereqs'></a> Prerequisites
+
+Before completing this section, make sure you have completed the following sections:
+
+<ul>
+  <li>
+    <a href="./nsxt-install-prereqs.html">NSX-T Installation Prerequisites</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-managers.html">Install and Configure the NSX-T Manager Hosts</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tls-certs.html">Generate and Register the NSX-T TLS Certificate and Private Key</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-vtep.html">Create an IP Pool for VTEP</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-tzs.html">Configure Transport Zones</a>
+  </li>
+  <li>
+    <a href="./nsxt-install-vsphere-net.html">Configure vSphere Networking for ESXi Hosts</a>
+  </li>
+</ul>
+
+##<a id='nsxt30-edge-nodes'></a> Deploy NSX-T Edge Nodes
+
+In this section you deploy two NSX-T Edge Nodes. 
+
+NSX Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for <%= vars.product_short %> run load balancers for <%= vars.control_plane %> traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in <%= vars.product_short %>](./about-lb.html) for more information.
+
+In NSX-T, a load balancer is deployed on the Edge Nodes as a virtual server. The following virtual servers are required for <%= vars.product_short %>:
+
+- 1 TCP Layer 4 virtual server for each Kubernetes service of type:`LoadBalancer`
+- 2 Layer 7 global virtual servers for Kubernetes pod ingress resources (HTTP and HTTPS)
+- 1 global virtual server for the <%= vars.control_plane %>
+
+The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node. <%= vars.product_short %> supports the `medium` and `large` VM Edge Node form factor, as well as the bare metal Edge Node. The default size of the load balancer deployed by NSX-T for a Kubernetes cluster is `small`. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>. 
+
+For this installation, we use the Large VM form factor for the Edge Node. See [VMware Configuration Maximums](https://configmax.vmware.com/guest?vmwareproduct=VMware%20NSX-T&release=NSX-T%20Data%20Center%203.0.0&categories=17-0) for more information.
+
+###<a id='nsxt30-edge-node-1'></a> Install and Configure Edge Node 1 
+
+Deploy the Edge Node 1 VM using the NSX-T Manager interface.
+
+1. From your browser, log in with admin privileges to NSX Manager at `https://NSX-MANAGER-IP-ADDRESS`.
+
+1. In NSX Manager, go to **System** > **Fabric** > **Nodes** > **Edge Transport Nodes**.
+  <img src="images/nsxt/nsxt-30/edge-node-01.png">
+
+1. Click **Add Edge VM**.
+
+1. Configure the Edge VM as follows:
+  - **Name**: `edge-node-1`
+  - **Host name/FQDN**: `edge-node-1.lab.com`
+  - **Form Factor**: **Large**
+  <img src="images/nsxt/nsxt-30/edge-node-02.png">
+
+1. Configure **Credentials** as follows:
+  - **CLI User Name**: `admin`
+  - **CLI Password**: Enter a strong password for the `admin` user that complies with the NSX-T requirements.
+  - **Enable SSH Login**: Yes
+  - **System Root Password**: Enter a strong password for the `root` user that complies with the NSX-T requirements.
+  - **Enable Root SSH Login**: Yes
+  - **Audit Credentials**: Enter an `audit` user name and password.
+  <img src="images/nsxt/nsxt-30/edge-node-03.png">
+
+1. Configure the deployment as follows:
+  - **Compute Manager**: vCenter
+  - **Cluster**: MANAGEMENT-Cluster
+  - **Datastore**: Select the datastore
+  <img src="images/nsxt/nsxt-30/edge-node-04.png">
+
+1. Configure the node settings as follows:
+  - **IP Assignment**: Static
+  - **Management IP**: 10.173.62.49/24, for example
+  - **Default Gateway**: 10.173.62.253, for example
+  - **Management Interface**: PG-MGMT-VLAN-1548, for example
+  <img src="images/nsxt/nsxt-30/edge-node-05.png">
+
+####<a id='nsxt30-edge-node-1-nvds'></a> Configure the N-VDS Switch or Switches for Edge Node 1
+
+The next step is to configure the N-VDS switch and Transport Zones for NSX Edge Node 1. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html).
+
+####<a id='nsxt30-edge-node-1-complete'></a> Complete the Edge Node 1 Installation
+
+1. Click **Finish** to complete the configuration. The installation begins.
+
+1. In vCenter, use the **Recent Tasks** panel at the bottom of the page to verify that you see the Edge Node 1 VM being deployed.
+
+1. Once the process completes, you should see the Edge Node 1 deployed successfully in NSX-T Manager.
+  <img src="images/nsxt/nsxt-30/edge-node-08.png">
+
+1. Click the N-VDS link and verify that you see the switch or switches.
+  <img src="images/nsxt/nsxt-30/edge-node-09.png">
+
+1. In vCenter verify that the Edge Node is created.
+  <img src="images/nsxt/nsxt-30/edge-node-10.png">
+
+###<a id='nsxt30-edge-node-2'></a> Install and Configure Edge Node 2
+
+Deploy the Edge Node 2 VM using the NSX-T Manager interface.
+
+1. In NSX Manager, go to **System** > **Fabric** > **Nodes** > **Edge Transport Nodes**.
+
+1. Click **Add Edge VM**.
+
+1. Configure the Edge VM as follows:
+  - **Name**: `edge-node-2`
+  - **Host name/FQDN**: `edge-node-2.lab.com`
+  - **Form Factor**: **Large**
+
+1. Configure **Credentials** as follows:
+  - **CLI User Name**: `admin`
+  - **CLI Password**: Enter a strong password for the `admin` user that complies with the NSX-T requirements.
+  - **Enable SSH Login**: Yes
+  - **System Root Password**: Enter a strong password for the `root` user that complies with the NSX-T requirements.
+  - **Enable Root SSH Login**: Yes
+  - **Audit Credentials**: Enter an `audit` user name and password.
+
+1. Configure the deployment as follows:
+  - **Compute Manager**: vCenter
+  - **Cluster**: MANAGEMENT-Cluster
+  - **Datastore**: Select the datastore
+
+1. Configure the node settings as follows:
+  - **IP Assignment**: Static
+  - **Management IP**: 10.173.62.58/24, for example
+  - **Default Gateway**: 10.173.62.253, , for example
+  - **Management Interface**: PG-MGMT-VLAN-1548, for example
+
+####<a id='nsxt30-edge-node-2-nvds'></a> Configure the N-VDS Switch or Switches for Edge Node 2
+
+The next step is to configure the N-VDS switch and transport zones for NSX Edge Node 2. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html).
+
+####<a id='nsxt30-edge-node-2-complete'></a> Complete the Installation of Edge Node 2
+
+1. Click **Finish** to complete the configuration. The installation begins.
+
+1. In vCenter, use the **Recent Tasks** panel at the bottom of the page to verify that you see the Edge Node 1 VM being deployed.
+
+1. Once the process completes, you should see the Edge Node 2 deployed successfully in NSX-T Manager.
+
+1. Click the N-VDS link and verify that you see the N-VDS switch or swtiches.
+
+1. In vCenter verify that Edge Node 2 is created.
+
+1. In NSX Manager, verify that you see both Edge Nodes.
+  <img src="images/nsxt/nsxt-30/edge-node-11.png">
+
+##<a id='next'></a> Next Steps
+
+[Deploy NSX-T Transport Nodes](./vsphere-nsxt-index.html).
