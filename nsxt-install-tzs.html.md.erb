@@ -1,0 +1,355 @@
+---
+title: Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for Tanzu Kubernetes Grid Integrated Edition
+owner: TKGI-NSXT
+---
+
+This topic provides instructions for configuring NSX-T Data Center v3 Transport Zones and N-VDS switches on NSX Edge Nodes for use with <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) on vSphere.
+
+##<a id='overview'></a> Overview
+
+<%= vars.k8s_runtime_abbr %> requires two Transport Zones for <%= vars.k8s_runtime_abbr %>: an Overlay Transport Zone for the ESXi Transport Nodes 
+and a VLAN Transport Zone for Edge Nodes.  
+
+<%= vars.k8s_runtime_abbr %> requires that the host switch name associated with the Transport Zones 
+match exactly the **Edge Switch Name** value that you specify when you configure an NSX Edge Node for use with <%= vars.k8s_runtime_abbr %>.
+
+You can configure your Transport Zones in three ways. 
+The three configuration options require different levels of customization to complete:
+
+<table>
+  <tr>
+    <th>Configuration
+    </th>
+    <th>Transport Zone
+    </th>
+    <th>Host Switch Name
+    </th>
+  </tr>
+  <tr>
+    <td>Option 1: Use the Default Transport Zones</td>
+    <td>No customization</td>
+    <td>No customization</td>
+  </tr>
+  <tr>
+    <td>Option 2: Create Custom Transport Zones</td>
+    <td>Yes customization</td>
+    <td>No customization</td>
+  </tr>
+  <tr>
+    <td>Option 3: Use the NSX API</td>
+    <td>Yes customization</td>
+    <td>Yes customization</td>
+  </tr>
+</table>
+
+
+<p class="note"><strong>Note:</strong> In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI. 
+  For more information, see <a href="#nsxt31-edge-config"><%= vars.k8s_runtime_abbr %> NSX Edge Switch and Transport Zone Host Switch Name Requirements</a>.</p> 
+
+##<a id='option1'></a> Configure Your NSX Transport Zones for <%= vars.k8s_runtime_abbr %>
+
+<%= vars.k8s_runtime_abbr %> requires the NSX **Edge Switch Name** and the Transport Zone host switch name to be identical.
+You can configure identical Edge Switch and Transport Zone host switch names using the following methods:
+
+* [Option 1: Use the Default Transport Zones with a Single N-VDS Switch](#option1) (recommended)
+* [Option 2: Create Custom Transport Zones and Use the NSX API to Get the Host Switch Names](#option2)
+* [Option 3: Use the NSX API to Create Custom Transport Zones and NSX Switches](#option3)
+
+
+###<a id='option1'></a> Option 1: Use the Default Transport Zones with a Single N-VDS Switch
+
+By default NSX-T v3.x creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. Both default Transport Zones use a single N-VDS host switch that is named  `nsxHostSwitch`. The advantage of using the default Transport Zones is twofold. First, it simplifies the Edge Node configuration process. Second, you need only a single N-VDS for the Edge Nodes. 
+
+To use this option:
+
+1. Do not create a Transport Zone. 
+1. Deploy the Edge Nodes and configure NSX.
+1. Specify `nsxHostSwitch` as the **Edge Switch Name**.
+1. Select both default transport zones, `nsx-overlay-transportzone` and `nsx-vlan-transportzone`.  
+<br>
+    For example:  
+    <table>
+      <tr>
+        <th width="27%">Field</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td><strong>Edge Switch Name</strong></td>
+        <td><code>nsxHostSwitch</code> (must match exactly)</td>
+      </tr>
+      <tr>
+        <td><strong>Transport Zone</strong></td>
+        <td><code>nsx-overlay-transportzone</code> and <code>nsx-vlan-transportzone</code> (select both default transport zones)</td>
+      </tr>
+      <tr>
+        <td><strong>Uplink Profile</strong></td>
+        <td><code>nsx-edge-single-nic-uplink-profile</code></td>
+      </tr>
+      <tr>
+        <td><strong>IP Assignment</strong></td>
+        <td>Use IP Pool</td>
+      </tr>
+      <tr>
+        <td><strong>IP Pool</strong></td>
+        <td>TEP-IP-POOL</td>
+      </tr>
+      <tr>
+        <td><strong>Uplinks</strong></td>
+        <td>uplink-1 / EDGE-VTEP-PG</td>
+      </tr>
+    </table>    
+
+    <p class="note"><strong>Note:</strong> If you use the default Transport Zones, but do not use the exact name <code>nsxHostSwitch</code> when configuring NSX on the Edge Node, you will receive the  <code>pks-nsx-t-osb-proxy</code> BOSH error when you try to deploy <%= vars.k8s_runtime_abbr %>.</p>
+
+###<a id='option2'></a> Option 2: Create Custom Transport Zones and Use the NSX API to Get the Host Switch Names
+
+If you want to create a custom Transport Zone, you can do so using the NSX user interface. 
+In this case, because the host switch name is deprecated from the NSX user interface, you have to make an NSX API call to get the host switch name so that you can configure the Edge Nodes with the correct switch. 
+
+When you create a custom Transport Zone using the NSX web interface, 
+NSX will generate the associated switch name for you.  
+
+To create custom Transport Zones using the Host Switch names:  
+
+1. Create a custom Overlay Transport Zone:  
+    1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
+    1. Click **Add**.
+    1. Enter a Name, such as `tz-overlay`.
+    1. For the **Traffic Type**, select `Overlay`.
+    1. Click **Add**.
+    1. Verify that you see the newly created Transport Zone named `tz-overlay` in the list.
+
+1. Create a custom VLAN Transport Zone:  
+    1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
+    1. Click **Add**.
+    1. Enter a name, such as `tz-vlan`.
+    1. For the **Traffic Type**, select `VLAN`.
+    1. Click **Add**.
+    1. Verify that you see the newly created Transport Zone named `tz-vlan` in the list. 
+1. To retrieve the host switch name:
+
+    1. Make a call to the NSX API:
+
+        ```
+        curl -k -u USER:PASSWORD -X GET "https://${NSX_MANAGER}/api/v1/transport-zones" 
+        ```
+    1. Retrieve the host switch name from the `host_switch_name` property in the return.  
+<br>
+        For example, `nsxHostSwitch` is the host switch name in the following return:
+
+        ```
+        $ curl -k -u user:password -X GET "https://10.20.30.40/api/v1/transport-zones"
+        {
+          "results" : [ {
+            "transport_type" : "OVERLAY",
+            "host_switch_name" : "nsxHostSwitch",
+            "host_switch_id" : "5bfdbfc4-c2ab-4ca7-a021-bb1fc1b45ceb",
+            "transport_zone_profile_ids" : [ {
+              "resource_type" : "BfdHealthMonitoringProfile",
+              "profile_id" : "52035bb3-ab02-4a08-9884-18631312e50a"
+            } ],
+            "host_switch_mode" : "STANDARD",
+            "nested_nsx" : false,
+            "is_default" : true,
+            "resource_type" : "TransportZone",
+            "id" : "1b3a2f36-bfd1-443e-a0f6-4de01abc963e",
+            "display_name" : "nsx-overlay-transportzone",
+            "_create_user" : "system",
+            "_create_time" : 1594850884969,
+            "_last_modified_user" : "system",
+            "_last_modified_time" : 1594850884969,
+            "_system_owned" : false,
+            "_protection" : "NOT_PROTECTED",
+            "_revision" : 0,
+            "_schema" : "/v1/schema/TransportZone"
+          }, {
+            "transport_type" : "VLAN",
+            "host_switch_name" : "nsxHostSwitch",
+            "host_switch_id" : "5bfdbfc4-c2ab-4ca7-a021-bb1fc1b45ceb",
+            "transport_zone_profile_ids" : [ {
+              "resource_type" : "BfdHealthMonitoringProfile",
+              "profile_id" : "52035bb3-ab02-4a08-9884-18631312e50a"
+            } ],
+            "host_switch_mode" : "STANDARD",
+            "nested_nsx" : false,
+            "is_default" : true,
+            "resource_type" : "TransportZone",
+            "id" : "a95c914d-748d-497c-94ab-10d4647daeba",
+            "display_name" : "nsx-vlan-transportzone",
+            "_create_user" : "system",
+            "_create_time" : 1594850885002,
+            "_last_modified_user" : "system",
+            "_last_modified_time" : 1594850885002,
+            "_system_owned" : false,
+            "_protection" : "NOT_PROTECTED",
+            "_revision" : 0,
+            "_schema" : "/v1/schema/TransportZone"
+          } ],
+          "result_count" : 2,
+          "sort_by" : "display_name",
+          "sort_ascending" : true
+        ```
+1. Configure NSX for the Edge Nodes: 
+
+    1. Deploy each Edge Node, configuring NSX with the custom Transport Zones and generated switch names as follows:  
+        * **Switch 1 for Overlay TZ**
+            <table>
+              <tr>
+                <th width="27%">Field</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td><strong>Edge Switch Name</strong></td>
+                <td>Enter the exact switch name for the custom Overlay Transport Zone retrieved from the API call</td>
+              </tr>
+              <tr>
+                <td><strong>Transport Zone</strong></td>
+                <td><code>tz-overlay</code>, for example (use the exact name you specified for the custom Overlay Transport Zone</td>
+              </tr>
+              <tr>
+                <td><strong>Uplink Profile</strong></td>
+                <td><code>nsx-edge-single-nic-uplink-profile</code></td>
+              </tr>
+              <tr>
+                <td><strong>IP Assignment</strong></td>
+                <td>Use IP Pool</td>
+              </tr>
+              <tr>
+                <td><strong>IP Pool</strong></td>
+                <td>TEP-IP-POOL</td>
+              </tr>
+              <tr>
+                <td><strong>Uplinks</strong></td>
+                <td>uplink-1 / EDGE-VTEP-PG</td>
+              </tr>
+            </table>
+    1. Select **Add Switch** at the top of the dialog. Configure the VLAN Transport Zone switch as follows:        
+        * **Switch 2 for VLAN TZ**
+            
+            <table>
+              <tr>
+                <th width="27%">Field</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td><strong>Edge Switch Name</strong></td>
+                <td>Enter the exact switch name for the custom VLAN Transport Zone retrieved from the API call</td>
+              </tr>
+              <tr>
+                <td><strong>Transport Zone</strong></td>
+                <td><code>tz-vlan</code>, for example (use the exact name you specified for the custom VLAN Transport Zone)</td>
+              </tr>
+              <tr>
+                <td><strong>Uplink Profile</strong></td>
+                <td><code>nsx-edge-single-nic-uplink-profile</code></td>
+              </tr>
+              <tr>
+                <td><strong>Uplinks</strong></td>
+                <td>uplink-1 / EDGE-UPLINK-PG</td>
+              </tr>
+            </table>
+
+###<a id='option3'></a> Option 3: Use the NSX API to Create Custom Transport Zones and NSX Switches
+
+If you want to customize the NSX host switch name, you must do so using the NSX API. The required parameters are `host_switch_name`
+and `transport_type` (OVERLAY or VLAN). The optional parameters are `description` and `display_name`.
+
+To create custom Transport Zones and NSX Switches:  
+
+1. Create a custom Overlay Transport Zone and associated custom NSX switch: 
+
+    ```
+    POST https://NSX-MGR/api/v1/transport-zones/
+    ```
+    Where `NSX-MGR` is the FQDN for your NSX Manager.
+<br><br>
+    For example:
+
+    <pre class="terminal">
+    POST https://myNSX/api/v1/transport-zones/
+    {
+      "display_name":"tz-overlay",
+      "host_switch_name":"switch-overlay",
+      "description":"Overlay Transport Zone",
+      "transport_type":"OVERLAY"
+    }
+    </pre>
+1. Retrieve the property values from the returned responses.
+<br>    
+    For example:
+
+    ```
+    {
+      "_revision": 0,
+      "id": "c6626083-1a86-4370-85c0-791cf9f947e9",
+      "display_name": "tz-overlay",
+      "description": "Overlay Transport Zone",
+      "resource_type": "TransportZone",
+      "transport_type": "OVERLAY",
+      "host_switch_name": "switch-overlay",
+      "_last_modified_user": "admin",
+      "_last_modified_time": 1414179082458,
+      "_create_time": 1414179082458,
+      "_create_user": "admin",
+      "_schema": "/v1/schema/TransportZone"
+    }
+    ```
+1. Create a custom VLAN Transport Zone and associated custom NSX switch:
+
+    ```
+    POST https://<nsx-mgr>/api/v1/transport-zones/
+    ```
+    Where `NSX-MGR` is the FQDN for your NSX Manager.
+<br><br>
+    For example:
+
+    <pre class="terminal">
+    POST https://myNSX/api/v1/transport-zones/
+    {
+      "display_name":"tz-vlan",
+      "host_switch_name":"switch-vlan",
+      "description":"VLAN Transport Zone",
+      "transport_type":"VLAN"
+    }
+    </pre>
+1. Retrieve the property values from the returned responses.
+<br>    
+    For example:
+
+    ```
+    {
+      "_revision": 0,
+      "id": "c6626083-1a86-4370-85c0-791cf9f947e9",
+      "display_name": "tz-vlan",
+      "description": "VLAN Transport Zone",
+      "resource_type": "TransportZone",
+      "transport_type": "VLAN",
+      "host_switch_name": "switch-vlan",
+      "_last_modified_user": "admin",
+      "_last_modified_time": 1414179082458,
+      "_create_time": 1414179082458,
+      "_create_user": "admin",
+      "_schema": "/v1/schema/TransportZone"
+    }
+    ```
+1. Use the retrieved values to configure NSX as described in the **Configure NSX for the Edge Node** step in [Option 2: Create Custom Transport Zones and Use the NSX API to Get the Host Switch Names](#option2) above.
+
+##<a id='nsxt31-edge-config'></a> <%= vars.k8s_runtime_abbr %> NSX Edge Switch and Transport Zone Host Switch Name Requirements 
+
+In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI.  
+
+For <%= vars.k8s_runtime_abbr %>, the NSX **Edge Switch Name** and the Transport Zone host switch name must be identical. 
+When configuring NSX-T, configure the **Edge Switch Name** to be the same as the Transport Zone host switch name.  
+
+<p class="note"><strong>Note:</strong> The NSX 3.x Edge Node configuration displays the following message 
+  beside the <strong>Edge Switch Name</strong> field: 
+  "<em>The switch name value need not be identical to host switch name associated with the Transport Zone.</em>" 
+  This message does not apply to <%= vars.k8s_runtime_abbr %>.</p>  
+
+If there is a mismatch between the the host switch name associated with the Transport Zone and the **Edge Switch Name**,
+<%= vars.k8s_runtime_abbr %> installation fails with the following error:
+
+```
+Failed to get NSX provisioning properties: No transport zone with overlay type found in transport node as switch name is not same across the TZ and ESXI TN
+```
+
