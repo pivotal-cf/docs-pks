@@ -38,7 +38,7 @@ Before completing this section, make sure you have completed the following secti
 
 ##<a id='nsxt-control-plane-reqs'></a> Required NSX-T Objects for the <%= vars.product_short %> Control Plane
 
-To install TKGI on vSpher with NSX-T, you need the following NSX-T objects: 
+To install TKGI on vSphere with NSX-T, you need the following NSX-T objects: 
 
 - Tier-0 Gateway (also known as a Router)
 - Pods IP Block
@@ -47,21 +47,27 @@ To install TKGI on vSpher with NSX-T, you need the following NSX-T objects:
 
   <img src="images/nsxt-objects-k8s.png">
 
-For more information, see [Required NSX-T Objects for TKGI](./nsxt-create-objects.html).
+For more information, see [Networkig Planning for TKGI](./nsxt-prepare-env.html).
 
-The following instructions despribe how to create these objects. You will need to create them using the appropriate tab. If you are using the Policy API, create these objects using the Policy tab. If you are using the Management API, create them using the Manager tab.
+The following instructions despribe how to create these objects. You will need to create them using the appropriate tab. If you are using the Management API, create them using the Manager tab. If you are using the Policy API, create these objects using the Policy tab.
 
-##<a id='nsxt30-t0-router-create'></a> Create Tier-0 Router
+##<a id='nsxt3-k8s-objects-mgmt'></a> Create NSX-T Objects for Kubernetes Clusters Using the Management Interface
 
-1. Select **Networking** from the **Policy** tab or the **Manager** tab depnding on which API you are using.
+This section provides instructions for creating the required NSX-T objects for Kubernetes clusters using the Management interface. 
+
+###<a id='nsxt3-t0-router-create'></a> Create Tier-0 Router Using the Management Interface
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Manager** interface is selected. If not, select it.
   <img src="images/nsxt/nsxt-30/tier-0-01.png">
  
-1. Select **Tier-0 Logical Router**.
+1. Select **Tier-0 Logical Routers**.
   <img src="images/nsxt/nsxt-30/tier-0-02.png">
  
 1. Click **Add**.
 
-1. Configure the new Tier-0 Router as follows:
+1. Configure a new Tier-0 Router as follows:
   - **Name**: `T0-router`
   - **Edge Cluster**: `edge-cluster-1`
   - **HA mode**: `Active-Standby`
@@ -71,7 +77,7 @@ The following instructions despribe how to create these objects. You will need t
 1. Click **Save** and verify.
   <img src="images/nsxt/nsxt-30/tier-0-04.png">
  
-1. Select the T0 router.
+1. Select the T0-router you created.
   <img src="images/nsxt/nsxt-30/tier-0-05.png">
 
 1. Select **Configuration** > **Router Ports**.
@@ -90,7 +96,7 @@ The following instructions despribe how to create these objects. You will need t
 1. Click **Add** and verify.
   <img src="images/nsxt/nsxt-30/tier-0-07.png">
 
-1. Select the T0 router.
+1. Select the T0-router you created.
 
 1. Select **Configuration** > **Router Ports**.
 
@@ -102,14 +108,14 @@ The following instructions despribe how to create these objects. You will need t
   - **Logical Switch Port**: Attach to a new switch port
   - **Subnet**: 10.173.62.51 / 24
 
-1. Once completed, verify that you have two connected router ports.
+1. Once completed, verify that the T0-router you created has two connected router ports.
   <img src="images/nsxt/nsxt-30/tier-0-08.png">
 
-##<a id='nsxt30-t0-router-config'></a> Configure and Test the Tier-0 Router
+###<a id='nsxt3-t0-router-config'></a> Configure and Test the Tier-0 Router
 
 Create an HA VIP for the T0 router, and a default route for the T0 router. Then test the T0 router.
 
-1. Select the Tier-0 Router you created.
+1. Select the T0-router you created.
 
 1. Select **Configuration** > **HA VIP**.
 
@@ -158,46 +164,249 @@ PING 10.173.62.52 (10.173.62.52): 56 data bytes
 64 bytes from 10.173.62.52: icmp_seq=1 ttl=58 time=7.776 ms
 ```
 
-##<a id='nsxt30-ip-blocks-pool'></a> Create IP Blocks and Pool for Compute Plane
+###<a id='nsxt3-nodes-ip-block'></a> Create the Nodes IP Block for Kubernetes Clusters Using the Management Interface
 
-TKGI requires a Floating IP Pool for NSX-T load balancer assignment and the following 2 IP blocks for Kubernetes pods and nodes:
+TKGI requires a dedicated IP Block for Kubernetes nodes. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block). 
 
-- PKS-POD-IP-BLOCK: 172.16.0.0/16
-- PKS-NODE-IP-BLOCK: 172.23.0.0/16 
+For example:
 
-1. In the **Manager** interface, go to **Networking** > **IP Address Pools** > **IP Block**.
+- TKGI-NODES-IP-BLOCK: 172.23.0.0/16
+
+To create the required Nodes IP Block using the Management interface, complete the following steps: 
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Manager** interface is selected. If not, select it.
+ 
+1. Select **Network Services** > **IP Address Pools** > **IP Block**.
   <img src="images/nsxt/nsxt-30/ib-blocks-pool-01.png">
 
 1. Click **Add**.
 
-1. Configure the Pod IP Block as follows:
-  - **Name**: PKS-POD-IP-BLOCK
-  - **CIDR**: 172.16.0.0/16
-  <img src="images/nsxt/nsxt-30/ib-blocks-pool-02.png">
-
-1. Click **Add** and verify.
-  <img src="images/nsxt/nsxt-30/ib-blocks-pool-03.png">
-
-1. Repeat same operation for the Node IP Block.
-  - **Name**: PKS-NODE-IP-BLOCK
+1. Configure the Nodes IP Block as follows:
+  - **Name**: TKGI-NODES-IP-BLOCK
   - **CIDR**: 172.23.0.0/16
 
 1. Click **Add** and verify. 
   <img src="images/nsxt/nsxt-30/ib-blocks-pool-04.png">
 
-1. Select **IP Pools** tab.
-  <img src="images/nsxt/nsxt-30/ib-blocks-pool-05.png">
+###<a id='nsxt3-pods-ip-block'></a> Create the Pods IP Block for Kubernetes Clusters Using the Management Interface
+
+TKGI requires a dedicated IP Block for Kubernetes pods. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Pods IP Block](./nsxt-prepare-env.html#pods-ip-block). 
+
+For example:
+
+- TKGI-PODS-IP-BLOCK: 172.16.0.0/16
+
+To create the required Pods IP Block using the Management interface, complete the following steps: 
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Manager** interface is selected. If not, select it.
+
+1. Select **Network Services** > **IP Address Pools** > **IP Block**.
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-01.png">
+
+1. Click **Add**.
+
+1. Configure the Pods IP Block as follows:
+  - **Name**: TKGI-PODS-IP-BLOCK
+  - **CIDR**: 172.16.0.0/16
+
+1. Click **Add** and verify. 
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-02.png">
+
+###<a id='nsxt3-floating-ip-pool'></a> Create the Floating IP Pool for Kubernetes Clusters Using the Management Interface
+
+TKGI requires a floating IP pool for Kubernetes sevices such as load balancer instances. When you configure the TKGI tile, you will need to provide the ID for this IP Pool. For more information, see [Plan Network CIDRs](./nsxt-prepare-env.html#plan-cidrs). 
+
+To create the required Floating IP Pool using the Management interface, complete the following steps: 
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Manager** interface is selected. If not, select it.
+
+1. Select **Network Services** > **IP Address Pools** > **IP Block**.
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-01.png">
 
 1. Click **Add**.
 
 1. Configure the IP pool as follows: 
-  - **Name**: PKS-FLOATING-IP-POOL
+  - **Name**: TKGI-FLOATING-IP-POOL
   - **IP ranges**: 10.173.62.111 - 10.173.62.150
   - **CIDR**: 10.173.62.0/24
   <img src="images/nsxt/nsxt-30/ib-blocks-pool-06.png">
 
 1. Click **Add** and verify.
-  <img src="images/nsxt/nsxt-30/ib-blocks-pool-07.png">
+  <img src="images/nsxt/nsxt-30/ib-blocks-pool-07.png">    
+
+##<a id='nsxt3-k8s-objects-policy'></a> Create NSX-T Objects for Kubernetes Clusters Using the Policy Interface
+
+This section provides instructions for creating the required NSX-T objects for Kubernetes clusters using the Policy interface. 
+
+###<a id='nsxt3-t0-router-create-policy'></a> Create Tier-0 Router Using the Policy Interface
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Policy** interface is selected. If not, select it.
+ 
+1. Select **Tier-0 Gateways**.
+ 
+1. Click **Add**.
+
+1. Configure a new Tier-0 Gateway as follows:
+  - **Name**: `T0-gateway`
+  - **Edge Cluster**: `edge-cluster-1`
+  - **HA mode**: `Active-Standby`
+  - **Failover mode**: `Non-Preemptive`
+
+1. Click **Save** and verify.
+ 
+1. Select the T0-gateway you created.
+
+1. Select **Configuration** > **Router Ports**.
+ 
+1. Click **Add**.
+
+1. Configure a new router port as follows: 
+  - **Name**: T0-uplink-1
+  - **Type**: uplink
+  - **Transport Node**: edge-node-1
+  - **Logical Switch**: LS-T0-uplink
+  - **Logical Switch Port**: Attach to a new switch port
+  - **Subnet**: 10.173.62.50 / 24
+
+1. Click **Add** and verify.
+
+1. Select the T0-gateway you created.
+
+1. Select **Configuration** > **Router Ports**.
+
+1. Add a second uplink by creating a second router port for edge-node-2:
+  - **Name**: T0-uplink-1
+  - **Type**: uplink
+  - **Transport Node**: edge-node-2
+  - **Logical Switch**: LS-T0-uplink
+  - **Logical Switch Port**: Attach to a new switch port
+  - **Subnet**: 10.173.62.51 / 24
+
+1. Once completed, verify that the T0-gateway you created has two connected router ports.
+
+###<a id='nsxt3-t0-router-config-policy'></a> Configure and Test the Tier-0 Gateway
+
+Create an HA VIP for the T0-gateway, and a default route for the T0-gateway. Then test the T0-gateway.
+
+1. Select the T0-gateway you created.
+
+1. Select **Configuration** > **HA VIP**.
+
+1. Click **Add**.
+
+1. Configure the HA VIP as follows:
+  - **VIP address**: 10.173.62.52/24, for example
+  - **Uplink ports**: T0-uplink-1 and T0-uplink-2
+
+1. Click **Add** and verify.
+
+1. Select **Routing** > **Static Routes**.
+
+1. Click **Add**.
+  - **Network**: `0.0.0.0/0`
+  - **Next Hop**: `10.173.62.253`
+
+1. Click **Add** and verify. 
+
+1. Verify the T0-gateway by making sure the T0 uplinks and HA VIP are reachable from your laptop.
+
+For example:
+
+```
+> ping 10.173.62.50
+PING 10.173.62.50 (10.173.62.50): 56 data bytes
+Request timeout for icmp_seq 0
+64 bytes from 10.173.62.50: icmp_seq=1 ttl=58 time=71.741 ms
+64 bytes from 10.173.62.50: icmp_seq=0 ttl=58 time=1074.679 ms
+
+> ping 10.173.62.51
+PING 10.173.62.51 (10.173.62.51): 56 data bytes
+Request timeout for icmp_seq 0
+64 bytes from 10.173.62.51: icmp_seq=0 ttl=58 time=1156.627 ms
+64 bytes from 10.173.62.51: icmp_seq=1 ttl=58 time=151.413 ms
+
+> ping 10.173.62.52
+PING 10.173.62.52 (10.173.62.52): 56 data bytes
+64 bytes from 10.173.62.52: icmp_seq=0 ttl=58 time=6.864 ms
+64 bytes from 10.173.62.52: icmp_seq=1 ttl=58 time=7.776 ms
+```
+
+###<a id='nsxt3-nodes-ip-block-policy'></a> Create the Nodes IP Block for Kubernetes Clusters Using the Policy Interface
+
+TKGI requires a dedicated IP Block for Kubernetes nodes. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block). 
+
+For example:
+
+- TKGI-NODES-IP-BLOCK: 172.23.0.0/16
+
+To create the required Nodes IP Block using the Management interface, complete the following steps: 
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Policy** interface is selected. If not, select it.
+ 
+1. Select **IP Management** > **IP Address Pools** > **IP Address Blocks**.
+
+1. Click **Add IP Address Block**.
+
+1. Configure the Nodes IP Block as follows:
+  - **Name**: TKGI-NODES-IP-BLOCK
+  - **CIDR**: 172.23.0.0/16
+
+1. Click **Add** and verify. 
+
+###<a id='nsxt3-pods-ip-block-policy'></a> Create the Pods IP Block for Kubernetes Clusters Using the Policy Interface
+
+TKGI requires a dedicated IP Block for Kubernetes pods. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Pods IP Block](./nsxt-prepare-env.html#pods-ip-block). 
+
+For example:
+
+- TKGI-PODS-IP-BLOCK: 172.16.0.0/16
+
+To create the required Pods IP Block using the Management interface, complete the following steps: 
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Policy** interface is selected. If not, select it.
+
+1. Select **IP Management** > **IP Address Pools** > **IP Address Blocks**.
+
+1. Click **Add IP Address Block**.
+
+1. Configure the Pods IP Block as follows:
+  - **Name**: TKGI-PODS-IP-BLOCK
+  - **CIDR**: 172.16.0.0/16
+
+1. Click **Add** and verify. 
+
+###<a id='nsxt3-floating-ip-pool-policy'></a> Create the Floating IP Pool for Kubernetes Clusters Using the Management Interface
+
+TKGI requires a floating IP pool for Kubernetes sevices such as load balancer instances. When you configure the TKGI tile, you will need to provide the ID for this IP Pool. For more information, see [Plan Network CIDRs](./nsxt-prepare-env.html#plan-cidrs). 
+
+To create the required Floating IP Pool using the Management interface, complete the following steps: 
+
+1. Log in to the NSX-T Manager and select the **Networking** tab.
+
+1. Verify that the **Policy** interface is selected. If not, select it.
+
+1. Select **IP Management** > **IP Address Pools** > **IP Address Pools**.
+
+1. Click **Add IP Address Pool**.
+
+1. Configure the IP pool as follows: 
+  - **Name**: TKGI-FLOATING-IP-POOL
+  - **IP ranges**: 10.173.62.111 - 10.173.62.150
+  - **CIDR**: 10.173.62.0/24
+
+1. Click **Add** and verify.
 
 ##<a id='next'></a> Next Steps
 
