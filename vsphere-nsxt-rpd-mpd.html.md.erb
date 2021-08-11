@@ -20,7 +20,7 @@ For more information on creating vSphere clusters, see <a href="https://docs.vmw
 The <%= vars.product_short %> Management Cluster on vSphere comprises the following components:
 
 - vCenter Server
-- NSX-T Manager v2.5 or later (quantity 3)
+- NSX-T Manager v3.0 or later (quantity 3)
 
 For more information, see [Installing and Configuring NSX-T Data Center v3.0 for <%= vars.k8s_runtime_abbr %>](./nsxt-3-0-install.html).
 
@@ -176,13 +176,13 @@ The MPD topology for <%= vars.product_short %> requires the following minimum co
 - The shared datastore (NFS or iSCSI, for instance) or vSAN datastore is used for persistent VM disks for <%= vars.product_short %> components and Persistent Volumes (PVs) for Kubernetes pods.
 - The collapsed Management/Edge/Compute cluster can be expanded to include up to 64 ESXi hosts.
 
-<p class="note"><strong>Note</strong>: For an MPD deployment, each ESXi host must have four physical network interface controllers (PNICs). In addition, while a <%= vars.product_short %> deployment requires a minimum of three nodes, <%= vars.product_short %> upgrades require four ESXi hosts to ensure full survivability of the NSX Manager appliance.</p>
+<p class="note"><strong>Note</strong>: For an MPD deployment, each ESXi host must have four physical network interface controllers (PNICs). In addition, while a <%= vars.product_short %> deployment requires a minimum of three nodes, <%= vars.product_short %> upgrades require four ESXi hosts to ensure full survivability of the NSX-T Manager appliance.</p>
 
 ###<a id='tkgi-mpd-config'></a> MPD Configuration Requirements
 
 When configuring vSphere for an MPD topology for <%= vars.product_short %>, keep in mind the following requirements:
 
-- When deploying the NSX-T Controller to each ESXi host, create a vSphere distributed resource scheduler (DRS) anti-affinity rule of type "separate virtual machines" for each of the three NSX-T Controllers. 
+- When deploying the NSX-T Manager to each ESXi host, create a vSphere distributed resource scheduler (DRS) anti-affinity rule of type "separate virtual machines" for each of the three NSX-T Managers. 
 - When deploying the NSX-T Edge Nodes across two different ESXi hosts, create a DRS anti-affinity rule of type "separate virtual machines" for both Edge Node VMs.
 - After deploying the Kubernetes cluster, you must manually make sure each master node is deployed to a different ESXi host by tuning the DRS anti-affinity rule of type "separate virtual machines."
 
@@ -271,11 +271,11 @@ The following table lists the resource requirements for NSX-T infrastructure and
     <td><strong>TOTAL</strong></td>
     <td><strong>31</strong></td>
     <td><strong>128</strong></td>
-    <td><strong>1.38 TB</strong></td>
+    <td><strong>1.38&nbsp;TB</strong></td>
   </tr>
 </table>
 
-<p class="note"><strong>Note</strong>: The NSX Manager resource requirements are based on the medium size VM, which is the minimum recommended form factor for NSX-T v2.5 and later. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/installation/GUID-AECA2EE0-90FC-48C4-8EDB-66517ACFE415.html">NSX Manager VM System Requirements</a>.</p> 
+<p class="note"><strong>Note</strong>: The NSX-T Manager resource requirements are based on the medium size VM, which is the minimum recommended form factor for NSX-T v3.0 and later. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.1/installation/GUID-AECA2EE0-90FC-48C4-8EDB-66517ACFE415.html">NSX Manager VM and Host Transport Node System Requirements</a>.</p> 
 
 <%= partial '_increase_persistent_disk' %>
 
@@ -286,7 +286,7 @@ The following table lists the resource requirements for each VM in the Edge Clus
 <table>
   <tr>
     <th>VM</th>
-    <th>CPU Cores<sup>&#42;</sup></th>
+    <th>CPU Cores</th>
     <th>Memory (GB)</th>
     <th>Ephemeral Disk (GB)</th>
   </tr>
@@ -306,11 +306,9 @@ The following table lists the resource requirements for each VM in the Edge Clus
     <td><strong>TOTAL</strong></td>
     <td><strong>16</strong></td>
     <td><strong>64</strong></td>
-    <td><strong>0.25</strong></td>
+    <td><strong>240</strong></td>
   </tr>
 </table>
-
-<sup>&#42;</sup> Intel CPUs only if using NSX-T 2.5.
 
 <p class="note"><strong>Note</strong>: NSX-T 3.0 Edge Nodes can be deployed on Intel and AMD-based hosts.</p>
 
@@ -331,51 +329,73 @@ The following table lists sizing information for Kubernetes cluster node VMs. Th
     <td>1 to 16</td>
     <td>1 to 64</td>
     <td>8 to 256</td>
-    <td>1 GB to 32 TB</td>
+    <td>1&nbsp;GB to 32&nbsp;TB</td>
   </tr>
   <tr>
     <td>Worker Nodes</td>
     <td>1 to 16</td>
     <td>1 to 64</td>
     <td>8 to 256</td>
-    <td>1 GB to 32 TB</td>
+    <td>1&nbsp;GB to 32&nbsp;TB</td>
   </tr>
 </table>
 
-For illustrative purposes, the following table shows sizing information for two example Kubernetes clusters. Each cluster has three master nodes and five worker nodes.
-
+For illustrative purposes, consider the following example master node and a worker node requirements:
 <table>
   <tr>
     <th>VM</th>
-    <th>VM&nbsp;Count</th>
     <th>CPU&nbsp;Cores</th>
     <th>Memory (GB)</th>
     <th>Ephemeral&nbsp;Disk (GB)</th>
-    <th>Persistent&nbsp;Disk (TB)</th>
+    <th>Persistent&nbsp;Disk (GB)</th>
   </tr>
   <tr>
-    <td>Master&nbsp;Nodes</td>
-    <td>6</td>
+    <td>Master&nbsp;Node</td>
     <td>2</td>
     <td>8</td>
     <td>64</td>
     <td>128</td>
   </tr>
   <tr>
-    <td>Worker&nbsp;Nodes</td>
-    <td>10</td>
+    <td>Worker&nbsp;Node</td>
     <td>4</td>
     <td>16</td>
     <td>64</td>
     <td>256</td>
   </tr>
+</table>
+
+The following are the requirements for an example environment consisting of two Kubernetes clusters, 
+each cluster consisting of three of the master nodes and five of the worker nodes described above:
+
+<table>
   <tr>
-    <td><strong>TOTAL</strong></td>
-    <td><strong>16</strong></td>
+    <th>VM</th>
+    <th>CPU&nbsp;Cores</th>
+    <th>Memory (GB)</th>
+    <th>Ephemeral&nbsp;Disk</th>
+    <th>Persistent&nbsp;Disk</th>
+  </tr>
+  <tr>
+    <td>Master&nbsp;Nodes<br>(3 nodes)</td>
+    <td>6</td>
+    <td>24</td>
+    <td>192&nbsp;GB</td>
+    <td>384&nbsp;GB</td>
+  </tr>
+  <tr>
+    <td>Worker&nbsp;Nodes<br>(5 nodes)</td>
+    <td>20</td>
+    <td>80</td>
+    <td>320&nbsp;GB</td>
+    <td>1280&nbsp;GB</td>
+  </tr>
+  <tr>
+    <td><strong>TOTAL<br>(2 clusters)</strong></td>
     <td><strong>52</strong></td>
     <td><strong>208</strong></td>
-    <td><strong>1.0</strong></td>
-    <td><strong>3.4</strong></td>
+    <td><strong>1.0&nbsp;TB</strong></td>
+    <td><strong>3.4&nbsp;TB</strong></td>
   </tr>
 </table>
 
@@ -502,7 +522,7 @@ The following table lists the hardware requirements for the MPD topology with a 
   </tr>
 </table>
 
-*If necessary, you can use two pNICs. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.5/installation/GUID-3770AA1C-DA79-4E95-960A-96DAC376242F.html">Fully Collapsed vSphere Cluster NSX-T Deployment</a> in the NSX-T Data Center documentation.
+*If necessary, you can use two pNICs. For more information, see <a href="https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.1/installation/GUID-3770AA1C-DA79-4E95-960A-96DAC376242F.html">Deploy a Fully Collapsed vSphere Cluster NSX-T on Hosts Running N-VDS Switches</a> in the NSX-T Data Center documentation.
 
 ###<a id='hardware-capacity'></a> Adding Hardware Capacity
 
