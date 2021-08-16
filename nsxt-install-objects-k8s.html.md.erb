@@ -38,18 +38,20 @@ Before completing this section, make sure you have completed the following secti
 
 ##<a id='nsxt-control-plane-reqs'></a> Required NSX-T Objects for the <%= vars.product_short %> Control Plane
 
-To install TKGI on vSphere with NSX-T, you need the following NSX-T objects: 
+To install TKGI on vSphere with NSX-T, you need to create the following NSX-T objects: 
 
 - Tier-0 Gateway (also known as a Router)
 - Pods IP Block
 - Nodes IP Block 
 - Floating IP Pool
 
-  <img src="images/nsxt-objects-k8s.png">
-
 For more information, see [Networkig Planning for TKGI](./nsxt-prepare-env.html).
 
-The following instructions despribe how to create these objects. You will need to create them using the appropriate tab. If you are using the Management API, create them using the Manager tab. If you are using the Policy API, create these objects using the Policy tab.
+When you configure the TKGI tile, you specify the object IDs: 
+
+  <img src="images/nsxt-objects-k8s.png">
+
+The following instructions despribe how to create these objects. You will need to create these objects using the appropriate interface. If you are using the Management API, create them using the Manager tab. If you are using the Policy API, create these objects using the Policy tab.
 
 ##<a id='nsxt3-k8s-objects-mgmt'></a> Create NSX-T Objects for Kubernetes Clusters Using the Management Interface
 
@@ -168,9 +170,7 @@ PING 10.173.62.52 (10.173.62.52): 56 data bytes
 
 TKGI requires a dedicated IP Block for Kubernetes nodes. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block). 
 
-For example:
-
-- TKGI-NODES-IP-BLOCK: 172.23.0.0/16
+In the example that follows, we create the following Nodes IP block: TKGI-NODES-IP-BLOCK: 172.23.0.0/16.
 
 To create the required Nodes IP Block using the Management interface, complete the following steps: 
 
@@ -194,9 +194,7 @@ To create the required Nodes IP Block using the Management interface, complete t
 
 TKGI requires a dedicated IP Block for Kubernetes pods. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Pods IP Block](./nsxt-prepare-env.html#pods-ip-block). 
 
-For example:
-
-- TKGI-PODS-IP-BLOCK: 172.16.0.0/16
+In the example that follows, we create the following Pods IP block: TKGI-PODS-IP-BLOCK: 172.16.0.0/16.
 
 To create the required Pods IP Block using the Management interface, complete the following steps: 
 
@@ -244,77 +242,90 @@ To create the required Floating IP Pool using the Management interface, complete
 
 This section provides instructions for creating the required NSX-T objects for Kubernetes clusters using the Policy interface. 
 
-###<a id='nsxt3-t0-router-create-policy'></a> Create Tier-0 Router Using the Policy Interface
+###<a id='nsxt3-t0-router-create-policy'></a> Create a Tier-0 Gateway Using the Policy Interface
 
 1. Log in to the NSX-T Manager and select the **Networking** tab.
 
 1. Verify that the **Policy** interface is selected. If not, select it.
+
+1. Select **Tier-0 Gateways** from the navigation on the left.
  
-1. Select **Tier-0 Gateways**.
- 
-1. Click **Add**.
+1. Click **Add Gateway**.
 
-1. Configure a new Tier-0 Gateway as follows:
-  - **Name**: `T0-gateway`
-  - **Edge Cluster**: `edge-cluster-1`
-  - **HA mode**: `Active-Standby`
-  - **Failover mode**: `Non-Preemptive`
+1. Select **Tier-0**.
 
-1. Click **Save** and verify.
- 
-1. Select the T0-gateway you created.
+1. Create a new Tier-0 Gateway as follows:
+  - **Name**: Enter `t0-shared`, for example
+  - **HA Mode**: Select `Active Standby`
+  - **Fail Over**: Select `Non Preemptive`
+  - Click **Save**
+  - At the prompt select **Yes** to continue creating the gateway
+  - **Edge Cluster**: Select the Edge Cluster you created previously, such as `edge-cluster-0`
+  - Click **Close Editing** to complete the creation of the Tier-0 Gateway
+  <img src="images/nsxt/policy/nsxt-policy-t0-1.png">
+  <img src="images/nsxt/policy/nsxt-policy-t0-2.png">  
+  <img src="images/nsxt/policy/nsxt-policy-t0-3.png">  
 
-1. Select **Configuration** > **Router Ports**.
- 
-1. Click **Add**.
+###<a id='nsxt3-t0-router-configure-policy'></a> Configure the Tier-0 Gateway Using the Policy Interface
 
-1. Configure a new router port as follows: 
-  - **Name**: T0-uplink-1
-  - **Type**: uplink
-  - **Transport Node**: edge-node-1
-  - **Logical Switch**: LS-T0-uplink
-  - **Logical Switch Port**: Attach to a new switch port
-  - **Subnet**: 10.173.62.50 / 24
+Now that the Tier-0 Gateway is created, you need to configure it for TKGI. This requires cofiguring two interfaces, an HA VIP, and a static route.
 
-1. Click **Add** and verify.
+1. **Edit** the **t0-shared** gateway you created.
 
-1. Select the T0-gateway you created.
+1. Select **Interfaces** > **Set**.
 
-1. Select **Configuration** > **Router Ports**.
+1. Select **Add Interface** and configure the first interface as follows: 
+  - **Name**: `Uplink1EdgeFirst` (for example)
+  - **Type**: Exernal
+  - **Edge Node**: `tn-cluster-0-edge-0`
+  - **MTU**: `1500`
+  - **Connected To (Segment)**: `internet-vlan-0`
+  - **Subnet**: 192.168.115.10/24 (for example)
+  - Click **Save** and verify.
+  <img src="images/nsxt/policy/nsxt-policy-t0-4.png">  
 
-1. Add a second uplink by creating a second router port for edge-node-2:
-  - **Name**: T0-uplink-1
-  - **Type**: uplink
-  - **Transport Node**: edge-node-2
-  - **Logical Switch**: LS-T0-uplink
-  - **Logical Switch Port**: Attach to a new switch port
-  - **Subnet**: 10.173.62.51 / 24
+1. Select **Add Interface** and configure the second interface as follows: 
+  - **Name**: `Uplink2EdgeFirst` (for example)
+  - **Type**: Exernal
+  - **Edge Node**: `tn-cluster-0-edge-1`
+  - **MTU**: `1500`
+  - **Connected To (Segment)**: `internet-vlan-0`
+  - **Subnet**: 192.168.115.11/24 (for example)
+  - Click **Save** and verify.  
+  <img src="images/nsxt/policy/nsxt-policy-t0-5.png">  
 
-1. Once completed, verify that the T0-gateway you created has two connected router ports.
+1. When you are done adding the interfaces, click **Apply**.
 
-###<a id='nsxt3-t0-router-config-policy'></a> Configure and Test the Tier-0 Gateway
+1. Configure the HA VIP as follows:  
+  - For the **HA VIP Configuration** field, click `Set`. 
+  - Click **Add HA VIP Configuration**.
+  - For the **IP Address / Mask** field, enter a valid IP address and subnet mask
+  - For the **Interface** field, select the 2 interfaces you created
+  - Click **Apply**
+  <img src="images/nsxt/policy/nsxt-policy-t0-6.png">  
 
-Create an HA VIP for the T0-gateway, and a default route for the T0-gateway. Then test the T0-gateway.
-
-1. Select the T0-gateway you created.
-
-1. Select **Configuration** > **HA VIP**.
-
-1. Click **Add**.
-
-1. Configure the HA VIP as follows:
-  - **VIP address**: 10.173.62.52/24, for example
-  - **Uplink ports**: T0-uplink-1 and T0-uplink-2
-
-1. Click **Add** and verify.
-
-1. Select **Routing** > **Static Routes**.
-
-1. Click **Add**.
+1. Configure a static route as follows:
+  - Select **Routing** > **Static Routes**.
+  - Click **Set**.
+  - Click **Add Static Route**.
+  - **Name**: default
   - **Network**: `0.0.0.0/0`
-  - **Next Hop**: `10.173.62.253`
+  - For **Next Hops**, click **Set**.
+  - Click **Set Next Hops**.
+  - **Next Hop**: `192.168.115.1` (for example)
+  - **Admin Distance**: 1
+  - **Scope**: None
+  - Click **Save**.
+  - Click **Close**.
+  <img src="images/nsxt/policy/nsxt-policy-t0-7.png">
+  <img src="images/nsxt/policy/nsxt-policy-t0-8.png">  
 
-1. Click **Add** and verify. 
+1. Click **Close Editing** and verify the configuration of the t0-shared gateway. 
+  <img src="images/nsxt/policy/nsxt-policy-t0-9.png">
+
+###<a id='nsxt3-t0-router-test-policy'></a> Test the Tier-0 Gateway
+
+Now that the `t0-shared` gateway is configured, it is time to test it.
 
 1. Verify the T0-gateway by making sure the T0 uplinks and HA VIP are reachable from your laptop.
 
@@ -343,9 +354,7 @@ PING 10.173.62.52 (10.173.62.52): 56 data bytes
 
 TKGI requires a dedicated IP Block for Kubernetes nodes. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block). 
 
-For example:
-
-- TKGI-NODES-IP-BLOCK: 172.23.0.0/16
+In the example that follows, we create the following Nodes IP block: TKGI-NODES-IP-BLOCK: 172.23.0.0/16.
 
 To create the required Nodes IP Block using the Management interface, complete the following steps: 
 
