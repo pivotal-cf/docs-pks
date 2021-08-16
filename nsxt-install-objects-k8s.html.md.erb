@@ -242,83 +242,90 @@ To create the required Floating IP Pool using the Management interface, complete
 
 This section provides instructions for creating the required NSX-T objects for Kubernetes clusters using the Policy interface. 
 
-###<a id='nsxt3-t0-router-create-policy'></a> Create Tier-0 Router Using the Policy Interface
+###<a id='nsxt3-t0-router-create-policy'></a> Create a Tier-0 Gateway Using the Policy Interface
 
 1. Log in to the NSX-T Manager and select the **Networking** tab.
 
 1. Verify that the **Policy** interface is selected. If not, select it.
-  <img src="images/nsxt-policy-tab.png">
 
-1. Select **Tier-0 Gateways**.
+1. Select **Tier-0 Gateways** from the navigation on the left.
  
 1. Click **Add Gateway**.
 
 1. Select **Tier-0**.
 
-1. Configure a new Tier-0 Gateway as follows:
-  - **Name**: `T0-gateway`
-  - **Edge Cluster**: `edge-cluster-1`
-  - **HA mode**: `Active Standby`
-  - **Failover mode**: `Non Preemptive`
-  <img src="images/nsxt-policy-t0.png">
+1. Create a new Tier-0 Gateway as follows:
+  - **Name**: Enter `t0-shared`, for example
+  - **HA Mode**: Select `Active Standby`
+  - **Fail Over**: Select `Non Preemptive`
+  - Click **Save**
+  - At the prompt select **Yes** to continue creating the gateway
+  - **Edge Cluster**: Select the Edge Cluster you created previously, such as `edge-cluster-0`
+  - Click **Close Editing** to complete the creation of the Tier-0 Gateway
+  <img src="images/nsxt/policy/nsxt-policy-t0-1.png">
+  <img src="images/nsxt/policy/nsxt-policy-t0-2.png">  
+  <img src="images/nsxt/policy/nsxt-policy-t0-3.png">  
 
-1. Click **Save** and verify.
- 
-1. Select the T0-gateway you created.
+###<a id='nsxt3-t0-router-configure-policy'></a> Configure the Tier-0 Gateway Using the Policy Interface
+
+Now that the Tier-0 Gateway is created, you need to configure it for TKGI. This requires cofiguring two interfaces, an HA VIP, and a static route.
+
+1. **Edit** the **t0-shared** gateway you created.
 
 1. Select **Interfaces** > **Set**.
 
-1. Select **Add Interface**.
-
-1. Configure a new router port as follows: 
-  - **Name**: T0-uplink-1
+1. Select **Add Interface** and configure the first interface as follows: 
+  - **Name**: `Uplink1EdgeFirst` (for example)
   - **Type**: Exernal
-  - **Edge Node**: edge-node-1
-  - **Segment**: LS-T0-uplink
-  - **Segment Port**: Attach to a new switch port
-  - **Subnet**: 10.173.62.50 / 24 (for example)
+  - **Edge Node**: `tn-cluster-0-edge-0`
+  - **MTU**: `1500`
+  - **Connected To (Segment)**: `internet-vlan-0`
+  - **Subnet**: 192.168.115.10/24 (for example)
+  - Click **Save** and verify.
+  <img src="images/nsxt/policy/nsxt-policy-t0-4.png">  
 
-1. Click **Add** and verify.
+1. Select **Add Interface** and configure the second interface as follows: 
+  - **Name**: `Uplink2EdgeFirst` (for example)
+  - **Type**: Exernal
+  - **Edge Node**: `tn-cluster-0-edge-1`
+  - **MTU**: `1500`
+  - **Connected To (Segment)**: `internet-vlan-0`
+  - **Subnet**: 192.168.115.11/24 (for example)
+  - Click **Save** and verify.  
+  <img src="images/nsxt/policy/nsxt-policy-t0-5.png">  
 
-1. Select the T0-gateway you created.
+1. When you are done adding the interfaces, click **Apply**.
 
-1. Select **Interfaces** > **Set**.
+1. Configure the HA VIP as follows:  
+  - For the **HA VIP Configuration** field, click `Set`. 
+  - Click **Add HA VIP Configuration**.
+  - For the **IP Address / Mask** field, enter a valid IP address and subnet mask
+  - For the **Interface** field, select the 2 interfaces you created
+  - Click **Apply**
+  <img src="images/nsxt/policy/nsxt-policy-t0-6.png">  
 
-1. Select **Add Interface**.
-
-1. Add a second uplink by creating a second router port for edge-node-2:
-  - **Name**: T0-uplink-1
-  - **Type**: uplink
-  - **Edge Node**: edge-node-2
-  - **Segment**: LS-T0-uplink
-  - **Segment Port**: Attach to a new switch port
-  - **Subnet**: 10.173.62.51 / 24 (for example)
-
-1. Once completed, verify that the T0-gateway you created has two connected router ports.
-
-###<a id='nsxt3-t0-router-config-policy'></a> Configure and Test the Tier-0 Gateway
-
-Create an HA VIP for the T0-gateway, and a default route for the T0-gateway. Then test the T0-gateway.
-
-1. Select the T0-gateway you created.
-
-1. Select **Configuration** > **HA VIP**.
-
-1. Click **Add**.
-
-1. Configure the HA VIP as follows:
-  - **VIP address**: 10.173.62.52/24, for example
-  - **Uplink ports**: T0-uplink-1 and T0-uplink-2
-
-1. Click **Add** and verify.
-
-1. Select **Routing** > **Static Routes**.
-
-1. Click **Add**.
+1. Configure a static route as follows:
+  - Select **Routing** > **Static Routes**.
+  - Click **Set**.
+  - Click **Add Static Route**.
+  - **Name**: default
   - **Network**: `0.0.0.0/0`
-  - **Next Hop**: `10.173.62.253`
+  - For **Next Hops**, click **Set**.
+  - Click **Set Next Hops**.
+  - **Next Hop**: `192.168.115.1` (for example)
+  - **Admin Distance**: 1
+  - **Scope**: None
+  - Click **Save**.
+  - Click **Close**.
+  <img src="images/nsxt/policy/nsxt-policy-t0-7.png">
+  <img src="images/nsxt/policy/nsxt-policy-t0-8.png">  
 
-1. Click **Add** and verify. 
+1. Click **Close Editing** and verify the configuration of the t0-shared gateway. 
+  <img src="images/nsxt/policy/nsxt-policy-t0-9.png">
+
+###<a id='nsxt3-t0-router-test-policy'></a> Test the Tier-0 Gateway
+
+Now that the `t0-shared` gateway is configured, it is time to test it.
 
 1. Verify the T0-gateway by making sure the T0 uplinks and HA VIP are reachable from your laptop.
 
