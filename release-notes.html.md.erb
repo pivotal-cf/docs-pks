@@ -231,6 +231,10 @@ in the NetApp documentation.
 * The `observability-manager` ClusterRole and the `metric-controller` ClusterRole 
 now use the `observability-manager` and `metric-controller` PodSecurityPolicy (PSP) instead of using the `pks-priviledged` PSP.
 
+
+
+
+
 <%#
 
 * Fixes [Fluent Bit ClusterLogSink Returns 'TCP Connection Failed' While CEIP Telemetry Services Are Disabled](#1-11-0-fluentbit-clusterlogsink).  
@@ -239,6 +243,13 @@ now use the `observability-manager` and `metric-controller` PodSecurityPolicy (P
 * Fixes [You Cannot Use vRealize Log Insight to Monitor NCP](#1-11-0-ncp-not-in-vrli).  
 * Fixes [Cluster Fails to Restart](#1-11-0-ncp-port-protocol-limit).  
 * Fixes [Wavefront Collector is Duplicated or Not Collecting from <%= vars.k8s_runtime_abbr % > Namespaces](#1-11-0-dual-wavefront-collectors).  
+
+* Fixes [Nodes with More Than 30 Stateful Pods Are in a NotReady State](https://docs.pivotal.io/tkgi/1-11/release-notes.html#1-11-0-runc-node-notready).  
+* Fixes [Unexplained Errors After Interrupting a Log Stream When Using Antrea Networking](https://docs.pivotal.io/tkgi/1-11/release-notes.html#1-11-0-antrea-logging-interupt).  
+* Fixes [Windows Workloads With Attached Dynamic PVs Must Be Removed before Deleting a Cluster](https://docs.pivotal.io/tkgi/1-11/release-notes.html#1-11-0-windows-dynamic-pvs).  
+* Fixes [The <%= vars.control_plane % > VM fluentd.stdout.log Grows While vRealize Log Insight is Disabled](https://docs.pivotal.io/tkgi/1-11/release-notes.html#1-11-0-fluentd-log-overflow).  
+* Fixes [Tags Applied Using tkgi cli Commands Are Removed during `tkgi update-cluster`](https://docs.pivotal.io/tkgi/1-11/release-notes.html#1-11-0-tags-lost-during-update).  
+
 
 #%>
 
@@ -289,6 +300,400 @@ but your <%= vars.k8s_runtime_abbr %> MC tabs include the following error: “�
 <%= vars.k8s_runtime_abbr %> MC is associated with an Ops Manager with a specific name. 
 If you rename Ops Manager with a new name while restoring, 
 your <%= vars.k8s_runtime_abbr %> MC will not recognize the restored Ops Manager and cannot manage it.  
+
+<hr>
+#### <a id="1-12-0-hyperbus-error"></a> Kubernetes Pods on NSX-T Become Stuck in a Creating State 
+
+**Symptom**
+
+The pods in your <%= vars.k8s_runtime_abbr %> Kubernetes clusters on NSX-T become stuck in a creating state. 
+The connections between nsx-node-agent and hyperbus repeatedly close, 
+log `Couldn't connect to 'tcp://...' (error: 111-Connection refused)`, and have a status of `COMMUNICATION_ERROR`.  
+
+**Explanation**
+
+For information and workaround steps for this Known Issue, see 
+[Issue 2795268: Connection between nsx-node-agent and hyperbus flips and Kubernetes pod is stuck at creating state](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.1/rn/NSX-Container-Plugin-312-Release-Notes.html#RNA_11559) 
+in _NSX Container Plugin 3.1.2 Release Notes_ in the VMware documentation. 
+
+<hr>
+
+#### <a id="1-12-0-nsxt-302-310"></a> Pods Stop After Upgrading From NSX-T v3.0.2 to v3.1.0 on vSphere 7.0 and 7.0.1
+
+**Symptom**
+
+Your TKGI-provisioned Pods stop after upgrading from NSX-T v3.0.2 to NSX-T v3.1.0 on vSphere 7.0 and 7.0.1.
+
+**Explanation**
+
+For information, see [Issue 2603550: Some VMs are vMotioned and lose network connectivity during UA nodes upgrade]
+(https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.1/rn/VMware-NSX-T-Data-Center-311-Release-Notes.html#2603550) in the _VMware NSX-T Data Center 3.1.1 Release Notes_.
+
+**Workaround**
+
+To avoid the loss of network connectivity during UA node upgrade, ensure DRS is set to manual mode during your upgrade from NSX-T v3.0.2 to v3.1.0.
+
+If you upgraded to NSX-T v3.1.0 with DRS in automation mode, run the following on the affected Pods' master VMs to restore Pod connectivity:
+
+```
+monit restart ncp
+```
+
+For more information about upgrading NSX-T v3.0.2 to NSX-T v3.1.0, see [Upgrade NSX-T Data Center to v3.0 or v3.1](upgrade-nsxt.html#upgrade-nsxt).  
+
+<hr>
+#### <a id="1-12-0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
+
+**Symptom**
+
+After clicking **Apply Changes** on the <%= vars.k8s_runtime_abbr %> tile in an Azure environment, you experience
+an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
+
+* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_
+* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
+
+For example:
+
+```
+INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
+2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
+HTTP/1.1 500 Internal Server Error
+Transfer-Encoding: chunked
+Cache-Control: no-cache, no-store
+Connection: keep-alive
+Content-Type: application/json; charset=utf-8
+Date: Mon, 21 Sep 2020 17:51:50 GMT
+Expires: Fri, 01 Jan 1990 00:00:00 GMT
+Pragma: no-cache
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Ops Manager
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-Request-Id: f5fc99c1-21a7-45c3-7f39
+X-Runtime: 9.905591
+X-Xss-Protection: 1; mode=block
+
+44
+{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
+0
+```
+
+**Explanation**
+
+The Azure CPI endpoint used by Ops Manager has been changed and
+your installed version of Ops Manager is not compatible with the new endpoint.
+
+**Workaround**
+
+Run the following Ops Manager CLI command:
+
+```
+om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
+```
+
+Where:
+
+* `USERNAME` is the account to use to run Ops Manager API commands.
+* `PASSWORD` is the password for the account.
+* `OPSMAN-API` is the IP address for the Ops Manager API
+
+For more information, see [Error 'undefined method location' is received when running Apply Change on Azure]
+(https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US)
+in the VMware Tanzu Knowledge Base.
+
+<hr>
+#### <a id="1-12-0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
+
+VMware vRealize Operations (vROPs) does not support Windows worker-based Kubernetes clusters and cannot be used to
+manage <%= vars.k8s_runtime_abbr %>-provisioned Windows workers.
+
+<hr>
+#### <a id="1-12-0-wavefront-no-win"></a><%= vars.k8s_runtime_abbr %> Wavefront Requires Manual Installation for Windows Workers
+
+To monitor Windows-based worker node clusters with a Wavefront collector and proxy, you must first install Wavefront on the clusters manually, using Helm.
+For instructions, see the [Wavefront](windows-monitoring.html#wavefront) section of the _Monitoring Windows Worker Clusters and Nodes_ topic.
+
+<hr>
+#### <a id="1-12-0-ping"></a>Pinging Windows Worker Kubernetes Clusters Does Not Work
+
+<%= vars.k8s_runtime_abbr %>-provisioned Windows worker-based Kubernetes clusters inherit a Kubernetes limitation that prevents
+outbound ICMP communication from workers.
+As a result, pinging Windows workers does not work.
+
+For information about this limitation, see [Limitations > Networking](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#networking-1)
+in the _Windows in Kubernetes_ documentation.
+
+<hr>
+#### <a id="1-12-0-windows-velero-limitations"></a> Velero Does Not Support Backing Up Stateful Windows Workloads
+
+You can use Velero to back up stateless <%= vars.k8s_runtime_abbr %>-provisioned Windows workers only.
+You cannot use Velero to back up stateful Windows applications.
+For more information, see [Velero on Windows](https://velero.io/docs/v1.6/basic-install/#velero-on-windows) in
+_Basic Install_ in the Velero documentation.
+
+<hr>
+#### <a id="1-12-0-tmc-on-gcp"></a>Tanzu Mission Control Integration Not Supported on GCP
+
+<%= vars.k8s_runtime_abbr %> on Google Cloud Platform (GCP) does not support
+Tanzu Mission Control (TMC) integration, which is configured in
+the **<%= vars.product_tile %>** tile > the **Tanzu Mission Control** pane.
+
+If you intend to run <%= vars.k8s_runtime_abbr %> on GCP,
+skip this pane when configuring the <%= vars.product_tile %> tile.
+
+<hr>
+#### <a id="1-12-0-tmc-restic"></a>TMC Data Protection Feature Requires Privileged <%= vars.k8s_runtime_abbr %> Containers
+TMC Data Protection feature supports privileged <%= vars.k8s_runtime_abbr %> containers only.
+For more information, see [Plans](installing-vsphere.html#plans) in the _Installing TKGI_ topic for your IaaS.
+
+<hr>
+#### <a id="1-12-0-profile-no-win-gmsa"></a>Windows Worker Kubernetes Clusters with Group Managed Service Account Do Not Support Compute Profiles 
+
+Windows worker-based Kubernetes clusters integrated with group Managed Service Account (gMSA) cannot be managed using compute profiles.  
+
+<hr>
+#### <a id="1-12-0-profile-no-win-flannel"></a> Windows Worker Kubernetes Clusters on Flannel Do Not Support Compute Profiles
+
+On vSphere with NSX-T networking you can use compute profiles with both Linux and Windows worker&#8209;based Kubernetes clusters.
+On vSphere with Flannel networking, you can apply compute profiles only to Linux clusters.
+
+<hr>
+#### <a id="1-12-0-profile-resize-down"></a>TKGI CLI Does Not Prevent Reducing the Control Plane Node Count
+
+TKGI CLI does not prevent accidentally reducing a cluster's control plane node count using a compute profile.
+
+<p class="note warning"><strong>Warning:</strong>
+    Reducing a cluster's control plane node count can destroy the cluster.
+    Do not scale out or scale in existing master nodes by reconfiguring the TKGI tile or by using a compute profile.
+    Reducing a cluster's number of control plane nodes may remove a master node and cause the cluster to become inactive.
+</p>
+
+<hr>
+#### <a id="1-12-0-in-windows-notready-nodes"></a> Windows Cluster Nodes Not Deleted After VM Deleted
+
+**Symptom**
+
+After you delete a VM using the management console of your infrastructure provider, you notice a Windows worker node
+that had been on that VM is now in a `notReady` state.
+
+**Solution**
+
+1. To identify the leftover node:
+
+    ```
+    kubectl get no -o wide
+    ```
+1. Locate nodes on the returned list that are in a `notReady` state and have the same IP address as another node in the list.
+1. To manually delete a `notReady` node:
+
+    ```
+    kubectl delete node NODE-NAME
+    ```
+    Where `NODE-NAME` is the name of the node in the `notReady` state.
+
+<hr>
+#### <a id="1-12-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login
+
+**Symptom**
+
+You experience a "502 Bad Gateway" error from the NSX load balancer after you log in to OIDC.
+
+**Explanation**
+
+A large response header has exceeded your NSX-T load balancer maximum
+response header size. The default maximum response header size is 10,240 characters and should
+be resized to 50,000.
+
+**Workaround**
+
+If you experience this issue, manually reconfigure your NSX-T `request_header_size`
+and `response_header_size` to 50,000 characters.
+For information about configuring NSX-T default header sizes,
+see [OIDC Response Header Overflow](https://community.pivotal.io/s/article/OIDC-Response-Header-overflow) in the Knowledge Base.
+
+<hr>
+#### <a id="1-12-0-windows-proxy"></a> Difficulty Changing Proxy for Windows Workers
+
+You must configure a global proxy in the <%= vars.product_tile %> tile > **Networking** pane before you create any Windows workers that use the proxy.
+
+You cannot change the proxy configuration for Windows workers in an existing cluster.
+
+<hr>
+#### <a id="1-12-0-http-proxy-password"></a> Character Limitations in HTTP Proxy Password
+
+For vSphere with NSX-T, the HTTP Proxy password field does not support the following special characters: `&` or `;`.
+
+<hr>
+#### <a id="1-12-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
+
+**Symptom**
+
+You receive the following error after modifying your existing Harbor installation's storage configuration:
+
+```
+Error response from daemon: manifest for ... not found: manifest unknown: manifest unknown
+```
+
+**Explanation**
+
+Harbor does not support modifying an existing Harbor installation's storage configuration.
+
+**Workaround**
+
+To modify your Harbor storage configuration,
+re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
+
+<hr>
+#### <a id="1-12-0-resizing-worker-nodes"></a> Ingress Controller Statefulset Fails to Start After Resizing Worker Nodes
+
+**Symptom**  
+
+Permissions are removed from your cluster’s files and processes after resizing the persistent disk 
+during a cluster upgrade. The ingress controller statefulset fails to start.
+
+**Explanation**  
+
+When resizing a persistent disk, Bosh migrates the data from the old disk to the new disk but 
+does not copy the files’ extended attributes.
+
+**Workaround**  
+
+To resolve the problem, complete the steps in 
+[Ingress controller statefulset fails to start after resize of worker nodes with permission denied]
+(https://community.pivotal.io/s/article/5000e00001nCJxT1603094435795?language=en_US)
+in the VMware Tanzu Knowledge Base.
+
+<hr>
+#### <a id="1-12-0-security-group"></a>Azure Default Security Group Is Not Automatically Assigned to Cluster VMs
+
+**Symptom**
+
+You experience issues when configuring a load balancer for a multi-master Kubernetes cluster or creating a service of type `LoadBalancer`.
+Additionally, in the Azure portal, the **VM** > **Networking** page does not display
+any inbound and outbound traffic rules for your cluster VMs.
+
+**Explanation**
+
+As part of configuring the <%= vars.product_tile %> tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
+When you create a Kubernetes cluster, <%= vars.product_short %> automatically assigns this security group to each VM in the cluster.
+However, on Azure the automatic assignment may not occur.
+
+As a result, your inbound and outbound traffic rules defined in the security group are not applied to the cluster VMs.
+
+**Workaround**
+
+If you experience this issue, manually assign the default security group to each VM NIC in your cluster.
+
+<hr>
+#### <a id="1-12-0-uuid-length"></a> One Plan ID Longer than Other Plan IDs
+
+**Symptom**
+
+One of your plan IDs is one character longer than your other plan IDs.
+
+**Explanation**
+
+In <%= vars.k8s_runtime_abbr %>, each plan has a unique plan ID.
+A plan ID is normally a UUID consisting of 32 alphanumeric characters and 4 hyphens.
+However, the **Plan 4** ID consists of 33 alphanumeric characters and 4 hyphens.
+
+**Solution**
+
+You can safely configure and use **Plan 4**.
+The length of the **Plan 4** ID does not affect the functionality of **Plan 4** clusters.
+
+If you require all plan IDs to have identical length, do not activate or use **Plan 4**.
+
+<hr>
+#### <a id="1-12-0-whitespace-pksapi"></a> The <%= vars.control_plane %> FQDN Must Not Include Trailing Whitespace
+
+**Symptom**
+
+Your <%= vars.k8s_runtime_abbr %> logs include the following error:
+
+```
+'uaa'. Errors are:- Error filling in template 'uaa.yml.erb' (line 59: Client redirect-uri is invalid: uaa.clients.pks_cli.redirect-uri Client redirect-uri is invalid: uaa.clients.pks_cluster_client.redirect-uri)
+```
+
+**Explanation**
+
+The <%= vars.control_plane %> fully-qualified domain name (FQDN) for your cluster contains leading or trailing whitespace.
+
+**Workaround**
+
+Do not include whitespace in the <%= vars.k8s_runtime_abbr %> tile **API Hostname (FQDN)** field.
+
+<hr>
+#### <a id="1-12-0-db-down-after-vm-stopped"></a> Database Cluster Stops After a Database Instance is Stopped
+
+**Symptom**
+
+After you stop one instance in a multiple-instance database cluster, the cluster stops,
+or communication between the remaining databases times out, and the entire cluster becomes unreachable.
+
+The following might be in your UAA log:
+
+```
+WSREP has not yet prepared node for application use
+```
+
+**Explanation**
+
+The database cluster is unable to recover automatically because a member is no longer available to reconcile quorum. 
+
+<hr>
+#### <a id="1-12-0-velero-vsphere-pvs"></a> Velero Back Up Fails for vSphere PVs Attached to Clusters on Kubernetes v1.20 and Later
+
+**Symptom**  
+
+Backing up vSphere persistent volumes using Velero fails and your Velero backup log includes the following error:
+
+```
+rpc error: code = Unknown desc = Failed during IsObjectBlocked check: Could not translate selfLink to CRD name
+```
+
+**Explanation** 
+
+This is a known issue when backing up clusters on Kubernetes v1.20 and later using the 
+Velero Plugin for vSphere v1.1.0 or earlier.  
+
+**Workaround**  
+
+To resolve the problem, complete the steps in 
+[Velero backups of vSphere persistent volumes fail on Kubernetes clusters version 1.20 or higher (83314)](https://kb.vmware.com/s/article/83314) 
+in the VMware Tanzu Knowledge Base.   
+
+<hr>
+#### <a id="1-12-0-creating-two-windows-clusters-fails"></a> Creating Two Windows Clusters at the Same Time Fails
+
+**Symptom**
+
+The first time that you try to create two Windows clusters at the same time, the creation of one of
+the clusters fails. If you run `pks cluster CLUSTER-NAME` to examine the last action taken on the
+cluster, you see the following:
+
+<pre class="terminal">
+Last Action: Create
+Last Action State: failed
+Last Action Description: Instance provisioning failed: There was a problem completing your request.
+. . .
+operation: create, error-message: Failed to acquire lock
+. . .
+locking task id is 111, description: 'create deployment'
+</pre>
+
+**Explanation**
+
+This is a known issue that occurs the first time that you create two Windows clusters concurrently.
+
+**Workaround**
+
+Recreate the failed cluster. This issue only occurs the first time that you create two Windows
+clusters concurrently.  
+
 
 <hr>
 
