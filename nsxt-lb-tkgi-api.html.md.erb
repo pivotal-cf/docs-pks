@@ -35,7 +35,7 @@ If you deploy your <%= vars.product_short %> using [No-NAT with Virtual Switch (
 
 ###<a id='create-vs-api'></a> Create a Virtual Server for the TKGI API Server
 
-1. In NSX Manager, select **Networking > Load Balancing > Virtual Servers**.
+1. In NSX-T Manager, select **Networking > Load Balancing > Virtual Servers**.
 1. Click Add.
 1. Configure General Properties for the Virtual Server.
   - Name: `tkgi-api-server`, for example
@@ -63,7 +63,7 @@ If you deploy your <%= vars.product_short %> using [No-NAT with Virtual Switch (
 1. OPTION 2: Configure Pool Members for the Dynamic Server Pool:
   - Membership Type: **Dynamic**
   - Set NSGroup as the NSGroup name created in Step 1, such as **tkgi-api**
-  - Set Max Group IP Address List to 3, since we can only have up to 3 pks api instances
+  - Set Max Group IP Address List to 3, since we can only have up to 3 TKGI API instances
   - Click **Next**
   For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias),
   - Membership Type: **Static**
@@ -143,10 +143,10 @@ Skip this if you deploy as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-
   - Set HTTP Request Header as 200
   - Click **Finish**
 1. Configure a New Server Pool
-  - Set Active Health Monitor to pks-api-uaa
+  - Set Active Health Monitor to tkgi-api-uaa
   - Click **Finish**
 1. Edit Virtual Server
-  - Set Default Server Pool as pks-api-uaa
+  - Set Default Server Pool as tkgi-api-uaa
   - Click **Next**
 1. Persistence Profiles is optional. Click **Next**.
 1. Configure Client Side SSL (only if L7 Application Type is selected). Use the default certificates. Click **Next**.
@@ -167,7 +167,7 @@ Skip this if you deploy as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-
 
 ##<a id='create-lb'></a> Step 3: Create Load Balancer
 
-1. In NSX Manager, select Networking > Load Balancing > Load Balancers.
+1. In NSX-T Manager, select Networking > Load Balancing > Load Balancers.
 1. Click Add.
 1. Set the name: for example **tkgi-api**
 1. Choose the Load Balancer Size. The default SMALL should be sufficient for most TKGI deployments. For large-scale deployments, use are larger size load balancer.
@@ -178,10 +178,10 @@ Skip this if you deploy as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-
 
 ##<a id='attach-lb-router'></a> Step 4: Attach the Load Balancer to a Logical Router
 
-1. In NSX Manager, select Networking > Load Balancing > Load Balancers.
+1. In NSX-T Manager, select Networking > Load Balancing > Load Balancers.
 1. Choose the tkgs-api load balancer you just created.
 1. Click the gear icon and select **Attach to a Logical Router.**
-1. Choose a Tier-1 logical router that is attached to pks api VMs
+1. Choose a Tier-1 logical router that is attached to TKGI API VMs
 
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-33.png" width="425">
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-34.png" width="425">
@@ -190,14 +190,16 @@ Skip this if you deploy as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-
 
 If you see an Error like the following, you need to create Logical Router that associated with the Edge Cluster:
 
-`The logical router LogicalRouter/b0a65a53-8004-...-6bc29abc37ca does not have associated edge cluster to deploy a load balancer service LoadBalancerService/c0c478b2-...-d72e5e3a5672.
+```
+The logical router LogicalRouter/b0a65a53-8004-...-6bc29abc37ca does not have associated edge cluster to deploy a load balancer service LoadBalancerService/c0c478b2-...-d72e5e3a5672.
+```
 
 To configure a new Tier-1 router:
 
 1. Select Networking > Tier-1 Logical Routers.
 1. Click Add.
 1. Configure Tier-1 Router
-  - Set the name, for example pks-api
+  - Set the name, for example tkgi-api
   - Set Tier-0 Router
   - Set Edge Cluster
   - Set Edge Cluster member
@@ -246,9 +248,9 @@ Skip this if you deployed as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsx
 Now that the load balancer for the TKGI API control plane is configured, update the TKGI tile to point to the load balancer.
 
 1. Log in to Ops Manager.
-1. Go to PKS Tile Resource Config.
-1. Click PKS API. You will see a drop down for PKS API config.
-1. Change the PKS API Instances Number to 2 or 3. We recommend 3 for quorum.
+1. Go to Tanzu Kubernetes Grid Integrated Edition Tile Resource Config.
+1. Click TKGI API. You will see a drop down for TKGI API config.
+1. Change the TKGI API Instances Number to 2 or 3. We recommend 3 for quorum.
 1. Set the NSGroup if you configured Dynamic Server Pool. Otherwise leave it empty.
 1. Set VIF Type PARENT or leave it empty.
 1. Set the Logical Load Balancer as follows:
@@ -277,7 +279,7 @@ Now that the load balancer for the TKGI API control plane is configured, update 
 
 ##<a id='test-lb'></a> Step 7: Test the Load Balancer
 
-1. In NSX Manager, verify that the operational status of the load balancer is up.
+1. In NSX-T Manager, verify that the operational status of the load balancer is up.
 1. Make sure the Virtual Servers are up.
 1. Make sure the Server Pools are up.
 1. Test the load balancer as described below.
@@ -305,7 +307,7 @@ ff02::2 ip6-allrouters
 Now, log in to the TKGI API Server via the load balancer.
 
 ```
-kubo@jumper:~$ tkgi login -a tkgi.tkgi-api.cf-app.com -u lana -p password -k && pks clusters
+kubo@jumper:~$ tkgi login -a tkgi.tkgi-api.cf-app.com -u lana -p password -k && tkgi clusters
 
 API Endpoint: tkgi.tkgi-api.cf-app.com
 User: lana
