@@ -30,12 +30,12 @@ topic to locate the source file of the topic.
 | `1.11` | TKGI 1.11 released content          | https://docs.pivotal.io/tkgi/1-11/index.html |
 | `1.10` | TKGI 1.10 released content          | https://docs.pivotal.io/tkgi/1-10/index.html |
 | `1.9`  | TKGI 1.9 released content           | https://docs.pivotal.io/tkgi/1-9/index.html  |
-| `1.8`  | Reached End of General Support.     | https://docs.pivotal.io/tkgi/1-8/index.html  |
-| `1.7`  | Reached End of General Support.     | https://docs.pivotal.io/pks/1-7/index.html   |
-| `1.6`  | Reached End of General Support.     | https://docs.pivotal.io/pks/1-6/index.html   |
-| `1.5`  | Reached End of General Support.     | https://docs.pivotal.io/pks/1-5/index.html   |
-| `1.4`  | Reached End of General Support.     | https://docs.pivotal.io/pks/1-4/index.html   |
-| `1.3`  | Reached End of General Support.     | https://docs.pivotal.io/pks/1-3/index.html   |
+| `1.8`  | Reached End of General Support      | https://docs.pivotal.io/tkgi/1-8/index.html  |
+| `1.7`  | Reached End of General Support      | https://docs.pivotal.io/pks/1-7/index.html   |
+| `1.6`  | Reached End of General Support      | https://docs.pivotal.io/pks/1-6/index.html   |
+| `1.5`  | Reached End of General Support      | https://docs.pivotal.io/pks/1-5/index.html   |
+| `1.4`  | Reached End of General Support      | https://docs.pivotal.io/pks/1-4/index.html   |
+| `1.3`  | Reached End of General Support      | https://docs.pivotal.io/pks/1-3/index.html   |
 | `1.2`  | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-1-2.pdf)) |
 | `1.1`  | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-1-1.pdf)) |
 | `1.0-publish` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-docs-1.0.pdf)) |
