@@ -12,8 +12,10 @@ When <%= vars.k8s_runtime_abbr %> provisions a Kubernetes cluster, the system ge
 certificate authority (CA) certificates and leaf certificates that have values and 
 expiration dates unique to that cluster.
 
+You can use the TKGI CLI to list and rotate TLS certificates for a Kubernetes cluster provisioned by Tanzu Kubernetes Grid Integrated Edition.
+
 <br>
-The following table lists the TKGI-provisioned Kubernetes cluster certificates and how to rotate them.
+The following table summarizes the TKGI-provisioned Kubernetes cluster certificates and how to rotate them.
 
 <table id='cluster-certs' border="1" class="nice" >
   <tr>
@@ -23,7 +25,7 @@ The following table lists the TKGI-provisioned Kubernetes cluster certificates a
   </tr><tr>
     <td><code>kubo_master_ca_2021</code>, <code>kubo_ca_2018</code>, <code>etcd_ca_2018</code>, and their leaf certificates</td>
     <td>All clusters.</td>
-    <td>See <a href="#unique">Rotate Kubernetes Cluster Certificates</a> below.</td>
+    <td>See <a href="#cluster-certs">Rotate Kubernetes Cluster Certificates</a> below.</td>
   </tr><tr>
     <td><code>tls_nsx_t</code> and <code>tls_nsx_lb</code></td>
     <td>NSX-T only. These certificates must be registered with NSX Manager.</td>
@@ -32,18 +34,12 @@ The following table lists the TKGI-provisioned Kubernetes cluster certificates a
 </table>
 <br>
 
-<br>
 To rotate the certificates used by the <%= vars.k8s_runtime_abbr %> control plane, 
 see [Rotating <%= vars.k8s_runtime_abbr %> Control Plane Certificates](./rotate-tile-certificates.html).
 
-<p class="note warning">
-<strong>Warning:</strong> Certificate rotation is an advanced operation.
-If rotation is needed, it is recommended that you contact Support before proceeding.
-</p>
+## <a id="cluster-certs"></a>Kubernetes Cluster Certificates
 
-## <a id="unique"></a>Rotate Kubernetes Cluster Certificates
-
-This procedure rotates the following CA certificates and their leaf certificates:
+A TKGI-provisioned Kubernetes cluster includes the following CA certificates and their leaf certificates:
 
 - `kubo_master_ca_2021`
   - `tls-kubernetes-2018`
@@ -51,275 +47,70 @@ This procedure rotates the following CA certificates and their leaf certificates
   - `tls-nsx-kube-proxy-2018 (with NSX-T)`
 
 -  `kubo_ca_2018`:
+  - `tls-kubelet-2018`
   - `tls-metrics-server-2018`
   - `tls-kubelet-client-2018`
-  - `tls-kubelet-2018`
   - `tls-kube-controller-manager-2018`
+
 - `etcd_ca_2018`:
-  - `tls-etcdctl-root-2018-2`
-  - `tls-etcdctl-flanneld-2018-2`
-  - `tls-etcdctl-2018-2`
   - `tls-etcd-2018-2`
+  - `tls-etcdctl-2018-2`
+  - `tls-etcdctl-root-2018-2`  
+  - `tls-etcdctl-flanneld-2018-2`
 
-All <%= vars.k8s_runtime_abbr %>-deployed Kubernetes clusters use `kubo_master_ca_2021`, `kubo_ca_2018`, `etcd_ca_2018`, and their leaf certificates.
-Their values are unique to each cluster,
-and their expiration dates depend on the cluster creation date.
+- NSX certificates
+  - `tls-nsx-lb`
+  - `tls-nsx-t`  
 
-The procedure below uses the CredHub Maestro command line interface (CLI) to rotate the `kubo_master_ca_2021`, 
-`kubo_ca_2018`, and `etcd_ca_2018` CA certificates and their leaf certificates.
+<img src="images/cluster-certs.png">
 
+## <a id="cert-use-cases"></a>Supported Use Cases
 
-For more information about the CredHub Maestro CLI, see
-[Getting Started with CredHub Maestro](https://docs.pivotal.io/ops-manager/security/pcf-infrastructure/getting-started-with-maestro-cli.html)
-in the Ops Manager documentation.
+The TKGI CLI supports the following certificate rotation scenarios:
 
-**Limitations:**
+* Rotate only NSX certificates (`--only-nsx` for nsx certificates)
+* Rotate all certificates (`--all` for all certificates, except for the custom_ca)
+* Rotate all certificates except NSX certificates (`--skip-nsx` for skipping NSX-T certificates, if already rotated)
+* Update custom CA, if custom CA  is used for cluster (`--update-cluster` for update custom CA)
 
-  * In deployments that use NSX-T networking, clusters also have
-unique NSX-T certificates that must be registered with the NSX Manager.
-To rotate those, see [Rotate Cluster-Specific NSX-T Certificates](#unique-nsxt), below.
-  * This procedure differs from the procedures to rotate shared cluster certificates
-or <%= vars.k8s_runtime_abbr %> control plane certificates.
-  <p class="note warning"><strong>Warning:</strong> Do not use the instructions
-in this section to rotate NSX-T certificates or shared Kubernetes cluster certificates.</p>
+## <a id="rotate-all"></a>Rotate All Cluster Certificates
 
+To rotate all cluster certificates:
 
-### <a id="prerequisites"></a>Prerequisites
+```
+tkgi rotate-certificates <cluster name> --all
+```
 
-To rotate certificates using the CredHub Maestro CLI, you must have the following:
+This command rotates [all certificates](#cluster-certs) except a custom CA `kubo_master_ca_2021` (if implemented).
 
-* <%= vars.k8s_runtime_abbr %> v1.9 or later.
-Earlier versions of <%= vars.k8s_runtime_abbr %> are not
-compatible with the CredHub Maestro CLI.
-* Kubernetes clusters upgraded to <%= vars.k8s_runtime_abbr %> v1.9.
-* Ops Manager v2.9 or later.
-* The `pks.cluster.admin` UAA scope.
+## <a id="rotate-all-but-nsx"></a>Rotate All Cluster Certificates Except NSX-T
+ 
+To rotate all cluster certificates except the NSX-T certificates:
 
-The certificate rotation procedure
-with the CredHub Maestro CLI provided below has been tested on
-Ops Manager v2.9 and <%= vars.k8s_runtime_abbr %> v1.9.
+```
+tkgi rotate-certificates <cluster name> --skip-nsx --all
+```
 
-### <a id="downtime"></a>Downtime
+This command rotates [all certificates](#cluster-certs) except `tls-nsx-t` and `tls-nsx-lb`.
 
-Depending on cluster topology, rotating `kubo_master_ca_2021`, `kubo_ca_2018`, or `etcd_ca_2018` may cause cluster downtime while cluster nodes restart:
+## <a id="rotate-only-nsx"></a>Rotate NSX-T Certificates Only
 
-* **Multiple control plane (master) and worker nodes**: No downtime
-* **Single control plane node**: Cluster control plane downtime
-* **Single worker node**: Workload downtime
+To rotate only NSX certificates:
 
-### <a id="prepare"></a>Prepare to Rotate
+```
+tkgi rotate-certificates <cluster name> --only-nsx
+```
 
-Before rotating your certificates, complete the following steps: 
+This command only rotates the NSX-T certificates `tls-nsx-t` and `tls-nsx-lb`.
 
-1. [Retrieve the Cluster UUID](#identify)
-1. [Access CredHub Maestro on the Ops Manager VM](#access)
-1. [Identify Your Cluster Deployment Names](#deployments)
-1. [Determine Which Certificates Are Expiring](#deployment-expiration-dates)
+## <a id="rotate-custom"></a>Rotate Custom CA
 
-#### <a id="identify"></a>Retrieve the Cluster UUID
+If you have implemented a custom CA for the `kubo_master_ca_2021`, rotation is handled by the `update-cluster` CLI command.
 
-This section describes how to retrieve the universally unique identifier (UUID)
-of a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster.
-You will use this UUID in [Identify Your Cluster Deployment Names](#deployments)
-and [Rotate the Certificates](#rotate) below.
+For example:
 
-To retrieve the UUID of a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes
-cluster:
+```
+tkgi update-cluster <cluster name> --config-file <path to the config file>
+```
 
-1. Log in to <%= vars.k8s_runtime_abbr %>. For instructions, see
-[Logging in to <%= vars.product_short %>](login.html).
-1. To view the list of your deployed clusters, run `tkgi clusters`.
-
-    For example:
-
-    <pre class="terminal">
-    $ tkgi clusters
-
-    Name    Plan Name       UUID                                    Status       Action  
-    test    multi-master    ae681cd1-7ff4-4661-b12c-49a5b543f16f    succeeded    CREATE
-    </pre>   
-
-1. In the output of the `tkgi clusters` command,
-locate your target cluster and record its UUID. If you want to rotate the `kubo_master_ca_2021`, `kubo_ca_2018`, 
-and `etcd_ca_2018` CA certificates and their leaf certificates for multiple clusters,
-locate all your target clusters in the output and record the UUIDs.
-1. Proceed to [Access CredHub Maestro on the Ops Manager VM](#access) below.
-
-#### <a id="access"></a>Access CredHub Maestro on the Ops Manager VM
-
-To access the CredHub Maestro CLI on the Ops Manager VM:
-
-1. SSH into the Ops Manager VM. For instructions, see
-[Log in to the Ops Manager VM with SSH](https://docs.pivotal.io/ops-manager/install/trouble-advanced.html#ssh)
-in the Ops Manager documentation.
-1. Set the BOSH command line and CredHub environment variables on the
-Ops Manager VM.
-    1. To set the BOSH environment variables,
-    follow the instructions in
-    [Set the BOSH Environment Variables on the Ops Manager VM](https://docs.pivotal.io/ops-manager/install/trouble-advanced.html#export-bosh-envs)
-    in the Ops Manager documentation.
-
-        For example:
-
-        <pre class="terminal">
-        $ export BOSH_CLIENT=ops_manager \
-        BOSH_CLIENT_SECRET=example_secret \
-        BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate \
-        BOSH_ENVIRONMENT=10.0.16.5 bosh
-        </pre>
-
-    1. To set the CredHub environment variables, export the following variables:
-        * `CREDHUB_SERVER` is the URL of the BOSH Director CredHub server.
-        This should be `BOSH_ENVIRONMENT:8844`.
-        * `CREDHUB_CLIENT` is the name of the CredHub client.
-        This is the same as `BOSH_CLIENT`.
-        * `CREDHUB_SECRET` is the CredHub client secret.
-        This is the same as `BOSH_CLIENT_SECRET`.
-        * `CREDHUB_CA_CERT` is the path or value of the CredHub trusted CA certificate.
-        This is the same as `BOSH_CA_CERT`.
-
-        For example:
-
-        <pre class="terminal">
-        $ export CREDHUB_SERVER=10.0.16.5:8844 \
-        CREDHUB_CLIENT=ops_manager \
-        CREDHUB_SECRET=example_secret \
-        CREDHUB_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate
-        </pre>
-
-#### <a id="deployments"></a>Identify Your Cluster Deployment Names
-
-1. To identify your Kubernetes cluster deployment names, run:
-
-    ```
-    bosh deployments
-    ```
-
-    Kubernetes cluster deployment names begin with
-    `service-instance_`. For example,
-    `service-instance_ae681cd1-7ff4-4661-b12c-49a5b543f16f`, where
-    `ae681cd1-7ff4-4661-b12c-49a5b543f16f` is the cluster UUID you retrieved
-    in [Retrieve the Cluster UUID](#identify) above.
-
-#### <a id="deployment-expiration-dates"></a>Determine Which Certificates Are Expiring
-
-1. To review the expiration dates of the `kubo_master_ca_2021`, `kubo_ca_2018`, and `etcd_ca_2018`
-CA certificates and their leaf certificates for a
-<%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster:
-
-    1. Run the following command:
-
-        ```
-        maestro list --expires-within TIME-PERIOD --deployment-name service-instance_CLUSTER-UUID
-        ```
-
-        Where:
-        * `TIME-PERIOD` is the expiry window you want to filter.
-        Valid units are `d` for days, `w` for weeks, `m` for months,
-        and `y` for years. For example, `1y` lists the certificates expiring within
-        one year.
-        * `CLUSTER-UUID` is the cluster UUID you retrieved in
-        [Retrieve the Cluster UUID](#identify) above.
-
-        For more information about how to check certificate expiration dates,
-        see [maestro list](https://docs.pivotal.io/ops-manager/security/pcf-infrastructure/getting-started-with-maestro-cli.html#list)
-        in the Ops Manager documentation.<br><br>
-
-    1. Locate the `kubo_master_ca_2021`, `kubo_ca_2018`, and `etcd_ca_2018` CA certificates and
-    their leaf certificates in the output of the `maestro list` command.
-
-### <a id="rotate"></a>Rotate the Certificates
-
-This section describes how to rotate the `kubo_master_ca_2021`, 
-`kubo_ca_2018`, and `etcd_ca_2018` CA certificates and their leaf certificates
-for a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster.
-To rotate these certificates for multiple clusters,
-repeat the procedure below for each cluster.
-
-You can modify this procedure to rotate `kubo_ca_2018` and `etcd_ca_2018`
-separately, rather than at the same time.
-
-To rotate the `kubo_ca_2018` and `etcd_ca_2018` CA certificates and their leaf
-certificates for a <%= vars.k8s_runtime_abbr %>-provisioned
-Kubernetes cluster:
-
-1. Regenerate the `kubo_master_ca_2021`, `kubo_ca_2018` and `etcd_ca_2018` CA certificates:
-
- 	```
-    maestro regenerate ca --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
-    maestro regenerate ca --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
-    ```
-
-    Where `CLUSTER-UUID` is the cluster UUID. You retrieved the UUID in
-    [Retrieve the Cluster UUID](#identify) above.
-    <br><br>
-    This step creates a new version of the CA certificates.
-
-1. If you are running Ops Manager v2.10 or later, skip to the next step.
-If you are running Ops Manager v2.9, mark the latest version of each CA certificate as transitional:
-
-    ```
-    maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/kubo_master_ca_2021
-    maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
-    maestro update-transitional latest --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
-    ```
-
-1. Redeploy the cluster:
-
-    1. Download the latest cluster deployment manifest:
-
-        ```
-        bosh -d service-instance_CLUSTER-UUID manifest > PATH-TO-DEPLOYMENT-MANIFEST
-        ```
-
-        Where `PATH-TO-DEPLOYMENT-MANIFEST` is the location where you want to save
-        the cluster deployment manifest. For example, `/tmp/manifest.yml`.
-
-    1. Deploy the cluster:
-
-        ```
-        bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
-        ```
-
-1. After the cluster redeployment completes
-successfully, mark the signing version of each CA certificate as transitional:
-
-    ```
-    maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/kubo_master_ca_2021    
-    maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
-    maestro update-transitional signing --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
-    ```
-
-    This command also removes the transitional flag from the latest version of the
-    CA certificates.
-
-1. Regenerate all leaf certificates signed by `kubo_master_ca_2021`, `kubo_ca_2018`, and `etcd_ca_2018`:
-
-    ```
-    maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/kubo_master_ca_2021    
-    maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
-    maestro regenerate leaf --signed-by /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
-    ```
-
-1. Redeploy the cluster:
-
-    ```
-    bosh -d service-instance_CLUSTER-UUID manifest > PATH-TO-DEPLOYMENT-MANIFEST
-    bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
-    ```
-
-1. After the cluster redeployment completes
-successfully, remove the transitional flag:
-
-    ```
-    maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/kubo_master_ca_2021    
-    maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/etcd_ca_2018
-    maestro update-transitional remove --name /p-bosh/service-instance_CLUSTER-UUID/kubo_ca_2018
-    ```
-
-1. Redeploy the cluster:
-
-    ```
-    bosh -d service-instance_CLUSTER-UUID manifest > PATH-TO-DEPLOYMENT-MANIFEST
-    bosh -d service-instance_CLUSTER-UUID deploy PATH-TO-DEPLOYMENT-MANIFEST
-    ```
+For complete usage, see [Use a Custom CA for Kubernetes Clusters](./custom-ca.html).
