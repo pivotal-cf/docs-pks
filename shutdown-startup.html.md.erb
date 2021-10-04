@@ -22,22 +22,34 @@ To do this, run the command `bosh update-resurrection off`.
 
 ###<a id="delete-pdbs"></a>Step 2: Delete All PodDisruptionBudgets
 
-Before deleting your apps, you must remove all PodDisruptionBudgets.
+To ensure that all workloads are drained as the worker nodes shutdown, remove all PodDisruptionBudgets 
+before deleting your apps.
 
 1. To confirm the names of your existing PodDisruptionBudgets:
 
     ```
     kubectl get poddisruptionbudgets -A
     ```
-2. To delete a PodDisruptionBudget:   
+
+2. Back up all PodDisruptionBudgets.  
+<br>
+    To back up a single PodDisruptionBudget:   
+
+    ```
+    kubectl get poddisruptionbudget PDB-NAME -o yaml > PDB-NAME.yaml
+    ```
+
+    Where `PDB-NAME` is the name of one of your PodDisruptionBudgets.
+
+3. Delete each PodDisruptionBudget until you have removed all PodDisruptionBudgets.  
+<br>
+    To delete a single PodDisruptionBudget:   
 
     ```
     kubectl edit poddisruptionbudget PDB-NAME
     ```
 
     Where `PDB-NAME` is the name of one of your PodDisruptionBudgets.
-
-3. Delete each PodDisruptionBudget until you have removed all PodDisruptionBudgets.
 
 
 ###<a id="shutdown-apps"></a>Step 3: Shut Down Customer Apps
@@ -393,8 +405,24 @@ For exact Kubernetes node startup instructions, refer to the <a href="https://co
 
 ###<a id="start-apps"></a> Step 9: Start Customer Apps
 
-Start all apps running on the <%= vars.product_short %>-provisioned Kubernetes clusters.
+Start all apps running on the <%= vars.product_short %>-provisioned Kubernetes clusters.  
 
-###<a id="start-resurrector"></a>Step 10: Re-enable BOSH Resurrection
+###<a id="restore-pdbs"></a> Step 10:  Restore All PodDisruptionBudgets
+
+After you have restarted your apps, restore your PodDisruptionBudgets.
+
+1. To restore your PodDisruptionBudgets, 
+re-create each of the PodDisruptionBudgets you backed up before stopping your apps.  
+<br>
+    To re-create a single PodDisruptionBudget:
+
+    ```
+    kubectl apply -f PDB-CONFIG-NAME
+    ```
+
+    Where `PDB-CONFIG-NAME` is the name of one of the backup PodDisruptionBudget YAML configuration files 
+    you created before stopping your apps.  
+
+###<a id="start-resurrector"></a>Step 11: Re-enable BOSH Resurrection
 
 Turn BOSH resurrection back on by running the command `bosh update-resurrection on`.
