@@ -26,6 +26,7 @@ topic to locate the source file of the topic.
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
+| `1.13` | TKGI 1.13 pre-release content          | n/a |
 | `1.12` | TKGI 1.12 released content          | https://docs.pivotal.io/tkgi/1-12/index.html |
 | `1.11` | TKGI 1.11 released content          | https://docs.pivotal.io/tkgi/1-11/index.html |
 | `1.10` | TKGI 1.10 released content          | https://docs.pivotal.io/tkgi/1-10/index.html |
@@ -41,6 +42,8 @@ topic to locate the source file of the topic.
 | `1.0-publish` | Not in use | N/A ([PDF available](https://resources.docs.pivotal.io/pdfs/pks-docs-1.0.pdf)) |
 | `0.8`  | Not in use | N/A|
 | `pks-patches` | Staging site for not-yet-released TKGI and Enterprise PKS patches. | Publishes to an internal staging site only. |
+
+**1.13**: The `1.13` branch is used to publish the pre-release v1.13 version of the site. Create pull requests on `1.13` to contribute bug fixes or correct technical inaccuracies in the v1.13 documentation.
 
 **1.12**: The `1.12` branch is used to publish the live v1.12 version of the site. Create pull requests on `1.12` to contribute bug fixes or correct technical inaccuracies in the v1.12 documentation.
 
