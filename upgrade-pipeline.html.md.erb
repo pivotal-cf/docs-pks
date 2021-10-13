@@ -24,3 +24,118 @@ Perform the following steps:
   * For example, edit the `product_version_regex` value to follow minor version updates.
 
 1. Set the pipeline using the `fly` CLI for Concourse. See the [upgrade-tile pipeline documentation](https://github.com/pivotal-cf/pcf-pipelines/tree/v0.23.0/upgrade-tile) for more information.
+
+## <a id="configure-pipeline"></a>Configure Automated Ops Manager and Xenial Stemcell Downloading
+
+If you use an automated pipeline to upgrade <%= vars.k8s_runtime_abbr %>, 
+you must configure your pipeline to download only Ops Manager and Xenial Stemcell versions 
+that are compatible with your version of <%= vars.k8s_runtime_abbr %>.
+
+<p class="note warning"><strong>Warning:</strong> <%= vars.recommended_by %> recommends that you 
+review the Tanzu Network metadata for your version of <%= vars.k8s_runtime_abbr %> 
+and confirm Ops Manager and stemcell version compatibility before using 
+the Tanzu Network APIs to update Ops Manager and Xenial Stemcells in your automated pipeline. 
+</p>
+
+To configure your automated <%= vars.k8s_runtime_abbr %> upgrade pipeline:
+
+1. To retrieve the Ops Manager and Xenial Stemcell versions compatible with your <%= vars.k8s_runtime_abbr %> version:
+
+    ```
+    curl -X GET https://network.pivotal.io/api/v2/products/pivotal-container-service/releases/RELEASE-ID/dependencies
+    ```
+
+    Where `RELEASE-ID` is the VMware Tanzu Network ID for your <%= vars.k8s_runtime_abbr %> version. 
+    You can see the `RELEASE-ID` in the VMware Tanzu Network URL for your <%= vars.k8s_runtime_abbr %> version.  
+<br>
+    For example:  
+<br>
+    The following example returns the versions of <%= vars.k8s_runtime_abbr %> dependencies that are compatible with <%= vars.k8s_runtime_abbr %> v1.12.0:  
+
+    <pre class="terminal">
+    curl -X GET https://network.pivotal.io/api/v2/products/pivotal-container-service/releases/950934/dependencies
+
+    {
+       "dependencies":[
+          {
+             "release":{
+                "id":960166,
+                "version":"2.10.17",
+                "product":{
+                   "id":78,
+                   "slug":"ops-manager",
+                   "name":"VMware Tanzu Operations Manager"
+                },
+                "_links":{
+                   "self":{
+                      "href":"https://network.pivotal.io/api/v2/products/ops-manager/releases/960166"
+                   }
+                }
+             }
+          },
+          {
+             "release":{
+                "id":926686,
+                "version":"2.10.16",
+                "product":{
+                   "id":78,
+                   "slug":"ops-manager",
+                   "name":"VMware Tanzu Operations Manager"
+                },
+                "_links":{
+                   "self":{
+                      "href":"https://network.pivotal.io/api/v2/products/ops-manager/releases/926686"
+                   }
+                }
+             }
+          },
+          {
+             "release":{
+                "id":950182,
+                "version":"621.141",
+                "product":{
+                   "id":233,
+                   "slug":"stemcells-ubuntu-xenial",
+                   "name":"Pivotal Stemcells (Ubuntu Xenial)"
+                },
+                "_links":{
+                   "self":{
+                      "href":"https://network.pivotal.io/api/v2/products/stemcells-ubuntu-xenial/releases/950182"
+                   }
+                }
+             }
+          },
+          {
+             "release":{
+                "id":960730,
+                "version":"621.154",
+                "product":{
+                   "id":233,
+                   "slug":"stemcells-ubuntu-xenial",
+                   "name":"Pivotal Stemcells (Ubuntu Xenial)"
+                },
+                "_links":{
+                   "self":{
+                      "href":"https://network.pivotal.io/api/v2/products/stemcells-ubuntu-xenial/releases/960730"
+                   }
+                }
+             }
+          }
+       ],
+       "_links":{
+          "self":{
+             "href":"https://network.pivotal.io/api/v2/products/pivotal-container-service/releases/950934/dependencies"
+          }
+       }
+    }
+    </pre>
+
+    The example returned metadata above indicates that <%= vars.k8s_runtime_abbr %> v1.12.0 is compatible with only 
+    Ops Manager versions v2.10.16 and v2.10.17 and Xenial Stemcell versions v621.154 and v621.141.  
+
+2. Configure your automated pipeline to upgrade to 
+only a component version specified in the returned metadata for your version of <%= vars.k8s_runtime_abbr %>.
+
+For more information on retrieving <%= vars.k8s_runtime_abbr %> dependencies, 
+see [API reference](https://network.pivotal.io/docs/api#release_dependencies) 
+in the VMware Tanzu Network documentation.  
