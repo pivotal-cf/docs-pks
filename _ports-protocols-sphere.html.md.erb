@@ -1,192 +1,3 @@
-This topic describes the firewall ports and protocols requirements for using <%= vars.product_full %> 
-<% if current_page.data.nsxt == true %>
-on vSphere with NSX-T integration.  
-<% else %>
-on vSphere.  
-<% end %>
-
-Firewalls and security policies are used to filter traffic and limit access in environments with strict 
-inter-network access control policies.  
-
-Apps frequently require the ability to pass internal communication between system components on 
-different networks and require one or more conduits through the environment's firewalls. 
-Firewall rules are also required to enable interfacing with external systems such as with 
-enterprise apps or apps and data on the public Internet.  
-
-For <%= vars.product_short %>, <%= vars.recommended_by %> recommends that you disable security policies that filter traffic between
-<% if current_page.data.nsxt == true %>
-the networks supporting the system. To secure the environment and grant access between 
-system components with <%= vars.product_short %>, use one of the following methods:
-
-* Enable access to apps through standard Kubernetes load-balancers and ingress
-controller types. This enables you to designate specific ports and protocols as a firewall conduit.  
-* Enable access using the NSX-T load balancer and ingress. This enables you to configure external addresses and ports 
-that are automatically mapped and resolved to internal/local addresses and ports.
-
-For information about ports and protocol requirements for vSphere without NSX-T, see
-[VMware Ports and Protocols](https://ports.vmware.com/home/vSphere+NSX-Data-Center-for-vSphere+NSX-T-Data-Center)
-on the VMware site.
-
-<% else %>
-the networks supporting the system. With <%= vars.product_short %> you should enable access to apps 
-through standard Kubernetes load-balancers and ingress controller types. This enables you to designate 
-specific ports and protocols as a firewall conduit.  
-
-For information about ports and protocol requirements for vSphere with NSX-T, see
-[VMware Ports and Protocols](https://ports.vmware.com/home/vSphere+NSX-Data-Center-for-vSphere+NSX-T-Data-Center)
-on the VMware site.
-<% end %>
-
-
-If you are unable to implement your security policy using the methods described above, 
-refer to the following table, which identifies
-the flows between system components in a typical <%= vars.product_short %> deployment.
-
-<p class="note"><strong>Note</strong>: To control which groups access deploying and scaling 
-your organization's <%= vars.product_short %>-deployed Kubernetes clusters, configure your firewall settings 
-as described on the Operator –> <%= vars.control_plane %> server lines below.</p>
-
-## <a id="enterprise"></a> <%= vars.product_short %> Ports and Protocols
-
-<% if current_page.data.nsxt == true %>
-The following tables list ports and protocols required for network communications between <%= vars.product_short %> v1.5.0 
-and later, and vSphere 6.7 and NSX-T 2.4.0.1 and later.
-<% else %>
-The following tables list ports and protocols required for network communications between <%= vars.product_short %> v1.5.0 
-and later, and vSphere 6.7 and later.
-<% end %>
-
-### <a id="users"></a> <%= vars.product_short %> Users Ports and Protocols
-
-The following table lists ports and protocols used for network communication between <%= vars.product_short %> user interface components.
-
-| Source Component | Destination Component | Destination Protocol | Destination Port | Service |
-| --- | --- | --- | --- | --- |
-| Admin/Operator Console | All System Components | TCP | 22 | ssh |
-| Admin/Operator Console | All System Components | TCP | 80 | http |
-| Admin/Operator Console | All System Components | TCP | 443 | https |
-| Admin/Operator Console | BOSH Director | TCP | 25555 | bosh director rest api |
-<% if current_page.data.nsxt == true %>
-| Admin/Operator Console | NSX-T API VIP | TCP | 443 | https |  
-<% else %>
-<% end %>
-| Admin/Operator Console | Ops Manager | TCP | 22 | ssh |
-| Admin/Operator Console | Ops Manager | TCP | 443 | https |
-| Admin/Operator Console | <%= vars.k8s_runtime_abbr %> Controller | TCP | 9021 | tkgi api server |
-| Admin/Operator Console | vCenter Server | TCP | 443 | https |
-| Admin/Operator Console | vCenter Server | TCP | 5480 | vami |
-| Admin/Operator Console | vSphere ESXI Hosts Mgmt. vmknic | TCP | 902 | ideafarm-door |
-| Admin/Operator and Developer Consoles | Harbor Private Image Registry | TCP | 80 | http |
-| Admin/Operator and Developer Consoles | Harbor Private Image Registry | TCP | 443 | https |
-| Admin/Operator and Developer Consoles | Harbor Private Image Registry | TCP | 4443 | notary |
-| Admin/Operator and Developer Consoles | Kubernetes App Load-Balancer Svc | TCP/UDP | Varies | varies with apps |
-| Admin/Operator and Developer Consoles | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | httpsca |
-| Admin/Operator and Developer Consoles | Kubernetes Cluster Ingress Controller | TCP | 80 | http |
-| Admin/Operator and Developer Consoles | Kubernetes Cluster Ingress Controller | TCP | 443 | https |
-| Admin/Operator and Developer Consoles | Kubernetes Cluster Worker Node | TCP/UDP | 30000-32767 | kubernetes nodeport |
-| Admin/Operator and Developer Consoles | <%= vars.k8s_runtime_abbr %> Controller | TCP | 8443 | httpsca |
-| All User Consoles (Operator, Developer, Consumer) | Kubernetes App Load-Balancer Svc | TCP/UDP | Varies | varies with apps |
-| All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Ingress Controller | TCP | 80 | http |
-| All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Ingress Controller | TCP | 443 | https |
-| All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Worker Node | TCP/UDP | 30000-32767 | kubernetes nodeport |
-<% if current_page.data.nsxt == true %>
-  
-<p class="note"><strong>Note</strong>: The <code>type:NodePort</code> Service type is not supported for <%= vars.product_short %> deployments on vSphere with NSX-T. 
- Only <code>type:LoadBalancer</code> and Services associated with Ingress rules are supported on vSphere with NSX-T.</p>  
-<% else %>
-<% end %>
-
-### <a id="core"></a> <%= vars.product_short %> Core Ports and Protocols
-
-The following table lists ports and protocols used for network communication between core <%= vars.product_short %> components.
-
-| Source Component | Destination Component | Destination Protocol | Destination Port | Service| 
-| --- | --- | --- | --- | --- |
-| All System Components | Corporate Domain Name Server | TCP/UDP | 53 | dns| 
-| All System Components | Network Time Server | UDP | 123 | ntp| 
-| All System Components | vRealize LogInsight | TCP/UDP | 514/1514 | syslog/tls syslog| 
-| All System Control Plane Components | AD/LDAP Directory Server | TCP/UDP | 389/636 | ldap/ldaps| 
-| Ops Manager | Admin/Operator Console | TCP | 22 | ssh|
-| Ops Manager | BOSH Director | TCP | 6868 | bosh agent http|
-| Ops Manager | BOSH Director | TCP | 8443 | httpsca|
-| Ops Manager | BOSH Director | TCP | 8844 | credhub|
-| Ops Manager | BOSH Director | TCP | 25555 | bosh director rest api|
-| Ops Manager | Harbor Private Image Registry | TCP | 22 | ssh|
-| Ops Manager | Kubernetes Cluster Master/Etcd Node | TCP | 22 | ssh|
-| Ops Manager | Kubernetes Cluster Worker Node | TCP | 22 | ssh|
-<% if current_page.data.nsxt == true %>
-| Ops Manager | NSX-T API VIP | TCP | 443 | https|
-| Ops Manager | NSX-T Manager/Controller Node | TCP | 22 | ssh|
-| Ops Manager | NSX-T Manager/Controller Node | TCP | 443 | https|
-<% else %>
-<% end %>
-| Ops Manager | <%= vars.k8s_runtime_abbr %> Controller | TCP | 22 | ssh|
-| Ops Manager | <%= vars.k8s_runtime_abbr %> Controller | TCP | 8443 | httpsca|
-| Ops Manager | vCenter Server | TCP | 443 | https|
-| Ops Manager | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | https|
-<% if current_page.data.nsxt == true %>
-| BOSH Director | NSX-T API VIP | TCP | 443 | https|
-<% else %>
-<% end %>
-| BOSH Director | vCenter Server | TCP | 443 | https| 
-| BOSH Director | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | https|
-| BOSH Compilation Job VM | BOSH Director | TCP | 4222 | bosh nats server| 
-| BOSH Compilation Job VM | BOSH Director | TCP | 25250 | bosh blobstore| 
-| BOSH Compilation Job VM | BOSH Director | TCP | 25923 | health monitor daemon| 
-| BOSH Compilation Job VM | Harbor Private Image Registry | TCP | 443 | https| 
-| BOSH Compilation Job VM | Harbor Private Image Registry | TCP | 8853 | bosh dns health| 
-| <%= vars.k8s_runtime_abbr %> Controller | BOSH Director | TCP | 4222 | bosh nats server| 
-| <%= vars.k8s_runtime_abbr %> Controller | BOSH Director | TCP | 8443 | httpsca| 
-| <%= vars.k8s_runtime_abbr %> Controller | BOSH Director | TCP | 25250 | bosh blobstore| 
-| <%= vars.k8s_runtime_abbr %> Controller | BOSH Director | TCP | 25555 | bosh director rest api| 
-| <%= vars.k8s_runtime_abbr %> Controller | BOSH Director | TCP | 25923 | health monitor daemon| 
-| <%= vars.k8s_runtime_abbr %> Controller | Kubernetes Cluster Master/Etcd Node | TCP | 8443 | httpsca| 
-| <%= vars.k8s_runtime_abbr %> Controller | <%= vars.control_plane_db %> VM | TCP | 3306 | tkgi db proxy |
-<% if current_page.data.nsxt == true %>
-| <%= vars.k8s_runtime_abbr %> Controller | NSX-T API VIP | TCP | 443 | https|   
-<% else %>
-<% end %>
-| <%= vars.k8s_runtime_abbr %> Controller | vCenter Server | TCP | 443 | https| 
-| Harbor Private Image Registry | BOSH Director | TCP | 4222 | bosh nats server| 
-| Harbor Private Image Registry | BOSH Director | TCP | 25250 | bosh blobstore| 
-| Harbor Private Image Registry | BOSH Director | TCP | 25923 | health monitor daemon| 
-| Harbor Private Image Registry | IP NAS Storage Array | TCP | 111 | nfs rpc portmapper| 
-| Harbor Private Image Registry | IP NAS Storage Array | TCP | 2049 | nfs| 
-| Harbor Private Image Registry | Public CVE Source Database | TCP | 443 | https| 
-| kube-system pod/telemetry-agent | <%= vars.k8s_runtime_abbr %> Controller | TCP | 24224 | fluentd out_forward| 
-<% if current_page.data.nsxt == true %>
-| Kubernetes Cluster Ingress Controller | NSX-T API VIP | TCP | 443 | https|  
-<% else %>
-<% end %>
-| Kubernetes Cluster Master/Etcd Node | BOSH Director | TCP | 4222 | bosh nats server| 
-| Kubernetes Cluster Master/Etcd Node | BOSH Director | TCP | 25250 | bosh blobstore| 
-| Kubernetes Cluster Master/Etcd Node | BOSH Director | TCP | 25923 | health monitor daemon| 
-| Kubernetes Cluster Master/Etcd Node | Kubernetes Cluster Master/Etcd Node | TCP | 2379 | etcd clent| 
-| Kubernetes Cluster Master/Etcd Node | Kubernetes Cluster Master/Etcd Node | TCP | 2380 | etcd server| 
-| Kubernetes Cluster Master/Etcd Node | Kubernetes Cluster Master/Etcd Node | TCP | 8443 | httpsca| 
-| Kubernetes Cluster Master/Etcd Node | Kubernetes Cluster Master/Etcd Node | TCP | 8853 | bosh dns health| 
-| Kubernetes Cluster Master/Etcd Node | Kubernetes Cluster Worker Node | TCP | 4194 | cadvisor| 
-| Kubernetes Cluster Master/Etcd Node | Kubernetes Cluster Worker Node | TCP | 10250 | kubelet api| 
-| Kubernetes Cluster Master/Etcd Node | Kubernetes Cluster Worker Node | TCP | 31194 | cadvisor| 
-<% if current_page.data.nsxt == true %>
-| Kubernetes Cluster Master/Etcd Node | NSX-T API VIP | TCP | 443 | https| 
-<% else %>
-<% end %>
-| Kubernetes Cluster Master/Etcd Node | <%= vars.k8s_runtime_abbr %> Controller | TCP | 8443 | httpsca| 
-| Kubernetes Cluster Master/Etcd Node | <%= vars.k8s_runtime_abbr %> Controller | TCP | 8853 | bosh dns health| 
-| Kubernetes Cluster Master/Etcd Node | vCenter Server | TCP | 443 | https| 
-| Kubernetes Cluster Worker Node | BOSH Director | TCP | 4222 | bosh nats server| 
-| Kubernetes Cluster Worker Node | BOSH Director | TCP | 25250 | bosh blobstore| 
-| Kubernetes Cluster Worker Node | BOSH Director | TCP | 25923 | health monitor daemon| 
-| Kubernetes Cluster Worker Node | Harbor Private Image Registry | TCP | 443 | https| 
-| Kubernetes Cluster Worker Node | Harbor Private Image Registry | TCP | 8853 | bosh dns health| 
-| Kubernetes Cluster Worker Node | IP NAS Storage Array | TCP | 111 | nfs rpc portmapper| 
-| Kubernetes Cluster Worker Node | IP NAS Storage Array | TCP | 2049 | nfs| 
-| Kubernetes Cluster Worker Node | Kubernetes Cluster Master/Etcd Node | TCP | 8443 | httpsca| 
-| Kubernetes Cluster Worker Node | Kubernetes Cluster Master/Etcd Node | TCP | 8853 | bosh dns health| 
-| Kubernetes Cluster Worker Node | Kubernetes Cluster Master/Etcd Node | TCP | 10250 | kubelet api| 
-| pks-system pod/cert-generator | <%= vars.k8s_runtime_abbr %> Controller | TCP | 24224 | fluentd out_forward| 
-| pks-system pod/fluent-bit | <%= vars.k8s_runtime_abbr %> Controller | TCP | 24224 | fluentd out_forward| 
 
 ## <a id="vmware"></a> VMware Ports and Protocols
 
@@ -198,14 +9,14 @@ The following table lists ports and protocols used for network communication bet
 
 | Source Component | Destination Component | Destination Protocol | Destination Port | Service| 
 | --- | --- | --- | --- | --- |
-<% if current_page.data.nsxt == true %>
+<% if current_page.data.netenv == "nsxt" %>
 | vCenter Server | NSX-T Manager/Controller Node | TCP | 8080 | http alt| 
 <% else %>
 <% end %>
 | vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | https| 
 | vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 8080 | http alt| 
 | vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 9080 | io filter storage| 
-<% if current_page.data.nsxt == true %>
+<% if current_page.data.netenv == "nsxt" %>
 | vSphere ESXI Hosts Mgmt. vmknic | NSX-T Manager/Controller Node | TCP | 443 | https| 
 | vSphere ESXI Hosts Mgmt. vmknic | NSX-T Manager/Controller Node | TCP | 1235 | netcpa| 
 | vSphere ESXI Hosts Mgmt. vmknic | NSX-T Manager/Controller Node | TCP | 5671 | amqp traffic| 
@@ -227,7 +38,7 @@ The following table lists ports and protocols used for network communication bet
 | vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 3784 | bfd| 
 | vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 3785 | bfd| 
 | vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 6081 | geneve| 
-<% if current_page.data.nsxt == true %>
+<% if current_page.data.netenv == "nsxt" %>
 | vSphere ESXI Hosts TEP vmknic | NSX-T Edge TEP vNIC | UDP | 3784 | bfd| 
 | vSphere ESXI Hosts TEP vmknic | NSX-T Edge TEP vNIC | UDP | 3785 | bfd| 
 | vSphere ESXI Hosts TEP vmknic | NSX-T Edge TEP vNIC | UDP | 6081 | geneve|
@@ -271,7 +82,7 @@ The following table lists ports and protocols used for network communication bet
 | --- | --- | --- | --- | --- |
 | Admin/Operator Console | vRealize Operations Manager | TCP | 443 | https| 
 | vRealize Operations Manager | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | httpsca| 
-<% if current_page.data.nsxt == true %>
+<% if current_page.data.netenv == "nsxt" %>
 | vRealize Operations Manager | NSX-T API VIP | TCP | 443 | https| 
 <% else %>
 <% end %>
@@ -283,7 +94,7 @@ The following table lists ports and protocols used for network communication bet
 | Kubernetes Cluster Master/Etcd Node | vRealize LogInsight | TCP | 9543 | ingestion api -tls| 
 | Kubernetes Cluster Worker Node | vRealize LogInsight | TCP | 9000 | ingestion api| 
 | Kubernetes Cluster Worker Node | vRealize LogInsight | TCP | 9543 | ingestion api -tls| 
-<% if current_page.data.nsxt == true %>
+<% if current_page.data.netenv == "nsxt" %>
 | NSX-T Manager/Controller Node | vRealize LogInsight | TCP | 9000 | ingestion api| 
 <% else %>
 <% end %>
@@ -295,7 +106,7 @@ The following table lists ports and protocols used for network communication bet
 | Admin/Operator Console | vRealize Network Insight Platform | TCP | 443 | https| 
 | Admin/Operator Console | vRealize Network Insight Proxy | TCP | 22 | ssh| 
 | vRealize Network Insight Proxy | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | httpsca| 
-<% if current_page.data.nsxt == true %>
+<% if current_page.data.netenv == "nsxt" %>
 | vRealize Network Insight Proxy | NSX-T API VIP | TCP | 22 | ssh| 
 | vRealize Network Insight Proxy | NSX-T API VIP | TCP | 443 | https| 
 <% else %>
