@@ -1,24 +1,49 @@
-This topic describes the firewall ports and protocols requirements for using <%= vars.product_full %> 
+This topic describes the firewall ports and protocols requirements for using <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>)
 <% if current_page.data.netenv == "nsxt" %>
 on vSphere with NSX-T integration.  
+
+If you are not using <%= vars.k8s_runtime_abbr %> on vSphere with NSX-T, see one of the follow topics instead:  
+
+* [Firewall Ports and Protocols Requirements for vSphere without NSX-T](ports-protocols-wo-nsx-t.html)
+* [Firewall Ports and Protocols Requirements](ports-protocols-antrea.html)
+
 <% elsif current_page.data.netenv == "vsphere" %>
 on vSphere.  
+
+If you are not using <%= vars.k8s_runtime_abbr %> on vSphere without NSX-T, see one of the follow topics instead:
+
+* [Firewall Ports and Protocols Requirements for vSphere with NSX-T](ports-protocols-nsx-t.html)
+* [Firewall Ports and Protocols Requirements](ports-protocols-antrea.html)
+
 <% elsif current_page.data.netenv == "antrea" %>
 with Antrea.  
+
+If you are using <%= vars.k8s_runtime_abbr %> on vSphere, see one of the follow topics instead:
+
+* [Firewall Ports and Protocols Requirements for vSphere with NSX-T](ports-protocols-nsx-t.html)
+* [Firewall Ports and Protocols Requirements for vSphere without NSX-T](ports-protocols-wo-nsx-t.html)
 <% else %>
 with Flannel or Antrea networking.  
+
+If you are using <%= vars.k8s_runtime_abbr %> on vSphere, see one of the follow topics instead:
+
+* [Firewall Ports and Protocols Requirements for vSphere with NSX-T](ports-protocols-nsx-t.html)
+* [Firewall Ports and Protocols Requirements for vSphere without NSX-T](ports-protocols-wo-nsx-t.html)
 <% end %>
 
+## <a id="overview"></a> Overview
+
+<% if current_page.data.netenv == "nsxt" %>
 Firewalls and security policies are used to filter traffic and limit access in environments with strict 
 inter-network access control policies.  
 
 Apps frequently require the ability to pass internal communication between system components on 
-different networks and require one or more conduits through the environment's firewalls. 
-Firewall rules are also required to enable interfacing with external systems such as with 
+different networks and require one or more conduits through the environment's firewalls.  
+
+You must configure firewall rules to enable apps to interface with external systems such as with 
 enterprise apps or apps and data on the public Internet.  
 
 For <%= vars.product_short %>, <%= vars.recommended_by %> recommends that you disable security policies that filter traffic between
-<% if current_page.data.netenv == "nsxt" %>
 the networks supporting the system. To secure the environment and grant access between 
 system components with <%= vars.product_short %>, use one of the following methods:
 
@@ -27,60 +52,86 @@ controller types. This enables you to designate specific ports and protocols as 
 * Enable access using the NSX-T load balancer and ingress. This enables you to configure external addresses and ports 
 that are automatically mapped and resolved to internal/local addresses and ports.
 
-For more information about vSphere with NSX-T port and protocol requirements, see 
-[VMware Ports and Protocols](https://ports.vmware.com/home/vSphere+NSX-Data-Center-for-vSphere+NSX-T-Data-Center)
-on the VMware site.
+If you are unable to implement your security policy using the methods described above, 
+refer to the following table, which identifies
+the flows between system components in a typical <%= vars.product_short %> deployment:  
 
-For information about ports and protocol requirements for vSphere without NSX-T, see 
-[Firewall Ports and Protocols Requirements for vSphere without NSX-T](ports-protocols-wo-nsx-t.html).  
+* [<%= vars.k8s_runtime_abbr %> Users Ports and Protocols](#users)  
+* [<%= vars.k8s_runtime_abbr %> Core Ports and Protocols](#core)  
+* [VMware Virtual Infrastructure Ports and Protocols](#virtual-infra)  
+* [VMware Optional Integration Ports and Protocols](#optional-integration)  
 
-For information about ports and protocol requirements for <%= vars.k8s_runtime_abbr %> on Flannel or Antrea, see 
-[Firewall Ports and Protocols Requirements](ports-protocols-antrea.html).  
+Consult the tables above when configuring port settings to install or upgrade <%= vars.k8s_runtime_abbr %> 
+or configure a Kubernetes cluster.  
 <% elsif current_page.data.netenv == "vsphere" %>
+Firewalls and security policies are used to filter traffic and limit access in environments with strict 
+inter-network access control policies.  
+
+Apps frequently require the ability to pass internal communication between system components on 
+different networks and require one or more conduits through the environment's firewalls.  
+
+You must configure firewall rules to enable apps to interface with external systems such as with 
+enterprise apps or apps and data on the public Internet.  
+
+For <%= vars.product_short %>, <%= vars.recommended_by %> recommends that you disable security policies that filter traffic between
 the networks supporting the system. With <%= vars.product_short %> you should enable access to apps 
 through standard Kubernetes load-balancers and ingress controller types. This enables you to designate 
-specific ports and protocols as a firewall conduit.  
-
-For information about ports and protocol requirements for vSphere with NSX-T, see 
-[Firewall Ports and Protocols Requirements for vSphere with NSX-T](ports-protocols-nsx-t.html).  
-
-For information about ports and protocol requirements for <%= vars.k8s_runtime_abbr %> on Flannel or Antrea, see 
-[Firewall Ports and Protocols Requirements](ports-protocols-antrea.html).  
-<% else %>
-the networks supporting the system. With <%= vars.product_short %> you should enable access to apps 
-through standard Kubernetes load-balancers and ingress controller types. This enables you to designate 
-specific ports and protocols as a firewall conduit.  
-
-For information about ports and protocol requirements for vSphere with NSX-T, see 
-[Firewall Ports and Protocols Requirements for vSphere with NSX-T](ports-protocols-nsx-t.html).  
-
-For information about ports and protocol requirements for vSphere without NSX-T, see 
-[Firewall Ports and Protocols Requirements for vSphere without NSX-T](ports-protocols-wo-nsx-t.html).  
-<% end %>
-
+specific ports and protocols as a firewall conduit.    
 
 If you are unable to implement your security policy using the methods described above, 
 refer to the following table, which identifies
-the flows between system components in a typical <%= vars.product_short %> deployment.
+the flows between system components in a typical <%= vars.product_short %> deployment:  
+
+* [<%= vars.k8s_runtime_abbr %> Users Ports and Protocols](#users)  
+* [<%= vars.k8s_runtime_abbr %> Core Ports and Protocols](#core)  
+* [VMware Virtual Infrastructure Ports and Protocols](#virtual-infra)  
+* [VMware Optional Integration Ports and Protocols](#optional-integration)  
+* [Antrea Networking Ports and Protocols](#antrea)
+
+Consult the tables above when configuring port settings to install or upgrade <%= vars.k8s_runtime_abbr %> 
+or configure a Kubernetes cluster.  
+<% else %>
+Firewalls and security policies are used to filter traffic and limit access in environments with strict 
+inter-network access control policies. 
+
+Apps frequently require the ability to pass internal communication between system components on 
+different networks and require one or more conduits through the environment's firewalls. 
+
+To enable your apps to interface with external systems such as with 
+enterprise apps or apps and data on the public Internet, you must configure firewall rules, 
+Kubernetes load-balancers, and ingress controller types to designate 
+specific ports and protocols as a firewall conduit.  
+
+Consult the following tables when configuring port settings to install or upgrade <%= vars.k8s_runtime_abbr %> 
+or configure a Kubernetes cluster:
+
+* [<%= vars.k8s_runtime_abbr %> Users Ports and Protocols](#users)  
+* [<%= vars.k8s_runtime_abbr %> Core Ports and Protocols](#core)  
+* [Antrea Networking Ports and Protocols](#antrea)  
+
+
+You can optionally disable security policies that filter traffic between
+the networks supporting the system rather than opening individual ports.
+<% end %>
+
+
 
 <p class="note"><strong>Note</strong>: To control which groups access deploying and scaling 
 your organization's <%= vars.product_short %>-deployed Kubernetes clusters, configure your firewall settings 
 as described on the Operator –> <%= vars.control_plane %> server lines below.</p>
 
-## <a id="enterprise"></a> <%= vars.product_short %> Ports and Protocols
+## <a id="enterprise"></a> <%= vars.k8s_runtime_abbr %> Ports and Protocols
 
+The following tables list ports and protocols required for network communications between <%= vars.k8s_runtime_abbr %> 
 <% if current_page.data.netenv == "nsxt" %>
-The following tables list ports and protocols required for network communications between <%= vars.product_short %> v1.5.0 
-and later, and vSphere 6.7 and NSX-T 2.4.0.1 and later.
+and vSphere 6.7 and NSX-T 2.4.0.1 and later.
 <% elsif current_page.data.netenv == "vsphere" %>
-The following tables list ports and protocols required for network communications between <%= vars.product_short %> v1.5.0 
-and later, and vSphere 6.7 and later.
+and vSphere 6.7 and later.
 <% else %>
-The following tables list ports and protocols required for network communications between <%= vars.product_short %> v1.5.0 
-and later, and other components.
+and other components.
 <% end %>
 
-### <a id="users"></a> <%= vars.product_short %> Users Ports and Protocols
+### <a id="users"></a> <%= vars.k8s_runtime_abbr %> Users Ports and Protocols
 
 The following table lists ports and protocols used for network communication between <%= vars.product_short %> user interface components.
 
@@ -123,7 +174,7 @@ The following table lists ports and protocols used for network communication bet
 <% else %>
 <% end %>
 
-### <a id="core"></a> <%= vars.product_short %> Core Ports and Protocols
+### <a id="core"></a> <%= vars.k8s_runtime_abbr %> Core Ports and Protocols
 
 The following table lists ports and protocols used for network communication between core <%= vars.product_short %> components.
 
