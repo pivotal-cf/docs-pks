@@ -31,7 +31,7 @@ If you are using the `PKS CLI`:
 
 ## <a id="cli-commands"></a>TKGI CLI Commands
 
-**Current Version**: 1.9.0-build.249
+**Current Version**: 1.13.0-build.28
 
 ## <a id='cancel-task'></a> tkgi cancel-task
 
@@ -55,6 +55,35 @@ tkgi cancel-task <task-id> [flags]
 
 ```
   -h, --help   help for cancel-task
+```
+
+## <a id='certificates'></a> tkgi certificates
+
+List the certificates for a kubernetes cluster.
+
+### Synopsis
+
+This command lists the certificates for a specific cluster. Requires a target cluster name.
+
+
+```
+tkgi certificates <cluster-name> [flags]
+```
+
+### Examples
+
+```
+  tkgi certificates my-cluster -d 730
+```
+
+### Options
+
+```
+  -d, --days int32        Action flag, Show certificates expire within days (default 180)
+  -h, --help              help for certificates
+      --json              Return the PKS-API output as json
+      --non-interactive   Don't ask for user input
+      --wait              Wait for the operation to finish
 ```
 
 ## <a id='cluster'></a> tkgi cluster
@@ -158,6 +187,7 @@ tkgi compute-profiles [flags]
   -h, --help   help for compute-profiles
       --json   Return the TKGI-API output as json
 ```
+
 ## <a id='create-cluster'></a> tkgi create-cluster
 
 Creates a kubernetes cluster. Requires cluster name, an external host name, and plan.
@@ -183,6 +213,7 @@ if you manage your clusters with Tanzu Mission Control (TMC). Clusters with name
 
 ```
       --compute-profile string       Optional, compute profile name
+      --config-file string           Optional, path to the config file, supported format json/yaml, identified by file extension
   -e, --external-hostname string     Address from which to access Kubernetes API
   -h, --help                         help for create-cluster
       --json                         Return the TKGI-API output as json
@@ -219,6 +250,7 @@ tkgi create-compute-profile <compute-profile-JSON-path> [flags]
 ```
   -h, --help   help for create-compute-profile
 ```
+
 ## <a id='create-kubernetes-profile'></a> tkgi create-kubernetes-profile
 
 Create a kubernetes profile.
@@ -299,7 +331,7 @@ Delete a compute profile.
 
 ### Synopsis
 
-Deletes compute profile. Requires a compute profile name. Cannot be deleted if profile is in use.
+Deletes a compute profile. Requires a compute profile name. The profile cannot be deleted if it is in use.
 
 ```
 tkgi delete-compute-profile <profile-name> [flags]
@@ -317,13 +349,14 @@ tkgi delete-compute-profile <profile-name> [flags]
   -h, --help              help for delete-compute-profile
       --non-interactive   Don't ask for user input
 ```
+
 ## <a id='delete-kubernetes-profile'></a> tkgi delete-kubernetes-profile
 
 Delete a kubernetes profile.
 
 ### Synopsis
 
-Deletes kubernetes profile. Requires a kubernetes profile name. Cannot be deleted if profile is in use.
+Deletes a kubernetes profile. Requires a kubernetes profile name. The profile cannot be deleted if it is in use.
 
 ```
 tkgi delete-kubernetes-profile <profile-name> [flags]
@@ -348,7 +381,7 @@ Delete a network profile.
 
 ### Synopsis
 
-Deletes network profile. Requires a network profile name (Only applicable for NSX-T). Cannot be deleted if profile is in use.
+Deletes a network profile. Requires a network profile name (Only applicable for NSX-T). The profile cannot be deleted if it is in use.
 
 ```
 tkgi delete-network-profile PROFILE_NAME [flags]
@@ -378,8 +411,7 @@ Run this command in order to update a kubeconfig file so you can access the clus
 Use the `--sso` flag if the TKGI tile is configured with SAML.
 
 If OIDC is enabled and is not SSO, the password could also be set through environment variable: `PKS_USER_PASSWORD`.
-	
-Use the `--sso` flag if PKS tile is configured with SAML.
+
 ```
 tkgi get-credentials <cluster-name> [flags]
 ```
@@ -403,7 +435,7 @@ tkgi get-credentials <cluster-name> [flags]
 
 ## <a id='get-kubeconfig'></a> tkgi get-kubeconfig
 
-Allows you to get kubeconfig for your username.
+Returns the kubeconfig for your username.
 
 ### Synopsis
 
@@ -530,6 +562,7 @@ tkgi login [flags]
       --sso                     Prompt for a one-time passcode to do Single sign-on
       --sso-auto                Auto launch local browser to do Single sign-on
       --sso-passcode string     Single sign-on with one-time passcode
+      --timeout int             Timeout with pks-api endpoint in seconds (default 300)
   -u, --username string         Username
 ```
 
@@ -563,7 +596,7 @@ View a network profile.
 
 ### Synopsis
 
-View saved network profile configuration.
+View the configuration of a saved network profile.
 
 ```
 tkgi network-profile <profile-name> [flags]
@@ -634,10 +667,13 @@ tkgi plans [flags]
 
 ## <a id='resize'></a> tkgi resize
 
+This command is deprecated as of TKGI v1.12. Please use `tkgi update-cluster` instead.
+
 Changes the number of worker nodes for a cluster.
 
 VMware recommends that you avoid using the <code>tkgi resize</code> command to perform resizing
 operations. Instead, use the `tkgi update-cluster` command as follows:
+
 
 ```
 tkgi update-cluster CLUSTER-NAME --num-nodes NUMBER-OF-WORKER-NODES
@@ -647,8 +683,14 @@ Where:
 * `CLUSTER-NAME` is the name of your cluster.
 * `NUMBER-OF-WORKER-NODES` is the number of worker nodes that you want to set for the cluster.
 
-
+<p class="note warning"><strong>Warning</strong>: Do not use <code>tkgi resize</code> 
+  on clusters configured with a network profile CNI configuration.
+  For more information, see <a href="../release-notes.html#1-10-0-do-notuse-resize-cluster">TKGI CLI Resize and Update Cluster Commands Remove Network Profile CNI Configuration from a Cluster</a>
+  in the <em>Release Notes</em>.
+</p>
 ### Synopsis
+
+This command is deprecated as of TKGI v1.12. Please use `tkgi update-cluster` instead.
 
 Resize requires a cluster name, and the number of desired worker nodes. Users can scale up clusters to the plan defined maximum number of worker nodes, or scale down clusters to one node.
 
@@ -659,17 +701,48 @@ tkgi resize <cluster-name> [flags]
 ### Examples
 
 ```
-  tkgi resize my-cluster --num-nodes 5
+tkgi resize my-cluster --num-nodes 5
 ```
 
 ### Options
 
 ```
-  -h, --help              help for resize
-      --json              Return the TKGI-API output as json. Only applicable when used with --wait flag
-      --node-pool-instances string   Number of instances for each node pool
+  -h, --help                         help for resize
+      --json                         Return the TKGI-API output as json. Only applicable when used with --wait flag
+      --node-pool-instances string   Number of instances for each node pool. e.g. node-pool1:2
       --non-interactive              Don't ask for user input
-  -n, --num-nodes int32   Number of worker nodes
+  -n, --num-nodes int32              Number of worker nodes
+      --tags []ClusterTag            Action flag, Add/Update/Delete Tags for VMs as a list of key value pairs (eg. --tags "key1:val1,key2:val2,keyWithoutVal"). To delete all tags, pass an empty string (eg. --tags "")
+      --wait                         Wait for the operation to finish
+```
+
+## <a id='rotate-certificates'></a> tkgi rotate-certificates
+
+Rotate certificates for a specific kubernetes cluster.
+
+### Synopsis
+
+This command rotates the certificates for a specific cluster. Requires a target cluster name.
+
+```
+tkgi rotate-certificates <cluster-name> [flags]
+```
+
+### Examples
+
+```
+  tkgi rotate-certificates my-cluster
+```
+
+### Options
+
+```
+      --all               Rotate all certificates belong to one cluster.
+  -h, --help              help for rotate-certificates
+      --json              Return the PKS-API output as json
+      --non-interactive   Don't ask for user input
+      --only-nsx          Only rotate nsx certificates.
+      --skip-nsx          Skip nsx certificates when rotating certificates for the cluster.
       --wait              Wait for the operation to finish
 ```
 
@@ -704,7 +777,7 @@ List tasks.
 
 ### Synopsis
 
-List recent tasks. By default shows most recent 10 tasks.
+List recent tasks. By default, it lists the ten most recent tasks.
 
 ```
 tkgi tasks [flags]
@@ -730,8 +803,8 @@ Updates the configuration of a specific kubernetes cluster.
 
 <p class="note warning"><strong>Warning</strong>: Do not use <code>tkgi update-cluster</code> 
   on clusters configured with a network profile CNI configuration.
-    For more information, see <a href="https://docs.pivotal.io/tkgi/1-10/release-notes.html#1-10-0-do-notuse-resize-cluster">TKGI CLI Resize and Update Cluster Commands Remove Network Profile CNI Configuration from a Cluster</a> 
-    in the TKGI v1.10 <em>Release Notes</em>.
+  For more information, see <a href="../release-notes.html#1-10-0-do-notuse-resize-cluster">TKGI CLI Resize and Update Cluster Commands Remove Network Profile CNI Configuration from a Cluster</a>
+  in the <em>Release Notes</em>.
 </p>
 
 ### Synopsis
@@ -762,8 +835,9 @@ tkgi update-cluster <cluster-name> [flags]
       --kubelet-drain-ignore-daemonsets string   Action flag, Ignore DaemonSet managed pods during drain.
       --kubelet-drain-delete-local-data string   Action flag, Drain even if there are pods using emptyDir.
       --kubelet-drain-force-node string          Action flag, Forcefully terminate pods which fail to drain. Use it with caution.
-      --node-pool-instances string               Specify how many instances each node pool should have. Applicable on when the cluster has a compute profile applied to it
+      --node-pool-instances string               Specify how many instances each node pool should have. Applicable on when the cluster has a compute profile applied to it.  e.g. node-pool1:2
       --tags []ClusterTag                        Action flag, Add/Update/Delete Tags for VMs as a list of key value pairs (eg. --tags "key1:val1,key2:val2,keyWithoutVal"). To delete all tags, pass an empty string (eg. --tags "")
+      --config-file string                       Optional, path to the config file, supported format json/yaml, identified by file extension
       --non-interactive                          Don't ask for user input
       --json                                     Return the TKGI-API output as json
       --wait                                     Wait for the operation to finish
@@ -772,17 +846,17 @@ tkgi update-cluster <cluster-name> [flags]
 
 ## <a id='upgrade-cluster'></a> tkgi upgrade-cluster
 
-Upgrades the kubernetes cluster.  
+Upgrades a kubernetes cluster.  
 
 <p class="note warning"><strong>Warning</strong>: Do not use <code>tkgi upgrade-cluster</code> 
-on clusters configured with a network profile CNI configuration.
-For more information, see <a href="https://docs.pivotal.io/tkgi/1-10/release-notes.html#1-10-0-do-notuse-resize-cluster">TKGI CLI Resize and Update Cluster Commands Remove Network Profile CNI Configuration from a Cluster</a> 
-in the TKGI v1.10 <em>Release Notes</em>.
+  on clusters configured with a network profile CNI configuration.
+  For more information, see <a href="../release-notes.html#1-10-0-do-notuse-resize-cluster">TKGI CLI Resize and Update Cluster Commands Remove Network Profile CNI Configuration from a Cluster</a>
+  in the <em>Release Notes</em>.
 </p>
 
 ### Synopsis
 
-Upgrades the kubernetes cluster listed. You need to provide a single cluster name.
+Upgrades the specified kubernetes cluster. You must provide a single cluster name.
 
 ```
 tkgi upgrade-cluster <cluster-one> [flags]
@@ -808,9 +882,9 @@ tkgi upgrade-cluster <cluster-one> [flags]
 Upgrades the kubernetes clusters.
 
 <p class="note warning"><strong>Warning</strong>: Do not use <code>tkgi upgrade-clusters</code> 
-on clusters configured with a network profile CNI configuration.
-For more information, see <a href="https://docs.pivotal.io/tkgi/1-10/release-notes.html#1-10-0-do-notuse-resize-cluster">TKGI CLI Resize and Update Cluster Commands Remove Network Profile CNI Configuration from a Cluster</a> 
-in the TKGI v1.10 <em>Release Notes</em>.
+  on clusters configured with a network profile CNI configuration.
+  For more information, see <a href="../release-notes.html#1-10-0-do-notuse-resize-cluster">TKGI CLI Resize and Update Cluster Commands Remove Network Profile CNI Configuration from a Cluster</a>
+  in the <em>Release Notes</em>.
 </p>
 
 ### Synopsis
@@ -838,3 +912,5 @@ tkgi upgrade-clusters [flags]
       --non-interactive       Don't ask for user input
       --wait                  Wait for the operation to finish
 ```
+
+	
