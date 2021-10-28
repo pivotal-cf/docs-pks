@@ -24,10 +24,6 @@ This procedure describes how to send logs to vRLI
 from Windows workers on <%= vars.k8s_runtime_abbr %>-provisioned Windows clusters 
 using Fluent Bit.  
 
-In addition to deploying Fluent Bit, you must also deploy the syslog and Kubernetes filter plugins. 
-The Kubernetes filter plugin is a natively supported Fluent Bit filter which improves logging by
-adding Kubernetes metadata, such as namespace and Pod name to your logs. 
-
 To use Fluent Bit to send Windows worker logs to vRLI: 
 
 1. [Prepare a Fluent Bit Image](#prep-fb-image)
@@ -70,7 +66,13 @@ To build a Fluent Bit Windows Docker image:
 repository on GitHub.  
 1. Open the Windows Dockerfile located at `fluent-bit/dockerfiles/Dockerfile.windows` for editing.
 1. Set the `FLUENTBIT_VERSION` parameter to `1.8`. Fluent Bit v1.8 supports the native syslog plugin.  
-1. Change the `ENTRYPOINT ["fluent-bit.exe", "-i", "dummy", "-o", "stdout"]` last line in the Windows Dockerfile to read:  
+1. Change the last line in the Windows Dockerfile from:
+
+    ```
+    ENTRYPOINT ["fluent-bit.exe", "-i", "dummy", "-o", "stdout"]
+    ```
+
+    to instead read:  
 
     ```
     ENTRYPOINT ["fluent-bit.exe", "--config", "/fluent-bit/etc/fluent-bit.conf"]
@@ -102,7 +104,17 @@ A Fluent Bit configuration defines the `ServiceAccount`, `ClusterRole`, and `Clu
 that ensure that the Fluent Bit Kubernetes filter can access and read metadata from the 
 Kubernetes API server `kubernetes.default.svc.cluster.local:443`.  
 
-You must configure Fluent Bit using a YAML configuration file.  
+You must configure Fluent Bit using a YAML configuration file. For more information on the Syslog output plugin, 
+see [Syslog](https://docs.fluentbit.io/manual/pipeline/outputs/syslog) in the Fluent Bit documentation.  
+
+
+<p class="note"><strong>Note:</strong> You can only mount drives to <code>C:</code> in Docker containers. 
+As a workaround, the Fluent Bit configuration below mounts the entire <code>E:</code> disk to the container as the <code>E:</code> drive.
+Mounting the Docker container <code>E:\\docker-root\\containers</code> log path allows Fluent Bit to read the log content.
+</p>
+
+
+
 
 To create a Fluent Bit deployment configuration YAML file:  
 
@@ -269,6 +281,7 @@ To create a Fluent Bit deployment configuration YAML file:
     If you set `MODE` as `tls`, you must also include the required `tls` parameters.
     * `FLUENT-BIT-IMAGE` is the name of the Fluent Bit image in your registry. 
     For example, `fluent-bit-1.8`.
+
 1. Save the file.  
 
 ## <a id='install-fluent-bit'></a> Install Fluent Bit
