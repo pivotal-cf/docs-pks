@@ -1,0 +1,276 @@
+---
+title: Securing Clusters and Workloads
+owner: PKS
+---
+
+This topic describes how to Kubernetes clusters created with 
+<%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>).
+
+## <a id='logging-prerequisites'></a> Prerequisites
+
+Before starting the tasks in this topic:  
+
+* XX
+
+## <a id='overview'></a> Overview
+
+using standard network policy to deny per namespace level
+
+1. create networkpolicy in default namespace, only allowing pods with app: nginx  label to metadata service
+
+```
+# cat np.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-metadata-access
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+        - 169.254.169.254/32
+
+# cat np-allow.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-metadata-access
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 169.254.169.254/32
+ 
+# kubectl apply -f np.yml
+networkpolicy.networking.k8s.io/deny-metadata-access created
+
+# kubectl apply -f np-allow.yml
+networkpolicy.networking.k8s.io/allow-metadata-access created
+master/f8450b68-786a-492e-a8af-07baafb450a2:~# kubectl get networkpolicy
+NAME                    POD-SELECTOR   AGE
+allow-metadata-access   app=nginx      3s
+deny-metadata-access    <none>         8s
+```
+
+2. create pods in default namespace and another test namespace
+
+```
+#  kubectl get pods --show-labels | grep nginx
+nginx-deployment-7f4fc68488-xm6zz    1/1     Running   0          4m36s   app=nginx,pod-template-hash=7f4fc68488
+nginx-deployment2-7d4996c47d-qppdf   1/1     Running   0          2m16s   app=nginx2,pod-template-hash=7d4996c47d
+
+#  kubectl get pods --show-labels | grep webserver
+webserver                            1/1     Running   0          16m     <none>
+
+# kubectl -n test  get pods --show-labels | grep webserver
+webserver   1/1     Running   0          17m   <none>
+```
+
+3.  Only pods with app:nginx label in default namespace can access to metadata service while others in default namespace cannot. Pods in other namespace(eg. test) can still access to metadata service without impaction by the networkpolicy in default namespace.
+
+```
+# kubectl exec -it nginx-deployment-7f4fc68488-xm6zz sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+
+# curl http://169.254.169.254/latest/meta-data
+ami-id
+ami-launch-index
+ami-manifest-path
+block-device-mapping/
+events/
+hostname
+iam/
+identity-credentials/
+instance-action
+instance-id
+instance-life-cycle
+instance-type
+local-hostname
+local-ipv4
+mac
+metrics/
+network/
+placement/
+profile
+public-keys/
+reservation-id
+security-groups
+services/# exit
+
+# kubectl exec -it nginx-deployment2-7d4996c47d-qppdf sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+
+# curl http://169.254.169.254/latest/meta-data
+^C
+# exit
+command terminated with exit code 130
+
+# kubectl exec -it webserver sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+# curl http://169.254.169.254/latest/meta-data
+^C
+# exit
+command terminated with exit code 130
+
+# kubectl -n test exec -it webserver sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+
+# curl http://169.254.169.254/latest/meta-data
+ami-id
+ami-launch-index
+ami-manifest-path
+block-device-mapping/
+events/
+hostname
+iam/
+identity-credentials/
+instance-action
+instance-id
+instance-life-cycle
+instance-type
+local-hostname
+local-ipv4
+mac
+metrics/
+network/
+placement/
+profile
+public-keys/
+reservation-id
+security-groups
+services/#
+```
+
+ 
+
+
+## <a id='secure-namespace'></a> Deny Access to a Namespace
+
+## <a id='secure-cluster-wide'></a> Deny Access to a Cluster-Wide
+
+using antrea cluster networkpolicy to deny in cluster-wide, the benefit is to avoid creating multiple standard networkpolicy in different namespaces (mentioned in this)
+reference: https://github.com/antrea-io/antrea/blob/main/docs/antrea-network-policy.md#summary 
+
+1. Create clusternetworkpolicy. Only allowing pods with app: nginx  label to metadata service regardless of namespace
+
+```
+# cat np-cluster-deny.yml
+apiVersion: crd.antrea.io/v1alpha1
+kind: ClusterNetworkPolicy
+metadata:
+  name: deny-metadata-access
+spec:
+  priority: 3          ##### ====> deny access should have lower priority than allow access , or use 'tier' to determine what is taking effect first
+  appliedTo:
+   - podSelector: {}
+  egress:
+   - action: Drop
+     to:
+     - ipBlock:
+        cidr: 169.254.169.254/32
+
+# cat np-cluster-allow.yml
+apiVersion: crd.antrea.io/v1alpha1
+kind: ClusterNetworkPolicy
+metadata:
+  name: allow-metadata-access
+spec:
+  priority: 2
+  appliedTo:
+    - podSelector:
+        matchLabels:
+          app: nginx
+  egress:
+   - action: Allow
+     to:
+       - ipBlock:
+           cidr: 169.254.169.254/32
+ 
+# kubectl apply -f np-cluster-deny.yml
+clusternetworkpolicy.crd.antrea.io/deny-metadata-access created
+
+# kubectl apply -f np-cluster-allow.yml
+clusternetworkpolicy.crd.antrea.io/allow-metadata-access created
+
+# kubectl get clusternetworkpolicies.crd.antrea.io -owide
+NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
+allow-metadata-access   application   2          1               1               33s
+deny-metadata-access    application   3          3               3               37s
+```
+
+2. create pods in default namespace and another test namespace
+
+```
+# kubectl get pods --show-labels | grep nginx
+nginx-deployment-7f4fc68488-xm6zz    1/1     Running   0          11m     app=nginx,pod-template-hash=7f4fc68488
+nginx-deployment2-7d4996c47d-qppdf   1/1     Running   0          8m57s   app=nginx2,pod-template-hash=7d4996c47d
+
+# kubectl get pods --show-labels | grep webserver
+webserver                            1/1     Running   0          24m     <none>
+master/f8450b68-786a-492e-a8af-07baafb450a2:~# kubectl -n test  get pods --show-labels | grep webserver
+webserver   1/1     Running   0          23m   <none>
+```
+
+3.  Only pods with app:nginx label can access to metadata service while others cannot, regardless of which namespace.
+
+```
+# kubectl exec -it nginx-deployment-7f4fc68488-xm6zz sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+
+# curl http://169.254.169.254/latest/meta-data
+ami-id
+ami-launch-index
+ami-manifest-path
+block-device-mapping/
+events/
+hostname
+iam/
+identity-credentials/
+instance-action
+instance-id
+instance-life-cycle
+instance-type
+local-hostname
+local-ipv4
+mac
+metrics/
+network/
+placement/
+profile
+public-keys/
+reservation-id
+security-groups
+services/# exit
+
+# kubectl exec -it nginx-deployment2-7d4996c47d-qppdf sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+# curl http://169.254.169.254/latest/meta-data
+^C
+# exit
+command terminated with exit code 130
+
+# kubectl exec -it webserver sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+
+ curl http://169.254.169.254/latest/meta-data
+^C
+# exit
+command terminated with exit code 130
+
+# kubectl -n test exec -it webserver sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+
+# curl http://169.254.169.254/latest/meta-data
+^C
+#
+```
