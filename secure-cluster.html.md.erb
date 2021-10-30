@@ -14,53 +14,90 @@ Before starting the tasks in this topic:
 
 ## <a id='overview'></a> Overview
 
+## <a id='overview'></a> Secure Access for All Namespaces
+
+To use a Kubernetes Network Policy to deny access by default to all namespaces 
+except those explicitly configured to be accessible:
+
+1. To create a 'deny' Network Policy:
+    1. Create a YAML configuration file named `np.yml`.
+    1. Populate the YAML file with the following deny configuration:
+        ```
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        metadata:
+          name: deny-metadata-access
+        spec:
+          podSelector: {}
+          policyTypes:
+          - Egress
+          egress:
+          - to:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+                except:
+                - IP-ADDRESS
+        ```
+        Where: `IP-ADDRESS` is the exception IP Address to grant access to. For example `169.254.169.254/32`.  
+1. To create an 'accept' Network Policy for a single namespace in the cluster:
+    1. Create a YAML configuration file named `np-allow.yml`.
+    1. Populate the YAML file with the following allow access configuration:
+        ```
+        apiVersion: networking.k8s.io/v1
+        kind: NetworkPolicy
+        metadata:
+          name: allow-metadata-access
+        spec:
+          podSelector:
+            matchLabels:
+              app: NAMESPACE
+          policyTypes:
+          - Egress
+          egress:
+          - to:
+            - ipBlock:
+                cidr: IP-ADDRESS        
+        ```
+        Where:
+        * `NAMESPACE` is the namespace to grant access to.  
+        * `IP-ADDRESS` is the IP Address to grant access to. For example `169.254.169.254/32`.  
+1. To apply the deny Network Policy to your cluster:
+    ```
+    kubectl apply -f np.yml
+    ```
+
+    For example:
+    <pre class="terminal">
+    # kubectl apply -f np.yml
+    networkpolicy.networking.k8s.io/deny-metadata-access created  
+    </pre>
+1. To apply the accept Network Policy to your cluster:
+    ```
+    kubectl apply -f np-allow.yml
+    ```
+
+    For example:
+    <pre class="terminal">
+    # kubectl apply -f np-allow.yml
+    networkpolicy.networking.k8s.io/allow-metadata-access created
+    master/f8450b68-786a-492e-a8af-07baafb450a2:~# kubectl get networkpolicy
+    NAME                    POD-SELECTOR   AGE
+    allow-metadata-access   app=nginx      3s
+    deny-metadata-access    <none>         8s
+    </pre>
+1. Verify access to the cluster is limited to only the namespace(s) you have granted access to.  
+
+
+
+
 using standard network policy to deny per namespace level
 
 1. create networkpolicy in default namespace, only allowing pods with app: nginx  label to metadata service
 
-```
-# cat np.yml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: deny-metadata-access
-spec:
-  podSelector: {}
-  policyTypes:
-  - Egress
-  egress:
-  - to:
-    - ipBlock:
-        cidr: 0.0.0.0/0
-        except:
-        - 169.254.169.254/32
 
-# cat np-allow.yml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-metadata-access
-spec:
-  podSelector:
-    matchLabels:
-      app: nginx
-  policyTypes:
-  - Egress
-  egress:
-  - to:
-    - ipBlock:
-        cidr: 169.254.169.254/32
  
-# kubectl apply -f np.yml
-networkpolicy.networking.k8s.io/deny-metadata-access created
 
-# kubectl apply -f np-allow.yml
-networkpolicy.networking.k8s.io/allow-metadata-access created
-master/f8450b68-786a-492e-a8af-07baafb450a2:~# kubectl get networkpolicy
-NAME                    POD-SELECTOR   AGE
-allow-metadata-access   app=nginx      3s
-deny-metadata-access    <none>         8s
-```
+
 
 2. create pods in default namespace and another test namespace
 
@@ -156,48 +193,99 @@ services/#
 
 ## <a id='secure-namespace'></a> Deny Access to a Namespace
 
-## <a id='secure-cluster-wide'></a> Deny Access to a Cluster-Wide
+## <a id='secure-cluster-wide'></a> Deny Access Using an Antrea Cluster-Wide Network Policy
 
-using antrea cluster networkpolicy to deny in cluster-wide, the benefit is to avoid creating multiple standard networkpolicy in different namespaces (mentioned in this)
-reference: https://github.com/antrea-io/antrea/blob/main/docs/antrea-network-policy.md#summary 
+using antrea cluster networkpolicy to deny in cluster-wide, 
+the benefit is to avoid creating multiple standard networkpolicy 
+in different namespaces (mentioned in this)
+reference: 
 
-1. Create clusternetworkpolicy. Only allowing pods with app: nginx  label to metadata service regardless of namespace
+For more information on Antrea Network Policy configuration, see 
+[Antrea Network Policy CRDs](https://github.com/antrea-io/antrea/blob/main/docs/antrea-network-policy.md) 
+in the Antrea GitHub repository.
 
-```
-# cat np-cluster-deny.yml
-apiVersion: crd.antrea.io/v1alpha1
-kind: ClusterNetworkPolicy
-metadata:
-  name: deny-metadata-access
-spec:
-  priority: 3          ##### ====> deny access should have lower priority than allow access , or use 'tier' to determine what is taking effect first
-  appliedTo:
-   - podSelector: {}
-  egress:
-   - action: Drop
-     to:
-     - ipBlock:
-        cidr: 169.254.169.254/32
+Create clusternetworkpolicy. Only allowing pods with app: nginx  label to metadata service regardless of namespace:
 
-# cat np-cluster-allow.yml
-apiVersion: crd.antrea.io/v1alpha1
-kind: ClusterNetworkPolicy
-metadata:
-  name: allow-metadata-access
-spec:
-  priority: 2
-  appliedTo:
-    - podSelector:
-        matchLabels:
-          app: nginx
-  egress:
-   - action: Allow
-     to:
-       - ipBlock:
-           cidr: 169.254.169.254/32
+1. To create a 'deny' Network Policy:
+    1. Create a YAML configuration file named `np-cluster-deny.yml`.
+    1. Populate the YAML file with the following deny configuration:
+        ```
+        apiVersion: crd.antrea.io/v1alpha1
+        kind: ClusterNetworkPolicy
+        metadata:
+          name: deny-metadata-access
+        spec:
+          priority: 3          ##### ====> deny access should have lower priority than allow access , or use 'tier' to determine what is taking effect first
+          appliedTo:
+           - podSelector: {}
+          egress:
+           - action: Drop
+             to:
+             - ipBlock:
+                cidr: IP-ADDRESS
+        ```
+        Where: `IP-ADDRESS` is the exception IP Address to grant access to. For example `169.254.169.254/32`.  
+1. To create an 'accept' Network Policy for a single namespace in the cluster:
+    1. Create a YAML configuration file named `np-cluster-allow.yml`.
+    1. Populate the YAML file with the following allow access configuration:
+        ```
+        apiVersion: crd.antrea.io/v1alpha1
+        kind: ClusterNetworkPolicy
+        metadata:
+          name: allow-metadata-access
+        spec:
+          priority: 2
+          appliedTo:
+            - podSelector:
+                matchLabels:
+                  app: NAMESPACE
+          egress:
+           - action: Allow
+             to:
+               - ipBlock:
+                   cidr: IP-ADDRESS       
+        ```
+        Where:
+        * `NAMESPACE` is the namespace to grant access to.  
+        * `IP-ADDRESS` is the IP Address to grant access to. For example `169.254.169.254/32`.  
+1. To apply the deny Network Policy to your cluster:
+    ```
+    kubectl apply -f np-cluster-deny.yml
+    ```
+
+    For example:
+    <pre class="terminal">
+    # kubectl apply -f np-cluster-deny.yml
+    clusternetworkpolicy.crd.antrea.io/deny-metadata-access created 
+    </pre>
+1. To apply the accept Network Policy to your cluster:
+    ```
+    kubectl apply -f np-allow.yml
+    ```
+
+    For example:
+    <pre class="terminal">
+    # kubectl apply -f np-cluster-allow.yml
+    clusternetworkpolicy.crd.antrea.io/allow-metadata-access created
+    </pre>
+1. Verify the Network Policies have been applied:
+    ```
+    kubectl get clusternetworkpolicies.crd.antrea.io -owide
+    ```
+
+    For example:
+    <pre class="terminal">
+    # kubectl get clusternetworkpolicies.crd.antrea.io -owide
+    NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
+    allow-metadata-access   application   2          1               1               33s
+    deny-metadata-access    application   3          3               3               37s
+    </pre>
+1. Verify access to the cluster is limited to only the namespace(s) you have granted access to.  
+
+
+
  
-# kubectl apply -f np-cluster-deny.yml
-clusternetworkpolicy.crd.antrea.io/deny-metadata-access created
+# kubectl 
 
 # kubectl apply -f np-cluster-allow.yml
 clusternetworkpolicy.crd.antrea.io/allow-metadata-access created
