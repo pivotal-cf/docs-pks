@@ -6,28 +6,50 @@ owner: PKS
 This topic describes how to Kubernetes clusters created with 
 <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>).
 
+<%#
 ## <a id='logging-prerequisites'></a> Prerequisites
 
 Before starting the tasks in this topic:  
 
 * XX
+#%>
 
 ## <a id='overview'></a> Overview
 
-## <a id='overview'></a> Secure Access for All Namespaces
+You can block access to external resources from a Pod using a Kubernetes Network Policy. 
+You can use a Kubernetes Network Policy to block access from all cluster namespaces or specific namespaces.
+You can also use a Network Policy to grant access to external resources 
+from specific cluster namespaces.  
 
-To use a Kubernetes Network Policy to deny access by default to all namespaces 
-except those explicitly configured to be accessible:
+For Pods on <%= vars.k8s_runtime_abbr %> clusters deployed on AWS, 
+you can also use a Kubernetes Network Policy to block access to the AWS metadata service for VMs. 
+For information on why you should secure access to external resources 
+from Pods on <%= vars.k8s_runtime_abbr %> clusters deployed on AWS, see 
+[Instance metadata and user data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) 
+in the AWS documentation.  
 
-1. To create a 'deny' Network Policy:
+
+## <a id='secure-namespaces'></a> Secure Access for All Namespaces
+
+You can use Kubernetes Network Policies to grant access to external resources from a specific Cluster namespace and
+and deny access from all other Cluster namespaces:
+
+* [Deny Access to All Namespaces](#deny-namespace-access)
+* [Grant Access to a Specific Namespace](#grant-namespace-access)
+
+### <a id='deny-namespace-access'></a> Deny Access to All Namespaces
+
+To use a Kubernetes Network Policy to deny Pod access from all cluster namespaces: 
+
+1. To create a `deny` Network Policy:
     1. Create a YAML configuration file named `np.yml`.
-    1. Populate the YAML file with the following deny configuration:  
+    1. Populate the YAML file with the following `deny` Network Policy configuration:  
 
         ```
         apiVersion: networking.k8s.io/v1
         kind: NetworkPolicy
         metadata:
-          name: deny-metadata-access
+          name: POLICY-NAME
         spec:
           podSelector: {}
           policyTypes:
@@ -39,16 +61,36 @@ except those explicitly configured to be accessible:
                 except:
                 - IP-ADDRESS
         ```
-        Where: `IP-ADDRESS` is the exception IP Address to grant access to. For example `169.254.169.254/32`.  
-1. To create an 'accept' Network Policy for a single namespace in the cluster:
+        Where:  
+        * `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.  
+        * `IP-ADDRESS` is the IP Address to manage. For example `169.254.169.254/32`.  
+1. To apply the `deny` Network Policy to your cluster:  
+
+    ```
+    kubectl apply -f np.yml
+    ```
+
+    For example:  
+
+    <pre class="terminal">
+    # kubectl apply -f np.yml
+    networkpolicy.networking.k8s.io/deny-metadata-access created  
+    </pre>
+1. Verify all namespaces in your Pod are blocked from accessing external resources.  
+
+### <a id='grant-namespace-access'></a> Grant Access to a Specific Namespace
+
+To configure a Kubernetes Network Policy to allow resource access from a specific Pod namespace:
+
+1. To create an `allow` Network Policy for a single namespace in the cluster:
     1. Create a YAML configuration file named `np-allow.yml`.
-    1. Populate the YAML file with the following allow access configuration:  
+    1. Populate the YAML file with the following `allow`  Network Policy configuration:  
 
         ```
         apiVersion: networking.k8s.io/v1
         kind: NetworkPolicy
         metadata:
-          name: allow-metadata-access
+          name: POLICY-NAME
         spec:
           podSelector:
             matchLabels:
@@ -61,21 +103,11 @@ except those explicitly configured to be accessible:
                 cidr: IP-ADDRESS        
         ```
         Where:
-        * `NAMESPACE` is the namespace to grant access to.  
-        * `IP-ADDRESS` is the IP Address to grant access to. For example `169.254.169.254/32`.  
-1. To apply the deny Network Policy to your cluster:  
-
-    ```
-    kubectl apply -f np.yml
-    ```
-
-    For example:  
-
-    <pre class="terminal">
-    # kubectl apply -f np.yml
-    networkpolicy.networking.k8s.io/deny-metadata-access created  
-    </pre>
-1. To apply the accept Network Policy to your cluster:  
+        * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.  
+        * `NAMESPACE` is the namespace to grant access to. 
+        Only the Pods tagged with the `app: NAMESPACE` label are affected by this configuration.  
+        * `IP-ADDRESS` is the IP Address to manage. For example `169.254.169.254/32`.  
+1. To apply the `allow` Network Policy to your cluster:  
 
     ```
     kubectl apply -f np-allow.yml
@@ -91,34 +123,34 @@ except those explicitly configured to be accessible:
     allow-metadata-access   app=nginx      3s
     deny-metadata-access    <none>         8s
     </pre>
-1. Verify access to the cluster is limited to only the namespace(s) you have granted access to.  
+1. Verify that only the cluster namespace(s) you have designated have access to external resources.  
 
 
 
-## <a id='secure-namespace'></a> Deny Access to a Namespace
+## <a id='secure-namespace-antrea'></a> Secure Access for All Namespaces Using an Antrea Cluster-Wide Network Policy
 
-## <a id='secure-cluster-wide'></a> Deny Access Using an Antrea Cluster-Wide Network Policy
+You can use an Antrea cluster-wide Kubernetes Network Policy to manage Pod access to resources:  
 
-using antrea cluster networkpolicy to deny in cluster-wide, 
-the benefit is to avoid creating multiple standard networkpolicy 
-in different namespaces (mentioned in this)
-reference: 
+* [Deny Access to All Namespaces Using Antrea](#deny-namespace-access-antrea)  
+* [Allow Access to a Namespace Using Antrea](#allow-namespace-access-antrea)  
 
-For more information on Antrea Network Policy configuration, see 
+For more information on the benefits of using an Antrea Network Policy configuration, see 
 [Antrea Network Policy CRDs](https://github.com/antrea-io/antrea/blob/main/docs/antrea-network-policy.md) 
 in the Antrea GitHub repository.
 
-Create clusternetworkpolicy. Only allowing pods with app: nginx  label to metadata service regardless of namespace:
+### <a id='deny-namespace-access-antrea'></a> Deny Access to All Namespaces Using Antrea
 
-1. To create a 'deny' Network Policy:
+You can use an Antrea cluster-wide Kubernetes Network Policy to deny Pod access to resources.
+
+1. To create a `deny` Network Policy:
     1. Create a YAML configuration file named `np-cluster-deny.yml`.
-    1. Populate the YAML file with the following deny configuration:  
+    1. Populate the YAML file with the following `deny` Network Policy configuration:  
 
         ```
         apiVersion: crd.antrea.io/v1alpha1
         kind: ClusterNetworkPolicy
         metadata:
-          name: deny-metadata-access
+          name: POLICY-NAME
         spec:
           priority: 3          ##### ====> deny access should have lower priority than allow access , or use 'tier' to determine what is taking effect first
           appliedTo:
@@ -129,16 +161,49 @@ Create clusternetworkpolicy. Only allowing pods with app: nginx  label to metada
              - ipBlock:
                 cidr: IP-ADDRESS
         ```
-        Where: `IP-ADDRESS` is the exception IP Address to grant access to. For example `169.254.169.254/32`.  
-1. To create an 'accept' Network Policy for a single namespace in the cluster:
+        Where:  
+        * `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.  
+        * `IP-ADDRESS` is the IP Address to manage. For example `169.254.169.254/32`.  
+1. To apply the `deny` Network Policy to your cluster:  
+
+    ```
+    kubectl apply -f np-cluster-deny.yml
+    ```
+
+    For example:  
+
+    <pre class="terminal">
+    # kubectl apply -f np-cluster-deny.yml
+    clusternetworkpolicy.crd.antrea.io/deny-metadata-access created 
+    </pre>
+1. Verify the Network Policies have been applied:  
+
+    ```
+    kubectl get clusternetworkpolicies.crd.antrea.io -owide
+    ```
+
+    For example:  
+
+    <pre class="terminal">
+    # kubectl get clusternetworkpolicies.crd.antrea.io -owide
+    NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
+    deny-metadata-access    application   3          3               3               37s
+    </pre>
+1. Verify all namespaces in your Pod are blocked from accessing external resources.  
+
+### <a id='allow-namespace-access-antrea'></a> Allow Access to a Namespace Using Antrea
+
+To configure an Antrea Kubernetes Network Policy to allow resource access from a specific Pod namespace:
+
+1. To create an `allow` Network Policy for a single namespace in the cluster:
     1. Create a YAML configuration file named `np-cluster-allow.yml`.
-    1. Populate the YAML file with the following allow access configuration:  
+    1. Populate the YAML file with the following `allow` Network Policy configuration:  
 
         ```
         apiVersion: crd.antrea.io/v1alpha1
         kind: ClusterNetworkPolicy
         metadata:
-          name: allow-metadata-access
+          name: POLICY-NAME
         spec:
           priority: 2
           appliedTo:
@@ -151,22 +216,12 @@ Create clusternetworkpolicy. Only allowing pods with app: nginx  label to metada
                - ipBlock:
                    cidr: IP-ADDRESS       
         ```
-        Where:
-        * `NAMESPACE` is the namespace to grant access to.  
-        * `IP-ADDRESS` is the IP Address to grant access to. For example `169.254.169.254/32`.  
-1. To apply the deny Network Policy to your cluster:  
-
-    ```
-    kubectl apply -f np-cluster-deny.yml
-    ```
-
-    For example:  
-
-    <pre class="terminal">
-    # kubectl apply -f np-cluster-deny.yml
-    clusternetworkpolicy.crd.antrea.io/deny-metadata-access created 
-    </pre>
-1. To apply the accept Network Policy to your cluster:  
+        Where:  
+        * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.  
+        * `NAMESPACE` is the namespace to grant resource access to. 
+        Only the Pods tagged with the `app: NAMESPACE` label are affected by this configuration.  
+        * `IP-ADDRESS` is the IP Address to manage. For example `169.254.169.254/32`.  
+1. To apply the `allow` Network Policy to your cluster:  
 
     ```
     kubectl apply -f np-allow.yml
@@ -190,191 +245,5 @@ Create clusternetworkpolicy. Only allowing pods with app: nginx  label to metada
     # kubectl get clusternetworkpolicies.crd.antrea.io -owide
     NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
     allow-metadata-access   application   2          1               1               33s
-    deny-metadata-access    application   3          3               3               37s
     </pre>
-1. Verify access to the cluster is limited to only the namespace(s) you have granted access to.  
-
-
-
-<hr>
-
-
-using standard network policy to deny per namespace level
-
-1. create networkpolicy in default namespace, only allowing pods with app: nginx  label to metadata service
-
-
- 
-
-
-
-2. create pods in default namespace and another test namespace
-
-```
-#  kubectl get pods --show-labels | grep nginx
-nginx-deployment-7f4fc68488-xm6zz    1/1     Running   0          4m36s   app=nginx,pod-template-hash=7f4fc68488
-nginx-deployment2-7d4996c47d-qppdf   1/1     Running   0          2m16s   app=nginx2,pod-template-hash=7d4996c47d
-
-#  kubectl get pods --show-labels | grep webserver
-webserver                            1/1     Running   0          16m     <none>
-
-# kubectl -n test  get pods --show-labels | grep webserver
-webserver   1/1     Running   0          17m   <none>
-```
-
-3.  Only pods with app:nginx label in default namespace can access to metadata service while others in default namespace cannot. Pods in other namespace(eg. test) can still access to metadata service without impaction by the networkpolicy in default namespace.
-
-```
-# kubectl exec -it nginx-deployment-7f4fc68488-xm6zz sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-
-# curl http://169.254.169.254/latest/meta-data
-ami-id
-ami-launch-index
-ami-manifest-path
-block-device-mapping/
-events/
-hostname
-iam/
-identity-credentials/
-instance-action
-instance-id
-instance-life-cycle
-instance-type
-local-hostname
-local-ipv4
-mac
-metrics/
-network/
-placement/
-profile
-public-keys/
-reservation-id
-security-groups
-services/# exit
-
-# kubectl exec -it nginx-deployment2-7d4996c47d-qppdf sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-
-# curl http://169.254.169.254/latest/meta-data
-^C
-# exit
-command terminated with exit code 130
-
-# kubectl exec -it webserver sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-# curl http://169.254.169.254/latest/meta-data
-^C
-# exit
-command terminated with exit code 130
-
-# kubectl -n test exec -it webserver sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-
-# curl http://169.254.169.254/latest/meta-data
-ami-id
-ami-launch-index
-ami-manifest-path
-block-device-mapping/
-events/
-hostname
-iam/
-identity-credentials/
-instance-action
-instance-id
-instance-life-cycle
-instance-type
-local-hostname
-local-ipv4
-mac
-metrics/
-network/
-placement/
-profile
-public-keys/
-reservation-id
-security-groups
-services/#
-```
-
-
-<hr>
-
- 
-# kubectl 
-
-# kubectl apply -f np-cluster-allow.yml
-clusternetworkpolicy.crd.antrea.io/allow-metadata-access created
-
-# kubectl get clusternetworkpolicies.crd.antrea.io -owide
-NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
-allow-metadata-access   application   2          1               1               33s
-deny-metadata-access    application   3          3               3               37s
-```
-
-2. create pods in default namespace and another test namespace
-
-```
-# kubectl get pods --show-labels | grep nginx
-nginx-deployment-7f4fc68488-xm6zz    1/1     Running   0          11m     app=nginx,pod-template-hash=7f4fc68488
-nginx-deployment2-7d4996c47d-qppdf   1/1     Running   0          8m57s   app=nginx2,pod-template-hash=7d4996c47d
-
-# kubectl get pods --show-labels | grep webserver
-webserver                            1/1     Running   0          24m     <none>
-master/f8450b68-786a-492e-a8af-07baafb450a2:~# kubectl -n test  get pods --show-labels | grep webserver
-webserver   1/1     Running   0          23m   <none>
-```
-
-3.  Only pods with app:nginx label can access to metadata service while others cannot, regardless of which namespace.
-
-```
-# kubectl exec -it nginx-deployment-7f4fc68488-xm6zz sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-
-# curl http://169.254.169.254/latest/meta-data
-ami-id
-ami-launch-index
-ami-manifest-path
-block-device-mapping/
-events/
-hostname
-iam/
-identity-credentials/
-instance-action
-instance-id
-instance-life-cycle
-instance-type
-local-hostname
-local-ipv4
-mac
-metrics/
-network/
-placement/
-profile
-public-keys/
-reservation-id
-security-groups
-services/# exit
-
-# kubectl exec -it nginx-deployment2-7d4996c47d-qppdf sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-# curl http://169.254.169.254/latest/meta-data
-^C
-# exit
-command terminated with exit code 130
-
-# kubectl exec -it webserver sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-
- curl http://169.254.169.254/latest/meta-data
-^C
-# exit
-command terminated with exit code 130
-
-# kubectl -n test exec -it webserver sh
-kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
-
-# curl http://169.254.169.254/latest/meta-data
-^C
-#
-```
+1. Verify that only the cluster namespace(s) you have designated have access to external resources.  
