@@ -1,10 +1,10 @@
 ---
-title: Securing Clusters and Workloads
+title: Securing Access to the AWS Metadata Service
 owner: PKS
 ---
 
-This topic describes how to use a Kubernetes Network Policy to secure Kubernetes clusters created with 
-<%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>).
+This topic describes how to use a Kubernetes Network Policy to secure access to the AWS instance metadata service 
+from Kubernetes clusters created with <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>).
 
 <%#
 ## <a id='logging-prerequisites'></a> Prerequisites
@@ -16,13 +16,10 @@ Before starting the tasks in this topic:
 
 ## <a id='overview'></a> Overview
 
-You can block access to external resources from a Pod using a Kubernetes Network Policy.  
-
-You can use a Kubernetes Network Policy to block access from all cluster namespaces or specific namespaces.
-You can also use a Network Policy to grant access to external resources from specific cluster namespaces.  
-
 For Pods on <%= vars.k8s_runtime_abbr %> clusters deployed on AWS, 
-you can use a Kubernetes Network Policy to block access to the AWS metadata service for VMs. 
+you can use a Kubernetes Network Policy to manage access to the AWS instance metadata service. 
+You can block or grant access from all cluster namespaces or specific namespaces.  
+
 For information on why you should secure access to AWS instance metadata, see 
 [Instance metadata and user data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) 
 in the AWS documentation.  
@@ -30,15 +27,15 @@ in the AWS documentation.
 
 ## <a id='secure-namespaces'></a> Secure Access for All Namespaces
 
-You can use Kubernetes Network Policies to grant access to external resources from a specific Cluster namespace and
-deny access from all other Cluster namespaces:
+You can use Kubernetes Network Policies to grant access to AWS instance metadata from a specific cluster namespace and
+deny access from all other cluster namespaces:
 
 * [Deny Access to All Namespaces](#deny-namespace-access)
 * [Grant Access to a Specific Namespace](#grant-namespace-access)
 
 ### <a id='deny-namespace-access'></a> Deny Access to All Namespaces
 
-To use a Kubernetes Network Policy to deny access to external services from all cluster namespaces: 
+To use a Kubernetes Network Policy to deny access to AWS instance metadata from all cluster namespaces: 
 
 1. To create a `deny` Network Policy:
     1. Create a YAML configuration file named `np.yml`.
@@ -58,11 +55,9 @@ To use a Kubernetes Network Policy to deny access to external services from all 
             - ipBlock:
                 cidr: 0.0.0.0/0
                 except:
-                - IP-ADDRESS
+                - 169.254.169.254/32
         ```
-        Where:  
-        * `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.  
-        * `IP-ADDRESS` is the IP Address to manage. For example, use `169.254.169.254/32` for securing the AWS instance metadata link-local address.  
+        Where `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.   
 1. To apply the `deny` Network Policy to your cluster:  
 
     ```
@@ -88,11 +83,11 @@ To use a Kubernetes Network Policy to deny access to external services from all 
     NAME                    POD-SELECTOR   AGE
     deny-metadata-access    &lt;none&gt;         8s
     </pre>
-1. Verify all namespaces in your Pod are blocked from accessing external resources.  
+1. Verify all namespaces in your Pod are blocked from accessing AWS instance metadata.  
 
 ### <a id='grant-namespace-access'></a> Grant Access to a Specific Namespace
 
-To configure a Kubernetes Network Policy to grant access to external services from a specific cluster namespace:
+To configure a Kubernetes Network Policy to grant access to AWS instance metadata from a specific cluster namespace:
 
 1. To create an `allow` Network Policy for a single namespace in the cluster:
     1. Create a YAML configuration file named `np-allow.yml`.
@@ -106,19 +101,18 @@ To configure a Kubernetes Network Policy to grant access to external services fr
         spec:
           podSelector:
             matchLabels:
-              app: NAMESPACE
+              POD-LABEL
           policyTypes:
           - Egress
           egress:
           - to:
             - ipBlock:
-                cidr: IP-ADDRESS        
+                cidr: 169.254.169.254/32        
         ```
         Where:
         * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.  
-        * `NAMESPACE` is the namespace to grant access to. 
-        Only the Pods tagged with the `app: NAMESPACE` label are affected by this configuration.  
-        * `IP-ADDRESS` is the IP Address to manage. For example, use `169.254.169.254/32` for securing the AWS instance metadata link-local address.  
+        * `POD-LABEL` is the namespace to grant access to. 
+        Only the Pods tagged with the `POD-LABEL` label are affected by this configuration.  For example, `app: nginx`.   
 1. To apply the `allow` Network Policy to your cluster:  
 
     ```
@@ -144,13 +138,13 @@ To configure a Kubernetes Network Policy to grant access to external services fr
     NAME                    POD-SELECTOR   AGE
     allow-metadata-access   app=nginx      3s
     </pre>
-1. Verify that only the cluster namespace(s) you have designated have access to external resources.  
+1. Verify that only the cluster namespace(s) you have designated have access to AWS instance metadata.  
 
 
 
 ## <a id='secure-namespace-antrea'></a> Secure Access for All Namespaces Using an Antrea Cluster-Wide Network Policy
 
-You can use an Antrea cluster-wide Kubernetes Network Policy to manage Pod access to resources:  
+You can use an Antrea cluster-wide Kubernetes Network Policy to manage Pod access to AWS instance metadata:  
 
 * [Deny Access to All Namespaces Using Antrea](#deny-namespace-access-antrea)  
 * [Allow Access to a Namespace Using Antrea](#grant-namespace-access-antrea)  
@@ -161,7 +155,7 @@ in the Antrea GitHub repository.
 
 ### <a id='deny-namespace-access-antrea'></a> Deny Access to All Namespaces Using Antrea
 
-You can use an Antrea cluster-wide Kubernetes Network Policy to deny access to external services from all cluster namespaces.
+You can use an Antrea cluster-wide Kubernetes Network Policy to deny access to AWS instance metadata from all cluster namespaces.
 
 1. To create a `deny` Network Policy:
     1. Create a YAML configuration file named `np-cluster-deny.yml`.
@@ -180,11 +174,9 @@ You can use an Antrea cluster-wide Kubernetes Network Policy to deny access to e
            - action: Drop
              to:
              - ipBlock:
-                cidr: IP-ADDRESS
+                cidr: 169.254.169.254/32
         ```
-        Where:  
-        * `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.  
-        * `IP-ADDRESS` is the IP Address to manage. For example, use `169.254.169.254/32` for securing the AWS instance metadata link-local address.  
+        Where: `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.  
 1. To apply the `deny` Network Policy to your cluster:  
 
     ```
@@ -210,11 +202,11 @@ You can use an Antrea cluster-wide Kubernetes Network Policy to deny access to e
     NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
     deny-metadata-access    application   3          3               3               37s
     </pre>
-1. Verify all namespaces in your Pod are blocked from accessing external resources.  
+1. Verify all namespaces in your Pod are blocked from accessing AWS instance metadata.  
 
 ### <a id='grant-namespace-access-antrea'></a> Allow Access to a Namespace Using Antrea
 
-To configure an Antrea Kubernetes Network Policy to grant access to external services from a specific cluster namespace:
+To configure an Antrea Kubernetes Network Policy to grant access to AWS instance metadata from a specific cluster namespace:
 
 1. To create an `allow` Network Policy for a single namespace in the cluster:
     1. Create a YAML configuration file named `np-cluster-allow.yml`.
@@ -230,22 +222,21 @@ To configure an Antrea Kubernetes Network Policy to grant access to external ser
           appliedTo:
             - podSelector:
                 matchLabels:
-                  app: NAMESPACE
+                  POD-LABEL
           egress:
            - action: Allow
              to:
                - ipBlock:
-                   cidr: IP-ADDRESS       
+                   cidr: 169.254.169.254/32       
         ```
         Where:  
         * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.  
-        * `NAMESPACE` is the namespace to grant resource access to. 
-        Only the Pods tagged with the `app: NAMESPACE` label are affected by this configuration.  
-        * `IP-ADDRESS` is the IP Address to manage. For example, use `169.254.169.254/32` for securing the AWS instance metadata link-local address.  
+        * `POD-LABEL` is the namespace to grant access to. 
+        Only the Pods tagged with the `POD-LABEL` label are affected by this configuration.  For example, `app: nginx`.     
 1. To apply the `allow` Network Policy to your cluster:  
 
     ```
-    kubectl apply -f np-allow.yml
+    kubectl apply -f np-cluster-allow.yml
     ```
 
     For example:  
@@ -267,4 +258,4 @@ To configure an Antrea Kubernetes Network Policy to grant access to external ser
     NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
     allow-metadata-access   application   2          1               1               33s
     </pre>
-1. Verify that only the cluster namespace(s) you have designated have access to external resources.  
+1. Verify that only the cluster namespace(s) you have designated have access to AWS instance metadata.  
