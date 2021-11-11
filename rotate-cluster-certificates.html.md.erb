@@ -64,14 +64,72 @@ A TKGI-provisioned Kubernetes cluster includes the following CA certificates and
 
 <img src="images/cluster-certs.png">
 
-## <a id="cert-use-cases"></a>Supported Use Cases
+##<a id='certs-rotate'></a> TKGI CLI Support for Certificate Rotation
 
-The TKGI CLI supports the following certificate rotation scenarios:
+You can use the TKGI CLI to list and rotate the TLS certificates created for a Kubernetes cluster. 
 
-* Rotate only NSX certificates (`--only-nsx` for nsx certificates)
-* Rotate all certificates (`--all` for all certificates, except for the custom_ca)
-* Rotate all certificates except NSX certificates (`--skip-nsx` for skipping NSX-T certificates, if already rotated)
-* Update custom CA, if custom CA  is used for cluster (`--update-cluster` for update custom CA)
+Usage:
+
+```
+tkgi rotate-certs | rotate-certificates <ClusterName> [flags]
+```
+
+Flags:
+
+```
+      --all               Rotate all certs, not implemented yet, will be available in future releases.
+  -h, --help              help for rotate-certs
+      --json              Return the PKS-API output as json
+      --non-interactive   Don't ask for user input
+      --only-nsx          Rotate the tls-nsx-lb and tls-nsx-t certificates.
+      --wait              Wait for the operation to finish
+```
+
+## <a id="cert-use-cases"></a>TLS Certificate Rotation Use Cases
+
+The TKGI CLI supports the following TLS certificate rotation scenarios:
+
+* [List all TLS certificates](#certs-list) created by TKGI when provisioning the cluster
+* [Rotate all TLS certificates](#rotate-all) (`--all` for all certificates, except for the custom_ca)
+* [Rotate all TLS certificates except NSX-T](#rotate-all-but-nsx) (`--skip-nsx` for skipping NSX-T certificates, if already rotated)
+* [Rotate only TLS certificates for NSX-T](#rotate-only-nsx) (`--only-nsx` for nsx certificates)
+* [Rotate custom CA](#rotate-custom), if custom CA  is used for cluster (`--update-cluster` for update custom CA)
+
+##<a id='certs-list'></a> List TLS Certificates
+
+To list the TLS certificates used by TKGI-provisioned Kubernetes cluster, run the following command:
+
+```
+tkgi certificates <ClusterName> -d <number of days>
+```
+
+For example:
+
+```
+tkgi certificates tkgi-cluster-01 -d 10000
+```
+
+The sample output lists all TLS certificates that TKGI uses for the specified cluster.
+
+```
+NAME                                                                                            Type  Days Left  Valid until
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-lb                        Leaf  1803       2025-12-14T06:47:46Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-kube-proxy-2018           Leaf  1439       2024-12-15T06:47:41Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-ncp-2018                      Leaf  1439       2024-12-15T06:47:41Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-t                         Leaf  708        2022-12-15T06:47:40Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kube-controller-manager-2018  Leaf  1439       2024-12-15T06:47:40Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-metrics-server-2018           Leaf  1439       2024-12-15T06:47:39Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcdctl-flanneld-2018-2       Leaf  1439       2024-12-15T06:47:39Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcdctl-root-2018-2           Leaf  1439       2024-12-15T06:47:38Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcdctl-2018-2                Leaf  1439       2024-12-15T06:47:37Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcd-2018-2                   Leaf  1439       2024-12-15T06:47:36Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubelet-client-2018           Leaf  1439       2024-12-15T06:47:36Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubelet-2018                  Leaf  1439       2024-12-15T06:47:35Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/etcd_ca_2018                      Root  1439       2024-12-15T06:47:35Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubernetes-2018               Leaf  1439       2024-12-15T06:47:34Z
+/p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/kubo_ca_2018                      Root  1439       2024-12-15T06:47:34Z
+ 
+```
 
 ## <a id="rotate-all"></a>Rotate All Cluster Certificates
 
@@ -102,6 +160,16 @@ tkgi rotate-certificates <cluster name> --only-nsx
 ```
 
 This command only rotates the NSX-T certificates `tls-nsx-t` and `tls-nsx-lb`.
+
+For example:
+
+```
+tkgi rotate-certs <ClusterName> --only-nsx
+ 
+You are about to rotate nsx related certificates for cluster <ClusterName>. This operation requires bosh deployment, and will take a significant time. Are you sure you want to continue? (y/n):
+```
+
+For more information, see [Rotate NSX-T Certificates for Kubernetes Clusters](./nsxt-certs-rotate.html).
 
 ## <a id="rotate-custom"></a>Rotate Custom CA
 
