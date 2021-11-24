@@ -402,15 +402,167 @@ To start Harbor Registry, do the following:
 
 ###<a id="start-k8s"></a> Step 8: Start the Kubernetes Clusters
 
-For each Kubernetes cluster that you intend to start up, start the Kubernetes nodes in the
-following order:
+For each Kubernetes cluster that you intend to start, follow the steps in the section below that
+corresponds to the number of master nodes in the cluster:
 
-1. Using the BOSH CLL, run `ssh` to access the first <%= vars.product_short %> master node and start etcd.
-1. Using the BOSH CLI, start the next <%= vars.product_short %> master node.
-1. Using the BOSH CLI, start all remaining <%= vars.product_short %> master nodes including the master where you started etcd.
-1. Using the BOSH CLI, start all <%= vars.product_short %> worker nodes.
+* [Start a Cluster with Three Master Nodes](#three-node-start)
+* [Start a Cluster with Five Master Nodes](#five-node-start)
 
-For exact Kubernetes node startup instructions, refer to the <a href="https://community.pivotal.io/s/article/how-to-shutdown-and-startup-a-multi-master-pks-cluster">How to shutdown and startup a Multi Master <%= vars.k8s_runtime_abbr %> cluster</a> knowledge base article.
+####<a id="three-node-start"></a> Start a Cluster with Three Master Nodes
+
+Use the BOSH CLI to run the commands below. For more information about the BOSH CLI, see the
+[BOSH CLI Documentation](https://bosh.io/docs/cli-v2/).
+
+1. Retrieve the BOSH deployment name of your <%= vars.product_short %> cluster:
+
+    ```
+    bosh deployments
+    ```
+    <%= vars.product_short %> cluster deployment names begin with `service-instance_` followed by
+    the BOSH deployment name.
+
+1. Start etcd on the `master/0` node. A cluster with three members must have at least two members
+running to satisfy quorum, so you must first start one etcd instance.
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/0 "sudo monit start etcd"
+    ```
+    Where `DEPLOYMENT-NAME` is the BOSH deployment name retrieved in the previous step.
+
+1. View the status of etcd on the `master/0` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/0 "sudo monit summary"
+    ```
+
+    Where `DEPLOYMENT-NAME` is the BOSH deployment name retrieved in the previous step. Wait until
+    etcd on `master/0` is running before executing the next step.
+
+1. Start the `master/1` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/1
+    ```
+    Where `DEPLOYMENT-NAME` is the BOSH deployment name retrieved in the previous step. Wait until
+    `master/1` has status **Ready** before executing the next step.
+
+1. Start the `master/2` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/2
+    ```
+    Where `DEPLOYMENT-NAME` is the BOSH deployment name retrieved in the previous step. Wait until
+    `master/2` has status **Ready** before executing the next step.
+
+1. Stop etcd on the `master/0` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/0 "sudo monit stop etcd"
+    ```
+    Wait until etcd on `master/0` has stopped and has status **not monitored** before executing the
+    next step.
+
+1. Start the `master/0` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/0
+    ```
+    Wait until `master/0` has status **Ready** before executing the next step.
+
+1. Start the Kubernetes worker nodes:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start worker
+    ```
+
+####<a id="five-node-start"></a> Start a Cluster with Five Master Nodes
+
+Use the BOSH CLI to run the commands below. For more information about the BOSH CLI, see the
+[BOSH CLI Documentation](https://bosh.io/docs/cli-v2/).
+
+1. Retrieve the BOSH deployment name of your <%= vars.product_short %> cluster:
+
+    ```
+    bosh deployments
+    ```
+    <%= vars.product_short %> cluster deployment names begin with `service-instance_` followed by
+    the BOSH deployment name.
+
+1. Start etcd on the `master/0` and `master/1` nodes. A cluster with five members must have at
+least three members running to satisfy quorum, so you must first start two etcd instance.
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/0 "sudo monit start etcd"
+    bosh -d DEPLOYMENT-NAME ssh master/1 "sudo monit start etcd"
+    ```
+    Where `DEPLOYMENT-NAME` is the BOSH deployment name retrieved in the previous step.
+
+1. View the status of etcd on the `master/0` and `master/1` nodes:
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/0 "sudo monit summary"
+    bosh -d DEPLOYMENT-NAME ssh master/1 "sudo monit summary"
+    ```
+    Where `DEPLOYMENT-NAME` is the BOSH deployment name retrieved in the previous step. Wait until
+    etcd on `master/0` and `master/1` is running before executing the next step.
+
+1. Start the `master/2` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/2
+    ```
+    Where `DEPLOYMENT-NAME` is the BOSH deployment name retrieved in the previous step. Wait until
+    `master/2` has status **Ready** before executing the next step.
+
+1. Start the `master/3` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/3
+    ```
+    Wait until `master/3` has status **Ready** before executing the next step.
+
+1. Start the `master/4` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/4
+    ```
+    Wait until `master/4` has status **Ready** before executing the next step.
+
+1. Stop etcd on the `master/1` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/1 "sudo monit stop etcd"
+    ```
+    Wait until etcd on `master/1` has stopped and has status **not monitored** before executing the
+    next step.
+
+1. Start the `master/1` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/1
+    ```
+    Wait until `master/1` has status **Ready** before executing the next step.
+
+1. Stop etcd on the `master/0` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME ssh master/0 "sudo monit stop etcd"
+    ```
+    Wait until etcd on `master/0` has stopped and has status **not monitored** before executing the
+    next step.
+
+1. Start the `master/0` node:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start master/0
+    ```
+    Wait until `master/0` has status **Ready** before executing the next step.
+
+1. Start the Kubernetes worker nodes:
+
+    ```
+    bosh -d DEPLOYMENT-NAME start worker
+    ```
 
 ###<a id="start-apps"></a> Step 9: Start Customer Apps
 
