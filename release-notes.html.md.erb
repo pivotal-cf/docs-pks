@@ -139,13 +139,15 @@ The supported upgrade paths to <%= vars.k8s_runtime_abbr %> v1.13.0 are from <%=
 * Kubernetes has been upgraded to Kubernetes v1.22:
 
     * Kubernetes v1.22 no longer serves the `rbac.authorization.k8s.io/v1beta1`, `extensions/v1beta1`, and `networking.k8s.io/v1beta1` API versions. 
-    For more information, see [Kubernetes API and Feature Removals In 1.22: Here’s What You Need To Know](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/) 
-    or [Deprecated API Migration Guide: 1.22](https://kubernetes.io/docs/reference/using-api/deprecation-guide/#v1-22) 
-    in the Kubernetes documentation.  
-    * The CertificateSubjectRestriction (CSR) admission plugin restricts the `system:master` group. For more information, see 
-    [Kubernetes 1.22 CSR Admission Plugin Restricts the `system:master` Group](#1-13-0-csr-system-master) below.  
+    * Kubernetes v1.22 now serves the CertificateSubjectRestriction (CSR) admission plugin `certificates.k8s.io/v1` API version and no longer accepts `v1beta1`.
+        * Your CSR configuration must denote a signer in a `spec.signerName` field.  
+        * Your CSR configuration must include a `spec.usages` field.  
+        * The CSR admission plugin restricts the `system:master` group.  
     
-    For more information about the features and deprecations in Kubernetes 1.22, see [Kubernetes 1.22: Reaching New Peaks](https://kubernetes.io/blog/2021/08/04/kubernetes-1-22-release-announcement/) 
+    For more information about the features and deprecations in Kubernetes 1.22, see 
+    [Kubernetes API and Feature Removals In 1.22: Here’s What You Need To Know](https://kubernetes.io/blog/2021/07/14/upcoming-changes-in-kubernetes-1-22/), 
+    [Deprecated API Migration Guide: 1.22](https://kubernetes.io/docs/reference/using-api/deprecation-guide/#v1-22) or 
+    [Kubernetes 1.22: Reaching New Peaks](https://kubernetes.io/blog/2021/08/04/kubernetes-1-22-release-announcement/) 
     in the Kubernetes documentation.  
     
     
@@ -241,89 +243,6 @@ For Known Issues in NCP v3.2.0, see
 You can use a Network Profile to create a dedicated Tier 1 cluster, but you cannot use `tkgi update-cluster` to update the cluster afterward.
 
 <hr>
-#### <a id="1-13-0-csr-system-master"></a> Kubernetes 1.22 CSR Admission Plugin Restricts the `system:master` Group
-
-The Kubernetes 1.22 CSR Admission Plugin restricts the `system:master` group by default 
-when a Kubernetes Profile includes an `EncryptionConfiguration` section. 
-
-**Explanation**
-
-For information, see [Certificate Signing Requests](https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/)
-in the Kubernetes documentation.  
-
-**Workaround**
-
-If your Kubernetes Profile includes an `EncryptionConfiguration` section:  
-
-1. Copy your existing Kubernetes Profile.  
-1. Change the `name` and `description` parameters in the new copy of the profile.  
-1. Add the following to the `experimental_customizations` section:  
-
-    ```
-      {
-          "component": "kube-apiserver",
-          "arguments": {
-              "disable-admission-plugins": "CertificateSubjectRestriction"
-          }
-      }
-    ```
-    
-    For example:  
-    
-    ```
-    {
-      "name": "${merged-profile-name}",
-      "description": "merged k8s profile",
-      "customizations": [
-          {
-              "component": "kube-apiserver",
-              "arguments": {
-                  "requestheader-allowed-names": "cn1.com,c2.com",
-                  "service-node-port-range": "30000-40000",
-                  "enable-admission-plugins": "ResourceQuota"
-              },
-              "file-arguments": {
-                  "encryption-provider-config": "encryption-config.yaml"
-              }
-          }
-      ],
-      "experimental_customizations": [
-          {
-              "component": "kubelet",
-              "arguments": {
-                  "maximum-dead-containers": "1000"
-              }
-          },
-          {
-              "component": "kube-controller-manager",
-              "arguments": {
-                  "leader-elect-lease-duration": "20s"
-              }
-          },
-          {
-              "component": "kube-apiserver",
-              "arguments": {
-                  "disable-admission-plugins": "CertificateSubjectRestriction"
-              }
-          }
-      ]
-    }
-    ``` 
-1. Save the modified profile.  
-1. Update the cluster with the modified Kubernetes Profile:  
-
-    ```
-    pks update-cluster CLUSTER-NAME --kubernetes-profile PROFILE-NAME
-    ```
-    
-    Where:  
-    * `CLUSTER-NAME` is the name of your cluster.  
-    * `PROFILE-NAME` is the name of your modified Kubernetes Profile.  
-
-
-<hr>
-
-
 
 
 ## <a id="management-console-1-13-0"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.13.0
