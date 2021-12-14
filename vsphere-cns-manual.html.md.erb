@@ -8,6 +8,8 @@ This integration enables <%= vars.k8s_runtime_abbr %> clusters to use external c
 
 This topic provides procedures for installing CSI on a TKGI cluster, verifying the installation and resizing PersistentVolumes.
 
+<p class="note"><strong>Note:</strong> CSI can only be installed on a Linux <%= vars.k8s_runtime_abbr %> cluster.</p>
+
 ## <a id='overview'></a>Overview
 
 Cloud Native Storage (CNS) provides comprehensive data management for stateful, containerized apps,
@@ -15,8 +17,9 @@ enabling apps to survive restarts and outages.
 Stateful containers can use vSphere storage primitives such as standard volume, PersistentVolume, and dynamic provisioning, independent of VM and container lifecycle.
 
 vSphere storage backs the volumes, and you can set a storage policy directly on the volumes.
-After you create the volumes, you can use the vSphere client to review the volumes and their backing virtual disks, and monitor their storage policy compliance.
+After you create the volumes, you can use the vSphere client to review the volumes and their backing virtual disks, and monitor their storage policy compliance.  
 
+For more information, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.storage.doc/GUID-CF1D7196-E49C-4430-8C50-F8E35CAAE060.html).  
 
 To create PersistentVolumes using CNS on vSphere, see:  
 
@@ -34,17 +37,49 @@ To upgrade the vSphere CSI driver, see:
 
 * [Upgrade the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> Cluster](#manual-upgrade)
 
+### <a id='supported-feature'></a> vSphere CSI Driver Supported Features and Requirements
+
+The vSphere CSI Driver supports different features depending on driver version, environment and storage type.  
+
+<%= vars.k8s_runtime_abbr %> supports only the following vSphere CSI Driver features:  
+
+* Enhanced Object Health in UI for vSAN Datastores  
+* Dynamic Block PV support<sup>&#42;</sup>  
+* Dynamic Virtual Volume (vVOL) PV support  
+* Static PV Provisioning  
+* Kubernetes Multi-node Control Plane support  
+* Encryption support via VMcrypt<sup>&#42;</sup>  
+* Dynamic File PV support<sup>&#42;</sup>  
 <br>
-For more information, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/6.7/Cloud-Native-Storage/GUID-51D308C7-ECFE-4C04-AD56-64B6E00A6548.html).  
+
+    <sup>&#42;</sup>For information on the usage limitations and environment and version requirements of these vSphere CSI Driver features, 
+    see [Functionality Supported by vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-E59B13F5-6F49-4619-9877-DF710C365A1E.html#functionality-supported-by-vsphere-container-storage-plugin-0) 
+    in _Supported Kubernetes Functionality and Limitations_ in the VMware vSphere Container Storage Plug-in documentation.  
+
+<br>
+For information on the vCenter, datastore, and cluster types supported by the vSphere CSI Driver, see 
+[vSphere Functionality Supported by vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-5B7955AA-E720-4C73-8330-1C34A0B054B3.html) 
+ in the VMware vSphere Container Storage Plug-in documentation.  
+
+For information on the scaling limitations of the vSphere CSI Driver, see 
+[Configuration Maximums for vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-C0350554-F5DB-4C27-9786-720AC0F0B28A.html) 
+ in the VMware vSphere Container Storage Plug-in documentation.  
+
 
 ## <a id='prereq'></a>Prerequisites for Using the vSphere CSI Driver with <%= vars.k8s_runtime_abbr %>
 
 Before you use the vSphere CSI Driver, your environment must meet the following requirements:
 
-* **CNS v2.3.0:** The vSphere CSI Driver you use must be v2.3.0 or later. 
-For instructions on how to upgrade to the vSphere CSI Driver v2.3.0, see 
-[Upgrade the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> Cluster](#manual-upgrade) below.  
-* **The vSphere CSI Driver requirements have been met:** For more information, see [vSphere CSI Driver - Prerequisites](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/prerequisites.html).  
+* A Linux <%= vars.k8s_runtime_abbr %> cluster. CSI on a Windows <%= vars.k8s_runtime_abbr %> cluster is not supported.
+* **The vSphere CSI Driver must be a compatible version:** The vSphere CSI Driver you use must be compatible with the Kubernetes version installed with <%= vars.k8s_runtime_abbr %>. 
+For more information see [Compatibility Matrix for vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-D4AAD99E-9128-40CE-B89C-AD451DA8379D.html) 
+in the vSphere CSI Driver documentation.  
+    <p class="note"><strong>Note:</strong> VMware recommends using vSphere CSI Driver v2.4 or later with <%= vars.k8s_runtime_abbr %> v1.13.
+    </p>
+    For instructions on how to upgrade the vSphere CSI Driver version, see 
+    [Upgrade the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> Cluster](#manual-upgrade) below.  
+* **The vSphere CSI Driver requirements have been met:** For more information, see 
+[Prerequisites for Installing the vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-0AB6E692-AA47-4B6A-8CEA-38B754E16567.html).  
 * **Plan Configuration:** The **Allow Privileged** setting must be enabled in the <%= vars.k8s_runtime_abbr %> tile for the plans you use with the vSphere CSI Driver. 
     To enable this setting, see [Installing <%= vars.k8s_runtime_abbr %> on vSphere](installing-vsphere.html#plans).<%#<br>   
     With this configuration, your containers run in privileged mode and 
@@ -54,9 +89,8 @@ For more information, see [vSphere CSI Driver - v2.3.0 release](https://vsphere-
     * Cluster master nodes.
     * Cluster worker nodes. You must enable this access in order for vSphere CSI Driver components on worker nodes to provision disks.
     * All Pods that are running vSphere CSI Driver components.  
-* **vSphere v7.0 or vSphere v6.7U3:** vSphere must be vSphere v7.0 or later or vSphere v6.7U3 or later. 
-For more information, see [vSphere definition](https://cloud-provider-vsphere.sigs.k8s.io/glossary.html#vsphere).  
-
+* **vSphere v7.0 or vSphere v6.7U3:** vSphere must be vSphere v7.0 or later or vSphere v6.7U3 or later.  
+ 
 ## <a id='manual'></a>Install the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> Cluster
 
 This section provides procedures for manually installing CSI on a TKGI cluster.
@@ -108,9 +142,8 @@ manifest files used in prior versions.
 
 To download and customize the vSphere CSI Driver configuration files:  
 
-1. Download the v2.3.0 or later vSphere CSI Driver manifest files from 
-[https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/v2.3.0/manifests/vanilla](https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/v2.3.0/manifests/vanilla) 
-in the [kubernetes-sigs/vsphere-csi-driver](https://github.com/kubernetes-sigs/vsphere-csi-driver/) GitHub repository.  
+1. Download the compatible vSphere CSI Driver manifest files from the [kubernetes-sigs/vsphere-csi-driver](https://github.com/kubernetes-sigs/vsphere-csi-driver) GitHub repository. 
+For example, download the v2.4 drivers from [https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/v2.4.0/manifests/vanilla](https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/v2.4.0/manifests/vanilla).  
 
 1. Modify the vSphere CSI Driver `vsphere-csi-driver.yaml` configuration file:  
     1. Remove the following nodeselector from the `vsphere-csi-controller` Deployment section:  
@@ -127,19 +160,18 @@ in the [kubernetes-sigs/vsphere-csi-driver](https://github.com/kubernetes-sigs/v
 
 To install the vSphere CSI Driver:
 
-1. Complete the pre-installation configuration steps in [vSphere CSI Driver - Installation](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html):  
-    1. [Create vmware-system-csi namespace](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html#create_namespace)
-    1. [Taint Master Node](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html#taint_master_node)
-    1. [Create a configuration file with vSphere credentials](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html#create_csi_vsphereconf)
-    1. [Create a kubernetes secret for vSphere credentials](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html#create_k8s_secret)
+1. Complete the pre-installation configuration steps in 
+[Deploy the vSphere Container Storage Plug-in on a Native Kubernetes Cluster](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-A1982536-F741-4614-A6F2-ADEE21AA4588.html):  
+    1. [Create vmware-system-csi Namespace for vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-90966CC5-DF3E-426B-8AD1-95ADDC07C457.html)  
+    1. [Taint Kubernetes Primary Node for the vSphere Container Storage Plug-in Installation](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-4E47B9F1-B250-4B36-8FEC-8F45E6529D23.html)  
+    1. [Create a Kubernetes Secret for vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-BFF39F1D-F70A-4360-ABC9-85BDAFBE8864.html)  
 1. Make copies of your customized `csi-vsphere.conf` configuration file 
         and customize a copy for each of your Kubernetes clusters:  
     * Configure the `cluster-id` value. If you deploy the vSphere CSI Driver to multiple Kubernetes clusters, 
     you must use a unique `cluster-id` value in each cluster. You can use the cluster's UUID as the `cluster-id` value. 
     The cluster's UUID is in the information returned by running `pks cluster CLUSTER-NAME`.  
-1. Complete the installation and verification steps in [vSphere CSI Driver - Installation](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html):  
-    1. [Install vSphere CSI driver](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html#install)
-    1. [Verify that vSphere CSI Driver has been deployed successfully](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/installation.html#verify)
+1. Complete the installation and verification steps:  
+    1. [Install vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-54BB79D2-B13F-4673-8CC2-63A772D17B3C.html)  
 
 
 ## <a id='create-storage'></a>Create a vSphere Storage Class
@@ -191,7 +223,7 @@ To create a vSphere Storage Class:
 
 ## <a id='resize-pv'></a>Resize a PersistentVolume
 
-PersistentVolumes created using the CNS v2.3.0 `StorageClass` procedures above can be resized. 
+PersistentVolumes created using the CNS `StorageClass` procedures above can be resized. 
 CNS supports PersistentVolume resizing of only off-line volumes.
 
 To resize a PersistentVolume:
@@ -332,11 +364,12 @@ in the Kubernetes documentation.
 
 ## <a id='manual-upgrade'></a>Upgrade the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> Cluster
 
-If your <%= vars.k8s_runtime_abbr %> cluster is using a vSphere CSI Driver earlier than v2.3.0, you must upgrade the CSI driver on the cluster.  
+If your <%= vars.k8s_runtime_abbr %> cluster is using a vSphere CSI Driver earlier than the currently supported versions, 
+you must upgrade the CSI driver on the cluster.  
 
 To upgrade the vSphere CSI Driver installed on your clusters:
 
 1. Review the prerequisites for the vSphere CSI Driver version you are installing. For more information, see [Prerequisites for using the vSphere CSI Driver with <%= vars.k8s_runtime_abbr %>](#prereq) above.  
 1. Review the configuration requirements for the vSphere CSI Driver version you are installing. 
 For more information, see [Install the vSphere CSI Driver](#install-driver) above.  
-1. Follow the steps in [vSphere CSI Driver - Upgrade](https://vsphere-csi-driver.sigs.k8s.io/driver-deployment/upgrade.html).  
+1. Follow the steps in [Upgrade vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-3F277B52-68CC-4125-AD0F-E7293940B4B4.html).  
