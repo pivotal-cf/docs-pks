@@ -1,21 +1,18 @@
 ---
-title: Add an OIDC Provider
+title: Adding an OIDC Provider
 owner: TKGI
 ---
 
-The <%= vars.product_short %> tile > **UAA** pane configures a default Identity Provider (IDP) for all the clusters that <%= vars.k8s_runtime_abbr %> creates.
+This topic explains how you can use a Kubernetes profile in <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) to override the default Identity Provider (IDP).
 
-This topic explains how you can use a Kubernetes profile to override this default IDP.
+## <a id='overview'></a>Overview
+
+The <%= vars.k8s_runtime_abbr %> **UAA** pane configures a default IDP for all the clusters that <%= vars.k8s_runtime_abbr %> creates.
+You can use a Kubernetes profile to override this default IDP.  
+
 The Kubernetes profile applies a custom OIDC-compatible IDP to a cluster by deploying an OIDC connector as a service pod on the cluster.
 
-As an example, the Kubernetes profile in this topic deploys [dex](https://github.com/dexidp/dex) as an OIDC provider, but you can use any OIDC service.
-
-For more information and other uses of Kubernetes profiles, see [Using Kubernetes Profiles](./k8s-profiles.html).
-
-
-## <a id='diagram'></a>Diagram
-
-The following diagram shows how this configuration works:
+The following diagram provides an overview of how this configuration works:
 
 ![OIDC diagram](images/oidc-dex.png)
 
@@ -28,27 +25,34 @@ The following diagram shows how this configuration works:
   - Calls the OIDC service at `dex.example.com:32000` to authenticate the user
   whenever a user requests an app hosted on the cluster
 
-## <a id='process'></a>Process
+The Kubernetes profile in this topic deploys [dex](https://github.com/dexidp/dex) as an OIDC provider, but you can use any OIDC service.
 
-To configure a custom OIDC provider for <%= vars.k8s_runtime_abbr %> clusters, you:
+For more information and other uses of Kubernetes profiles, see [Using Kubernetes Profiles](./k8s-profiles.html).
 
-1. [Set Up Dex Workload](#dex) - Configure [dex](https://github.com/dexidp/dex) as an OIDC provider for an LDAP directory.
-1. [Set Up Communication Path](#paths) - Set up `\etcd\hosts` and TLS so that clusters can access dex securely.
-1. [Deploy and Expose Dex](#deploy) - Run dex as a local service within a pod and exposes its endpoint via an IP address.
-1. [Create Kubernetes Profile](#profile) - Create a Kubernetes profile that lets a cluster's `kube-api-server` connect to the dex server.
-1. [Create Cluster](#cluster) - Create a cluster that uses the Kubernetes profile.
-1. [Test Cluster Access](#test) - Test that the cluster uses the OIDC provider to control access.
+## <a id='process'></a>Configure a Custom OIDC Provider
 
-## <a id='dex'></a>Set Up Dex Workload
+To configure a custom OIDC provider for <%= vars.k8s_runtime_abbr %> clusters, complete the following:
+
+1. [Set Up Dex Workload](#dex)
+1. [Set Up Communication Path](#paths)
+1. [Deploy and Expose Dex](#deploy)
+1. [Create Kubernetes Profile](#profile)
+1. [Create Cluster](#cluster)
+1. [Test Cluster Access](#test)
+
+### <a id='dex'></a>Set Up Dex Workload
+
+To configure [dex](https://github.com/dexidp/dex) as an OIDC provider for an LDAP directory:  
 
 1. Create a cluster in <%= vars.k8s_runtime_abbr %> for installing dex as a pod:
 
     ```
-    $ tkgi create-cluster dex -p small -e dex-host.example.com
+    tkgi create-cluster dex -p small -e dex-host.example.com
     ```
 
-1. Run `tkgi cluster` for the cluster and record its `Kubernetes Master IP` address.
-For example:
+1. Run `tkgi cluster` for the cluster and record its `Kubernetes Master IP` address.  
+<br>
+    For example:
 
     <pre class="terminal">
     $ tkgi cluster dex
@@ -75,20 +79,24 @@ For example:
 1. Populate your `~/.kube/config` with context for dex:
 
     ```
-    $ tkgi get-credentials dex
+    tkgi get-credentials dex
     ```
 
 1. Switch to the `admin` context of the dex cluster:
 
     ```
-    $ kubectl config use-context dex
+    kubectl config use-context dex
     ```
 
-1. Follow the [Deploying dex on Kubernetes](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#deploying-dex-on-kubernetes) steps in the dex  repo to deploy a dex workload on a Kubernetes cluster.
+1. To deploy a dex workload on a Kubernetes cluster, follow the steps in 
+[Deploying dex on Kubernetes](https://github.com/dexidp/website/blob/main/content/docs/kubernetes.md#deploying-dex-on-kubernetes) 
+in the dex GitHub repo.
     * Use the [dex.yaml](https://github.com/pivotal-cf/pks-home/blob/bfcc1f4d26b2350e87ec7d9c4a4f23ebc98d4579/scripts/dex/dex.yaml) 
      example YAML file in _GitHub_ to create a dex deployment that connects to an LDAP server.
 
-## <a id='paths'></a>Set Up Communication Path
+### <a id='paths'></a>Set Up Communication Path
+
+To set up `\etcd\hosts` and TLS so that clusters can access dex securely:  
 
 1. Add the `/etc/hosts` entry for the public IP and the hostname
     `dex.example.com` on your local workstation.
@@ -98,27 +106,38 @@ For example:
     10.0.11.11 dex.example.com
     ```
 
-1. Generate TLS assets for the dex deployment as described in the
-    [Generate TLS assets](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#generate-tls-assets) section of the dex documentation.
+1. To generate TLS assets for the dex deployment, complete the steps in 
+    [Generate TLS assets](https://github.com/dexidp/website/blob/main/content/docs/kubernetes.md#generate-tls-assets) 
+    in the dex documentation.
 
-1. Add the generated TLS assets to the cluster as a secret, following the
-    steps in the [Create cluster secrets](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#create-cluster-secrets) section of the dex documentation.
+1. To add the generated TLS assets to the cluster as a secret, complete the steps in 
+[Create cluster secrets](https://github.com/dexidp/website/blob/main/content/docs/kubernetes.md#create-cluster-secrets) 
+in the dex documentation.
 
-## <a id='deploy'></a>Deploy and Expose Dex
+### <a id='deploy'></a>Deploy and Expose Dex
+
+To run dex as a local service within a pod and exposes its endpoint via an IP address:   
 
 1. On a Kubernetes cluster, deploy dex using the example YAML file linked above.
 
-1. Once the deployment succeeds, expose the dex deployment as a service named `dex-service`:
+1. Wait for the deployment to succeed.  
 
+1. Expose the dex deployment as a service named `dex-service`:
+
+    ```
+    kubectl expose deployment dex --type=LoadBalancer --name=dex-service
+    ```
+
+    For example:  
     <pre class="terminal">
     $ kubectl expose deployment dex --type=LoadBalancer --name=dex-service
-    > service/dex-service exposed
+    \> service/dex-service exposed
     </pre>
 
 1. This should create a dex service with a public IP address that clusters can use as an OIDC issuer URL. Retrieve the IP address by running:
     
     ```
-    $ kubectl get services dex-service
+    kubectl get services dex-service
     ```
 
 1. Add the IP of the dex service to your `/etc/hosts`:
@@ -131,13 +150,15 @@ For example:
     * For this example, we set up the issuer URL as
     `https://dex.example.com:32000`.
 
-## <a id='profile'></a>Create Kubernetes Profile
+### <a id='profile'></a>Create Kubernetes Profile
 
 To create a Kubernetes profile that lets a cluster's `kube-api-server` connect to the dex service:
 
-1. Create a Kubernetes profile `/tmp/profile.json` similar to this, containing your custom OIDC settings under the `kube-apiserver` component:
+1. Create a Kubernetes profile `/tmp/profile.json` containing your custom OIDC settings under the `kube-apiserver` component.  
+<br>
+    For example:
 
-    ```
+    <pre class="terminal">
     $ cat /tmp/profile.json
     {
        "name": "oidc-config",
@@ -156,7 +177,7 @@ To create a Kubernetes profile that lets a cluster's `kube-api-server` connect t
           }
        ]
     }
-    ```
+    </pre>
   Of all the supported `kube-apiserver` flags, the following are specific to OIDC.
   You can find a description of each of these in the
   [kube-apiserver documentation](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/).
@@ -170,30 +191,38 @@ To create a Kubernetes profile that lets a cluster's `kube-api-server` connect t
 
 1. Create the profile:
 
-  ```
-  $ tkgi create-kubernetes-profile /tmp/profile.json
-  ```
+    ```
+    tkgi create-kubernetes-profile /tmp/profile.json
+    ```
 
 In the example above, the file-path `/tmp/oidc-ca.pem` points to a CA certificate on the local file system, and the `tkgi create-kubernetes-profile` command sends this certificate to the API server when it creates the profile.
 
-## <a id='cluster'></a>Create Cluster
+### <a id='cluster'></a>Create Cluster
 
 To create a cluster using the Kubernetes profile created above:
 
-```
-$ tkgi create-cluster cluster-with-custom-oidc -e cluster.example.com -p
-    small --kubernetes-profile oid-config
-```
+1. Run the following:  
 
-The cluster should have custom OIDC settings from the profile.
+    ```
+    tkgi create-cluster cluster-with-custom-oidc -e cluster.example.com -p small --kubernetes-profile oid-config
+    ```
+    <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
+    if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
+    </p>
 
-## <a id='test'></a>Test Cluster Access
+1. Confirm the cluster has custom OIDC settings from the profile.  
 
-To generate an ID token and test the cluster, you can use an example app from the dex repo as follows.
+### <a id='test'></a>Test Cluster Access
 
-In real-world scenarios, you can replace the example app with a full-fledged application like [Gangway](https://github.com/heptiolabs/gangway).
+To test that the cluster uses the OIDC provider to control access, 
+install an app, generate an ID token, and test the cluster.  
 
-1. Install the `example-app` app from the [Logging into the cluster](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster) documentation section in the dex repo.
+You can use an example app from the dex repo or test with a full-fledged application, such as [Gangway](https://github.com/heptiolabs/gangway), instead of the example app.
+
+To test that the cluster uses the OIDC provider: 
+
+1. To install an example app, complete the steps to install the `example-app` in 
+[Logging into the cluster](https://github.com/dexidp/website/blob/main/content/docs/kubernetes.md#logging-into-the-cluster) in the dex documentation.  
 
 1. Run the dex example app:
 
@@ -203,21 +232,27 @@ In real-world scenarios, you can replace the example app with a full-fledged app
     ```
     - The example app only provides the `email` scope.
 
-1. To fetch the token, use the information provided [here](https://github.com/dexidp/dex/blob/master/Documentation/kubernetes.md#logging-into-the-cluster) to generate the ID token.
+1. To fetch the token, complete the steps to generate an ID token in 
+[Logging into the cluster](https://github.com/dexidp/website/blob/main/content/docs/kubernetes.md#logging-into-the-cluster) 
+in the dex documentation.
 
-1. Log in using the **Log in with Email** option and enter the email and password of an account in your OIDC IDP.
+1. Log in using the **Log in with Email** option and enter the email and password of an account in your OIDC IDP.  
+
+<%#  ****THIS TEXT AND IMAGE CAN ONLY CAUSE CONFUSION
+
 This example uses email `alana@test.com` and password `password`.
 
     ![Test app pane: 'Authenticate for' field, 'Extra scopes' field, 'Connector ID' field, 'Request offline access' checkbox, and 'Login' button](images/dex-test-app.png)
+%>
 
 1. A page appears listing the ID Token, Access Token, Refresh Token, ID Token Issuer (`iss` claim), and other information.
 
     ![Page lists: 'ID Token' with cert, 'Access Token' with token, 'Claims' with access structure for user 'alana', and 'Refresh Token' token string](images/dex-test-output.png)
 
-1. Once the token is generated, edit your `.kube/config` file to add a new context for the test user, and include `cluster.server` and `user.token` values retrieved using the example app:
+1. Wait for the token to be generated.  
+1. Edit your `.kube/config` file to add a new context for the test user:   
 
     ```
-    $ cat ~/.kube/config
     apiVersion: v1
     clusters:
     - cluster:
@@ -240,12 +275,15 @@ This example uses email `alana@test.com` and password `password`.
         token: ID-TOKEN
     ```
     Where:
-    * `CA` is your CA certificate
-    * `CLUSTER-URL` is the address of the test service, such as `https://cluster.example.com:8443`
-    * `TEST-CLUSTER` is the name of the test cluster, such as `cluster-with-custom-oidc`
-    * `TEST-USER` is the test account username, such as `alana`
-    * `TEST-CONTEXT` is a name you create for the new context, such as `cluster-with-custom-oidc-ldap-alana`
-    * `ID-TOKEN` is the ID Token retrieved by the `example-app` app above
+    * `CA` is your CA certificate.  
+    * `CLUSTER-URL` is the address of the test service, such as `https://cluster.example.com:8443`.
+    * `TEST-CLUSTER` is the name of the test cluster, such as `cluster-with-custom-oidc`.  
+    * `TEST-USER` is the test account username, such as `alana`.  
+    * `TEST-CONTEXT` is a name you create for the new context, such as `cluster-with-custom-oidc-ldap-alana`.  
+    * `ID-TOKEN` is the ID Token retrieved by the `example-app` app above.  
+
+    Include the `cluster.server` and `user.token` values retrieved using the example app.
+
 
 1. Create a `ClusterRole` YAML file that grants permissions to access services and pods in the `default` namespace:
 
@@ -267,7 +305,9 @@ This example uses email `alana@test.com` and password `password`.
     kubectl apply -f ClusterRole.yml
     ```
 
-1. Create a `ClusterRoleBinding` YAML file that applies the `ClusterRole` role to the test user:
+1. Create a `ClusterRoleBinding` YAML file that applies the `ClusterRole` role to the test user.  
+<br>
+    For example:
 
     ```
     apiVersion: rbac.authorization.k8s.io/v1
@@ -292,4 +332,11 @@ This example uses email `alana@test.com` and password `password`.
     kubectl apply -f ClusterRoleBinding.yml
     ```
 
-If the test user `alana` can run `kubectl get pods`, then the cluster is authenticating her successfully by connecting via OIDC to the dex OIDC provider.
+1. Confirm the test user can run the following:  
+
+    ```
+    kubectl get pods
+    ```
+
+    The cluster is successfully authenticating the user by connecting to the dex OIDC provider via OIDC 
+    if the test user can run `kubectl get pods`.
