@@ -7,7 +7,7 @@ This topic describes how to create managed identities for <%= vars.product_full 
 
 In order for Kubernetes to create load balancers and attach persistent disks to pods, you must create managed identities with sufficient permissions.
 
-You need separate managed identities for the Kubernetes cluster master and worker node VMs.
+You need separate managed identities for the Kubernetes cluster control plane and worker node VMs.
 <%= vars.vm_credentials %>
 
 ## <a id='id-resource-group'></a>Retrieve Your Subscription ID and Resource Group
@@ -26,17 +26,17 @@ If you do not know your Subscription ID or Resource Group:
 in <i>Deploying Ops Manager on Azure Manually</i>.  
 </p>
 
-## <a id='create-master'></a>Create the Master Node Managed Identity
+## <a id='create-master'></a>Create the Control Plane Node Managed Identity
 
-Perform the following steps to create the managed identity for the master nodes:
+Perform the following steps to create the managed identity for the control plane nodes:
 
 1. Create a role definition using the following template:  
 
     ```
     {
-        "Name":  "<%= vars.k8s_runtime_abbr %> master",
+        "Name":  "<%= vars.k8s_runtime_abbr %> control plane",
         "IsCustom":  true,
-        "Description":  "Permissions for <%= vars.k8s_runtime_abbr %> master",
+        "Description":  "Permissions for <%= vars.k8s_runtime_abbr %> control plane",
         "Actions":  [
             "Microsoft.Network/*",
             "Microsoft.Compute/disks/*",
@@ -67,22 +67,22 @@ Perform the following steps to create the managed identity for the master nodes:
     [Custom Roles in Azure](https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles) 
     in the Azure documentation.
 
-1. Save your template as `tkgi_master_role.json`.
+1. Save your template as `tkgi_controlplane_role.json`.
 1. To log in, run the following command with the Azure CLI:
 
     ```
     az login
     ```
     To authenticate, navigate to the URL in the output, enter the provided code, and click your account.
-1. Create the role in Azure by running the following command from the directory with `tkgi_master_role.json`:
+1. Create the role in Azure by running the following command from the directory with `tkgi_controlplane_role.json`:
 
     ```
-    az role definition create --role-definition tkgi_master_role.json
+    az role definition create --role-definition tkgi_controlplane_role.json
     ```
 1. Create a managed identity by running the following command:
 
     ```
-    az identity create -g RESOURCE-GROUP -n tkgi-master
+    az identity create -g RESOURCE-GROUP -n tkgi-controlplane
     ```
     Where `RESOURCE-GROUP` is the name of your <%= vars.product_short %> resource group.
     <br><br>
@@ -95,9 +95,9 @@ Perform the following steps to create the managed identity for the master nodes:
   1. On the **Add role assignment** page, enter the following configurations:
       1. For **Assign access to**, select **User Assigned Managed Identity**.
       1. For **Role**, select **<%= vars.k8s_runtime_abbr %> master**.
-      1. For **Select**, select the **tkgi-master** identity created above.
+      1. For **Select**, select the **tkgi-controlplane** identity created above.
 
-<p class="note"><strong>Note:</strong> The <strong><%= vars.k8s_runtime_abbr %> master</strong> custom role created above is less permissive
+<p class="note"><strong>Note:</strong> The <strong><%= vars.k8s_runtime_abbr %> control plane</strong> custom role created above is less permissive
 than the built-in roles provided by Azure. However, if you want to use the built-in roles
 instead of the recommended custom role, you can select the following three built-in roles in Azure: <strong>Storage Account Contributor</strong>, <strong>Network Contributor</strong>, and <strong>Virtual Machine Contributor</strong>.</p>
 
