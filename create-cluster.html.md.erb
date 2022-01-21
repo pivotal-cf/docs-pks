@@ -14,7 +14,7 @@ To create an <%= vars.product_short %> Kubernetes cluster, do the following:
 
 * [Configure Cluster Access](#cluster-access)
 * [Create a Kubernetes Cluster](#create)
-* [Identify Kubernetes Cluster Master VMs](#master-id)
+* [Identify Kubernetes Cluster Control Plane VMs](#master-id)
 
 The `tkgi create-cluster` command creates a Kubernetes cluster with <%= vars.k8s_runtime_abbr %> compatibility matching 
 the <%= vars.k8s_runtime_abbr %> version of the current <%= vars.k8s_runtime_abbr %> control plane.
@@ -45,14 +45,14 @@ For more information about configuring a <%= vars.product_short %> cluster load 
 * [Creating and Configuring an Azure Load Balancer for <%= vars.product_short %> Clusters](azure-cluster-load-balancer.html)
 
 Create the <%= vars.product_short %> cluster load balancer before you create the cluster. Use the load balancer IP address
-as the external hostname, and then point the load balancer to the IP address of the master
-virtual machine (VM) after cluster creation. If the cluster has multiple master nodes, you
-must configure the load balancer to point to all master VMs for the cluster.
+as the external hostname, and then point the load balancer to the IP address of the control plane
+virtual machine (VM) after cluster creation. If the cluster has multiple control plane nodes, you
+must configure the load balancer to point to all control plane VMs for the cluster.
 
 If you are creating a cluster in a non-production environment, you can choose to create a cluster without a load balancer.
-Create a DNS entry that points to the IP address of the cluster's master VM after cluster creation.
+Create a DNS entry that points to the IP address of the cluster's control plane VM after cluster creation.
 
-To locate the IP addresses and VM IDs of the master VMs, see [Identify the Kubernetes Cluster Master VM](#master-id) below.
+To locate the IP addresses and VM IDs of the control plane VMs, see [Identify the Kubernetes Cluster Control Plane VM](#master-id) below.
 
 ## <a id='create'></a>Create a Kubernetes Cluster
 
@@ -146,9 +146,9 @@ For more information, see the [Grant <%= vars.product_short %> Access to an Indi
       * Specify the hostname or FQDN and register the FQDN with the IP provided by <%= vars.product_short %> after cluster deployment. You can do this using `resolv.conf` or via DNS registration.
       * Specify a temporary placeholder value for FQDN, then replace the FQDN in the `kubeconfig` with the IP address assigned to the load balancer dedicated to the cluster.<br><br>
   To retrieve the IP address to access the Kubernetes API and UI services, use the `tkgi cluster CLUSTER-NAME` command.
-  * For **vSphere without NSX-T**, **AWS**, and **Azure**, configure external access to the cluster's master nodes using either DNS records or an external load balancer. Use the output from the `tkgi cluster` command to locate the master node IP addresses and ports.
-  * For **GCP**, use the output from the `tkgi cluster` command to locate the master node IP addresses and ports, and then continue to [Creating and Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters](gcp-cluster-load-balancer.html#backend) in _Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters_.
-  <p class="note"><strong>Note</strong>: For clusters with multiple master node VMs, health checks on port 8443 are recommended.</p>
+  * For **vSphere without NSX-T**, **AWS**, and **Azure**, configure external access to the cluster's control plane nodes using either DNS records or an external load balancer. Use the output from the `tkgi cluster` command to locate the control plane node IP addresses and ports.
+  * For **GCP**, use the output from the `tkgi cluster` command to locate the control plane node IP addresses and ports, and then continue to [Creating and Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters](gcp-cluster-load-balancer.html#backend) in _Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters_.
+  <p class="note"><strong>Note</strong>: For clusters with multiple control plane node VMs, health checks on port 8443 are recommended.</p>
 
 1. To access your cluster, run the following command:
 
@@ -178,17 +178,18 @@ For more information about the `tkgi get-credentials` command, see [Retrieving C
 
     See [Managing <%= vars.product_short %>](managing.html) for information about checking cluster health and viewing cluster logs.  
 
-## <a id="master-id"></a>Identify Kubernetes Cluster Master VMs
+
+## <a id="master-id"></a>Identify Kubernetes Cluster Control Plane VMs
 
 <p class="note"><strong>Note</strong>: This section applies only to <%= vars.product_short %> deployments on GCP or on vSphere without NSX-T. Skip this section if your <%= vars.product_short %> deployment is on vSphere with NSX-T, AWS, or Azure. For more information, see <a href="about-lb.html">Load Balancers in <%= vars.product_short %></a>.
 </p>
-To reconfigure the load balancer or DNS record for an existing cluster, you may need to locate VM ID and IP address information for the cluster's master VMs.
+To reconfigure the load balancer or DNS record for an existing cluster, you may need to locate VM ID and IP address information for the cluster's control plane VMs.
 Use the information you locate in this procedure when configuring your load balancer backend.
 
-To locate the IP addresses and VM IDs for the master VMs of an existing cluster, do the following:
+To locate the IP addresses and VM IDs for the control plane VMs of an existing cluster, do the following:
 
 1. <%= partial 'login-api' %>
-1. To locate the cluster ID and master node IP addresses, run the following command:
+1. To locate the cluster ID and control plane node IP addresses, run the following command:
 
     ```
     tkgi cluster CLUSTER-NAME
@@ -197,7 +198,7 @@ To locate the IP addresses and VM IDs for the master VMs of an existing cluster,
 <br>
     From the output of this command, record the following items:
     * **UUID**: This value is your cluster ID.
-    * **Kubernetes Master IP(s)**: This value lists the IP addresses of all master nodes in the cluster.
+    * **Kubernetes Master IP(s)**: This value lists the IP addresses of all control plane nodes in the cluster.
 
 1. Gather credential and IP address information for your BOSH Director.
 1. To log in to the BOSH Director, perform the following:
@@ -212,7 +213,7 @@ To locate the IP addresses and VM IDs for the master VMs of an existing cluster,
     bosh -e tkgi deployments
     ````
   Your cluster deployment name begins with `service-instance` and includes the UUID you located in a previous step.
-1. To identify the master VM IDs by listing the VMs in your cluster, run the following command:
+1. To identify the control plane VM IDs by listing the VMs in your cluster, run the following command:
 
     ```
     bosh -e tkgi -d CLUSTER-SI-ID vms
@@ -221,9 +222,9 @@ To locate the IP addresses and VM IDs for the master VMs of an existing cluster,
 <br>
     For example:
     <pre class="terminal">$ bosh -e tkgi -d service-instance-aa1234567bc8de9f0a1c vms</pre>
-    Your master VM IDs are displayed in the **VM CID** column.
-1. Use the master VM IDs and other information you gathered in this procedure to configure your load balancer backend. 
-For example, if you use GCP, use the master VM IDs retrieved during the previous step in [Creating and Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters](gcp-cluster-load-balancer.html#reconfigure).
+    Your control plane VM IDs are displayed in the **VM CID** column.
+1. Use the control plane VM IDs and other information you gathered in this procedure to configure your load balancer backend. 
+For example, if you use GCP, use the control plane VM IDs retrieved during the previous step in [Creating and Configuring a GCP Load Balancer for <%= vars.product_short %> Clusters](gcp-cluster-load-balancer.html#reconfigure).
 
 ## <a id='next'></a>Next Steps
 
