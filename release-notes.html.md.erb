@@ -1476,24 +1476,52 @@ in _Advisories_ in the VMware Security Solutions documentation.
 
 #### <a id="1-13-0-ovsdb-server-failure"></a> Occasionally update-cluster Does Not Complete for Windows Workers
 
-**Symptom**
-
 Occasionally, `tkgi update-cluster` hangs while updating a Windows worker node instance and the BOSH task cannot finish and exits.  
 
-Additionally, your ovsdb-server log, located at
-`C:\var\vcap\sys\log\openvswitch-windows\ovsdb-server/job-service-wrapper.err.log`, 
-reports an error similar to the following after the flushing processes:
+**Symptom**
 
-```
-Pid-Guard : ovsdb-server is already runing, please stop it first
-At C:\var\vcap\jobs\openvswitch-windows\bin\ovsdb-server_ctl.ps1:30 char:5
-+     Pid-Guard $PIDFILE "ovsdb-server"
-+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: ( [Write-Error], WriteErrorException
-    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Pid-Guard
-```
+The `ovsdb-server` service has stopped but other processes report that it is running.  
 
+**Explanation**
 
+The `ovsdb-server.pid` file uses the pid for a process that is not the ovsdb-server.
+
+To confirm that this is the root cause for `tkgi update-cluster` to hang:
+
+* To verify the `ovsdb-server` service has actually stopped, run the PowerShell `Get-services` command on the Windows worker node.  
+* To verify that other processes report the `ovsdb-server` service is still running:
+<br>
+    1. Review the ovsdb-server `job-service-wrapper.err.log` log file.  
+<br>
+        The `job-service-wrapper.err.log` log file is located at:  
+        
+        ```
+        C:\var\vcap\sys\log\openvswitch-windows\ovsdb-server\job-service-wrapper.err.log
+        ```
+    1. Confirm that after the flushing processes, the log includes an error similar to the following:  
+
+        ```
+        Pid-Guard : ovsdb-server is already runing, please stop it first
+        At C:\var\vcap\jobs\openvswitch-windows\bin\ovsdb-server_ctl.ps1:30 char:5
+        +     Pid-Guard $PIDFILE "ovsdb-server"
+        +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            + CategoryInfo          : NotSpecified: ( [Write-Error], WriteErrorException
+            + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Pid-Guard
+        ```
+* To verify the root cause:
+<br>
+    1. Run the following PowerShell commands on the Windows worker node:  
+    
+        ```
+        $RUN_DIR = "C:\var\vcap\sys\run\openvswitch-windows"
+        $PIDFILE = "$RUN_DIR\ovsdb-server.pid"
+        $pid1 = Get-Content $PidFile -First 1
+        echo $pid1
+        $rst = Get-Process -Id $pid1 -ErrorAction SilentlyContinue
+        echo $rst
+        ```
+    1. Confirm the returned `ProcessName` is not `ovsdb-server`.
+    
 **Workaround**
 
 To resolve this issue for a single Windows worker:  
