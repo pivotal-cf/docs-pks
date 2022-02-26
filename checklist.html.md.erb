@@ -24,6 +24,9 @@ To prepare for a <%= vars.k8s_runtime_abbr %> Upgrade:
 1. [Update Default Scanner](#update-default-scanner)  
 1. [Upgrade All Clusters](#upgrade-clusters)  
 1. [Verify Your Clusters Support Upgrading](#resource-usage)  
+<% if vars.product_version == "v1.14" %>
+1. [Prepare Clusters for Automatic Container Runtime Migration](#runtime-migration)  
+<% end %>
 1. [Verify Health of Kubernetes Environment](#verify-k8s-health)  
 1. [Verify Your Environment Configuration](#review-configurations)  
 1. [Clean Up or Fix Failed Kubernetes Clusters](#clean-up)  
@@ -159,6 +162,59 @@ using a larger plan. For more information, see [Changing Cluster Configurations]
 worker VMs using multiple replicas of your workloads spread across those VMs.
 For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
 
+
+<% if vars.product_version == "v1.13" || vars.product_version == "v1.14"  %>
+##<a id='runtime-migration'></a> Prepare Clusters for Automatic Container Runtime Migration
+
+Cluster container runtimes are automatically migrated from the 
+Docker container runtime to the containerd runtime during cluster upgrade from 
+<%= vars.k8s_runtime_abbr %> v1.13 to <%= vars.k8s_runtime_abbr %> v1.14.  
+
+To ensure your cluster upgrades, you can manually migrate existing Docker container runtime clusters to a containerd runtime prior to upgrading clusters. 
+For more information, see [Manually Migrate a Cluster to the Containerd Container Runtime](#manually-migrate-container) below.  
+
+Whether you allow automatic cluster container runtime migration or manually migrate your cluster runtimes
+ensure your clusters are ready to migrate before migrating them.   
+
+### <a id="manually-migrate-container"></a>(Optional) Manually Migrate a Cluster to the Containerd Container Runtime
+
+You can manually migrate an existing cluster from using a Docker container runtime to a containerd container runtime.  
+
+To manually migrate an existing cluster to the containerd container runtime:  
+
+1. To identify which of your existing clusters use a Docker container runtime:
+
+    ```
+    kubectl get nodes -o wide
+    ```
+1. Create either a JSON or YAML config file with the following content:  
+    * JSON formatted configuration file:
+
+        ```
+        {
+            "runtime": "containerd"
+        }
+        ```
+    * YAML formatted configuration file:  
+
+        ```
+        ---
+        runtime: containerd
+        ```
+1. To migrate the container runtime for a single cluster:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE-NAME
+    ```
+    Where:  
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE-NAME` is the configuration file you created above.  
+
+1. Verify the migrated cluster now uses the containerd container runtime.
+
+<% end %>
+
+
 ##<a id='verify-k8s-health'></a> Verify Health of Kubernetes Environment
 
 Verify that your Kubernetes environment is healthy.
@@ -293,6 +349,7 @@ To prevent hanging cluster upgrades, you can configure default node drain behavi
 
 The new default behavior takes effect during the next upgrade,
 not immediately after configuring the behavior.
+
 
 ### <a id="node-drain-tile"></a> Configure with the <%= vars.k8s_runtime_abbr %> Tile
 
