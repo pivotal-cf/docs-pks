@@ -151,10 +151,11 @@ using a larger plan. For more information, see [Changing Cluster Configurations]
     ```
     tkgi update-cluster CLUSTER-NAME --num-nodes NUMBER-OF-WORKER-NODES
     ```
+    
     Where:  
-
-    * `CLUSTER-NAME` is the name of your cluster.
-    * `NUMBER-OF-WORKER-NODES` is the number of worker nodes that you want to set for the cluster.
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `NUMBER-OF-WORKER-NODES` is the number of worker nodes that you want to set for the cluster.  
+    
     <p class="note"><strong>Note</strong>: VMware recommends that you avoid using the
     <code>tkgi resize</code> command to perform resizing operations.</p>
 
@@ -163,18 +164,27 @@ worker VMs using multiple replicas of your workloads spread across those VMs.
 For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
 
 
-<% if vars.product_version == "v1.13" || vars.product_version == "v1.14"  %>
+<% if vars.product_version == "v1.14"  %>
 ##<a id='runtime-migration'></a> Prepare Clusters for Automatic Container Runtime Migration
 
-Cluster container runtimes are automatically migrated from the 
-Docker container runtime to the containerd runtime during cluster upgrade from 
-<%= vars.k8s_runtime_abbr %> v1.13 to <%= vars.k8s_runtime_abbr %> v1.14.  
+By default, clusters using a Docker container runtime will be migrated to use the containerd-runtime 
+when upgraded to <%= vars.k8s_runtime_abbr %> v1.14.  
 
-To ensure your cluster upgrades, you can manually migrate existing Docker container runtime clusters to a containerd runtime prior to upgrading clusters. 
-For more information, see [Manually Migrate a Cluster to the Containerd Container Runtime](#manually-migrate-container) below.  
+<p class="note"><strong>Note:</strong> 
+All Docker-runtime clusters must be migrated to use the containerd runtime prior to upgrading to <%= vars.k8s_runtime_abbr %> v1.15.
+</p>
 
-Whether you allow automatic cluster container runtime migration or manually migrate your cluster runtimes
-ensure your clusters are ready to migrate before migrating them.   
+<%= vars.recommended_by %> recommends that before upgrading to <%= vars.k8s_runtime_abbr %> v1.14 
+that you either manually migrate your clusters to the containerd runtime 
+or "lock" your clusters to the Docker container runtime:  
+
+* [Manually Migrate a Cluster to the Containerd Container Runtime](#manually-migrate-container)
+* [Lock a Cluster to the Docker Container Runtime](#lock-runtime)  
+
+<p class="note"><strong>Note</strong>: Locking a cluster container runtime is available only in <%= vars.k8s_runtime_abbr %> v1.13.3 
+  and later <%= vars.k8s_runtime_abbr %> v1.13 patches. If you want to lock a cluster to the Docker container runtime, 
+  you must lock the container runtime prior to upgrading to <%= vars.k8s_runtime_abbr %> v1.14.
+</p>    
 
 ### <a id="manually-migrate-container"></a>(Optional) Manually Migrate a Cluster to the Containerd Container Runtime
 
@@ -210,7 +220,51 @@ To manually migrate an existing cluster to the containerd container runtime:
     * `CLUSTER-NAME` is the name of your cluster.  
     * `CONFIG-FILE-NAME` is the configuration file you created above.  
 
-1. Verify the migrated cluster now uses the containerd container runtime.
+1. Verify the migrated cluster now uses the containerd container runtime.  
+
+<p class="note"><strong>Note</strong>: You must manage and monitor Docker and containerd runtime clusters differently. 
+For more information, see <a href="https://docs.pivotal.io/tkgi/1-12/release-notes.html#1-12-0-breaking-changes">Breaking Changes</a> 
+in the <%= vars.k8s_runtime_abbr %> v1.12 Release Notes.
+</p>
+
+     
+###<a id='lock-runtime'></a>Lock a Cluster to the Docker Container Runtime
+
+To lock an existing cluster to to its current container runtime:
+
+1. To identify which of your existing clusters use a Docker container runtime:
+
+    ```
+    kubectl get nodes -o wide
+    ```
+1. Create either a JSON or YAML cluster configuration file containing the following content:  
+    * JSON formatted configuration file:  
+    
+        ```
+        {
+            "lock_container_runtime": true
+        }
+        ```
+    * YAML formatted configuration file:  
+
+        ```
+        ---
+        lock_container_runtime: true
+        ```  
+1. To update your cluster with your configuration settings, run the following command:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE-NAME
+    ```
+    
+    Where:  
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE-NAME` is the configuration file to use to lock the container runtime.  
+
+<p class="note"><strong>Note</strong>: Locking a cluster container runtime is available only in <%= vars.k8s_runtime_abbr %> v1.13.3 
+  and later <%= vars.k8s_runtime_abbr %> v1.13 patches. If you want to lock a cluster to the Docker container runtime, 
+  you must lock the container runtime prior to upgrading to <%= vars.k8s_runtime_abbr %> v1.14.
+</p>  
 
 <% end %>
 
