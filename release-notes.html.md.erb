@@ -2509,3 +2509,88 @@ Provide any CIDR that does not contain the Deployment DNS IP.
 1. Click **Apply Configuration**.
 
 <hr>
+
+#### <a id="management-console-1-12-0-upgrade-fail-nvds-cvds"></a> <%= vars.k8s_runtime_abbr %> MC is Unable to Upgrade the TKGI Control Plane After Migrating from N-VDS to VDS
+
+<%# This issue is fixed in [<  %= vars.k8s_runtime_abbr %  > v1.12.5(#1-12-5-bug-fixes).  #%>
+
+If you have an existing <%= vars.k8s_runtime_abbr %> installation on a vSphere N-VDS network and migrate your network to VDS,
+<%= vars.k8s_runtime_abbr %> MC will no longer be able to upgrade <%= vars.k8s_runtime_abbr %> to a newer version.  
+
+**Explanation**
+
+<%= vars.k8s_runtime_abbr %> MC uses network resource MOIDs to manage network resources, 
+allowing the Management Console to manage network resources with identical names.  
+
+When converting a network from N-VDS to VDS, network resources are assigned new MOIDs.  
+
+Although your existing <%= vars.k8s_runtime_abbr %> Kubernetes cluster workloads continue to function, 
+the Management Console configuration maintains stale network resource MOIDs 
+and cannot upgrade the <%= vars.k8s_runtime_abbr %> control plane.  
+
+
+**Workaround**
+
+To upgrade <%= vars.k8s_runtime_abbr %> MC after converting a network from N-VDS to VDS:  
+
+1. Log in to the VM of your existing <%= vars.k8s_runtime_abbr %> MC installation.  
+1. To collect your network's current configuration:  
+    
+    1. Export the `pks-management-server` container's IP as an environment variable:  
+    
+        ```
+        export MGMT_IP=`docker inspect  pks-mgmt-server --format='{{.NetworkSettings.Networks.pks.IPAddress}}'`
+        ```
+        
+    1. Query and save your datacenter list as a json file named `datacenter.json`:  
+    
+        ```
+        curl -u root  http://{$MGMT_IP}:8080/api/v1/inventory/vcenter/datacenter -X GET  -k  -H \
+        "Content-type:application/json" > datacenter.json
+        ```
+        
+    1. Review the exported `datacenter.json` file and note the datacenter MOID.  
+    1. Query and save your network list as a json file named `networks.json`:  
+    
+        ```
+        curl -u root  http://{$MGMT_IP}:8080/api/v1/inventory/vcenter/network?dc=DC-MOID -X GET   -k  -H \
+        "Content-type:application/json" > networks.json
+        ```
+        Where `DC-MOID` is the datacenter MOID you noted in the previous step.  
+        
+1. To create a <%= vars.k8s_runtime_abbr %> MC manifest with the current network resources MOIDs:  
+
+    1. Export the <%= vars.k8s_runtime_abbr %> MC manifest as a manifest file named `manifest.json`:  
+
+        ```
+        curl -u root:Admin\ADMIN-PASSWORD  https://localhost/api/v1/deployment/manifest -X GET   -k  -H "Content-type:application/json" > manifest.json
+        ```
+        Where `ADMIN-PASSWORD` is the password for the admin account used in the command.  
+        
+    1. Back up the exported manifest file.  
+    1. Review the `networks.json` file you exported above and note the `moid` and `type` values.  
+    1. Open the exported manifest file in an editor and change the `dep_network_moid` and `dep_network_type` values 
+       to the `moid` and `type` values you collected from the `networks.json` file.  
+    1. Save the revised manifest file.  
+    
+1. To restore your <%= vars.k8s_runtime_abbr %> MC's ability to manage the <%= vars.k8s_runtime_abbr %> network resources:  
+
+    1. Update <%= vars.k8s_runtime_abbr %> MC with the revised manifest:  
+
+        ```
+        curl -u root:Admin\ADMIN-PASSWORD  http://{$MGMT_IP}:8080/api/v1/deployment -X POST -d @manifest.json  -k  -H "Content-type:application/json"
+        ```
+        
+        Where `ADMIN-PASSWORD` is the password for the admin account used in the command.  
+        
+1. To validate your <%= vars.k8s_runtime_abbr %> MC's configuration:  
+
+    1. Open the <%= vars.k8s_runtime_abbr %> MC UI.  
+    1. Review **Configuration** > **Deployment** and confirm that all statuses are either `SUCCESS` or `SKIPPED`.  
+    1. Review the **<%= vars.k8s_runtime_abbr %> MC Wizard** and confirm the displayed **Network Information** is correct.  
+    
+1. To upgrade <%= vars.k8s_runtime_abbr %> MC, deploy the <%= vars.k8s_runtime_abbr %> MC OVA for the desired <%= vars.k8s_runtime_abbr %> MC version.
+
+
+
+<hr>
