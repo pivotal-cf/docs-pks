@@ -56,13 +56,14 @@ The vSphere CSI Driver supports different features depending on driver version, 
 
 <%= vars.k8s_runtime_abbr %> supports only the following vSphere CSI Driver features:  
 
-* Enhanced Object Health in UI for vSAN Datastores  
 * Dynamic Block PV support<sup>&#42;</sup>  
-* Dynamic Virtual Volume (vVOL) PV support  
-* Static PV Provisioning  
-* Kubernetes Multi-node Control Plane support  
-* Encryption support via VMcrypt<sup>&#42;</sup>  
 * Dynamic File PV support<sup>&#42;</sup>  
+* Dynamic Virtual Volume (vVOL) PV support  
+* Encryption support via VMcrypt<sup>&#42;</sup>  
+* Enhanced Object Health in UI for vSAN Datastores  
+* Kubernetes Multi-node Control Plane support  
+* Static PV Provisioning  
+* Topology-aware volume provisioning  
 <br>
 
     <sup>&#42;</sup>For information on the usage limitations and environment and version requirements of these vSphere CSI Driver features, 
@@ -395,6 +396,96 @@ For information about configuring a PVC, see [Persistent Volumes](https://kubern
 For more information and examples of Pod configurations, see the `example` configurations 
 for the CSI driver version you are using 
 in [vsphere-csi-driver](https://github.com/kubernetes-sigs/vsphere-csi-driver/) in the VMware kubernetes-sigs GitHub repo.
+
+
+## <a id='enable-topology'></a>(Optional) Configure Topology
+
+<%= vars.k8s_runtime_abbr %> supports the vSphere Container Storage Plug-in's Topology-aware volume provisioning features. 
+For more information on volume provisioning features, see [Allowed Topologies](https://kubernetes.io/docs/concepts/storage/storage-classes/#allowed-topologies) in the Kubernetes documentation 
+and [Topology-Aware Volume Provisioning](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-61646244-E24F-4E7E-AB1A-F95B5A5DD518.html).  
+
+You can create new clusters with Topology-aware volume provisioning enabled and you can enable Topology-aware volume provisioning 
+on existing clusters:  
+
+* [Create a Cluster with Topology Enabled](#create-with-topology)
+* [Enable Topology on an Existing Cluster](#update-with-topology)
+
+### <a id='topology-prerequisites'></a>Topology Prerequisites
+
+<%= vars.k8s_runtime_abbr %> support for the vSphere Container Storage Plug-in Topology-aware volume provisioning feature requires:
+
+* The **vSphere CSI Driver Integration** option must be enabled on the <%= vars.k8s_runtime_abbr %> tile. 
+For more information, see [Storage](installing-vsphere.html#storage-config) in installing <%= vars.k8s_runtime_abbr %> on vSphere.  
+
+* You have created vSphere CSI topology labels and categories in your vSphere environment. 
+For more information, see [Create Topology Tags](#create-topology-tags) below.  
+
+#### <a id='create-topology-tags'></a>Create Topology Tags
+
+1. Open the **vSphere Client** UI.
+1. Open **Tags and Custom Attributes**.  
+1. To create categories for your cluster:  
+    1. Select **Categories**.  
+    1. Create a region category with **Multiple Cardinality** disabled. For example, `k8s-region`.  
+    1. Create a zone category with **Multiple Cardinality** disabled. For example, `k8s-zone`.  
+1. To create tags for your cluster:  
+    1. Select **Tags**.  
+    1. Create a region tag for your cluster named `region-1` in the `k8s-region` category you created above.  
+    1. Create six availability zone tags for your cluster named `az-0` to `az-5` in the `k8s-zone` category you created above.  
+1. To assign tags to your cluster and cluster host group:  
+    1. Open **Hosts and Clusters**.
+    1. Select the host group.  
+    1. Select **Assign Tag** and assign the region tag you created above.  
+    1. Select a cluster.  
+    1. Select **Assign Tag** and assign one of the zone tags you created above.  
+    
+For more information on creating vSphere Center tags and categories, 
+see [Create, Edit, or Delete a Tag Category](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vcenterhost.doc/GUID-BA3D1794-28F2-43F3-BCE9-3964CB207FB6.html) 
+in the VMware vSphere documentation.
+
+### <a id='create-with-topology'></a>Create a Cluster with Topology Enabled
+
+To create a cluster with Topology-aware volume provisioning enabled:
+
+1. Create a JSON cluster configuration file containing at least the following:  
+
+    ```
+    {
+      "csi_topology_labels": {
+        "topology_categories": "k8s-region,k8s-zone"
+      }
+    }
+    ```
+1. Use the tkgi cli to create the cluster configured using the cluster configuration file you created above:  
+
+    ```
+    tkgi create-cluster CLUSTER-NAME  --config-file CONFIGFILE-NAME
+    ```
+    Where:  
+
+    * `CLUSTER-NAME` is your unique name for your cluster.  
+    <p class="note"><strong>Note</strong>: The <code>CLUSTER-NAME</code> must not contain special characters such as <code>&</code>. 
+    The <%= vars.k8s_runtime_abbr %> CLI does not validate the presence of special characters in the <code>CLUSTER-NAME</code> string, 
+    but cluster creation fails if one or more special characters are present.<br><br>
+    Use only lowercase characters when naming your cluster 
+    if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
+    </p>
+    * `CONFIG-FILE-NAME` is the configuration file to use for the cluster.  
+    
+    
+    For more information on creating clusters, see [Creating Clusters](create-cluster.html).  
+
+
+
+
+### <a id='update-with-topology'></a>Enable Topology on an Existing Cluster
+
+To enable Topology-aware volume provisioning on an existing cluster:
+
+1. Complete the steps in [Create Topology Tags](#create-topology-tags) below.  
+
+    
+
 
 
 ## <a id='uninstall-csi'></a>Uninstall a Manually Installed vSphere CSI Driver
