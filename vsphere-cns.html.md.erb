@@ -85,8 +85,8 @@ For information on the scaling limitations of the vSphere CSI Driver, see
 
 To create, modify or remove a customized vSphere file volume:  
 
-* [Create a Cluster With Customized File Volume Parameters](#file-volumes-create)  
-* [Modify a Cluster With Customized File Volume Parameters](#file-volumes-modify)  
+* [Create a Cluster with Customized File Volume Parameters](#file-volumes-create)  
+* [Modify a Cluster with Customized File Volume Parameters](#file-volumes-modify)  
 * [Remove File Volume Parameters from a Cluster](#file-volumes-remove)  
 
 ### <a id='file-volumes-prereqs'></a>Prerequisites 
@@ -96,15 +96,56 @@ For information about enabling vSAN File Services, see
 [Configure File Services](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vsan.doc/GUID-CA9CF043-9434-454E-86E7-DCA9AD9B0C09.html) 
 in the VMware vSphere documentation.  
 
-To use Topology, you must prepare your vSphere environment. For more information, see
-[Prepare for Topology](#enable-topology) below.   
+To use the vSphere CSI Driver's topology-aware volume provisioning features, you must prepare your vSphere environment. For more information, see
+[Prepare for Topology](#prepare-for-topology) below.   
 
 
-### <a id='file-volumes-create'></a>Create a Cluster With Customized File Volume Parameters
+### <a id='file-volumes-create'></a>Create a Cluster with Customized File Volume Parameters
 
 To create a new cluster with a vSphere file volume:  
 
-1. Create a file volume configuration file. For information, see [File Volume Configuration](#file-volumes-params) below.  
+1. Create a JSON or YAML formatted volume configuration file containing the following:  
+
+    ```
+    {
+      "target_vsan_fileshare_datastore_urls": "DS-URLS",
+      "net_permissions": [
+        {
+          "name": "PERMISSION-NAME",
+          "ips": "IP-ADDRESS",
+          "permissions": "PERMISSION",
+          "rootsquash": ROOT-SQUASH
+        },
+        {
+          "name": "PERMISSION-NAME",
+          "ips": "IP-ADDRESS",
+          "permissions": "PERMISSION",
+          "rootsquash": ACCESS-LEVEL
+        },
+      ],
+      "csi_topology_labels": {
+        "topology_categories": "REGION-TAG,ZONE-TAG"
+      }
+    }
+    ```
+    
+    Where:  
+    
+    * `DS-URLS` is a comma-separated list of datastores for deploying file share volumes. 
+    For example: `"ds:///vmfs/volumes/vsan:52635b9067079319-95a7473222c4c9cd/"`.  
+    * `PERMISSION-NAME` is your name for a NetPermission.  
+    * `IP-ADDRESS` is the IP range or IP subnet affected by a NetPermission restriction.  
+    * `PERMISSION` is the access permission to the file share volume for a NetPermission restriction.  
+    * `ACCESS-LEVEL` is the security access level for the file share volume for a NetPermission restriction.  
+    * (Optional) `REGION-TAG` is the vSphere Center region tag you created in [Create Topology Tags](#create-topology-tags).  
+    * (Optional) `ZONE-TAG` is one of the vSphere Center zone tags you created in [Create Topology Tags](#create-topology-tags).  
+
+    <p class="note"><strong>Note</strong>: If you do not want to configure topology-aware volume provisioning, 
+        remove the entire <code>csi_topology_labels</code> object from your configuration.
+    </p>
+
+    For information, see [File Volume Configuration](#file-volumes-params) below.  
+    
 1. To create a cluster with attached file volumes:
 
     ```
@@ -121,7 +162,8 @@ To create a new cluster with a vSphere file volume:
     $ tkgi create-cluster demo -e demo.cluster --plan Small --config-file ./conf1.json
     </pre>
 
-### <a id='file-volumes-modify'></a>Modify a Cluster With Customized File Volume Parameters
+
+### <a id='file-volumes-modify'></a>Modify a Cluster with Customized File Volume Parameters
 
 To modify an existing cluster with a vSphere file volume:  
 
@@ -136,24 +178,29 @@ To modify an existing cluster with a vSphere file volume:
 
     * `CLUSTER-NAME` is the name of your cluster.  
     * `CONFIG-FILE` is the name of your config file.  
-
-
+    
+    
 ### <a id='file-volumes-remove'></a>Remove File Volume Parameters from a Cluster
 
 To remove a vSphere file volume configuration from a cluster:  
 
 1. Create a file volume configuration file containing either the `disable_target_vsan_fileshare_datastore_urls` or `disable_net_permissions`
-parameters set to `true` to disable an existing file volume parameter. 
-For information, see [File Volume Configuration](#file-volumes-params) below.  
+parameters set to `true` to disable an existing file volume parameter.  
 <br>
     For example:  
 
     ```
     {
         "disable_target_vsan_fileshare_datastore_urls": true,
-        "disable_net_permissions": true
+        "disable_net_permissions": true,
+        "csi_topology_labels": {
+          "topology_categories": ""
+        }
     }
     ```
+    
+    For more information, see [File Volume Configuration](#file-volumes-params) below.  
+    
 1. To remove the configured file volume parameter from your cluster:
 
     ```
@@ -169,135 +216,149 @@ For information, see [File Volume Configuration](#file-volumes-params) below.
 
 ### <a id='file-volumes-params'></a>File Volume Configuration
 
-You must create a File Volume configuration file to configure your cluster to enable or disable vSphere file volume support.  
+Create a JSON or YAML formatted File Volume configuration file to enable or disable vSphere file volume support.  
 
-Your configuration file can be formatted using either JSON or YAML syntax. For example:  
+For example:
 
-```
-{
-  "target_vsan_fileshare_datastore_urls": "ds:///vmfs/volumes/vsan:52635b9067079319-95a7473222c4c9cd/",
-  "net_permissions": [
-    {
-      "name": "demo1",
-      "ips": "192.168.0.0/16",
-      "permissions": "READ_WRITE",
-      "rootsquash": false
-    },
-    {
-      "name": "demo2",
-      "ips": "10.0.0.0/8",
-      "permissions": "READ_ONLY",
-      "rootsquash": false
-    }
-  ],
-  "csi_topology_labels": {
-    "topology_categories": "k8s-region,k8s-zone"
-  }
-}
-```
+    * The following configuration enables all File Volume features:  
+
+        ```
+        {
+          "target_vsan_fileshare_datastore_urls": "ds:///vmfs/volumes/vsan:52635b9067079319-95a7473222c4c9cd/",
+          "net_permissions": [
+            {
+              "name": "demo1",
+              "ips": "192.168.0.0/16",
+              "permissions": "READ_WRITE",
+              "rootsquash": false
+            },
+            {
+              "name": "demo2",
+              "ips": "10.0.0.0/8",
+              "permissions": "READ_ONLY",
+              "rootsquash": false
+            }
+          ],
+          "csi_topology_labels": {
+            "topology_categories": "k8s-region,k8s-zone"
+          }
+        }
+        ```
+
+    * The following configuration disables File Volume features:  
+
+        ```
+        {
+          "disable_target_vsan_fileshare_datastore_urls": true,
+          "disable_net_permissions": true,
+          "csi_topology_labels": {
+            "topology_categories": ""
+          }
+        }
+        ```
+#### <a id='file-volumes-params-datastores'></a>File Volume DataStores Configuration
+
+The following are accepted Datastore URLs parameters:  
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>target_vsan_fileshare_datastore_urls</td>
+        <td>string</td>
+        <td>A comma separated list of datastores for deploying file share volumes.</td>
+    </tr>
+    <tr>
+        <td>disable_target_vsan_fileshare_datastore_urls</td>
+        <td>Boolean</td>
+        <td>Disable the target_vsan_fileshare_datastore_urls.<br>Values: <code>true</code>, <code>false</code>.<br>Default Value: <code>false</code>.</td>
+    </tr>
+</table>
 
 
-To create a vSphere File Volume configuration file:  
+#### <a id='file-volumes-params-netperm'></a>File Volume NetPermissions Object Configuration
 
-1. Configure the datastores to use. The following are accepted Datastore URLs parameters:  
+The following are accepted NetPermissions objects:  
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>net_permissions</td>
+        <td>Array</td>
+        <td>Properties defining a NetPermissions object.</td>
+    </tr>
+    <tr>
+        <td>disable_net_permissions</td>
+        <td>Boolean</td>
+        <td>Disable the net_permissions.<br>Values: <code>true</code>, <code>false</code>.<br>Default Value: <code>false</code>.</td>
+    </tr>
+</table>  
 
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>target_vsan_fileshare_datastore_urls</td>
-            <td>string</td>
-            <td>A comma separated list of datastores for deploying file share volumes.</td>
-        </tr>
-        <tr>
-            <td>disable_target_vsan_fileshare_datastore_urls</td>
-            <td>Boolean</td>
-            <td>Disable the target_vsan_fileshare_datastore_urls.<br>Values: <code>true</code>, <code>false</code>.<br>Default Value: <code>false</code>.</td>
-        </tr>
-    </table>
+The following are supported NetPermissions object parameters:  
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>Name of the NetPermission object.</td>
+    </tr>
+    <tr>
+        <td>ips</td>
+        <td>string</td>
+        <td>IP range or IP subnet affected by the NetPermission restrictions.<br>Default Value: <code>"*"</code>.</td>
+    </tr>
+    <tr>
+        <td>permissions</td>
+        <td>string</td>
+        <td>Access permission to the file share volume.<br>Values: <code>"READ_WRITE"</code>, <code>"READ_ONLY"</code>, <code>"NO_ACCESS"</code>.<br>Default Value: <code>"READ_WRITE"</code>.</td>
+    </tr>
+    <tr>
+        <td>rootsquash</td>
+        <td>Boolean</td>
+        <td>Security access level for the file share volume.<br>Values: <code>true</code>, <code>false</code>.<br>Default Value: <code>false</code>.</td>
+    </tr>
+</table>
 
-1. Configure the net permissions to use. The following are accepted NetPermissions objects:
 
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>net_permissions</td>
-            <td>Array</td>
-            <td>Properties defining a NetPermissions object.</td>
-        </tr>
-        <tr>
-            <td>disable_net_permissions</td>
-            <td>Boolean</td>
-            <td>Disable the net_permissions.<br>Values: <code>true</code>, <code>false</code>.<br>Default Value: <code>false</code>.</td>
-        </tr>
-    </table>  
-<br>
-    The following are supported NetPermissions object parameters:
+#### <a id='file-volumes-params-topology'></a>File Volume Topology Configuration
 
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>name</td>
-            <td>string</td>
-            <td>Name of the NetPermission object.</td>
-        </tr>
-        <tr>
-            <td>ips</td>
-            <td>string</td>
-            <td>IP range or IP subnet affected by the NetPermission restrictions.<br>Default Value: <code>"*"</code>.</td>
-        </tr>
-        <tr>
-            <td>permissions</td>
-            <td>string</td>
-            <td>Access permission to the file share volume.<br>Values: <code>"READ_WRITE"</code>, <code>"READ_ONLY"</code>, <code>"NO_ACCESS"</code>.<br>Default Value: <code>"READ_WRITE"</code>.</td>
-        </tr>
-        <tr>
-            <td>rootsquash</td>
-            <td>Boolean</td>
-            <td>Security access level for the file share volume.<br>Values: <code>true</code>, <code>false</code>.<br>Default Value: <code>false</code>.</td>
-        </tr>
-    </table>
+The following are accepted CSI Topology Labels objects:  
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>csi_topology_labels</td>
+        <td>object</td>
+        <td>Properties defining a CSI Topology Labels object.</td>
+    </tr>
+</table>  
 
-1. (Optional) Configure topology. The following are accepted CSI Topology Labels objects:
-
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>csi_topology_labels</td>
-            <td>object</td>
-            <td>Properties defining a CSI Topology Labels object.</td>
-        </tr>
-    </table>  
-<br>
-    The following are supported CSI Topology Labels object parameters:  
-
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>topology_categories</td>
-            <td>string</td>
-            <td>A comma delimited list of vSphere Center tags to apply to the File Volume.</td>
-        </tr>
-    </table>
+The following are supported CSI Topology Labels object parameters:  
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>topology_categories</td>
+        <td>string</td>
+        <td>A comma delimited list of vSphere Center tags to apply to the File Volume.</td>
+    </tr>
+</table>
 
 <%#FROM Confluence:  PKS Core pks-api/spec.yaml: https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=PKS&title=Detailed+design+document+for+supporting+file+volume+specific+configurations #%>
 
@@ -446,9 +507,9 @@ for the CSI driver version you are using
 in [vsphere-csi-driver](https://github.com/kubernetes-sigs/vsphere-csi-driver/) in the VMware kubernetes-sigs GitHub repo.
 
 
-## <a id='enable-topology'></a>(Optional) Prepare for Topology
+## <a id='prepare-for-topology'></a>(Optional) Prepare for Topology
 
-<%= vars.k8s_runtime_abbr %> supports the vSphere Container Storage Plug-in's Topology-aware volume provisioning features.  
+<%= vars.k8s_runtime_abbr %> supports the vSphere Container Storage Plug-in's topology-aware volume provisioning features.  
 
 Before creating a new cluster or updating an existing cluster with Topology-aware volume provisioning, 
 complete the [Topology Prerequisites](#topology-prerequisites) steps below.  
