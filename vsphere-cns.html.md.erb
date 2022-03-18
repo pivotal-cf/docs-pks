@@ -25,11 +25,6 @@ see [Storage](installing-vsphere.html#storage-config) in _Installing <%= vars.k8
 When automatic vSphere CSI Driver installation is enabled, your clusters 
 use your tile **Kubernetes Cloud Provider** storage settings as the default vSphere CNS configuration.  
 
-You can customize, deploy and manage vSphere CNS volumes using the vSphere CSI Driver:  
-
-* To customize file volumes, see [Customize vSphere File Volumes](#create-file-volumes) below.
-* To use and customize CNS Volumes, see [Create or Use CNS Block Volumes](#use-cns) below.
-
 The automatically deployed vSphere CSI Driver supports high availability (HA) configurations. HA support 
 is automatically enabled on clusters with multiple control plane nodes and uses only one active CSI Controller.  
 
@@ -37,6 +32,22 @@ Use the vSphere client to review your cluster storage volumes and their backing 
 set a storage policy on your storage volumes or monitor policy compliance. 
 vSphere storage backs up your cluster volumes.  
 
+For more information about VMware CNS, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.storage.doc/GUID-CF1D7196-E49C-4430-8C50-F8E35CAAE060.html).  
+
+For more information about using the Kubernetes CSI Driver, see
+[Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.  
+
+
+In <%= vars.k8s_runtime_abbr %>, you can use the vSphere CSI Driver to:  
+
+* Customize, deploy and manage vSphere CNS volumes:  
+    * To customize file volumes, see [Customize vSphere File Volumes](#create-file-volumes) below.  
+    * To use and customize CNS Volumes, see [Create or Use CNS Block Volumes](#use-cns) below.  
+* Apply vSphere Topology-Aware Volume Provisioning to your cluster.
+<br>    
+    For more information, see [Customize a Cluster with vSphere Topology-Aware Volume Provisioning](#vsphere-topology-provisioning) below.  
+
+<br>
 <p class="note"><strong>Note</strong>: If you have an existing cluster with a manually installed vSphere CSI driver 
 and your administrator has enabled automatic vSphere CSI Driver installation, you must uninstall the manually installed vSphere CSI Driver 
 from your cluster. 
@@ -44,10 +55,6 @@ For more information, see <a href="#uninstall-csi">Uninstall a Manually Installe
 </p>
 
 
-For more information about VMware CNS, see [Getting Started with VMware Cloud Native Storage](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.storage.doc/GUID-CF1D7196-E49C-4430-8C50-F8E35CAAE060.html).  
-
-For more information about using the Kubernetes CSI Driver, see
-[Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.  
 
 
 ### <a id='supported-feature'></a> vSphere CSI Driver Supported Features and Requirements
@@ -122,10 +129,7 @@ To create a new cluster with a vSphere file volume:
           "permissions": "PERMISSION",
           "rootsquash": ACCESS-LEVEL
         },
-      ],
-      "csi_topology_labels": {
-        "topology_categories": "REGION-TAG,ZONE-TAG"
-      }
+      ]
     }
     ```
     
@@ -137,12 +141,6 @@ To create a new cluster with a vSphere file volume:
     * `IP-ADDRESS` is the IP range or IP subnet affected by a NetPermission restriction.  
     * `PERMISSION` is the access permission to the file share volume for a NetPermission restriction.  
     * `ACCESS-LEVEL` is the security access level for the file share volume for a NetPermission restriction.  
-    * (Optional) `REGION-TAG` is the vSphere Center region tag you created in [Create Topology Tags](#create-topology-tags).  
-    * (Optional) `ZONE-TAG` is one of the vSphere Center zone tags you created in [Create Topology Tags](#create-topology-tags).  
-
-    <p class="note"><strong>Note</strong>: If you do not want to configure topology-aware volume provisioning, 
-        remove the entire <code>csi_topology_labels</code> object from your configuration.
-    </p>
 
     For information, see [File Volume Configuration](#file-volumes-params) below.  
     
@@ -226,10 +224,7 @@ For example:
           "permissions": "READ_ONLY",
           "rootsquash": false
         }
-      ],
-      "csi_topology_labels": {
-        "topology_categories": "k8s-region,k8s-zone"
-      }
+      ]
     }
     ```
     
@@ -238,10 +233,7 @@ For example:
     ```
     {
       "disable_target_vsan_fileshare_datastore_urls": true,
-      "disable_net_permissions": true,
-      "csi_topology_labels": {
-        "topology_categories": ""
-      }
+      "disable_net_permissions": true
     }
     ```
     
@@ -319,43 +311,6 @@ The following are supported NetPermissions object parameters:
     </tr>
 </table>
 
-
-#### <a id='file-volumes-params-topology'></a>File Volume Topology Configuration
-
-The following are accepted CSI Topology Labels objects:  
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td>csi_topology_labels</td>
-        <td>object</td>
-        <td>Properties defining a CSI Topology Labels object.</td>
-    </tr>
-</table>  
-
-The following are supported CSI Topology Labels object parameters:  
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td>topology_categories</td>
-        <td>string</td>
-        <td>A comma delimited list of vSphere Center tags to apply to the File Volume.</td>
-    </tr>
-</table>
-
-<p class="note"><strong>Note</strong>: If you have an existing cluster created using a manually installed vSphere CSI Driver 
-    and topology is enabled on the cluster, your existing configuration uses separate <code>"region"</code> and <code>"zone"</code>
-    parameters instead of a single <code>"topology_categories"</code> parameter. 
-    You must use the legacy <code>"region"</code> and <code>"zone"</code> parameters in your configuration 
-    when updating a migrated cluster with existing legacy topology support.
-</p>
 
 <%#FROM Confluence:  PKS Core pks-api/spec.yaml: https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=PKS&title=Detailed+design+document+for+supporting+file+volume+specific+configurations #%>
 
@@ -504,19 +459,27 @@ for the CSI driver version you are using
 in [vsphere-csi-driver](https://github.com/kubernetes-sigs/vsphere-csi-driver/) in the VMware kubernetes-sigs GitHub repo.
 
 
-## <a id='prepare-for-topology'></a>(Optional) Prepare for Topology
+
+
+
+## <a id='vsphere-topology-provisioning'></a>Customize a Cluster with vSphere Topology-Aware Volume Provisioning
 
 <%= vars.k8s_runtime_abbr %> supports the vSphere Container Storage Plug-in's topology-aware volume provisioning features.  
 
-Before creating a new cluster or updating an existing cluster with Topology-aware volume provisioning, 
-complete the [Topology Prerequisites](#topology-prerequisites) steps below.  
+To create, modify or remove Topology-Aware Volume Provisioning on a cluster:  
+
+* [Prepare for Topology](#prepare-for-topology)  
+* [Create a Cluster with Topology](#create-topology)  
+* [Modify a Cluster with Topology](#modify-topology)  
+* [Remove Topology from a Cluster](#remove-topology)  
+
 
 For more information on volume provisioning features, see [Allowed Topologies](https://kubernetes.io/docs/concepts/storage/storage-classes/#allowed-topologies) in the Kubernetes documentation 
 and [Topology-Aware Volume Provisioning](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-61646244-E24F-4E7E-AB1A-F95B5A5DD518.html) 
 in the VMware vSphere Container Storage Plug-in documentation.  
 
 
-### <a id='topology-prerequisites'></a>Topology Prerequisites
+### <a id='prereqs-topology'></a>Topology Prerequisites 
 
 <%= vars.k8s_runtime_abbr %> support for Topology-aware volume provisioning requires:
 
@@ -524,30 +487,178 @@ in the VMware vSphere Container Storage Plug-in documentation.
 For more information, see [Storage](installing-vsphere.html#storage-config) in installing <%= vars.k8s_runtime_abbr %> on vSphere.  
 
 * You have created vSphere CSI topology labels and categories in your vSphere environment. 
-For more information, see [Create Topology Tags](#create-topology-tags) below.  
+For more information, see [Prepare for Topology](#prepare-for-topology) below.   
 
-#### <a id='create-topology-tags'></a>Create Topology Tags
 
-1. Open the **vSphere Client** UI.
-1. Open **Tags and Custom Attributes**.  
-1. To create categories for your cluster:  
-    1. Select **Categories**.  
-    1. Create a region category with **Multiple Cardinality** disabled. For example, `k8s-region`.  
-    1. Create a zone category with **Multiple Cardinality** disabled. For example, `k8s-zone`.  
-1. To create tags for your cluster:  
-    1. Select **Tags**.  
-    1. Create a region tag for your cluster named `region-1` in the `k8s-region` category you created above.  
-    1. Create six availability zone tags for your cluster named `az-0` to `az-5` in the `k8s-zone` category you created above.  
-1. To assign tags to your cluster and cluster host group:  
-    1. Open **Hosts and Clusters**.
-    1. Select the host group.  
-    1. Select **Assign Tag** and assign the region tag you created above.  
-    1. Select a cluster.  
-    1. Select **Assign Tag** and assign one of the zone tags you created above.  
+### <a id='prepare-for-topology'></a>Prepare for Topology
+
+Before creating a new cluster or updating an existing cluster with Topology-aware volume provisioning:  
+
+1. Verify your environment meets the [Topology Prerequisites](#prereqs-topology) above.  
+1. Create the following vSphere Center categories:  
+    1. A region category with **Multiple Cardinality** disabled. For example, `k8s-region`.  
+    1. A zone category with **Multiple Cardinality** disabled. For example, `k8s-zone`.  
+1. Create the following vSphere Center tags:  
+    1. A region tag for your clusters in the region category you created above. For example, a `region-1` tag in the `k8s-region` category.   
+    1. Availability zone tags for your clusters in the zone category you created above. For example, `az-0` to `az-5` tags in the `k8s-zone` category.  
     
 For more information on creating vSphere Center tags and categories, 
 see [Create, Edit, or Delete a Tag Category](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vcenterhost.doc/GUID-BA3D1794-28F2-43F3-BCE9-3964CB207FB6.html) 
-in the VMware vSphere documentation.
+in the VMware vSphere documentation.  
+
+
+### <a id='create-topology'></a>Create a Cluster with Topology
+
+To create a new cluster with a vSphere Topology configuration:  
+
+1. Create a JSON or YAML configuration file containing the following:  
+
+    ```
+    {
+      "csi_topology_labels": {
+        "topology_categories": "REGION-TAG,ZONE-TAG"
+      }
+    }
+    ```
+    
+    Where:  
+    
+    * `REGION-TAG` is the vSphere Center region tag you created in [Prepare for Topology](#prepare-for-topology) above.  
+    * `ZONE-TAG` is one of the vSphere Center zone tags you created in [Prepare for Topology](#prepare-for-topology) above.  
+
+    For example:  
+
+    ```
+    {
+      "csi_topology_labels": {
+        "topology_categories": "k8s-region,k8s-zone"
+      }
+    }
+    ```
+    
+    For more information, see [Topology Configuration](#params-topology) below.  
+    
+1. To create a cluster with Topology-aware volume provisioning:
+
+    ```
+    tkgi create-cluster CLUSTER-NAME --config-file CONFIG-FILE 
+    ```
+    
+    Where:  
+
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE` is the name of your config file.  
+
+    For example:
+    <pre class="terminal">
+    $ tkgi create-cluster demo -e demo.cluster --plan Small --config-file ./conf1.json
+    </pre>
+
+
+### <a id='modify-topology'></a>Modify a Cluster with Topology
+
+To modify an existing cluster to have a vSphere Topology configuration:  
+
+1. Create a configuration file containing the following:  
+
+    ```
+    {
+      "csi_topology_labels": {
+        "topology_categories": "REGION-TAG,ZONE-TAG"
+      }
+    }
+    ```
+    
+    Where:  
+    
+    * `REGION-TAG` is the vSphere Center region tag you created in [Prepare for Topology](#prepare-for-topology) above.  
+    * `ZONE-TAG` is one of the vSphere Center zone tags you created in [Prepare for Topology](#prepare-for-topology) above.  
+<br>
+    For more information, see [Topology Configuration](#params-topology) below.  
+    
+    <p class="note"><strong>Note</strong>: If you have an existing cluster created using a manually installed vSphere CSI Driver 
+        and topology is enabled on the cluster, your existing configuration uses separate <code>"region"</code> and <code>"zone"</code>
+        parameters instead of a single <code>"topology_categories"</code> parameter. 
+        You must use the legacy <code>"region"</code> and <code>"zone"</code> parameters in your configuration 
+        when updating a migrated cluster with existing legacy topology support.
+    </p>
+    
+1. To update your cluster with Topology-aware volume provisioning:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE 
+    ```
+
+    Where:  
+
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE` is the name of your config file.  
+ 
+    
+### <a id='remove-topology'></a>Remove Topology from a Cluster
+
+To remove a Topology configuration from a cluster:  
+
+1. Create a configuration file containing the following:  
+
+    ```
+    {
+      "csi_topology_labels": {
+        "topology_categories": ""
+      }
+    }
+    ```
+<br>
+    For more information, see [Topology Configuration](#params-topology) below.  
+    
+    <p class="note"><strong>Note</strong>: If you have an existing cluster created using a manually installed vSphere CSI Driver 
+        and topology is enabled on the cluster, your existing configuration uses separate <code>"region"</code> and <code>"zone"</code>
+        parameters instead of a single <code>"topology_categories"</code> parameter. 
+        You must use the legacy <code>"region"</code> and <code>"zone"</code> parameters in your configuration 
+        when updating a migrated cluster with existing legacy topology support.
+    </p>
+    
+1. To remove the configured Topology-aware volume provisioning from your cluster:
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE 
+    ```
+
+    Where:  
+
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE` is the name of your config file.  
+
+
+#### <a id='params-topology'></a>Topology Configuration
+
+The following are accepted CSI Topology Labels objects:  
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>csi_topology_labels</td>
+        <td>object</td>
+        <td>Properties defining a CSI Topology Labels object.</td>
+    </tr>
+</table>  
+
+The following are supported CSI Topology Labels object parameters:  
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>topology_categories</td>
+        <td>string</td>
+        <td>A comma delimited list of vSphere Center tags to apply to the File Volume.</td>
+    </tr>
+</table>
 
 
 ## <a id='uninstall-csi'></a>Uninstall a Manually Installed vSphere CSI Driver
