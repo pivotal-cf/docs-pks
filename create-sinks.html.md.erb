@@ -256,24 +256,26 @@ For more information, see [Define a Filter for LogSink and ClusterLogSink Resour
 <br>
 ### <a id='filter-ls-cls'></a> (Optional) Define a Filter for LogSink and ClusterLogSink Resources
 
-You can set filters on your `LogSink` and `ClusterLogSink` resources to
-include or exclude logs or events from sinks and, if you're using Fluent Bit, you can filter logs using conditions and rules:  
+You can set filters on your `LogSink` and `ClusterLogSink` resources:  
 
-* [Exclude Logs or Events from Sinks](#filter-log-sinks-evenst)  
-* [Create a Fluent Bit ClusterLogSink or LogSink Filter](#filter-logs)  
+* You can include or exclude all logs or all events from sink output. 
+For more information, see [Exclude Logs or Events from Sink Output](#filter-log-sinks-evenst) below.  
+
+
+* If you are using Fluent Bit, you can filter logs using conditions and rules. 
+For more information, see [Create a Fluent Bit ClusterLogSink or LogSink Filter](#filter-logs) below.  
 
 
 <br>
-#### <a id='filter-log-sinks-events'></a> Exclude Logs or Events from Sinks
+#### <a id='filter-log-sinks-events'></a> Exclude Logs or Events from Sink Output
 
 The `LogSink` and `ClusterLogSink` resources allow users to set filters to
-include or exclude logs or events. For more information, see
-[Monitoring Clusters with Log Sinks](monitor-sinks.html).
+include or exclude all logs or all events from sink output.  
 
-To filter log sinks:  
+To filter all logs or all events from sink output:  
 
 1. Add a filter properties section to the YAML file that
-specifies your log destination in the following format:  
+specifies the sink's log output destination and which types of log entities to include or exclude from the output:  
 
     ```
     apiVersion: pksapi.io/v1beta1
@@ -294,20 +296,95 @@ specifies your log destination in the following format:
 
     * `YOUR-SINK-RESOURCE` is the sink resource type that you created. This must be either `ClusterLogSink` or `LogSink`.  
     * `YOUR-SINK` is the name you chose for your sink.  
-    * `YOUR-NAMESPACE` is the name of your namespace. Omit this line for `ClusterLogSink`.  
+    * `YOUR-NAMESPACE` is the name of your namespace. Omit this line for `ClusterLogSink` type sink resources.  
     * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.  
     * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.  
 
-The default values for these filter properties is **true**. If you do not specify filter properties, both logs and events are included.
+The default values for these filter properties is **true**. 
+If you do not specify `filters` properties, both logs and events are included in the sink's output.  
+
+For more information, see
+[Monitoring Clusters with Log Sinks](monitor-sinks.html).  
+
+<br>
+#### <a id='filter-logs'></a> Fluent Bit ClusterLogSink or LogSink FilterSpecs
+
+As you consider your sink, you might realize that the sink needs a filter more complex than "all logs" or "all events" or even more complex than a single query. 
+You might even need to route your log output to more than one destination target.  
+
+If you are using a Fluent Bit ClusterLogSink or LogSink sink resource, 
+you can define a filterSpec with condition rules for filtering incoming logs. 
+Your Fluent Bit sink resource will selectively direct matching log entries 
+to the output destination for the sink. 
+The output target for a Fluent Bit sink is the `Output_properties` destination defined for the sink resource.  
+
+For example, you might want only the error log entries of your `Production` Pods routed to a specific service that you are monitoring 
+and for the remaining `Production` Pod status log entries to be managed separately from your non-production Pod logs. 
+For this scenario, you require the ability to create a complex filtering query and to control the routing destination of filtered log entries.  
+
+**Support for Multiple Filtering Rules**
+
+You can define multiple filtering rules in a filterSpec:  
+
+* Define multiple condition tests in a filterSpec filter:  
+    * Define filter conditions that filter based on log content.  
+    * Define filter conditions that filter based on the log metadata.
+    You can filter log metadata by: Namespace, Host Name, Container Name, Pod Name, and Pod labels.  
+   
+    
+    When you define multiple condition tests in a filterSpec filter, 
+    a log entry is considered a match only if all of the defined conditions in the filter are matched.  
+
+* Define multiple filters for a filterSpec:  
+
+    When you define multiple filters in your filterSpec configuration, 
+    a log entry is considered a match if one or more of the filters is matched.  
+    
+
+**Support for Multiple Target Destinations**
+
+If you have multiple output target destinations, you need to define a separate sink for each destination. 
+When you have multiple sinks, log entry output is directed to only one destination, 
+no matter how many sinks the log entry is a match for.  
+
+Which destination a log entry is routed to depends on which sinks the entry matches:  
+
+* If one or more of the sinks is configured without a filterSpec, 
+all log entries are directed to the output target of the first sink without a filterSpec.  
+
+* If all of the sinks are configured with a filterSpec, 
+the log entries are  directed to the output target as follows:  
+
+    <table>
+        <tr>
+            <th>Log Entry Match Scenario</th>
+            <th>Log Entry Target Destination</th>
+        </tr>
+        <tr>
+            <td>Matches a single sink</td>
+            <td>The log entry is directed to the output target destination for the sink.</td>
+        </tr>
+        <tr>
+            <td>Matches multiple LogSinks</td>
+            <td>The log entry is directed to only the output target destination for the first matched LogSink.</td>
+        </tr>
+        <tr>
+            <td>Matches multiple ClusterLogSinks</td>
+            <td>The log entry is directed to only the output target destination for the first matched ClusterLogSink.</td>
+        </tr>
+        <tr>
+            <td>Matches both LogSinks and ClusterLogSinks</td>
+            <td>The log entry is directed to only the output target destination for the first matched LogSink.</td>
+        </tr>
+    </table>
 
 
 <br>
-#### <a id='filter-logs'></a> Create a Fluent Bit ClusterLogSink or LogSink Filter
-
-If you are using Fluent Bit Sink Resources, you can filter incoming logs and redirect the filtered output to a specific LogSink.  
+#### <a id='filter-logs-create'></a> Create a Fluent Bit ClusterLogSink or LogSink FilterSpec
 
 To define a filter for a `ClusterLogSink` or `LogSink` resource, perform the following steps:
 
+1. Configure `include-logs` as `true` in the `filters` section of your Sink resource configuration file.  
 1. Add a `filterSpec` section to the `filters` section in your Sink resource configuration file:  
 
     ```
@@ -335,21 +412,26 @@ To define a filter for a `ClusterLogSink` or `LogSink` resource, perform the fol
 
 
 <br>
-#### <a id='filter-log-define'></a> Define a LogSink Filter
+#### <a id='filter-log-condition-define'></a> Define a Filter Condition
 
-When you define a Fluent Bit Sink resource filter, you must specify the filter's `condition` type, `key` and `value`:  
+When you define a Fluent Bit Sink resource filter, you must specify the filter's `condition` type, `key`, and `value`:  
 
 * The filter `condition` type is the type of rule to apply to the filter. 
 For example, common `condition` types include `key_value_equals` and `key_value_does_not_equal`.  
 * The filter `key` indicates which property in the log entry JSON to test against.  
 * The filter `value` is the value of the key to test for.  
 
+To build a filter for your filterSpec, see:  
+
+* [Chose a Filter Condition Type](#filter-log-conditions)  
+* [Create a Filter Key](#filter-log-keys)  
+
 
 For example, consider a situation where you wish to include only production Pod log entries in your logs. If the administrator has tagged production Pods as a `production`, the 
-output JSON for log entries might have a format similar to the following:
+output JSON for error log entries might have a format similar to the following:
 
 ```
-    "log":"[ERROR]"counter e: 2439 Wed Feb we 06:51:08 UTC 2022",
+    "log":"[ERROR]counter 2: 2439 Wed Feb 23 06:51:08 UTC 2022",
     "kubernetes":
     {
         "pod_name":"counter-2",
@@ -358,7 +440,7 @@ output JSON for log entries might have a format similar to the following:
         "labels":{"environment":”production"},
         ...
 ```
-All of the following `condition`, `key`, `value` filter settings match the example JSON-structured log entry above:
+All of the following example filter settings for `condition`, `key`, and `value` match the example JSON-structured log entry above:
 
 * Match against error condition:  
 
@@ -408,8 +490,8 @@ The following are the supported filter condition types supported by <%= vars.k8s
 <table>
     <tr>
         <th>Condition</th>
-        <th>Parameter 1</th>
-        <th>Parameter 2</th>
+        <th>Key</th>
+        <th>Value</th>
         <th>Description</th>
     </tr>
     <tr>
@@ -486,10 +568,11 @@ The filter key follows the pattern:
 
 Where:
 
-* `ROOTNODE-NAME` is the name of the root node in the JSON log.  
+* `ROOTNODE-NAME` is the name of the root node in the JSON log entry.  
 * `OBJECT-NAME` is name of a child node in the root node.  
 * `PARAMETER-NAME` is name of a parameter in the child node.  
 
+For an examples of how to create a Filter Key, see [Define a Filter Condition](#filter-log-condition-define) above.  
 
 <br>
 ### <a name='unsecured-sink-configuration'></a>(Optional) Unsecured ClusterLogSink and LogSink Log Forwarding
