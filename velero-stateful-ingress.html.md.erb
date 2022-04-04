@@ -11,305 +11,442 @@ This topic describes how to use Velero to backup and restore a stateful applicat
 
 The application we are going to use to demonstrate this scenario is the Cafe stateless app. Kubernetes ingress provides a layer 7 load balancer. In this case the IP address must be static.
 
+To demonstrate backing up and restoring a stateful application:
+
+1. [Create a Network Profile](#create-np)  
+1. [Deploy the Coffee-Tea App](#coffee-tea-deploy)  
+1. [Back Up the Coffee-Tea App Using Namespace](#coffee-tea-backup)  
+1. [Restore the Coffee-Tea App](#coffee-tea-restore)  
+1. Review [Conclusions](#wordpress-conclude)  
+
+
+
 ##<a id="prereqs"></a> Prerequisites
 
-TKGI cluster is created with static IP set from floating IP pool.
+Before starting your Velero demonstraion, you need to:  
 
-Create and apply network profile for DNS lookup of the Kubernetes API server and the fixed IP address. For example:
+* Have a <%= vars.k8s_runtime_abbr %> Kubernetes cluster with static IP set from a floating IP pool.  
+* Minio, Velero, and Restic have been installed. For more information, see [Installing Velero and Restic](./velero-install.html).  
+* Download the [Coffee-Tea app YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.90/demos/cafe-app) to a local known directory:  
 
-```
-{
-    "name": "dns-lookup-api-ingress",
-    "description": "Network Profile for DNS Lookup - API and INGRESS",
-    "parameters": {
-        "fip_pool_ids": [
-            "970e09f1-6f28-4457-b069-5c40d145f4e3"
-        ],
-    "dns_lookup_mode": "API_INGRESS",
-    "ingress_prefix": "INGRESS-SUBDOMAIN"
+    * `coffee-rc.yml`
+    * `tea-rc.yml`
+    * `coffee-svc.yml`
+    * `tea-svc.yml`
+    * `cafe-ingress-http.yml`
+
+* If testing locally, ensure the following entry is present in the `/etc/hosts` of the computer accessing the Coffee-Tea app:
+
+    ```
+    /etc/hosts
+    10.199.41.111 cafe.example.com
+    ``` 
+
+##<a id="create-np"></a> Create a Network Profile
+
+To create and apply a network profile for DNS lookup of the Kubernetes API server and the fixed IP address:
+
+1. Create a network profile using the following template:  
+
+    ```
+    {
+        "name": "dns-lookup-api-ingress",
+        "description": "Network Profile for DNS Lookup - API and INGRESS",
+        "parameters": {
+            "fip_pool_ids": [
+                "970e09f1-6f28-4457-b069-5c40d145f4e3"
+            ],
+        "dns_lookup_mode": "API_INGRESS",
+        "ingress_prefix": "INGRESS-SUBDOMAIN"
+        }
     }
-}
-```
+    ```
 
-Where `INGRESS-SUBDOMAIN` is the ingress subdomain prefix.  
+    Where `INGRESS-SUBDOMAIN` is the ingress subdomain prefix.  
+<br>
+    Because DNS mode is set to `API_INGRESS`, <%= vars.k8s_runtime_abbr %> creates the cluster with <span style="white-space: nowrap;"><i>ingress_prefix.hostname</i></span> 
+    as the Kubernetes control plane FQDN. 
+    <%= vars.k8s_runtime_abbr %> confirms that the ingress subdomain can be resolved as a subdomain prefix on the host before creating new clusters.  
 
-Because DNS mode is set to `API_INGRESS`, <%= vars.k8s_runtime_abbr %> creates the cluster with <span style="white-space: nowrap;"><i>ingress_prefix.hostname</i></span> 
-as the Kubernetes control plane FQDN. 
-<%= vars.k8s_runtime_abbr %> confirms that the ingress subdomain can be resolved as a subdomain prefix on the host before creating new clusters.  
+1. Apply the network profile to your Kubernetes cluster using `tkgi update-cluster`. 
+For more information, see [Assign a Network Profile to an Existing Cluster](https://docs.pivotal.io/tkgi/1-13/network-profiles.html#assign-profile) 
+in _Using Network Profiles_.  
 
-[Install and configure](./velero-install.html) Minio, Velero, and Restic.
-
-Download the [Coffee-Tea app YAML files](https://github.com/pivotal-cf/docs-pks/tree/1.90/demos/cafe-app) to a local known directory:
-
-- coffee-rc.yml
-- tea-rc.yml
-- coffee-svc.yml
-- tea-svc.yml
-- cafe-ingress-http.yml
 
 ## <a id='coffee-tea-deploy'></a> Deploy the Coffee-Tea App
 
-Create the Namespace for the application: 
+To deploy the example Coffee-Tea App:
 
-```
-kubectl create ns tea-coffee
+1. To create the Namespace for the application: 
 
-namespace/tea-coffee created
-```
+    ```
+    kubectl create ns tea-coffee
+    ```
+    
+    For example:  
+    
+    <pre class="terminal">
+    kubectl create ns tea-coffee
 
-Deploy the Tea-Coffee app:
+    namespace/tea-coffee created
+    </pre>
 
-```
-kubectl apply -f . -n tea-coffee
+1. To deploy the Tea-Coffee app:
 
-ingress.extensions/cafe-ingress created
-replicationcontroller/coffee-rc created
-service/coffee-svc created
-replicationcontroller/tea-rc created
-service/tea-svc created
-```
+    ```
+    kubectl apply -f . -n tea-coffee
+    ```
+  
+    For example:  
+    
+    <pre class="terminal">
+    kubectl apply -f . -n tea-coffee
 
-Verify app deployment:
+    ingress.extensions/cafe-ingress created
+    replicationcontroller/coffee-rc created
+    service/coffee-svc created
+    replicationcontroller/tea-rc created
+    service/tea-svc created
+    </pre>
 
-```
-kubectl get all -n tea-coffee
+1. To verify the example app deployment:
 
-NAME                  READY   STATUS    RESTARTS   AGE
-pod/coffee-rc-8lrwn   1/1     Running   0          7m19s
-pod/coffee-rc-kn65r   1/1     Running   0          7m19s
-pod/tea-rc-fhhnz      1/1     Running   0          7m19s
-pod/tea-rc-t59cs      1/1     Running   0          7m19s
+    ```
+    kubectl get all -n tea-coffee
+    ```
+    
+    For example:  
+    
+    <pre class="terminal">
+    kubectl get all -n tea-coffee
 
-NAME                              DESIRED   CURRENT   READY   AGE
-replicationcontroller/coffee-rc   2         2         2       7m19s
-replicationcontroller/tea-rc      2         2         2       7m19s
+    NAME                  READY   STATUS    RESTARTS   AGE
+    pod/coffee-rc-8lrwn   1/1     Running   0          7m19s
+    pod/coffee-rc-kn65r   1/1     Running   0          7m19s
+    pod/tea-rc-fhhnz      1/1     Running   0          7m19s
+    pod/tea-rc-t59cs      1/1     Running   0          7m19s
 
-NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
-service/coffee-svc   ClusterIP   10.100.200.223   <none>        80/TCP    7m19s
-service/tea-svc      ClusterIP   10.100.200.229   <none>        80/TCP    7m19s
-```
+    NAME                              DESIRED   CURRENT   READY   AGE
+    replicationcontroller/coffee-rc   2         2         2       7m19s
+    replicationcontroller/tea-rc      2         2         2       7m19s
 
-Get the ingress configuration:
+    NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+    service/coffee-svc   ClusterIP   10.100.200.223   <none>        80/TCP    7m19s
+    service/tea-svc      ClusterIP   10.100.200.229   <none>        80/TCP    7m19s
+    </pre>
 
-```
-kubectl get ingress -n tea-coffee
+1. To review the sample app's ingress configuration:
 
-NAME           HOSTS              ADDRESS         PORTS   AGE
-cafe-ingress   cafe.example.com   10.199.41.111   80      8s
-```
+    ```
+    kubectl get ingress -n tea-coffee
+    ```
+    
+    For example:  
+    
+    <pre class="terminal">
+    kubectl get ingress -n tea-coffee
 
-Describe the ingress configuration:
+    NAME           HOSTS              ADDRESS         PORTS   AGE
+    cafe-ingress   cafe.example.com   10.199.41.111   80      8s
+    </pre>
 
-```
-kubectl describe ingress cafe-ingress -n tea-coffee
+1. To review the sample app's ingress configuration:
 
-Name:             cafe-ingress
-Namespace:        tea-coffee
-Address:          10.199.41.111
-Default backend:  default-http-backend:80 (<none>)
-Rules:
-  Host              Path  Backends
-  ----              ----  --------
-  cafe.example.com  
-                    /tea      tea-svc:80 (172.16.19.4:80,172.16.19.5:80)
-                    /coffee   coffee-svc:80 (172.16.19.2:80,172.16.19.3:80)
-Annotations:
-  kubectl.kubernetes.io/last-applied-configuration:  {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"cafe-ingress","namespace":"tea-coffee"},"spec":{"rules":[{"host":"cafe.example.com","http":{"paths":[{"backend":{"service":{"name":"tea-svc","port":{"number":80}}},"path":"/tea","pathType":"Prefix"},{"backend":{"service":{"name":"coffee-svc","port":{number":80}}},"path":"/coffee","pathType":"Prefix"}]}}]}}
+    ```
+    kubectl describe ingress cafe-ingress -n tea-coffee
+    ```
+    
+    For example:  
+    
+    <pre class="terminal">
+    kubectl describe ingress cafe-ingress -n tea-coffee
 
-  ncp/internal_ip_for_policy:  100.64.208.63
-Events:                        <none>
-```
+    Name:             cafe-ingress
+    Namespace:        tea-coffee
+    Address:          10.199.41.111
+    Default backend:  default-http-backend:80 (<none>)
+    Rules:
+      Host              Path  Backends
+      ----              ----  --------
+      cafe.example.com  
+                        /tea      tea-svc:80 (172.16.19.4:80,172.16.19.5:80)
+                        /coffee   coffee-svc:80 (172.16.19.2:80,172.16.19.3:80)
+    Annotations:
+      kubectl.kubernetes.io/last-applied-configuration:  {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"cafe-ingress","namespace":"tea-coffee"},"spec":{"rules":[{"host":"cafe.example.com","http":{"paths":[{"backend":{"service":{"name":"tea-svc","port":{"number":80}}},"path":"/tea","pathType":"Prefix"},{"backend":{"service":{"name":"coffee-svc","port":{number":80}}},"path":"/coffee","pathType":"Prefix"}]}}]}}
 
-Access the Coffee-Tea app at http://cafe.example.com/coffee and http://cafe.example.com/tea.
+      ncp/internal_ip_for_policy:  100.64.208.63
+    Events:                        <none>
+    </pre>
 
-  <img src="images/backup-restore/coffee-tea-01.png" alt="Coffee-Tea App" width="538">
+1. To access the Coffee-Tea app, connect to the Coffee-Tea app at `http://cafe.example.com/coffee` and `http://cafe.example.com/tea`.  
+<br>
+    For example:  
 
-  <img src="images/backup-restore/coffee-tea-02.png" alt="Coffee-Tea App" width="538">
+    <img src="images/backup-restore/coffee-tea-01.png" alt="Coffee-Tea App" width="538">
 
-For local testing, make sure the following entry is present in the /etc/hosts of the computer accessing the Coffee-Tea app:
+    <img src="images/backup-restore/coffee-tea-02.png" alt="Coffee-Tea App" width="538">
 
-```
-/etc/hosts
-10.199.41.111 cafe.example.com
-```
 
 ## <a id='coffee-tea-backup'></a> Back Up the Coffee-Tea App Using Namespace
 
-```
-velero backup create tea-coffee-backup --include-namespaces tea-coffee
+To back up the Coffee-Tea App using the sample apps's `tea-coffee-backup` namespace:  
 
-Backup request "tea-coffee-backup" submitted successfully.
-Run `velero backup describe tea-coffee-backup` or `velero backup logs tea-coffee-backup` for more details.
-```
+1. Use the Velero `backup` command:
 
-Verify the backup:
+    ```
+    velero backup create tea-coffee-backup --include-namespaces tea-coffee
 
-```
-velero backup get
+    ```
+    
+    For example:  
 
-NAME                        STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
-tea-coffee-backup           Completed   0        0          2020-07-27 09:16:02 -0700 PDT   29d       default            <none>
-```
+    <pre class="terminal">
+    velero backup create tea-coffee-backup --include-namespaces tea-coffee
 
-Verify backup details:
+    Backup request "tea-coffee-backup" submitted successfully.
+    Run `velero backup describe tea-coffee-backup` or `velero backup logs tea-coffee-backup` for more details.
+    </pre>
 
-```
-velero backup describe tea-coffee-backup
-```
+1. Verify the backup:
 
-Use Velero CRD commands to futher verify the backup:
+    ```
+    velero backup get
+    ```
 
-```
-kubectl get crd
-```
+    For example:  
 
-```
-kubectl get backups.velero.io -n velero
+    <pre class="terminal">
+    velero backup get
 
-NAME                        AGE
-tea-coffee-backup           97s
-```
+    NAME                        STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+    tea-coffee-backup           Completed   0        0          2020-07-27 09:16:02 -0700 PDT   29d       default            <none>
+    </pre>
 
-```
-kubectl describe backups.velero.io tea-coffee-backup -n velero
-```
+1. Verify the backup by reviewing backup details:
+
+    ```
+    velero backup describe tea-coffee-backup
+    ```
+
+1. To verify the backup further:
+
+    1. Use the Velero CRD command:  
+    
+        ```
+        kubectl get crd
+        ```
+
+    1. Review the status of the backup:
+    
+        ```
+        kubectl get backups.velero.io -n velero
+        ```
+
+        For example:  
+
+        <pre class="terminal">
+        kubectl get backups.velero.io -n velero
+
+        NAME                        AGE
+        tea-coffee-backup           97s
+        </pre>
+
+    1. Review the details of the backup:  
+
+        ```
+        kubectl describe backups.velero.io tea-coffee-backup -n velero
+        ```
 
 ## <a id='coffee-tea-restore'></a> Restore the Coffee-Tea App
 
-Restore the Coffee-Tea app from the backup using Velero.
+To restore the Coffee-Tea app from the backup using Velero:  
 
-Delete the namespace:
+1. To clear the original Coffee-Tea app from your cluster:  
 
-```
-kubectl delete ns tea-coffee
+    1. Delete the Coffee-Tea app namespace:
 
-namespace "tea-coffee" deleted
-```
+        ```
+        kubectl delete ns tea-coffee
+        ```
+        
+        For example:  
+        
+        <pre class="terminal">
+        kubectl delete ns tea-coffee
 
-Verify that the app is removed:
+        namespace "tea-coffee" deleted
+        </pre>
 
-```
-kubectl get ns
-```
+    1. Verify that the Coffee-Tea app has been removed:  
 
-Restore the app:
+        ```
+        kubectl get ns
+        ```
 
-```
-velero restore create --from-backup tea-coffee-backup
+1. To restore the Coffee-Tea app from backup using Velero:  
 
-Restore request "tea-coffee-backup-20200727092014" submitted successfully.
-Run `velero restore describe tea-coffee-backup-20200727092014` or `velero restore logs tea-coffee-backup-20200727092014` for more details.
-```
+    ```
+    velero restore create --from-backup tea-coffee-backup
+    ```
+    
+    For example:  
+    
+    <pre class="terminal">
+    velero restore create --from-backup tea-coffee-backup
 
-Verify app restoration:
+    Restore request "tea-coffee-backup-20200727092014" submitted successfully.
+    Run `velero restore describe tea-coffee-backup-20200727092014` or `velero restore logs tea-coffee-backup-20200727092014` for more details.
+    </pre>
 
-```
-velero restore get
+1. To verify the Coffee-Tea app has been restored:  
 
-NAME                               BACKUP              STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
-tea-coffee-backup-20200727092014   tea-coffee-backup   Completed   0        0          2020-07-27 09:20:14 -0700 PDT   <none>
-```
+    1. Review the Velero restoral history:  
 
-Get app restoration details:
+        ```
+        velero restore get
+        ```
+        
+        For example:  
+        
+        <pre class="terminal">
+        velero restore get
 
-```
-velero restore describe tea-coffee-backup-20200727092014
+        NAME                               BACKUP              STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+        tea-coffee-backup-20200727092014   tea-coffee-backup   Completed   0        0          2020-07-27 09:20:14 -0700 PDT   <none>
+        </pre>
 
-Name:         tea-coffee-backup-20200727092014
-Namespace:    velero
-Labels:       <none>
-Annotations:  <none>
+    1. To review the Velero restoration:  
+    
+        ```
+        velero restore describe tea-coffee-backup-20200727092014
+        ```
+        
+        For example:  
+        
+        <pre class="terminal">
+        velero restore describe tea-coffee-backup-20200727092014
 
-Phase:  Completed
+        Name:         tea-coffee-backup-20200727092014
+        Namespace:    velero
+        Labels:       <none>
+        Annotations:  <none>
 
-Backup:  tea-coffee-backup
+        Phase:  Completed
 
-Namespaces:
-  Included:  all namespaces found in the backup
-  Excluded:  <none>
+        Backup:  tea-coffee-backup
 
-Resources:
-  Included:        *
-  Excluded:        nodes, events, events.events.k8s.io, backups.velero.io, restores.velero.io, resticrepositories.velero.io
-  Cluster-scoped:  auto
+        Namespaces:
+          Included:  all namespaces found in the backup
+          Excluded:  <none>
 
-Namespace mappings:  <none>
+        Resources:
+          Included:        *
+          Excluded:        nodes, events, events.events.k8s.io, backups.velero.io, restores.velero.io, resticrepositories.velero.io
+          Cluster-scoped:  auto
 
-Label selector:  <none>
+        Namespace mappings:  <none>
 
-Restore PVs:  auto
-```
+        Label selector:  <none>
 
-Check that the namespace is restored.
+        Restore PVs:  auto
+        </pre>
 
-```
-kubectl get ns
-NAME              STATUS   AGE
-default           Active   138m
-kube-node-lease   Active   138m
-kube-public       Active   138m
-kube-system       Active   138m
-pks-system        Active   121m
-tea-coffee        Active   56s
-velero            Active   9m24s
-```
+    1. Confirm that the Coffee-Tea app's `tea-coffee` namespace has been restored:  
+    
+        ```
+        kubectl get ns
+        ```
 
-Verify that all app objects are restored:
+        For example:  
+        
+        <pre class="terminal">
+        kubectl get ns
+        NAME              STATUS   AGE
+        default           Active   138m
+        kube-node-lease   Active   138m
+        kube-public       Active   138m
+        kube-system       Active   138m
+        pks-system        Active   121m
+        tea-coffee        Active   56s
+        velero            Active   9m24s
+        </pre>
 
-```
-kubectl get all -n tea-coffee
+    1. Verify that all app objects have been restored:
 
-NAME                  READY   STATUS    RESTARTS   AGE
-pod/coffee-rc-8lrwn   1/1     Running   0          89s
-pod/coffee-rc-kn65r   1/1     Running   0          89s
-pod/tea-rc-fhhnz      1/1     Running   0          89s
-pod/tea-rc-t59cs      1/1     Running   0          89s
+        ```
+        kubectl get all -n tea-coffee
+        ```
+        
+        For example:  
+        
+        <pre class="terminal">
+        kubectl get all -n tea-coffee
 
-NAME                              DESIRED   CURRENT   READY   AGE
-replicationcontroller/coffee-rc   2         2         2       89s
-replicationcontroller/tea-rc      2         2         2       89s
+        NAME                  READY   STATUS    RESTARTS   AGE
+        pod/coffee-rc-8lrwn   1/1     Running   0          89s
+        pod/coffee-rc-kn65r   1/1     Running   0          89s
+        pod/tea-rc-fhhnz      1/1     Running   0          89s
+        pod/tea-rc-t59cs      1/1     Running   0          89s
 
-NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
-service/coffee-svc   ClusterIP   10.100.200.197   <none>        80/TCP    89s
-service/tea-svc      ClusterIP   10.100.200.17    <none>        80/TCP    89s
-```
+        NAME                              DESIRED   CURRENT   READY   AGE
+        replicationcontroller/coffee-rc   2         2         2       89s
+        replicationcontroller/tea-rc      2         2         2       89s
 
-Check ingress:
+        NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+        service/coffee-svc   ClusterIP   10.100.200.197   <none>        80/TCP    89s
+        service/tea-svc      ClusterIP   10.100.200.17    <none>        80/TCP    89s
+        </pre>
 
-```
-kubectl get ingress -n tea-coffee
+    1. Review the Coffee-Tea app ingress:  
 
-NAME           HOSTS              ADDRESS         PORTS   AGE
-cafe-ingress   cafe.example.com   10.199.41.111   80      112s
-```
+        ```
+        kubectl get ingress -n tea-coffee
+        ```
+        
+        For example:  
+        
+        <pre class="terminal">
+        kubectl get ingress -n tea-coffee
 
-View ingress details for the restored app:
+        NAME           HOSTS              ADDRESS         PORTS   AGE
+        cafe-ingress   cafe.example.com   10.199.41.111   80      112s
+        </pre>
 
-```
-kubectl describe ingress cafe-ingress -n tea-coffee
+    1. Review Coffee-Tea app ingress details:  
 
-Name:             cafe-ingress
-Namespace:        tea-coffee
-Address:          10.199.41.111
-Default backend:  default-http-backend:80 (<none>)
-Rules:
-  Host              Path  Backends
-  ----              ----  --------
-  cafe.example.com  
-                    /tea      tea-svc:80 (172.16.19.2:80,172.16.19.3:80)
-                    /coffee   coffee-svc:80 (172.16.19.4:80,172.16.19.5:80)
-Annotations:
-  kubectl.kubernetes.io/last-applied-configuration:  {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"cafe-ingress","namespace":"tea-coffee"},"spec":{"rules":[{"host":"cafe.example.com","http":{"paths":[{"backend":{"service":{"name":"tea-svc","port":{"number":80}}},"path":"/tea","pathType":"Prefix"},{"backend":{"service":{"name":"coffee-svc","port":{number":80}}},"path":"/coffee","pathType":"Prefix"}]}}]}}
+        ```
+        kubectl describe ingress cafe-ingress -n tea-coffee
+        ```
+        
+        For example:  
+        
+        <pre class="terminal">
+        kubectl describe ingress cafe-ingress -n tea-coffee
 
-  ncp/internal_ip_for_policy:  100.64.208.63
-Events:                        <none>
-```
+        Name:             cafe-ingress
+        Namespace:        tea-coffee
+        Address:          10.199.41.111
+        Default backend:  default-http-backend:80 (<none>)
+        Rules:
+          Host              Path  Backends
+          ----              ----  --------
+          cafe.example.com  
+                            /tea      tea-svc:80 (172.16.19.2:80,172.16.19.3:80)
+                            /coffee   coffee-svc:80 (172.16.19.4:80,172.16.19.5:80)
+        Annotations:
+          kubectl.kubernetes.io/last-applied-configuration:  {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{},"name":"cafe-ingress","namespace":"tea-coffee"},"spec":{"rules":[{"host":"cafe.example.com","http":{"paths":[{"backend":{"service":{"name":"tea-svc","port":{"number":80}}},"path":"/tea","pathType":"Prefix"},{"backend":{"service":{"name":"coffee-svc","port":{number":80}}},"path":"/coffee","pathType":"Prefix"}]}}]}}
 
-Access the Coffee-Tea app at http://cafe.example.com/tea and http://cafe.example.com/coffee.
+          ncp/internal_ip_for_policy:  100.64.208.63
+        Events:                        <none>
+        </pre>
 
-  <img src="images/backup-restore/coffee-tea-03.png" alt="Coffee-Tea App" width="538">
+1. To access the restored Coffee-Tea app, connect to the Coffee-Tea app at `http://cafe.example.com/coffee` and `http://cafe.example.com/tea`.  
+<br>
+    For example:
 
-  <img src="images/backup-restore/coffee-tea-04.png" alt="Coffee-Tea App" width="538">
+    <img src="images/backup-restore/coffee-tea-03.png" alt="Coffee-Tea App" width="538">
+
+    <img src="images/backup-restore/coffee-tea-04.png" alt="Coffee-Tea App" width="538">
 
 ## <a id='wordpress-conclude'></a> Conclusions
 
