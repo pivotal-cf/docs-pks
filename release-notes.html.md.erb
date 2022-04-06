@@ -2197,6 +2197,46 @@ For information on how to manually mitigate CVE-2022-22965 in <%= vars.k8s_runti
 
 <hr>
 
+#### <a id="1-13-0-containerd-sock-error"></a> Cluster Creation Fails After Upgrading NSX-T and <%= vars.k8s_runtime_abbr %>
+
+<%#  This issue is fixed in [<  %= vars.k8s_runtime_abbr %  > v1.13.3](#1-13-3-bug-fixes).  #%>
+If you patch upgrade NSX-T and then upgrade <%= vars.k8s_runtime_abbr %>, 
+your cluster upgrades will fail for clusters running the Docker container runtime.  
+
+
+**Symptom**
+
+Errors similar to the following are logged when your Docker container runtime cluster upgrades fail:  
+
+```
+worker/...:/var/vcap/sys/log/docker# cat docker.stderr.log
+failed to start daemon: failed to dial "/run/containerd/containerd.sock": failed to dial "/run/containerd/containerd.sock": context deadline exceeded
+```
+
+**Explanation**
+
+Docker and kubelet are unable to start because the `vrops-cadvisor` DaemonSet has 
+detected that the `/run/containerd/containerd.sock` file does not exist and then 
+automatically created it.  
+
+**Workaround**
+
+If you have already upgraded NSX-T and <%= vars.k8s_runtime_abbr %>:
+
+1. During cluster upgrading, monitor your worker nodes.  
+1. On each worker node:  
+    1. Remove `/run/containerd/containerd.sock`.  
+    1. Drain and stop all running jobs.  
+
+<br>
+If you have not upgraded NSX-T and <%= vars.k8s_runtime_abbr %>:
+
+1. Upgrade <%= vars.k8s_runtime_abbr %> before updating NSX-T.
+1. Upgrade clusters using your normal procedures.  
+
+
+<hr>
+
 
 ## <a id="management-console-1-13-0"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.13.0
 
