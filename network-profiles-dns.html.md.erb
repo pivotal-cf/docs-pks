@@ -19,6 +19,10 @@ Using the `dns_lookup_mode` parameter, you can define a network profile to speci
 
 The IP addresses used must come from the floating IP pool. The floating IP pool comes from the <%= vars.k8s_runtime_abbr %> tile configuration unless specified in the network profile.
 
+<p class="note"><strong>Note</strong>: <%= vars.k8s_runtime_abbr %> allocates IP Addresses from the start of the floating IP pool range. 
+    To avoid conflicts with internal <%= vars.k8s_runtime_abbr %> functions, always use IP addresses from the end of the floating IP pool.
+</p>
+
 The DNS lookup, whether for the Kubernetes control plane node(s) load balancer or the ingress controller, is performed in the Kubernetes control plane VM using the DNS server(s) configured in the <%= vars.k8s_runtime_abbr %> tile or the `nodes_dns` field in the network profile.
 
 ## <a id='dns-lookup-lb'></a> Example API Load Balancer Lookup
@@ -34,13 +38,15 @@ The following network profile, api.json, triggers a DNS lookup for the Kubernete
         "8.8.8.8", "192.168.115.1", "192.168.116.1"
         ],		    
       "fip_pool_ids": [
-        "ENTER-FIP-POOL-ID1",
-        "ENTER-FIP-POOL-ID2" 
+        "FIP-POOL-ID1",
+        "FIP-POOL-ID2" 
         ],
       "dns_lookup_mode": "API"
     }
 }
 ```
+
+Where `FIP-POOL-ID1` and `FIP-POOL-ID2` are Floating IP Pool IDs.  
 
 ## <a id='dns-lookup-ingress'></a> Performing DNS Lookup of the Ingress Controller Using Network Profile
 
@@ -52,14 +58,24 @@ The following example network profile, api_ingress.json, triggers a DNS lookup f
     "description": "Network profile using API_INGRESS dns lookup mode",
     "parameters": {
         "fip_pool_ids": [
-            "ENTER-FIP-POOL-ID1",
-            "ENTER-FIP-POOL-ID2"
+            "FIP-POOL-ID1",
+            "FIP-POOL-ID2"
         ],
         "dns_lookup_mode": "API_INGRESS",
-        "ingress_prefix": "ingress"
+        "ingress_prefix": "INGRESS-SUBDOMAIN"
     }
 }
 ```
+
+Where:
+
+* `FIP-POOL-ID1` and `FIP-POOL-ID2` are Floating IP Pool IDs.  
+* `INGRESS-SUBDOMAIN` is the ingress subdomain prefix.  
+
+Because DNS mode is set to `API_INGRESS`, <%= vars.k8s_runtime_abbr %> creates the cluster with <span style="white-space: nowrap;"><i>ingress_prefix.hostname</i></span> 
+as the Kubernetes control plane FQDN. 
+<%= vars.k8s_runtime_abbr %> confirms that the ingress subdomain can be resolved as a subdomain prefix on the host before creating new clusters.  
+
 
 ## <a id='command-line'></a> Setting the Control Plane Node IP Address on the Command Line
 
@@ -79,3 +95,6 @@ $ tkgi create-cluster my-cluster -e 192.168.160.20 -p small
  
 The IP address that you use must belong to a valid floating IP pool created in NSX-T.
 
+<p class="note"><strong>Note</strong>: <%= vars.k8s_runtime_abbr %> allocates IP Addresses from the start of the floating IP pool range. 
+    To avoid conflicts with internal <%= vars.k8s_runtime_abbr %> functions, always use IP addresses from the end of the floating IP pool.
+</p>

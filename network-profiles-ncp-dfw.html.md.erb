@@ -1,23 +1,77 @@
 ---
-title: Define DFW Section Markers
+title: Defining DFW Section Markers
 owner: TKGI
 ---
 
-This topic describes how to define network profiles to create markers for NSX-T distributed firewall (DFW).
+This topic describes how <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) administrators
+can define network profiles to create markers for NSX-T distributed firewall (DFW).
+
+<p class="note"><strong>Note:</strong> The NSX-T Policy API features a tiered policy model using categories 
+  and does not support prioritizing operational rules using the procedure below. 
+</p>  
+
+
+## <a id='overview'></a> Overview
+
+When a <%= vars.k8s_runtime_abbr %> administrator creates a Network Profile or a Kubernetes developer creates a 
+Kubernetes [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), 
+NCP translates their configuration into a distributed firewall rule.  
+
+The first DFW rules have precedence over later DFW rules. When using the default DFW configuration, 
+a <%= vars.k8s_runtime_abbr %> administrator cannot define a Network Profile 
+with precedence over existing DFW rules, including rules created from a developer's Kubernetes Network Policy configuration.  
+
+To define a Network Profile with precedence over existing DFW rules, configure a DFW Firewall Section Marker.  
+
+To configure a DFW Firewall Section Marker:  
+
+* [Create a Top Firewall Section Marker](#top_firewall_section_marker)  
+* [Create a Bottom Firewall Section Marker](#bottom_firewall_section_marker)  
+
+For more information about DFW Firewall Section Marker rules, see [About DFW Section Markers](##shared-t1-about) below.  
+
+<p class="note"><strong>Note:</strong> 
+The NSX-T Policy API feature does not support DFW Firewall Section Marker configuration 
+because it uses a category-based tiered policy model. 
+NCP inserts Network Policy rules into the <code>Application</code> tier, 
+the last and lowest tier, which is always preceded by other tiers, 
+such as <code>Infrastructure</code> and <code>Environment</code>. 
+</p>
 
 ## <a id='shared-t1-about'></a> About DFW Section Markers
 
-NSX-T applies distributed firewall (DFW) rules on ESXi transport nodes to control east-west traffic. Edge firewall (EFW) rules run on Edge transport nodes and control north-south traffic.
+Distributed firewall rules are either `Allow` or `Deny`/`Drop` rules:  
 
-When a Kubernetes developer creates a [network policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), NCP translates that policy into a DFW rule. "Allow" rules are placed at the top. "Deny" or "Drop" rules placed at the bottom, after the allow rules. All "Allow" rules are created above all "Deny" rules. This means the "Allow" rules take higher precedence than "Deny" rules.
+* DFW `Allow` rules are placed before `Deny`/`Drop` rules and take higher precedence than `Deny` rules.  
+* When there are multiple DFW `Allow` or `Deny`/`Drop` rules, 
+precedence is defined by the order the rules were created: 
+    * The first `Allow` rules have precedence over later `Allow` rules. 
+    * The first `Deny` rules have precedence over later `Deny` rules.  
 
-NCP does not place the network policy DFW rule in any particular order in the stack of allow and deny rules. If multiple "Allow" rules are created, they are executed in chronological order: the previously created "Allow" rule takes precedence over the recently created one. This may not be the ordering that network administrators want, or it may disrupt the presumed ordering. Similarly, if a network policy results in an NCP-defined deny rule, it is placed at the top of the deny/drop stack. Again, this may not be the desired location.
+Because the first DFW rules have precedence over later DFW rules, 
+existing DFW rules, including rules created from a Kubernetes developer's Network Policy configuration, 
+have precedence over the rules defined afterward by a TKGI administrator using Network Profiles.  
 
-With the top section marker, the operational rules can be created in the top section, NCP will create any rules when Kubernetes network policies are created always below this top section marker. Thus, the operational rules created will not be over-ridden by developers. Drop/deny rules operate in the bottom section. You can define a bottom section marker so that drop/deny rules created by NCP do not displace allow rules defined.
+The VMware NSX-T Data Center supports organizing DFW rules into sections and 
+<%= vars.k8s_runtime_abbr %> supports creating a **Top Firewall Firewall Section Marker** and a **Bottom Firewall Section Marker** 
+within DFW rules. 
+DFW rules placed within the Top Firewall Section or Bottom Firewall Section 
+have precedence over the other NCP-created DFW rules.  
 
-## <a id='top_firewall_section_marker'></a> Top Firewall Section Marker
+With the Top and Bottom Firewall Sections, an administrator can position operational rules to have precedence 
+over developer-created DFW rules.  
 
-Using the `top_firewall_section_marker`, the operational rules can be created in the top section, NCP will create any rules when Kubernetes network policies are created always below this top section marker. Thus, the operational rules created will not be over-ridden by developers. 
+<p class="note"><strong>Note:</strong> 
+NSX-T applies DFW rules on ESXi transport nodes to control east-west traffic. 
+Edge firewall (EFW) rules run on Edge transport nodes and control north-south traffic.
+</p>
+
+
+## <a id='top_firewall_section_marker'></a> Create a Top Firewall Section Marker
+
+Using the `top_firewall_section_marker`, the operational rules can be created in the top section, 
+NCP will create any rules when Kubernetes network policies are created always below this top section marker. 
+Thus, the operational rules created will not be over-ridden by developers. 
 
 ```
 {
@@ -36,9 +90,10 @@ Using the `top_firewall_section_marker`, the operational rules can be created in
 }
 ```
 
-## <a id='bottom_firewall_section_marker'></a> Bottom Firewall Section Marker
+## <a id='bottom_firewall_section_marker'></a> Create a Bottom Firewall Section Marker
 
-Drop/deny rules operate in the bottom section. You can define a `bottom_firewall_section_marker` so that drop/deny rules created by NCP do not displace existing rules.
+Drop/deny rules operate in the bottom section. 
+You can define a `bottom_firewall_section_marker` so that drop/deny rules created by NCP do not displace existing rules.
 
 ```
 {
