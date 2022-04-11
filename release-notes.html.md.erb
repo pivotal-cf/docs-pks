@@ -545,8 +545,7 @@ For more information, see <a href="#1-13-0-cve-2022-22965">Spring Application Re
 </p> 
 
 For Known Issues in NCP v3.2.0.3, see
-[NSX Container Plugin 3.2.0.3 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/rn/NSX-Container-Plugin-3203-Release-Notes.html).
-
+[NSX Container Plugin 3.2.0.3 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/rn/NSX-Container-Plugin-3203-Release-Notes.html).  
 
 <hr>
 
@@ -554,6 +553,63 @@ For Known Issues in NCP v3.2.0.3, see
 
 The Fluent Bit Docker, CRI, Go, Java, and Python multi-line parser does not merge containerd runtime cluster log entries 
 belonging to the same context into a single log entry. 
+
+<hr>
+
+#### <a id="1-13-2-fluentd-dns-error"></a> Fluent Bit DNS Resolution Timeout Failure
+
+Fluent Bit v1.8.5 and later might fail to forward Pod log entries to the desired logging destination and instead return a DNS timeout error.  
+
+**Symptoms**
+
+When Fluent Bit encounters this unexpected DNS resolution issue, it logs Fluent Bit errors similar to the following:  
+
+```
+[ warn] [engine] chunk '...' cannot be retried: task_id=1, input=tail.0 > output=splunk.0
+
+[ warn] [net] getaddrinfo(host='...', err=11): Could not contact DNS servers
+
+[ warn] [engine] failed to flush chunk '...', retry in 6 seconds: task_id=11, input=tail.0 > output=splunk.0 (out_id=0)
+
+ warn] [net] getaddrinfo(host='...', err=11): Could not contact DNS servers
+
+```
+
+**Workaround**
+
+To resolve the Fluent Bit DNS timeout problem:
+
+1. Open the Fluent Bit config map in a text editor.  
+1. Add the following to the `OUTPUT` section in the config map:  
+
+    ```
+    net.dns.mode TCP
+    ```
+1. Perform a rollout restart of Fluent Bit logging:
+
+    ```
+    kubectl logs POD-NAME -n NAMESPACE -c CONTAINER-NAME --follow
+    ```
+    
+    Where:  
+    
+    `POD-NAME` is the name of your Pod.  
+    `NAMESPACE` is namespace for your Pod.  
+    `CONTAINER-NAME` is the name of your Pod container.  
+<br>
+    
+    For more information on restarting Fluent Bit logging, see 
+    [Interacting with running Pods](https://kubernetes.io/docs/reference/kubectl/cheatsheet/#interacting-with-running-pods) 
+    in _kubectl Cheat Sheet_ in the Kubernetes documentation.  
+    
+
+For more information, see 
+[DNS resolution timeout/failure in >= 1.8.5 #4050](https://github.com/fluent/fluent-bit/issues/4050) and 
+[Malformed HTTP response from splunk and cannot increase buffer on fluentBit v1.8.9 #4723](https://github.com/fluent/fluent-bit/issues/4723) 
+in the Fluent Bit GitHub repository.
+
+<hr>
+
 
 <hr>
 
