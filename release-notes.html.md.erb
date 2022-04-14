@@ -212,7 +212,13 @@ see [Networking](installing-nsx-t.html#networking) in _Installing <%= vars.k8s_r
 when executing `tkgi get-credentials`.  
 
 * No longer starts Wavefront Pods while Wavefront is disabled.  
-    
+
+* Fluent Bit has been upgraded from v1.5.7 to v1.9.1.
+For more information, see [Upgrade Notes](https://docs.fluentbit.io/manual/installation/upgrade-notes) in the Fluent Bit documentation.  
+
+* OpenJDK has been upgraded to v11.0.14. 
+For more information, see [OpenJDK v11.0.14 Released](https://mail.openjdk.java.net/pipermail/jdk-updates-dev/2022-January/011643.html) in the OpenJDK notification archives.  
+
 
 ### <a id="1-14-0-bug-fixes"></a>Resolved Issues
 
@@ -225,9 +231,11 @@ when executing `tkgi get-credentials`.
     * Apache Log4j vulnerability [CVE-2021-45046](https://nvd.nist.gov/vuln/detail/CVE-2021-45046).  
     * Apache Log4j vulnerability [CVE-2021-45105](https://nvd.nist.gov/vuln/detail/CVE-2021-45105).  
     * [Spring Application Remote Code Execution Vulnerability CVE-2022-22965](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-cve-2022-22965).  
-* **[Security Fix]** Component bumps:  
-    * Fixes containerd [CVE-2021-43816](https://nvd.nist.gov/vuln/detail/CVE-2021-43816): An unprivileged pod may bind mount any privileged regular file on disk for complete read/write access.  
-    * Bumps OpenJDK to [OpenJDK v11.0.14](https://mail.openjdk.java.net/pipermail/jdk-updates-dev/2022-January/011643.html).  
+* **[Security Fix]** Component bumps fix the following:  
+    * containerd:
+        * Fixes containerd [CVE-2021-43816](https://nvd.nist.gov/vuln/detail/CVE-2021-43816): An unprivileged pod may bind mount any privileged regular file on disk for complete read/write access.  
+    * OpenJDK:
+        * For information on the resolved security issues, see [OpenJDK v11.0.14 Released](https://mail.openjdk.java.net/pipermail/jdk-updates-dev/2022-January/011643.html) in the OpenJDK notification archives.  
 * Fixes upgrade errand pre-start script failures in environments where an NSX-T logical port is tagged with a blank string.  
 * Fixes [Cluster Upgrading Fails After Upgrading NSX-T and <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-containerd-sock-error).  
 * Fixes [Multiple CoreDNS Pods Might Run On the Same Worker Node after Upgrading a Cluster](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-multiple-coredns).  
@@ -240,13 +248,16 @@ when executing `tkgi get-credentials`.
 * Fixes [Certificate Rotation Fails If the Cluster Has a Kubernetes Profile](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-cert-rotate-stops).  
 * Fixes [The Tier-1 Gateway and Static Routes for the LoadBalancer CRD Are Not Deleted While Deleting Policy API-Based Clusters](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-objects-not-deleted-with-cluster).  
 * Fixes [The <%= vars.control_plane %> FQDN Must Not Include Trailing Whitespace](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-whitespace-pksapi).  
-* Component bumps fix the following:  
-    * [etcd v3.5.0 Data Corruption Under Heavy Loads](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-etcd-3-5-0-data-corruption).  
-    * [Existing NSX-T Load Balancer Domain Ingress Rules Override Newer Subdomain Ingress Rules](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-ncp-k8s-122).  
-    * The logging prefix on containerd runtime cluster log entries is no longer different than the prefix on Docker runtime cluster log entries.  
-        * Fluent Bit has been upgraded from v1.5.7 to v1.8.10.
-        For more information, see [Fluent Bit Does Not Merge Containerd Runtime Cluster Multi-Line Entries](#1-14-0-fluentd-multiline) below, and 
-        [Upgrade Notes](https://docs.fluentbit.io/manual/installation/upgrade-notes) in the Fluent Bit documentation.  
+* Component bumps fix the following Known Issues:  
+    * etcd:
+        * Fixes [etcd v3.5.0 Data Corruption Under Heavy Loads](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-etcd-3-5-0-data-corruption).  
+    * Fluent Bit:
+        * Fixes [Fluent Bit DNS Resolution Timeout Failure](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-2-fluentd-dns-error).  
+        * Fixes [Fluent Bit Does Not Merge Containerd Runtime Cluster Multi-Line Entries](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-2-fluentd-multiline).
+        * Fixes The logging prefix on containerd runtime cluster log entries is different than the logging prefix on Docker runtime cluster log entries.  
+    * NCP:
+        * Fixes [Existing NSX-T Load Balancer Domain Ingress Rules Override Newer Subdomain Ingress Rules](https://docs.pivotal.io/tkgi/1-13/release-notes.html#1-13-0-ncp-k8s-122).      
+
  
 <%#
 * Fixes [](https://docs.pivotal.io/tkgi/1-12/release-notes.html#). 
@@ -333,68 +344,6 @@ The <%= vars.k8s_runtime_abbr %> control plane allocates IP Addresses from the f
 <%= vars.k8s_runtime_abbr %> allocates IP addresses starting from the beginning of a floating IP pool range. 
 When configuring a Network Profile, allocate IP Addresses starting at the end of the floating IP pool range instead of those at the beginning.  
 
-
-<hr>
-
-#### <a id="1-14-0-fluentd-dns-error"></a> Fluent Bit DNS Resolution Timeout Failure
-
-Fluent Bit v1.8.5 and later might fail to forward Pod log entries to the desired logging destination and instead return a DNS timeout error.  
-
-**Symptoms**
-
-When Fluent Bit encounters this unexpected DNS resolution issue, it logs Fluent Bit errors similar to the following:  
-
-```
-[ warn] [engine] chunk '...' cannot be retried: task_id=1, input=tail.0 > output=splunk.0
-
-[ warn] [net] getaddrinfo(host='...', err=11): Could not contact DNS servers
-
-[ warn] [engine] failed to flush chunk '...', retry in 6 seconds: task_id=11, input=tail.0 > output=splunk.0 (out_id=0)
-
- warn] [net] getaddrinfo(host='...', err=11): Could not contact DNS servers
-
-```
-
-**Workaround**
-
-To resolve the Fluent Bit DNS timeout problem:
-
-1. Open the Fluent Bit config map in a text editor.  
-1. Add the following to the `OUTPUT` section in the config map:  
-
-    ```
-    net.dns.mode   TCP
-    ```
-    
-    For more information on configuring a Fluent Bit ConfigMap, see
-    [Installation](https://docs.fluentbit.io/manual/installation/kubernetes#installation) 
-    in the _Fluent Bit Official Manual_ or the example ConfigMap files: 
-    [kafka/fluent-bit-configmap.yaml](https://github.com/fluent/fluent-bit-kubernetes-logging/blob/master/output/kafka/fluent-bit-configmap.yaml) and 
-    [elasticsearch/fluent-bit-configmap.yaml](https://github.com/fluent/fluent-bit-kubernetes-logging/blob/master/output/elasticsearch/fluent-bit-configmap.yaml) 
-    in the Fluent Bit GitHub repository.  
-    
-1. Perform a rollout restart of Fluent Bit logging:
-
-    ```
-    kubectl logs POD-NAME -n NAMESPACE -c CONTAINER-NAME --follow
-    ```
-    
-    Where:  
-    
-    `POD-NAME` is the name of your Pod.  
-    `NAMESPACE` is the namespace for your Pod.  
-    `CONTAINER-NAME` is the name of your Pod container.  
-<br>
-    
-    For more information on restarting Fluent Bit logging, see 
-    [Interacting with running Pods](https://kubernetes.io/docs/reference/kubectl/cheatsheet/#interacting-with-running-pods) 
-    in _kubectl Cheat Sheet_ in the Kubernetes documentation.  
-    
-
-For more information, see 
-[DNS resolution timeout/failure in >= 1.8.5 #4050](https://github.com/fluent/fluent-bit/issues/4050) and 
-[Malformed HTTP response from splunk and cannot increase buffer on fluentBit v1.8.9 #4723](https://github.com/fluent/fluent-bit/issues/4723) 
-in the Fluent Bit GitHub repository.
 
 <hr>
 
