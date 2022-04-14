@@ -814,8 +814,7 @@ For more information, see <a href="#1-13-0-cve-2022-22965">Spring Application Re
 </p> 
 
 For Known Issues in NCP v3.2.0.3, see
-[NSX Container Plugin 3.2.0.3 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/rn/NSX-Container-Plugin-3203-Release-Notes.html).
-
+[NSX Container Plugin 3.2.0.3 Release Notes](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/rn/NSX-Container-Plugin-3203-Release-Notes.html).  
 
 <hr>
 
@@ -823,6 +822,70 @@ For Known Issues in NCP v3.2.0.3, see
 
 The Fluent Bit Docker, CRI, Go, Java, and Python multi-line parser does not merge containerd runtime cluster log entries 
 belonging to the same context into a single log entry. 
+
+<hr>
+
+#### <a id="1-13-2-fluentd-dns-error"></a> Fluent Bit DNS Resolution Timeout Failure
+
+Fluent Bit v1.8.5 and later might fail to forward Pod log entries to the desired logging destination and instead return a DNS timeout error.  
+
+**Symptoms**
+
+When Fluent Bit encounters this unexpected DNS resolution issue, it logs Fluent Bit errors similar to the following:  
+
+```
+[ warn] [engine] chunk '...' cannot be retried: task_id=1, input=tail.0 > output=splunk.0
+
+[ warn] [net] getaddrinfo(host='...', err=11): Could not contact DNS servers
+
+[ warn] [engine] failed to flush chunk '...', retry in 6 seconds: task_id=11, input=tail.0 > output=splunk.0 (out_id=0)
+
+[ warn] [net] getaddrinfo(host='...', err=11): Could not contact DNS servers
+
+```
+
+**Workaround**
+
+To resolve the Fluent Bit DNS timeout problem:
+
+1. Open the Fluent Bit config map in a text editor.  
+1. Add the following to the `OUTPUT` section in the config map:  
+
+    ```
+    net.dns.mode   TCP
+    ```
+    
+    For more information on configuring a Fluent Bit ConfigMap, see
+    [Installation](https://docs.fluentbit.io/manual/installation/kubernetes#installation) 
+    in the _Fluent Bit Official Manual_ or the example ConfigMap files: 
+    [kafka/fluent-bit-configmap.yaml](https://github.com/fluent/fluent-bit-kubernetes-logging/blob/master/output/kafka/fluent-bit-configmap.yaml) and 
+    [elasticsearch/fluent-bit-configmap.yaml](https://github.com/fluent/fluent-bit-kubernetes-logging/blob/master/output/elasticsearch/fluent-bit-configmap.yaml) 
+    in the Fluent Bit GitHub repository.  
+    
+1. Perform a rollout restart of Fluent Bit logging:
+
+    ```
+    kubectl logs POD-NAME -n NAMESPACE -c CONTAINER-NAME --follow
+    ```
+    
+    Where:  
+    * `POD-NAME` is the name of your Pod.  
+    * `NAMESPACE` is the namespace for your Pod.  
+    * `CONTAINER-NAME` is the name of your Pod container.  
+<br>
+    
+    For more information on restarting Fluent Bit logging, see 
+    [Interacting with running Pods](https://kubernetes.io/docs/reference/kubectl/cheatsheet/#interacting-with-running-pods) 
+    in _kubectl Cheat Sheet_ in the Kubernetes documentation.  
+    
+
+For more information, see 
+[DNS resolution timeout/failure in >= 1.8.5 #4050](https://github.com/fluent/fluent-bit/issues/4050) and 
+[Malformed HTTP response from splunk and cannot increase buffer on fluentBit v1.8.9 #4723](https://github.com/fluent/fluent-bit/issues/4723) 
+in the Fluent Bit GitHub repository.
+
+<hr>
+
 
 <hr>
 
@@ -2832,91 +2895,5 @@ Provide any CIDR that does not contain the Deployment DNS IP.
 
 1. Click **Apply Configuration**.
 
-<hr>
-
-#### <a id="management-console-1-13-0-upgrade-fail-nvds-cvds"></a> <%= vars.k8s_runtime_abbr %> MC is Unable to Upgrade the TKGI Control Plane After Migrating from N-VDS to VDS
-
-<%# This issue is fixed in [<  %= vars.k8s_runtime_abbr %  > v1.13.4(#1-13-4-bug-fixes).  #%>
-
-If you have an existing <%= vars.k8s_runtime_abbr %> installation on a vSphere N-VDS network and migrate your network to VDS,
-<%= vars.k8s_runtime_abbr %> MC will no longer be able to upgrade <%= vars.k8s_runtime_abbr %> to a newer version.  
-
-**Explanation**
-
-<%= vars.k8s_runtime_abbr %> MC uses network resource MOIDs to manage network resources, 
-allowing the Management Console to manage network resources with identical names.  
-
-When converting a network from N-VDS to VDS, network resources are assigned new MOIDs.  
-
-Although your existing <%= vars.k8s_runtime_abbr %> Kubernetes cluster workloads continue to function, 
-the Management Console configuration maintains stale network resource MOIDs 
-and cannot upgrade the <%= vars.k8s_runtime_abbr %> control plane.  
-
-
-**Workaround**
-
-To upgrade <%= vars.k8s_runtime_abbr %> MC after converting a network from N-VDS to VDS:  
-
-1. Log in to the VM of your existing <%= vars.k8s_runtime_abbr %> MC installation.  
-1. To collect your network's current configuration:  
-    
-    1. Export the `pks-management-server` container's IP as an environment variable:  
-    
-        ```
-        export MGMT_IP=`docker inspect  pks-mgmt-server --format='{{.NetworkSettings.Networks.pks.IPAddress}}'`
-        ```
-        
-    1. Query and save your datacenter list as a json file named `datacenter.json`:  
-    
-        ```
-        curl -u root  http://{$MGMT_IP}:8080/api/v1/inventory/vcenter/datacenter -X GET  -k  -H \
-        "Content-type:application/json" > datacenter.json
-        ```
-        
-    1. Review the exported `datacenter.json` file and note the datacenter MOID.  
-    1. Query and save your network list as a json file named `networks.json`:  
-    
-        ```
-        curl -u root  http://{$MGMT_IP}:8080/api/v1/inventory/vcenter/network?dc=DC-MOID -X GET   -k  -H \
-        "Content-type:application/json" > networks.json
-        ```
-        Where `DC-MOID` is the datacenter MOID you noted in the previous step.  
-        
-1. To create a <%= vars.k8s_runtime_abbr %> MC manifest with the current network resources MOIDs:  
-
-    1. Export the <%= vars.k8s_runtime_abbr %> MC manifest as a manifest file named `manifest.json`:  
-
-        ```
-        curl -u root:Admin\ADMIN-PASSWORD  https://localhost/api/v1/deployment/manifest -X GET   -k  -H "Content-type:application/json" > manifest.json
-        ```
-        Where `ADMIN-PASSWORD` is the password for the admin account used in the command.  
-        
-    1. Back up the exported manifest file.  
-    1. Review the `networks.json` file you exported above and note the `moid` and `type` values.  
-    1. Open the exported manifest file in an editor and change the `dep_network_moid` and `dep_network_type` values 
-       to the `moid` and `type` values you collected from the `networks.json` file.  
-    1. Save the revised manifest file.  
-    
-1. To restore your <%= vars.k8s_runtime_abbr %> MC's ability to manage the <%= vars.k8s_runtime_abbr %> network resources:  
-
-    1. Update <%= vars.k8s_runtime_abbr %> MC with the revised manifest:  
-
-        ```
-        curl -u root:Admin\ADMIN-PASSWORD  http://{$MGMT_IP}:8080/api/v1/deployment -X POST -d @manifest.json  -k  -H "Content-type:application/json"
-        ```
-        
-        Where `ADMIN-PASSWORD` is the password for the admin account used in the command.  
-        
-1. To validate your <%= vars.k8s_runtime_abbr %> MC's configuration:  
-
-    1. Open the <%= vars.k8s_runtime_abbr %> MC UI.  
-    1. Review **Configuration** > **Deployment** and confirm that all statuses are either `SUCCESS` or `SKIPPED`.  
-    1. Review the **<%= vars.k8s_runtime_abbr %> MC Wizard** and confirm the displayed **Network Information** is correct.  
-    
-1. To upgrade <%= vars.k8s_runtime_abbr %> MC, deploy the <%= vars.k8s_runtime_abbr %> MC OVA for the desired <%= vars.k8s_runtime_abbr %> MC version.
-
-
 
 <hr>
-
-
