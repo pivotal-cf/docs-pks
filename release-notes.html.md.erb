@@ -149,7 +149,7 @@ The supported upgrade paths to <%= vars.product_short %> v1.12.6 are from
 
 <%= vars.k8s_runtime_abbr %> v1.12.6 has the following resolved issues:  
 
-* Supports upgrading from earlier versions of <%= vars.k8s_runtime_abbr %>. For more information, see [Upgrade Path](#1-12-6-upgrade) above.
+* Fixes [CoreDNS Pods Fail While Upgrading to <%= vars.k8s_runtime_abbr %> v1.12.5](#1-12-5-coredns-pods-fail).  
 <%#
 * Fixes [](#).  
 * Component bumps fix the following:  
@@ -447,6 +447,36 @@ For Known Issues in NCP v3.1.2.5, see
     or later as soon as possible to mitigate CVE-2022-22965, the Spring application remote execution vulnerability. 
     For more information, see <a href="#1-12-0-cve-2022-22965">Spring Application Remote Code Execution Vulnerability CVE-2022-22965</a>.
 </p> 
+
+#### <a id="1-12-5-coredns-pods-fail"></a> CoreDNS Pods Fail While Upgrading to <%= vars.k8s_runtime_abbr %> v1.12.5
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.12.6](#1-12-6-bug-fixes).   
+
+CoreDNS worker Pods fail while upgrading from <%= vars.k8s_runtime_abbr %> v1.12.3 or v1.12.4 to <%= vars.k8s_runtime_abbr %> v1.12.5.  
+
+**Symptoms**
+
+While upgrading clusters to <%= vars.k8s_runtime_abbr %> v1.12.5, CoreDNS worker Pods fail and log errors similar to the following:  
+
+```
+...start failed in pod codedns-... ErrImagePull: rpc error code = Unknown desc = Error response from daemon: unknown: artifact tkg/coredns:v1.8.0_vmware.9 not found
+...12766 pod_workers.go:190] "Error syncing pod, skipping" err="failed to \"StartContainer\" for \"coredns\" with ImagePullBackOff: 
+\"Back-off pulling image \\\"projects.registry.vmware.com/tkg/coredns:v1.8.0_vmware.9\\\"\\" pod="kube-system/coredns-...
+
+```
+
+**Explanation**
+
+Although the the upgrade to <%= vars.k8s_runtime_abbr %> v1.12.5 has succeeded, CoreDNS Pod upgrading has failed.  
+
+During <%= vars.k8s_runtime_abbr %> v1.12.5 cluster upgrades, the CoreDNS deployment definition is updated from `coredns:v1.8.0_vmware.9` to `coredns:v1.8.0_vmware.11` 
+by running the `apply-addons` errand. 
+There is a window before the `apply-addons` errand has run
+where the deployment still points to `coredns:v1.8.0_vmware.9` 
+but CoreDNS nodes are being recreated with a local CoreDNS image that includes `coredns:v1.8.0_vmware.11`.  
+
+kubelet does not find the CoreDNS `coredns:v1.8.0_vmware.9` version and tries to pull the old version from the remote VMware registry. 
+The CoreDNS Pods then fail with `ImagePullBackOff` or `ErrImagePull` errors.  
 
 <hr>
 
