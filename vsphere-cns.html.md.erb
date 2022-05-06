@@ -471,24 +471,25 @@ in the VMware vSphere Container Storage Plug-in documentation.
 <br>
 ### <a id='overview-topology'></a>Topology Overview 
 
-<%= vars.k8s_runtime_abbr %> supports creating new clusters with topology-aware volume provisioning enabled. 
-<%= vars.k8s_runtime_abbr %> also supports migrating existing clusters with topology-aware volume provisioning 
-from a manually installed CSI driver to the automatically installed CSI driver.  
+<%= vars.k8s_runtime_abbr %> supports clusters with topology-aware volume provisioning.  
 
-Before creating a cluster with topology-aware volume provisioning, complete the following:  
+To add topology-aware volume provisioning to an existing cluster:  
 
-* [Prepare for Topology](#prepare-for-topology)  
-
+1. [Prepare for Topology](#prepare-for-topology)  
+1. See [Guidelines and Best Practices for Deployment with Topology](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-162E7582-723B-4A0F-A937-3ACE82EAFD31.html#guidelines-and-best-practices-for-deployment-with-topology-0) 
+    in _Deploying vSphere Container Storage Plug-in with Topology_ in the VMware vSphere Container Storage Plug-in documentation.  
+    
+    <p class="note"><strong>Note</strong>: You cannot add topology-aware volume provisioning to an existing cluster within <%= vars.k8s_runtime_abbr %>.
+    </p>  
 
 To create a cluster with topology-aware volume provisioning:  
 
-* [Create a Cluster with Topology](#create-topology)  
+1. [Prepare for Topology](#prepare-for-topology)  
+1. [Create a Cluster with Topology](#create-topology)  
 
+To manage a cluster configured with topology-aware volume provisioning:  
 
-To manage a cluster created with topology-aware volume provisioning:  
-
-* [Manage Clusters with Topology-Aware Volumes](#manage-topology)  
-
+1. [Manage Clusters with Topology-Aware Volumes](#manage-topology)  
 
 <br>
 ### <a id='prepare-for-topology'></a>Prepare for Topology
@@ -596,23 +597,27 @@ When running `tkgi update-cluster` on a cluster created with a topology-aware vo
 
 
 <br>
-## <a id='uninstall-csi'></a>Uninstall a Manually Installed vSphere CSI Driver
+## <a id='uninstall-csi'></a>Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver
 
 If your administrator has enabled automatic vSphere CSI Driver Integration and you have a cluster that uses a manually installed vSphere CSI Driver, 
 the manually installed driver will no longer function after upgrading the cluster.   
 
 To uninstall a manually installed CSI driver:
 
+1. If topology-aware volume provisioning is enabled on your cluster, upgrade manual CSI driver on the cluster to v2.5.1.  
+
 1. Confirm your <%= vars.k8s_runtime_abbr %> administrator has enabled automatic **vSphere CSI Driver Integration** on the <%= vars.k8s_runtime_abbr %> tile.
 1. Upgrade your Kubernetes cluster to the <%= vars.k8s_runtime_abbr %> version of the <%= vars.k8s_runtime_abbr %> tile.
 1. Remove the manually installed CSI driver from the cluster. 
 For more information, see [Remove a Manually Installed vSphere CSI Driver](#manually-remove-csi) below.  
-<%# 
-4. Validate that CNS recognizes the existing storage.  
-by completing the steps in
+<%# 4. Validate that CNS recognizes the existing storage.  by completing the steps in [Create and Manage vSphere CNS Volumes](#overview-managing) above.  #%>
+1. Create a <%= vars.k8s_runtime_abbr %> configuration file for your cluster.  
+1. If topology-aware volume provisioning is enabled on your cluster, 
+see [Manage Topology After Removing a Manually Installed vSphere CSI Driver](#uninstall-csi-after-topology) below.  
+1. Update your cluster using your configuration file.  
+1. If topology-aware volume provisioning is enabled on your cluster, 
+Validate that CNS recognizes the existing storage by completing the steps in
 [Create and Manage vSphere CNS Volumes](#overview-managing) above.  
-#%>
-
 1. To restart CSI jobs, restart `csi-node-registrar` and `csi-node` on each worker node:  
     * To restart `csi-node-registrar`:  
     
@@ -661,42 +666,6 @@ by completing the steps in
     Where `JOB-NAME` is the name of the CSI job to restart.  
 
 
-<br>
-### <a id='uninstall-csi-after'></a>Considerations After Removing a Manually Installed vSphere CSI Driver
-
-After migrating from a manually installed vSphere CSI Driver to the <%= vars.k8s_runtime_abbr %> automatically deployed CSI Driver, 
-the topology configuration must not be changed:
-
-* If topology was not enabled when using a manually deployed vSphere CSI Driver, 
-then you must not enable topology after migrating to the <%= vars.k8s_runtime_abbr %> automatically deployed CSI Driver.  
-* If topology was enabled when using a manually deployed vSphere CSI Driver 
-and the legacy `region`, and `zone` labels were used to configure topology, 
-you must continue to use the `region` and `zone` labels:  
-    
-    ```
-    { 
-      "csi_topology_labels": { 
-          "region: "k8s-region" 
-          "zone": "k8s-zone" 
-      } 
-    }
-    ```
-    <p class="note"><strong>Note</strong>: When updating a topology-enabled cluster that has been migrated from the manually installed vSphere CSI Driver to the automatic driver, 
-        the cluster's <code>"topology_categories"</code> configuration must continue to use separate 
-        legacy <code>"region"</code> and <code>"zone"</code> parameters.
-    </p>
-
-* If topology was enabled when using a manually deployed vSphere CSI Driver,
-and the `topology_categories` label was used to configure topology, you must continue to use the `topology_categories` label:  
-
-    ```
-    { 
-      "csi_topology_labels": { 
-        "topology_categories": "k8s-region,k8s-zone" 
-      } 
-    }
-    ```
-    
 
 <br>
 ### <a id='manually-remove-csi'></a>Remove a Manually Installed vSphere CSI Driver
@@ -742,6 +711,54 @@ they can't delete the manually deployed vSphere CSI Driver before upgrading the 
 Instead, they should perform the operation after upgrading the existing cluster(s). 
 We need to get the above info included in the document. #%>
 
+
+<br>
+### <a id='uninstall-csi-after-topology'></a>Manage Topology After Removing a Manually Installed vSphere CSI Driver
+
+After migrating from a manually installed vSphere CSI Driver to the <%= vars.k8s_runtime_abbr %> automatically deployed CSI Driver, 
+the topology configuration must not be changed.  
+
+Configure topology based on the manually installed vSphere CSI Driver configuration:  
+
+* **Region and Zone Topology Labels**:  
+
+    You must continue to use `region`, and `zone` labels if your manually deployed vSphere CSI Driver was configured using 
+    the legacy `region`, and `zone` topology configuration labels.  
+
+
+    Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns `region` and `zone` values.  
+    
+    For example:  
+    
+    ```
+    { 
+      "csi_topology_labels": { 
+          "region: "k8s-region" 
+          "zone": "k8s-zone" 
+      } 
+    }
+    ```
+
+* **topology_categories Topology Label**:  
+    
+    You must continue to use the `topology_categories` label if your manually deployed vSphere CSI Driver was configured using 
+    the `topology_categories` topology configuration label.  
+
+    Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns a `topology_categories` value.  
+    
+    For example:  
+
+    ```
+    { 
+      "csi_topology_labels": { 
+        "topology_categories": "k8s-region,k8s-zone" 
+      } 
+    }
+    ```
+    
+* **Topology Disabled**:  
+
+    You must not enable topology if topology was not enabled while using the manually deployed vSphere CSI Driver.
 
 <br>
 ## <a id='migrate-to-csi'></a> Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver
