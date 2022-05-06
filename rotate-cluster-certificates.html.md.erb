@@ -3,19 +3,28 @@ title: Rotate Kubernetes Cluster Certificates
 owner: TKGI-SECURITY
 ---
 
-This topic describes how to rotate certificates for
-Kubernetes clusters created by <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>).
 
-## <a id="overview"></a>Overview of TKGI-Provisioned Kubernetes Cluster Certificates
+This topic describes how to rotate certificates used by
+<%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>) Kubernetes clusters.
+
+For more information about <%= vars.k8s_runtime_abbr %> Certificates:  
+
+* For conceptual information about certificates in <%= vars.k8s_runtime_abbr %>, see [<%= vars.k8s_runtime_abbr %> Certificates](certificate-concepts.html).  
+* To rotate the certificates used by the <%= vars.k8s_runtime_abbr %> control plane, 
+see [Rotating <%= vars.k8s_runtime_abbr %> Control Plane Certificates](./rotate-tile-certificates.html).  
+* To rotate the certificates used by the <%= vars.k8s_runtime_abbr %> control plane
+to communicate with <%= vars.k8s_runtime_abbr %>-deployed clusters, 
+see [Rotate Shared Cluster Certificates](./rotate-cluster-certificates.html#shared)
+in _Rotating Cluster Certificates_.  
+
+
+## <a id="overview"></a>Overview
 
 When <%= vars.k8s_runtime_abbr %> provisions a Kubernetes cluster, the system generates 
 certificate authority (CA) certificates and leaf certificates that have values and 
 expiration dates unique to that cluster.
 
-You can use the TKGI CLI to list and rotate TLS certificates for a Kubernetes cluster provisioned by Tanzu Kubernetes Grid Integrated Edition.
-
-<br>
-The following table summarizes the TKGI-provisioned Kubernetes cluster certificates and how to rotate them.
+The following table summarizes the TKGI-provisioned Kubernetes cluster certificates and how to rotate them.  
 
 <table id='cluster-certs' border="1" class="nice" >
   <tr>
@@ -32,76 +41,35 @@ The following table summarizes the TKGI-provisioned Kubernetes cluster certifica
     <td>See <a href="nsxt-certs-rotate.html">Rotate NSX-T Certificates for Kubernetes Clusters</a>.</td>
   </tr>
 </table>
-<br>
 
-To rotate the certificates used by the <%= vars.k8s_runtime_abbr %> control plane, 
-see [Rotating <%= vars.k8s_runtime_abbr %> Control Plane Certificates](./rotate-tile-certificates.html).
+For more information about Kubernetes Cluster certificates in <%= vars.k8s_runtime_abbr %>, 
+see [<%= vars.k8s_runtime_abbr %>-Provisioned Kubernetes Cluster Certificates](certificate-concepts.html#cluster-ca) 
+in _<%= vars.k8s_runtime_abbr %> Certificates_.  
 
-## <a id="cluster-certs"></a>Kubernetes Cluster Certificates
 
-A TKGI-provisioned Kubernetes cluster includes the following CA certificates and their leaf certificates:
+### <a id="overview-procedure"></a>Procedure
 
-- `kubo_master_ca_2021`
-  - `tls-kubernetes-2018`
-  - `tls-ncp-2018 (with NSX-T)`
-  - `tls-nsx-kube-proxy-2018 (with NSX-T)`
+To rotate <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster certificates, 
+first determine which certificates are due to expire and then rotate them:  
 
--  `kubo_ca_2018`:
-  - `tls-kubelet-2018`
-  - `tls-metrics-server-2018`
-  - `tls-kubelet-client-2018`
-  - `tls-kube-controller-manager-2018`
+* [List TLS Certificates](#certs-list)
+* [Rotate TLS Certificates](#cert-use-cases)
 
-- `etcd_ca_2018`:
-  - `tls-etcd-2018-2`
-  - `tls-etcdctl-2018-2`
-  - `tls-etcdctl-root-2018-2`  
-  - `tls-etcdctl-flanneld-2018-2`
 
-- NSX certificates
-  - `tls-nsx-lb`
-  - `tls-nsx-t`  
 
-<img src="images/cluster-certs.png">
-
-##<a id='certs-rotate'></a> TKGI CLI Support for Certificate Rotation
-
-You can use the TKGI CLI to list and rotate the TLS certificates created for a Kubernetes cluster. 
-
-Usage:
-
-```
-tkgi rotate-certs | rotate-certificates <ClusterName> [flags]
-```
-
-Flags:
-
-```
-      --all               Rotate all certs, not implemented yet, will be available in future releases.
-  -h, --help              help for rotate-certs
-      --json              Return the PKS-API output as json
-      --non-interactive   Don't ask for user input
-      --only-nsx          Rotate the tls-nsx-lb and tls-nsx-t certificates.
-      --wait              Wait for the operation to finish
-```
-
-## <a id="cert-use-cases"></a>TLS Certificate Rotation Use Cases
-
-The TKGI CLI supports the following TLS certificate rotation scenarios:
-
-* [List all TLS certificates](#certs-list) created by TKGI when provisioning the cluster
-* [Rotate all TLS certificates](#rotate-all) (`--all` for all certificates, except for the custom_ca)
-* [Rotate all TLS certificates except NSX-T](#rotate-all-but-nsx) (`--skip-nsx` for skipping NSX-T certificates, if already rotated)
-* [Rotate only TLS certificates for NSX-T](#rotate-only-nsx) (`--only-nsx` for nsx certificates)
-* [Rotate custom CA](#rotate-custom), if custom CA  is used for cluster (`--update-cluster` for update custom CA)
 
 ##<a id='certs-list'></a> List TLS Certificates
 
 To list the TLS certificates used by TKGI-provisioned Kubernetes cluster, run the following command:
 
 ```
-tkgi certificates <ClusterName> -d <number of days>
+tkgi certificates CLUSTER-NAME -d DAYS
 ```
+
+Where:  
+
+* `CLUSTER-NAME` is the name of the cluster.  
+* `DAYS` is the maximum number of days remaining until the certificate expires.  
 
 For example:
 
@@ -131,32 +99,47 @@ NAME                                                                            
  
 ```
 
-## <a id="rotate-all"></a>Rotate All Cluster Certificates
+
+## <a id="cert-use-cases"></a>Rotate TLS Certificates
+
+The TKGI CLI supports rotating TLS certificates for the following scenarios:  
+
+* [Rotate All Cluster Certificates](#rotate-all)  
+* [Rotate All Cluster Certificates Except NSX-T](#rotate-all-but-nsx)  
+* [Rotate NSX-T Certificates Only](#rotate-only-nsx)  
+* [Rotate Custom CA](#rotate-custom)  
+
+<br>
+For more information about how to use TKGI CLI to rotate Kubernetes cluster TLS certificates, 
+see [Rotate TLS Certificates Using the TKGI CLI](#certs-rotate) below.  
+
+
+### <a id="rotate-all"></a>Rotate All Cluster Certificates
 
 To rotate all cluster certificates:
 
 ```
-tkgi rotate-certificates <cluster name> --all
+tkgi rotate-certificates CLUSTER-NAME --all
 ```
 
 This command rotates [all certificates](#cluster-certs) except a custom CA `kubo_master_ca_2021` (if implemented).
 
-## <a id="rotate-all-but-nsx"></a>Rotate All Cluster Certificates Except NSX-T
+### <a id="rotate-all-but-nsx"></a>Rotate All Cluster Certificates Except NSX-T
  
 To rotate all cluster certificates except the NSX-T certificates:
 
 ```
-tkgi rotate-certificates <cluster name> --skip-nsx --all
+tkgi rotate-certificates CLUSTER-NAME --skip-nsx --all
 ```
 
 This command rotates [all certificates](#cluster-certs) except `tls-nsx-t` and `tls-nsx-lb`.
 
-## <a id="rotate-only-nsx"></a>Rotate NSX-T Certificates Only
+### <a id="rotate-only-nsx"></a>Rotate NSX-T Certificates Only
 
 To rotate only NSX certificates:
 
 ```
-tkgi rotate-certificates <cluster name> --only-nsx
+tkgi rotate-certificates CLUSTER-NAME --only-nsx
 ```
 
 This command only rotates the NSX-T certificates `tls-nsx-t` and `tls-nsx-lb`.
@@ -164,21 +147,48 @@ This command only rotates the NSX-T certificates `tls-nsx-t` and `tls-nsx-lb`.
 For example:
 
 ```
-tkgi rotate-certs <ClusterName> --only-nsx
+tkgi rotate-certs tkgi-cluster-01 --only-nsx
  
-You are about to rotate nsx related certificates for cluster <ClusterName>. This operation requires bosh deployment, and will take a significant time. Are you sure you want to continue? (y/n):
+You are about to rotate nsx related certificates for cluster tkgi-cluster-01. This operation requires bosh deployment, and will take a significant time. Are you sure you want to continue? (y/n):
 ```
 
 For more information, see [Rotate NSX-T Certificates for Kubernetes Clusters](./nsxt-certs-rotate.html).
 
-## <a id="rotate-custom"></a>Rotate Custom CA
+### <a id="rotate-custom"></a>Rotate Custom CA
 
-If you have implemented a custom CA for the `kubo_master_ca_2021`, rotation is handled by the `update-cluster` CLI command.
-
-For example:
+If you have implemented a custom CA for the `kubo_master_ca_2021`, rotation is handled by the `update-cluster` CLI command.  
 
 ```
-tkgi update-cluster <cluster name> --config-file <path to the config file>
+tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILENAME
 ```
 
-For complete usage, see [Use a Custom CA for Kubernetes Clusters](./custom-ca.html).
+Where:  
+
+* `CLUSTER-NAME` is the name of the cluster.  
+* `CONFIG-FILENAME` is the name of the configuration file.  
+
+For complete usage, see [Use a Custom CA for Kubernetes Clusters](./custom-ca.html).  
+
+
+
+###<a id='certs-rotate'></a> Rotate TLS Certificates Using the TKGI CLI
+
+You can use the TKGI CLI to list and rotate the TLS certificates created for a Kubernetes cluster. 
+
+Usage:
+
+```
+tkgi rotate-certs | rotate-certificates CLUSTER-NAME [flags]
+```
+
+Flags:
+
+```
+      --all               Rotate all certs, not implemented yet, will be available in future releases.
+  -h, --help              help for rotate-certs
+      --json              Return the PKS-API output as json
+      --non-interactive   Don't ask for user input
+      --only-nsx          Rotate the tls-nsx-lb and tls-nsx-t certificates.
+      --wait              Wait for the operation to finish
+```
+
