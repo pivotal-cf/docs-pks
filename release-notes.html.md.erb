@@ -3046,6 +3046,46 @@ the `csi-controller` and `csi-syncer` services log errors similar to the followi
 "caller":"vsphere/virtualcenter.go:154","msg":"failed to create new client with err: Post \"...\": dial tcp: lookup ...: no such host"
 ```
 
+**Workaround**
+
+To configure the vSphere CSI Driver to use your proxy:  
+
+1. SSH to <%= vars.k8s_runtime_abbr %> Control Plane VM.  
+
+1. Open the `/var/vcap/jobs/csi-controller/bin/csi_controller_ctl` configuration file for editing.  
+
+1. Locate the `start_csi_controller` function in the configuration file:  
+
+    ```
+    start_csi_controller()
+    {
+        ...
+        export ...
+        export ...
+        export ...
+        ...
+    }
+    ```
+1. Locate the `export` commands in the `start_csi_controller` function 
+and add the following to the group of export commands:  
+
+    ```
+    export HTTP_PROXY=HTTP-PROXY
+    export HTTPS_PROXY=HTTPS-PROXY
+    export NO_PROXY=NO-PROXY
+    ```
+    
+    Where:  
+    * `HTTP-PROXY` is the HTTP Proxy that the vSphere CSI Driver must use.  
+    * `HTTPS-PROXY` is the HTTPS Proxy that the vSphere CSI Driver must use.  
+    * `NO-PROXY` is a list of host names that the vSphere CSI Driver should not use a proxy for.  
+
+1. Restart the `csi_controller`:  
+
+    ```
+    sudo monit restart csi_controller
+    ```
+
 <hr>
 
 
