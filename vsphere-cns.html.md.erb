@@ -606,12 +606,27 @@ If you have a cluster that uses a manually installed vSphere CSI driver, you mus
 
 To switch to the auto-deployed vSphere CSI driver:
 
-1. Before upgrading <%= vars.k8s_runtime_abbr %> to v1.14.0, upgrade the manual CSI driver on the cluster to v2.5.1.  
+1. Before upgrading <%= vars.k8s_runtime_abbr %> to v1.14.0, upgrade the manual CSI driver on the cluster to v2.5.1:  
+    1. Download the vSphere CSI Driver v2.5.1 YAML configuration file 
+    [vsphere-csi-driver.yaml](https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/release-2.5/manifests/vanilla/vsphere-csi-driver.yaml) 
+    from the vSphere CSI Driver GitHub repository.  
+    1. Configure the configuration file for <%= vars.k8s_runtime_abbr %>. 
+    For more information, see [Customize Your CSI Driver Configuration](https://docs.pivotal.io/tkgi/1-13/vsphere-cns-manual.html#customize-configuration) 
+    in _Manually Installing the vSphere CSI Driver_ in the <%= vars.k8s_runtime_abbr %> v1.13 documentation.  
+    1. Change the `"use-csinode-id"` parameter value in the configuration file from `"true"` to `"false"`:  
+    
+        ```
+          "use-csinode-id": "false"
+        ```
+        
+    For more information, see [Upgrade vSphere Container Storage Plug-in of a Version 2.3.0 or Later](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-3F277B52-68CC-4125-AD0F-E7293940B4B4.html#GUID-2426D857-F3DA-41DB-9C64-7191854ACDE9__GUID-E5623816-32B8-421C-832C-01398551BEB6) 
+    in _Upgrading vSphere Container Storage Plug-in_ in the VMware vSphere Container Storage Plug-in documentation.  
 1. Upgrade the <%= vars.k8s_runtime_abbr %> tile to v1.14.0.  
 1. Upgrade the <%= vars.k8s_runtime_abbr %> clusters to v1.14.0.  
 1. Enable **vSphere CSI Driver Integration** on the TKGI tile.  
 1. If topology-aware volume provisioning is enabled on your cluster:  
-    1. Create a TKGI configuration file for your cluster.  
+    1. Create a TKGI configuration file for your cluster. 
+    For more information, see [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology) below.  
     1. Update your cluster using your configuration file.  
 1. Remove the manually installed CSI driver from the cluster. 
 For more information, see [Remove a Manually Installed vSphere CSI Driver](#manually-remove-csi) below.  
@@ -664,9 +679,11 @@ and the cluster's manually installed driver no longer functions.
 
 To remove a manually installed vSphere CSI driver:
 
-1. Complete the "_Uninstall the existing version of vSphere Container Storage Plug_" step in 
-[Upgrade vSphere Container Storage Plug-in of a Version Earlier than 2.3.0](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-3F277B52-68CC-4125-AD0F-E7293940B4B4.html#procedure-7) 
-in the VMware vSphere Container Storage Plug-in documentation.  
+1. Run the following command:  
+
+    ```
+    kubectl delete -f vsphere-csi-driver.yaml
+    ```
 
 
 
@@ -686,7 +703,15 @@ Configure topology based on the manually installed vSphere CSI Driver configurat
 
     Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns `region` and `zone` values.  
     
-    For example:  
+    For example, if your vSphere Secret configuration for the manually installed vSphere CSI driver included the following:  
+    
+    ```
+    [Labels]
+    region = k8s-region
+    zone = k8s-zone
+    ```
+    
+    Your new cluster configuration must include the following instead:
     
     ```
     { 
@@ -704,8 +729,16 @@ Configure topology based on the manually installed vSphere CSI Driver configurat
 
     Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns a `topology_categories` value.  
     
-    For example:  
+    For example, if your vSphere Secret configuration for the manually installed vSphere CSI driver included the following:  
+    
+    ```
+    [Labels]
+    topology-categories = "k8s-region, k8s-zone"
 
+    ```
+    
+    Your new cluster configuration must include the following instead:  
+    
     ```
     { 
       "csi_topology_labels": { 
