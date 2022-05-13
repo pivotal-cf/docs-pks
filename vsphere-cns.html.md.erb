@@ -608,29 +608,40 @@ If you have a cluster that uses a manually installed vSphere CSI driver, you mus
 
 To switch your clusters from the manually installed vSphere CSI driver to the auto-deployed driver:
 
-1. [Prepare Your Cluster Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare)  
+1. [Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare)  
 1. [Upgrade Your <%= vars.k8s_runtime_abbr %> Tile](#uninstall-csi-upgrade-tile)  
 1. [Upgrade Your Clusters](#uninstall-csi-upgrade-cluster)  
 
 
-### <a id='uninstall-csi-prepare'></a>Prepare Your Cluster Before Upgrading <%= vars.k8s_runtime_abbr %>
+### <a id='uninstall-csi-prepare'></a>Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>
 
-Before upgrading <%= vars.k8s_runtime_abbr %> to v1.14.0, upgrade the manually deployed vSphere CSI driver on your cluster to v2.5.1:  
+Prepare your clusters and configurations before upgrading <%= vars.k8s_runtime_abbr %> to v1.14.0:  
 
-1. Download the vSphere CSI Driver v2.5.1 YAML configuration file 
-[vsphere-csi-driver.yaml](https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/release-2.5/manifests/vanilla/vsphere-csi-driver.yaml) 
-from the vSphere CSI Driver GitHub repository.  
-1. Configure the configuration file for <%= vars.k8s_runtime_abbr %>. 
-For more information, see [Customize Your CSI Driver Configuration](https://docs.pivotal.io/tkgi/1-13/vsphere-cns-manual.html#customize-configuration) 
-in _Manually Installing the vSphere CSI Driver_ in the <%= vars.k8s_runtime_abbr %> v1.13 documentation.  
-1. Change the `"use-csinode-id"` parameter value in the configuration file from `"true"` to `"false"`:  
+1. To upgrade the manually deployed vSphere CSI driver on a cluster to v2.5.1:  
 
-    ```
-      "use-csinode-id": "false"
-    ```
+    1. Download the vSphere CSI Driver v2.5.1 YAML configuration file 
+    [vsphere-csi-driver.yaml](https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/release-2.5/manifests/vanilla/vsphere-csi-driver.yaml) 
+    from the vSphere CSI Driver GitHub repository.  
+    1. Configure the configuration file for <%= vars.k8s_runtime_abbr %>. 
+    For more information, see [Customize Your CSI Driver Configuration](https://docs.pivotal.io/tkgi/1-13/vsphere-cns-manual.html#customize-configuration) 
+    in _Manually Installing the vSphere CSI Driver_ in the <%= vars.k8s_runtime_abbr %> v1.13 documentation.  
+    1. Change the `"use-csinode-id"` parameter value in the configuration file from `"true"` to `"false"`:  
+
+        ```
+          "use-csinode-id": "false"
+        ```
+
+    1. To apply your customized configuration:  
+
+        ```
+        kubectl apply -f vsphere-csi-driver.yaml
+        ```
     
-For more information, see [Upgrade vSphere Container Storage Plug-in of a Version 2.3.0 or Later](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-3F277B52-68CC-4125-AD0F-E7293940B4B4.html#GUID-2426D857-F3DA-41DB-9C64-7191854ACDE9__GUID-E5623816-32B8-421C-832C-01398551BEB6) 
-in _Upgrading vSphere Container Storage Plug-in_ in the VMware vSphere Container Storage Plug-in documentation.  
+    For more information, see [Upgrade vSphere Container Storage Plug-in of a Version 2.3.0 or Later](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-3F277B52-68CC-4125-AD0F-E7293940B4B4.html#GUID-2426D857-F3DA-41DB-9C64-7191854ACDE9__GUID-E5623816-32B8-421C-832C-01398551BEB6) 
+    in _Upgrading vSphere Container Storage Plug-in_ in the VMware vSphere Container Storage Plug-in documentation.  
+
+1. If topology-aware volume provisioning is enabled on a cluster, create a TKGI configuration file for the cluster. 
+For more information, see [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology) below.  
 
 
 ### <a id='uninstall-csi-upgrade-tile'></a>Upgrade Your <%= vars.k8s_runtime_abbr %> Tile
@@ -660,57 +671,43 @@ in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.
 
 To switch a cluster to the automatically deployed vSphere CSI Driver:  
 
-1. To upgrade your <%= vars.k8s_runtime_abbr %> cluster to <%= vars.k8s_runtime_abbr %> v1.14.0:  
-
-    * If topology-aware volume provisioning is **NOT** enabled on your cluster:  
-
-        1. Upgrade your <%= vars.k8s_runtime_abbr %> cluster to v1.14.0.  
-            
-    * If topology-aware volume provisioning is enabled on your cluster:  
-    
-        1. Create a TKGI configuration file for your cluster. 
-        For more information, see [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology) below.  
-        1. Upgrade your <%= vars.k8s_runtime_abbr %> cluster to v1.14.0.  
-        1. Update your cluster using your configuration file.  
-
+1. Upgrade your <%= vars.k8s_runtime_abbr %> cluster to v1.14.0.  
+1. If topology-aware volume provisioning is enabled on your cluster, 
+update your cluster using the topology configuration file you created in 
+[Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare) above.  
 1. Remove the manually installed CSI driver from the cluster. 
 For more information, see [Remove a Manually Installed vSphere CSI Driver](#manually-remove-csi) below.  
-1. To restart CSI jobs, restart `csi-node-registrar` and `csi-node` on each worker node:  
+1. To restart CSI jobs on all worker nodes:  
     
     ```
-    bosh -d DEPLOYMENT ssh WORKER-NODE
-    sudo bash
-    monit restart csi-node-registrar
-    monit restart csi-node
+    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node"
+    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node-registrar"
     ```
     
     Where:  
     
     * `DEPLOYMENT` is the name of the deployment.  
-    * `WORKER-NODE` is the worker node VM.  
     
-1. To verify the CSI jobs are in running state, run the following on each control plane node: 
+1. To verify that the CSI jobs on all control plane nodes are in a running state:  
 
     ```
-    bosh -d DEPLOYMENT ssh CONTROL-PLANE-NODE
-    sudo bash
-    monit summary | grep csi
+    bosh -d DEPLOYMENT ssh master "sudo monit summary | grep csi"
     ```
 
     Where:  
 
     * `DEPLOYMENT` is the name of the deployment.  
-    * `CONTROL-PLANE-NODE` is the control plane node VM.  
 
-6. To restart a CSI job that is not in running state:  
+6. If a CSI job is not in a running state, restart the CSI job:  
 
     ```
-    monit restart JOB-NAME
+    bosh -d DEPLOYMENT ssh master "sudo monit restart JOB-NAME"
     ```
 
-    Where `JOB-NAME` is the name of the CSI job to restart.  
+    Where:  
 
-
+    * `DEPLOYMENT` is the name of the deployment.  
+    * `JOB-NAME` is the name of the CSI job to restart.  
 
 <br>
 ### <a id='manually-remove-csi'></a>Remove a Manually Installed vSphere CSI Driver
