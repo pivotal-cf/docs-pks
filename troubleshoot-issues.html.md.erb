@@ -132,22 +132,47 @@ BOSH logs are used for error diagnostics but if the issue you see in the BOSH lo
 
 For troubleshooting failed BOSH tasks, see the [BOSH documentation](https://bosh.io/docs/cli-v2#task-mgmt).
 
-##<a id='win-stemcell-create-fail'></a>Windows Stemcell for vSphere Creation Fails with Login Issue
+
+##<a id='cluster-delete-fail'></a>Cluster Deletion Fails
 
 **Symptom**
 
-The `stembuild construct` command fails with error: `Cannot complete login due to an incorrect user name or password.`
+When deleting a cluster in a large-scale NSX-T environment, `<%= vars.k8s_runtime_abbr %> delete-cluster` becomes stuck.  
 
 **Explanation**
 
-Your vCenter login contains special characters, or you have `GOVC` environment variables set locally.
+A <%= vars.k8s_runtime_abbr %>-API process has timed out and cluster deletion is stuck.
 
 **Solution**
 
-For special characters, see [Authentication Error with Special Characters in stembuild Commands](https://docs.pivotal.io/application-service-windows/create-vsphere-stemcell-automatically.html#special-characters), in the TAS for VMs [Windows] documentation.
+To avoid the <%= vars.k8s_runtime_abbr %>-API process time out, increase the **<%= vars.k8s_runtime_abbr %> Operation Timeout**:  
 
-For `GOVC` variables, follow the steps to unset the variables in [Step 4: Construct the BOSH Stemcell](https://docs.pivotal.io/application-service-windows/create-vsphere-stemcell-automatically.html#construct-stemcell), in the TAS for VMs [Windows] documentation.
+1. SSH to the <%= vars.k8s_runtime_abbr %> Control Plane VM.  
+1. Change directory to `/var/vcap/jobs/pks-nsx-t-osb-proxy`.  
+1. Run the following command:  
 
+    ```
+    time ./bin/ncp_cleanup test-read  ROUTER-ID
+    ```
+
+    Where `ROUTER-ID` is your NSX-T Tier-0 Router ID.
+<br>    
+    For example:  
+
+    <pre class="terminal">
+    pivotal-container-service/88d4bf76-d3967d53b4c4:/var/vcap/jobs/pks-nsx-t-osb-proxy# time ./bin/ncp_cleanup test-read 8dc31113-64e8-40bb-83fb-1af75857d5ae
+    real 1m28.057s
+    user 0m13.121s
+    sys 0m0.629s
+    </pre>
+1. Collect the returned `real` value.  
+1. Add 30 seconds to the `real` value and convert the sum from minutes-seconds to seconds, rounding up. 
+For example, sum, convert, and round `1m28.057s` to `120`.
+1. Convert the summed value to milliseconds. This is your calculated Operation Timeout value.  
+1. Configure the **<%= vars.k8s_runtime_abbr %> Operation Timeout** field on the <%= vars.k8s_runtime_abbr %> Tile 
+with your calculated Operation Timeout value. 
+For more information on configuring the **<%= vars.k8s_runtime_abbr %> Operation Timeout** field, 
+see [Networking](installing-nsx-t.html#networking) in _Installing <%= vars.k8s_runtime_abbr %> on vSphere with NSX-T_.
 
 ##<a id='cluster-recreate-fails'></a>Cannot Re-Create a Cluster that Failed to Deploy
 
@@ -197,6 +222,24 @@ Log in to the BOSH Director and delete the BOSH deployment manually, then retry 
     <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
     if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
     </p>
+
+
+##<a id='win-stemcell-create-fail'></a>Windows Stemcell for vSphere Creation Fails with Login Issue
+
+**Symptom**
+
+The `stembuild construct` command fails with error: `Cannot complete login due to an incorrect user name or password.`
+
+**Explanation**
+
+Your vCenter login contains special characters, or you have `GOVC` environment variables set locally.
+
+**Solution**
+
+For special characters, see [Authentication Error with Special Characters in stembuild Commands](https://docs.pivotal.io/application-service-windows/create-vsphere-stemcell-automatically.html#special-characters), in the TAS for VMs [Windows] documentation.
+
+For `GOVC` variables, follow the steps to unset the variables in [Step 4: Construct the BOSH Stemcell](https://docs.pivotal.io/application-service-windows/create-vsphere-stemcell-automatically.html#construct-stemcell), in the TAS for VMs [Windows] documentation.
+
 
 ##<a id="timeouts"></a>Cannot Access Add-On Features or Functions
 
