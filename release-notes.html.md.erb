@@ -1179,19 +1179,95 @@ In an environment where you want to run Docker commands, complete one of the fol
 <hr>
 
 
-#### <a id="1-14-0-vm-extensions-toggle"></a> Custom BOSH vm_extensions Configuration Settings Toggle On and Off
+#### <a id="1-14-0-vm-extensions-toggle"></a> Custom BOSH vm_extensions Configuration Settings Applied Inconsistently to Cluster VMs
 
 <%#   This issue is fixed in [<   %= vars.k8s_runtime_abbr %   > v1.14.1](#1-14-1-bug-fixes).  #%>
 
-After a failed `tkgi upgrade-cluster` run, your custom BOSH vm_extensions configuration toggles between being present and absent 
-depending on when you review the cluster manifest.  
+A vm_extensions configuration will not be applied consistently to the VMs in a cluster
+if the initial application of the configuration was interrupted by an error.  
 
+**Explanation** 
 
-**Explanation**
+A cluster will have an inconsistency between its cloud-config and BOSH manifest if the 
+initial application of a vm_extensions configuration is interrupted and fails. 
+The inconsistency results because BOSH rolls back manifest changes after an error occurs 
+but there is not a corresponding function that rolls back the cluster cloud-config changes.  
 
-The VMs that were updated by `tkgi update-cluster` before the failure have manifests with the desired BOSH vm_extensions configuration, 
-while those updated afterward do not. 
-Re-running `tkgi update-cluster` does not update the manifests in the remaining VMs because the cluster configuration has not changed.  
+Attempting to re-apply the vm_extensions configuration to the cluster has no effect because 
+the cluster cloud-config indicates the cluster has already been updated.  
+
+**Workaround**
+
+1. To export the cloud-config of the failed cluster:  
+
+    ```
+    bosh configs --type=cloud --name=BOSH-DEPLOYMENT > YAML-FILENAME
+    ```
+    
+    Where:  
+    
+    * `BOSH-DEPLOYMENT` is the `service-instance_`-prefixed BOSH deployment name.  
+    * `YAML-FILENAME` is the output YAML file name.  
+    
+    For example:  
+    
+    <pre class="terminal">
+    bosh config --type=cloud --name=service-instance_cdd7f46b-3151-4d67-85a6-5531fa456b71 > service-instance_cdd7f46b-3151-4d67-85a6-5531fa456b71-cloud-config.yaml
+    </pre>
+ 
+1. (Optional) Create a backup of the cloud-config you just exported:  
+
+    For example:  
+    
+    <pre class="terminal">
+    cp service-instance_cdd7f46b-3151-4d67-85a6-5531fa456b71-cloud-config.yaml service-instance_cdd7f46b-3151-4d67-85a6-5531fa456b71-cloud-config-withextension.yaml
+    </pre>
+
+1. Open the exported cloud-config in an editor.  
+1. Remove the vm_extensions tagged with "`master-vmext`" and "`worker-vmext`" 
+that were added by the interrupted vm_extensions configuration. 
+You do not need to delete the default configuration tagged with "`master-nsgroup`" that was also added.  
+1. Save your modified exported cloud-config.  
+1. Locate the UAA credentials for the environment. 
+See **Credentials** > **uaa_client_credentials** in the <%= vars.product_tile %> Tile.  
+
+1. Export `BOSH_CLIENT` and `BOSH_CLIENT_SECRET` using the UAA credentials collected above.  
+
+    For example:  
+    
+    <pre class="terminal">export BOSH_CLIENT=pivotal-container-service-5531fa456b7185a646bc
+    export BOSH_CLIENT_SECRET='4d6785a65531fa456c'
+    </pre>
+    
+1. To update cluster specific cloud-config:  
+    
+    ```
+    bosh update-config --type=cloud --name=BOSH-DEPLOYMENT YAML-FILENAME
+    ```
+    
+    Where:  
+    
+    * `BOSH-DEPLOYMENT` is the `service-instance_`-prefixed BOSH deployment name.  
+    * `YAML-FILENAME` is your modified exported cloud-config YAML file name.  
+    
+    For example:  
+    
+    <pre class="terminal">bosh update-config --type=cloud --name=service-instance_cdd7f46b-3151-4d67-85a6-5531fa456b71 service-instance_cdd7f46b-3151-4d67-85a6-5531fa456b71-cloud-config.yaml</pre>
+    
+1. To update the cluster recreate VMs with the correct manifest:  
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILENAME
+    ```
+    
+    Where:  
+    
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILENAME` is the filename of your vm_extensions configuration file.  
+    
+    For example:  
+    
+    <pre class="terminal">tkgi update-cluster pks-cluster-55 --config-file bosh-extension.json</pre>
 
 
 <hr>
