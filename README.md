@@ -45,7 +45,7 @@ topic to locate the source file of the topic.
 | `0.8`  | Not in use | N/A|
 | `pks-patches` | Staging site for not-yet-released TKGI and Enterprise PKS patches. | Publishes to an internal staging site only. |
 
-**1.14**: The `1.15` branch is used to publish the pre-release v1.15 version of the site. Create pull requests on `1.15` to contribute bug fixes or correct technical inaccuracies in the v1.15 documentation.
+**1.15**: The `1.15` branch is used to publish the pre-release v1.15 version of the site. Create pull requests on `1.15` to contribute bug fixes or correct technical inaccuracies in the v1.15 documentation.
 
 **1.12**: The `1.14` branch is used to publish the live v1.14 version of the site. Create pull requests on `1.14` to contribute bug fixes or correct technical inaccuracies in the v1.14 documentation.
 
