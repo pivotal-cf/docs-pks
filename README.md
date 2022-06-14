@@ -30,9 +30,9 @@ topic to locate the source file of the topic.
 | `1.14` | TKGI 1.14 released content          | https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.14/tkgi/GUID-release-notes.html |
 | `1.13` | TKGI 1.13 released content          | https://docs.pivotal.io/tkgi/1-13/index.html |
 | `1.12` | TKGI 1.12 released content          | https://docs.pivotal.io/tkgi/1-12/index.html |
-| `1.11` | TKGI 1.11 released content          | https://docs.pivotal.io/tkgi/1-11/index.html |
-| `1.10` | TKGI 1.10 released content          | https://docs.pivotal.io/tkgi/1-10/index.html |
-| `1.9`  | TKGI 1.9 released content           | https://docs.pivotal.io/tkgi/1-9/index.html  |
+| `1.11` | Reached End of General Support      | https://docs.pivotal.io/tkgi/1-11/index.html |
+| `1.10` | Reached End of General Support      | https://docs.pivotal.io/tkgi/1-10/index.html |
+| `1.9`  | Reached End of General Support      | https://docs.pivotal.io/tkgi/1-9/index.html  |
 | `1.8`  | Reached End of General Support      | https://docs.pivotal.io/tkgi/1-8/index.html  |
 | `1.7`  | Reached End of General Support      | https://docs.pivotal.io/pks/1-7/index.html   |
 | `1.6`  | Reached End of General Support      | https://docs.pivotal.io/pks/1-6/index.html   |
