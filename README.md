@@ -26,7 +26,9 @@ topic to locate the source file of the topic.
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.13` | TKGI 1.13 pre-release content          | n/a |
+| `1.15` | TKGI 1.15 pre-release content          | n/a |
+| `1.14` | TKGI 1.14 released content          | https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.14/tkgi/GUID-release-notes.html |
+| `1.13` | TKGI 1.13 released content          | https://docs.pivotal.io/tkgi/1-13/index.html |
 | `1.12` | TKGI 1.12 released content          | https://docs.pivotal.io/tkgi/1-12/index.html |
 | `1.11` | TKGI 1.11 released content          | https://docs.pivotal.io/tkgi/1-11/index.html |
 | `1.10` | TKGI 1.10 released content          | https://docs.pivotal.io/tkgi/1-10/index.html |
@@ -43,7 +45,11 @@ topic to locate the source file of the topic.
 | `0.8`  | Not in use | N/A|
 | `pks-patches` | Staging site for not-yet-released TKGI and Enterprise PKS patches. | Publishes to an internal staging site only. |
 
-**1.13**: The `1.13` branch is used to publish the pre-release v1.13 version of the site. Create pull requests on `1.13` to contribute bug fixes or correct technical inaccuracies in the v1.13 documentation.
+**1.14**: The `1.15` branch is used to publish the pre-release v1.15 version of the site. Create pull requests on `1.15` to contribute bug fixes or correct technical inaccuracies in the v1.15 documentation.
+
+**1.12**: The `1.14` branch is used to publish the live v1.14 version of the site. Create pull requests on `1.14` to contribute bug fixes or correct technical inaccuracies in the v1.14 documentation.
+
+**1.13**: The `1.13` branch is used to publish the live v1.13 version of the site. Create pull requests on `1.13` to contribute bug fixes or correct technical inaccuracies in the v1.13 documentation.
 
 **1.12**: The `1.12` branch is used to publish the live v1.12 version of the site. Create pull requests on `1.12` to contribute bug fixes or correct technical inaccuracies in the v1.12 documentation.
 
