@@ -402,58 +402,37 @@ To uninstall a manually installed CSI driver:
 
 1. Confirm your <%= vars.k8s_runtime_abbr %> administrator has enabled automatic **vSphere CSI Driver Integration** on the <%= vars.k8s_runtime_abbr %> tile.
 2. Upgrade your Kubernetes cluster to the <%= vars.k8s_runtime_abbr %> version of the <%= vars.k8s_runtime_abbr %> tile.
-3. Remove the manually installed CSI driver from the cluster. 
+1. Remove the manually installed CSI driver from the cluster. 
 For more information, see [Remove a Manually Installed vSphere CSI Driver](#manually-remove-csi) below.  
-<%# 
-4. Validate that CNS recognizes the existing storage.  
-by completing the steps in
-[Create and Manage vSphere CNS Volumes](#overview-managing) above.  
-#%>
-4. To restart CSI jobs, restart `csi-node-registrar` and `csi-node` on each worker node:  
-    * To restart `csi-node-registrar`:  
+1. To restart CSI jobs on all worker nodes:  
     
-        ```
-        bosh -d DEPLOYMENT ssh WORKER-NODE
-        sudo bash
-        monit restart csi-node-registrar
-        ```
-        Where:  
-        
-        * `DEPLOYMENT` is the name of the deployment.  
-        * `WORKER-NODE` is the worker node VM.  
-    * To restart `csi-node`:  
+    ```
+    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node"
+    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node-registrar"
+    ```
     
-        ```
-        bosh -d DEPLOYMENT ssh WORKER-NODE
-        sudo bash
-        monit restart csi-node
-        ```
-        Where:  
-        
-        * `DEPLOYMENT` is the name of the deployment.  
-        * `WORKER-NODE` is the worker node VM.  
-
-5. To verify the CSI jobs are in running state, run the following on each control plane node: 
+    Where:  
+    * `DEPLOYMENT` is the name of the deployment.  
+    
+1. To verify that the CSI jobs on all control plane nodes are in a running state:  
 
     ```
-    bosh -d DEPLOYMENT ssh CONTROL-PLANE-NODE
-    sudo bash
-    monit summary | grep csi
+    bosh -d DEPLOYMENT ssh master "sudo monit summary | grep csi"
     ```
 
     Where:  
-    * `DEPLOYMENT` is the name of the deployment.
-    * `CONTROL-PLANE-NODE` is the control plane node VM.
+    * `DEPLOYMENT` is the name of the deployment.  
 
-6. To restart a CSI job that is not in running state:  
+6. If a CSI job is not in a running state, start the CSI job:  
 
     ```
-    monit restart JOB-NAME
+    bosh -d DEPLOYMENT ssh NODE-VM "sudo monit start JOB-NAME"
     ```
 
-    Where `JOB-NAME` is the name of the CSI job to restart.  
-
-
+    Where:  
+    * `DEPLOYMENT` is the name of the deployment.  
+    * `NODE-VM` is the control plane node VM.  
+    * `JOB-NAME` is the name of the CSI job to start.  
 
 
 ### <a id='manually-remove-csi'></a>Remove a Manually Installed vSphere CSI Driver
@@ -467,37 +446,12 @@ and the cluster's manually installed driver no longer functions.
 
 To remove a manually installed vSphere CSI driver:
 
-1. Create a manifest `remove-vsphere-csi-node-ds.yaml` that removes the CSI controller `DaemonSet`.
-
-1. Remove the DaemonSet:
+1. Run the following command:  
 
     ```
-    kubectl apply -f remove-vsphere-csi-node-ds.yaml
+    kubectl delete -f vsphere-csi-driver.yaml
     ```
 
-1. Create a manifest `remove-vsphere-csi-controller-deployment.yaml` that removes the deployment and `CSIDriver` objects for the CSI controller.
-
-1. Remove the CSI driver objects:
-
-    ```
-    kubectl apply -f remove-vsphere-csi-controller-deployment.yaml
-    ```
-
-1. Create a manifest `remove-vsphere-csi-controller-rbac.yaml` that removes the RBAC rules.
-
-1. Remove the RBAC resource:
-
-    ```
-    kubectl apply -f remove-vsphere-csi-controller-rbac.yaml
-    ```
-
-<%#
-If users manually deployed the vSphere CSI Driver previously, and they want to enable vSphere CSI Driver in TKGI 1.11 tile, 
-then they must manually delete the manually deployed CSI Drive after successfully upgrading the K8S cluster to TKGI 1.11. 
-Please note that the key point is the timing, in other words, 
-they can't delete the manually deployed vSphere CSI Driver before upgrading the existing cluster(s); 
-Instead, they should perform the operation after upgrading the existing cluster(s). 
-We need to get the above info included in the document. #%>
 
 ## <a id='migrate-to-csi'></a>Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver
 
@@ -505,7 +459,9 @@ You can use `tkgi update-cluster` to migrate the PersistentVolume (PV) and Persi
 from the In-Tree vSphere Storage Driver to the automatically installed vSphere CSI Driver.
 
 <p class="note warning"><strong>Warning</strong>: Due to Known Issues in the vSphere CSI Driver, 
-    <%= vars.recommended_by %> recommends that you migrate to the vSphere CSI Driver after upgrading to <%= vars.k8s_runtime_abbr %> v1.12.4 or later.
+    <%= vars.recommended_by %> recommends that you migrate to the vSphere CSI Driver after upgrading to <%= vars.k8s_runtime_abbr %> v1.12.7 or later.
+    For more information, see <a href="release-notes.html#1-12-0-vmdks-deleted-during-migration">VMDKs Are Deleted during Migration from In-Tree Storage to CSI</a> 
+    in <i>Release Notes</i>.
 </p>
 
 Migrating a <%= vars.k8s_runtime_abbr %> cluster from the In-Tree vSphere Storage Driver to the vSphere CSI Driver requires the following:  
