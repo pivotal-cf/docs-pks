@@ -633,6 +633,11 @@ The supported upgrade paths to <%= vars.k8s_runtime_abbr %> v1.14.0 are from <%=
 <%= vars.k8s_runtime_abbr %> v1.14.0 has the following breaking changes:
 
 * Linux and Windows cluster container runtimes are automatically switched from Docker to containerd during the <%= vars.k8s_runtime_abbr %> v1.14.0 upgrade.
+    <p class="note warning"><strong>Warning</strong>:  During a <%= vars.k8s_runtime_abbr %> upgrade, cluster workloads will experience downtime while the cluster switches 
+        from using the Docker container runtime to containerd.
+        To avoid workload downtime, <%= vars.recommended_by %> recommends that you switch your clusters to the containerd container runtime before upgrading to <%= vars.k8s_runtime_abbr %> <%= vars.product_version %>. 
+        For more information, see <a href="#1-14-0-coredns-downtime">Cluster Workloads Experience Downtime While Upgrading and Switching Container Runtimes</a> below.
+    </p>
     <p class="note warning"><strong>Warning</strong>: The upgrade to <%= vars.k8s_runtime_abbr %> v1.14.0 will switch a "locked" cluster to using the containerd runtime
     if, between locking the container runtime and upgrading, you ran <code>tkgi update-cluster</code> without including the <code>lock_container_runtime: true</code> parameter in your configuration.
     For more information on locking the container runtime, see
@@ -1789,6 +1794,134 @@ the vSphere CSI Driver Release Notes in GitHub.
 
 <hr>
 
+#### <a id="1-14-0-healthwatch-metrics"></a> Healthwatch Unable to Scrape Kube Scheduler Metrics
+
+<%# This issue is fixed in [< %= vars.k8s_runtime_abbr % > v1.14.1](#1-14-1-bug-fixes). #%>
+
+**Symptom**  
+
+After upgrading to <%= vars.k8s_runtime_abbr %> v1.14, Healthwatch fails to scrape Kube Scheduler metrics 
+and logs errors similar to the following:  
+
+```
+caller=scrape.go:1294 level=debug component="scrape manager" scrape_pool=tkgi-cluster-scheduler target=... msg="Scrape failed" err="server returned HTTP status 403 Forbidden"
+```
+
+**Explanation**  
+
+Changes in Kubernetes 1.23 require the addition of new parameters in order to make the Kube Scheduler metrics endpoint available externally. 
+The Kube Scheduler process also uses a different port than previous TKGI versions. 
+Healthwatch is unable to scrape Kube Scheduler metrics using the existing default Healthwatch configuration.  
+
+**Workaround**
+
+On each Kubernetes cluster Control Plane node that you want to monitor:  
+
+1. Make backup copies of the `/var/vcap/jobs/kube-scheduler/config/bpm.yml` 
+and `/var/vcap/jobs/metrics-sink/config/telegraf.conf` configuration files.  
+1. Edit the `/var/vcap/jobs/kube-scheduler/config/bpm.yml` YAML file.  
+1. Add the following to the `args:` section in the configuration file:  
+
+    ```
+    "--authentication-kubeconfig=/var/vcap/jobs/kube-scheduler/config/kubeconfig"
+    "--authorization-kubeconfig=/var/vcap/jobs/kube-scheduler/config/kubeconfig"
+    ```
+
+1. Save your changes.  
+1. Edit the `/var/vcap/jobs/metrics-sink/config/telegraf.conf` configuration file.  
+1. Add a new Kube Scheduler metrics scraper under the existing `inputs` section in the configuration file:  
+
+    ```
+    ## Kube Scheduler Metrics
+    [[inputs.prometheus]]
+    urls = ["
+    [https://localhost:10259/metrics]
+    "]
+    metric_version = 2
+    insecure_skip_verify = true
+    tls_cert = "/var/vcap/jobs/metric-sink/config/monitoring_metric_cert.pem"
+    tls_key = "/var/vcap/jobs/metric-sink/config/monitoring_metric_cert.key"
+    ```
+    
+1. Save your changes.
+1. In Healthwatch's Grafana, import the modified "Kubernetes Scheduler" dashboard configuration file.  
+1. In Healthwatch's Grafana, import the modified "Kubernetes Cluster Detail" dashboard configuration file.  
+
+If BOSH later updates the Kubernetes Cluster Control Plane, you must reconfigure the `kube-scheduler bpm.yml` 
+and the metrics-sink `telegraf.conf` file for every master node in each cluster.  
+
+
+<hr>
+
+#### <a id="1-14-0-coredns-downtime"></a> Cluster Workloads Experience Downtime While Upgrading and Switching Container Runtimes
+
+<%# This issue is fixed in [< %= vars.k8s_runtime_abbr % > v1.14.3](#1-14-3-bug-fixes). #%>
+
+The workloads on a cluster will experience a period of downtime if the cluster runtime is automatically switched from Docker to containerd 
+during a <%= vars.k8s_runtime_abbr %> upgrade.  
+
+**Explanation**  
+
+By default, clusters are switched from the Docker container runtime to containerd while upgrading <%= vars.k8s_runtime_abbr %> to a newer <%= vars.k8s_runtime_abbr %> version.  
+
+If a <%= vars.k8s_runtime_abbr %> upgrade switches a cluster container runtime, the workloads on that cluster will experience a period of downtime.  
+
+Administrators have the option to switch container runtimes manually before upgrading <%= vars.k8s_runtime_abbr %>. 
+Administrators can also tag a cluster to not switch container runtimes automatically during a <%= vars.k8s_runtime_abbr %> upgrade.  
+
+**Workaround**
+
+To avoid workload downtime, manually switch the cluster's container runtime to containerd before upgrading to <%= vars.k8s_runtime_abbr %> v1.14
+or configure the cluster so that the <%= vars.k8s_runtime_abbr %> upgrade does not switch the cluster's container runtime.  
+
+If you must allow the container runtime switch to occur during a <%= vars.k8s_runtime_abbr %> upgrade, 
+avoid workload downtime by completing the following steps before upgrading to <%= vars.k8s_runtime_abbr %> v1.14:  
+
+1. Pull down the coreDNS image used in your <%= vars.k8s_runtime_abbr %> v1.13 Kubernetes clusters.  
+
+    * If you are upgrading <%= vars.k8s_runtime_abbr %> from v1.13.2 through v1.13.6 to <%= vars.k8s_runtime_abbr %> v1.14.0 and later:  
+    
+        ```
+        docker pull projects.registry.vmware.com/tkg/coredns:v1.8.4_vmware.7
+        ```  
+        
+    * If you are upgrading from <%= vars.k8s_runtime_abbr %> v1.13.0 or v1.13.1 to <%= vars.k8s_runtime_abbr %> v1.14.0 and later:  
+    
+        1. SSH to one of the worker nodes.  
+        1. Use the following `alias docker` command:  
+        
+            ```
+            alias docker="/var/vcap/packages/docker/bin/docker --host unix:///var/vcap/sys/run/docker/docker.sock"
+            ```
+            
+        1. Export the coreDNS image using [`docker save`](https://docs.docker.com/engine/reference/commandline/save/).  
+            
+1. Upload the coreDNS image to your custom image registry.  
+1. Modify the coreDNS deployment to use the uploaded image. 
+Repeat this step for all of the <%= vars.k8s_runtime_abbr %> Kubernetes clusters with workloads that should remain up during the upgrade.  
+1. Upgrade <%= vars.k8s_runtime_abbr %> from v1.13 to <%= vars.k8s_runtime_abbr %> v1.14.  
+
+    During worker upgrades the coreDNS image in the custom image registry is available, avoiding coreDNS downtime. 
+    After upgrading a cluster, the workers use the coreDNS version installed by the <%= vars.k8s_runtime_abbr %> upgrade.  
+
+
+<hr>
+
+
+#### <a id="1-14-0-docker-image-not-removed"></a> The Docker Image Remains after Switching to the Containerd Container Runtime
+
+<%# This issue is fixed in [< %= vars.k8s_runtime_abbr % > v1.14.2](#1-14-2-bug-fixes). #%>
+
+The Docker image is not automatically removed after successfully switching a cluster from the Docker container runtime to containerd.  
+
+**Workaround**
+
+To remove a Docker image after switching a cluster's container runtime:  
+
+1. Manually remove the cluster's `/var/vcap/store/docker` directory.  
+
+
+<hr>
 
 
 ## <a id="management-console-1-14-0"></a> <%= vars.k8s_runtime_abbr %> Management Console v1.14.0
