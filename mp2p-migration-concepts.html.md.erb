@@ -1,0 +1,197 @@
+---
+title: Migrating to Policy API - Overview
+owner: TKGI
+---
+
+
+## <a id="features"></a> Migration features
+
+- The MP2P migration feature enables existing environments using MP API to be upgraded to use policy API
+    - It migrates clusters corresponding NSX resources to Policy objects without disrupting NSX data path. 
+    - In the meanwhile synchronizes all NSX resources to Policy IDs in the cluster deployment including
+        - cluster bosh deployment properties
+        - cluster attached network profile
+
+- Designed to be self-service:
+    - A series of NSX Manager and TKGI CLI configuration steps
+
+- Clusters are migrated one by one, limiting impact to the cluster being migrated
+
+- The cluster being migrated will experience some downtime, other clusters will be unaffected 
+
+- Once the migration is started, you cannot roll back to MP API.
+
+
+### <a id="features-tkgi"></a> TKGI features
+
+- Lose TKGIMC support after TKGI foundation migration
+- NSXT cert rotation not support during TKGI foundation migration
+
+### <a id="features-more"></a> More (features?)
+
+- "Admin" DFW rules, NSX administrator intervenes
+- Migration on cluster with Shared NSGroup for control plane VMs not support at first release https://docs.pivotal.io/tkgi/1-13/network-profiles-ns-groups.html 
+- BOSH configuration for Policy API migration mode: CLI/API way only at first release, but will have UI in later releases 
+- Entire NSXT can be converted to Policy after TKGI migrated to Policy
+
+
+### <a id="features-supported-topology"></a> Supported Migration Topologies
+
+NCP MP2P can infer the shared resources for the following topologies:  
+
+- single tier0 topology  
+    - Tier0 AS mode  (shared tier1 cluster, dedicate tier1 cluster)  
+    - Tier0 AA mode  
+- multi tier0 topology  
+    - Tier0 AA mode  
+- No-NAT with Virtual Switch (VSS/VDS) topology  
+
+
+### <a id="features-configuration-migration"></a> Cluster Configurations Migrated by Migration
+<table>
+	<tr>
+		<th>Object</th>
+		<th>Initial State</th>
+		<th>Migrated State</th>
+	</tr>
+	<tr>
+		<td>Shared networking Resource</td>
+		<td>MP on NSX</td>
+		<td>Policy on NSX</td>
+	</tr>
+	<tr>
+		<td>Cluster node networking resources</td>
+		<td>MP on NSX</td>
+		<td>Policy on NSX</td>
+	<tr>
+		<td>Cluster pod networking resources</td>
+		<td>MP on NSX</td>
+		<td>Policy on NSX</td>
+	</tr>
+	<tr>
+		<td>Network Profile</td>
+		<td>Admin-created network profile
+			<br><%= image_tag("images/mp2p-migration-concepts-01.png", :alt => "Cluster network profile configuration before MP2P migration.") %></td>
+		<td>Migrated, renamed network profile
+			<br><%= image_tag("images/mp2p-migration-concepts-02.png", :alt => "Cluster network profile configuration after MP2P migration.") %></td>
+	</tr>
+	<tr>
+		<td>BOSH Deployment Properties</td>
+		<td>MP Object IDs</td>
+		<td>Policy Object IDs</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+
+
+## <a id="migration"></a> Migration Workflow
+
+<table>
+	<tr>
+		<th>Step</th>
+		<th>Description</th>
+		<th>Concerns</th>
+	</tr>
+	<tr>
+		<td>Prepare for migration</td>
+		<td>Backup clusters and NSX then enable NSX Promoter</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Promote one cluster</td>
+		<td>Promote a single cluster to have shared resources migrated to Policy.
+		Shared resources include tier0, FIP block, pod IP block, node  IP block)</td>
+		<td>Workload downtime in this step</td>
+	</tr>
+	<tr>
+		<td>Enable BOSH migration mode and TKGI for policy API</td>
+		<td>Configure BOSH migration mode to support mixed MP and policy clusters
+			Configure the TKGI tile to select policy API mode – new clusters will use policy API
+			Configure the TKGI tile with the IDs for policy objects created in step 1</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Promote clusters one by one</td>
+		<td>Run `tkgi promote-cluster-to-policy
+			<br>Handle cluster migration failures individually</td>
+		<td>Workload downtime during cluster promotion</td>
+	</tr>
+	<tr>
+		<td>Run NSX Promoter for remaining NSX objects</td>
+		<td>Run NSX Promoter to convert the Deployment Router, IP blocks that are configured outside of TKGI
+			<br>Note: NSX Promoter will update all objects in the environment to policy. Caution to use if your NSX is sharing with other products</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Disable BOSH migration mode</td>
+		<td>Disable BOSH migration mode to support policy clusters only</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Verification and cleanup</td>
+		<td>Verify the migration and clean up any unnecessary MP objects</td>
+		<td></td>
+	</tr>
+</table>
+
+## <a id="concerns"></a> Concerns
+
+- Some complex environments may need PSO assistance
+- The cluster being migrated will experience some downtime, other clusters will be unaffected 
+- Once the migration is started, you cannot roll back to MP API.
+- Do not intentionally plan to run your environment in mixed mode for an extended period of time
+
+
+### <a id="concerns-limitations"></a> Operations limitations
+
+- Cluster migration, serially (sending multiple migration requests simultaneously not supported in NSX)
+- NSX Manager cluster with VIP, customer needs to configure source IP persistence profile for LB or use source IP LB algorithm during TKGI foundation migration
+
+**During Migration**
+
+For the cluster under migration:
+- You cannot operate cluster
+- You cannot create/update/delete new workloads and existing workloads
+- Your existing workloads will have some application downtime (expecting the time of rolling update all worker nodes when updating the cluster) but should be recovered after migration
+- It takes time approximate to the time on NSX resources migration (depending on scale) and the time to update this cluster
+
+While the environment consists of not-migrated MP clusters and migrated Policy API clusters:
+- You can still CRUD clusters (Of course, it requires bosh Policy API migration mode configured at the beginning steps)
+- You can still CRUD workloads
+- Your existing workloads run as usual
+
+VMware recommends that you reduce the possibility of issues by migrating all clusters as soon as possible and minimize the migration mix-mode maintenance window.
+
+
+
+## <a id="faqs"></a> Migration FAQs
+
+**What is BOSH Policy API migration mode???**  
+
+During whole migration process, the migrated policy clusters and not migrated MP clusters can still be used. 
+You can CRUD the clusters and also the workloads on clusters.
+
+To support this MIXing status on nodes lifecycle, BOSH exposes Policy API migration mode during this period. 
+
+TKGI doesn't expose additional migration mode. 
+TKGI can just magically handle this MIXing status with internal additional coding support.
+
+
+
+**How to configure BOSH Policy API migration mode???**  
+
+Opsman 3.0 will have UI dropdown to choose to configure BOSH tile.
+
+Before that, we can use Ops Manager CLI to configure it (documentation).
+
+
+
+**Why migrate one cluster first?**  
+
+Each cluster migration will migrate shared resources (tier0, floating ippool, pod ipblock, node ipblock).
+To continue step2 of updating TKGI, we need the shared resources migrated to Policy first. So we need at least 1 cluster migrated then we can update TKGI.  
+

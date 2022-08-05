@@ -1,0 +1,101 @@
+---
+title: Migrating to Policy API
+owner: TKGI
+---
+
+
+**Prerequisites**
+
+See [Supported Migration Topologies](mp2p-migration-concepts.html#supported-topology) in _Migrating to Policy API - Overview_.
+
+Version Requirements:  
+
+- NSX: v4.0.1  
+- Ops Manager: v3.0  
+- TKGI: v1.15.0 or later  
+- TKGI clusters: v1.15.0 or later  
+     
+
+**Migration Setup**
+
+1. Backup your workloads for each cluster
+1. Back up NSX
+1. To manually enable **NSX Promoter**, the NSX migration service:
+    1. Open the NSX UI
+    1. Open System > General Settings
+    1. Under _Manager to Policy Object Promotion_, select **Start Objects Promotion**.
+    Warning: NSX promoter will migrate all MP objects on NSX to Policy. 
+    If your NSX is also consumed by other products besides TKGI, please evaluate if you want to migrate all.
+1. Create necessary "admin" DFW rules if needed (optional)
+1. In the Ops Manager UI:  
+    1. Disable BOSH resurrection
+
+**Migrate TKGI to the Policy API Topology**
+
+Warning: Do not intentionally run TKGI in mixed mode for long.
+
+1. Migrate a single cluster to the Policy API:  
+
+    ```
+    pks promote-cluster-to-policy CLUSTER-NAME
+    ```
+1. Verify successful cluster migration to the Policy API:  
+
+    ```
+    pks cluster CLUSTER-NAME
+    ```
+1. In the Ops Manager UI:  
+    1. Select **Use NSX-T Policy API**.
+1. To configure TKGI so newly created cluster use the Policy API:
+1. Update TKGI tile to Policy API mode:  
+    1. Find the resources Policy ID from NSX UI
+    1. Fill in TKGI tile UI with Policy ID.
+    1. Select **Policy Mode**.
+    1. Select **Apply Changes**.
+
+    Or:
+    1. Find the resources Policy ID with NSX API.  
+    1. Fill in TKGI properties with Ops Manager CLI.  
+
+1. Migrate each remaining cluster and validate successful migration to the Policy API topology:  
+
+    ```
+    pks promote-cluster-to-policy CLUSTER-NAME
+    pks cluster CLUSTER-NAME
+    ```
+Note: Failure domain is ONE cluster!
+
+
+**After Migrating Clusters to the Policy API Topology**  
+
+1. Manual cleanup:
+    1. Remove original MP Network Profiles.
+    1. Remove TOP/BOTTOM firewall sections if customers didn't delete them before using NSX promotion
+1.  Use NSX promoter to promote leftover NSX resources
+
+
+
+**Troubleshooting**
+
+debug/workaround/temporary failure
+- re-run `pks promote-cluster`
+- If running `promote-cluster` does not fix the cluster, create a new cluster and restore workloads to it
+
+```
+kubo@jumper:~$ pks promote-cluster c1​
+
+You are about to promote cluster c1 to NSX Policy. Are you sure you want to continue? (y/n): y​
+
+Error: The cluster c1 is from previous installation, please upgrade cluster before current operation​
+
+kubo@jumper:~$ pks upgrade-cluster c2
+
+You are about to upgrade k8s10-group.
+Warning: The runtime will switch to containerd unless you have set the "lock_container_runtime" flag​
+Warning: This operation may be long running and may block further operations on the cluster(s) until complete​
+
+Continue? (y/n):y
+Error: c2 cannot be upgraded before promoting to Policy successfully when it fails at MIGRATE_CLUSTER.  Please re-run 'tkgi promote-cluster-to-policy' ​
+
+to promote cluster successfully first
+```
