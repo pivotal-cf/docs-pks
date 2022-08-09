@@ -631,82 +631,68 @@ In this step, I will create a VRF gateway, which can be connected from jumper.
      
 1. Confirm that the VLAN IDs are used by a t0-shared gateway, and that its segment matches the segments returned by the commands above.
 
-1. To create a VRF gateway for one of your VLANs:  
+1. To create a segment for a VRF gateway for one of your VLANs:  
 
-    1. Configure **Segment Name**, **Transport Zone** (select internet-tz-vlan-0), and **VLAN**. 
-    For **Transport Zone** specify XXXX, for example `internet-tz-vlan-0`.
+    1. Open XXXX on the vCenter UI.  
+    1. Configure **Segment Name**. For example, `internet-vlan-vrf-0-seg`.  
+    1. Configure **Transport Zone**. For example, `internet-tz-vlan-0`.  
+    1. Configure **VLAN**. Specify one of the VLAN IDs determined above.  
 
-1. Create a VRF gateway for one of your other VLANs.  
+1. To create a segment for a VRF gateway for the second VLAN, 
+repeat the last step, providing a unique **Segment Name**, for example, `internet-vlan-vrf-1-seg`, 
+the same **Transport Zone**, and for **VLAN**, specify the VLAN ID for the second VLAN.  
 
+### <a id="create-gateway-vrf"></a>Step 3: Create VRF Gateways
 
+1. To create a VRF gateway:  
 
-     
+    1. Open XXXX on the vCenter UI.  
+    1. Provide a **Name** for the VRF gateway. For example, `t0-vrf-0`.  
+    1. Connect the VRF gateway to your Tier-0 Gateway.  
+    1. Save your configuration.
+    1. Set the interface for the gateway. For example, `t0-vrf-0-uplink-0` and `t0-vrf-0-uplink-1`.  
+    1. Assign a high availability VIP. For example, `192.168.116.2`.  
     
+1. To create a second VRF gateway,
+repeat the last step, providing a unique **Name**, for example, `t0-vrf-1`, set the interface for the gateway, 
+for example `t0-vrf-1-uplink-0` and `t0-vrf-1-unlink-1`, and the HA VIP, for example `192.168.117.2`.
+
+1. To test your configuration, Ping each gateway uplink VIP.
+
+    For example:
     
+    <pre class="terminal">
+    $ ping 192.168.116.2
+    PING 192.168.116.2 (192.168.116.2) 56(84) bytes of data.
+    64 bytes from 192.168.116.2: icmp_seq=1 ttl=64 time=0.478 ms
+    64 bytes from 192.168.116.2: icmp_seq=2 ttl=64 time=0.520 ms
+    ^C
+    --- 192.168.116.2 ping statistics ---
+    2 packets transmitted, 2 received, 0% packet loss, time 999ms
+    rtt min/avg/max/mdev = 0.478/0.499/0.520/0.021 ms
+    
+    $ ping 192.168.117.2
+    PING 192.168.117.2 (192.168.117.2) 56(84) bytes of data.
+    64 bytes from 192.168.117.2: icmp_seq=1 ttl=64 time=0.531 ms
+    64 bytes from 192.168.117.2: icmp_seq=2 ttl=64 time=0.504 ms
+    ^C
+    --- 192.168.117.2 ping statistics ---
+    2 packets transmitted, 2 received, 0% packet loss, time 999ms
+    rtt min/avg/max/mdev = 0.504/0.517/0.531/0.026 ms	
+    </pre>
 
-Check VLAN on jumper
-### First method
-kubo@jumper:~$ sudo cat /proc/net/vlan/vlan0101 |grep VID
-vlan0101  VID: 101   REORDER_HDR: 1  dev->priv_flags: 1
-kubo@jumper:~$ sudo cat /proc/net/vlan/vlan0102 |grep VID
-vlan0102  VID: 102   REORDER_HDR: 1  dev->priv_flags: 1
-kubo@jumper:~$ sudo cat /proc/net/vlan/vlan0103 |grep VID
-vlan0103  VID: 103   REORDER_HDR: 1  dev->priv_flags: 1
- 
-### Second method
-kubo@jumper:~$ ip -d link show dev vlan0101 |grep id
-    vlan protocol 802.1Q id 101 <REORDER_HDR> addrgenmode eui64
-kubo@jumper:~$ ip -d link show dev vlan0102 |grep id
-    vlan protocol 802.1Q id 102 <REORDER_HDR> addrgenmode eui64
-kubo@jumper:~$ ip -d link show dev vlan0103 |grep id
-    vlan protocol 802.1Q id 103 <REORDER_HDR> addrgenmode eui64
-we can see that we have 3 VLAN interfaces, and their VLAN ID are 101, 102, 103. 
+1. (Optional) To allow communication to external data path, add a default router for each VRF gateway:  
 
-we can also check that the VLAN ID 101 is already used by t0-shared gateway, and its segment is internet-vlan-0.
+    For the first gateway:  
+    1. Add a default route.  
+    1. For **Network**, specify `0.0.0.0/0`.  
+    1. For **Next Hop**, specify `192.168.116.1`.  
+    
+    For the second gateway:  
+    1. Add a default route.  
+    1. For **Network**, specify `0.0.0.0/0`.  
+    1. For **Next Hop**, specify `192.168.117.1`.  
 
-Let's create 2 VRF gateways based on VLAN 102 and 103.
-
-Create segment for VRF gateway 
-we will create 2 segment: internet-vlan-vrf-0-seg and internet-vlan-vrf-1-seg.
-
-To create segnment for VRF gateway, here we only need to fill 3 fields: Segment Name, Transport Zone (select internet-tz-vlan-0), and VLAN (put 102 for internet-vlan-vrf-0-seg and 103 for internet-vlan-vrf-1-seg).
-
-
-
-
-
-Create VRF gateway
-
-The fields needed:
-
-Name (t0-vrf-0 and t0-vrf-1)
-
-
-Connect to Tier-0 Gateway (t0-shared), after this field, save and continue edit
-Set interface
-t0-vrf-0-uplink-0 and t0-vrf-0-uplink-1 for t0-vrf-0
-t0-vrf-1-uplink-0 and t0-vrf-1-unlink-1 for t0-vrf-1
-
-
-
-
-
-
-HA VIP
-192.168.116.2 for t0-vrf-0
-192.168.117.2 for t0-vrf-1
-
-
-
-
-Ping the gateway uplink VIP:
-
- Expand source
-If we want to make the communication works for all the data path, we also need to add a default router for each VRF gateway
-
-For the first gateway: add a default route, the network is 0.0.0.0/0, next hop is 192.168.116.1
-
-For the second gateway: add a default route, the nework is 0.0.0.0/0. next hop is 192.168.117.1
 
 Create cluster with VRF gateway
 
