@@ -19,14 +19,16 @@ This topic describes how to create multiple NSX-T Tier-0 (T0) logical routers fo
 
 ## <a id="prereqs"></a> Prerequisites
 
-To implement Multi-T0-based tenant isolcation, verify the following prerequisites:
+To implement Multi-T0-based tenant isolation, verify the following prerequisites:
 
 * Supported version of vSphere IaaS is installed. See <a href="./vsphere-nsxt-requirements.html#vsphere-version">vSphere with NSX-T Version Requirements</a>.
 * Supported version of VMware NSX-T Data Center is installed. See <a href="./vsphere-nsxt-requirements.html#tkgi-with-nsx-t">vSphere with NSX-T Version Requirements</a>.
 * If you are using NAT mode for the Shared Tier-0 router, review [Considerations for NAT Topology on Shared Tier-0](#consider-nat-shared) and [Considerations for NAT Topology on Tenant Tier-0](#consider-nat-tenant) before proceeding.
 
 
-To implement VRF Tier0 Gateway-based tenant isolcation:
+To implement VRF Tier-0 Gateway-based tenant isolation:
+
+* 3 VLANs for the VRF Tier-0 gateway.  
 
 
 
@@ -606,7 +608,196 @@ For example, see the three configured DFW rules below:
 
 ## <a id="base-config-vrf"></a> Configure VRF Tier-0 Gateway-Based Tenant Isolation
 
-### <a id="edge-nodes-vrf"></a>Step 1: 
+### <a id="create-gateway-vrf"></a>Step 1: Create a VRF Gateway
+
+In this step, I will create a VRF gateway, which can be connected from jumper. 
+
+1. Access a jumper host.  
+1. To determine the VLAN IDs of your three VLANs, run the following for each VLAN:  
+
+    ```
+    sudo cat /proc/net/vlan/VLAN-NAME |grep VID
+    ```
+    
+    Where VLAN-NAME is the name of a single VLAN.  
+    
+    or
+    
+    ```
+    ip -d link show dev VLAN-NAME |grep id
+    ```
+    
+    Where VLAN-NAME is the name of a single VLAN.  
+     
+1. Confirm that the VLAN IDs are used by a t0-shared gateway, and that its segment matches the segments returned by the commands above.
+
+1. To create a VRF gateway for one of your VLANs:  
+
+    1. Configure **Segment Name**, **Transport Zone** (select internet-tz-vlan-0), and **VLAN**. 
+    For **Transport Zone** specify XXXX, for example `internet-tz-vlan-0`.
+
+1. Create a VRF gateway for one of your other VLANs.  
+
+
+
+     
+    
+    
+
+Check VLAN on jumper
+### First method
+kubo@jumper:~$ sudo cat /proc/net/vlan/vlan0101 |grep VID
+vlan0101  VID: 101   REORDER_HDR: 1  dev->priv_flags: 1
+kubo@jumper:~$ sudo cat /proc/net/vlan/vlan0102 |grep VID
+vlan0102  VID: 102   REORDER_HDR: 1  dev->priv_flags: 1
+kubo@jumper:~$ sudo cat /proc/net/vlan/vlan0103 |grep VID
+vlan0103  VID: 103   REORDER_HDR: 1  dev->priv_flags: 1
+ 
+### Second method
+kubo@jumper:~$ ip -d link show dev vlan0101 |grep id
+    vlan protocol 802.1Q id 101 <REORDER_HDR> addrgenmode eui64
+kubo@jumper:~$ ip -d link show dev vlan0102 |grep id
+    vlan protocol 802.1Q id 102 <REORDER_HDR> addrgenmode eui64
+kubo@jumper:~$ ip -d link show dev vlan0103 |grep id
+    vlan protocol 802.1Q id 103 <REORDER_HDR> addrgenmode eui64
+we can see that we have 3 VLAN interfaces, and their VLAN ID are 101, 102, 103. 
+
+we can also check that the VLAN ID 101 is already used by t0-shared gateway, and its segment is internet-vlan-0.
+
+Let's create 2 VRF gateways based on VLAN 102 and 103.
+
+Create segment for VRF gateway 
+we will create 2 segment: internet-vlan-vrf-0-seg and internet-vlan-vrf-1-seg.
+
+To create segnment for VRF gateway, here we only need to fill 3 fields: Segment Name, Transport Zone (select internet-tz-vlan-0), and VLAN (put 102 for internet-vlan-vrf-0-seg and 103 for internet-vlan-vrf-1-seg).
+
+
+
+
+
+Create VRF gateway
+
+The fields needed:
+
+Name (t0-vrf-0 and t0-vrf-1)
+
+
+Connect to Tier-0 Gateway (t0-shared), after this field, save and continue edit
+Set interface
+t0-vrf-0-uplink-0 and t0-vrf-0-uplink-1 for t0-vrf-0
+t0-vrf-1-uplink-0 and t0-vrf-1-unlink-1 for t0-vrf-1
+
+
+
+
+
+
+HA VIP
+192.168.116.2 for t0-vrf-0
+192.168.117.2 for t0-vrf-1
+
+
+
+
+Ping the gateway uplink VIP:
+
+ Expand source
+If we want to make the communication works for all the data path, we also need to add a default router for each VRF gateway
+
+For the first gateway: add a default route, the network is 0.0.0.0/0, next hop is 192.168.116.1
+
+For the second gateway: add a default route, the nework is 0.0.0.0/0. next hop is 192.168.117.1
+
+Create cluster with VRF gateway
+
+
+We can just create cluster like we usually do, if we want to use different Tier0, then create a network profile.
+
+Here is what I configured if I use the VRF gateway as the global tier0:
+
+
+
+Here is the network profile used for multi t0:
+
+kubo@jumper:~$ pks network-profile np-1
+ 
+Name:         np-1
+UUID:         b457316b-b251-481a-ba8a-6e044c0ac085
+Description:
+Parameters:   {"cni_configurations":{"parameters":{},"type":"nsxt"},"infrastructure_networks":["88.0.0.0/24","192.168.111.98","192.168.111.46"],"t0_router_id":"vrf-103"}
+Actually, If we want all this work, we also need to change the routes on jumper VM since it's our router in the testbed, to make all the network is reachable.
+
+Here is the default routes when the testbed is just created:
+
+kubo@jumper:~$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         10.191.191.254  0.0.0.0         UG    0      0        0 eth0
+10.191.176.0    0.0.0.0         255.255.240.0   U     0      0        0 eth0
+30.0.0.0        192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+30.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+30.0.1.0        192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+30.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+40.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+40.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+50.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+50.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+88.0.0.0        192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
+172.18.0.0      0.0.0.0         255.255.0.0     U     0      0        0 br-74ae7bf1f03b
+192.167.0.0     192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+192.167.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+192.168.111.0   0.0.0.0         255.255.255.0   U     0      0        0 eth1
+192.168.115.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0101
+192.168.116.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0102
+192.168.117.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0103
+192.168.139.0   0.0.0.0         255.255.255.252 U     0      0        0 eth2
+192.168.160.0   192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+192.168.161.0   192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+192.169.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+Here is what changed later:
+
+kubo@jumper:~$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         10.182.63.254   0.0.0.0         UG    0      0        0 eth0
+10.182.48.0     0.0.0.0         255.255.240.0   U     0      0        0 eth0
+30.0.0.0        192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
+30.0.1.0        192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
+30.1.0.0        192.168.116.2   255.255.0.0     UG    0      0        0 vlan0102
+30.1.1.0        192.168.117.2   255.255.255.0   UG    0      0        0 vlan0103
+40.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+40.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+50.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+50.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+88.0.0.0        192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
+172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
+192.167.0.0     192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+192.167.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+192.168.111.0   0.0.0.0         255.255.255.0   U     0      0        0 eth1
+192.168.115.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0101
+192.168.116.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0102
+192.168.117.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0103
+192.168.139.0   0.0.0.0         255.255.255.252 U     0      0        0 eth2
+192.168.160.0   192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
+192.168.160.113 192.168.117.2   255.255.255.255 UGH   0      0        0 vlan0103
+192.168.161.0   192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
+192.169.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
+Because now the TKGI control plane is deployed in a VRF gateway, the 116.0/24 CIDR, we need to 30.0.0.0 to be using gateway 192.168.116.2.
+
+I have created 2 clusters, test1 and test2, test1 is using default tier0, which is the same as the control plane, test2 is using the other VRF gateway, which is routed through 192.168.117.2.
+
+so for the test1, since it's using CIDR 30.1.0.0/24 as network, it uses the default route through 192.168.116.2.
+
+for test2, it's using CIDR 30.1.1.0/24 as network, I changed it to use route through 192.168.116.2.
+
+The same config applies to the floating IP.
+
+the default route to 192.168.160.0/24 is through 192.168.116.2, so the pks-api control plane and test1 cluster floating IP will go through this IP, but for test2 cluster, the route will go through 192.168.117.2.
+
+In general, as long as we can make the network reachable, VRF gateway will work just the same as a normal Gateway.
+
+Here is the topology I have validated:
 
 
 
