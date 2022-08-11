@@ -3,11 +3,20 @@ title: Isolating Tenants
 owner: TKGI
 ---
 
-This topic describes how to create multiple NSX-T Tier-0 (T0) logical routers for use with <%= vars.product_full %> multi-tenant environments.
+This topic describes how to isolate tenants in <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %> ) multi-tenant environments.
+create multiple NSX-T Tier-0 (T0) logical routers for use with <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %> ) multi-tenant environments.
 
+
+<br>
 ## <a id='about'></a> About Tenant Isolation
 
-### <a id='about'></a> Use a Multi-T0 Router Configuration for Tenant Isolation
+You can isolate a cluster and its workloads you can use NSX-T Tier-0 (T0) logical routers or VRF Tier-0 gateways:  
+
+* [About using a Multi-T0 Router Configuration for Tenant Isolation](#about-t0-router-isolation)  
+* [About using a VRF Tier-0 Gateway Configuration for Tenant Isolation](#about-vrf-gateway-isolation)  
+
+<br>
+### <a id='about-t0-router-isolation'></a> About using a Multi-T0 Router Configuration for Tenant Isolation
 
 <%= vars.product_short %> multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks. 
 As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. 
@@ -16,20 +25,29 @@ where vCenter and NSX-T Manager are deployed.
 There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. 
 Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each tenant network.
 
+To isolate a cluster and its workloads behind T0 routers, 
+see [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf).  
+
   <img src="images/nsxt/mt0/mt0-03.png" alt="Multi-T0 Router">
 
-### <a id='about'></a> Use a VRF Tier-0 Gateway Configuration for Tenant Isolation
+<br>
+### <a id='about-vrf-gateway-isolation'></a> About using a VRF Tier-0 Gateway Configuration for Tenant Isolation
 
 <%= vars.product_short %> also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway. 
-As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. 
+As shown in the diagram below, instead of using one or more T0 routers, the cluster is isolated behind a VRF gateway. 
 The Shared Tier-0 router handles traffic between the <%= vars.k8s_runtime_abbr %> management network and the 
 vSphere standard network where vCenter and NSX-T Manager are deployed. There are two Tenant Tier-0 routers that 
 connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. Using each VRF gateway, 
 Kubernetes clusters are deployed in complete isolation on each tenant network.
 
+To isolate a cluster and its workloads behind a VRF gateway, 
+see [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf).  
 
+
+<br>
 ## <a id="prereqs"></a> Prerequisites
 
+**Multi-T0-based tenant isolation**
 To implement Multi-T0-based tenant isolation, verify the following prerequisites:
 
 * Supported version of vSphere IaaS is installed. See <a href="./vsphere-nsxt-requirements.html#vsphere-version">vSphere with NSX-T Version Requirements</a>.
@@ -37,13 +55,14 @@ To implement Multi-T0-based tenant isolation, verify the following prerequisites
 * If you are using NAT mode for the Shared Tier-0 router, review [Considerations for NAT Topology on Shared Tier-0](#consider-nat-shared) and [Considerations for NAT Topology on Tenant Tier-0](#consider-nat-tenant) before proceeding.
 
 
+**VRF Tier-0 Gateway-based tenant isolation**
+
 To implement VRF Tier-0 Gateway-based tenant isolation:
 
 * 3 VLANs for the VRF Tier-0 gateway.  
 
 
-
-
+<br>
 ## <a id="base-config"></a> Configure Multi-T0 Router-Based Tenant Isolation
 
 ### <a id="edge-nodes"></a>Step 1: Plan and Provision Additional NSX-T Edge Nodes for Each Multi-T0 Router
@@ -191,6 +210,14 @@ You must configure BGP routing on each Tier-0 router. The steps that follow are 
 <p class="note"><strong>Note</strong>: To configure BGP for the Tenant Tier-0, you will need to use the Shared Tier-0 AS number. As such, identify the AS numbers you will use for the Tenant and Shared Tier-0 routers before proceeding.</p>
 
 ![BGP for Multi-T0](images/nsxt/mt0/bgp-01.png)
+
+To configure BGP on each tenant Tier-0 router:  
+
+* [Configure BGP AS Number](#bgp-as-config)  
+* [Configure BGP Route Distribution](#bgp-route-tenant)  
+* [Configure IP Prefix Lists](#ip-prefix-tenant)  
+* [Configure BGP Peer](#bgp-peer-tenant)  
+
 
 #### <a id="bgp-as-config"></a>Configure BGP AS Number
 
@@ -340,7 +367,15 @@ In a multi-T0 environment, you can secure two types of traffic:
 
 ### <a id="secure-inter-tenant"></a> Secure Inter-Tenant Communications
 
-Securing traffic between tenants isolates each tenant and ensures the traffic between the Tenant Tier-0 routers and the Shared Tier-0 router is restricted to the legitimate traffic path.
+Securing traffic between tenants isolates each tenant and ensures the traffic between the Tenant Tier-0 routers and the Shared Tier-0 router is restricted to the legitimate traffic path.  
+
+To secure traffic between tenants:
+
+1. [Define IP Sets](#ip-sets)  
+1. [Create Edge Firewall](#edge-firewall)  
+1. [Add Firewall Rules](#firewall-rules)  
+1. [Create DFW Section](#dfw-section)  
+ 
 
 #### <a id="ip-sets"></a>Step 1: Define IP Sets
 
@@ -390,6 +425,13 @@ The following image shows a summary of the five firewall rules you will create:
 <p class="note"><strong>Note</strong>: All firewall rules are applied to the Inter-T0-Uplink interface.</p>
 
 Select the Edge Firewall **Section** you just created, then select **Add Rule**. Add the following five firewall rules:
+
+* [BGP Firewall Rule](#bgp-firewall-rule)  
+* [Clusters Masters Firewall Rule](#masters-firewall-rule)  
+* [Node Network to Management Firewall Rule](#nodes-firewall-rule)  
+* [<%= vars.k8s_runtime_abbr %> Firewall Rule](#tkgi-firewall-rule)  
+* [Deny All Firewall Rule](#deny-all-firewall-rule)  
+
 
 ##### <a id="bgp-firewall-rule"></a>BGP Firewall Rule
 
@@ -487,6 +529,14 @@ Securing inter-cluster communications is achieved by provisioning security group
 
 <p class="note"><strong>Note</strong>: You must perform the global procedures, the first three steps described below, before you deploy a Kubernetes cluster to the target tenant Tier-0 router.</p>
 
+To secure communication between clusters in the same tenancy:  
+
+1. [Create NSGroup for All <%= vars.product_short %> Clusters](#ns-group)  
+1. [Create DFW Section](#dfw-section)  
+1. [Create NSGroups](#ns-groups)  
+1. [Create DFW Rules](#dfw-rules) 
+
+
 #### <a id="ns-group"></a>Step 1: Create NSGroup for All <%= vars.product_short %> Clusters
 
 1. In NSX Manager, navigate to **Inventory > Groups > Groups** and **Add new group**.
@@ -574,7 +624,12 @@ After you configure the NSGroup for cluster nodes and pods, the **Membership Cri
 
 #### <a id="dfw-rules"></a>Step 4: Create DFW Rules
 
-Select the DFW section you created above and configure the following three DFW rules.
+Select the DFW section you created above and configure the following three DFW rules:  
+
+* [Deny Everything Else](#deny-else)  
+* [Disable Pod to Node Communication](#pods-rule)  
+* [Allow Node to Node and Nodes to Pods Communications](#nodes-rule)  
+
 
 ##### <a id="deny-else"></a>DFW Rule 1: Deny Everything Else
 
@@ -617,9 +672,21 @@ For example, see the three configured DFW rules below:
 ![DFW Rules](images/nsxt/mt0/dfw-rules.png)
 
 
+<br>
 ## <a id="base-config-vrf"></a> Configure VRF Tier-0 Gateway-Based Tenant Isolation
 
-### <a id="create-gateway-vrf"></a>Step 1: Create a VRF Gateway
+To isolate a cluster and its workloads behind a VRF gateway:  
+
+* [Review Your Network Configuration](#review-network-vrf)  
+* [Create VRF Gateway Segments](#create-gateway-segments-vrf)  
+* [Create VRF Gateways](#create-gateway-vrf)  
+* [Create a Network Profile](#create-network-profile-vrf)  
+* [Configure a Cluster with a VRF Gateway](#update-cluster-vrf)  
+* [Configure VRF Gateway Security](#security-config-vrf)  
+
+
+<br>
+### <a id="review-network-vrf"></a>Step 1: Review Your Network Configuration
 
 To create a VRF gateway for tenant isolation:  
 
@@ -642,6 +709,12 @@ To create a VRF gateway for tenant isolation:
      
 1. Confirm that the VLAN IDs are used by a t0-shared gateway, and that its segment matches the segments returned by the commands above.
 
+
+<br>
+### <a id="create-gateway-segments-vrf"></a>Step 2: Create VRF Gateway Segments
+
+To create two gateway segments for your VRF gateway:  
+
 1. To create a segment for a VRF gateway for one of your VLANs:  
 
     1. Open **? XXXX** on the vCenter UI.  
@@ -653,6 +726,8 @@ To create a VRF gateway for tenant isolation:
 repeat the last step, providing a unique **Segment Name**, for example, `internet-vlan-vrf-1-seg`, 
 the same **Transport Zone**, and for **VLAN**, specify the VLAN ID for the second VLAN.  
 
+
+<br>
 ### <a id="create-gateway-vrf"></a>Step 3: Create VRF Gateways
 
 1. To create a VRF gateway:  
@@ -707,6 +782,7 @@ for example `t0-vrf-1-uplink-0` and `t0-vrf-1-unlink-1`, and the HA VIP, for exa
     **? Are these required routes? Are there rules for this specification? XXXX**
 
 
+<br>
 ### <a id="create-network-profile-vrf"></a>Step 4: Create a Network Profile
 
 You must use a Network Profile to isolate a cluster behind a VRF gateway.  
@@ -792,7 +868,8 @@ For more information on creating a Network Profile,
 see [Creating and Managing Network Profiles](network-profiles-define.html).
     
 
-### <a id="create-network-profile-vrf"></a>Step 5: Configure a Cluster with a VRF Gateway
+<br>
+### <a id="create-update-cluster-vrf"></a>Step 5: Configure a Cluster with a VRF Gateway
 
 To configure a cluster to use a VRF gateway, either:  
 
@@ -809,102 +886,5 @@ To configure a cluster to use a VRF gateway, either:
     in _Using Network Profiles_.
 
 
-
-
-
-
-
-
-Here is what I configured if I use the VRF gateway as the global tier0:
-
-
-
-Here is the network profile used for multi t0:
-
-kubo@jumper:~$ pks network-profile np-1
- 
-Name:         np-1
-UUID:         b457316b-b251-481a-ba8a-6e044c0ac085
-Description:
-Parameters:   {"cni_configurations":{"parameters":{},
-"type":"nsxt"},"infrastructure_networks":["88.0.0.0/24","192.168.111.98","192.168.111.46"],"t0_router_id":"vrf-103"}
-Actually, If we want all this work, we also need to change the routes on jumper VM since it's our router in the testbed, to make all the network is reachable.
-
-Here is the default routes when the testbed is just created:
-
-kubo@jumper:~$ route -n
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-0.0.0.0         10.191.191.254  0.0.0.0         UG    0      0        0 eth0
-10.191.176.0    0.0.0.0         255.255.240.0   U     0      0        0 eth0
-30.0.0.0        192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-30.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-30.0.1.0        192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-30.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-40.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-40.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-50.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-50.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-88.0.0.0        192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
-172.18.0.0      0.0.0.0         255.255.0.0     U     0      0        0 br-74ae7bf1f03b
-192.167.0.0     192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-192.167.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-192.168.111.0   0.0.0.0         255.255.255.0   U     0      0        0 eth1
-192.168.115.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0101
-192.168.116.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0102
-192.168.117.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0103
-192.168.139.0   0.0.0.0         255.255.255.252 U     0      0        0 eth2
-192.168.160.0   192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-192.168.161.0   192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-192.169.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-Here is what changed later:
-
-kubo@jumper:~$ route -n
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-0.0.0.0         10.182.63.254   0.0.0.0         UG    0      0        0 eth0
-10.182.48.0     0.0.0.0         255.255.240.0   U     0      0        0 eth0
-30.0.0.0        192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
-30.0.1.0        192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
-30.1.0.0        192.168.116.2   255.255.0.0     UG    0      0        0 vlan0102
-30.1.1.0        192.168.117.2   255.255.255.0   UG    0      0        0 vlan0103
-40.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-40.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-50.0.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-50.1.0.0        192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-88.0.0.0        192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
-172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
-192.167.0.0     192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-192.167.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-192.168.111.0   0.0.0.0         255.255.255.0   U     0      0        0 eth1
-192.168.115.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0101
-192.168.116.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0102
-192.168.117.0   0.0.0.0         255.255.255.0   U     0      0        0 vlan0103
-192.168.139.0   0.0.0.0         255.255.255.252 U     0      0        0 eth2
-192.168.160.0   192.168.116.2   255.255.255.0   UG    0      0        0 vlan0102
-192.168.160.113 192.168.117.2   255.255.255.255 UGH   0      0        0 vlan0103
-192.168.161.0   192.168.115.2   255.255.255.0   UG    0      0        0 vlan0101
-192.169.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
-Because now the TKGI control plane is deployed in a VRF gateway, the 116.0/24 CIDR, we need to 30.0.0.0 to be using gateway 192.168.116.2.
-
-I have created 2 clusters, test1 and test2, test1 is using default tier0, which is the same as the control plane, 
-test2 is using the other VRF gateway, which is routed through 192.168.117.2.
-
-so for the test1, since it's using CIDR 30.1.0.0/24 as network, it uses the default route through 192.168.116.2.
-
-for test2, it's using CIDR 30.1.1.0/24 as network, I changed it to use route through 192.168.116.2.
-
-The same config applies to the floating IP.
-
-the default route to 192.168.160.0/24 is through 192.168.116.2, so the pks-api control plane and test1 cluster floating IP will go through this IP, 
-but for test2 cluster, the route will go through 192.168.117.2.
-
-In general, as long as we can make the network reachable, VRF gateway will work just the same as a normal Gateway.
-
-Here is the topology I have validated:
-
-
-
-
-## <a id="security-config-vrf"></a> Security Configuration
+<br>
+## <a id="security-config-vrf"></a> Step 6: Configure VRF Gateway Security
