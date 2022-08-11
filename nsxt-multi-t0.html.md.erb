@@ -9,12 +9,23 @@ This topic describes how to create multiple NSX-T Tier-0 (T0) logical routers fo
 
 ### <a id='about'></a> Use a Multi-T0 Router Configuration for Tenant Isolation
 
-<%= vars.product_short %> multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks. As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. The Shared Tier-0 router handles traffic between the <%= vars.k8s_runtime_abbr %> management network and the vSphere standard network where vCenter and NSX-T Manager are deployed. There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each tenant network.
+<%= vars.product_short %> multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks. 
+As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. 
+The Shared Tier-0 router handles traffic between the <%= vars.k8s_runtime_abbr %> management network and the vSphere standard network 
+where vCenter and NSX-T Manager are deployed. 
+There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. 
+Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each tenant network.
 
   <img src="images/nsxt/mt0/mt0-03.png" alt="Multi-T0 Router">
 
 ### <a id='about'></a> Use a VRF Tier-0 Gateway Configuration for Tenant Isolation
 
+<%= vars.product_short %> also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway. 
+As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. 
+The Shared Tier-0 router handles traffic between the <%= vars.k8s_runtime_abbr %> management network and the 
+vSphere standard network where vCenter and NSX-T Manager are deployed. There are two Tenant Tier-0 routers that 
+connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. Using each VRF gateway, 
+Kubernetes clusters are deployed in complete isolation on each tenant network.
 
 
 ## <a id="prereqs"></a> Prerequisites
@@ -610,9 +621,9 @@ For example, see the three configured DFW rules below:
 
 ### <a id="create-gateway-vrf"></a>Step 1: Create a VRF Gateway
 
-In this step, I will create a VRF gateway, which can be connected from jumper. 
+To create a VRF gateway for tenant isolation:  
 
-1. Access a jumper host.  
+1. **? xxxx**Access a jumper host.  
 1. To determine the VLAN IDs of your three VLANs, run the following for each VLAN:  
 
     ```
@@ -633,7 +644,7 @@ In this step, I will create a VRF gateway, which can be connected from jumper.
 
 1. To create a segment for a VRF gateway for one of your VLANs:  
 
-    1. Open XXXX on the vCenter UI.  
+    1. Open **? XXXX** on the vCenter UI.  
     1. Configure **Segment Name**. For example, `internet-vlan-vrf-0-seg`.  
     1. Configure **Transport Zone**. For example, `internet-tz-vlan-0`.  
     1. Configure **VLAN**. Specify one of the VLAN IDs determined above.  
@@ -646,7 +657,7 @@ the same **Transport Zone**, and for **VLAN**, specify the VLAN ID for the secon
 
 1. To create a VRF gateway:  
 
-    1. Open XXXX on the vCenter UI.  
+    1. Open **? XXXX** on the vCenter UI.  
     1. Provide a **Name** for the VRF gateway. For example, `t0-vrf-0`.  
     1. Connect the VRF gateway to your Tier-0 Gateway.  
     1. Save your configuration.
@@ -692,12 +703,117 @@ for example `t0-vrf-1-uplink-0` and `t0-vrf-1-unlink-1`, and the HA VIP, for exa
     1. Add a default route.  
     1. For **Network**, specify `0.0.0.0/0`.  
     1. For **Next Hop**, specify `192.168.117.1`.  
+    
+    **? Are these required routes? Are there rules for this specification? XXXX**
 
 
-Create cluster with VRF gateway
+### <a id="create-network-profile-vrf"></a>Step 4: Create a Network Profile
+
+You must use a Network Profile to isolate a cluster behind a VRF gateway.  
+
+To configure a Network Profile for connecting to a VRF gateway:
+
+1. Create a network profile configuration JSON file that defines the gateway as the `"t0_router_id"` value:  
+
+    ```
+    {
+        "name": "PROFILE-NAME",
+        "description": "PROFILE-DESCRIP",
+        "parameters": {
+
+            "t0_router_id":"VRF-GATEWAY-NAME",
+            "infrastructure_networks":[NETWORK-RANGES],
+            "cni_configurations": {
+                "type": "nsxt",
+                "parameters": {
+
+                    "extensions":{
+                        "ncp":{
+                            "nsx_v3":{
+                            },
+                            "coe":{
+                            },
+                            "ha":{
+                            },
+                            "k8s":{
+                            }
+                        },
+                        "nsx-node-agent":{
+                        }
+                    }
+                }
+            }
+        }
+    }
+    ```
+
+    Where:  
+
+    * `VRF-GATEWAY-NAME` is the name of the VRF gateway the cluster should use.  
+    * `NETWORK-RANGES` is an array of IP ranges the cluster can access.  
+    * `PROFILE-NAME` is the internal name for your network profile.  
+    * `PROFILE-DESCRIP` is an internal description for your network profile.  
+
+    For example:
+    
+    ```
+    {
+        "name": "np-1",
+        "description": "",
+        "parameters": {
+
+            "t0_router_id":"vrf-103",
+            "infrastructure_networks":["88.0.0.0/24","192.168.111.98","192.168.111.46"],
+            "cni_configurations": {
+                "type": "nsxt",
+                "parameters": {
+
+                    "extensions":{
+                        "ncp":{
+                            "nsx_v3":{
+                            },
+                            "coe":{
+                            },
+                            "ha":{
+                            },
+                            "k8s":{
+                            }
+                        },
+                        "nsx-node-agent":{
+                        }
+                    }
+                }
+            }
+        }
+    }
+    ```
+    
+For more information on creating a Network Profile, 
+see [Creating and Managing Network Profiles](network-profiles-define.html).
+    
+
+### <a id="create-network-profile-vrf"></a>Step 5: Configure a Cluster with a VRF Gateway
+
+To configure a cluster to use a VRF gateway, either:  
+
+* Create a new cluster using the VRF gateway Network Profile.  
+
+    For more information on creating clusters using a Network Profile, 
+    see [Create a Cluster with a Network Profile](network-profiles.html#create-new) 
+    in _Using Network Profiles_.
+    
+* Update an existing cluster using the VRF gateway Network Profile.  
+
+    For more information on updating existing clusters with a Network Profile, 
+    see [Assign a Network Profile to an Existing Cluster](network-profiles.html##assign-profile) 
+    in _Using Network Profiles_.
 
 
-We can just create cluster like we usually do, if we want to use different Tier0, then create a network profile.
+
+
+
+
+
 
 Here is what I configured if I use the VRF gateway as the global tier0:
 
@@ -710,7 +826,8 @@ kubo@jumper:~$ pks network-profile np-1
 Name:         np-1
 UUID:         b457316b-b251-481a-ba8a-6e044c0ac085
 Description:
-Parameters:   {"cni_configurations":{"parameters":{},"type":"nsxt"},"infrastructure_networks":["88.0.0.0/24","192.168.111.98","192.168.111.46"],"t0_router_id":"vrf-103"}
+Parameters:   {"cni_configurations":{"parameters":{},
+"type":"nsxt"},"infrastructure_networks":["88.0.0.0/24","192.168.111.98","192.168.111.46"],"t0_router_id":"vrf-103"}
 Actually, If we want all this work, we also need to change the routes on jumper VM since it's our router in the testbed, to make all the network is reachable.
 
 Here is the default routes when the testbed is just created:
@@ -771,7 +888,8 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 192.169.0.0     192.168.115.2   255.255.0.0     UG    0      0        0 vlan0101
 Because now the TKGI control plane is deployed in a VRF gateway, the 116.0/24 CIDR, we need to 30.0.0.0 to be using gateway 192.168.116.2.
 
-I have created 2 clusters, test1 and test2, test1 is using default tier0, which is the same as the control plane, test2 is using the other VRF gateway, which is routed through 192.168.117.2.
+I have created 2 clusters, test1 and test2, test1 is using default tier0, which is the same as the control plane, 
+test2 is using the other VRF gateway, which is routed through 192.168.117.2.
 
 so for the test1, since it's using CIDR 30.1.0.0/24 as network, it uses the default route through 192.168.116.2.
 
@@ -779,7 +897,8 @@ for test2, it's using CIDR 30.1.1.0/24 as network, I changed it to use route thr
 
 The same config applies to the floating IP.
 
-the default route to 192.168.160.0/24 is through 192.168.116.2, so the pks-api control plane and test1 cluster floating IP will go through this IP, but for test2 cluster, the route will go through 192.168.117.2.
+the default route to 192.168.160.0/24 is through 192.168.116.2, so the pks-api control plane and test1 cluster floating IP will go through this IP, 
+but for test2 cluster, the route will go through 192.168.117.2.
 
 In general, as long as we can make the network reachable, VRF gateway will work just the same as a normal Gateway.
 
