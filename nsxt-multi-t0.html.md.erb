@@ -3,14 +3,13 @@ title: Isolating Tenants
 owner: TKGI
 ---
 
-This topic describes how to isolate tenants in <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %> ) multi-tenant environments.
-create multiple NSX-T Tier-0 (T0) logical routers for use with <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %> ) multi-tenant environments.
+This topic describes how to isolate tenants in <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %> ) multi-tenant environments.  
 
 
 <br>
 ## <a id='about'></a> About Tenant Isolation
 
-You can isolate a cluster and its workloads you can use NSX-T Tier-0 (T0) logical routers or VRF Tier-0 gateways:  
+You can isolate a cluster and its workloads using NSX-T Tier-0 (T0) logical routers or VRF Tier-0 gateways:  
 
 * [About using a Multi-T0 Router Configuration for Tenant Isolation](#about-t0-router-isolation)  
 * [About using a VRF Tier-0 Gateway Configuration for Tenant Isolation](#about-vrf-gateway-isolation)  
@@ -25,8 +24,11 @@ where vCenter and NSX-T Manager are deployed.
 There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. 
 Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each tenant network.
 
-To isolate a cluster and its workloads behind T0 routers, 
-see [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf).  
+To isolate a cluster and its workloads behind T0 routers:  
+
+* [Prerequisites](#prereqs)  
+* [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf).  
+* [Configure Multi-T0 Security](#security-config)  
 
   <img src="images/nsxt/mt0/mt0-03.png" alt="Multi-T0 Router">
 
@@ -40,12 +42,15 @@ vSphere standard network where vCenter and NSX-T Manager are deployed. There are
 connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. Using each VRF gateway, 
 Kubernetes clusters are deployed in complete isolation on each tenant network.
 
-To isolate a cluster and its workloads behind a VRF gateway, 
-see [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf).  
+To isolate a cluster and its workloads behind a VRF gateway:  
+
+* [Prerequisites](#prereqs)  
+* [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf)  
+* [Configure VRF Gateway Security](#security-config-vrf)  
 
 
 <br>
-## <a id="prereqs"></a> Prerequisites
+## <a id="prereqs"></a>Prerequisites
 
 **Multi-T0-based tenant isolation**
 To implement Multi-T0-based tenant isolation, verify the following prerequisites:
@@ -64,6 +69,22 @@ To implement VRF Tier-0 Gateway-based tenant isolation:
 
 <br>
 ## <a id="base-config"></a> Configure Multi-T0 Router-Based Tenant Isolation
+
+To isolate tenants using a multi-T0 router-based configuration:
+
+1. [Plan and Provision Additional NSX-T Edge Nodes for Each Multi-T0 Router](#edge-nodes)  
+1. [Configure Inter-T0 Logical Switch](#logical-switch)  
+1. [Configure a New Uplink Interface on the Shared Tier-0 Router](#router-port)  
+1. [Provision Tier-0 Router for Each Tenant](#provision)  
+1. [Create Two Uplink Interfaces on Each Tenant Tier-0 Router](#port-interfaces)  
+1. [Verify the Status of the Shared and Tenant Tier-0 Routers](#port-interfaces)  
+1. [Configure Static Routes](#static-routes)  
+1. [Considerations for NAT Topology on Shared Tier-0](#consider-nat-shared)  
+1. [Considerations for NAT Topology on Tenant Tier-0](#consider-nat-tenant)  
+1. [Configure BGP on Each Tenant Tier-0 Router](#bgp)  
+1. [Configure BGP on the Shared Tier-0 Router](#bgp-shared)  
+1. [Test the Base Configuration](#test)  
+
 
 ### <a id="edge-nodes"></a>Step 1: Plan and Provision Additional NSX-T Edge Nodes for Each Multi-T0 Router
 
@@ -195,9 +216,24 @@ The end result is two NO_SNAT rules on each Tenant Tier-0 router that bypass the
 
 ### <a id="bgp"></a>Step 10: Configure BGP on Each Tenant Tier-0 Router
 
-The Border Gateway Protocol (BGP) is used for route redistribution and filtering across all Tier-0 routers. BGP allows the Shared Tier-0 router to dynamically discover the location of Kubernetes clusters (Node networks) deployed on each Tenant Tier-0 router.
+Use Border Gateway Protocol (BGP) to route redistribution and filtering across all Tier-0 routers. 
+BGP allows the Shared Tier-0 router to dynamically discover the location of Kubernetes clusters (Node networks) 
+deployed on each Tenant Tier-0 router.  
+
+To configure BGP on each tenant Tier-0 router:  
+
+* [Considerations When Configuring BGP on Tenant Tier-0 Routers](#bgp-considerations)  
+* [Configure BGP AS Number](#bgp-as-config)  
+* [Configure BGP Route Distribution](#bgp-route-tenant)  
+* [Configure IP Prefix Lists](#ip-prefix-tenant)  
+* [Configure BGP Peer](#bgp-peer-tenant)  
+
+
+### <a id="bgp-considerations"></a>Considerations When Configuring BGP on Tenant Tier-0 Routers
 
 In a Multi-T0 deployment, special consideration must be given to the network design to preserve reliability and fault tolerance of the Shared and Tenant Tier-0 routers.
+
+![BGP for Multi-T0](images/nsxt/mt0/bgp-01.png)
 
 Failover of a logical router is triggered when the router is losing all of its BGP sessions. If multiple BGP sessions are established across different uplink interfaces of a Tier-0 router, failover will only occur if **all** such sessions are lost. Thus, to ensure high availability on the Shared and Tenant Tier-0 routers, BGP can only be configured on uplink interfaces facing the Inter-Tier-0 network. This configuration is shown in the diagram below.
 
@@ -209,14 +245,6 @@ You must configure BGP routing on each Tier-0 router. The steps that follow are 
 
 <p class="note"><strong>Note</strong>: To configure BGP for the Tenant Tier-0, you will need to use the Shared Tier-0 AS number. As such, identify the AS numbers you will use for the Tenant and Shared Tier-0 routers before proceeding.</p>
 
-![BGP for Multi-T0](images/nsxt/mt0/bgp-01.png)
-
-To configure BGP on each tenant Tier-0 router:  
-
-* [Configure BGP AS Number](#bgp-as-config)  
-* [Configure BGP Route Distribution](#bgp-route-tenant)  
-* [Configure IP Prefix Lists](#ip-prefix-tenant)  
-* [Configure BGP Peer](#bgp-peer-tenant)  
 
 
 #### <a id="bgp-as-config"></a>Configure BGP AS Number
@@ -322,9 +350,16 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 
 ### <a id="test"></a>Step 12: Test the Base Configuration
 
-Perform the following validation checks for all Tier-0 routers. You should perform the validation checks on the Shared Tier-0 first followed by each Tenant Tier-0 router. For each Tier-0, the validation should alternate among checking for the BGP summary and the router Routing Table.
+Perform the following validation checks on all Tier-0 routers:  
 
-#### Shared Tier-0 Validation
+* [Shared Tier-0 Validation](#test-shared-tier-0)  
+* [Tenant Tier-0 Validation](#test-tenant-tier-0)  
+
+Perform the validation checks on the Shared Tier-0 first followed by each Tenant Tier-0 router. 
+For each Tier-0, the validation should alternate among checking for the BGP summary and the router Routing Table.  
+
+
+#### <a id="test-shared-tier-0"></a>Shared Tier-0 Validation
 
 Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router. 
 
@@ -339,7 +374,7 @@ Verify that the Shared Tier-0 routing table includes all BGP routes to each Shar
 1. Select the Shared Tier-0 router and choose **Actions** > **Download Routing Table**.
 1. Download the routing table for the Shared Tier-0 and verify the routes.
 
-#### Tenant Tier-0 Validation
+#### <a id="test-tenant-tier-0"></a>Tenant Tier-0 Validation
 
 Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router. 
 
@@ -358,12 +393,14 @@ NSX-T Manager, and the <%= vars.k8s_runtime_abbr %> management network:
 
 <p class="note"><strong>Note</strong>: At this point, the Shared Tier-0 has no BGP routes because you have not deployed any Kubernetes clusters. The Shared Tier-0 will show BGP routes when you deploy Kubernetes clusters to the Tenant Tier-0 routers. Each Tenant Tier-0 router shows a BGP exported route that makes each Tenant Tier-0 router aware of the <%= vars.k8s_runtime_abbr %> management network and other external networks where NSX-T and vCenter are deployed.</p>
 
-## <a id="security-config"></a> Security Configuration
+
+<br>
+## <a id="security-config"></a> Configure Multi-T0 Security
 
 In a multi-T0 environment, you can secure two types of traffic:
 
-- Traffic between tenants. See [Secure Inter-Tenant Communications](#secure-inter-tenant).
-- Traffic between clusters in the same tenant. See [Secure Intra-Tenant Communications](#secure-intra-tenant).
+- Traffic between tenants. See [Secure Inter-Tenant Communications](#secure-inter-tenant).  
+- Traffic between clusters in the same tenant. See [Secure Intra-Tenant Communications](#secure-intra-tenant).  
 
 ### <a id="secure-inter-tenant"></a> Secure Inter-Tenant Communications
 
@@ -748,23 +785,23 @@ for example `t0-vrf-1-uplink-0` and `t0-vrf-1-unlink-1`, and the HA VIP, for exa
     For example:
     
     <pre class="terminal">
-    $ ping 192.168.116.2
-    PING 192.168.116.2 (192.168.116.2) 56(84) bytes of data.
-    64 bytes from 192.168.116.2: icmp_seq=1 ttl=64 time=0.478 ms
-    64 bytes from 192.168.116.2: icmp_seq=2 ttl=64 time=0.520 ms
-    ^C
-    --- 192.168.116.2 ping statistics ---
-    2 packets transmitted, 2 received, 0% packet loss, time 999ms
-    rtt min/avg/max/mdev = 0.478/0.499/0.520/0.021 ms
-    
-    $ ping 192.168.117.2
-    PING 192.168.117.2 (192.168.117.2) 56(84) bytes of data.
-    64 bytes from 192.168.117.2: icmp_seq=1 ttl=64 time=0.531 ms
-    64 bytes from 192.168.117.2: icmp_seq=2 ttl=64 time=0.504 ms
-    ^C
-    --- 192.168.117.2 ping statistics ---
-    2 packets transmitted, 2 received, 0% packet loss, time 999ms
-    rtt min/avg/max/mdev = 0.504/0.517/0.531/0.026 ms	
+    $ ping 192.168.116.2  
+    PING 192.168.116.2 (192.168.116.2) 56(84) bytes of data.  
+    64 bytes from 192.168.116.2: icmp_seq=1 ttl=64 time=0.478 ms  
+    64 bytes from 192.168.116.2: icmp_seq=2 ttl=64 time=0.520 ms  
+    ^C  
+    --- 192.168.116.2 ping statistics ---  
+    2 packets transmitted, 2 received, 0% packet loss, time 999ms  
+    rtt min/avg/max/mdev = 0.478/0.499/0.520/0.021 ms  
+      
+    $ ping 192.168.117.2  
+    PING 192.168.117.2 (192.168.117.2) 56(84) bytes of data.  
+    64 bytes from 192.168.117.2: icmp_seq=1 ttl=64 time=0.531 ms  
+    64 bytes from 192.168.117.2: icmp_seq=2 ttl=64 time=0.504 ms  
+    ^C  
+    --- 192.168.117.2 ping statistics ---  
+    2 packets transmitted, 2 received, 0% packet loss, time 999ms  
+    rtt min/avg/max/mdev = 0.504/0.517/0.531/0.026 ms	 
     </pre>
 
 1. (Optional) To allow communication to external data path, add a default router for each VRF gateway:  
@@ -887,4 +924,16 @@ To configure a cluster to use a VRF gateway, either:
 
 
 <br>
-## <a id="security-config-vrf"></a> Step 6: Configure VRF Gateway Security
+## <a id="security-config-vrf"></a>Configure VRF Gateway Security
+
+In a VRF gateway-isolated environment, you can secure two types of traffic:
+
+- Traffic between tenants. See [Secure VRF Gateway Inter-Tenant Communications](#secure-inter-tenant-vrf).  
+- Traffic between clusters in the same tenant. See [Secure VRF Gateway Intra-Tenant Communications](#secure-intra-tenant-vrf).  
+
+
+### <a id="secure-inter-tenant-vrf"></a>Secure VRF Gateway Inter-Tenant Communications
+
+
+
+### <a id="secure-intra-tenant-vrf"></a>Secure VRF Gateway Intra-Tenant Communications
