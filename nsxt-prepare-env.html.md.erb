@@ -18,7 +18,7 @@ Familiarize yourself with the following related documentation:
 * [Ops Manager documentation](https://docs.pivotal.io/ops-manager/vsphere/deploy.html)
 * [BOSH documentation](https://bosh.io/docs/bosh-components/)
 * [Kubernetes documentation](https://kubernetes.io/docs/home/)
-* [Docker documentation](https://docs.docker.com/)
+* [containerd documentation](https://containerd.io/docs/)
 
 Review the following <%= vars.product_short %> documentation:
 
@@ -82,25 +82,69 @@ For example, /20 allows up to 16 Kubernetes clusters to be created.</p>
 
 ###<a id='reserved-ip-blocks'></a>Reserved IP Blocks
 
-<%= vars.product_short %> reserves several CIDR blocks and IP addresses for internal use. When deploying TKGI, do not use these CIDR blocks or IP addresses.
+<%= vars.k8s_runtime_abbr %> reserves several CIDR blocks and IP addresses for internal use.  
 
-* Each Kubernetes cluster uses the `10.100.200.0/24` subnet for Kubernetes services. Do not use this IP range for the Nodes IP Block.
-* Docker is installed on each <%= vars.product_short %> worker node and is assigned the `172.17.0.0/16` network interface. Do not use this CIDR range for any TKGI component, including Ops Manager, BOSH Director, the TKGI API VM, the TKGI DB VM, and the Harbor Registry VM.
-* The <%= vars.product_short %> Management Console runs the Docker daemon and reserves for it the `172.18.0.0/16` subnet and the gateway `172.18.0.1`. Do not use this CIDR range or IP address unless you customize them during OVA configuration.
-* The Harbor Registry requires IP blocks in the range `172.20.0.0/16`.  Do not use this CIDR range, unless you change it in the [Harbor tile configuration](https://docs.pivotal.io/vmware-harbor/installing.html#configure_networking).
+When deploying <%= vars.k8s_runtime_abbr %>, do not use the following reserved CIDR blocks and IP addresses:  
 
-<p class="note"><strong>Note</strong>: The TKGI Management Console VM also reserves an unused <em>docker0</em> interface on <em>172.17.0.0/16</em>. This cannot be customized.</p>
+<table>
+  <tr>
+    <th>Reserved Address/Range</th>
+    <th>Component</th>
+    <th>Customizable</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>10.100.200.0/24</code></td>
+    <td>Nodes IP Block</td>
+    <td>No.</td>
+    <td>Each Kubernetes cluster uses the <code>10.100.200.0/24</code> subnet for Kubernetes services. Do not use this IP range for the Nodes IP Block.</td>
+  </tr>
+  <tr>
+    <td><code>172.17.0.0/16</code></td>
+    <td>Worker node VM</td>
+    <td>No.</td>
+    <td>
+      containerd is installed on each <%= vars.product_short %> worker node and is assigned the <code>172.17.0.0/16</code> network interface. 
+      Do not use this CIDR range for any TKGI component, including Ops Manager, BOSH Director, the TKGI API VM, the TKGI DB VM, and the Harbor Registry VM. 
+      Note: This range is also sreserved for the Management Console VM, but is unused. 
+    </td>
+  </tr>
+  <tr>
+    <td><code>172.18.0.0/16</code></td>
+    <td>Management Console VM</td>
+    <td>Yes.<br>See OVA configuration.</td>
+    <td>
+      The <%= vars.product_short %> Management Console runs the containerd daemon and reserves <code>172.18.0.0/16</code> for the subnet. 
+      Do not use this CIDR range unless you customize them during OVA configuration.
+    </td>
+  </tr>
+  <tr>
+    <td><code>172.18.0.1</code></td>
+    <td>Management Console VM</td>
+    <td>Yes.<br>See OVA configuration.</td>
+    <td>
+      The <%= vars.product_short %> Management Console runs the containerd daemon and reserves <code>172.18.0.1</code> for the gateway . 
+      Do not use this CIDR range or IP address unless you customize them during OVA configuration.
+    </td>
+  </tr>
+  <tr>
+    <td><code>172.20.0.0/16</code></td>
+    <td>Harbor Registry VM </td>
+    <td>Yes. See Harbor tile > Networking.</td>
+    <td>The Harbor Registry requires IP blocks in the range <code>172.20.0.0/16</code>.  
+      Do not use this CIDR range, unless you change it in the 
+      [Harbor tile configuration](https://docs.pivotal.io/vmware-harbor/installing.html#configure_networking).
+    </td>
+  </tr>
+  <tr>
+    <td><code>172.17.0.0/16</code></td>
+    <td>Management Console VM</td>
+    <td>No.</td>
+    <td>The TKGI Management Console VM also reserves an unused <em>docker0</em> interface on <code>172.17.0.0/16</code>. This cannot be customized.</td>
+  </tr>
 
-The table below summarizes the IP blocks reserved by TKGI. Do not use these when deploying TKGI components.
+</table>
 
-IP Address Block    | Reserved for      | TKGI Component      | Customizable
---------------------|---------------------|-----------------------|-------------------------------
-`10.100.200.0/24`   | Kubernetes services | Nodes IP Block      | No
-`172.17.0.0/16`     | Docker daemon     | Worker node VM      | No
-`172.17.0.0/16`     | Docker daemon     | Management Console VM | No (unused)
-`172.18.0.0/16`     | Docker daemon     | Management Console VM | Yes (OVA configuration)
-`172.18.0.1`        | Docker gateway    | Management Console VM | Yes (OVA configuration)
-`172.20.0.0/16`     | Docker daemon     | Harbor Registry VM    | Yes (Harbor tile > Networking)
 
 ##<a id='plan-ip-blocks'></a>Gather Other Required IP Addresses
 
