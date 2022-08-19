@@ -237,41 +237,42 @@ Where:
 
 * `CLUSTER-NAMES` is a comma-delimited list of the names of the Kubernetes clusters you want to upgrade. 
 
-* `CLUSTER-COUNT` is the maximum number of clusters to upgrade in parallel within an an AZ.  
-    * If the `CLUSTER-NAMES` list is longer than the `CLUSTER-COUNT`, the first set of clusters are upgraded in parallel and
-    subsequent clusters are queued and then upgraded in parallel as the preceding cluster upgrades complete.  
-    * If an upgrade fails for a cluster in the `CLUSTER-NAMES` list, the job continues to a subsequent cluster in the list.  
-    * To run the cluster upgrade job as a background task, remove the `--wait` argument.
+* `CLUSTER-COUNT` is the maximum number of clusters to upgrade in parallel within an AZ. 
+    The `CLUSTER-COUNT` must be less than your TKGI tile > TKGI API Service > <strong>Worker VM Max in Flight</strong> value. 
+    For example, if your TKGI tile <strong>Worker VM Max in Flight</strong> value remains the default of <code>4</code>, 
+    run <code>upgrade-clusters</code> with a <code>--max-in-flight</code> argument value less than <code>4</code>.  
+      
+Considerations when running `tkgi upgrade-clusters`:  
 
-    <p class="note"><strong>Note:</strong> Run <code>upgrade-clusters</code> with a <code>--max-in-flight</code> 
-      argument less than your BOSH Director > Director Config > <strong>Director Workers</strong> value. 
-      For example, if your <strong>Director Workers</strong> value remains the default of <code>5</code>, 
-      run <code>upgrade-clusters</code> with a <code>--max-in-flight</code> argument value less than <code>5</code>.
-    </p>
+* If an upgrade for a cluster in the `--clusters` list fails, the `tkgi upgrade-clusters` job continues to a subsequent cluster in the list.  
+* Clusters are upgraded serially if `--max-in-flight` is not set.  
+* If the count of names in the `--clusters` list is more than the `--max-in-flight` value, 
+    the first set of clusters are upgraded in parallel and subsequent clusters are queued. 
+    As the initial cluster upgrades complete, the remaining clusters are pulled from the queue and upgraded in parallel.  
+* To run the cluster upgrade job as a background task, remove the `--wait` argument.  
 
-    <p class="note"><strong>Note:</strong> <code>max-in-flight</code> is an optional argument. 
-      If <code>max-in-flight</code> is not set, <%= vars.product_short %> uses the default 
-      <code>max-in-flight</code> value of <code>1</code> and the clusters are upgraded serially.
-    </p>
+<p class="note"><strong>Note:</strong>
+The nodes in each upgraded cluster are always processed serially.  
+</p>
 
 For example:
 
-<pre class="terminal">
-$ tkgi upgrade-clusters --clusters k8-cluster-000,k8-cluster-001,k8-cluster-002 --max-in-flight 2  --wait
-<br>
-You are about to upgrade k8-cluster-000, k8-cluster-001 and k8-cluster-002.
-Warning: This operation may be long running and may block further operations on the cluster(s) until complete
-<br>
-Continue? (y/n):y
-Your taskID for the upgrade task is: d772aba0-2670-4fba-b26c-044b19d6ab60
-Started upgrading cluster: k8-cluster-000
-Started upgrading cluster: k8-cluster-001
-Finished upgrading cluster: k8-cluster-000
-Started upgrading cluster: k8-cluster-002
-Finished upgrading cluster: k8-cluster-001
-Finished upgrading cluster: k8-cluster-002
-Upgrade task d772aba0-2670-4fba-b26c-044b19d6ab60 is done.
-</pre>
+```
+$ tkgi upgrade-clusters --clusters k8-cluster-000,k8-cluster-001,k8-cluster-002 --max-in-flight 2  --wait  
+  
+You are about to upgrade k8-cluster-000, k8-cluster-001 and k8-cluster-002.  
+Warning: This operation may be long running and may block further operations on the cluster(s) until complete  
+  
+Continue? (y/n):y  
+Your taskID for the upgrade task is: d772aba0-2670-4fba-b26c-044b19d6ab60  
+Started upgrading cluster: k8-cluster-000  
+Started upgrading cluster: k8-cluster-001  
+Finished upgrading cluster: k8-cluster-000  
+Started upgrading cluster: k8-cluster-002  
+Finished upgrading cluster: k8-cluster-001  
+Finished upgrading cluster: k8-cluster-002  
+Upgrade task d772aba0-2670-4fba-b26c-044b19d6ab60 is done.  
+```
 
 ####<a id='upgrade-clusters-errors'></a> Upgrade Clusters With Canaries
 
@@ -288,24 +289,24 @@ Where:
 
 * `CANARY-CLUSTER-NAMES` is a comma-delimited list of the names of the Kubernetes clusters you want to upgrade as canary clusters. 
 
-* `CLUSTER-NAMES` is a comma-delimited list of Kubernetes clusters to upgrade if all canary clusters successfully upgrade.
-    * The specified canary clusters are upgraded prior to upgrading the clusters in your `CLUSTER-NAMES` list.  
-    * Canary clusters are always upgraded serially.
-    * If an upgrade fails for a canary cluster, the entire `upgrade-clusters` job stops. 
-    * If an upgrade fails for a cluster in the `CLUSTER-NAMES` list, the `upgrade-clusters` job continues to a subsequent cluster in the list.  
-    * To run the cluster upgrade job as a background task, remove the `--wait` argument.  
+* `CLUSTER-NAMES` is a comma-delimited list of Kubernetes clusters to upgrade if all canary clusters successfully upgrade.  
 
-    <p class="note"><strong>Note:</strong> <code>--clusters</code> is a required argument. 
-    To configure <code>upgrade-clusters</code> to stop for any cluster upgrade failure, 
-    specify only one cluster in your <code>CLUSTER-NAMES</code> list and 
-    the remaining clusters in your <code>CANARY-CLUSTER-NAMES</code> list.
-    </p>
+Considerations when running `tkgi upgrade-clusters` with a `--canaries` list:  
 
-    <p class="note"><strong>Note:</strong> Canary clusters are always upgraded serially. 
-      Only the clusters specified in the <code>--clusters</code> list are upgraded in parallel 
-      when you run <code>upgrade-clusters</code> with both <code>--canaries</code> and 
-      <code>--max-in-flight</code> arguments.
-    </p>
+* The clusters specified in the `--canaries` list are upgraded prior to upgrading the clusters in your `--clusters` list.  
+* If a canary cluster upgrade fails, the entire `tkgi upgrade-clusters` job stops.  
+* If a `--clusters` list cluster upgrade fails, the `tkgi upgrade-clusters` job continues to a subsequent cluster in the list.  
+* To configure <code>tkgi upgrade-clusters</code> to stop for any cluster upgrade failure, 
+    specify only one cluster in your <code>--clusters</code> list and 
+    the remaining clusters in your <code>--canaries</code> list.  
+* Canary clusters are always upgraded serially. 
+    To upgrade clusters in the `--clusters` list in parallel, see [Upgrade Clusters in Parallel](#upgrade-clusters-parallel) above.  
+* To run the cluster upgrade job as a background task, remove the `--wait` argument.  
+
+<p class="note"><strong>Note:</strong> 
+The <code>--clusters</code> argument is required. 
+</p>
+
 
 For example:
 
