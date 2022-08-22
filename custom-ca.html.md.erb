@@ -7,19 +7,19 @@ This topic describes how to use a custom certificate authority (CA) to secure yo
 
 ##<a id='custom-ca'></a> Custom CA Support
  
-By default <%= vars.k8s_runtime_abbr %> creates a new per-cluster CA (`kubo_master_ca_2021`) for each Kubernetes cluster.
-<%= vars.k8s_runtime_abbr %> manages the lifecycle of the per-cluster CA and the certificates it signs.
-For more information, see [Overview of Kubernetes Cluster Certificates](rotate-cluster-certificates.html#overview).
+By default <%= vars.k8s_runtime_abbr %> creates a new per-cluster CA (`kubo_master_ca_2021`) for each Kubernetes cluster. 
+<%= vars.k8s_runtime_abbr %> manages the lifecycle of the per-cluster CA and the certificates it signs. 
+For more information, see [Overview of Kubernetes Cluster Certificates](rotate-cluster-certificates.html#overview).  
 
 For most use cases, the system-managed per-cluster CA is appropriate. 
 If it is required, you can apply a custom CA to a Kubernetes cluster, 
-either during [creation](#custom-ca-new) or [update](#custom-ca-update).
+either during [creation](#custom-ca-new) or [update](#custom-ca-update).  
 
 Configuring a Kubernetes cluster with a custom CA is an advanced operation. 
 If you use a custom CA, you are responsible for managing its lifecycle, 
-including monitoring its expiry and [rotating](#custom-ca-rotate) it while still valid.
+including monitoring its expiry and [rotating](#custom-ca-rotate) it while still valid.  
 
-To use custom CA functionality, existing clusters must be upgraded to support per-cluster CA.
+To use custom CA functionality, existing clusters must be upgraded to support per-cluster CA.  
 
 <p class="note warning">
 <strong>Warning:</strong> Using a custom CA is an advanced operation.
@@ -29,28 +29,37 @@ It is recommended that you contact <a href="https://www.vmware.com/support/servi
 ##<a id='custom-ca-new'></a> Create Cluster with Custom CA
 
 To apply a custom CA to a new cluster, 
-specify the custom CA using the `--config-file` option with the `create-cluster` operation.
+specify the custom CA using the `--config-file` option with the `create-cluster` operation.  
 
-For example:
+For example:  
 
 ```
 tkgi create-cluster <clustername> --external-hostname <clustername.example.com> --plan 'Plan 1' --config-file custom_ca.yaml
 ```
 
-See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).
+See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).  
+
 
 ##<a id='custom-ca-update'></a> Update Cluster with Custom CA
 
-To apply a custom CA to an existing cluster, 
-specify the custom CA using the `--config-file` option with the `update-cluster` operation. 
+To apply a custom CA to an existing cluster:  
 
-For example:
+1. If you are updating a cluster that uses a public cloud CSI driver, 
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
+in _Release Notes_ for additional requirements.  
+1. Run the following command:  
 
-```
-tkgi update-cluster <clustername> --config-file custom_ca.yaml
-```
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE-NAME
+    ```
+    
+    Where:  
+    
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE-NAME` is the configuration file to use. For example, `custom_ca.yaml`.  
 
-See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).
+See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).  
+
 
 ##<a id='custom-ca-rotate'></a> Rotate Custom CA
 
@@ -58,30 +67,42 @@ You can rotate a [custom CA](#custom-ca) by updating the cluster with the new CA
 
 <p class="note"><strong>Note:</strong> This procedure is designed to work if the custom CA you are replacing has not expired.</p>
 
-For example:
+To rotate the custom CA of an existing cluster:  
 
-```
-tkgi update-cluster <clustername> --config-file custom_ca_new.yaml
-```	
+1. If you are updating a cluster that uses a public cloud CSI driver, 
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
+in _Release Notes_ for additional requirements.  
+1. Run the following command:  
 
-See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE-NAME
+    ```
+    
+    Where:  
+    
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE-NAME` is the configuration file to use. For example, `custom_ca.yaml`.  
+
+See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).  
+
 
 ##<a id='custom-ca-debug'></a> Troubleshoot Custom CA
 
-The log is located at `/var/vcap/sys/log/pks-api.log`.
+The log is located at `/var/vcap/sys/log/pks-api.log`.  
 
-The following command will trigger a Bosh deployment. You can track the progress using the Bosh CLI:
+The following command will trigger a Bosh deployment. You can track the progress using the Bosh CLI:  
 
 ```
  bosh tasks
  bosh task <task-id> --debug
 ```
 
-After rotation of the custom CA, check the cluster status and certificate expiration date.
+After rotation of the custom CA, check the cluster status and certificate expiration date.  
+
 
 ##<a id='custom-ca-reqs'></a> Custom CA Requirements
 
-The custom CA must include a certificate and private key in standard PEM format as follows:
+The custom CA must include a certificate and private key in standard PEM format as follows:  
 
 ```
 {
@@ -93,18 +114,19 @@ The custom CA must include a certificate and private key in standard PEM format 
 }
 ```
 
-The custom CA must satisfy following validation rules:
+The custom CA must satisfy following validation rules:  
 
-- It must be a CA
-- It must be a root CA
-- It must not expire within 6 months
-- The private key and the certificate must match
+- It must be a CA.  
+- It must be a root CA.  
+- It must not expire within 6 months.  
+- The private key and the certificate must match.  
+
 
 ##<a id='custom-ca-egs'></a> Custom CA Formats
 
-<%= vars.k8s_runtime_abbr %> supports both YAML (`*.yml` or `*.yaml`) and JSON (`*.json`) configuration file format for supplying the custom CA.
+<%= vars.k8s_runtime_abbr %> supports both YAML (`*.yml` or `*.yaml`) and JSON (`*.json`) configuration file format for supplying the custom CA.  
 
-Below is an example configuration file in YAML format for a custom CA (`custom_ca.yaml`):
+Below is an example configuration file in YAML format for a custom CA (`custom_ca.yaml`):  
 
 ```
 # YAML for custom CA with certificate and private key
@@ -125,7 +147,7 @@ custom_ca:
     -----END RSA PRIVATE KEY-----
 ```
 
-Below is an example configuration file in JSON format for a custom CA (`custom_ca.json`):
+Below is an example configuration file in JSON format for a custom CA (`custom_ca.json`):  
 
 ```
 {
@@ -135,6 +157,4 @@ Below is an example configuration file in JSON format for a custom CA (`custom_c
    }
 }
 ```
-
-
 
