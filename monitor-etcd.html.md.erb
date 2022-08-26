@@ -57,23 +57,29 @@ To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
 
 1. Under **Enable Telegraf Outputs?**, select **Yes**.  
   ![Host Monitoring pane](images/host-monitoring-telegraf.png)  
-1. Configure the Telegraf checkboxes as described in the table below.  
-
-    Components you enable in this step will be visible to <%= vars.k8s_runtime_abbr %> admins only.
+1. Configure Telegraf output settings as described in the table below.  
 
     <table class="nice">
       <col width="30%">
       <col width="70%">
       <tr>
-        <th>Enable this checkbox...</th>
-        <th>...to send these metrics to your monitoring service</th>
+        <th>Configuration Setting</th>
+        <th>Description...to send these metrics to your monitoring service</th>
+      </tr>
+      <tr>
+        <td>
+          <strong>Prometheus input plugin Metric version</strong>
+        </td>
+        <td>
+          Select to configure the Prometheus input version
+        </td>
       </tr>
       <tr>
         <td>
           <strong>Enable node exporter on TKGI API</strong>
         </td>
         <td>
-          Node Exporter metrics from the TKGI API VM
+          Enable to send Node Exporter metrics from the TKGI API VM.
         </td>
       </tr>
       <tr>
@@ -81,7 +87,7 @@ To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
           <strong>Enable node exporter on control plane</strong>
         </td>
         <td>
-          Node Exporter metrics from Kubernetes control plane nodes
+          Enable to send Node Exporter metrics from Kubernetes control plane nodes.
         </td>
       </tr>
       <tr>
@@ -89,7 +95,7 @@ To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
           <strong>Include etcd metrics</strong>
         </td>
         <td>
-          etcd server and debugging metrics
+          Enable to send etcd server and debugging metrics.
         </td>
       </tr>
       <tr>
@@ -97,7 +103,7 @@ To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
           <strong>Enable node exporter on worker</strong>
         </td>
         <td>
-          Node Exporter metrics from Kubernetes worker nodes
+          Enable to send Node Exporter metrics from Kubernetes worker nodes.
         </td>
       </tr>
       <tr>
@@ -105,7 +111,7 @@ To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
           <strong>Include Kubernetes Controller Manager metrics</strong>
         </td>
         <td>
-          Kubernetes controller manager metrics
+          Enable to send Kubernetes controller manager metrics.
           <ul><li>These metrics provide information about the state of each cluster.</li></ul>
         </td>
       </tr>
@@ -114,7 +120,15 @@ To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
           <strong>Include Kubernetes API Server metrics</strong>
         </td>
         <td>
-          Kubernetes API server metrics
+          Enable to send Kubernetes API server metrics.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Include Kubernetes Scheduler metrics</strong>
+        </td>
+        <td>
+          
         </td>
       </tr>
       <tr>
@@ -122,11 +136,25 @@ To configure <%= vars.k8s_runtime_abbr %> to use Telegraf for metric collection:
           <strong>Include kubelet metrics</strong>
         </td>
         <td>
-          kubelet metrics for all workloads running in all your Kubernetes clusters
+          Enable to send kubelet metrics for all workloads running in all your Kubernetes clusters.
           <ul><li>If you enable <strong>Include kubelet metrics</strong>, be prepared for a high volume of metrics.</li></ul></p>
         </td>
       </tr>
+      <tr>
+        <td>
+          <strong>Include telegraf metrics when telegraf enabled</strong>
+        </td>
+        <td>
+          Enable to send telegraf process memory status, agent metrics, and write metrics.
+        </td>
+      </tr>
     </table>
+
+    <p class="note"><strong>Note:</strong>
+      The telegraf output configuration options are visible to <%= vars.k8s_runtime_abbr %> admins only.
+    </p>
+    
+    Components you enable in this step will be visible to <%= vars.k8s_runtime_abbr %> admins only.
 
 1. In **Setup Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents of the configuration file
 that you created in [Create a Configuration File](#toml) above.
@@ -159,6 +187,265 @@ in the Telegraf documentation.
 1. To deploy the <%= vars.product_tile %> tile, return to the Ops Manager
 Installation Dashboard and click **Review Pending Changes** >
 **Apply Changes**.
+
+
+### <a id="telegraf-config"></a> Customize telegraf Configuration
+
+
+#### <a id="prometheus-metric-version"></a> Configure Prometheus Input Plugin Metric Version
+
+* Prometheus input plugin Metric version = 1
+* Prometheus input plugin Metric version = 2
+
+#### <a id="k8s-schedule"></a> Configure Include Kubernetes Scheduler Metrics
+
+**Kubernetes Scheduler Metrics Output Keys**
+<table class="nice">
+  <tr>
+    <th>Position</th>
+    <th>Version 1</th>
+    <th>Version 2</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>rest_client_requests_total</td>
+    <td>prometheus</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>cluster_name</td>
+    <td>cluster_name</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>code</td>
+    <td>code</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>host</td>
+    <td>host</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>internal_ip</td>
+    <td>internal_ip</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td>method</td>
+    <td>method</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td>url</td>
+    <td>url</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>counter</td>
+    <td>rest_client_requests_total</td>
+  </tr>
+</table>
+
+Example Metric Version 1 Output:  
+
+```
+rest_client_requests_total,cluster_name=aaa,code=200,host=master.cfcr.internal:8443,internal_ip=30.0.0.9,method=GET,url=https://localhost:10259/metrics counter=313910 1660534610000000000
+```
+
+Example Metric Version 2 Output:  
+
+```
+prometheus,cluster_name=aaa,code=200,host=master.cfcr.internal:8443,internal_ip=30.0.0.9,method=GET,url=https://localhost:10259/metrics rest_client_requests_total=314705 1660536100000000000
+```
+
+To configure configure the Prometheus input plugin metric version, 
+see [Configure Prometheus Input Plugin Metric Version](#prometheus-metric-version) above.  
+
+#### <a id="include-telegraf"></a> Configure Include telegraf Metrics
+
+**telegraf Metrics Output Keys**
+<table class="nice">
+  <tr>
+    <th>Position</th>
+    <th>Memory</th>
+    <th>Agent</th>
+    <th>Write</th>
+    <th>Scheduler</th>
+    <th>API Server</th>
+    <th>Internal</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>internal_memstats</td>
+    <td>internal_agent</td>
+    <td>internal_write</td>
+    <td>internal_gather</td>
+    <td>internal_gather</td>
+    <td>internal_gather</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>cluster_name</td>
+    <td>cluster_name</td>
+    <td>cluster_name</td>
+    <td>alias=scheduler</td>
+    <td>alias=api-server</td>
+    <td>cluster_name</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>host</td>
+    <td>go_version</td>
+    <td>host</td>
+    <td>cluster_name</td>
+    <td>cluster_name</td>
+    <td>host</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>internal_ip</td>
+    <td>host</td>
+    <td>internal_ip</td>
+    <td>host</td>
+    <td>host</td>
+    <td>input</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>frees</td>
+    <td>internal_ip</td>
+    <td>output</td>
+    <td>input</td>
+    <td>input</td>
+    <td>internal_ip</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td>heap_alloc_bytes</td>
+    <td>version</td>
+    <td>version</td>
+    <td>internal_ip</td>
+    <td>internal_ip</td>
+    <td>version</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td>heap_sys_bytes</td>
+    <td>metrics_written</td>
+    <td>metrics_written</td>
+    <td>version</td>
+    <td>version</td>
+    <td>metrics_gathered</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>alloc_bytes</td>
+    <td>metrics_dropped</td>
+    <td>metrics_dropped</td>
+    <td>errors</td>
+    <td>errors</td>
+    <td>gather_time_ns</td>
+  </tr>
+  <tr>
+    <td>9</td>
+    <td>mallocs</td>
+    <td>metrics_gathered</td>
+    <td>buffer_size</td>
+    <td>metrics_gathered</td>
+    <td>metrics_gathered</td>
+    <td>errors</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td>heap_in_use_bytes</td>
+    <td>gather_errors</td>
+    <td>buffer_limit</td>
+    <td>gather_time_ns</td>
+    <td>gather_time_ns</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>11</td>
+    <td>heap_released_bytes</td>
+    <td></td>
+    <td>metrics_filtered</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>12</td>
+    <td>heap_objects</td>
+    <td></td>
+    <td>write_time_ns</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>13</td>
+    <td>total_alloc_bytes</td>
+    <td></td>
+    <td>errors</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>14</td>
+    <td>pointer_lookups</td>
+    <td></td>
+    <td>metrics_added</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+Example telegraf Memory Metrics Output:  
+
+```
+internal_memstats,cluster_name=aaa,host=859bffa0-eeab-4f81-b664-53ca5a9fb756,internal_ip=30.0.0.9 frees=464168i,heap_alloc_bytes=20156736i,heap_sys_bytes=28868608i,alloc_bytes=20156736i,sys_bytes=37897224i,mallocs=615347i,heap_idle_bytes=7274496i,heap_in_use_bytes=21594112i,heap_released_bytes=2621440i,heap_objects=151179i,num_gc=7i,total_alloc_bytes=50755200i,pointer_lookups=0i 1660534850000000000
+```
+
+
+Example telegraf Agent Metrics Output:  
+
+```
+internal_agent,cluster_name=aaa,go_version=1.17,host=859bffa0-eeab-4f81-b664-53ca5a9fb756,internal_ip=30.0.0.9,version=1.20.2 metrics_written=3408i,metrics_dropped=0i,metrics_gathered=3551i,gather_errors=0i 1660534850000000000
+```
+
+
+Example telegraf Write Metrics Output:  
+
+```
+internal_write,cluster_name=aaa,host=859bffa0-eeab-4f81-b664-53ca5a9fb756,internal_ip=30.0.0.9,output=file,version=1.20.2 metrics_written=3408i,metrics_dropped=0i,buffer_size=142i,buffer_limit=200000i,metrics_filtered=0i,write_time_ns=685575i,errors=0i,metrics_added=3550i 1660534850000000000
+```
+
+
+Example telegraf Scheduler Metrics Output:  
+
+```
+internal_gather,alias=scheduler,cluster_name=aaa,host=859bffa0-eeab-4f81-b664-53ca5a9fb756,input=prometheus,internal_ip=30.0.0.9,version=1.20.2 errors=0i,metrics_gathered=3425i,gather_time_ns=18387320i 1660534850000000000
+```
+
+
+Example telegraf API Server Metrics Output:  
+
+```
+internal_gather,alias=api-server,cluster_name=aaa,host=859bffa0-eeab-4f81-b664-53ca5a9fb756,input=prometheus,internal_ip=30.0.0.9,version=1.20.2 errors=0i,metrics_gathered=2747i,gather_time_ns=140194058i 1660546440000000000
+```
+
+
+Example telegraf Internal Metrics Output:  
+
+```
+internal_gather,cluster_name=aaa,host=859bffa0-eeab-4f81-b664-53ca5a9fb756,input=internal,internal_ip=30.0.0.9,version=1.20.2 metrics_gathered=126i,gather_time_ns=1265947i,errors=0i 1660534850000000000
+```
+
+
 
 ## <a id="errors"></a>Troubleshoot etcd
 
