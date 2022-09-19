@@ -22,13 +22,21 @@ To prepare for a <%= vars.k8s_runtime_abbr %> Upgrade:
 1. [Determine Upgrade Order (vSphere Only)](#upgrade-order)  
 1. [Set User Expectations and Restrict Cluster Access](#expectations)  
 1. [Update Default Scanner](#update-default-scanner)  
-1. [Upgrade All Clusters](#upgrade-clusters)  
+1. If you are upgrading a cluster that uses a public cloud CSI driver, 
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
+in _Release Notes_ for additional requirements.  
+1. [Upgrade All Clusters to <%= vars.product_version_prev %>](#upgrade-clusters)  
 1. [Verify Your Clusters Support Upgrading](#resource-usage)  
 <% if vars.product_version == "v1.15" %>
 1. [Install the Public Cloud CSI Driver Before Upgrading](#install-csi-driver-public-cloud)  
 <% end %>
 <% if vars.product_version == "v1.14" %>
 1. [Switch to the Auto-Deployed CSI Driver Before Upgrading](#upgrade-csi-driver)  
+<% end %>
+<% if vars.product_version == "v1.15" %>
+1. [Switch Docker Container Runtime Clusters to the containerd Container Runtime](#migrate-runtime)  
+<% end %>
+<% if vars.product_version == "v1.14" %>
 1. [Customize Cluster Container Runtimes Before Upgrading](#upgrade-runtime)  
 <% end %>
 1. [Verify Health of Kubernetes Environment](#verify-k8s-health)  
@@ -100,7 +108,7 @@ default scanner in "Interrogation Service". For more information, see
 in the Clair documentation.
 <% end %>
 
-##<a id='upgrade-clusters'></a> Upgrade All Clusters
+##<a id='upgrade-clusters'></a> Upgrade All Clusters to <%= vars.product_version_prev %>
 
 <%= vars.product_short %> <%= vars.product_version %> does not support clusters
 running versions of <%= vars.k8s_runtime_abbr %> earlier than <%= vars.product_version_prev %>.
@@ -117,13 +125,11 @@ To upgrade <%= vars.k8s_runtime_abbr %>-provisioned clusters:
     tkgi clusters
     ```
 
-1. If you are upgrading a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
 1. If one or more of your clusters are running a version of
 <%= vars.k8s_runtime_abbr %> earlier than <%= vars.product_version_prev %>, upgrade the clusters.
 For instructions,
-see [Upgrading Clusters](./upgrade-clusters.html).  
+see the [Upgrading Clusters](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/product_version_prev_raw/tkgi/GUID-upgrade-clusters.html) topic 
+in the <%= vars.k8s_runtime_abbr %> <%= vars.product_version_prev %> documentation.  
 
 
 ##<a id='resource-usage'></a> Verify Your Clusters Support Upgrading
@@ -205,8 +211,9 @@ you must switch your clusters to use the automatically installed CSI driver befo
 For more information, 
 see [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](vsphere-cns.html#uninstall-csi) 
 in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.  
-
-
+<% end %>     
+        
+<% if vars.product_version == "v1.14"  %>
 ##<a id='upgrade-runtime'></a>(Optional) Customize Cluster Container Runtimes Before Upgrading
 
 Containerd is the default container runtime for newly created clusters.  
@@ -228,12 +235,28 @@ or "lock" your clusters to the Docker container runtime:
 The upgrade to <%= vars.k8s_runtime_abbr %> v1.14.0 will switch a "locked" cluster to using the containerd runtime 
 if, between locking and upgrading, you ran <code>tkgi update-cluster</code> without including the <code>lock_container_runtime: true</code> parameter in your configuration.
 </p>  
+<% end %>     
+        
+<% if vars.product_version == "v1.15"  %>
+###<a id='migrate-runtime'></a>Switch Docker Container Runtime Clusters to the containerd Container Runtime
 
-###<a id='migrate-runtime'></a>Switch a Cluster to a Different Container Runtime
+<%= vars.recommended_by %> recommends that you 
+switch your Docker container runtime clusters to containerd before upgrading to <%= vars.k8s_runtime_abbr %> v1.15.  
 
-You can switch an existing cluster from using a Docker container runtime to a containerd container runtime.  
+<p class="note warning"><strong>Warning</strong>: Cluster workloads will experience downtime during the <%= vars.k8s_runtime_abbr %> v1.15 upgrade 
+    if the cluster they are on is switched from using the Docker container runtime to containerd.
+</p>       
 
-To switch an existing cluster to a different container runtime:  
+Cluster workloads do not experience downtime when <code>tkgi update-cluster</code> is used to switch container runtimes.
+To avoid workload downtime, <%= vars.recommended_by %> recommends that you 
+switch your Docker container runtime clusters to containerd before upgrading to <%= vars.k8s_runtime_abbr %> v1.15.  
+    
+For more information, 
+see <a href="release-notes.html#1-15-0-coredns-downtime">Cluster Workloads Experience Downtime While Upgrading and Switching Container Runtimes</a> 
+in the  Release Notes.
+ 
+To switch an existing Docker container runtime cluster to the containerd container runtime:  
+
 1. To identify which of your existing clusters use a Docker container runtime:  
 
     ```
@@ -245,17 +268,15 @@ To switch an existing cluster to a different container runtime:
 
         ```
         {
-            "runtime": "RUNTIME-NAME"
+            "runtime": "containerd"
         }
         ```
     * YAML formatted configuration file:  
 
         ```
         ---
-        runtime: RUNTIME-NAME
+        runtime: containerd
         ```
-
-    Where `RUNTIME-NAME` specifies either `docker` or `containerd` as the container runtime to switch to.  
 
 1. To update your cluster with your configuration settings, run the following command:
 
@@ -273,8 +294,9 @@ To switch an existing cluster to a different container runtime:
 For more information, see <a href="https://docs.pivotal.io/tkgi/1-12/release-notes.html#1-12-0-breaking-changes">Breaking Changes</a> 
 in the <%= vars.k8s_runtime_abbr %> v1.12 Release Notes.
 </p>
-
-     
+<% end %>     
+        
+<% if vars.product_version == "v1.14"  %> 
 ###<a id='lock-runtime'></a>Lock a Cluster to the Docker Container Runtime
 
 If you want an existing cluster to continue using the Docker container runtime after it has been upgraded to <%= vars.k8s_runtime_abbr %> <%= vars.product_version %>, 

@@ -158,15 +158,17 @@ The supported upgrade paths to <%= vars.product_short %> v1.15.0 are from
         <%= vars.k8s_runtime_abbr %> v1.15 supports the containerd container runtime. 
         All existing <%= vars.k8s_runtime_abbr %> Kubernetes clusters using the Docker container runtime 
         are switched to the containerd container runtime during the upgrade to <%= vars.k8s_runtime_abbr %> v1.15.  
-        
-        <p class="note warning"><strong>Warning</strong>:  During a <%= vars.k8s_runtime_abbr %> upgrade, cluster workloads will experience downtime while the cluster switches 
-        from using the Docker container runtime to containerd.
-        To avoid workload downtime, <%= vars.recommended_by %> recommends that you switch your clusters to the containerd container runtime before upgrading to <%= vars.k8s_runtime_abbr %> <%= vars.product_version %>. 
-        For more information, 
-        see <a href="https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.14/tkgi/GUID-release-notes.html#1-14-0-coredns-downtime">Cluster Workloads Experience Downtime While Upgrading and Switching Container Runtimes</a> 
-        in the <%= vars.k8s_runtime_abbr %> v1.14.0 Release Notes.
-        </p>   
-             
+
+        <p class="note warning"><strong>Warning</strong>: During the <%= vars.k8s_runtime_abbr %> v1.15 upgrade, 
+            cluster workloads on clusters that switch from using the Docker container runtime to containerd will experience downtime.  
+            <br>
+            Cluster workloads do not experience downtime when <code>tkgi update-cluster</code> is used to switch container runtimes.
+            To avoid workload downtime, <%= vars.recommended_by %> recommends that you 
+            switch your Docker container runtime clusters to containerd before upgrading to <%= vars.k8s_runtime_abbr %> v1.15. 
+            For more information, 
+            see <a href="#1-15-0-coredns-downtime">Cluster Workloads Experience Downtime While Upgrading and Switching Container Runtimes</a> below.
+        </p>  
+     
         The tkgi cli `create-cluster` and `update-cluster` commands 
         no longer support the `runtime` and `lock_container_runtime` flags in configuration files.  
         
@@ -1014,6 +1016,61 @@ The <%= vars.k8s_runtime_abbr %> control plane allocates IP Addresses from the f
 When configuring a Network Profile, allocate IP Addresses starting at the end of the floating IP pool range instead of those at the beginning.
 
 <hr>
+<% if vars.product_version == "v1.15"  %>
+
+#### <a id="1-15-0-coredns-downtime"></a> Cluster Workloads Experience Downtime While Upgrading and Switching Container Runtimes
+
+The workloads on a cluster will experience a period of downtime if the cluster runtime is automatically switched from Docker to containerd 
+during a <%= vars.k8s_runtime_abbr %> upgrade.  
+
+**Explanation**  
+
+By default, clusters are switched from the Docker container runtime to containerd while upgrading <%= vars.k8s_runtime_abbr %> to a newer <%= vars.k8s_runtime_abbr %> version.  
+
+If a <%= vars.k8s_runtime_abbr %> upgrade switches a cluster container runtime, the workloads on that cluster will experience a period of downtime.  
+
+Administrators have the option to switch container runtimes manually before upgrading <%= vars.k8s_runtime_abbr %>. 
+Administrators can also tag a cluster to not switch container runtimes automatically during a <%= vars.k8s_runtime_abbr %> upgrade.  
+
+**Workaround**
+
+To avoid workload downtime, manually switch the cluster's container runtime to containerd before upgrading to <%= vars.k8s_runtime_abbr %> v1.14
+or configure the cluster so that the <%= vars.k8s_runtime_abbr %> upgrade does not switch the cluster's container runtime.  
+
+If you must allow the container runtime switch to occur during a <%= vars.k8s_runtime_abbr %> upgrade, 
+avoid workload downtime by completing the following steps before upgrading to <%= vars.k8s_runtime_abbr %> v1.14:  
+
+1. Pull down the coreDNS image used in your <%= vars.k8s_runtime_abbr %> v1.13 Kubernetes clusters.  
+
+    * If you are upgrading <%= vars.k8s_runtime_abbr %> from v1.13.2 through v1.13.6 to <%= vars.k8s_runtime_abbr %> v1.14.0 and later:  
+    
+        ```
+        docker pull projects.registry.vmware.com/tkg/coredns:v1.8.4_vmware.7
+        ```  
+        
+    * If you are upgrading from <%= vars.k8s_runtime_abbr %> v1.13.0 or v1.13.1 to <%= vars.k8s_runtime_abbr %> v1.14.0 and later:  
+    
+        1. SSH to one of the worker nodes.  
+        1. Use the following `alias docker` command:  
+        
+            ```
+            alias docker="/var/vcap/packages/docker/bin/docker --host unix:///var/vcap/sys/run/docker/docker.sock"
+            ```
+            
+        1. Export the coreDNS image using [`docker save`](https://docs.docker.com/engine/reference/commandline/save/).  
+            
+1. Upload the coreDNS image to your custom image registry.  
+1. Modify the coreDNS deployment to use the uploaded image. 
+Repeat this step for all of the <%= vars.k8s_runtime_abbr %> Kubernetes clusters with workloads that should remain up during the upgrade.  
+1. Upgrade <%= vars.k8s_runtime_abbr %> from v1.13 to <%= vars.k8s_runtime_abbr %> v1.14.  
+
+    During worker upgrades the coreDNS image in the custom image registry is available, avoiding coreDNS downtime. 
+    After upgrading a cluster, the workers use the coreDNS version installed by the <%= vars.k8s_runtime_abbr %> upgrade.  
+
+
+<hr>
+<% end %>  
+
 
 #### <a id="1-15-0-fluentd-multiline"></a> Fluent Bit Does Not Merge Containerd Runtime Cluster Multi-Line Entries
 
