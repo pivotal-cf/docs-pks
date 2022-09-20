@@ -21,7 +21,7 @@ This topic contains release notes for <%= vars.product_short %> (<%= vars.k8s_ru
     </tr>
     <tr>
         <td>Version</td>
-        <td colspan=2><a href="https://network.pivotal.io/products/pivotal-container-service#/releases/1090100">v1.15.0</a></td>
+        <td colspan=2><a href="https://network.pivotal.io/products/pivotal-container-service#/releases/1162514">v1.15.0</a></td>
     </tr>
     <tr>
         <td>Release date</td>
@@ -114,7 +114,7 @@ This topic contains release notes for <%= vars.product_short %> (<%= vars.k8s_ru
     </tr>
     <tr>
         <td>Ops Manager</td>
-        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/"><%= vars.product_network %></a>.</td>
+        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/1162514"><%= vars.product_network %></a>.</td>
     </tr>
     <tr>
         <td>VMware NSX</td>
@@ -130,7 +130,7 @@ This topic contains release notes for <%= vars.product_short %> (<%= vars.k8s_ru
     </tr>
     <tr>
         <td>Xenial stemcells</td>
-        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/"><%= vars.product_network %></a>.</td>
+        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/1162514"><%= vars.product_network %></a>.</td>
     </tr>
 </table>
 
@@ -1188,7 +1188,10 @@ When updating a cluster that uses a public cloud CSI Driver:
     </tr>
     <tr>
         <td>Version</td>
-        <td colspan=2><a href="https://customerconnect.vmware.com/downloads/details?downloadGroup=TKGIMC-1130&productId=1231">v1.15.0</td>
+        <td colspan=2><a href="https://customerconnect.vmware.com/downloads/info/slug/infrastructure_operations_management/vmware_tanzu_kubernetes_grid_integrated_edition/1_15">v1.15.0</td>
+            <% if vars.product_version == "COMMENTED"  %>
+            https://customerconnect.vmware.com/downloads/details?downloadGroup=TKGIMC-1130&productId=1231
+            <% end %>
     </tr>
     <tr>
         <td>Release date</td>
@@ -1258,7 +1261,169 @@ or removed from <%= vars.k8s_runtime_abbr %> Management Console v1.15:
 
 The <%= vars.product_short %> Management Console v1.15.0 has the following known issues:
 
+<hr>
 
+#### <a id="management-console-1-15-0-vrli-https"></a> vRealize Log Insight Integration Does Not Support HTTPS Connections
+
+**Symptom**
+
+The <%= vars.product_short %> Management Console integration to vRealize Log Insight does not support connections to the HTTPS port on the vRealize Log Insight server.
+
+**Workaround**
+
+1. Use SSH to log in to the <%= vars.product_short %> Management Console appliance VM.
+1. Open the file `/lib/systemd/system/pks-loginsight.service` in a text editor.
+1. Add `-e LOG_SERVER_ENABLE_SSL_VERIFY=false`.
+1. Set `-e LOG_SERVER_USE_SSL=true`.
+
+    The resulting file should look like the following example:
+
+    ```
+    ExecStart=/bin/docker run --privileged --restart=always --network=pks
+    -v /var/log/journal:/var/log/journal
+    --name=pks-loginsight
+    -e TYPE=gear2-vm
+    -e LOG_SERVER_HOST=${LOGINSIGHT_HOST}
+    -e LOG_SERVER_PORT=${LOGINSIGHT_PORT}
+    -e LOG_SERVER_ENABLE_SSL_VERIFY=false
+    -e LOG_SERVER_USE_SSL=true
+    -e LOG_SERVER_AGENT_ID=${LOGINSIGHT_ID}
+    pksoctopus/vrli-journald:v07092019
+    ```
+
+1. Save the file and run `systemctl daemon-reload`.
+1. To restart the vRealize Log Insight service, run `systemctl restart pks-loginsight.service`.
+
+<%= vars.product_short %> Management Console can now send logs to the HTTPS port on the vRealize Log Insight server.
+
+<hr>
+
+#### <a id="management-console-1-15-0-vsphere-ha"></a> vSphere HA causes Management Console ovfenv Data Corruption
+
+**Symptom**
+
+If you enable vSphere HA on a cluster, if the TKGI Management Console appliance VM is running on a
+host in that cluster, and if the host reboots, vSphere HA recreates a new TKGI Management Console
+appliance VM on another host in the cluster. Due to an issue with vSphere HA, the `ovfenv` data for
+the newly created appliance VM is corrupted and the new appliance VM does not boot up with the
+correct network configuration.
+
+**Workaround**
+
+1. In the vSphere Client, right-click the appliance VM and select **Power** > **Shut Down Guest OS**.
+1. Right-click the appliance again and select Edit Settings.
+1. Select **VM Options** and click **OK**.
+1. Verify under Recent Tasks that a `Reconfigure virtual machine` task has run on the appliance VM.
+1. Power on the appliance VM.
+
+<hr>
+
+#### <a id="management-console-1-15-0-k8s-profile"></a> Base64 encoded file arguments are not decoded in Kubernetes profiles
+
+**Symptom**
+
+Some file arguments in Kubernetes profiles are base64 encoded. When the management console displays
+the Kubernetes profile, some file arguments are not decoded.
+
+**Workaround**
+
+Run `echo "$content" | base64 --decode`
+
+<hr>
+
+#### <a id="management-console-1-15-0-network-profile"></a> Network profiles not immediately selectable
+
+**Symptom**
+
+If you create network profiles and then try to apply them in the Create Cluster page, the new
+profiles are not available for selection.
+
+**Workaround**
+
+Log out of the management console and log back in again.
+
+<hr>
+
+#### <a id="management-console-1-15-0-cluster-summary"></a> Real-Time IP information not displayed for network profiles
+
+**Symptom**
+
+In the cluster summary page, only default IP pool, pod IP block, node IP block values are displayed,
+rather than the real-time values from the associated network profile.
+
+**Workaround**
+
+None
+
+<hr>
+#### <a id="management-console-1-15-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
+
+**Symptom**
+
+You receive the following error after modifying your existing Harbor installation's storage configuration:
+
+```
+Error response from daemon: manifest for ... not found: manifest unknown: manifest unknown
+```
+
+**Explanation**
+
+Harbor does not support modifying an existing Harbor installation's storage configuration.
+
+**Workaround**
+
+To modify your Harbor storage configuration,
+re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
+
+<hr>
+
+#### <a id="management-console-1-15-0-re-import-windows-stemcell"></a> Windows Stemcells Must be Re-Imported After Upgrading Ops Manager
+
+**Symptom**
+
+After upgrading Ops Manager, your Management Console does not recognize a Windows stemcell imported
+when using the prior version of Ops Manager.
+
+**Workaround**
+
+If your Management Console does not recognize a Windows stemcell after upgrading Ops Manager:
+
+1. Re-import your previously imported Windows stemcell.
+2. **Apply Changes** to <%= vars.k8s_runtime_abbr %> MC.
+
+<hr>
+
+#### <a id="management-console-1-15-0-cluster-group-name"></a> Your New Clusters Are Not Shown In Tanzu Mission Control
+
+**Symptom**
+
+After you create a cluster, Tanzu Mission Control does not include the cluster in cluster lists.
+You have a "_Resource not found_" error similar to the following in your BOSH logs:
+
+```
+Cluster Name in TMC: cluster-1
+Cluster Name Prefix: tkgi-my-prefix-
+Group Name in TMC: my-prefix-clusters
+Cluster Description in TMC: VMware Enterprise PKS Attaching cluster ''tkgi-my-prefix-cluster-1'' to TMC
+Fetching token successful
+request POST:/v1alpha1/clusters,
+response 404 Not Found:{"error":"Resource not found - clustergroup(my-prefix-clusters)
+org id(d859dc9f-g622-426d-8c91-939a9f13dea9)",
+"code":5,"message":"Resource not found - clustergroup(my-prefix-clusters)
+```
+
+**Explanation**
+
+The cluster group you assign a cluster to must be defined in Tanzu Mission Control
+before you assign your cluster to the cluster group in the <%= vars.k8s_runtime_abbr %> Management Console.
+
+**Workaround**
+
+To resolve the problem, complete the steps in
+[Attaching a Tanzu Kubernetes Grid Integrated (TKGI) cluster to Tanzu Mission Control (TMC) fails with "Resource not found - clustergroup(cluster-group-name)"](https://community.pivotal.io/s/article/tkgi-tmc-attach-fail)
+in the VMware Tanzu Knowledge Base.
+
+<hr>
 
 <hr>
 <% if vars.product_version == "COMMENTED"  %>
