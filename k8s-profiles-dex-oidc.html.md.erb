@@ -29,6 +29,14 @@ The Kubernetes profile in this topic deploys [dex](https://github.com/dexidp/dex
 
 For more information and other uses of Kubernetes profiles, see [Using Kubernetes Profiles](./k8s-profiles.html).
 
+## <a id='prerequisites'></a>Prerequisites
+
+To use UAA as your OIDC provider, the <%= vars.control_plane %> **Certificate to secure the <%= vars.control_plane %>** field 
+on the <%= vars.k8s_runtime_abbr %> tile must be a proper certificate chain and have a SAN field. 
+For more information, see configuring [<%= vars.control_plane %>](installing-vsphere.html#tkgi-api) 
+in the _Installing <%= vars.k8s_runtime_abbr %>_ topic for your IaaS.  
+
+
 ## <a id='process'></a>Configure a Custom OIDC Provider
 
 To configure a custom OIDC provider for <%= vars.k8s_runtime_abbr %> clusters, complete the following:
@@ -55,23 +63,23 @@ To configure [dex](https://github.com/dexidp/dex) as an OIDC provider for an LDA
     For example:
 
     <pre class="terminal">
-    $ tkgi cluster dex
-    <%= vars.k8s_runtime_abbr %> Version:             1.9.0-build.1
-    Name:                    dex
-    K8s Version:             1.18.8
-    Plan Name:               small
-
-    UUID:                    dbe1d880-478f-4d0d-bb2e-0da3d9641f0d
-    Last Action:             CREATE
-    Last Action State:       succeeded
-    Last Action Description: Instance provisioning completed
-    Kubernetes Master Host:  dex-host.example.com
-    Kubernetes Master Port:  8443
-    Worker Nodes:            1
-    Kubernetes Master IP(s): 10.0.11.11
-    Network Profile Name:
-    Kubernetes Profile Name:
-    Tags:
+    $ tkgi cluster dex  
+    <%= vars.k8s_runtime_abbr %> Version:             1.9.0-build.1  
+    Name:                    dex  
+    K8s Version:             1.24.3  
+    Plan Name:               small  
+  
+    UUID:                    dbe1d880-478f-4d0d-bb2e-0da3d9641f0d  
+    Last Action:             CREATE  
+    Last Action State:       succeeded  
+    Last Action Description: Instance provisioning completed  
+    Kubernetes Master Host:  dex-host.example.com  
+    Kubernetes Master Port:  8443  
+    Worker Nodes:            1  
+    Kubernetes Master IP(s): 10.0.11.11  
+    Network Profile Name:  
+    Kubernetes Profile Name:  
+    Tags:  
     </pre>
 
 1. Add the `Kubernetes Master IP` address to your local `/etc/hosts` file.
@@ -159,43 +167,46 @@ To create a Kubernetes profile that lets a cluster's `kube-api-server` connect t
     For example:
 
     <pre class="terminal">
-    $ cat /tmp/profile.json
-    {
-       "name": "oidc-config",
-       "description": "Kubernetes profile with OIDC configuration",
-       "customizations": [
-          {
-             "component": "kube-apiserver",
-             "arguments": {
-                "oidc-client-id": "example-app",
-                "oidc-issuer-url": "https://dex.example.com:32000",
-                "oidc-username-claim": "email"
-             },
-             "file-arguments": {
-                "oidc-ca-file": "/tmp/oidc-ca.pem"
-             }
-          }
-       ]
-    }
+    $ cat /tmp/profile.json  
+    {  
+       "name": "oidc-config",  
+       "description": "Kubernetes profile with OIDC configuration",  
+       "customizations": [  
+          {  
+             "component": "kube-apiserver",  
+             "arguments": {  
+                "oidc-client-id": "example-app",  
+                "oidc-issuer-url": "https://dex.example.com:32000",  
+                "oidc-username-claim": "email"  
+             },  
+             "file-arguments": {  
+                "oidc-ca-file": "/tmp/oidc-ca.pem"  
+             }  
+          }  
+       ]  
+    }  
     </pre>
-  Of all the supported `kube-apiserver` flags, the following are specific to OIDC.
-  You can find a description of each of these in the
-  [kube-apiserver documentation](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/).
-    - In the `arguments` block:
-      - `oidc-issuer-url`: Set this to `"https://dex.example.com:32000"`.
-      - `oidc-client-id`
-      - `oidc-username-claim`: Set this to `"email"` for testing with the example app [below](#test).
-      - `oidc-groups-claim`
-    - In the `file-arguments` block:
-      - `oidc-ca-file`: Set this to a path in the local file system that contains a CA certificate file.
-
+    Of all the supported `kube-apiserver` flags, the following are specific to OIDC:  
+    * In the `arguments` block:  
+        * `oidc-issuer-url`: Set this to `"https://dex.example.com:32000"`.  
+        * `oidc-client-id`  
+        * `oidc-username-claim`: Set this to `"email"` for testing with the example app [below](#test).  
+        * `oidc-groups-claim`  
+    * In the `file-arguments` block:  
+        * `oidc-ca-file`: Set this to a path in the local file system that contains a CA certificate file. 
+        The certificate must be a proper certificate chain and have a SAN field.  
+        
+    For more information on `kube-apiserver` flags, see 
+    [kube-apiserver](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/) 
+    in the Kubernetes documentation.  
 1. Create the profile:
 
     ```
     tkgi create-kubernetes-profile /tmp/profile.json
     ```
 
-In the example above, the file-path `/tmp/oidc-ca.pem` points to a CA certificate on the local file system, and the `tkgi create-kubernetes-profile` command sends this certificate to the API server when it creates the profile.
+In the example above, the file-path `/tmp/oidc-ca.pem` points to a CA certificate on the local file system, 
+and the `tkgi create-kubernetes-profile` command sends this certificate to the API server when it creates the profile.
 
 ### <a id='cluster'></a>Create Cluster
 
