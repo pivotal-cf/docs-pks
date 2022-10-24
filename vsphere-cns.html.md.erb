@@ -35,14 +35,22 @@ For more information about using the Kubernetes CSI Driver, see
 [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.  
 
 
-In <%= vars.k8s_runtime_abbr %>, you can use the vSphere CSI Driver to:  
+In <%= vars.k8s_runtime_abbr %>, you can configure the vSphere CSI Driver to:  
 
+
+    
 * Customize, deploy and manage vSphere CNS volumes:  
     * To customize file volumes, see [Customize vSphere File Volumes](#create-file-volumes) below.  
     * To use and customize CNS Volumes, see [Create or Use CNS Block Volumes](#use-cns) below.  
-* Apply vSphere Topology-Aware Volume Provisioning to your cluster.
+
+* Apply vSphere Topology-Aware Volume Provisioning to your cluster.  
 <br>    
-    For more information, see [Customize a Cluster with vSphere Topology-Aware Volume Provisioning](#vsphere-topology-provisioning) below.  
+    For more information, see 
+    [Customize a Cluster with vSphere Topology-Aware Volume Provisioning](#vsphere-topology-provisioning) below.  
+* Customize and manage vSphere CNS:  
+    * To use CNS in a multi-data center environment, see [Configure CNS Data Centers](#cns-datacenters) below.  
+    * [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi)
+    
 
 <br>
 <p class="note"><strong>Note</strong>: If you have an existing cluster with a manually installed vSphere CSI driver 
@@ -84,6 +92,26 @@ For information on the scaling limitations of the vSphere CSI Driver, see
 [Configuration Maximums for vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-C0350554-F5DB-4C27-9786-720AC0F0B28A.html) 
  in the VMware vSphere Container Storage Plug-in documentation.  
 
+
+<br>
+## <a id='configure-cns'></a>Customize Your CNS Configuration
+
+To customize your CNS configuration:  
+
+* [Create a Cluster with Customized File Volume Parameters](#file-volumes-create)  
+* [Modify a Cluster with Customized File Volume Parameters](#file-volumes-modify)  
+* [Remove File Volume Parameters from a Cluster](#file-volumes-remove)  
+
+### <a id='file-volumes-prereqs'></a>Prerequisites 
+
+To use file volumes, you must enable vSAN File Services in the vSphere vCenter. 
+For information about enabling vSAN File Services, see 
+[Configure File Services](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vsan.doc/GUID-CA9CF043-9434-454E-86E7-DCA9AD9B0C09.html) 
+in the VMware vSphere documentation.  
+
+
+<br>
+### <a id='file-volumes-create'></a>Create a Cluster with Customized File Volume Parameters
 
 <br>
 ## <a id='create-file-volumes'></a>Customize vSphere File Volumes
@@ -330,6 +358,9 @@ The following are supported NetPermissions object parameters:
     </tr>
 </table>
 
+For more information on NetPermissions object parameters, 
+see [Procedure](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-BFF39F1D-F70A-4360-ABC9-85BDAFBE8864.html#procedure) 
+in _Create a Kubernetes Secret for vSphere Container Storage Plug-in_.  
 
 <%#FROM Confluence:  PKS Core pks-api/spec.yaml: https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=PKS&title=Detailed+design+document+for+supporting+file+volume+specific+configurations #%>
 <br>
@@ -620,9 +651,70 @@ When running `tkgi update-cluster` on a cluster created with a topology-aware vo
 * You cannot add or remove topology-aware volume provisioning from the cluster. 
 <%#     If you must add or remove topology-aware volume provisioning from an existing cluster, see     [Guidelines and Best Practices for Deployment with Topology](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-162E7582-723B-4A0F-A937-3ACE82EAFD31.html#guidelines-and-best-practices-for-deployment-with-topology-0)     in _Deploying vSphere Container Storage Plug-in with Topology_     in the VMware vSphere Container Storage Plug-in documentation.    #%>
 
+## <a id='manage-cns'></a>* Customize and Manage vSphere CNS 
+
+To configure or manage you vSphere CSI Driver:  
+
+* [Configure CNS Data Centers](#cns-datacenters)  
+* [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi)  
+* [Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver](#migrate-to-csi)  
+
 
 <br>
-## <a id='uninstall-csi'></a>Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver
+### <a id='cns-datacenters'></a>Configure CNS Data Centers
+
+ To configure CNS for a multi-data center environment:  
+ 
+ 
+1. Create a JSON or YAML formatted volume configuration file containing the following:  
+
+    ```
+    {
+      "csi_datacenters": "DATA-CENTER-LIST"
+    }
+    ```
+    
+    Where:  
+    
+    * `DATA-CENTER-LIST` is a comma-separated list of vCenter data centers that must mount your CNS storage. 
+    <% if vars.product_version == "COMMENTED"  %>
+    `"disable-vsphere-csi"`:  * `DEACTIVATE-CSI` (Optional) is a toggle to deactivate vSphere CSI Driver support. 
+    Accepts Boolean values `"false"` and `"true"`. Default is `"false"`.  
+    <% end %>
+    
+1. To create a new cluster or update an existing cluster with your vCenter data centers:  
+
+    * 1. To create a cluster:  
+        
+        ```
+        tkgi create-cluster CLUSTER-NAME --config-file CONFIG-FILE  
+        ```
+        
+        Where:  
+
+        * `CLUSTER-NAME` is the name of your cluster.  
+        * `CONFIG-FILE` is the name of your config file.  
+
+        For example:
+        <pre class="terminal">
+        $ tkgi create-cluster demo -e demo.cluster --plan Small --config-file ./conf1.json
+        </pre>
+
+
+    * To update an existing cluster:  
+
+        ```
+        tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE 
+        ```
+
+        Where:  
+
+        * `CLUSTER-NAME` is the name of your cluster.  
+        * `CONFIG-FILE` is the name of your config file. 
+
+
+<br>
+### <a id='uninstall-csi'></a>Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver
 
 <%= vars.k8s_runtime_abbr %> v1.14 does not support a manually installed vSphere CSI driver. 
 If you have a cluster that uses a manually installed vSphere CSI driver, you must switch the cluster to the CSI driver deployed by <%= vars.k8s_runtime_abbr %>.  
@@ -632,9 +724,12 @@ To switch your clusters from the manually installed vSphere CSI driver to the au
 1. [Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare)  
 1. [Upgrade Your <%= vars.k8s_runtime_abbr %> Tile](#uninstall-csi-upgrade-tile)  
 1. [Upgrade Your Clusters](#uninstall-csi-upgrade-cluster)  
+1. [Remove a Manually Installed vSphere CSI Driver](#manually-remove-csi)  
+1, [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology)  
 
 
-### <a id='uninstall-csi-prepare'></a>Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>
+
+#### <a id='uninstall-csi-prepare'></a>Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>
 
 Prepare your clusters and configurations before upgrading <%= vars.k8s_runtime_abbr %> to v1.14.0:  
 
@@ -665,7 +760,7 @@ Prepare your clusters and configurations before upgrading <%= vars.k8s_runtime_a
 For more information, see [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology) below.  
 
 
-### <a id='uninstall-csi-upgrade-tile'></a>Upgrade Your <%= vars.k8s_runtime_abbr %> Tile
+#### <a id='uninstall-csi-upgrade-tile'></a>Upgrade Your <%= vars.k8s_runtime_abbr %> Tile
 
 To upgrade your <%= vars.k8s_runtime_abbr %> tile: 
 
@@ -688,7 +783,7 @@ in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.
 1. Complete the [After the Upgrade](upgrade.html#after-upgrade) steps as usual. 
 
 
-### <a id='uninstall-csi-upgrade-cluster'></a>Upgrade Your Clusters
+#### <a id='uninstall-csi-upgrade-cluster'></a>Upgrade Your Clusters
 
 To switch a cluster to the automatically deployed vSphere CSI Driver:  
 
@@ -732,7 +827,7 @@ For more information, see [Remove a Manually Installed vSphere CSI Driver](#manu
     * `JOB-NAME` is the name of the CSI job to start.  
 
 <br>
-### <a id='manually-remove-csi'></a>Remove a Manually Installed vSphere CSI Driver
+#### <a id='manually-remove-csi'></a>Remove a Manually Installed vSphere CSI Driver
 
 If you have a cluster that uses a manually installed vSphere CSI Driver, 
 and you upgrade the cluster after your administrator has enabled automatic vSphere CSI Driver Integration,
@@ -752,7 +847,7 @@ To remove a manually installed vSphere CSI driver:
 
 
 <br>
-### <a id='uninstall-csi-after-topology'></a>Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver
+#### <a id='uninstall-csi-after-topology'></a>Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver
 
 After switching from a manually installed vSphere CSI Driver to the <%= vars.k8s_runtime_abbr %> automatically deployed CSI Driver, 
 the topology configuration must not be changed.  
@@ -816,7 +911,7 @@ Configure topology based on the manually installed vSphere CSI Driver configurat
     You must not enable topology if topology was not enabled while using the manually deployed vSphere CSI Driver.
 
 <br>
-## <a id='migrate-to-csi'></a> Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver
+### <a id='migrate-to-csi'></a> Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver
 
 Kubernetes' support for in-tree vSphere storage volumes has been deprecated, and support will be removed in a future Kubernetes version.  
 
@@ -824,7 +919,8 @@ The <%= vars.k8s_runtime_abbr %> v1.15 upgrade process will automatically migrat
 If you have existing clusters that use in-tree vSphere storage volumes, you can continue to use the volumes with your current version of TKGI, but 
 VMware strongly recommends that you migrate your in-tree vSphere storage volumes to vSphere CSI volumes before upgrading to <%= vars.k8s_runtime_abbr %> v1.15.  
 
-To manually migrate a cluster from an in-tree vSphere storage volume to a vSphere CSI Driver volume, see [Migrate In-Tree vSphere Storage Volumes to the vSphere CSI Driver](#migrate-volumes) below.  
+To manually migrate a cluster from an in-tree vSphere storage volume to a vSphere CSI Driver volume, 
+see [Migrate In-Tree vSphere Storage Volumes to the vSphere CSI Driver](#migrate-volumes) below.  
 
 To prepare <%= vars.k8s_runtime_abbr %> to use vSphere CSI Driver volumes by default 
 and to automatically migrate clusters from in-tree vSphere storage volumes to vSphere CSI Driver volumes during the TKGI v1.15 upgrade, 
@@ -832,7 +928,7 @@ see [Prepare for Automatic Migration of Volumes from VCP to CSI](#prepare-to-mig
 
 
 <br>
-### <a id='prepare-to-migrate'></a> Prepare for Automatic Migration of Volumes from In-Tree vSphere Storage to CSI
+#### <a id='prepare-to-migrate'></a> Prepare for Automatic Migration of Volumes from In-Tree vSphere Storage to CSI
 
 If your existing clusters have in-tree vSphere storage volumes, you must prepare for them to be automatically migrated before upgrading to <%= vars.k8s_runtime_abbr %> 1.15.  
 
@@ -849,7 +945,7 @@ See [Migrate In-Tree vSphere Storage Volumes to the vSphere CSI Driver](#migrate
 </p>
 
 <br>
-### <a id='migrate-volumes'></a> Migrate In-Tree vSphere Storage Volumes to the vSphere CSI Driver
+#### <a id='migrate-volumes'></a> Migrate In-Tree vSphere Storage Volumes to the vSphere CSI Driver
 
 You can use `tkgi update-cluster` to migrate the PersistentVolume (PV) and PersistentVolumeClaim (PVC) on an existing <%= vars.k8s_runtime_abbr %> cluster 
 from the In-Tree vSphere Storage Driver to the automatically installed vSphere CSI Driver.
