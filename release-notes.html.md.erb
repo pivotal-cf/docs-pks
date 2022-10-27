@@ -1448,7 +1448,7 @@ This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.13.6](#1-13-6-bug-fixes)
 
 Clusters using the Docker container runtime no longer default to supporting Docker command line commands.
 
-Supporting containerd as the default container runtime requires Docker-specific features incompatible with containerd are disabled by default.
+Supporting containerd as the default container runtime requires Docker-specific features incompatible with containerd are deactivated by default.
 
 **Workaround**
 
@@ -4109,23 +4109,73 @@ To remove a Docker image after switching a cluster's container runtime:
 
 <hr>
 
-#### <a id="1-13-0-large-docker-timeout"></a> Timeout While Switching Container Runtimes If the Docker Directory Is Too Large
+#### <a id="1-13-0-large-docker-timeout"></a> Timeout While Switching Container Runtimes If the Docker Directory Is Too Large 
 
-Switching a cluster's container runtime from Docker to containerd can timeout and fail
-if the Docker directory contains many files.
+Switching a cluster's container runtime from Docker to containerd can timeout and fail 
+if the Docker directory contains many files.  
 
 **Description**
 
-A timeout occurs during the `remove Docker` step while switching a cluster's container runtime
-from Docker to containerd if the Docker directory contains too many files to delete within
-the 180-second timeout interval.
+A timeout occurs during the `remove Docker` step while switching a cluster's container runtime 
+from Docker to containerd if the Docker directory contains too many files to delete within 
+the 180-second timeout interval.  
 
 **Workaround**
 
-To work around this issue:
+To work around this issue:  
 
-1. Manually remove the `/var/vcap/store/docker` directory.
-1. Re-start the process that stopped due to the time out.
+1. Manually remove the `/var/vcap/store/docker` directory.  
+1. Re-start the process that stopped due to the time out.  
+
+<hr>
+
+
+#### <a id="1-13-0-pv-not-attached-to-new-node"></a> Persistent Volumes Fail to Detach from Nodes
+
+If a Pod is recreated in a new instance node, the persistent volume might remain attached to the old node.  
+
+**Symptom**  
+
+A persistent volume remains attached to an old node, and attachment errors similar to the following are logged:  
+
+```
+Warning FailedMount... kubelet Unable to attach or mount volumes: unmounted volumes=..., unattached volumes=...: timed out waiting for the condition
+Warning FailedMount... kubelet Unable to attach or mount volumes: unmounted volumes=..., unattached volumes=...: timed out waiting for the condition
+Warning FailedAttachVolume... attachdetach-controller AttachVolume.Attach failed for volume...: 
+rpc error: code = Internal desc = failed to attach disk:... with node:... err failed to attach cns volume:... to node vm:.... 
+fault: "(*types.LocalizedMethodFault)(0xc000c88d80)({\n DynamicData: (types.DynamicData)
+``` 
+
+For more information, 
+see [Persistent volume fails to be detached from a node](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.5/rn/vmware-vsphere-container-storage-plugin-25-release-notes/index.html#known-issues) 
+in _VMware vSphere Container Storage Plug-in 2.5 Release Notes_.  
+
+
+<hr>
+
+
+#### <a id="1-13-0-crashloopbackoff-after-containerd"></a> Pods on Clusters Using the containerd-Runtime Enter a CrashLoopBackOff State
+
+<% if vars.product_version == "COMMENTED"  %>    
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.13.9](#1-13.9-bug-fixes).  
+<% end %>
+
+Pods in a cluster that has been switched from the Docker container runtime to containerd might enter a CrashLoopBackOff state. 
+If the container runtime switch is part of a cluster upgrade, the upgrade halts.  
+
+**Symptom**
+
+The Pods that have entered the CrashLoopBackOff state log the following:
+
+```
+Warning FailedCreatePodSandBox... Failed to create pod sandbox: rpc error: code = 
+Unknown desc = failed to create containerd task: failed to start shim: 
+write /var/vcap/sys/run/containerd/io.containerd.runtime.v2.task/.../config.json: 
+no space left on device: unknown
+```
+
+The `/var/vcap/data/sys/run` directory on the instance node with Pods that have entered the CrashLoopBackOff state is full.  
+
 
 <hr>
 
