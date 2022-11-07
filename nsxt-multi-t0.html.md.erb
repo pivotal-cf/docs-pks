@@ -21,7 +21,7 @@ You can isolate a cluster and its workloads using NSX-T Tier-0 (T0) logical rout
 As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. 
 The Shared Tier-0 router handles traffic between the <%= vars.k8s_runtime_abbr %> management network and the vSphere standard network 
 where vCenter and NSX-T Manager are deployed. 
-There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. 
+There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX-T logical switch using a virtual LAN (VLAN) or Overlay transport zone. 
 Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each tenant network.
 
   <img src="images/nsxt/mt0/mt0-03.png" alt="Multi-T0 Router">
@@ -29,7 +29,7 @@ Using each dedicated T0, Kubernetes clusters are deployed in complete isolation 
 To isolate a cluster and its workloads behind T0 routers:  
 
 * [Prerequisites](#prereqs)  
-* [Configure Multi-T0 Router-Based Tenant Isolation](#base-config).  
+* [Configure Multi-T0 Router-Based Tenant Isolation](#base-config)  
 * [Configure Multi-T0 Security](#security-config)  
 
 
@@ -39,11 +39,10 @@ To isolate a cluster and its workloads behind T0 routers:
 
 <%= vars.product_short %> on vSphere with NSX-T Policy API also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway.  
 
-As shown in the diagram below, instead of using one or more T0 routers, the cluster is isolated behind a VRF gateway. 
+As shown in the diagram below, instead of using one or more T0 routers, clusters are isolated behind a VRF gateway. 
 The Shared Tier-0 router handles traffic between the <%= vars.k8s_runtime_abbr %> management network and the 
-vSphere standard network where vCenter and NSX-T Manager are deployed. Two Tenant VRF Tier-0 gateways 
-connect to the Shared Tier-0 over an NSX-T logical switch using a VLAN or Overlay transport zone. Using each VRF gateway, 
-Kubernetes clusters are deployed in complete isolation on each tenant network.
+vSphere standard network where vCenter and NSX-T Manager are deployed. 
+Using Tenant VRF Tier-0 gateways to connect to the Shared Tier-0, Kubernetes clusters are deployed in complete isolation on tenant networks.  
 
 <img src="images/nsxt/mt0/mt0-03-vrf.png" alt="VRF Tier-0 Gateway">
 
@@ -79,7 +78,7 @@ To implement Multi-T0-based tenant isolation, verify the following prerequisites
 To implement VRF Tier-0 Gateway-based tenant isolation:
 
 * <%= vars.k8s_runtime_abbr %> on vSphere with NSX-T Policy API.  
-* 3 VLANs for the VRF Tier-0 gateway.  
+* Three VLANs for the VRF Tier-0 gateway.  
 
 
 <br>
@@ -679,7 +678,7 @@ After you configure the NSGroup for cluster nodes and pods, the **Membership Cri
 Select the DFW section you created above and configure the following three DFW rules:  
 
 * [Deny Everything Else](#deny-else)  
-* [Deactivate Pod to Node Communication](#pods-rule)  
+* [Prevent Pod to Node Communication](#pods-rule)  
 * [Allow Node to Node and Nodes to Pods Communications](#nodes-rule)  
 
 
@@ -695,7 +694,7 @@ This is a global deny rule. Configure the rule as follows:
 1. For **Apply To**, select the `YOUR-CLUSTER-UUID-nodes-pods` NSGroup.
 1. For **Action**, select **Drop**.
 
-##### <a id="pods-rule"></a>DFW Rule 2: Deactivate Pod to Node Communication
+##### <a id="pods-rule"></a>DFW Rule 2: Prevent Pod to Node Communication
 
 Configure this rule as follows:
 
@@ -782,7 +781,7 @@ To create two gateway segments:
     * Configure **Transport Zone**. For example, `internet-tz-vlan-0`.  
     * Configure **VLAN**. Specify one of the VLAN IDs determined above.  
 
-1. To create a segment for the second VLAN, repeat the last step with the following configuration:  
+1. Create a VLAN-backed segment for your remaining VRF gateway VLAN with the following configuration:  
 
     * Configure **Segment Name** with a new unique name. For example, `internet-vlan-vrf-1-seg`.  
     * Configure **Transport Zone** with the same zone used by the first segment.  
@@ -805,7 +804,7 @@ in the VMware NSX-T Data Center documentation.
     1. Set the interface for the gateway. For example, `t0-vrf-0-uplink-0` and `t0-vrf-0-uplink-1`.  
     1. Assign a high availability VIP. For example, `192.168.116.2`.  
     
-1. To create a second VRF gateway, repeat the last step with the following configuration:  
+1. Create a second VRF gateway with the following configuration:  
 
     * Configure **Name** with a unique name. For example, `t0-vrf-1`.  
     * Configure **Interface** with unique settings. For example, `t0-vrf-1-uplink-0` and `t0-vrf-1-unlink-1`.  
@@ -928,7 +927,7 @@ see [Creating and Managing Network Profiles](network-profiles-define.html).
 <br>
 ### <a id="create-update-cluster-vrf"></a>Step 5: Configure a Cluster with a VRF Gateway
 
-To configure a cluster to use a VRF gateway, either:  
+To configure a cluster to use a VRF gateway, assign the Network Profile to the cluster:  
 
 * Create a new cluster using the VRF gateway Network Profile.  
 
