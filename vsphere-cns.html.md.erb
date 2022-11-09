@@ -36,12 +36,12 @@ For more information about using the Kubernetes CSI Driver, see
 
 
 In <%= vars.k8s_runtime_abbr %>, you can configure the vSphere CSI Driver to:  
-
-
     
 * Customize, deploy and manage vSphere CNS volumes:  
     * To customize file volumes, see [Customize vSphere File Volumes](#create-file-volumes) below.  
     * To use and customize CNS Volumes, see [Create or Use CNS Block Volumes](#use-cns) below.  
+    * To migrate in-tree storage volumes to the vSphere CSI Driver, 
+    see [Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver](#migrate-to-csi) below.  
 
 * Customize clusters to support vSphere Topology-Aware Volume Provisioning:     
     * To apply vSphere Topology-Aware Volume Provisioning to your cluster, see 
@@ -49,9 +49,10 @@ In <%= vars.k8s_runtime_abbr %>, you can configure the vSphere CSI Driver to:
     
 * Customize and manage vSphere CNS:  
     * To use CNS in a multi-data center environment, see [Configure CNS Data Centers](#cns-datacenters) below.  
+<% if vars.product_version == "v1.14"  %>
     * To use the automatically deployed vSphere CSI Driver, 
     see [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi) below.  
-
+<% end %>
 
 <br>
 <p class="note"><strong>Note</strong>: If you have an existing cluster with a manually installed vSphere CSI driver 
@@ -621,283 +622,7 @@ When running `tkgi update-cluster` on a cluster created with a topology-aware vo
     in the VMware vSphere Container Storage Plug-in documentation.  
 <% end %>
 
-<br>
-## <a id='manage-cns'></a>Customize and Manage vSphere CNS 
 
-To configure or manage you vSphere CSI Driver:  
-
-* [Configure CNS Data Centers](#cns-datacenters)  
-* [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi)  
-* [Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver](#migrate-to-csi)  
-
-
-<br>
-### <a id='cns-datacenters'></a>Configure CNS Data Centers
-
-If your clusters are in a multi-data center environment, 
-configure the data centers that must mount CNS storage for the clusters.  
-
-<p class="note"><strong>Note</strong>: 
-You must configure CNS data centers when the Topology feature is enabled in a multi-data center environment. 
-</p>
-
-To configure CNS data centers for a multi-data center environment:  
- 
-1. Create a JSON or YAML formatted configuration file containing the following:  
-
-    ```
-    {
-      "csi_datacenters": "DATA-CENTER-LIST"
-    }
-    ```
-    
-    Where:  
-    
-    * `DATA-CENTER-LIST` is a comma-separated list of vCenter data centers that must mount your CNS storage. 
-    The default data center for a cluster is the data center defined on the <%= vars.k8s_runtime_abbr %> tile 
-    in **Kubernetes Cloud Provider** > **Datacenter Name**.  
-    
-    For example:  
-    
-    ```
-    {
-      "csi_datacenters": "kubo-dc1,kubo-dc2"
-    }
-    ```
-    For more information on the `csi_datacenters` parameter, 
-    see the description of `datacenters` in 
-    [Procedure](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-BFF39F1D-F70A-4360-ABC9-85BDAFBE8864.html#procedure-1) 
-    in _Create a Kubernetes Secret for vSphere Container Storage Plug-in_.  
-
-    <% if vars.product_version == "COMMENTED"  %>
-    `"disable-vsphere-csi"`:  * `DEACTIVATE-CSI` (Optional) is a toggle to deactivate vSphere CSI Driver support. 
-    Accepts Boolean values `"false"` and `"true"`. Default is `"false"`.  
-    <% end %>
-    
-1. To create a new cluster or update an existing cluster with your vCenter data centers:  
-
-    * To create a cluster:  
-        
-        ```
-        tkgi create-cluster CLUSTER-NAME --config-file CONFIG-FILE  
-        ```
-        
-        Where:  
-
-        * `CLUSTER-NAME` is the name of your cluster.  
-        * `CONFIG-FILE` is the name of your config file.  
-
-        For example:
-        <pre class="terminal">
-        $ tkgi create-cluster demo -e demo.cluster --plan Small --config-file ./conf1.json
-        </pre>
-
-
-    * To update an existing cluster:  
-
-        ```
-        tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE 
-        ```
-
-        Where:  
-
-        * `CLUSTER-NAME` is the name of your cluster.  
-        * `CONFIG-FILE` is the name of your config file. 
-
-
-<br>
-## <a id='uninstall-csi'></a>Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver
-
-<%= vars.k8s_runtime_abbr %> v1.14 does not support a manually installed vSphere CSI driver. 
-If you have a cluster that uses a manually installed vSphere CSI driver, you must switch the cluster to the CSI driver deployed by <%= vars.k8s_runtime_abbr %>.  
-
-To switch your clusters from the manually installed vSphere CSI driver to the auto-deployed driver:
-
-1. [Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare)  
-1. [Upgrade Your <%= vars.k8s_runtime_abbr %> Tile](#uninstall-csi-upgrade-tile)  
-1. [Upgrade Your Clusters](#uninstall-csi-upgrade-cluster)  
-
-
-### <a id='uninstall-csi-prepare'></a>Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>
-
-Prepare your clusters and configurations before upgrading <%= vars.k8s_runtime_abbr %> to v1.14.0:  
-
-1. To upgrade the manually deployed vSphere CSI driver on a cluster to v2.5.1:  
-
-    1. Download the vSphere CSI Driver v2.5.1 YAML configuration file 
-    [vsphere-csi-driver.yaml](https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/release-2.5/manifests/vanilla/vsphere-csi-driver.yaml) 
-    from the vSphere CSI Driver GitHub repository.  
-    1. Configure the configuration file for <%= vars.k8s_runtime_abbr %>. 
-    For more information, see [Customize Your CSI Driver Configuration](https://docs.pivotal.io/tkgi/1-13/vsphere-cns-manual.html#customize-configuration) 
-    in _Manually Installing the vSphere CSI Driver_ in the <%= vars.k8s_runtime_abbr %> v1.13 documentation.  
-    1. Change the `"use-csinode-id"` parameter value in the configuration file from `"true"` to `"false"`:  
-
-        ```
-          "use-csinode-id": "false"
-        ```
-
-    1. To apply your customized configuration:  
-
-        ```
-        kubectl apply -f vsphere-csi-driver.yaml
-        ```
-    
-    For more information, see [Upgrade vSphere Container Storage Plug-in of a Version 2.3.0 or Later](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-3F277B52-68CC-4125-AD0F-E7293940B4B4.html#GUID-2426D857-F3DA-41DB-9C64-7191854ACDE9__GUID-E5623816-32B8-421C-832C-01398551BEB6) 
-    in _Upgrading vSphere Container Storage Plug-in_ in the VMware vSphere Container Storage Plug-in documentation.  
-
-1. If topology-aware volume provisioning is enabled on a cluster, create a TKGI configuration file for the cluster. 
-For more information, see [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology) below.  
-
-
-### <a id='uninstall-csi-upgrade-tile'></a>Upgrade Your <%= vars.k8s_runtime_abbr %> Tile
-
-To upgrade your <%= vars.k8s_runtime_abbr %> tile: 
-
-1. Download and import the <%= vars.product_tile %> v1.14.0 tile. 
-For more information, see [Download and Import <%= vars.product_short %>](upgrade.html#upgrade-tile) 
-in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
-1. Download and import Stemcells. 
-For more information, see [Download and Import Stemcells](upgrade.html#stemcell) 
-in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
-1. Deselect the **Upgrade All Clusters** errand. 
-For more information, see [Verify Errand Configuration](upgrade.html#errands) 
-in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
-<%#    Upgrade the <  %= vars.k8s_runtime_abbr %  > clusters to v1.14.0.  #%>
-1. Enable **vSphere CSI Driver Integration** on the TKGI tile. 
-For more information, see [Verify Other Configurations](upgrade.html#final-review) 
-in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
-1. Select **Apply Changes**. 
-For more information, see [Apply Changes to the <%= vars.product_tile %> Tile](upgrade.html#apply-changes) 
-in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
-1. Complete the [After the Upgrade](upgrade.html#after-upgrade) steps as usual. 
-
-
-### <a id='uninstall-csi-upgrade-cluster'></a>Upgrade Your Clusters
-
-To switch a cluster to the automatically deployed vSphere CSI Driver:  
-
-1. Upgrade your <%= vars.k8s_runtime_abbr %> cluster to v1.14.0.  
-1. If topology-aware volume provisioning is enabled on your cluster, 
-update your cluster using the topology configuration file you created in 
-[Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare) above.  
-1. Remove the manually installed CSI driver from the cluster. 
-For more information, see [Remove a Manually Installed vSphere CSI Driver](#manually-remove-csi) below.  
-1. To restart CSI jobs on all worker nodes:  
-    
-    ```
-    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node"
-    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node-registrar"
-    ```
-    
-    Where:  
-    
-    * `DEPLOYMENT` is the name of the deployment.  
-    
-1. To verify that the CSI jobs on all control plane nodes are in a running state:  
-
-    ```
-    bosh -d DEPLOYMENT ssh master "sudo monit summary | grep csi"
-    ```
-
-    Where:  
-
-    * `DEPLOYMENT` is the name of the deployment.  
-
-6. If a CSI job is not in a running state, start the CSI job:  
-
-    ```
-    bosh -d DEPLOYMENT ssh NODE-VM "sudo monit start JOB-NAME"
-    ```
-
-    Where:  
-
-    * `DEPLOYMENT` is the name of the deployment.  
-    * `NODE-VM` is the control plane node VM.  
-    * `JOB-NAME` is the name of the CSI job to start.  
-
-<br>
-### <a id='manually-remove-csi'></a>Remove a Manually Installed vSphere CSI Driver
-
-If you have a cluster that uses a manually installed vSphere CSI Driver, 
-and you upgrade the cluster after your administrator has enabled automatic vSphere CSI Driver Integration,
-you should remove the manually installed driver. 
-While automatic vSphere CSI Driver Integration is enabled, 
-<%= vars.k8s_runtime_abbr %> enables the integrated driver for a cluster after upgrading it, 
-and the cluster's manually installed driver no longer functions.  
-
-To remove a manually installed vSphere CSI driver:
-
-1. Run the following command:  
-
-    ```
-    kubectl delete -f vsphere-csi-driver.yaml
-    ```
-
-
-
-<br>
-### <a id='uninstall-csi-after-topology'></a>Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver
-
-After switching from a manually installed vSphere CSI Driver to the <%= vars.k8s_runtime_abbr %> automatically deployed CSI Driver, 
-the topology configuration must not be changed.  
-
-Configure topology based on the manually installed vSphere CSI Driver configuration:  
-
-* **Region and Zone Topology Labels**:  
-
-    You must continue to use `region`, and `zone` labels if your manually deployed vSphere CSI Driver was configured using 
-    the legacy `region`, and `zone` topology configuration labels.  
-
-
-    Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns `region` and `zone` values.  
-    
-    For example, if your vSphere Secret configuration for the manually installed vSphere CSI driver included the following:  
-    
-    ```
-    [Labels]
-    region = k8s-region
-    zone = k8s-zone
-    ```
-    
-    Your new cluster configuration must include the following instead:
-    
-    ```
-    { 
-      "csi_topology_labels": { 
-          "region: "k8s-region" 
-          "zone": "k8s-zone" 
-      } 
-    }
-    ```
-
-* **topology_categories Topology Label**:  
-    
-    You must continue to use the `topology_categories` label if your manually deployed vSphere CSI Driver was configured using 
-    the `topology_categories` topology configuration label.  
-
-    Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns a `topology_categories` value.  
-    
-    For example, if your vSphere Secret configuration for the manually installed vSphere CSI driver included the following:  
-    
-    ```
-    [Labels]
-    topology-categories = "k8s-region, k8s-zone"
-
-    ```
-    
-    Your new cluster configuration must include the following instead:  
-    
-    ```
-    { 
-      "csi_topology_labels": { 
-        "topology_categories": "k8s-region,k8s-zone" 
-      } 
-    }
-    ```
-    
-* **Topology Deactivated**:  
-
-    You must not enable topology if topology was not enabled while using the manually deployed vSphere CSI Driver.
 
 <br>
 ## <a id='migrate-to-csi'></a> Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver
@@ -984,3 +709,288 @@ To migrate a cluster from an In-Tree vSphere Storage Driver to the vSphere CSI D
 <p class="note"><strong>Note</strong>: You cannot migrate the PV or the PVC 
     on a cluster from the vSphere CSI Driver to the In-Tree vSphere Storage Driver.
 </p>
+
+
+
+<br>
+## <a id='manage-cns'></a>Customize and Manage vSphere CNS 
+
+To configure or manage you vSphere CSI Driver:  
+
+* [Configure CNS Data Centers](#cns-datacenters)  
+<% if vars.product_version == "v1.14"  %>
+* [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi)  
+<% end %>
+
+
+<br>
+### <a id='cns-datacenters'></a>Configure CNS Data Centers
+
+If your clusters are in a multi-data center environment, 
+configure the data centers that must mount CNS storage for the clusters.  
+
+<p class="note"><strong>Note</strong>: 
+You must configure CNS data centers when the Topology feature is enabled in a multi-data center environment. 
+</p>
+
+To configure CNS data centers for a multi-data center environment:  
+ 
+1. Create a JSON or YAML formatted configuration file containing the following:  
+
+    ```
+    {
+      "csi_datacenters": "DATA-CENTER-LIST"
+    }
+    ```
+    
+    Where:  
+    
+    * `DATA-CENTER-LIST` is a comma-separated list of vCenter data centers that must mount your CNS storage. 
+    The default data center for a cluster is the data center defined on the <%= vars.k8s_runtime_abbr %> tile 
+    in **Kubernetes Cloud Provider** > **Datacenter Name**.  
+    
+    For example:  
+    
+    ```
+    {
+      "csi_datacenters": "kubo-dc1,kubo-dc2"
+    }
+    ```
+    For more information on the `csi_datacenters` parameter, 
+    see the description of `datacenters` in 
+    [Procedure](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-BFF39F1D-F70A-4360-ABC9-85BDAFBE8864.html#procedure-1) 
+    in _Create a Kubernetes Secret for vSphere Container Storage Plug-in_.  
+
+    <% if vars.product_version == "COMMENTED"  %>
+    `"disable-vsphere-csi"`:  * `DEACTIVATE-CSI` (Optional) is a toggle to deactivate vSphere CSI Driver support. 
+    Accepts Boolean values `"false"` and `"true"`. Default is `"false"`.  
+    <% end %>
+    
+1. To create a new cluster or update an existing cluster with your vCenter data centers:  
+
+    * To create a cluster:  
+        
+        ```
+        tkgi create-cluster CLUSTER-NAME --config-file CONFIG-FILE  
+        ```
+        
+        Where:  
+
+        * `CLUSTER-NAME` is the name of your cluster.  
+        * `CONFIG-FILE` is the name of your config file.  
+
+        For example:
+        <pre class="terminal">
+        $ tkgi create-cluster demo -e demo.cluster --plan Small --config-file ./conf1.json
+        </pre>
+
+
+    * To update an existing cluster:  
+
+        ```
+        tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE 
+        ```
+
+        Where:  
+
+        * `CLUSTER-NAME` is the name of your cluster.  
+        * `CONFIG-FILE` is the name of your config file. 
+
+
+<% if vars.product_version == "v1.14"  %>
+<br>
+### <a id='uninstall-csi'></a>Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver
+
+<%= vars.k8s_runtime_abbr %> v1.14 does not support a manually installed vSphere CSI driver. 
+If you have a cluster that uses a manually installed vSphere CSI driver, you must switch the cluster to the CSI driver deployed by <%= vars.k8s_runtime_abbr %>.  
+
+To switch your clusters from the manually installed vSphere CSI driver to the auto-deployed driver:
+
+1. [Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare)  
+1. [Upgrade Your <%= vars.k8s_runtime_abbr %> Tile](#uninstall-csi-upgrade-tile)  
+1. [Upgrade Your Clusters](#uninstall-csi-upgrade-cluster)  
+
+
+#### <a id='uninstall-csi-prepare'></a>Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>
+
+Prepare your clusters and configurations before upgrading <%= vars.k8s_runtime_abbr %> to v1.14.0:  
+
+1. To upgrade the manually deployed vSphere CSI driver on a cluster to v2.5.1:  
+
+    1. Download the vSphere CSI Driver v2.5.1 YAML configuration file 
+    [vsphere-csi-driver.yaml](https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/release-2.5/manifests/vanilla/vsphere-csi-driver.yaml) 
+    from the vSphere CSI Driver GitHub repository.  
+    1. Configure the configuration file for <%= vars.k8s_runtime_abbr %>. 
+    For more information, see [Customize Your CSI Driver Configuration](https://docs.pivotal.io/tkgi/1-13/vsphere-cns-manual.html#customize-configuration) 
+    in _Manually Installing the vSphere CSI Driver_ in the <%= vars.k8s_runtime_abbr %> v1.13 documentation.  
+    1. Change the `"use-csinode-id"` parameter value in the configuration file from `"true"` to `"false"`:  
+
+        ```
+          "use-csinode-id": "false"
+        ```
+
+    1. To apply your customized configuration:  
+
+        ```
+        kubectl apply -f vsphere-csi-driver.yaml
+        ```
+    
+    For more information, see [Upgrade vSphere Container Storage Plug-in of a Version 2.3.0 or Later](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-3F277B52-68CC-4125-AD0F-E7293940B4B4.html#GUID-2426D857-F3DA-41DB-9C64-7191854ACDE9__GUID-E5623816-32B8-421C-832C-01398551BEB6) 
+    in _Upgrading vSphere Container Storage Plug-in_ in the VMware vSphere Container Storage Plug-in documentation.  
+
+1. If topology-aware volume provisioning is enabled on a cluster, create a TKGI configuration file for the cluster. 
+For more information, see [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology) below.  
+
+
+#### <a id='uninstall-csi-upgrade-tile'></a>Upgrade Your <%= vars.k8s_runtime_abbr %> Tile
+
+To upgrade your <%= vars.k8s_runtime_abbr %> tile: 
+
+1. Download and import the <%= vars.product_tile %> v1.14.0 tile. 
+For more information, see [Download and Import <%= vars.product_short %>](upgrade.html#upgrade-tile) 
+in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
+1. Download and import Stemcells. 
+For more information, see [Download and Import Stemcells](upgrade.html#stemcell) 
+in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
+1. Deselect the **Upgrade All Clusters** errand. 
+For more information, see [Verify Errand Configuration](upgrade.html#errands) 
+in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
+<%#    Upgrade the <  %= vars.k8s_runtime_abbr %  > clusters to v1.14.0.  #%>
+1. Enable **vSphere CSI Driver Integration** on the TKGI tile. 
+For more information, see [Verify Other Configurations](upgrade.html#final-review) 
+in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
+1. Select **Apply Changes**. 
+For more information, see [Apply Changes to the <%= vars.product_tile %> Tile](upgrade.html#apply-changes) 
+in _Upgrading Tanzu Kubernetes Grid Integrated Edition_.  
+1. Complete the [After the Upgrade](upgrade.html#after-upgrade) steps as usual. 
+
+
+#### <a id='uninstall-csi-upgrade-cluster'></a>Upgrade Your Clusters
+
+To switch a cluster to the automatically deployed vSphere CSI Driver:  
+
+1. Upgrade your <%= vars.k8s_runtime_abbr %> cluster to v1.14.0.  
+1. If topology-aware volume provisioning is enabled on your cluster, 
+update your cluster using the topology configuration file you created in 
+[Prepare Before Upgrading <%= vars.k8s_runtime_abbr %>](#uninstall-csi-prepare) above.  
+1. Remove the manually installed CSI driver from the cluster. 
+For more information, see [Remove a Manually Installed vSphere CSI Driver](#manually-remove-csi) below.  
+1. To restart CSI jobs on all worker nodes:  
+    
+    ```
+    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node"
+    bosh -d DEPLOYMENT ssh worker "sudo monit restart csi-node-registrar"
+    ```
+    
+    Where:  
+    
+    * `DEPLOYMENT` is the name of the deployment.  
+    
+1. To verify that the CSI jobs on all control plane nodes are in a running state:  
+
+    ```
+    bosh -d DEPLOYMENT ssh master "sudo monit summary | grep csi"
+    ```
+
+    Where:  
+
+    * `DEPLOYMENT` is the name of the deployment.  
+
+6. If a CSI job is not in a running state, start the CSI job:  
+
+    ```
+    bosh -d DEPLOYMENT ssh NODE-VM "sudo monit start JOB-NAME"
+    ```
+
+    Where:  
+
+    * `DEPLOYMENT` is the name of the deployment.  
+    * `NODE-VM` is the control plane node VM.  
+    * `JOB-NAME` is the name of the CSI job to start.  
+
+<br>
+#### <a id='manually-remove-csi'></a>Remove a Manually Installed vSphere CSI Driver
+
+If you have a cluster that uses a manually installed vSphere CSI Driver, 
+and you upgrade the cluster after your administrator has enabled automatic vSphere CSI Driver Integration,
+you should remove the manually installed driver. 
+While automatic vSphere CSI Driver Integration is enabled, 
+<%= vars.k8s_runtime_abbr %> enables the integrated driver for a cluster after upgrading it, 
+and the cluster's manually installed driver no longer functions.  
+
+To remove a manually installed vSphere CSI driver:
+
+1. Run the following command:  
+
+    ```
+    kubectl delete -f vsphere-csi-driver.yaml
+    ```
+
+
+
+<br>
+#### <a id='uninstall-csi-after-topology'></a>Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver
+
+After switching from a manually installed vSphere CSI Driver to the <%= vars.k8s_runtime_abbr %> automatically deployed CSI Driver, 
+the topology configuration must not be changed.  
+
+Configure topology based on the manually installed vSphere CSI Driver configuration:  
+
+* **Region and Zone Topology Labels**:  
+
+    You must continue to use `region`, and `zone` labels if your manually deployed vSphere CSI Driver was configured using 
+    the legacy `region`, and `zone` topology configuration labels.  
+
+
+    Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns `region` and `zone` values.  
+    
+    For example, if your vSphere Secret configuration for the manually installed vSphere CSI driver included the following:  
+    
+    ```
+    [Labels]
+    region = k8s-region
+    zone = k8s-zone
+    ```
+    
+    Your new cluster configuration must include the following instead:
+    
+    ```
+    { 
+      "csi_topology_labels": { 
+          "region: "k8s-region" 
+          "zone": "k8s-zone" 
+      } 
+    }
+    ```
+
+* **topology_categories Topology Label**:  
+    
+    You must continue to use the `topology_categories` label if your manually deployed vSphere CSI Driver was configured using 
+    the `topology_categories` topology configuration label.  
+
+    Your revised cluster configuration file must include a `csi_topology_labels` parameter that assigns a `topology_categories` value.  
+    
+    For example, if your vSphere Secret configuration for the manually installed vSphere CSI driver included the following:  
+    
+    ```
+    [Labels]
+    topology-categories = "k8s-region, k8s-zone"
+
+    ```
+    
+    Your new cluster configuration must include the following instead:  
+    
+    ```
+    { 
+      "csi_topology_labels": { 
+        "topology_categories": "k8s-region,k8s-zone" 
+      } 
+    }
+    ```
+    
+* **Topology Deactivated**:  
+
+    You must not enable topology if topology was not enabled while using the manually deployed vSphere CSI Driver.
+
+
+<% end %>
