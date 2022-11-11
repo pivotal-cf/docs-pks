@@ -30,127 +30,8 @@ If the environment does not have internet access, refer to
 
 ##<a id="minio-deploy"></a> Deploy an Object Store
 
-The Velero backup procedure in this topic requires an object store as the backup destination for workload backups.  
-
-To deploy and configure a MinIO Server on a Linux Ubuntu VM as the Velero backend object store:  
-
-1. [Install MinIO](#minio-install)  
-1. [Enable MinIO as a Service](#minio-service)  
-1. [Create MinIO Bucket](#minio-create)  
-1. [Configure MinIO Bucket](#minio-config)  
-
-For more information about MinIO, see the [MinIO Quick Start Guide](https://docs.min.io/docs/minio-quickstart-guide.html).  
-
-### <a id='minio-install'></a> Install MinIO
-
-To install MinIO:  
-
-1. Install the MinIO app:  
-
-    ```
-    wget https://dl.min.io/server/minio/release/linux-amd64/minio
-    ```
-
-1. Grant execute permissions to the MinIO app:  
-
-    ```
-    chmod +x minio
-    ```
-
-1. Create a directory where MinIO data will be stored:  
-
-    ```
-    mkdir /DATA-MINIO
-    ```
-
-### <a id='minio-start'></a> Start MinIO
-
-To prepare the MinIO server:  
-
-1. Start the MinIO server:  
-
-    ```
-    ./minio server /DATA-MINIO
-    ```
-
-    After the MinIO server has started, you are provided with the data store instance endpoint URL, AccessKey, and SecretKey.  
-
-1. Record the MinIO server endpoint URL, AccessKey, and SecretKey information for the data store instance.  
-
-1. Browse to the MinIO data store by opening a browser to the MinIO server endpoint URL.
-For example: [http://10.199.17.63:9000/minio/login/](http://10.199.17.63:9000/minio/login/).  
-
-    <a href="images/backup-restore/minio-01.png"><img src="images/backup-restore/minio-01.png" alt="MinIO Data Store" width="538"></a>
-
-1. Log in to the MinIO server and provide the AccessKey and SecretKey.  
-
-    <a href="images/backup-restore/minio-02.png"><img src="images/backup-restore/minio-02.png" alt="MinIO Log In" width="538"></a>
-
-### <a id='minio-service'></a> Enable MinIO as a Service
-
-To enable MinIO as a service, configure MinIO for automatic startup:  
-
-1. Download the `minio.service` script:  
-
-    ```
-    curl -O https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service
-    ```
-
-1. Edit the `minio.service` script and add the following value for `ExecStart`:  
-
-    ```
-    ExecStart=/usr/local/bin/minio server /DATA-MINIO path
-    ```
-
-1. Save the revised script.  
-
-1. Configure the MinIO service by running the following commands:  
-
-    ```
-    cp minio.service /etc/systemd/system
-    cp minio /usr/local/bin/
-    systemctl daemon-reload
-    systemctl start minio
-    systemctl status minio
-    systemctl enable minio
-    ```
-
-### <a id='minio-create'></a> Create MinIO Bucket
-
-To create a MinIO bucket for <%= vars.k8s_runtime_abbr %> workload backup and restore:  
-
-1. Launch the Mino browser and log in to your object store.  
-1. Click the Create Bucket icon.  
-
-    <a  href="images/backup-restore/minio-03.png"><img src="images/backup-restore/minio-03.png" alt="MinIO Create Bucket" width="538"></a>
-
-1. Enter the bucket name, for example: `tkgi-velero`.  
-
-    <a  href="images/backup-restore/minio-04.png"><img src="images/backup-restore/minio-04.png" alt="MinIO Bucket Name" width="538"></a>
-
-1. Verify that the bucket was created.  
-
-    <a href="images/backup-restore/minio-05.png" ><img src="images/backup-restore/minio-05.png" alt="Verify MinIO Bucket" width="538"></a>
-
-### <a id='minio-config'></a> Configure MinIO Bucket
-
-By default, a new MinIO bucket is read-only, but for our Velero backup and restore the MinIO bucket must be read-write.  
-
-To set the new `tkgi-velero` bucket to read-write:  
-
-1. Select the bucket and click on the dots link.  
-1. Select **Edit Policy**.  
-
-    <a href="images/backup-restore/minio-06.png"><img src="images/backup-restore/minio-06.png" alt="MinIO Name Bucket" width="538"></a>
-
-1. Change the policy to `Read and Write`.  
-
-    <a href="images/backup-restore/minio-07.png"><img src="images/backup-restore/minio-07.png" alt="MinIO Name Bucket" width="538"></a>
-
-1. Click **Add**.  
-1. To close the dialog box, click **X**.  
-
-    <a href="images/backup-restore/minio-08.png"><img src="images/backup-restore/minio-08.png" alt="MinIO Name Bucket" width="538"></a>
+The Velero backup procedure requires an object store as the backup destination for workload backups. Deploy and configure a MinIO Server on a Linux Ubuntu VM as the Velero backend object store.
+For more information, see [Deploy an Object Store](velero-install-vsphere.html#deploy-an-object-store-1).
 
 ##<a id="velero-deploy"></a> Install the Velero CLI on Your Workstation
 
@@ -226,7 +107,7 @@ To install the Velero pod on each Kubernetes cluster whose workloads you want to
 1. [Set Up the kubectl Context](#velero-cluster-setup)  
 1. [Install Velero](#velero-cluster-install-procedure)
 1. [Encrypt the vSphere Credentials](#velero-credentials-secret)
-1. [Set the Cluster Flavor](#apply-cluster-flavor)
+1. [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-conf)
 1. [Migrate VCP Volumes to vSphere CSI Driver](#velero-vcp-csi-migration)
 1. [Adjust Velero Memory Limits If Necessary](#velero-memory)
 
@@ -311,10 +192,10 @@ To install Velero:
 
     ```
     velero install \
-    --image harbor-repo.vmware.com/harbor-ci/vmware-tanzu/velero:v1.8.1_vmware.1 \
+    --image projects.registry.vmware.com/tkg/velero/velero \
     --provider aws --bucket velero \
     --secret-file ./credentials-velero \
-    --plugins "harbor-repo.vmware.com/harbor-ci/vmware-tanzu/velero-plugin-for-aws-v1.4.1_vmware.1" \
+    --plugins "projects.registry.vmware.com/tkg/velero/velero-plugin-for-aws:v1.4.1_vmware.1" \
     --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.233.44:9000,publicUrl=http://20.20.233.44:9000 \
     --snapshot-location-config region=minio
     ```
@@ -357,8 +238,8 @@ To install Velero:
     velero            Active   2m38s
     </pre>
 
-1. To apply the cluster flavor, complete the steps in [Set the Cluster Flavor](#apply-cluster-flavor) below. 
-You must set the cluster flavor before installing the Velero plugin for vSphere.  
+1. Complete the steps in [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-conf) below. 
+You must create the Velero vSphere plugin configuration file before installing the Velero plugin for vSphere.  
 5. Install the Velero plugin for vSphere:  
 
     ```
@@ -423,13 +304,40 @@ You must set the cluster flavor before installing the Velero plugin for vSphere.
     velero.io/vsphere                  VolumeSnapshotter<br>
     </pre>
 
-### <a id='velero-credentials-secret'></a> Encrypt the vSphere Credentials
+### <a id='velero-vshphere-cred-secret'></a> Create a Velero vSphere Credential Secret
 
-To secure your data, encrypt it by creating a vSphere credentials secret. For more information on how to do this, see [Verify Your Data is Encrypted](k8s-profiles-encrypt-etcd.html#verify-encryption).
+To create a Velero vSphere credential secret:
 
-### <a id='apply-cluster-flavor'></a> Set the Cluster Flavor
+1. Create the `csi-vsphere.conf` file with the following details:
 
-To set your cluster flavor:  
+  ```
+    [Global]
+    cluster-id = "CLUSTER-NAME"                
+    [VirtualCenter "IP-ADDRESS"]    
+    user = "USERNAME"       
+    password = "PASSWORD" 
+    port = "443" 
+  ```    
+      
+    Where:  
+  
+      * `CLUSTER-NAME` is the name of your cluster.
+      * `IP-ADDRESS` is the IP address of the vCenter Server.
+      * `USERNAME` is the username that you want to use.
+      * 'PASSWORD' is the username that you want to use.
+         
+
+1. To create the secret:
+
+  ```
+  kubectl -n NAMESPACE create secret generic velero-vsphere-config-secret --from-file=csi-vsphere.conf
+    ```
+  
+  Where `NAMESPACE` is the Velero namespace.
+
+### <a id='create-vsphere-plugin-conf'></a> Create the Velero vSphere Plugin Configuration File
+
+To create the Velero vSphere Plugin configuration file:  
 
 1. Create a ConfigMap YAML file. For example `configmap.yaml`.  
 1. Modify the ConfigMap file with the following:  
@@ -541,7 +449,7 @@ For more information, see [Set Up the kubectl Context ](#velero-cluster-setup) a
 
 1. Open the VMware Velero downloads page for your version of <%= vars.k8s_runtime_abbr %> 
 linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html).  
-1. Download the Velero CLI and Velero with Restic Docker images for your version of <%= vars.k8s_runtime_abbr %>:  
+1. Download the Velero CLI and Velero Plugin for vSphere images for your version of <%= vars.k8s_runtime_abbr %>:  
 
     ```
     backup-driver-v1.4.0_vmware.1.tar.gz
@@ -585,8 +493,8 @@ linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html)
     [On-Premises Environments](https://velero.io/docs/v1.6/on-premises/) 
     in the Velero documentation.  
 
-1. To apply the cluster flavor, complete the steps in [Set the Cluster Flavor](#apply-cluster-flavor) above. 
-You must set the cluster flavor before installing the Velero plugin for vSphere.  
+1. Complete the steps in [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-conf) above. 
+You must create the Velero vSphere plugin configuration file before installing the Velero plugin for vSphere.  
 5. Install the Velero plugin for vSphere:  
 
     ```
