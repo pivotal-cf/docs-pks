@@ -92,9 +92,10 @@ To install the Velero pod on each Kubernetes cluster whose workloads you want to
 
 1. [Prerequisites](#velero-cluster-install-prereqs)  
 1. [Set Up the kubectl Context](#velero-cluster-setup)
-1. [Create a Velero vSphere Credential Secret](#velero-credentials-secret)
-1. [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-conf)  
 1. [Install Velero](#velero-cluster-install-procedure)
+1. [Create a Velero vSphere Credential Secret](#velero-credentials-secret)
+1. [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-config-file)  
+1. [Install Velero vSphere Plugin](#velero-vsphere-plugin-install)
 1. [Back up the VCP Volumes Migrated to vSphere CSI Driver](#velero-vcp-csi-migration)
 1. [Adjust Velero Memory Limits If Necessary](#velero-memory)
 
@@ -115,7 +116,7 @@ Before running Velero CLI commands to install Velero on the target cluster, set 
 1. Get the AccessKey and SecretKey for the MinIO bucket.
 For example, AccessKey: `0XXNO8JCCGV41QZBV0RQ` and SecretKey: `clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx`.  
 1. Verify `kubectl` works against the cluster. If needed, use `tkgi get-credentials`.  
-1. Set the context for the target Kubernetes cluster so that the Velero CLI knows which cluster to work on by running:  
+1. Set the context for the target Kubernetes cluster so that the Velero CLI knows which cluster to work:
 
     ```
     tkgi get-credentials CLUSTER-NAME
@@ -159,81 +160,13 @@ Update the file with the MinIO server access credentials that you collected abov
 
 1. Save the file.  
 
-### <a id='velero-vshphere-cred-secret'></a> Create a Velero vSphere Credential Secret
+###<a id='velero-cluster-install-procedure'></a>Install Velero
 
-To create a Velero vSphere credential secret:
-
-1. Create the `csi-vsphere.conf` file with the following details:
-
-  ```
-    [Global]
-    cluster-id = "CLUSTER-NAME"                
-    [VirtualCenter "IP-ADDRESS"]    
-    user = "USERNAME"       
-    password = "PASSWORD" 
-    port = "443" 
-  ```    
-      
-    Where:  
-  
-      * `CLUSTER-NAME` is the name of your cluster.
-      * `IP-ADDRESS` is the IP address of the vCenter Server.
-      * `USERNAME` is the username that you want to use.
-      * `PASSWORD` is the username that you want to use.
-         
-
-1. To create the secret:
-
-  ```
-  kubectl -n NAMESPACE create secret generic velero-vsphere-config-secret --from-file=csi-vsphere.conf
-    ```
-  
-  Where `NAMESPACE` is the Velero namespace.
-
-### <a id='create-vsphere-plugin-conf'></a> Create the Velero vSphere Plugin Configuration File
-
-To create the Velero vSphere Plugin configuration file:  
-
-1. Create a ConfigMap YAML file. For example `configmap.yaml`.  
-1. Modify the ConfigMap file with the following:  
-
-    ```
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: velero-vsphere-plugin-config
-    data:
-      cluster_flavor:           "VANILLA"
-      vsphere_secret_name:      "SECRET-NAME"
-      vsphere_secret_namespace: "SECRET-NAMESPACE"  #optional, default is velero
-    ```
-    
-    Where:  
-
-    * `SECRET-NAME` is the name you applied to your Velero secret.  
-    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.  
-    
-1. Save the ConfigMap file.  
-1. To apply the ConfigMap:  
- 
-    ```
-    kubectl apply -f CONFIGMAP-FILE -n SECRET-NAMESPACE
-    ```
-    
-    Where:  
-
-    * `CONFIGMAP-FILE` is the name of your ConfigMap file. For example `configmap.yaml`.  
-    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.  
-
-###<a id='velero-cluster-install-procedure'></a><a id='velero-cluster-install-prodecure'></a>Install Velero
-
-To install Velero:  
-
-1. Run the following command to install Velero on the target Kubernetes cluster:  
+1. Install Velero on the target Kubernetes cluster:  
 
     ```
     velero install \
-    --image projects.registry.vmware.com/tkg/velero/velero \
+    --image projects.registry.vmware.com/tkg/velero/velero\v1.8.1_vmware.1
     --provider aws --bucket velero \
     --secret-file ./credentials-velero \
     --plugins "projects.registry.vmware.com/tkg/velero/velero-plugin-for-aws:v1.4.1_vmware.1" \
@@ -278,6 +211,69 @@ To install Velero:
     pks-system        Active   13d<br>
     velero            Active   2m38s
     </pre>
+    
+### <a id='velero-vshphere-cred-secret'></a> Create a Velero vSphere Credential Secret
+    
+1. Create the `csi-vsphere.conf` file with the following details:
+    
+    ```
+    [Global]
+    cluster-id = "CLUSTER-NAME"                
+    [VirtualCenter "IP-ADDRESS"]    
+    user = "USERNAME"       
+    password = "PASSWORD" 
+    port = "443" 
+    ```    
+          
+    Where:  
+      
+    * `CLUSTER-NAME` is the name of your cluster.
+    * `IP-ADDRESS` is the IP address of the vCenter Server.
+    * `USERNAME` is the username that you want to use.
+    * `PASSWORD` is the username that you want to use.
+               
+1. Create the secret:
+    
+    ```
+    kubectl -n NAMESPACE create secret generic velero-vsphere-config-secret --from-file=csi-vsphere.conf
+    ```
+      
+    Where `NAMESPACE` is the Velero namespace.
+    
+### <a id='create-vsphere-plugin-config-file'></a> Create the Velero vSphere Plugin Configuration File 
+    
+1. Create a ConfigMap YAML file. For example `configmap.yaml`.  
+1. Modify the ConfigMap file with the following:  
+    
+    ```
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: velero-vsphere-plugin-config
+      data:
+      cluster_flavor:           "VANILLA"
+      vsphere_secret_name:      "SECRET-NAME"
+      vsphere_secret_namespace: "SECRET-NAMESPACE"  #optional, default is velero
+    ```
+        
+    Where:  
+    
+    * `SECRET-NAME` is the name you applied to your Velero secret.  
+    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.  
+        
+1. Save the ConfigMap file.  
+1. Apply the ConfigMap:  
+     
+    ```
+    kubectl apply -f CONFIGMAP-FILE -n SECRET-NAMESPACE
+    ```
+        
+    Where:  
+    
+    * `CONFIGMAP-FILE` is the name of your ConfigMap file. For example `configmap.yaml`.  
+    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.  
+
+### <a id='#velero-vsphere-plugin-install'></a> Install Velero vSphere Plugin
 
 1. Install the Velero plugin for vSphere:  
 
@@ -291,7 +287,7 @@ To install Velero:
     velero snapshot-location create vsl-vsphere --provider velero.io/vsphere
     ```
 
-1. Verify the `velero` pod.  
+1. Verify the `velero` pod:
 
     ```
     kubectl get all -n velero
@@ -305,8 +301,7 @@ To install Velero:
     pod/velero-8dc7498d9-9v7x4   1/1     Running            0          30s
     </pre>
 
-
-1. Verify the snaphost plugin.  
+1. Verify the snaphost plugin:
 
     ```
     velero plugin get
@@ -345,7 +340,7 @@ To install Velero:
 
 ### <a id='velero-vcp-csi-migration'></a> Back up the VCP Volumes Migrated to vSphere CSI Driver
 
-Follow this step if you want to back up the VCP volumes that were migrated to vSphere CSI Driver:
+Follow this step if you want to back up the VCP volumes that were migrated to vSphere CSI Driver.
 
 1. Create the `velero-vsphere-plugin-feature-states.yaml` ConfigMap file.
 1. Modify the ConfigMap file with the following:  
@@ -370,9 +365,7 @@ Follow this step if you want to back up the VCP volumes that were migrated to vS
 ###<a id='velero-memory'></a> Adjust Velero Memory Limits If Necessary
 
 If your Velero backup returns `status=InProgress` for many hours,
-increase the limits and requests memory settings.  
-
-To increase limits and requests memory settings:  
+increase the limits and requests memory settings. To do this:
 
 1. Run the following command:  
 
@@ -398,8 +391,7 @@ To increase limits and requests memory settings:
     terminationMessagePath: /dev/termination-log
     terminationMessagePolicy: File
     ```
-
-
+    
 ##<a id='velero-cluster-install-airgapped'></a> Install Velero in an Air-Gapped Environment
 
 If you are working in an air-gapped environment, you can install Velero using an internal registry.
@@ -464,7 +456,7 @@ linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html)
     [On-Premises Environments](https://velero.io/docs/v1.6/on-premises/) 
     in the Velero documentation.  
 
-1. Complete the steps in [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-conf) above. 
+1. Complete the steps in [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-config-file) above. 
 You must create the Velero vSphere plugin configuration file before installing the Velero plugin for vSphere.  
 5. Install the Velero plugin for vSphere:  
 
