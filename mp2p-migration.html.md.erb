@@ -11,8 +11,8 @@ see [Migrating the Management Plane API to Policy API - Overview](mp2p-migration
 
 ## <a id="overview"></a> Overview
 
-The Management Plane API to Policy API migration feature (MP2P) 
-changes <%= vars.k8s_runtime_abbr %> environments from the Management Plane API to the Policy API.  
+The Management Plane API to Policy API (MP2P) Migration feature 
+switches environments using the Management Plane API <%= vars.k8s_runtime_abbr %> to the Policy API.  
 
 <%= vars.recommended_by %> recommends that your MP2P Migration adheres to the following
 Prepare -> Migrate -> Clean Up workflow:  
@@ -20,29 +20,29 @@ Prepare -> Migrate -> Clean Up workflow:
 <table>
     <tr>
         <th></th>
-        <th>Step</th>
+        <th>Procedure</th>
         <th>Description</th>
         <th>Concerns</th>
     </tr>
     <tr>
         <th rowspan=3>Prepare</th>
-        <td>Backup</td>
-        <td>Backup <%= vars.k8s_runtime_abbr %> clusters and NSX.</td>
+        <td><strong>Backup</strong></td>
+        <td>Backup BOSH Director config.</td>
         <td></td>
-    </tr>
+    </tr> 
     <tr>
-        <td>Enable Migration</td>
-        <td>Enable Policy API support:
+        <td><strong>Enable Migration</strong></td>
+        <td>Configure for Migration:
             <ul>
-                <li>Activate NSX Promoter.</li>
-                <li>Configure BOSH Migration Mode to support mixed MP and Policy API clusters.</li>
-                <li>Configure <%= vars.k8s_runtime_abbr %> to Policy API mode.</li>
+                <li>Configure <%= vars.k8s_runtime_abbr %>.</li>
+                <li>Configure NSX.</li>
+                <li>Configure BOSH.</li>
             </ul>
         </td>
         <td>New clusters will use Policy API.</td>
     </tr>
     <tr>
-        <td>Set Up Policy API Objects</td>
+        <td><strong>Set Up Policy API Objects</strong></td>
         <td>To create and configure Policy API objects:
             <ul>
                 <li>Create and promote a single test cluster.</li>
@@ -51,27 +51,48 @@ Prepare -> Migrate -> Clean Up workflow:
         </td>
         <td>Migrates shared resources, including Tier-0, FIP block, Pod IP block, and Node IP block to Policy API.</td>
     </tr>
+<% if vars.product_version == "COMMENTED"  %>
+    <tr>
+        <td>New Step</td>
+        <td>New Step description:
+            <ul>
+                <li>Part 1.</li>
+                <li>Part 2.</li>
+                <li>Part 3.</li>
+            </ul>
+        </td>
+        <td>New Step Info.</td>
+    </tr>
+<% end %>
     <tr>
         <th colspan=4>&nbsp;</th>
     </tr>
     <tr>
-        <th>Migrate</th>
-        <td>Migrate All Production Clusters</td>
-        <td>Use <code>tkgi promote-cluster-to-policy</code> to promote a cluster.</td>
+        <th rowspan=2>Migrate</th>
+        <td><strong>Migrate a Cluster</strong></td>
+        <td>Steps:
+            <ul>
+                <li>Backup the cluster's critical workloads.</li>
+                <li>Use <code>tkgi promote-cluster-to-policy</code> to promote a cluster.</li>
+            </ul>
+        </td>
+        <td>A cluster's workloads experience downtime as its promoted.</td>
+    </tr>
+    <tr>
+        <td><strong>Migrate All Production Clusters</strong></td>
+        <td></td>
         <td>Notes:
             <ul>
                 <li>Promote clusters serially, only one at a time.</li>
-                <li>A cluster's workloads experience downtime as its promoted.</li>
-                <li>Verify the migration of each cluster before migrating the next cluster.</li>
+                <li>Verify the migration of your cluster before migrating another cluster.</li>
             </ul>
         </td>
-    </tr>
     <tr>
         <th colspan=4>&nbsp;</th>
     </tr>
     <tr>
         <th rowspan=3>Cleanup</th>
-        <td>Promote Remaining NSX Objects</td>
+        <td><strong>Promote Remaining NSX Objects</strong></td>
         <td>
             Use the NSX Promoter to convert the NSX Objects that are configured outside of <%= vars.k8s_runtime_abbr %>.
         </td>
@@ -84,12 +105,12 @@ Prepare -> Migrate -> Clean Up workflow:
         </td>
     </tr>
     <tr>
-        <td>Deactivate BOSH Migration Mode</td>
+        <td><strong>Deactivate BOSH Migration Mode</strong></td>
         <td>Deactivate BOSH migration mode to support Policy API clusters only.</td>
         <td></td>
     </tr>
     <tr>
-        <td>Verification and cleanup</td>
+        <td><strong>Verification and Cleanup</strong></td>
         <td>Verify the migration and clean up any unnecessary MP objects</td>
         <td></td>
     </tr>
@@ -120,24 +141,30 @@ Before migrating <%= vars.k8s_runtime_abbr %> from  Management Plane API to Poli
 verify your <%= vars.k8s_runtime_abbr %> environment meets the following requirements:  
 
 * <%= vars.k8s_runtime_abbr %> Version Requirements:  
-    * <%= vars.k8s_runtime_abbr %> Tile and CLI: v1.15.1 or later  
-    * <%= vars.k8s_runtime_abbr %> clusters: v1.15.1 or later  
+    * <%= vars.k8s_runtime_abbr %> Tile and CLI: v1.15.1 or later.  
+    * <%= vars.k8s_runtime_abbr %> clusters: v1.15.1 or later.  
 
 * Environment Version Requirements:  
-    * NSX: v4.0.1 or later  
-    * Ops Manager CLI: v2.10.45 or later  
+    * NSX: v4.0.1 or later.  
+    * NSX environment is a dedicated TKGI environment. 
+    For example, an environment without a TAS or other installations in production.  
+    * Ops Manager CLI: v2.10.45 or later.  
 
 * Cluster Requirements:  
 
-    * MP2P Migration does not currently support clusters with a Shared NSGroup for control plane VMs. 
-    For more information about Shared NSGroups, see [Configure Bootstrap NSGroups](network-profiles-ns-groups.html).  
+    * MP2P Migration does not currently support clusters with an NSGroup for control plane VMs. 
+    For more information about NSGroups, see [Configure Bootstrap NSGroups](network-profiles-ns-groups.html).  
 
+* Other Requirements:  
 
-For more information about <%= vars.k8s_runtime_abbr %> MP2P Migration limitations, see 
-[Concerns and Limitations](mp2p-migration-concepts.html#concerns), 
-[Operational Limitations](mp2p-migration-concepts.html#concerns-limitations), 
-and [MP2P Migration FAQs](mp2p-migration-concepts.html#faqs) 
-in _Migrating the Management Plane API to Policy API - Overview_.  
+    * For more information about <%= vars.k8s_runtime_abbr %> MP2P Migration limitations, see 
+    [Concerns and Limitations](mp2p-migration-concepts.html#concerns), 
+    [Operational Limitations](mp2p-migration-concepts.html#concerns-limitations) 
+    <% if vars.product_version == "COMMENTED"  %>
+    , and [MP2P Migration FAQs](mp2p-migration-concepts.html#faqs) 
+    <% end %>
+    in _Migrating the Management Plane API to Policy API - Overview_.  
+    
      
 <br>
 <br>
@@ -148,7 +175,7 @@ To prepare your <%= vars.k8s_runtime_abbr %> environment for MP2P Migration:
 * [Backup <%= vars.k8s_runtime_abbr %> Clusters and NSX](#migration-prep-backup)  
 * [Enable Migration](#migration-prep-enable)  
 * [Set Up Policy API Objects](#migration-prep-setup-api-objects)  
-* [Configure Ops Manger and <%= vars.k8s_runtime_abbr %> for Policy API](#migration-steps-configure-opsman)
+* [Configure Ops Manager and <%= vars.k8s_runtime_abbr %> for Policy API](#migration-steps-configure-opsman)
 
 <br>
 ### <a id="migration-prep-backup"></a> Backup <%= vars.k8s_runtime_abbr %> Clusters and NSX
@@ -167,6 +194,10 @@ Additionally, Ops Manager and BOSH must be configured to support a mixed environ
 before promoting clusters.  
 
 To prepare NSX for MP2P Migration:  
+
+1. If your NSX Manager cluster is configured with VIP, configure the Source IP Persistence Profile for LB or 
+use a Source IP LB algorithm during TKGI foundation migration. 
+All migration requests should be made on a single NSX Manager.  
 
 1. Manually enable **NSX Promoter** in NSX:  
 
@@ -220,7 +251,7 @@ To migrate Management Plane API shared network resources to Policy API objects:
     * Retrieve the Resource Policy ID with NSX API:  
 
 <br>
-### <a id="migration-steps-configure-opsman"></a> Configure Ops Manger and <%= vars.k8s_runtime_abbr %> for Policy API
+### <a id="migration-steps-configure-opsman"></a> Configure Ops Manager and <%= vars.k8s_runtime_abbr %> for Policy API
 
 To configure the <%= vars.k8s_runtime_abbr %> tile with the policy object IDs created by test cluster migration:  
 
@@ -264,6 +295,10 @@ After configuring Ops Manager and the <%= vars.k8s_runtime_abbr %> tile, newly c
 
 To migrate <%= vars.k8s_runtime_abbr %> to Policy API, serially promote all of your <%= vars.k8s_runtime_abbr %> clusters individually.  
 
+For more information on cluster limitations while promoting a cluster, 
+see [During Cluster Promotion to Policy API](mp2p-migration-concepts.html#concerns-limitations) 
+in _Migrating the Management Plane API to Policy API - Overview_.  
+
 <p class="note"><strong>Note:</strong> 
 Do not intentionally run <%= vars.k8s_runtime_abbr %> in mixed mode for an extended period of time. 
 Promote all <%= vars.k8s_runtime_abbr %> clusters to Policy API as quickly as possible.
@@ -278,6 +313,11 @@ To migrate an individual cluster:
     ```
     
     Where `CLUSTER-NAME` is the name of the promoted cluster.  
+    
+    <p class="note"><strong>Note:</strong> 
+    Do not attempt to promote an additional <%= vars.k8s_runtime_abbr %> cluster to Policy API 
+    before completing the promotion of the current clusters.
+    </p>  
 
 1. Validate successful migration to Policy API topology for the cluster before upgrading subsequent clusters:  
 
