@@ -1,49 +1,55 @@
 ---
-title: Migrating the Management Plane API to Policy API - Overview
+title: Migrating the NSX Management Plane API to NSX Policy API - Overview
 owner: TKGI
 ---
 
 
-This topic provides an overview of the issues to consider before migrating <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) from the Management Plane API to Policy API.  
+This topic provides an overview of migrating <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) 
+from the NSXManagement Plane API to NSX Policy API.  
  
-To migrate a <%= vars.k8s_runtime_abbr %> from Management Plane API to Policy API, 
-see [Migrating the Management Plane API to Policy API](mp2p-migration.html).  
+To migrate a <%= vars.k8s_runtime_abbr %> from NSX Management Plane API to NSX Policy API, 
+see [Migrating the NSX Management Plane API to NSX Policy API](mp2p-migration.html).  
 
 
 <br>
 ## <a id="overview"></a> Overview
 
-The Management Plane API to Policy API (MP2P) Migration feature 
-switches environments using the Management Plane API <%= vars.k8s_runtime_abbr %> to the Policy API.  
+The NSX Management Plane API has been deprecated. 
+<%= vars.recommended_by %> recommends that you instead use the NSX Policy API. 
+For more information about the deprecation of the NSX Management Plane API, see
+[Deprecation announcement for NSX Manager APIs and NSX Advanced UIs](https://docs.vmware.com/en/VMware-NSX/3.2/rn/vmware-nsxt-data-center-32-release-notes/index.html#feature--api-deprecations-and-behavior-changes-deprecation-announcement-for-nsx-manager-apis-and-nsx-advanced-uis) 
+in _VMware NSX-T Data Center 3.2 Release Notes_.  
+
+
+The NSX Management Plane API to NSX Policy API (MP2P) Migration feature 
+switches <%= vars.k8s_runtime_abbr %> environments using the NSX Management Plane API to the NSX Policy API.  
 
 <p class="note"><strong>Note:</strong> 
-<%= vars.k8s_runtime_abbr %> supports Management Plane API to Policy API Migration only.
-You cannot return <%= vars.k8s_runtime_abbr %> to the Management Plane API 
+<%= vars.k8s_runtime_abbr %> supports NSX Management Plane API to NSX Policy API Migration only.
+You cannot return <%= vars.k8s_runtime_abbr %> to the NSX Management Plane API 
 after starting <%= vars.k8s_runtime_abbr %> MP2P Migration.
 </p> 
 
 <br>
-### <a id="features"></a> Management Plane API to Policy API Migration Features
+### <a id="features"></a> NSX Management Plane API to NSX Policy API Migration Features
 
-<%= vars.k8s_runtime_abbr %> Management Plane API to Policy API Migration provides 
+<%= vars.k8s_runtime_abbr %> NSX Management Plane API to NSX Policy API Migration provides 
 the following advantages over manual migration:  
 
-* Designed to be self-service.  
+* Supports <%= vars.k8s_runtime_abbr %> MP2P Migration in most environments.  
 
 * Reduces a complex manual workflow to a few procedures:  
     
-    * Automates NCP MP2P functions.  
-    * Automates most NSX Manager and TKGI CLI configuration steps.  
-    * Migrates cluster NSX resources to Policy API objects without disrupting NSX data path.  
-    * Synchronizes all cluster deployment NSX resources to Policy IDs, 
+    * Automates most NSX Manager and TKGI configuration steps.  
+    * Migrates cluster NSX resources to NSX Policy API objects without disrupting NSX data path.  
+    * Migrates all cluster deployment NSX resources to Policy IDs, 
     including Network Profile configurations and BOSH deployment properties.  
-    * Designed to be a self-service feature for <%= vars.k8s_runtime_abbr %> admins in most environments.  
 
 * Reduces the impact on the workloads in your environment:  
 
-    * By promoting clusters to Policy API one by one, 
-    the MP2P Migration procedure limits downtime impact 
-    to only the cluster being promoted.  Other clusters continue to operate as usual.  
+    * By promoting clusters to NSX Policy API one by one, 
+    the MP2P Migration procedure affects only the cluster being promoted. 
+    Other clusters continue to operate as usual.  
 
 * Supports migrating common topologies.  
 
@@ -51,7 +57,7 @@ the following advantages over manual migration:
 For more information, see:  
 
 * [Supported Configurations](#features-supported-configs)  
-* [Concerns and Limitations](#concerns)  
+* [<%= vars.k8s_runtime_abbr %> MP2P Migration Limitations](#concerns)  
 <% if vars.product_version == "COMMENTED"  %>
 * [MP2P Migration FAQs concerns](#faqs)  
 <% end %>
@@ -60,81 +66,31 @@ For more information, see:
 <br>
 ## <a id="features-supported-configs"></a> Supported Configurations
 
-<%= vars.k8s_runtime_abbr %> MP2P Migration supports the following:  
- 
-* [Supported Topologies](#features-supported-topology)  
-* [Supported Cluster Configurations](#features-configuration-migration)  
-
-<br>
-### <a id="features-supported-topology"></a> Supported Topologies
+<%= vars.k8s_runtime_abbr %> MP2P Migration supports migrating <%= vars.k8s_runtime_abbr %> in only NSX environments dedicated to <%= vars.k8s_runtime_abbr %>. 
+Do not start <%= vars.k8s_runtime_abbr %> MP2P Migration if <%= vars.k8s_runtime_abbr %> shares your NSX environment 
+with other products, for example, Tanzu Application Service or VMware Aria Automation.
 
 <%= vars.k8s_runtime_abbr %> MP2P Migration supports the following topologies:  
 
-* Tier-0 Router Mode:  
-    * Active-active mode  
-    * Active-standby mode  
-    * Tier-0 Active-active mode  
-    
-* Tier-0 Router Topology:  
-    * Single Tier-0 topologies:  
-        * NAT topology  
-        * No-NAT topology  
-        * Hybrid topology  
-    * Multi Tier-0 topology  
-    
-* Tier-1 Router Topology:  
-    * For supported topologies, 
-    see [Shared and Dedicated Tier-1 Router Topologies](network-profiles-shared-t1.html).  
+* All deployment topologies defined in [NSX-T Deployment Topologies for <%= vars.k8s_runtime_abbr %>](nsxt-topologies.html).  
+* All Tier-1 Router topologies defined in [Shared and Dedicated Tier-1 Router Topologies](network-profiles-shared-t1.html).  
+* All Multi-Tier-0 topologies defined in [Isolating Tenants](nsxt-multi-t0.html).  
     
     
-If your <%= vars.k8s_runtime_abbr %> environment uses a customized topology, 
-contact the VMware Support team before initiating MP2P Migration.  
+Contact VMware Support before initiating MP2P Migration 
+if your <%= vars.k8s_runtime_abbr %> environment uses a customized topology 
+or is a multi-foundation deployment of <%= vars.k8s_runtime_abbr %>.  
 
-
-<br>
-### <a id="features-configuration-migration"></a> Supported Cluster Configurations
-
-<%= vars.k8s_runtime_abbr %> MP2P Migration promotes the following configurations:  
-
-* Cluster shared networking resource  
-* Cluster node networking resources  
-* Cluster Pod networking resources  
-* Network Profiles  
-* BOSH Deployment Properties  
-
-Cluster MP2P promotion migrates BOSH Deployment Properties from using MP Object IDs to using Policy Object IDs.  
-
-The following is an example of the differences between a Management Plane API configured Network Profile 
-and the same Network Profile promoted to Policy API.  
-<table>
-	<tr>
-		<th>Initial State</th>
-		<th>Migrated State</th>
-	</tr>
-	<tr>
-		<td>Admin-created network profile
-			<br><%= image_tag("images/mp2p-migration-concepts-01.png", :alt => "Cluster network profile configuration before MP2P migration.") %></td>
-		<td>Migrated, renamed network profile
-			<br><%= image_tag("images/mp2p-migration-concepts-02.png", :alt => "Cluster network profile configuration after MP2P migration.") %></td>
-	</tr> 
-</table>
-<% if vars.product_version == "COMMENTED"  %>
-	<tr>
-		<td></td>
-		<td></td>
-		<td></td>
-	</tr>
-<% end %>
 
 
 <br>
 <br>
-## <a id="concerns"></a> Concerns and Limitations  
+## <a id="concerns"></a> <%= vars.k8s_runtime_abbr %> MP2P Migration Limitations  
 
 Before initiating <%= vars.k8s_runtime_abbr %> MP2P, consider the following limitations:  
 
+* [Unsupported Configurations](#concerns-unsupported)  
 * [Operational Limitations](#concerns-limitations)  
-* [Other Considerations](#concerns-considerations)  
 
 <p class="note"><strong>Note:</strong> 
 To reduce the possibility of unexpected issues, 
@@ -144,13 +100,26 @@ by promoting all clusters as soon as possible.
 
 
 <br>
+### <a id="concerns-unsupported"></a> Unsupported Configurations 
+
+The following are not supported by <%= vars.k8s_runtime_abbr %> MP2P Migration or <%= vars.k8s_runtime_abbr %> using the NSX Policy API:  
+
+* <%= vars.k8s_runtime_abbr %> MP2P Migration does not support 
+clusters configured with NSGroups, including [Bootstrap Security Group](network-profiles-ns-groups.html) 
+and [BOSH VM Extensions](bosh-vm-extensions.html) NSGroup configurations.  
+
+* The <%= vars.k8s_runtime_abbr %> Management Console can not be used to manage <%= vars.k8s_runtime_abbr %> 
+after <%= vars.k8s_runtime_abbr %> MP2P Migration.  
+
+
+<br>
 ### <a id="concerns-limitations"></a> Operational Limitations  
 
 Review the following and resolve concerns before initiating <%= vars.k8s_runtime_abbr %> MP2P Migration:  
 
 * [Before MP2P Migration](#concerns-limitations-before)  
 * [During MP2P Migration](#concerns-limitations-during)  
-* [During Cluster Promotion to Policy API](#concerns-limitations-during-cluster)  
+* [During Cluster Promotion to NSX Policy API](#concerns-limitations-during-cluster)  
 
 <br>
 #### <a id="concerns-limitations-before"></a> Before MP2P Migration
@@ -159,24 +128,25 @@ Consider the following before initiating <%= vars.k8s_runtime_abbr %> MP2P Migra
 
 * Evaluate the complexity of your <%= vars.k8s_runtime_abbr %> environment. 
 PSO assistance might be required to migrate some complex environments.  
+* You cannot rotate cluster certificates during <%= vars.k8s_runtime_abbr %> MP2P Migration. 
+Verify your cluster cluster certificates, including the NSX-T certificate, are valid for the entire duration of your <%= vars.k8s_runtime_abbr %> MP2P Migration before starting MP2P Migration.  
+* When planning your <%= vars.k8s_runtime_abbr %> MP2P Migration, include redefining DFW rules in your cluster promotion procedure. 
+For more information, see 
+[Dealing with DFW Sections Created by NSX Admin](https://docs-staging.vmware.com/en/VMware-NSX-Container-Plugin/4.0/ncp-kubernetes/GUID-42003875-1127-45F2-BC26-A201B5E5245B.html).  
 
-* Migrate clusters serially. Do not attempt to migrate multiple clusters in parallel. 
-    NSX does not support multiple simultaneous MP2P Migration requests.  
-* **If your NSX Manager cluster uses VIP, you must configure a source IP persistence profile for your load balancer or use a source IP LB algorithm while migrating the TKGI foundation.**  
-**This limitation needs engineering clarification.**  
 
 
 <br>
 #### <a id="concerns-limitations-during"></a> During MP2P Migration
 
-During your MP2P Migration mix-mode maintenance window:  
+During your MP2P Migration mixed-mode maintenance window:  
 
-* You cannot roll back your <%= vars.k8s_runtime_abbr %> environment to the Management Plane API.  
-* You cannot rotate NSXT certificates.  
+* You cannot roll back your <%= vars.k8s_runtime_abbr %> environment to the NSX Management Plane API.  
+* Migrate clusters serially. Do not attempt to migrate multiple clusters in parallel. 
+    NSX does not support multiple simultaneous MP2P Migration requests.  
 
-Migrate your entire <%= vars.k8s_runtime_abbr %> environment to the Policy API as quickly as possible. 
-Do not assume you can run <%= vars.k8s_runtime_abbr %> as a Management Plane/Policy API mixed environment 
-for an extended period of time.  
+<%= vars.recommended_by %> recommends that you migrate your entire <%= vars.k8s_runtime_abbr %> environment to NSX Policy API as quickly as possible 
+to avoid the extra complexity of an NSX Management Plane/Policy API mixed-mode environment.  
 
     
 <p class="note warning"><strong>Warning:</strong> 
@@ -185,29 +155,24 @@ Do not upgrade NSX or <%= vars.k8s_runtime_abbr %>  while your environment is in
 
 
 <br>
-#### <a id="concerns-limitations-during-cluster"></a> During Cluster Promotion to Policy API
+#### <a id="concerns-limitations-during-cluster"></a> During Cluster Promotion to NSX Policy API
 
-Promote your clusters the Policy API serially only while the MP2P Migration mix-mode maintenance window is active.  
+Cluster promotion to NSX Policy API:  
 
-Promoting a cluster to Policy API includes migrating NSX resources, updating the cluster, 
-and rolling updates out to all of the cluster's worker nodes.  
+* Takes about the same amount of time to complete as `tkgi update-cluster` takes for the cluster being promoted.  
+* Updates the cluster and migrating NSX resources.  
 
-While promoting a cluster to Policy API:  
+Promote your clusters to the NSX Policy API serially only while the MP2P Migration mixed-mode maintenance window is active. 
+If a cluster promotion fails, the only affected cluster is the one being promoted.  
 
-* The cluster being promoted:  
-
-    * Cannot be operated.  
-    * Cannot be modified using the TKGI CLI.  
-    * Cluster workloads cannot be added/created, updated or deleted.  
-    * Existing workloads on the cluster being promoted will have some application downtime.  
-
-* The clusters that are not actively being promoted:  
+While promoting a cluster to NSX Policy API, the clusters that are not actively being promoted:  
 
     * Can be managed as usual.  
     * Workloads on these clusters can be managed.  
     * Workloads on these clusters continue to run as usual.  
 
 
+<% if vars.product_version == "COMMENTED"  %>
 <br>
 ### <a id="concerns-considerations"></a> Other Considerations
 
@@ -216,10 +181,10 @@ consider the following before initiating <%= vars.k8s_runtime_abbr %> MP2P Migra
 
 * Your <%= vars.k8s_runtime_abbr %> Management Console will not support <%= vars.k8s_runtime_abbr %> 
 after <%= vars.k8s_runtime_abbr %> MP2P Migration.  
-* Migrate remaining NSX object to Policy API only after <%= vars.k8s_runtime_abbr %> MP2P Migration to Policy API has completed.  
+* Migrate remaining NSX object to NSX Policy API only after <%= vars.k8s_runtime_abbr %> MP2P Migration to NSX Policy API has completed.  
 
 
-<% if vars.product_version == "COMMENTED"  %>
+
 <br>
 <br>
 ## <a id="faqs"></a> MP2P Migration FAQs 
@@ -233,15 +198,15 @@ Frequently asked MP2P Migration questions:
 <br>
 ### <a id="faqs-what-is"></a>What is BOSH Policy API Migration Mode?  
 
-By default, BOSH is configured for clusters using the Management Plane API and not for supporting clusters using Policy API. 
-To promote clusters to the Policy API, your environment must support both your clusters that continue to use the Management Plane API 
-and those you have promoted to Policy API. To support both, activate BOSH Policy API Migration Mode.  
+By default, BOSH is configured for clusters using the NSX Management Plane API and not for supporting clusters using NSX Policy API. 
+To promote clusters to the NSX Policy API, your environment must support both your clusters that continue to use the NSX Management Plane API 
+and those you have promoted to NSX Policy API. To support both, activate BOSH Policy API Migration Mode.  
 
 
 During whole migration process, the migrated policy clusters and not migrated MP clusters can still be used. 
 You can CRUD the clusters and also the workloads on clusters.
 
-To support this MIXing status on nodes lifecycle, BOSH exposes Policy API migration mode during this period. 
+To support this MIXing status on nodes lifecycle, BOSH exposes NSX Policy API migration mode during this period. 
 
 TKGI doesn't expose additional migration mode. 
 TKGI can just magically handle this MIXing status with internal additional coding support.
