@@ -161,23 +161,40 @@ Do not upgrade NSX or <%= vars.k8s_runtime_abbr %>  while your environment is in
 
 
 
- i 
-Important Notes: the DFW migration sequence correctness is critical for your workload's network connectivities 
-during migration. 
-If TKGI clusters are migrated before top priority rules, 
-network policies for TKGI clusters will be enforced before them. 
-For instance, this might imply that some clusters are able to reach CIDRs that were supposed to be globally blocked.
-If low priority rules are moved to NSX policy before all TKGI clusters are migrated, they will be enforced BEFORE K8S network policies for these clusters, and may override them.
-Before migration:
+<a id="concerns-limitations-dfw"></a> DFW Migration 
 
+<p class="note warning"><strong>Warning</strong>: 
+If you do not configure your DFW Rules correctly, cluster workloads will lose network connectivity.
+</p>
 
+The MP2P Migration process includes a two-step DFW Migration process. 
+This DFW migration sequence is critical to maintaining network connectivity for cluster workloads.
+ 
+If a <%= vars.k8s_runtime_abbr %> cluster is: 
+* Promoted before existing Management Plane API top firewall rules 
+have been recreated in the Policy API section: Cluster network policies will be enforced before the top firewall rules.  
+* Promoted after existing Management Plane API bottom firewall rules 
+have been recreated in the Policy API section: The top firewall rules will be enforced before Kubernetes network policies and might override them.  
+
+An example result of migrating DFW rules in the wrong order is clusters accessing CIDRs that had been intended to be globally blocked.  
+
+The DFW migration procedure in [Migrating the NSX Management Plane API to NSX Policy API](mp2p-migration.html) 
+documents the recommended procedure for typical DFW firewall configurations. 
+For information about migrating DFW rules for specific edge cases, see
+[Dealing with DFW Sections Created by NSX Admin](https://docs-staging.vmware.com/en/VMware-NSX-Container-Plugin/4.0/ncp-kubernetes/GUID-42003875-1127-45F2-BC26-A201B5E5245B.html) 
+in the VMware NSX Container Plugin documentation.  
+
+        
+        
 <br>
 #### <a id="concerns-limitations-during-cluster"></a> During Cluster Promotion to NSX Policy API
 
 Cluster promotion to NSX Policy API:  
 
 * Updates the cluster and migrates NSX resources.  
+<% if vars.product_version == "COMMENTED"  %>
 * Takes about the same amount of time to complete as `tkgi update-cluster` takes for the cluster being promoted.  
+<% end %>
 
 Promote your clusters to the NSX Policy API serially only while the MP2P Migration mixed-mode maintenance window is active. 
 If a cluster promotion fails, the only affected cluster is the one being promoted.  
