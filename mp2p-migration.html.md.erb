@@ -28,10 +28,10 @@ Prepare -> Migrate -> Clean Up workflow:
         <th></th>
         <th>Procedure</th>
         <th>Description</th>
-        <th>Concerns</th>
+        <th>Outcomes</th>
     </tr>
     <tr>
-        <th rowspan=3>Prepare</th>
+        <th rowspan=4>Prepare</th>
         <td><strong>Backup</strong></td>
         <td>Backup BOSH Director config.</td>
         <td></td>
@@ -41,17 +41,24 @@ Prepare -> Migrate -> Clean Up workflow:
         <td>Configure your environment for MP2P Migration in 
             <%= vars.k8s_runtime_abbr %>, NSX, and BOSH.
         </td>
-        <td>New clusters will use NSX Policy API.</td>
+        <td></td>
     </tr>
     <tr>
-        <td><strong>Set Up NSX Policy API Objects</strong></td>
+        <td>Re-Create High-Priority DFW</td>
+        <td>Re-create your high-priority user-defined DFW rules.
+        </td>
+        <td>Optional.</td>
+    </tr>
+    <tr>
+        <td><strong>Activate Policy API in <%= vars.k8s_runtime_abbr %></strong></td>
         <td>To create and configure NSX Policy API objects:
             <ul>
                 <li>Create and promote a single test cluster.</li>
                 <li>Configure the <%= vars.k8s_runtime_abbr %> tile with the IDs for the created NSX Policy API objects.</li>
             </ul>
         </td>
-        <td>Migrates shared resources, including Tier-0, FIP block, Pod IP block, and Node IP block to NSX Policy API.</td>
+        <td>Migrates shared resources, including Tier-0, FIP block, Pod IP block, and Node IP block to NSX Policy API.
+            <br><br>Newly created clusters will use NSX Policy API.</td>
     </tr>
 <% if vars.product_version == "COMMENTED"  %>
     <tr>
@@ -70,13 +77,12 @@ Prepare -> Migrate -> Clean Up workflow:
         <th colspan=4>&nbsp;</th>
     </tr>
     <tr>
-        <th rowspan=2>Migrate</th>
+        <th rowspan=3>Migrate</th>
         <td><strong>Migrate a Cluster</strong></td>
         <td>Steps:
             <ul>
                 <li>Backup your cluster's critical workloads.</li>
                 <li>Use <code>tkgi promote-cluster-to-policy</code> to promote the cluster.</li>
-                <li>Manually migrate "Admin" DFW rules to NSX Policy API.</li>
                 <li>Verify the migration of the cluster.</li>
             </ul>
         </td>
@@ -91,13 +97,25 @@ Prepare -> Migrate -> Clean Up workflow:
                 <li>Always verify the migration of your cluster before migrating another cluster.</li>
             </ul>
         </td>
+    </tr>
+    <tr>
+        <td>Re-Create Low-Priority DFW</td>
+        <td>Re-create your low-priority user-defined DFW rules.
+        </td>
+        <td></td>
+    </tr>
     <tr>
         <th colspan=4>&nbsp;</th>
     </tr>
     <tr>
-        <th rowspan=4>Cleanup</th>
+        <th rowspan=4>Clean Up</th>
         <td><strong>Remove NSX Management Plane API-related configurations</strong></td>
-        <td>Clean up Network Profiles and Firewall DFW Sections.</td>
+        <td>Clean up:
+            <ul>
+                <li>Clean up Network Profiles.</li>
+                <li>Remove original user-defined Management Plane Firewall DFW Sections.</li>
+            </ul>
+        </td>
         <td></td>
     </tr>
     <tr>
@@ -119,15 +137,11 @@ Prepare -> Migrate -> Clean Up workflow:
         <td></td>
     </tr>
     <tr>
-        <td><strong>Verification and Cleanup</strong></td>
-        <td>Verify the migration and clean up any unnecessary NSX Management Plane API objects.</td>
+        <td><strong>Verification</strong></td>
+        <td>Verify the MP2P Migration.</td>
         <td></td>
     </tr>
 </table>
-
-<p class="note"><strong>Note:</strong> 
-<%= vars.k8s_runtime_abbr %> MP2P Migration uses NSX Promoter, the NSX migration service.  
-</p> 
 
 
 To complete an MP2P Migration in your <%= vars.k8s_runtime_abbr %> environment:
@@ -157,12 +171,14 @@ verify your <%= vars.k8s_runtime_abbr %> environment meets the following require
     * NSX: v4.0.1.1 or later.  
     * NSX environment is a dedicated TKGI environment. 
     For example, an environment without a TAS or other installations in production.  
-    * Ops Manager CLI: v2.10.45 or later.  
+    * Ops Manager: v2.10.45 or later.  
+    * Ops Manager CLI: latest.  
 
 * Cluster Requirements:  
 
-    * MP2P Migration does not currently support clusters with an NSGroup for control plane VMs. 
-    For more information about NSGroups, see [Configure Bootstrap NSGroups](network-profiles-ns-groups.html).  
+    * <%= vars.k8s_runtime_abbr %> MP2P Migration does not support 
+    clusters configured with NSGroups, including [Bootstrap Security Group](network-profiles-ns-groups.html) 
+    and [BOSH VM Extensions](bosh-vm-extensions.html) NSGroup configurations. 
 
 * Other Requirements:  
 
@@ -217,12 +233,12 @@ For more information, see [Backing Up and Restoring Tanzu Kubernetes Grid Integr
 <br>
 ### <a id="migration-prep-enable"></a> Enable Migration
 
-You must enable support for MP2P Migration in NSX before promoting clusters to NSX Policy API using the NSX Promoter. 
+You must enable support for MP2P Migration in NSX before promoting clusters to NSX Policy API. 
 Additionally, Ops Manager and BOSH must be configured to support a mixed environment of NSX Management Plane API and NSX Policy API clusters 
 before promoting clusters.  
 
 <p class="note"><strong>Note</strong>: After activating NSX Policy API, 
-    existing backups created while using NSX Management Plane API cannot be used to restore your environment or your clusters.
+    existing NSX backups created while using NSX Management Plane API cannot be used to restore your environment or your clusters.
 </p>
 
 <br>
@@ -293,19 +309,6 @@ and can run the OMCLI, BOSH CLI, and yq.
     * `PASSWORD` is the password for the account.  
 
 
-<br>
-To activate <%= vars.k8s_runtime_abbr %> Policy API mode:  
-
-1. Open the <%= vars.k8s_runtime_abbr %> tile.  
-
-1. Go to xxxxxxxx.  
-
-1. Select **Policy API mode**.  
-
-1. Select **Apply**.  
- 
-
-
 <% if vars.product_version == "COMMENTED"  %>
 1. Deactivate BOSH Resurrection:  
 
@@ -318,9 +321,30 @@ To activate <%= vars.k8s_runtime_abbr %> Policy API mode:
 <% end %>
 
 
+<br>
+### <a id="migration-prep-top-firewall"></a> Migrate DFW Top Firewall Rules
+
+If your clusters are customized with DFW rules 
+or use Network Profiles configured with DFW section markers, 
+migrate the DFW rules:  
+
+1. Copy your existing top section DFW rules from above your NSX Manager `top_firewall_section_marker`
+ to the NSX Policy Environment section.  Include the `top_firewall_section_marker`. 
+ 
+Two copies of the `top_firewall_section_marker` section should be in your DFW rules after you complete this step.  
+<% if vars.product_version == "COMMENTED"  %>
+1. Move your existing high priority DFW rules from your NSX Manager section
+ to the NSX Policy Environment section.
+    Note: "<i>High Priority</i>" means the sections above and includes top_firewall_section_marker  
+<% end %>
+
+If you do not configure your DFW Rules correctly, your workloads will lose network connectivity.
+For more information on configuring 
+
+
 
 <br>
-### <a id="migration-prep-create-api-objects"></a> Create NSX Policy API Objects
+### <a id="migration-prep-create-api-objects"></a> Activate NSX Policy API in <%= vars.k8s_runtime_abbr %>
 
 To migrate NSX Management Plane API shared network resources to NSX Policy API objects:  
 
@@ -347,8 +371,8 @@ To collect the newly created Resource Policy IDs:
 
 1. Retrieve the existing NSX Management Plane API IDs:  
 
-    1. Open the <%= vars.k8s_runtime_abbr %> tile.  
-    1. Go to xxxxxxxx.  
+    1. Open the <%= vars.k8s_runtime_abbr %> tile UI.  
+    1. Open the **Networking** tab.  
     1. Retain the following NSX Management Plane API IDs:  
     
         * **Pods IP Block ID**
@@ -356,10 +380,10 @@ To collect the newly created Resource Policy IDs:
         * **T0 Router ID**
         * **Floating IP Pool ID**  
 
-1. Retrieve the newe Resource Policy IDs:  
+1. Retrieve the new Resource Policy IDs:  
 
-    1. Open the NSX Manager.  
-    1. Go to xxxxxxxx.  
+    1. Log in to the NSX Web UI using an account with with admin privileges.  
+    1. Go to the homepage.  
     1. Enter one of the NSX Management Plane API IDs retrieved in the last step into the search bar and search.  
     1. Retrieve the corresponding Resource Policy ID From the **ID** field. 
     Note that the indicated **Creation Time** should match the time when you promoted your test cluster.  
@@ -469,13 +493,13 @@ To migrate an individual cluster:
     Do not attempt to promote an additional <%= vars.k8s_runtime_abbr %> cluster to NSX Policy API 
     before completing the promotion of the current clusters.
     </p>  
-
+<% if vars.product_version == "COMMENTED"  %>
 
 1. (Optional) To migrate the cluster's "Admin" DFW rules to NSX Policy API:  
 
     1. For each DFW rule, complete the steps in 
     [Dealing with DFW Sections Created by NSX Admin](https://docs-staging.vmware.com/en/VMware-NSX-Container-Plugin/4.0/ncp-kubernetes/GUID-42003875-1127-45F2-BC26-A201B5E5245B.html).  
-
+<% end %>
 
 1. Validate successful migration to NSX Policy API topology for the cluster before upgrading subsequent clusters:  
 
@@ -489,6 +513,25 @@ To migrate an individual cluster:
 Do not attempt to promote an additional <%= vars.k8s_runtime_abbr %> cluster to NSX Policy API 
 before completing the promotion of the current clusters.
 </p>  
+
+
+<br>
+### <a id="migration-post-bottom-firewall"></a> Migrate DFW Bottom Firewall Rules
+
+If your clusters are customized with DFW rules 
+or use Network Profiles configured with DFW section markers, 
+migrate the DFW rules:  
+
+1. Move your existing bottom section DFW rules from below your NSX Manager `bottom_firewall_section_marker`
+ to the NSX Policy Application section BELOW all migrated NCP rules. Include the `bottom_firewall_section_marker`.
+<% if vars.product_version == "COMMENTED"  %>
+1. Move your existing high priority DFW rules from your NSX Manager section
+ to the NSX Policy Environment section.
+    Note: "<i>High Priority</i>" means the sections above and includes top_firewall_section_marker  
+<% end %>
+1. Delete the original top firewall rules in the NSX Manager sections. 
+When done, there should be one copy of the top firewall rules in the NSX Policy Environment section 
+and one copy of the bottom firewall rules in the NSX Policy Application section.  
 
 
 <br>
@@ -514,7 +557,7 @@ To clean up after promoting all clusters:
     * Deployment network and router (only 1.15.1 release) 
     * NSX resources in <%= vars.k8s_runtime_abbr %> tile **Resource Config**  
     * NSX resources in cluster `vm_extension` configurations
-    * Custom infra level resources. For example, NAT, IP allocations, subnet allocations, 
+    * Custom infra-level resources out of <%= vars.k8s_runtime_abbr %> scope. For example, NAT, IP allocations, subnet allocations, 
     and the load balancers that you have created.  
 
     For information about the NSX Promoter, see 
@@ -555,6 +598,7 @@ To clean up after promoting all clusters:
 <br>
 ## <a id="troubleshooting"></a> Troubleshooting
 
+<% if vars.product_version == "COMMENTED"  %>
 debug/workaround/temporary failure
 - re-run `pks promote-cluster`
 - If running `promote-cluster` does not fix the cluster, create a new cluster and restore workloads to it
@@ -576,3 +620,4 @@ Continue? (y/n):y
 Error: c2 cannot be upgraded before promoting to Policy successfully when it fails at MIGRATE_CLUSTER.  
 Please re-run 'tkgi promote-cluster-to-policy' to promote cluster successfully first.
 ```
+<% end %>
