@@ -200,8 +200,10 @@ verify your <%= vars.k8s_runtime_abbr %> environment meets the following require
 To prepare your <%= vars.k8s_runtime_abbr %> environment for MP2P Migration:  
 
 * [Enable Migration](#migration-prep-enable)  
-* [Create NSX Policy API Objects](#migration-prep-setup-api-objects)  
-* [Configure Ops Manager and <%= vars.k8s_runtime_abbr %> for NSX Policy API](#migration-steps-configure-opsman)
+* [Migrate DFW Top Firewall Rules](#migration-prep-top-firewall)  
+* [Activate NSX Policy API in <%= vars.k8s_runtime_abbr %>](#migration-prep-create-api-objects)  
+* [Configure the Environment for NSX Policy API](#migration-steps-configure-opsman)  
+
 
 <% if vars.product_version == "COMMENTED"  %>
 <br>
@@ -273,7 +275,7 @@ To prepare Ops Manager and BOSH for MP2P Migration:
 the BOSH Migration Mode script, from the <%= vars.product_full %> documentation GitHub repository.  
 
 1. Select a virtual machine that is able to reach Ops Manager, 
-and can run the OMCLI, BOSH CLI, and yq.  
+and can run the [Ops Manager CLI](https://docs.pivotal.io/ops-manager/2-10/install/cli.html), [BOSH CLI](https://bosh.io/docs/cli-v2-install), and [yq CLI](https://github.com/mikefarah/yq).  
 
 1. Copy the the BOSH Migration Mode script to the virtual machine.  
 
@@ -445,6 +447,7 @@ To configure the <%= vars.k8s_runtime_abbr %> tile with the policy object IDs cr
 
     1. Open the <%= vars.k8s_runtime_abbr %> tile UI.  
     1. Open the **Networking** tab.  
+    1. Activate **Policy API mode**.  
     1. Replace the Management Plane API IDs with the retained Resource Policy IDs:  
     
         * **Pods IP Block ID**
@@ -564,19 +567,36 @@ To clean up after promoting all clusters:
 
 1. Remove NSX Management Plane API-related configurations:  
 
-    1. Remove the original NSX Management Plane API object configured Network Profiles.  
+    1. Remove the original NSX Management Plane API-configured Network Profiles.  
     
     
  1.  Use the NSX Promoter to promote the remaining NSX resources:  
 
-    * Deployment network and router (only 1.15.1 release) 
-    * NSX resources in <%= vars.k8s_runtime_abbr %> tile **Resource Config**  
-    * NSX resources in cluster `vm_extension` configurations
-    * Custom infra-level resources out of <%= vars.k8s_runtime_abbr %> scope. For example, NAT, IP allocations, subnet allocations, 
+    1. Log in to the NSX Web UI using an account with with admin privileges.  
+    1. Go to the **NSX** > **System** > **General Settings**.  
+    1. Select **Start Objects Promotion**.  
+    
+        The following are reconfigured by the NSX Promoter.  
+        * Deployment network and router (only 1.15.1 release) 
+        * NSX resources in <%= vars.k8s_runtime_abbr %> tile **Resource Config**  
+        * NSX resources in cluster `vm_extension` configurations
+        * Custom infra-level resources out of <%= vars.k8s_runtime_abbr %> scope. For example, NAT, IP allocations, subnet allocations, 
     and the load balancers that you have created.  
 
     For information about the NSX Promoter, see 
     [Promote Manager Objects to Policy Objects](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/administration/GUID-3B619DC3-CB6B-4121-810E-B2DD46A49B0B.html).  
+
+1. (Optional) To deactivate the NSX Migration Coordinator Service on all NSX managers:  
+
+    1. SSH to the NSX Manager with administrative privileges:  
+        
+    1. At the `nsxmanager>` prompt, run the following:  
+    
+        ```
+        nsxmanager> stop service migration-coordinator
+        ```
+
+1. If your NSX Manager cluster was configured with VIP before you started MP2P Migration, restore your VIP configuration.  
 
 1. Migrate BOSH to Policy API mode:   
     
