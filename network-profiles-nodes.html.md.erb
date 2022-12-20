@@ -18,40 +18,34 @@ or a cluster increases its scale.
 	
 Your Network Profile Node IP Block configuration can define one or more custom Node IP Block networks, 
 specify the size of the node subnet, and specify if the network is routable:  
-	
-* **Node IP Block IDs**: The network profile `node_ip_block_ids` parameter allows you to specify one or more Kubernetes node network Nodes IP Blocks for your clusters.  
 
-    When a network profile with a `node_ip_block_ids` configuration is applied to a Kubernetes cluster, <%= vars.k8s_runtime_abbr %> automatically creates a node subnet from one of the available IP blocks.  
-	
-    You can upscale an existing node network configuration by adding new node subnets to the `node_ip_block_ids` configuration and applying the network profile to the cluster. 
-    You cannot remove an existing node subnet from a cluster.  
-	
-    If the IP block is exhausted, the cluster uses one of the alternate IP blocks specified in the `node_ip_block_ids` configuration to create the Nodes subnet.  
+```
+nodes-network.json
+{
+	"description": "DESCRIPTION",
+	"name": "NAME",
+	"parameters": {
+		"node_ip_block_ids": [
+			NODE-IP-BLOCK-IDS
+		],
+		"node_routable":ROUTABLE,
+		"node_subnet_prefix":SIZE
+	}
+}
+```
 
-* **Node Routable**: The `node_routable` boolean lets you specify if the Node network is routable or non-routable. 
-    This is the equivalent of enabling or deactivating NAT mode in the <%= vars.k8s_runtime_abbr %> tile.  
-	
-    If the Node network is configured as non-routable, `"node_routable":false`, the Node network uses NAT mode. In this case, you must make sure that Kubernetes nodes 
-    have access to BOSH and other <%= vars.k8s_runtime_abbr %> Management Plane components. 
-    See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for <%= vars.k8s_runtime_abbr %>_ 
-    for more information.  
-	
-	If the Node network is configured as routable, `"node_routable":true`, the IP address space must be an externally routable address block.  
+Where:  
 
-    <p class="note"><strong>Note:</strong> The default routable setting for the Node network is determined based on the selection made in the <%= vars.k8s_runtime_abbr %> tile. If <strong>NAT mode</strong> is selected, the Node network is non-routable. To override the default selection, provide the <code>node_routable</code> parameter in the network profile.</p>
+* **DESCRIPTION** is the description of the Nodes network IP Block.  
+* **NAME** is the name of the Nodes network IP Block.  
+* **NODE-IP-BLOCK-IDS** is the comma separated list of double-quoted node network Nodes IP Blocks for the cluster. 
+For more information, see [Node IP Block IDs](#nodes-block-ids) below.  
+* **ROUTABLE** whether the node network is routbale of non-routable. Accepts only `true` or `false`. 
+For more information, see [Node Routable](#nodes-node-routbale) below.  
+* **SIZE** is the subnet size. Accepts only standard integer subnet size values. 
+For more information, see [Node Subnet Prefix](#nodes-subnet-size) below.  
 
-* **Node Subnet Prefix**:  Configure the Node IP Block `node_subnet_prefix` parameter to specify a subnet size 
-    that optimizes the use of network address space for the number of nodes in your Kubernetes cluster.  
-
-    For example, if the <%= vars.k8s_runtime_abbr %> administrator has configured the default in the <%= vars.k8s_runtime_abbr %> tile 
-	to be a Routable network for the Nodes IP Block, the Kubernetes cluster administrator can deploy the cluster in the NAT'ed mode (non-routable) 
-	by specifying a network profile with an IP block that supports the NAT'ed address range.  
-
-    By default, each Kubernetes cluster deployed by <%= vars.k8s_runtime_abbr %> is allocated a /24 subnet, 
-    which allows up to 256 IP addresses to be assigned.  
-
-    <p class="note"><strong>Note:</strong> Configure <strong>Node Subnet Prefix</strong> when your cluster nodes 
-	use a globally routable address space with the <code>`node_routable</code> option set to "true".</p>
+For example:  
 
 ```
 nodes-network.json
@@ -67,3 +61,46 @@ nodes-network.json
 	}
 }
 ```
+
+<br>
+### <a id='nodes-block-ids'></a> Node IP Block IDs
+
+The network profile `node_ip_block_ids` parameter allows you to specify one or more Kubernetes node network Nodes IP Blocks for your clusters.  
+
+When a network profile with a `node_ip_block_ids` configuration is applied to a Kubernetes cluster, <%= vars.k8s_runtime_abbr %> automatically creates a node subnet from one of the available IP blocks.  
+	
+You can upscale an existing node network configuration by adding new node subnets to the `node_ip_block_ids` configuration and applying the network profile to the cluster. 
+    You cannot remove an existing node subnet from a cluster.  
+	
+If the IP block is exhausted, the cluster uses one of the alternate IP blocks specified in the `node_ip_block_ids` configuration to create the Nodes subnet.  
+
+<br>
+### <a id='nodes-node-routbale'></a> Node Routable
+
+The `node_routable` boolean lets you specify if the node network is routable or non-routable. 
+    This is the equivalent of enabling or deactivating NAT mode in the <%= vars.k8s_runtime_abbr %> tile.  
+	
+If the node network is configured as non-routable, `"node_routable":false`, the node network uses NAT mode. In this case, you must make sure that Kubernetes nodes 
+    have access to BOSH and other <%= vars.k8s_runtime_abbr %> Management Plane components. 
+    See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for <%= vars.k8s_runtime_abbr %>_ 
+    for more information.  
+	
+If the node network is configured as routable, `"node_routable":true`, the IP address space must be an externally routable address block.  
+
+<p class="note"><strong>Note:</strong> The default routable setting for the node network is determined based on the selection made in the <%= vars.k8s_runtime_abbr %> tile. If <strong>NAT mode</strong> is selected, the node network is non-routable. To override the default selection, provide the <code>node_routable</code> parameter in the network profile.</p>
+
+<br>
+### <a id='nodes-subnet-size'></a> Node Subnet Prefix
+
+Configure the Node IP Block `node_subnet_prefix` parameter to specify a subnet size 
+    that optimizes the use of network address space for the number of nodes in your Kubernetes cluster.  
+
+For example, if the <%= vars.k8s_runtime_abbr %> administrator has configured the default in the <%= vars.k8s_runtime_abbr %> tile 
+	to be a Routable network for the Nodes IP Block, the Kubernetes cluster administrator can deploy the cluster in the NAT'ed mode (non-routable) 
+	by specifying a network profile with an IP block that supports the NAT'ed address range.  
+
+By default, each Kubernetes cluster deployed by <%= vars.k8s_runtime_abbr %> is allocated a /24 subnet, 
+    which allows up to 256 IP addresses to be assigned.  
+
+<p class="note"><strong>Note:</strong> Configure <strong>Node Subnet Prefix</strong> when your cluster nodes 
+	use a globally routable address space with the <code>`node_routable</code> option set to "true".</p>
