@@ -77,13 +77,15 @@ After you have generated the principal identity certificate and key, you must re
 
 ###<a id='certificate-super-user-script'></a> Option A: Generate and Register the Certificate and Key Using a Script
 
-This option uses Bash shell script to generate and register the NSX-T Manager superuser principal identity certificate and key. When you configure Tanzu Kubernetes Grid Integrated Edition for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the <%= vars.product_short %> tile.
+This option uses a Bash shell script to generate and register the NSX-T Manager superuser principal identity certificate and key. When you configure <%= vars.k8s_runtime_abbr %> for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the <%= vars.product_short %> tile.  
 
 <p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX-T Manager. For example, you can use the <%= vars.k8s_runtime_abbr %> client VM where you install the <%= vars.k8s_runtime_abbr %> CLI.</p>
 
 ####<a id='script-generate'></a> Step 1: Generate and Register the Certificate and Key
 
-Provided below is the `create_certificate_pi.sh` script that generates a certificate and private key, and then creates the Super User Principal Identity with the certificate in the NSX-T Manager. Complete the following steps to run this script:
+You must generate a certificate and private key, and create the Super User Principal Identity with the certificate in the NSX-T Manager. 
+
+To create the Super User Principal Identity, create and run the `create_certificate_pi.sh` script:  
 
 1. Log in to a Linux VM in your <%= vars.product_short %> environment.
 1. Create an empty file using `vi create_certificate_pi.sh` or `nano create_certificate_pi.sh`.
@@ -129,7 +131,7 @@ Provided below is the `create_certificate_pi.sh` script that generates a certifi
              "display_name": "$PI_NAME",
              "name": "$PI_NAME",
              "role": "enterprise_admin",
-             "certificate_pem": "$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ./"$NSX_SUPERUSER_CERT_FILE" )",
+             "certificate_pem": "$(awk 'NF {sub(/\r/, ""); printf "%s\\\\n",$0;}' ./"$NSX_SUPERUSER_CERT_FILE" )",
              "node_id": "$NODE_ID"
         }
     END
@@ -156,12 +158,11 @@ Provided below is the `create_certificate_pi.sh` script that generates a certifi
 1. Save the `create_certificate_pi.sh` file. 
 1. Run the script using `bash create_certificate_pi.sh`.
 1. When prompted, enter the `NSX_MANAGER_PASSWORD` for the NSX-T user you specified in the script.
-1. Verify results:
-  - The certificate, `pks-nsx-t-superuser.crt`, and private key, `pks-nsx-t-superuser.key`, are generated in the directory where you ran the script.
-  - The script created the principal identity in NSX-T that is associated with the certificate.
-  - Review the NSX-T Manager **System > Users > Role Assignments** screen. 
-Confirm the principal identity `pks-nsx-t-superuser` is registered 
-with the role `Enterprise Admin`.  
+1. Verify results:  
+    * Confirm the certificate, `pks-nsx-t-superuser.crt`, and private key, `pks-nsx-t-superuser.key`, are generated in the directory where you ran the script.  
+    * Confirm the principal identity associated with the certificate was created in NSX-T.  
+    * Confirm the principal identity `pks-nsx-t-superuser` is registered 
+with the role `Enterprise Admin` on the NSX-T Manager **System** > **Users** > **Role Assignments** screen.  
     ![NSX-T Manager System > Users > Role Assignments](images/nsxt/nsx-create_pi-result.png)  
 
     [View a larger version of this image.](images/nsxt/nsx-create_pi-result.png)
@@ -202,37 +203,37 @@ export NODE_ID=$(cat /proc/sys/kernel/random/uuid)
 
 1. On the same Linux VM, run the following commands to register the principal identity with NSX-T Manager:
 
-    <pre class="terminal">
-    $ pi_request=$(cat <<END
-        {
-             "display_name": "$PI_NAME",
-             "name": "$PI_NAME",
+    ```
+    $ pi_request=$(cat <<END  
+      {  
+        "display_name": "$PI_NAME",  
+        "name": "$PI_NAME",  
              "role": "enterprise_admin",
-             "certificate_pem": "$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ./"$NSX_SUPERUSER_CERT_FILE" )",
+             "certificate_pem": "$(awk 'NF {sub(/\r/, ""); printf "%s\\\\n",$0;}' ./"$NSX_SUPERUSER_CERT_FILE" )",
              "node_id": "$NODE_ID"
-        }
-    END
-    )
-    </pre>
+      }  
+    END  
+    )  
+    ```
 
-    <pre class="terminal">
+    ```
     $ curl -k -X POST \
         "https://${NSX_MANAGER}/api/v1/trust-management/principal-identities/with-certificate" \
-        -u "$NSX_USER:$NSX_PASSWORD" \
-        -H 'content-type: application/json' \
-        -d "$pi_request"
-    </pre>
+      -u "$NSX_USER:$NSX_PASSWORD" \
+      -H 'content-type: application/json' \
+      -d "$pi_request"
+    ```
 
 ####<a id='verify-pi-certificate'></a> Step 6: Verify the Certificate and Key
 
 To verify that the certificate and key can be used with NSX-T, run the following command:
 
-<pre class="terminal">
+```
 $ curl -k -X GET \
 "https://${NSX_MANAGER}/api/v1/trust-management/principal-identities" \
 --cert $(pwd)/"$NSX_SUPERUSER_CERT_FILE" \
 --key $(pwd)/"$NSX_SUPERUSER_KEY_FILE"
-</pre>
+```
 
 ##<a id='certificates-nsx-pid-rotate'></a> Rotate the Principal Identity Certificate and Key
 
