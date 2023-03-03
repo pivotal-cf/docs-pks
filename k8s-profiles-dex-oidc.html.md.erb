@@ -99,8 +99,8 @@ To configure [dex](https://github.com/dexidp/dex) as an OIDC provider for an LDA
 1. To deploy a dex workload on a Kubernetes cluster, follow the steps in 
 [Deploying dex on Kubernetes](https://github.com/dexidp/website/blob/main/content/docs/kubernetes.md#deploying-dex-on-kubernetes) 
 in the dex GitHub repo.
-    * Use the [dex.yaml](https://github.com/pivotal-cf/pks-home/blob/bfcc1f4d26b2350e87ec7d9c4a4f23ebc98d4579/scripts/dex/dex.yaml) 
-     example YAML file in _GitHub_ to create a dex deployment that connects to an LDAP server.
+    * Create a `dex.yaml` file using the format in [Example dex YAML File](#example-dex-yaml) below.  
+
 
 ### <a id='paths'></a>Set Up Communication Path
 
@@ -357,3 +357,161 @@ This example uses email `alana@test.com` and password `password`.
 
     The cluster is successfully authenticating the user by connecting to the dex OIDC provider via OIDC 
     if the test user can run `kubectl get pods`.
+
+
+### <a id='example-dex-yaml'></a> Example dex YAML File
+
+Create a dex YAML file using the following example configuration:  
+
+<% if vars.product_version == "COMMENTED"  %>
+This example was originally a link to a TKGI engineering GitHub repo which is inaccessible to admins:
+    Use the [dex.yaml](https://github.com/pivotal-cf/pks-home/blob/bfcc1f4d26b2350e87ec7d9c4a4f23ebc98d4579/scripts/dex/dex.yaml) 
+     example YAML file in _GitHub_ to create a dex deployment that connects to an LDAP server.
+     
+The example dex.yaml below is from the Master branch instead of the commit listed above. This branch was updated more recently: https://github.com/pivotal-cf/pks-home/blob/master/scripts/dex/dex.yaml
+<% end %> 
+
+```
+## to generate cert
+## 1. run https://raw.githubusercontent.com/dexidp/dex/007e4dae3c7b0e05c31c67b5a4d61e0f943e0b68/examples/k8s/gencert.sh
+## 2. kubectl create secret tls dex.example.com.tls --key ssl/key.pem --cert ssl/cert.pem
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dex
+  name: dex
+spec:
+  selector:
+    matchLabels:
+      app: dex
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      serviceAccountName: dex # This is created below
+      containers:
+      - image: quay.io/dexidp/dex:v2.10.0
+        name: dex
+        command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
+
+        ports:
+        - name: https
+          containerPort: 5556
+
+        env:
+          - name: KUBERNETES_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dex/cfg
+        - name: tls
+          mountPath: /etc/dex/tls
+
+      volumes:
+      - name: config
+        configMap:
+          name: dex
+          items:
+          - key: config.yaml
+            path: config.yaml
+      - name: tls
+        secret:
+          secretName: dex.example.com.tls
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dex
+data:
+  config.yaml: |
+    issuer: https://34.127.10.231:32000
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    web:
+      https: 0.0.0.0:5556
+      tlsCert: /etc/dex/tls/tls.crt
+      tlsKey: /etc/dex/tls/tls.key
+    connectors:
+    - type: ldap
+      id: ldap
+      name: LDAP
+      config:
+        host: 34.83.11.132
+        insecureNoSSL: true
+        insecureSkipVerify: true
+        bindDN: cn=admin,dc=ldap,dc=pivotal,dc=io
+        bindPW: HOFKzPm/ci8iLKp+iD63zyvsTjdUkJWShD2G3gKxuU8=
+        userSearch:
+          baseDN: dc=ldap,dc=pivotal,dc=io
+          username: cn
+          idAttr: uid
+          emailAttr: mail
+          nameAttr: cn
+        groupSearch:
+          baseDN: dc=ldap,dc=pivotal,dc=io
+          userMatchers:
+            # A user is a member of a group when their DN matches
+            # the value of a "member" attribute on the group entity.
+          - userAttr: DN
+            groupAttr: member
+          nameAttr: cn
+
+    oauth2:
+      skipApprovalScreen: true
+
+
+    staticClients:
+    - id: example-app
+      redirectURIs:
+      - 'http://127.0.0.1:5555/callback'
+      name: 'Example App'
+      secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+
+    enablePasswordDB: true
+    staticPasswords:
+    - email: "admin@example.com"
+      # bcrypt hash of the string "password"
+      hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+      username: "admin"
+      userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: dex
+  name: dex
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dex
+rules:
+- apiGroups: ["dex.coreos.com"] # API group created by dex
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["create"] # To manage its own resources, dex must be able to create customresourcedefinitions
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dex
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dex
+subjects:
+- kind: ServiceAccount
+  name: dex           # Service account assigned to the dex pod, created above
+  namespace: default  # The namespace dex is running in 
+```
