@@ -26,7 +26,8 @@ topic to locate the source file of the topic.
 
 | **Branch Name** | **Content** | **Location** |
 |-----------------|-------------|--------------|
-| `1.16` | TKGI 1.16 pre-release content          | n/a |
+| `1.17` | TKGI 1.17 pre-release content          | n/a |
+| `1.16` | TKGI 1.16 released content          | https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html |
 | `1.15` | TKGI 1.15 released content          | https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.15/tkgi/GUID-release-notes.html |
 | `1.14` | TKGI 1.14 released content          | https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.14/tkgi/GUID-release-notes.html |
 | `1.13` | TKGI 1.13 released content          | https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.13/tkgi/GUID-release-notes.html |
