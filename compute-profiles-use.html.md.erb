@@ -8,12 +8,16 @@ for Linux-based Kubernetes clusters on vSphere without NSX-T networking.
 
 Compute profiles let you customize cluster resources parameters.
 
+<br>
+<br>
 ## <a id="how-created"></a> How Compute Profiles are Created
 
 <%= vars.k8s_runtime_abbr %> cluster administrators can create and delete compute profiles, as described in the [Creating and Managing Compute Profiles with the CLI (vSphere)](./compute-profiles-manage.html) topic.
 
 After an administrator creates a compute profile, cluster managers (`pks.cluster.manage`) can create clusters with it or assign it to existing clusters.
 
+<br>
+<br>
 ## <a id="list-profiles"></a> List Compute Profiles
 
 To list available compute profiles, run the following command:
@@ -34,6 +38,8 @@ Dc-east-single-node-pool          A profile for the east datacenter with a singl
 dc-east-mixed                     A profile for the east datacenter with heterogeneous workers  
 </pre>
 
+<br>
+<br>
 ## <a id='create'></a> Create a Cluster with a Compute Profile
 
 You can assign a compute profile to a Kubernetes cluster at the time of cluster creation.
@@ -80,17 +86,46 @@ Compute Profile Name:     custom-node-pools-compute-profile
 Tags:  
 </pre>
 
+<br>
+<br>
 ## <a id="update-profile"></a> Assign a Compute Profile to an Existing Cluster
 
 <%= vars.k8s_runtime_abbr %> supports changing the compute profile for an already created cluster.
 You can use this procedure to:
 
-- assign a compute profile to a cluster that does not have one, or
-- change a cluster's existing profile to a new one
+* Assign a compute profile to a cluster that does not have one.  
+* Change a cluster's existing profile to a new one.  
 
-<p class="note"><strong>Note:</strong> Compute profiles do not support moving a cluster's nodes to different Availability Zones.</p>
+To assign a compute profile an existing cluster:  
 
-<p class="note warning"><strong>Warning:</strong> Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile or by using a compute profile. Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.</p>
+1. [Compute Profile Update and Resize Validation](#compute-profile-validation).  
+1. [Assign a Compute Profile](#update-profile-procedure).  
+
+### <a id="compute-profile-validation"></a> Compute Profile Update and Resize Validation
+
+Before assigning a compute profile to an existing cluster:  
+
+1. Review the strict validation rules for the `tkgi update-cluster --compute-profile` command:  
+
+    * You cannot use the compute profile to change Availability Zones of a cluster.  
+    * If any optional field is unspecified at the time of cluster creation or cluster update, then the value of that field is set to the value of the corresponding field from the plan.  
+    * Values passed to `--num-nodes` are ignored.  
+    * Values passed to `--node-pool-instances` must match the labels of the node pools specified in the compute profile.  
+    * Clusters created with a compute profile in <%= vars.k8s_runtime_abbr %> 1.8 and earlier 
+    cannot be updated with a compute profile in <%= vars.k8s_runtime_abbr %> v1.9 or later.  
+    
+1. Review the following precautions and warnings:  
+
+    <p class="note warning"><strong>Warning:</strong> Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile or by using a compute profile. Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.</p>
+    
+    <p class="note warning"><strong>Warning:</strong> A cluster's worker nodes will be deleted if you update a cluster with a compute profile with different node pool names, and the cluster update fails, and you try to update the cluster again with a compute profile with different node pool names, such as the original node pool names. If cluster updating fails in a similar scenario, fix the node pool configuration in the new compute profile and retry your cluster update. For more information, see [tkgi update-cluster compute profile failure](https://kb.vmware.com/s/article/91596) in the VMware Tanzu Knowledge Base.</p>
+
+    <p class="note"><strong>Note:</strong> Compute profiles do not support moving a cluster's nodes to different Availability Zones.</p>
+    
+1.  Resolve any conditions matching the listed concerns, precautions or warnings.  
+
+<br>
+### <a id="update-profile-procedure"></a> Assign a Compute Profile
 
 This is the procedure to change a cluster's compute profile:
 
@@ -127,20 +162,8 @@ in _Release Notes_ for additional requirements.
 	Use 'tkgi cluster test' to monitor the state of your cluster  
     </pre>  
 
-### <a id="compute-profile-validation"></a> Compute Profile Update and Resize Validation
-
-There are strict validation rules for the `tkgi update-cluster --compute-profile` command:
-
-- You cannot use the compute profile to change Availability Zones of a cluster.
-- If any optional field is unspecified at the time of cluster creation or cluster update, then the value of that field is set to the value of the corresponding field from the plan.
-- Values passed to `--num-nodes` are ignored.
-- Values passed to `--node-pool-instances` must match the labels of the node pools specified in the compute profile.
-
-Clusters created with compute profile in <%= vars.k8s_runtime_abbr %> 1.8 and earlier:
-
-- You cannot update a compute profile for a cluster that already has an associated profile created in <%= vars.k8s_runtime_abbr %> v1.8 or earlier.
-
-
+<br>
+<br>
 ## <a id="resize"></a> Resize a Cluster that Has an Existing Compute Profile
 
 <%= vars.k8s_runtime_abbr %> supports using the CLI to resize a cluster already created or assigned with a compute profile, without having to create a new compute profile.
