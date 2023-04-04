@@ -3,8 +3,24 @@ title: Network Planning for Installing Tanzu Kubernetes Grid Integrated Edition 
 owner: TKGI
 ---
 
-Before you install <%= vars.product_full %> on vSphere with NSX-T integration, you must plan the environment as described in this topic.
+This topic describes how to plan your environment before installing <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) on VMware vSphere with NSX-T integration.  
 
+<br>
+<br>
+##<a id='overview'></a>Overview
+
+Before installing <%= vars.product_full %> on vSphere with NSX-T integration, plan your environment as described in the following sections:  
+
+* [Prerequisites](#prerequisites)  
+* [Understand Component Interactions](#components)  
+* [Plan Deployment Topology](#plan-topology)  
+* [Plan Network CIDRs](#plan-cidrs)  
+* [Gather Other Required IP Addresses](#plan-ip-blocks)  
+
+
+
+<br>
+<br>
 ##<a id='prerequisites'></a>Prerequisites
 
 Familiarize yourself with the following VMware documentation:
@@ -29,6 +45,8 @@ Review the following <%= vars.product_short %> documentation:
 on the VMware site.
 * [Network Objects Created by NSX-T for <%= vars.product_short %>](./vsphere-nsxt-cluster-objects.html)
 
+<br>
+<br>
 ##<a id='components'></a>Understand Component Interactions
 
 <%= vars.product_short %> on vSphere with NSX-T requires the following component interactions:
@@ -39,10 +57,14 @@ on the VMware site.
 * Each <%= vars.product_short %>-provisioned Kubernetes cluster deploys the NSX-T Node Agent and the Kube Proxy that run as BOSH-managed processes on each worker node.
 * NCP runs as a BOSH-managed process on the Kubernetes control plane node. In a multi-control plane node deployment, the NCP process runs on all control plane nodes, but is active only on one control plane node. If the NCP process on an active control plane node is unresponsive, BOSH activates another NCP process.
 
+<br>
+<br>
 ##<a id='plan-topology'></a>Plan Deployment Topology
 
 Review the [Deployment Topologies](nsxt-topologies.html) for <%= vars.product_short %> on vSphere with NSX-T. The most common deployment topology is the [NAT topology](./nsxt-topologies.html#topology-nat). Decide which deployment topology you will implement, and plan accordingly. 
 
+<br>
+<br>
 ##<a id='plan-cidrs'></a>Plan Network CIDRs
 
 Before you install <%= vars.product_short %> on vSphere with NSX-T, you should plan for the CIDRs and IP blocks that you are using in your deployment.
@@ -56,12 +78,24 @@ Plan for the following network CIDRs in the IPv4 address space according to the 
 * **<%= vars.k8s_runtime_abbr %> LB CIDR**: This network provides your load balancing address space for each Kubernetes cluster created by <%= vars.product_short %>. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/24` provides 256 usable IPs. This network is used when creating the `ip-pool-vips` described in [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html), or when the services are deployed. You enter this network in the
 **Floating IP Pool ID** field in the **Networking** pane of the <%= vars.product_tile %> tile.
 
+<br>
+<br>
 ##<a id='plan-ip-blocks'></a>Plan IP Blocks
 
-When you install <%= vars.product_short %> on NSX-T, you are required to specify the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the <%= vars.product_tile %> tile. These IDs map to the two IP blocks you must configure in NSX-T: the Pods IP Block for Kubernetes pods, and the Node IP Block for Kubernetes nodes (VMs). For more information, see the [Networking](installing-nsx-t.html#networking) section of _Installing <%= vars.product_short %> on vSphere with NSX-T Integration_.
+When you install <%= vars.product_short %> on NSX-T, you are required to specify the **Pods IP Block ID** and **Nodes IP Block ID** in the **Networking** pane of the <%= vars.product_tile %> tile. These IDs map to the two IP blocks you must configure in NSX-T: the Pods IP Block for Kubernetes pods, and the Node IP Block for Kubernetes nodes (VMs).  
 
   <img src="images/nsxt/nsxt-ip-blocks.png" alt="Required IP Blocks for NSX-T">
 
+To configure **Pods IP Block ID** and **Nodes IP Block ID**:  
+* [Plan IP Blocks](#plan-ip-blocks)  
+* [Pods IP Block](#pods-ip-block)  
+* [Nodes IP Block](#nodes-ip-block)  
+* [Reserved IP Blocks](#reserved-ip-blocks)  
+
+For more information, see the [Networking](installing-nsx-t.html#networking) section of _Installing <%= vars.product_short %> on vSphere with NSX-T Integration_.
+
+
+<br>
 ###<a id='pods-ip-block'></a>Pods IP Block
 
 Each time a Kubernetes namespace is created, a subnet from the **Pods IP Block** is allocated. The subnet size carved out from this block is /24, which means a maximum of 256 pods can be created per namespace. When a Kubernetes cluster is deployed by <%= vars.product_short %>, by default 3 namespaces are created. Often additional namespaces will be created by operators to facilitate cluster use. As a result, when creating the **Pods IP Block**, you must use a CIDR range larger than /24 to ensure that NSX has enough IP addresses to allocate for all pods. The recommended size is /16. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).
@@ -72,6 +106,7 @@ Each time a Kubernetes namespace is created, a subnet from the **Pods IP Block**
 After you deploy <%= vars.product_short %>, you can define a network profile that specifies a routable IP block for your pods.
 The routable IP block overrides the default non-routable <strong>Pods IP Block</strong> when a Kubernetes cluster is deployed using that network profile. For more information, see <a href="network-profiles.html#routable-pods">Routable Pods</a> in <em>Using Network Profiles (NSX-T Only)</em>.</p>
 
+<br>
 ###<a id='nodes-ip-block'></a>Nodes IP Block
 
 Each Kubernetes cluster deployed by <%= vars.product_short %> owns a /24 subnet. To deploy multiple Kubernetes clusters, set the **Nodes IP Block ID** in the **Networking** pane of the <%= vars.product_tile %> tile to larger than /24. The recommended size is /16. For more information, see [Creating NSX-T Objects for <%= vars.product_short %>](nsxt-create-objects.html).
@@ -81,6 +116,7 @@ Each Kubernetes cluster deployed by <%= vars.product_short %> owns a /24 subnet.
 <p class="note"><strong>Note</strong>: You can use a smaller nodes block size for no-NAT environments with a limited number of routable subnets.
 For example, /20 allows up to 16 Kubernetes clusters to be created.</p>
 
+<br>
 ###<a id='reserved-ip-blocks'></a>Reserved IP Blocks
 
 <%= vars.k8s_runtime_abbr %> reserves several CIDR blocks and IP addresses for internal use.  
@@ -89,6 +125,7 @@ For example, /20 allows up to 16 Kubernetes clusters to be created.</p>
 <strong>Do not use reserved IP addresses or CIDR blocks when configuring <%= vars.k8s_runtime_abbr %></strong>.
 </p>
 
+<br>
 ####<a id='reserved-ip-blocks-list'></a>List of Reserved IP Addresses and Ranges
 When deploying <%= vars.k8s_runtime_abbr %>, do not use the following reserved CIDR blocks and IP addresses:
 <table>
@@ -149,7 +186,8 @@ When deploying <%= vars.k8s_runtime_abbr %>, do not use the following reserved C
   </tr>
 </table>
 
-
+<br>
+<br>
 ##<a id='plan-ip-blocks'></a>Gather Other Required IP Addresses
 
 To install <%= vars.product_short %> on vSphere with NSX-T, you will need to know the following:
