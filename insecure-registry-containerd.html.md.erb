@@ -1,0 +1,159 @@
+---
+title: Configuring Containerd Cluster Access to Insecure Container Registries
+owner: TKGI
+---
+
+This topic describes how to configure <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) Kubernetes clusters that run the 
+Containerd runtime with insecure container registries.
+
+##<a id='insec-overview'></a> Overview
+
+You can store images in an insecure container registry. You can:
+
+* Enable your <%= vars.k8s_runtime_abbr %> Kubernetes clusters, which runs the Containerd runtime, to authenticate
+into an insecure Containerd registry.
+
+* Configure both new and existing <%= vars.k8s_runtime_abbr %> clusters, which runs the Containerd runtime, to authenticate
+into an insecure registry. 
+
+**Note**: You can connect multiple hosts to an insecure registry.
+
+To create a new cluster that is configured to access an insecure Containerd registry, complete the following procedures:
+
+1. [Set up Your API Access Token](#set-token)
+1. [Create a Containerd Runtime Cluster with an Access to Insecure Registries](#create-cluster)
+1. [Verify the Configuration](#verify-config)
+
+To update an existing cluster configured to access insecure Containerd registries, complete the following procedures:
+
+1. [Set up Your API Access Token](#set-token)
+1. [Update a Containerd Runtime Cluster with an Access to Insecure Registries](#update-cluster)
+1. [Verify the Configuration](#verify-config)
+
+## <a id='prereq-sec-reg'></a> Prerequisites
+
+Before configuring <%= vars.k8s_runtime_abbr %> Kubernetes clusters to have access to an insecure Containerd registry, you must have the following:
+
+- The FQDN of your <%= vars.control_plane %> endpoint. For example, `api.tkgi.example.com`.  
+- Your <%= vars.product_short %> User ID and Password. 
+- The names of the insecure registry servers and the hosts that you want to connect to them.
+
+<p class="note warning"><strong>Warning: </strong> The FQDN for the registry cannot contain a hyphen, dash, or semi-colon. 
+  If such a character is included in the registry name the <%= vars.control_plane %> will reject it as not a valid character.
+</p>
+
+## <a id='set-token'></a> Set up Your API Access Token
+
+The curl commands in this topic use an access token environment variable to
+authenticate to the <%= vars.control_plane %> endpoints.
+
+1. To export your access token into an environment variable, run the following command:
+
+    ```
+    tkgi login -a TKGI-API -u USER-ID -p 'PASSWORD' -k; \
+    export YOUR-ACCESS-TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+    ```
+    Where:  
+
+    * `TKGI-API` is the FQDN of your <%= vars.control_plane %> endpoint. For example, `api.tkgi.example.com`.  
+    * `USER-ID` is your <%= vars.product_short %> user ID.  
+    * `PASSWORD` is your <%= vars.product_short %> password.  
+    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.  
+
+    For example:
+    ```console
+    $ tkgi login -a tkgi.my.lab -u alana -p 'psswrdabc123...!' -k; \
+    export access_token=$(bosh int ~/.pks/creds.yml --path /access_token)
+    ```
+    
+    <%= partial "saml-sso-login" %>
+
+## <a id='create-cluster'></a> Create a Containerd Runtime Cluster with an Access to Insecure Registries
+
+You can create a new cluster configured to use a insecure registry by using the <%= vars.control_plane %> `create-cluster` endpoint.
+
+1. Create a `cluster.json` file as shown in the following example:
+
+    ```
+    {
+       "name": "cluster-1",
+       "plan_name": "small",
+       "parameters": {
+         "kubernetes_master_host": "cluster-1.pks.local",
+         "kubernetes_master_port": 8443,
+         "kubernetes_worker_instances": 1,
+         "k8s_customization_parameters": {
+           "insecure_registries":["REGISTRY_SERVER_1", "REGISTRY_SERVER_1_HOST_1,REGISTRY_SERVER_1_HOST_2", "REGISTRY_SERVER_2", "REGISTRY_SERVER_2_HOST_1,REGISTRY_SERVER_2_HOST_2"]
+           // Example: "insecure_registries": ["registry.tkgi.local", "http://registry-1.tkgi.local:80,http://registry-2.tkgi.local:80"]
+         }
+      }
+    }
+    
+    ```
+    
+    **Note**: In the `"insecure_registries"` parameter field, specify one insecure registry server name and one or more registry host names.
+    
+1. <%= partial 'login-api' %>
+
+1. Run the following command on the API interface:
+  
+    ```
+    curl -k -H "Authorization: Bearer $access_token" -H "Content-Type: application/json" -d @./cluster.json -X POST https://api.pks.local:9021/v1/clusters
+     
+    ```
+  
+## <a id='update-cluster'></a> Update a Containerd Runtime Cluster with an Access to Insecure Registries
+
+You can update an existing Containerd cluster with an access to insecure registries by using the <%= vars.control_plane %> `update-cluster` endpoint.
+
+1. Create a `cluster.json` file as shown in the following example:
+
+    ```
+    {
+       "insecure_registries":["REGISTRY_SERVER_1", "REGISTRY_SERVER_1_HOST_1,REGISTRY_SERVER_1_HOST_2", "REGISTRY_SERVER_2", "REGISTRY_SERVER_2_HOST_1,REGISTRY_SERVER_2_HOST_2"]
+       // Example: "insecure_registries": ["registry.tkgi.local", "http://registry-1.tkgi.local:80,http://registry-2.tkgi.local:80"]
+    }
+    ```
+    
+    **Note**: In the `"insecure_registries"` parameter field, specify one insecure registry server name and one or more registry host names.
+    
+1. <%= partial 'login-api' %>
+
+1. Run the following command on the the API interface:
+
+    ```
+    curl -k -H "Authorization: Bearer $access_token" -H "Content-Type: application/json" -d @./cluster.json -X PATCH https://api.pks.local:9021/v1/clusters/CLUSTER_NAME
+    
+    ```
+    Where `CLUSTER-NAME` is the name of the Containerd cluster that you want to update.
+    
+## <a id='verify-config'></a> Verify the Configuration
+
+1. To verify that the configuration is successful, run the following command:
+  
+    ```
+    cat /etc/containerd/certs.d/registry.tkgi.local/hosts.toml
+    server = "REGISTRY"
+    ```
+    Where `REGISTRY` is the FQDN of the insecure registry, for example, `registry.tkgi.local`. 
+    
+    In the output, verify that the names of the hosts, which are configured on the registry are displayed.
+    
+    The following is an example:
+    
+    ```
+    cat /etc/containerd/certs.d/registry.tkgi.local/hosts.toml
+    server = "https://registry.tkgi.local"
+     
+    [host."http://registry-1.tkgi.local:80"]
+      capabilities = ["pull", "resolve"]
+      skip_verify = true
+     
+    [host."http://registry-2.tkgi.local:80"]
+      capabilities = ["pull", "resolve"]
+      skip_verify = true
+    
+    ```
+
+
+ 
