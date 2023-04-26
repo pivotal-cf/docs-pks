@@ -54,6 +54,10 @@ In <%= vars.k8s_runtime_abbr %>, you can configure the vSphere CSI Driver to:
     * To use the automatically deployed vSphere CSI Driver, 
     see [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi) below.  
 <% end %>
+* Customize the maximum number of snapshots for a volume
+  * To customize the maximum number of snapshots for each persistent volume, 
+  see [Customize the Maximum Number of Volume Snapshots](#customize-max-snapshot) below.  
+
 
 <% if vars.product_version == "v1.14"  %>
 <br>
@@ -91,6 +95,7 @@ The vSphere CSI Driver supports different features depending on driver version, 
 * Kubernetes Multi-node Control Plane support  
 * Static PV Provisioning  
 * Topology-aware volume provisioning  
+* Volume snapshot and restore
 <br>
 
     <sup>&#42;</sup>For information on the usage limitations and environment and version requirements of these vSphere CSI Driver features, 
@@ -748,12 +753,108 @@ To migrate a cluster from an In-Tree vSphere Storage Driver to the vSphere CSI D
 
 To configure or manage your vSphere CSI Driver:  
 
+* [Customize the Maximum Number of Volume Snapshots](#customize-max-snapshot)  
 * [Configure CNS Data Centers](#cns-datacenters)  
 * [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology)  
 <% if vars.product_version == "v1.14"  %>
 * [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi)  
 <% end %>
 
+<br>
+### <a id='customize-max-snapshot'></a>Customize the Maximum Number of Volume Snapshots
+The vSphere CSI driver lets you customize the maximum number of snapshots for a persistent volume.  By default, the system sets a maximum of three
+volume snapshots as suggested by the VMware snapshots best practices in a vSphere environment. 
+
+In your cluster configuration file, use the following parameters to customize the maximum number of snapshots:
+
+- `global-max-snapshots-per-block-volume` for the block volumes on VMFS datastores. Defaults to 3.
+- `granular-max-snapshots-per-block-volume-vsan` for the volumes on VMware vSAN. Defaults to the value specified for `global-max-snapshots-per-block-volume`.
+
+To customize the maximum number of snapshots on a persistent volume, create a JSON or YAML formatted configuration file containing the following:  
+
+```
+{
+  "snapshot_parameters":{
+      "global_max_snapshots_per_block_volume": NUMBER       
+  }    
+}
+```
+    
+Where:  
+    
+* `NUMBER` is the maximum number of snapshots on the volume.
+    
+For example:  
+    
+```
+{
+  "snapshot_parameters":{
+      "global_max_snapshots_per_block_volume": 4
+  }
+}
+  
+```
+    
+To customize the maximum number of snapshots on a vSAN volume, create a JSON or YAML formatted configuration file containing the following:  
+    
+```
+{
+  "snapshot_parameters":{
+      "granular_max_snapshots_per_block_volume_vsan": NUMBER       
+  }    
+}
+```
+        
+Where:  
+        
+* `NUMBER` is the maximum number of snapshots on the volume.
+        
+For example:  
+        
+```
+{
+  "snapshot_parameters":{
+      "granular_max_snapshots_per_block_volume_vsan": 4
+  }
+}  
+```
+To create a new cluster or update an existing cluster with the new snapshot configuration:  
+    
+  * To create a cluster:  
+            
+    ```
+    tkgi create-cluster CLUSTER-NAME --config-file CONFIG-FILE  
+    ```
+            
+    Where:  
+      
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE` is the name of your config file.  
+    
+    For example:
+     <pre class="terminal">
+     $ tkgi create-cluster demo -e demo.cluster –plan Small –config-file ./snapshot.json
+     </pre>
+    
+  * To update an existing cluster:  
+    
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE 
+    ```
+    
+    Where:  
+    
+    * `CLUSTER-NAME` is the name of your cluster.  
+    * `CONFIG-FILE` is the name of your config file. 
+      
+    For example:
+    <pre class="terminal">
+    $ tkgi update-cluster demo --config-file ./snapshot.json
+    </pre>
+    
+For more information on volume snapshots, see 
+[Volume Snapshot and Restore](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/2.0/vmware-vsphere-csp-getting-started/GUID-E0B41C69-7EEB-450F-A73D-5FD2FF39E891.html) 
+in VMware vSphere Container Storage Plug-in Documentation.
 
 <br>
 ### <a id='cns-datacenters'></a>Configure CNS Data Centers
@@ -828,8 +929,7 @@ To configure CNS data centers for a multi-data center environment:
 
         * `CLUSTER-NAME` is the name of your cluster.  
         * `CONFIG-FILE` is the name of your config file. 
-
-
+        
 <br>
 ### <a id='uninstall-csi-after-topology'></a>Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver
 
