@@ -653,7 +653,77 @@ When running `tkgi update-cluster` on a cluster created with a topology-aware vo
     in the VMware vSphere Container Storage Plug-in documentation.  
 <% end %>
 
+<br>
+<br>
+## <a id='windows-configure-csi'></a>Configure vSphere CSI for Windows 
 
+### <a id='windows-overview'></a>Overview
+### <a id='windowsfile-volumes-prereqs'></a>Prerequisites 
+### <a id='windows-concerns'></a> Requirements and Limitations of the vSphere CSI Driver
+
+
+
+### <a id='windows-prepare-stemcell'></a>Prepare a Windows Stemcell for vSphere CSI
+
+1. [Prepare CSI Proxy](#windows-prepare-csiproxy)  
+1. [Create a Windows Stemcell for vSphere CSI](#windows-create-stemcell)  
+1. [Upload and Test the Windows Stemcell](#windows-upload-stemcell)  
+1. [Apply a CSI Manifest to a Windows Cluster](#windows-apply-csi-manifest)  
+
+
+
+#### <a id='windows-prepare-csiproxy'></a>Prepare CSI Proxy
+
+1. Build CSI Proxy. For more information, see [Build](https://github.com/kubernetes-csi/csi-proxy#build) in the kubernetes-csi / csi-proxy GitHub repository.  
+
+#### <a id='windows-create-stemcell'></a>Create a Windows Stemcell for vSphere CSI
+
+1. Complete the steps in 
+[Step 1: Create a Base VM for the BOSH Stemcell](https://docs.pivotal.io/application-service-windows/2-12/create-vsphere-stemcell-automatically.html#create-base-vm).  
+
+1. Complete the steps in 
+[Step 2: Configure the Base VM](https://docs.pivotal.io/application-service-windows/2-12/create-vsphere-stemcell-automatically.html#install-windows-updates).  
+
+1. Copy the `csi-proxy.exe`executable file created above to a location for the Windows stemcell. For example, copy the executable to `C:\etc\kubernetes\node\bin\`.  
+
+1. To install csi-proxy.exe, complete the steps in [Installation](https://github.com/kubernetes-csi/csi-proxy#installation) in the kubernetes-csi / csi-proxy GitHub repository.  
+
+    <p class="note"><strong>Note</strong>: If you copied <code>csi-proxy.exe</code> to a location other than <code>C:\etc\kubernetes\node\bin\</code> you must change the <code>binPath</code> property in the installation script to match.
+    </p>
+
+1. Complete the remainder of the standard Windows stemcell creation procedure:
+
+    * [Step 3: Clone the Base VM](https://docs.pivotal.io/application-service-windows/2-12/create-vsphere-stemcell-automatically.html#clone-vm)
+    * [Step 4: Construct the BOSH Stemcell](https://docs.pivotal.io/application-service-windows/2-12/create-vsphere-stemcell-automatically.html#construct-stemcell)
+    * [Step 5: Package the BOSH Stemcell](https://docs.pivotal.io/application-service-windows/2-12/create-vsphere-stemcell-automatically.html#package-stemcell)
+    * [Step 6: Upload the BOSH Stemcell to Ops Manager](https://docs.pivotal.io/application-service-windows/2-12/create-vsphere-stemcell-automatically.html#upload-stemcell)
+
+#### <a id='windows-upload-stemcell'></a>Upload and Test the Windows Stemcell
+
+1. In Ops Manager, navigate to **Stemcell Library**.  
+
+1. Upload the Windows stemcell.
+
+1. To test your Windows stemcell:  
+
+    1. Create a test windows cluster.
+    1. Complete the steps in [Apply a CSI Manifest to a Windows Cluster](#windows-apply-csi-manifest) below.  
+    
+#### <a id='windows-apply-csi-manifest'></a>Apply a CSI Manifest to a Windows Cluster
+
+1. Create a Windows CSI Node manifest file containing the contents listed in [Windows CSI Node Manifest](#windows-csi-manifest) below.  
+
+1. Update your cluster with the Windows CSI Node manifest.  
+
+
+
+
+
+
+
+
+
+<% if vars.product_version == "v1.17"  %>
 <br>
 ## <a id='migrate-to-csi'></a> Migrate In-Tree vSphere Storage to the vSphere CSI Driver
 
@@ -740,7 +810,7 @@ To migrate a cluster from an In-Tree vSphere Storage Driver to the vSphere CSI D
 
     * `CLUSTER-NAME` is the name of your cluster.  
     * `CONFIG-FILE` is the name of the config file you created in the preceding steps.  
-    
+<% end %>    
 
 
 
@@ -756,6 +826,11 @@ To configure or manage your vSphere CSI Driver:
 <% if vars.product_version == "v1.14"  %>
 * [Switch From the Manually Installed vSphere CSI Driver to the Automatic CSI Driver](#uninstall-csi)  
 <% end %>
+
+To configure or manage vSphere CSI on a Windows cluster:  
+
+* [Windows CSI Node Manifest](#windows-csi-manifest)  
+
 
 <br>
 ### <a id='customize-max-snapshot'></a>Customize the Maximum Number of Volume Snapshots
@@ -995,6 +1070,216 @@ Configure topology based on the manually installed vSphere CSI Driver configurat
 * **Topology Deactivated**:  
 
     You must not enable topology if topology was not enabled while using the manually deployed vSphere CSI Driver.
+
+
+
+
+### <a id='windows-csi-manifest'></a>Windows CSI Node Manifest
+```
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: vsphere-csi-node
+  namespace: vmware-system-csi
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vsphere-csi-node-cluster-role
+rules:
+  - apiGroups: ["cns.vmware.com"]
+    resources: ["csinodetopologies"]
+    verbs: ["create", "watch", "get", "patch"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vsphere-csi-node-cluster-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: vsphere-csi-node
+    namespace: vmware-system-csi
+roleRef:
+  kind: ClusterRole
+  name: vsphere-csi-node-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vsphere-csi-node-role
+  namespace: vmware-system-csi
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: vsphere-csi-node-binding
+  namespace: vmware-system-csi
+subjects:
+  - kind: ServiceAccount
+    name: vsphere-csi-node
+    namespace: vmware-system-csi
+roleRef:
+  kind: Role
+  name: vsphere-csi-node-role
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: vsphere-csi-node-windows
+  namespace: vmware-system-csi
+spec:
+  selector:
+    matchLabels:
+      app: vsphere-csi-node-windows
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: vsphere-csi-node-windows
+        role: vsphere-csi-windows
+    spec:
+      priorityClassName: system-node-critical
+      nodeSelector:
+        kubernetes.io/os: windows
+      serviceAccountName: vsphere-csi-node
+      containers:
+        - name: node-driver-registrar
+          image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1
+          args:
+            - "--v=5"
+            - "--csi-address=$(ADDRESS)"
+            - "--kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)"
+          env:
+            - name: ADDRESS
+              value: 'unix://C:\\csi\\csi.sock'
+            - name: DRIVER_REG_SOCK_PATH
+              value: 'C:\\var\\lib\\kubelet\\plugins\\csi.vsphere.vmware.com\\csi.sock'
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+          livenessProbe:
+            exec:
+              command:
+              - /csi-node-driver-registrar.exe
+              - --kubelet-registration-path=C:\\var\\lib\\kubelet\\plugins\\csi.vsphere.vmware.com\\csi.sock
+              - --mode=kubelet-registration-probe
+            initialDelaySeconds: 3
+        - name: vsphere-csi-node
+          image: gcr.io/cloud-provider-vsphere/csi/ci/driver:latest
+          args:
+            - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
+            - "--fss-namespace=$(CSI_NAMESPACE)"
+          imagePullPolicy: "Always"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName          
+            - name: CSI_ENDPOINT
+              value: 'unix://C:\\csi\\csi.sock'
+            - name: MAX_VOLUMES_PER_NODE
+              value: "59" # Maximum number of volumes that controller can publish to the node. If value is not set or zero Kubernetes decide how many volumes can be published by the controller to the node.
+            - name: X_CSI_MODE
+              value: node
+            - name: X_CSI_SPEC_REQ_VALIDATION
+              value: 'false'
+            - name: X_CSI_SPEC_DISABLE_LEN_CHECK
+              value: "true"
+            - name: LOGGER_LEVEL
+              value: "PRODUCTION" # Options: DEVELOPMENT, PRODUCTION
+            - name: X_CSI_LOG_LEVEL
+              value: DEBUG
+            - name: CSI_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODEGETINFO_WATCH_TIMEOUT_MINUTES
+              value: "1"
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: 'C:\csi'
+            - name: pods-mount-dir
+              mountPath: 'C:\var\lib\kubelet'
+            - name: csi-proxy-volume-v1
+              mountPath: \\.\pipe\csi-proxy-volume-v1
+            - name: csi-proxy-filesystem-v1
+              mountPath: \\.\pipe\csi-proxy-filesystem-v1
+            - name: csi-proxy-disk-v1
+              mountPath: \\.\pipe\csi-proxy-disk-v1    
+            - name: csi-proxy-system-v1alpha1
+              mountPath: \\.\pipe\csi-proxy-system-v1alpha1
+          ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+        - name: liveness-probe
+          image: k8s.gcr.io/sig-storage/livenessprobe:v2.7.0
+          args:
+            - "--v=4"
+            - "--csi-address=/csi/csi.sock"
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+      volumes:
+        - name: registration-dir
+          hostPath:
+            path: 'C:\var\lib\kubelet\plugins_registry\'
+            type: DirectoryOrCreate
+        - name: plugin-dir
+          hostPath:
+            path: 'C:\var\lib\kubelet\plugins\csi.vsphere.vmware.com\'
+            type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: 'C:\var\lib\kubelet'
+            type: Directory
+        - name: csi-proxy-disk-v1
+          hostPath:
+            path: \\.\pipe\csi-proxy-disk-v1
+            type: ''
+        - name: csi-proxy-volume-v1
+          hostPath:
+            path: \\.\pipe\csi-proxy-volume-v1
+            type: ''
+        - name: csi-proxy-filesystem-v1
+          hostPath:
+            path: \\.\pipe\csi-proxy-filesystem-v1
+            type: ''
+        - name: csi-proxy-system-v1alpha1
+          hostPath:
+            path: \\.\pipe\csi-proxy-system-v1alpha1
+            type: ''
+      tolerations:
+        - effect: NoExecute
+          operator: Exists
+        - effect: NoSchedule
+          operator: Exists 
+ 
+```
 
 
 
