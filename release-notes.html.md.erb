@@ -1197,7 +1197,7 @@ see [Limitations on Using a Public Cloud CSI Driver](#1-15-1-csi-driver-limits) 
     * Upgrades Kubernetes to v1.24.7:  
         * Fixes [CVE-2021-25749: runAsNonRoot logic bypass for Windows containers](https://github.com/kubernetes/kubernetes/issues/112192).  
     * Upgrades NCP to v4.0.1.0:  
-        * Fixes [<%= vars.k8s_runtime_abbr %> Certificate Rotation Might Not Rotate All NSX-T Certificates](#1-15-0-rotated-certs-partial-list).  
+        * Fixes [<%= vars.k8s_runtime_abbr %> Certificate Rotation Might Not Rotate All Admin-Defined NSX-T Certificates](#1-15-0-rotated-certs-partial-list).  
     * Upgrades CSI Driver for vSphere to v2.6.2:  
         * Fixes [Persistent Volumes Fail to Detach from Nodes](#1-15-0-pv-not-attached-to-new-node).  
     * Upgrades Fluent Bit to v1.9.3:  
@@ -2757,20 +2757,26 @@ The Ops Manager list of certificates is displaying stale data for `pks_api_inter
 
 <hr>
 
-#### <a id="1-15-0-rotated-certs-partial-list"></a> <%= vars.k8s_runtime_abbr %> Certificate Rotation Might Not Rotate All NSX-T Certificates
+#### <a id="1-15-0-rotated-certs-partial-list"></a> <%= vars.k8s_runtime_abbr %> Certificate Rotation Might Not Rotate All Admin-Defined NSX-T Certificates
 
 This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.15.1](#1-15-1-bug-fixes).  
 
-<%= vars.k8s_runtime_abbr %> certificate rotation might rotate only a subset of an environment's NSX-T certificates instead of all of the certificates.  
+When rotating certificates using the `tkgi rotate-certificates --onlx-nsx` command <%= vars.k8s_runtime_abbr %> certificate rotation might rotate only a subset of an environment's admin-defined NSX-T certificates instead of all of the certificates.  
 
 **Explanation**  
 
-<%= vars.k8s_runtime_abbr %> relies on NCP for a list of NSX-T certificates.  
- 
-NSX-T provides a paginated list of certificates to NCP, 
-but NCP v4.0.0 does not collate the list and might provide <%= vars.k8s_runtime_abbr %> with an incomplete list of NSX-T certificates. 
-The NSX-T certificates that NCP does not provide are unknown to <%= vars.k8s_runtime_abbr %> and are not rotated. 
-<%= vars.k8s_runtime_abbr %> rotates a maximum of **50** NSX-T certificates.  
+For the `tkgi rotate-certificates --onlx-nsx` command, <%= vars.k8s_runtime_abbr %> relies on NCP for a list of the NSX-T certificates stored by NSX-T. 
+The NSX-T API provides a paginated list of certificates 
+but NCP v4.0.0 does not collate the certificate list and provides <%= vars.k8s_runtime_abbr %> with a maximum of **50** certificates.  
+
+During `--onlx-nsx` certificate rotation, <%= vars.k8s_runtime_abbr %> might rotate an incomplete set of NSX-T certificates and those that were not provided by NCP are not rotated.  
+
+**Workaround**  
+
+To manually rotate an admin-defined NSX-T certificate that is not rotated using the `tkgi rotate-certificates --onlx-nsx` command:  
+
+1. Delete the TLS secret.  
+1. Recreate the TLS secret.  
 
 
 <hr>
