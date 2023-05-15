@@ -3527,19 +3527,25 @@ The Ops Manager list of certificates is displaying stale data for `pks_api_inter
 
 <hr>
 
-#### <a id="1-14-0-rotated-certs-partial-list"></a> <%= vars.k8s_runtime_abbr %> Certificate Rotation Might Not Rotate All Admin-Defined NSX-T Certificates
+#### <a id="1-14-0-rotated-certs-partial-list"></a> <%= vars.k8s_runtime_abbr %> Certificate Rotation Might Remove NSX Ingress Certificates from <%= vars.k8s_runtime_abbr %>
 
 <% if vars.product_version == "COMMENTED"  %>
 This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.14.7](#1-14-7-bug-fixes).  
 <% end %>
-When rotating certificates using the `tkgi rotate-certificates --only-nsx` command, <%= vars.k8s_runtime_abbr %> certificate rotation might rotate only a subset of an environment's admin-defined NSX-T certificates. 
-For example, `rotate-certificates --only-nsx` might fail to rotate the NSX Load Balancer certificate or the NSX Manager Superuser Principal Identity certificate when this issue occurs.  
+When rotating certificates using the `tkgi rotate-certificates --only-nsx` command, 
+<%= vars.k8s_runtime_abbr %> certificate rotation might remove the <%= vars.k8s_runtime_abbr %> certificates used for ingress from the NSX virtual server. 
+For example, `rotate-certificates --only-nsx` might remove the NSX Load Balancer certificate or the NSX Manager Superuser Principal Identity certificate 
+from <%= vars.k8s_runtime_abbr %> when this issue occurs.  
 
 **Explanation**  
 
-For the `tkgi rotate-certificates --only-nsx` command, <%= vars.k8s_runtime_abbr %> relies on NCP for a list of the NSX-T certificates used by NSX-T. 
-The NSX-T API provides a paginated list of certificates, 
-but NCP v3.2.1 does not collate the certificate list and might provide <%= vars.k8s_runtime_abbr %> with an incomplete list of certificates:  
+When `tkgi rotate-certificates --only-nsx` rotates the NSX ingress certificates, 
+`rotate-certificates` removes and then replaces the certificates. 
+After removing the ingress certificates, `rotate-certificates` relies on NCP for a list of the NSX ingress certificates to restore, 
+but NCP v3.2.1 provides an incomplete list of certificates.  
+
+This occurs because NCP v3.2.1 does not collate the paginated certificate list returned by the NSX API 
+and might provide `tkgi rotate-certificates` with an incomplete list of certificates:  
 
 * On NSX-T v3.2: NCP returns a maximum of **50** NSX-T certificates.  
 * On NSX-T v3.1.3: NCP returns a maximum of **1000** NSX-T certificates.     
