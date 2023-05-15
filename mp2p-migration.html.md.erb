@@ -554,6 +554,19 @@ To migrate an individual cluster from the NSX Management Plane API to NSX Policy
         Where `CLUSTER-NAME` is the name of the promoted cluster.  
         
     1. Confirm successful cluster promotion by reviewing the migration log on the Kubernetes control plane VM.  
+
+        NCP returns one of three exit codes after promoting a cluster: `0`, `1`, or `2`:  
+
+        * `0`: The cluster has successfully promoted to NSX Policy API.  
+        * `1`: Cluster promotion has failed, and its NSX resources are a mixture of NSX Management Plane API 
+        and NSX Policy API resources. Restart cluster promotion for this cluster from the same master VM.  
+            <p class="note warning"><strong>Note:</strong> 
+            If you restart cluster promotion from a different VM, <code>mp_to_policy_importer</code> will attempt to recover the cluster by rolling back the successfully promoted NSX resources. Do not attempt to promote a different cluster until after this cluster has successfully promoted.
+            </p>  
+        * `2`: Cluster promotion has failed, and the cluster's NSX resources remain Management Plane API resources. 
+        Do not restart cluster promotion for this cluster. 
+        Review the `mp_to_policy_importer` logs and confirm NCP can be manually restarted on all master VMs in Management Plane API mode.  
+
 <% if vars.product_version == "COMMENTED"  %>
     If the cluster did not successfully migrate to the NSX Policy API, 
     see [Failure and Recovery](https://docs.vmware.com/en/VMware-NSX-Container-Plugin/4.0/ncp-kubernetes/GUID-E4BA4AA9-0E7A-47AA-909F-24B4E4B621C8.html) 
