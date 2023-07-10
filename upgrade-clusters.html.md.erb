@@ -83,10 +83,14 @@ To upgrade an individual Kubernetes cluster:
 1. Run the following command:
 
     ```
-    tkgi upgrade-cluster CLUSTER-NAME
+    tkgi upgrade-cluster CLUSTER-NAME  --pre-check
     ```
-    Where `CLUSTER-NAME` is the name of the Kubernetes cluster you want to upgrade.  
-
+    Where:  
+    
+    * `CLUSTER-NAME` is the name of the Kubernetes cluster you want to upgrade.  
+    * (Optional) Include `--pre-check` to initially perform an automated cluster pre-check. `upgrade-cluster` will validate the cluster and display a status report after performing the pre-check. You must verify that you want the upgrade to proceed after the pre-check completes. 
+    For more information, see [Upgrade Cluster Validation](#upgrade-cluster-pre-check) below.  
+           
 <p class="note"><strong>Note</strong>: When using <code>tkgi upgrade-cluster</code>, worker nodes in the cluster are upgraded in parallel based on the <%= vars.k8s_runtime_abbr %> tile <strong>Worker VM Max in Flight</strong> value. By default, <strong>Worker VM Max in Flight</strong> is set to <code>4</code>, and <code>upgrade-cluster</code> upgrades up to four worker nodes in parallel while upgrading the cluster.
 </p>
 
@@ -94,6 +98,33 @@ For more information about the `tkgi upgrade-cluster` command,
 see [tkgi upgrade-cluster](cli/index.html#upgrade-cluster) in the _<%= vars.k8s_runtime_abbr %> CLI_ documentation.  
 
 To upgrade multiple clusters, see [Upgrade Multiple Kubernetes Clusters](#upgrade-clusters-multi) below.  
+
+####<a id='upgrade-cluster-pre-check'></a>Upgrade Cluster Validation
+
+You can request that an automated cluster validation is run before upgrading a cluster by including the `--pre-check` parameter in your `tkgi upgrade-cluster` command.  
+
+When you request an automated cluster validation, the cluster upgrade validates the cluster before upgrading and displays a validation report when the pre-check completes:  
+
+* If the cluster fails the validation, the cluster upgrade ends after displaying the validation report.  
+* If the cluster passes the validation, the pre-check prompts you for permission to start the cluster upgrade. You must respond if you want the upgrade to proceed.  
+
+    A cluster passes cluster validation only when all of the following conditions are met:  
+    * Cluster certificates have not expired.  
+    * All tasks on the cluster control plane and worker nodes are running.  
+    * Virtual, persistent, and system storage are not at 100% of capacity.  
+        
+Cluster validation also checks and reports if any cluster certificates will expire within the next 180 days, but this condition does not cause the pre-check to fail.  
+
+For example:  
+
+```
+tkgi upgrade-cluster CLUSTER-NAME  --pre-check
+
+The following disk vm(s) are full:
+- master/69e2f336-3990-4dbd-ab1d-74a76845f0c8
+
+Error: Upgrade pre-check failure: failed disk checks
+```
 
 ###<a id='upgrade-clusters-multi'></a>Upgrade Multiple Clusters
 
