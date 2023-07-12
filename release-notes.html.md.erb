@@ -2985,11 +2985,15 @@ Events:
 
 During the <%= vars.k8s_runtime_abbr %> upgrade, the metric-controller uses the old Telegraf image to deploy Telegraf in the new 
 <%= vars.k8s_runtime_abbr %> version. After upgrading <%= vars.k8s_runtime_abbr %> to version 1.15.x, the old telegraf image is deleted from 
-some worker nodes due to disk pressure. The metric-controller is unable to deploy Telegraf on those nodes. 
+some worker nodes due to high disk utlization. The metric-controller is unable to deploy Telegraf on those nodes. 
 
 **Workaround**
 
-Create a duplicate of the existing Telegraf image with a new tag:
+Before you perform this procedure, ensure that you have collected:
+
+  - The tag for the new Telegraf image from the Cluster configuration YAML File
+  - The name of the Telegraf pod
+  - The <%= vars.k8s_runtime_abbr %> namespace
 
 1. On the worker node, run the following command to view the Telegraf image:
 
@@ -3003,10 +3007,10 @@ Create a duplicate of the existing Telegraf image with a new tag:
   cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:efcb96f78984d7731kl99hds564e
   ```
   
-  Note the tag of the Telegraf image, whcih is `efcb96f78984d7731kl99hds564e` in the example above.
+  Note the tag of the Telegraf image, which is `efcb96f78984d7731kl99hds564e` in the example above.
 
   
-1. Run the following command to duplicate the Telegraf image with a new tag:
+1. Run the following command to duplicate the Telegraf image with the new tag:
 
   ```
   # ctr --address /var/vcap/sys/run/containerd/containerd.sock -n k8s.io images tag cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:TAG-1 cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:TAG-2
@@ -3014,10 +3018,10 @@ Create a duplicate of the existing Telegraf image with a new tag:
   
   Where:
   
-  - `TAG-1` is the tag of the existing Telegraf image, which you noted in step 1.
-  - `TAG-2` is the tag that you want to use for the new Telegraph image in the worker node.
+  - `TAG-1` is the old Telegraf image tag, which you noted in step 1.
+  - `TAG-2` is the new Telegraf image tag, which is available in the cluster configuration YAML file.
   
-1. Run the following command to verify that the Telegraf image tag has been updated:
+1. Run the following command to verify that the new Telegraf image has been duplicated with the new tag:
   
   ```
   # ctr --address /var/vcap/sys/run/containerd/containerd.sock -n k8s.io images list | grep telegraf  
@@ -3026,10 +3030,22 @@ Create a duplicate of the existing Telegraf image with a new tag:
   The following is a sample output of the command:
     
   ```
-  cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:TAG-1
-  cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:TAG-2
+  cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:efcb96f78984d7731kl99hds564e
+  cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:delj43g382nd3176sk52ygha407a
   ```
   Verify that the output contains the Telegraf image with the new tag.
+  
+1. Delete the Telegraf pod:
+
+  ```
+  kubectl delete pod TELEGRAF-POD -n NAMESPACE
+  ```
+  Where:
+  
+  - `TELEGRAF-POD` is the name of the Telegraf pod.
+  - `NAMESPACE` is the <%= vars.k8s_runtime_abbr %> namespace.
+  
+  The pod restarts and Telegraf is now deployed on the worker node. 
 
 <hr>
 
