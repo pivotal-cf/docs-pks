@@ -2995,71 +2995,38 @@ Events:
 
 **Explanation**
 
-During the <%= vars.k8s_runtime_abbr %> upgrade, the metric-controller uses the old Telegraf image to deploy Telegraf in the new 
-<%= vars.k8s_runtime_abbr %> version. After upgrading <%= vars.k8s_runtime_abbr %> to version 1.15.x, the old telegraf image is deleted from 
+During the <%= vars.k8s_runtime_abbr %> upgrade, the metric-controller uses the Telegraf image in the previous <%= vars.k8s_runtime_abbr %> version to deploy 
+Telegraf in the new version. After upgrading <%= vars.k8s_runtime_abbr %> to version 1.15.x, the old telegraf image is deleted from 
 some worker nodes due to high disk utlization. The metric-controller is unable to deploy Telegraf on those nodes. 
 
 **Workaround**
 
-Before you perform this procedure, ensure that you have collected:  
-
-- The tag of the new Telegraf image from the cluster configuration YAML File
-- The name of the Telegraf pod
-- The <%= vars.k8s_runtime_abbr %> namespace
+Before you perform this procedure, ensure that you have collected the name and the namespace from your metricSink Custom Resource (CR).
 
 To resolve this issue:
 
-1. On the worker node, run the following command to view the Telegraf image:
+1. In the <%= vars.k8s_runtime_abbr %>, run the following command to find the new tag for Telegraf:
 
   ```
-  # ctr --address /var/vcap/sys/run/containerd/containerd.sock -n k8s.io images list | grep telegraf  
+  kubectl describe po observability-manager-8484f6bd64-wrnwj -n pks-system
   ```
+  Note the tag that corresponds to the `Image` field under `observability-manager`. For example, `efcb96f78984d7731kl99hds564e`.
   
-  The following is a sample output of the command:
-  
-  ```
-  cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:efcb96f78984d7731kl99hds564e
-  ```
-  
-  Note the tag of the Telegraf image, which is `efcb96f78984d7731kl99hds564e` in the example above.
-
-  
-1. Run the following command to duplicate the Telegraf image with the new tag:
+1. Run the following command to edit the Telegraf deployment details:
 
   ```
-  # ctr --address /var/vcap/sys/run/containerd/containerd.sock -n k8s.io images tag cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:TAG-1 cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:TAG-2
+  kubectl edit deployment telegraf-METRICSINK-NAME -n METRICSINK-NAMESPACE
   ```
   
   Where:
   
-  - `TAG-1` is the old Telegraf image tag, which you noted in step 1.
-  - `TAG-2` is the new Telegraf image tag, which is available in the cluster configuration YAML file.
+  - `METRICSINK-NAME` is the name of MetricSink that you collected from the metricSink CR.
+  - `METRICSINK-NAMESPACE` is the namespace of MetricSink that you collected from the metricSink CR.
   
-1. Run the following command to verify that the new Telegraf image has been duplicated with the new tag:
-  
-  ```
-  # ctr --address /var/vcap/sys/run/containerd/containerd.sock -n k8s.io images list | grep telegraf  
-  ```
-    
-  The following is a sample output of the command:
-    
-  ```
-  cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:efcb96f78984d7731kl99hds564e
-  cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:delj43g382nd3176sk52ygha407a
-  ```
-  Verify that the output contains the Telegraf image with the new tag.
-  
-1. Delete the Telegraf pod:
+1. In the `image: cnbu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:` field, replace the existing tag with the tag that you 
+noted in Step 1.
 
-  ```
-  kubectl delete pod TELEGRAF-POD -n NAMESPACE
-  ```
-  Where:
-  
-  - `TELEGRAF-POD` is the name of the Telegraf pod.
-  - `NAMESPACE` is the <%= vars.k8s_runtime_abbr %> namespace.
-  
-  The pod restarts and Telegraf is now deployed on the worker node. 
+1. Save the changes and exit the editor.
 
 <hr>
 
