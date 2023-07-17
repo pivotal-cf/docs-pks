@@ -42,49 +42,59 @@ dc-east-mixed                     A profile for the east datacenter with heterog
 <br>
 ## <a id='create'></a> Create a Cluster with a Compute Profile
 
-You can assign a compute profile to a Kubernetes cluster at the time of cluster creation.
+You can assign a compute profile to a <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster at the time of cluster creation.
 
-To create an <%= vars.k8s_runtime_abbr %>-provisioned Kubernetes cluster with a compute profile, run the following command:
+To create a cluster with a compute profile:  
 
-```
-tkgi create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --compute-profile COMPUTE-PROFILE-NAME --node-pool-instances "NODE-POOL-NAME:INSTANCES"
-```
+1. Review the following strict validation rules for the `tkgi create-cluster --compute-profile` command:  
 
-Where:  
+    * If an optional compute profile field is unspecified at the time of cluster creation, 
+    the value of that field is set to the value of the corresponding field from the plan.  
+    * `tkgi create-cluster --compute-profile` ignores the `--num-nodes` argument.  
+    * The node pool name passed to `--node-pool-instances` must match the `name` property of a node pool in the compute profile.  
 
-* `CLUSTER-NAME` is a unique name for your cluster.  
-    <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
-    if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
-    </p>
-* `HOSTNAME` is your external hostname used for accessing the Kubernetes API.  
-* `PLAN-NAME` is the name of the <%= vars.k8s_runtime_abbr %> plan you want to use for your cluster.  
-* `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to use for your cluster.  
-* (Optional) `--node-pool-instances` overrides the worker node instance counts specified in the compute profile:  
-  - `NODE-POOL-NAME` is the name of the node pool you want to specify the number of worker node instances for.  
-  - `INSTANCES` is the number of worker nodes for the node pool name specified as `NODE-POOL-NAME`.  
+1. To create the cluster, run the following command:
 
-For example:  
+    ```
+    tkgi create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --compute-profile COMPUTE-PROFILE-NAME --node-pool-instances "NODE-POOL-NAME:INSTANCES"
+    ```
 
-```
-tkgi create-cluster custom-node-pools -e test.tkgi.shep.api.com --compute-profile custom-node-pools-compute-profile -p "small" --node-pool-instances "tiny-1:3"
+    Where:  
 
-TKGI Version:             1.9.0-build.11  
-Name:                     test  
-K8s Version:              1.18.5  
-Plan Name:                small  
-UUID:                     <UUID of deployment>1  
-Last Action:              CREATE  
-Last Action State:        in progress  
-Last Action Description:  Creating cluster  
-Kubernetes Master Host:   test.tkgi.shep.api.com  
-Kubernetes Master Port:   8443  
-Worker Nodes:             4  
-Kubernetes Master IP(s):  In Progress  
-Network Profile Name:  
-Kubernetes Profile Name:  
-Compute Profile Name:     custom-node-pools-compute-profile  
-Tags:  
-```
+    * `CLUSTER-NAME` is a unique name for your cluster.  
+        <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
+        if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
+        </p>
+    * `HOSTNAME` is your external hostname used for accessing the Kubernetes API.  
+    * `PLAN-NAME` is the name of the <%= vars.k8s_runtime_abbr %> plan you want to use for your cluster.  
+    * `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to use for your cluster.  
+    * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"` overrides a compute profile's configured node pool worker node instance count:  
+        * `NODE-POOL-NAME` is the name of the node pool to configure. 
+        The node pool name must match the `name` property of a node pool in the compute profile.  
+        * `INSTANCES` is the number of worker node instances to create for the node pool.  
+
+    For example:  
+
+    ```
+    tkgi create-cluster custom-node-pools -e test.tkgi.shep.api.com --compute-profile custom-node-pools-compute-profile -p "small" --node-pool-instances "tiny-1:3"
+
+    TKGI Version:             1.9.0-build.11  
+    Name:                     test  
+    K8s Version:              1.18.5  
+    Plan Name:                small  
+    UUID:                     <UUID of deployment>1  
+    Last Action:              CREATE  
+    Last Action State:        in progress  
+    Last Action Description:  Creating cluster  
+    Kubernetes Master Host:   test.tkgi.shep.api.com  
+    Kubernetes Master Port:   8443  
+    Worker Nodes:             4  
+    Kubernetes Master IP(s):  In Progress  
+    Network Profile Name:  
+    Kubernetes Profile Name:  
+    Compute Profile Name:     custom-node-pools-compute-profile  
+    Tags:  
+    ```
 
 <br>
 <br>
@@ -105,20 +115,26 @@ To assign a compute profile to an existing cluster, complete the following:
 <br>
 ### <a id="compute-profile-validation"></a> Compute Profile Update and Resize Validation
 
+The following are not supported when modifying an existing compute profile:  
+
+* Your modification cannot change a node pool's `name` property.  
+* Your modification cannot simultaneously add a new node pool and delete an existing node pool.  
+
 Before assigning a compute profile to an existing cluster:  
 
 1. Review the following strict validation rules for the `tkgi update-cluster --compute-profile` command:  
 
-    * You cannot use the compute profile to change Availability Zones of a cluster.  
-    * If any optional field is unspecified at the time of cluster creation or cluster update, then the value of that field is set to the value of the corresponding field from the plan.  
-    * Values passed to `--num-nodes` are ignored.  
-    * Values passed to `--node-pool-instances` must match the labels of the node pools specified in the compute profile.  
-    * Clusters created with a compute profile in <%= vars.k8s_runtime_abbr %> 1.8 and earlier 
-    cannot be updated with a compute profile in <%= vars.k8s_runtime_abbr %> v1.9 or later.  
+    * You cannot use a compute profile to change the Availability Zones of an existing cluster.  
+    * You cannot use a compute profile to change the number of control plane nodes for an existing cluster.  
+    * If an optional compute profile field is unspecified at the time of cluster update, 
+    the value of that field is set to the value of the corresponding field from the plan.  
+    * `tkgi update-cluster --compute-profile` ignores the `--num-nodes` argument.  
+    * Values passed to `--node-pool-instances` must match a `name` property of the node pools in the compute profile.  
+    * You cannot update a compute profile that was applied to a cluster in <%= vars.k8s_runtime_abbr %> 1.8 or earlier.  
     
 1. Review the following precautions and warnings:  
 
-    <p class="note warning"><strong>Warning:</strong> Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile or by using a compute profile. Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.</p>
+    <p class="note warning"><strong>Warning:</strong> Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile. Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.</p>
     
     <p class="note warning"><strong>Warning:</strong> If cluster update fails while applying a new compute profile with revised node pool names, 
     do not reapply the previous compute profile: the cluster's worker nodes will be deleted. 
@@ -153,10 +169,10 @@ in _Release Notes_ for additional requirements.
 
     * `CLUSTER-NAME` is the name of the existing Kubernetes cluster.  
     * `NEW-COMPUTE-PROFILE-NAME` is the name of the new compute profile you want to apply to the cluster.  
-    * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"`. 
-    Use `--node-pool-instances` to update the number of worker nodes in a node pool. 
-    `NODE-POOL-NAME` is the name of the node pool in the new compute profile to be updated. 
-    `INSTANCES` is the new number of worker nodes in a node pool.  
+    * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"` overrides a compute profile's configured node pool worker node instance count:  
+        - `NODE-POOL-NAME` is the name of the node pool to configure. 
+        The node pool name must match the `name` property of a node pool in the compute profile.  
+        - `INSTANCES` is the number of worker node instances to create for the node pool.  
 
     For example:  
 
@@ -168,6 +184,19 @@ in _Release Notes_ for additional requirements.
 	Are you sure you want to continue? (y/n): y  
 	Use 'tkgi cluster test' to monitor the state of your cluster  
     ```  
+    
+1. (Optional) To bypass compute profile validation, include the `--enforce-compute-profile-update` parameter in your `tkgi update-cluster` command line. <%= vars.recommended_by %> recommends that you always allow validation when updating clusters in production environments.  
+
+    For example:  
+
+	```bash 
+	tkgi update-cluster test --compute-profile bad-compute-profile  --enforce-compute-profile-update
+
+	Update summary for cluster test:  
+	Compute Profile Name: bad-compute-profile  
+	Are you sure you want to continue? (y/n): y  
+	Use 'tkgi cluster test' to monitor the state of your cluster  
+    ``` 
 
 <p class="note warning"><strong>WARNING</strong>: Updating a cluster with a compute profile is not supported on a <%= vars.k8s_runtime_abbr %> cluster that has not been upgraded to the current <%= vars.k8s_runtime_abbr %> version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a <%= vars.k8s_runtime_abbr %> Control Plane Upgrade</a> in <em>About <%= vars.product_short %> Upgrades</em>.
 </p>
