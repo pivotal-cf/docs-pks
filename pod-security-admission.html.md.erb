@@ -15,7 +15,7 @@ PSA is enabled in <%= vars.k8s_runtime_abbr %>, by default.
 For more information on PSA, see [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/) 
 in the Kubernetes documentation.  
 
-##<a id='psa-interaction'></a> Pod Security Admission and <%= vars.k8s_runtime_abbr %>
+##<a id='psa-interaction'></a> Pod Security Admission in a <%= vars.k8s_runtime_abbr %> Namespace
 
 **Note**: To control the PSA security permissions in a <%= vars.k8s_runtime_abbr %> namespace, you must have the privileges to create, update, or 
 patch the namespace. To ensure security of the system, restrict the namespace permissions to the trusted user accounts.
@@ -50,6 +50,72 @@ The following table describes the required PSA level for <%= vars.k8s_runtime_ab
 </table>
 
 For more information on implementing Pod Security Standards with namespace labels, see [Enforce Pod Security Standards with Namespace Labels](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-namespace-labels/) in the Kubernetes documentation.  
+
+##<a id='psa-cluster'></a> Pod Security Admission in a <%= vars.k8s_runtime_abbr %> Cluster
+
+You can configure cluster-specific PSA by using a Kubernetes profile.
+
+1. Create the `config-psa-custom` json file containing the following information:
+
+  ```
+  {
+    "name":"psa-cluster-file",
+    "description":"My profile description",
+    "customizations":[
+        {
+            "component":"kube-apiserver",
+            "file-arguments":{
+                "admission-control-config-file":"/home/kubo/config_files/psa-cluster.yaml"
+            }
+        }
+    ]
+  }
+  ```
+  
+1. Add the configurtion to the cluster:   
+
+  ```
+  kubectl apply -f config-psa-custom.json
+  ```
+
+1. Create the `psa-cluster` yaml file containing the following details:
+
+  ```
+  apiVersion: apiserver.config.k8s.io/v1
+  kind: AdmissionConfiguration
+  plugins:
+  - name: PodSecurity
+    configuration:
+      apiVersion: pod-security.admission.config.k8s.io/v1
+      kind: PodSecurityConfiguration
+      defaults:
+        enforce: LEVEL
+        enforce-version: "latest"
+        audit: LEVEL
+        audit-version: "latest"
+        warn: LEVEL
+        warn-version: "latest"
+      exemptions:
+        usernames: []
+        runtimeClasses: []
+        namespaces: [kube-system,pks-system,nsx-system,vmware-system-csi,CUSTOM-NAMESPACES]
+  ```
+  
+  Where: 
+  
+  - `LEVEL` is the enforce level accepted by Kubernetes, for example, `restricted` or `privileged`.
+  - `CUSTOM-NAMESPACES` is the <%= vars.k8s_runtime_abbr %> custom namespaces that you want to exclude.
+  
+1. Apply the configuration to the cluster:
+
+  ```
+  kubectl apply -f psa-cluster.yml
+  ```
+  
+  For more information about configuring and using Kubernetes Profiles with TKGI, see [Using Kubernetes Profiles](k8s-profiles.html).
+  
+  For more information about configuring cluster-level PSA, see [Enforce Pod Security Standards by Configuring the Built-in Admission Controller]
+  (https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller) in the Kubernetes documentation.
 
 ##<a id='psa-migration'></a> Migrate from PSP to PSA Controller
 
