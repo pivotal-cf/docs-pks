@@ -1844,6 +1844,27 @@ When the <%= vars.k8s_runtime_abbr %> CLI rotates VMware NSX certificates, it up
 and removes the server name indicator (SNI) certificate IDs on the LB Virtual Server. This causes a brief outage of HTTPS Ingress with customer-defined TLS.
 After the certificate rotation, NSX Container Plugin (NCP) restarts and resets the removed SNI.
 
+<hr> 
+
+#### <a id="1-16-0-cluster-deletion-incomplete"></a> Cluster Deletion Incomplete If an Error Occurs
+
+<% if vars.product_version == "COMMENTED"  %>
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.17.0](#1-17-0-bug-fixes).  
+<% end %>
+
+If an error occurs during cluster deletion, objects such as load balancers, NAT rules, and the cluster T1 logical router will not be deleted.  
+
+**Explanation**
+
+TKGI cluster deletion uses `pks-nsx-t-osb-proxy` to delete cluster objects. 
+If an error occurs while deleting one of the objects, the `pks-nsx-t-osb-proxy` halts and returns an error before deleting the remaining cluster objects.  
+
+For example, the following was logged by `pks-nsx-t-osb-proxy` before stopping for a `409` load balancer error:
+
+```
+{"timestamp":"1677164195.817412615","source":"pks-nsx-t-osb-proxy","message":"pks-nsx-t-osb-proxy.nsxt.delete NSX-T cluster network","log_level":2,"data":{"error":"delete network: delete lb virtual server: unknown error (status 409): {resp:0xc0004efe60} ","session":"3"}}
+ {"timestamp":"1677164198.642020464","source":"pks-nsx-t-osb-proxy","message":"pks-nsx-t-osb-proxy.nsxt.delete-cluster-network-end","log_level":1,"data":{"instance-id":"....","session":"3"}} 
+```
 <hr>
 
 
