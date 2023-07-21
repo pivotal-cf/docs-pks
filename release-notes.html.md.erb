@@ -1865,7 +1865,61 @@ For example, the following was logged by `pks-nsx-t-osb-proxy` before stopping f
 {"timestamp":"1677164195.817412615","source":"pks-nsx-t-osb-proxy","message":"pks-nsx-t-osb-proxy.nsxt.delete NSX-T cluster network","log_level":2,"data":{"error":"delete network: delete lb virtual server: unknown error (status 409): {resp:0xc0004efe60} ","session":"3"}}
  {"timestamp":"1677164198.642020464","source":"pks-nsx-t-osb-proxy","message":"pks-nsx-t-osb-proxy.nsxt.delete-cluster-network-end","log_level":1,"data":{"instance-id":"....","session":"3"}} 
 ```
+
 <hr>
+
+#### <a id="1-16-0-telegraf-metric-sink-crash"></a> Some Telegraf Metric-Sink Pods Crash After <%= vars.k8s_runtime_abbr %> Upgrade
+
+<% if vars.product_version == "COMMENTED"  %>
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.16.3](#1-16-3-bug-fixes).  
+<% end %>
+
+After upgrading to <%= vars.k8s_runtime_abbr %> v1.15.0 and later, some Telegraf metric-sink pods crash with this error:  
+
+```
+Events:
+  Type    Reason   Age                     From     Message
+  ----    ------   ----                    ----     -------
+  Normal  BackOff  4m18s (x547 over 129m)  kubelet  Back-off pulling image "cnabu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:1a3337bb81890b3ca0848b5dd456 
+
+```
+
+**Explanation**
+
+During the <%= vars.k8s_runtime_abbr %> upgrade, the metric-controller uses the Telegraf image in the previous <%= vars.k8s_runtime_abbr %> version to deploy 
+Telegraf in the new version. After upgrading <%= vars.k8s_runtime_abbr %> to version 1.15.x, the old telegraf image is deleted from 
+some worker nodes due to high disk utlization. The metric-controller is unable to deploy Telegraf on those nodes.  
+
+**Workaround**  
+
+Before you perform this procedure, ensure that you have collected the name and the namespace from your metricSink Custom Resource (CR).  
+
+To resolve this issue:  
+
+1. In the <%= vars.k8s_runtime_abbr %>, run the following command to find the new tag for Telegraf:  
+
+  ```
+  kubectl describe deployment observability-manager -n pks-system
+  ```
+  Note the tag that corresponds to the `Image` field under `observability-manager`. For example, `efcb96f78984d7731kl99hds564e`.
+  
+1. Run the following command to edit the Telegraf deployment details:  
+
+  ```
+  kubectl edit deployment telegraf-METRICSINK-NAME -n METRICSINK-NAMESPACE
+  ```
+  
+  Where:  
+  
+  - `METRICSINK-NAME` is the name of MetricSink that you collected from the metricSink CR.  
+  - `METRICSINK-NAMESPACE` is the namespace of MetricSink that you collected from the metricSink CR.  
+  
+1. In the `image: cnbu-docker-local.artifactory.eng.vmware.com/oratos/telegraf:` field, replace the existing tag with the tag that you 
+noted in Step 1.  
+
+1. Save the changes and exit the editor.  
+
+<hr> 
 
 
 <br>
