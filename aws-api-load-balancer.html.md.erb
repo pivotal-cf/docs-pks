@@ -1,0 +1,119 @@
+---
+title: Configuring an AWS Load Balancer for the TKGI API
+owner: TKGI
+---
+
+This topic describes how to create a load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) using Amazon Web Services (AWS).  
+
+## <a id='overview'></a>Overview
+
+A load balancer is a third-party device that distributes network and application traffic across resources.  
+
+You can use a load balancer to prevent individual network components from being overloaded by high traffic. 
+You can also use a load balancer to secure and facilitate access to a <%= vars.k8s_runtime_abbr %> cluster from outside the network.  
+
+You can use an AWS <%= vars.k8s_runtime_abbr %> cluster load balancer to secure and facilitate access to a <%= vars.product_short %> cluster from outside the network. 
+You can also [reconfigure](#reconfigure) your AWS <%= vars.product_short %> cluster load balancers.  
+
+Using an AWS <%= vars.k8s_runtime_abbr %> cluster load balancer is optional, but adding one to your Kubernetes cluster can make it easier to manage the cluster using the <%= vars.control_plane %> and `kubectl`.  
+
+For more information about the different types of load balancers used in a <%= vars.product_short %> deployment see [Load Balancers in <%= vars.k8s_runtime_abbr %>](./about-lb.html).  
+
+<p class="note"><strong>Note</strong>: If Kubernetes control plane node VMs are recreated for any reason, you must reconfigure your 
+AWS <%= vars.k8s_runtime_abbr %> cluster load balancers to point to the new control plane VMs.</p>
+
+##<a id="prereqs"></a> Prerequisite
+
+The version of the <%= vars.k8s_runtime_abbr %> CLI you are using must match the version of the <%= vars.product_tile %> tile that you are installing.
+
+<p class="note"><strong>Note</strong>: Modify the example commands in this procedure to match the details of your <%= vars.product_short %> installation.</p>
+
+##<a id="create"></a> Configure AWS Load Balancer
+
+### <a id='define-lb'></a>Step 1: Define Load Balancer
+
+To define your load balancer using AWS, you must provide a name, select a VPC, specify listeners, and select subnets where you want to create the load balancer.
+
+Perform the following steps:
+
+1. In a browser, navigate to the [AWS Management Console](https://console.aws.amazon.com/console/home).
+1. Under **Compute**, click **EC2**.
+1. In the **EC2 Dashboard**, under **Load Balancing**, click **Load Balancers**.
+1. Click **Create Load Balancer**.
+1. Under **Classic Load Balancer**, click **Create**.
+1. On the **Define Load Balancer** page, complete the **Basic Configuration** section as follows:
+1. **Load Balancer name**: Name the load balancer. 
+  1. **Create LB inside**: Select the VPC where you installed Ops Manager.
+  1. **Create an internal load balancer**: Do not enable this check box. The <%= vars.product_short %> API load balancer must be internet-facing.
+1. Complete the **Listeners Configuration** section as follows:
+  1. Configure the listener for UAA as follows:
+      * Under **Load Balancer Protocol**, select **TCP**.
+      * Under **Load Balancer Port**, enter `8443`.
+      * Under **Instance Protocol**, select **TCP**.
+      * Under **Instance Port**, enter `8443`.
+  1. Configure the listener for <%= vars.product_short %> API Server as follows:
+      * Under **Load Balancer Protocol**, select **TCP**.
+      * Under **Load Balancer Port**, enter `9021`.
+      * Under **Instance Protocol**, select **TCP**.
+      * Under **Instance Port**, enter `9021`.
+1. Under **Select Subnets**, select the public subnets for your load balancer in the availability zones where you want to create the load balancer.
+1. Click **Next: Assign Security Groups**.
+
+### <a id='assign-security-groups'></a>Step 2: Assign Security Groups
+
+Perform the following steps to assign security groups:
+
+1. On the **Assign Security Groups** page, select one of the following:
+  * **Create a new security group**: Complete the security group
+  configuration as follows:
+      1. **Security group name**: Name your security group.
+      1. Confirm that your security group includes **Protocol** `TCP` with
+      **Ports** `8443`.
+  * **Select an existing security group**: Select the default security group.
+  The default security group includes includes **Protocol** `TCP` with
+  **Ports** `8443`.
+
+1. Click **Next: Configure Security Settings**.
+
+### <a id='configure-security-settings'></a>Step 3: Configure Security Settings
+
+On the **Configure Security Settings** page, ignore the warning. SSL termination is done on the Kubernetes API.
+
+### <a id='configure-health-check'></a>Step 4: Configure Health Check
+
+Perform the following steps to configure the health check:
+
+1. On the **Configure Health Check** page, set the **Ping Protocol** to `TCP`.
+
+1. For **Ping Port**, enter `8443`.
+
+1. Click **Next: Add EC2 Instances**.
+
+### <a id='add-ec2-instances'></a>Step 5: Add EC2 Instances for the Load Balancer
+
+Perform the following steps to add EC2 Instances for the Load Balancer:
+
+1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Click the **<%= vars.product_tile %>** tile.
+1. Open the **Resource Config** pane.
+1. Select **<%= vars.control_plane %>**.
+1. Review **Load Balancers**.
+1. If **Load Balancers** does not include the load balancer to use for the <%= vars.control_plane %> VM:
+    1. Input the load balancer to use for <%= vars.control_plane %> VM.
+    1. Click **Apply Changes**.
+
+### <a id='add-tags'></a>(Optional) Step 6: Add Tags
+
+Perform the following steps to add tags:
+
+1. Add tags to your resources to help organize and identify them. Each tag consists of a case-sensitive key-value pair.
+
+1. Click **Review and Create**.
+
+### <a id='review-create'></a>Step 7: Review and Create the Load Balancer
+
+Perform the following steps to review your load balancer details and create your load balancer:
+
+1. On the **Review** page, review your load balancer details and edit any as necessary.
+
+1. Click **Create**.
