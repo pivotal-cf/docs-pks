@@ -1,0 +1,114 @@
+---
+title: Configuring an AWS Load Balancer for the TKGI API
+owner: TKGI
+---
+
+This topic describes how to create a load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) using Amazon Web Services (AWS). Refer to the procedures in this topic to create a load balancer by using AWS.  
+
+To configure a load balancer for a different environment, see:
+
+- [Creating a GCP Load Balancer for the TKGI API](#gcp-api-load-balancer.html)
+- [Configuring an Azure Load Balancer for the TKGI API](#azure-api-load-balancer.html)  
+
+## <a id='overview'></a>Overview
+
+<%= vars.recommended_by %> recommends that you create a <%= vars.control_plane %>
+load balancer when installing <%= vars.product_short %> on AWS.
+
+To configure your <%= vars.control_plane %> Load Balancer on AWS, complete the following:
+
+* [Define Load Balancer](#define-lb)
+* [Assign Security Groups](#assign-security-groups)
+* [Configure Health Check](#configure-health-check)
+* [Add EC2 Instances for the Load Balancer](#add-ec2-instances)
+* [(Optional) Add Tags](#add-tags)
+* [Review and Create the Load Balancer](#review-create)
+
+### <a id='define-lb'></a>Define Load Balancer
+
+To define your load balancer using AWS, you must provide a name, select a VPC, specify listeners, and select subnets where you want to create the load balancer.
+
+Perform the following steps:
+
+1. In a browser, navigate to the [AWS Management Console](https://console.aws.amazon.com/console/home).
+1. Under **Compute**, click **EC2**.
+1. In the **EC2 Dashboard**, under **Load Balancing**, click **Load Balancers**.
+1. Click **Create Load Balancer**.
+1. Under **Classic Load Balancer**, click **Create**.
+1. On the **Define Load Balancer** page, complete the **Basic Configuration** section as follows:
+1. **Load Balancer name**: Name the load balancer. <%= vars.recommended_by %> recommends naming your load balancer `tkgi-api`.
+  1. **Create LB inside**: Select the VPC where you installed Ops Manager.
+  1. **Create an internal load balancer**: Do not activate this check box. The <%= vars.product_short %> API load balancer must be internet-facing.
+1. Complete the **Listeners Configuration** section as follows:
+  1. Configure the listener for UAA as follows:
+      * Under **Load Balancer Protocol**, select **TCP**.
+      * Under **Load Balancer Port**, enter `8443`.
+      * Under **Instance Protocol**, select **TCP**.
+      * Under **Instance Port**, enter `8443`.
+  1. Configure the listener for <%= vars.product_short %> API Server as follows:
+      * Under **Load Balancer Protocol**, select **TCP**.
+      * Under **Load Balancer Port**, enter `9021`.
+      * Under **Instance Protocol**, select **TCP**.
+      * Under **Instance Port**, enter `9021`.
+1. Under **Select Subnets**, select the public subnets for your load balancer in the availability zones where you want to create the load balancer.
+
+### <a id='assign-security-groups'></a>Create and Assign Security Groups
+
+Perform the following steps to create and assign security groups:
+
+1. On the **Security Groups** page, click **Create a new security group**, and add the inbound and outbound rules.
+  -  Under the **Inbound rules** section, add the inbound rules:
+    - First inbound rule:
+      - Type: Custom TCP
+      - Protocol: TCP
+      - Port range: 8443
+      - Source: Anywhere-IPv4
+    - Second inbound rule:
+      - Type: Custom TCP
+      - Protocol: TCP
+      - Port range: 9021
+      - Source: Anywhere-IPv4
+  -  Under the **Outbound rules** section, add the outbound rule:
+    - Type: All traffic
+    - Protocol: All
+    - Port range: All
+    - Destination: Anywhere-IPv4
+    
+### <a id='configure-health-check'></a>Configure Health Check
+    
+Perform the following steps to configure the health check:
+    
+1. On the **Health Check** page: 
+  1. Select `TCP` in the **Ping Protocol** field.
+  1. Enter `9021` in the **Ping Port** field.
+
+### <a id='add-ec2-instances'></a>Add EC2 Instances for the Load Balancer
+
+Perform the following steps to add EC2 Instances for the Load Balancer:
+
+1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Click the **<%= vars.product_tile %>** tile.
+1. Open the **Resource Config** pane.
+1. Select **<%= vars.control_plane %>**.
+1. Review **Load Balancers**.
+1. If **Load Balancers** does not include the load balancer to use for the <%= vars.control_plane %> VM:
+    1. Input the load balancer to use for <%= vars.control_plane %> VM.
+    1. Click **Apply Changes**.
+
+### <a id='add-tags'></a>(Optional) Add Tags
+
+Perform the following steps to add tags to your resources to help organize and identify them:
+
+1. On the **Create Load Balancer** page in the AWS Console, enter the key-value pair to tag the load balancer.
+
+    <p class="note warning"><strong>NOTE</strong>: The key-value pair is case-sensitive.</p>  
+
+1. Click **Create load balancer**.
+
+### <a id='review-create'></a>Review and Create the Load Balancer
+
+Perform the following steps to review your load balancer details and create your load balancer:
+
+1. On the **Summary** page, review your load balancer details and edit any as necessary.
+
+1. Click **Create**.
