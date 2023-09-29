@@ -309,6 +309,616 @@ Interoperability with VMware Aria Operations Management Pack for Kubernetes is t
 VMware Aria Operations Management Pack for Kubernetes is currently not compatible with <%= vars.k8s_runtime_abbr %> <%= vars.product_version %>. 
 Interoperability between VMware Aria Operations Management Pack for Kubernetes and <%= vars.k8s_runtime_abbr %> <%= vars.product_version %> is expected at a later time.  
 
+#### <a id="1-18-0-renamed-ops-man"></a> TKGI MC Unable to Manage TKGI after Restoring the TKGI Control Plane from Backup
+
+**Symptom**
+
+After you restore Ops Manager and the <%= vars.control_plane %> VM from backup,
+<%= vars.k8s_runtime_abbr %> functions normally, but your <%= vars.k8s_runtime_abbr %> MC tabs
+include the following error: "...product 'pivotal-container service' is not deployed...".
+
+**Explanation**
+
+<%= vars.k8s_runtime_abbr %> MC is associated with an Ops Manager with a specific name.
+If you rename Ops Manager with a new name while restoring, your <%= vars.k8s_runtime_abbr %> MC
+will not recognize the restored Ops Manager and cannot manage it.
+
+<hr>
+
+#### <a id="1-18-0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
+
+**Symptom**
+
+After clicking **Apply Changes** on the <%= vars.k8s_runtime_abbr %> tile in an Azure environment,
+you experience an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
+
+* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_
+* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
+
+For example:
+
+```
+INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
+2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
+HTTP/1.1 500 Internal Server Error
+Transfer-Encoding: chunked
+Cache-Control: no-cache, no-store
+Connection: keep-alive
+Content-Type: application/json; charset=utf-8
+Date: Mon, 21 Sep 2020 17:51:50 GMT
+Expires: Fri, 01 Jan 1990 00:00:00 GMT
+Pragma: no-cache
+Referrer-Policy: strict-origin-when-cross-origin
+Server: Ops Manager
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-Request-Id: f5fc99c1-21a7-45c3-7f39
+X-Runtime: 9.905591
+X-Xss-Protection: 1; mode=block
+
+44
+{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
+0
+```
+
+**Explanation**
+
+The Azure CPI endpoint used by Ops Manager has been changed and
+your installed version of Ops Manager is not compatible with the new endpoint.
+
+**Workaround**
+
+Run the following Ops Manager CLI command:
+
+```
+om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
+```
+
+Where:
+
+* `USERNAME` is the account to use to run Ops Manager API commands.
+* `PASSWORD` is the password for the account.
+* `OPSMAN-API` is the IP address for the Ops Manager API
+
+For more information, see
+[Error 'undefined method location' is received when running Apply Change on Azure](https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US) in the VMware Tanzu Knowledge Base.
+
+<hr>
+
+#### <a id="1-18-0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
+
+VMware vRealize Operations (vROPs) does not support Windows worker-based Kubernetes clusters and
+cannot be used to manage <%= vars.k8s_runtime_abbr %>-provisioned Windows workers.
+
+<hr>
+
+#### <a id="1-18-0-wavefront-no-win"></a><%= vars.k8s_runtime_abbr %> Wavefront Requires Manual Installation for Windows Workers
+
+To monitor Windows-based worker node clusters with a Wavefront collector and proxy, you must first install Wavefront on the clusters manually, using Helm.
+For instructions, see the [Wavefront](windows-monitoring.html#wavefront) section of the
+_Monitoring Windows Worker Clusters and Nodes_ topic.
+
+<hr>
+#### <a id="1-18-0-ping"></a>Pinging Windows Worker Kubernetes Clusters Does Not Work
+
+<%= vars.k8s_runtime_abbr %>-provisioned Windows worker-based Kubernetes clusters inherit a Kubernetes limitation that prevents outbound ICMP communication from workers.
+As a result, pinging Windows workers does not work.
+
+For information about this limitation, see [Limitations > Networking](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#networking-1) in the _Windows in Kubernetes_ documentation.
+
+<hr>
+
+#### <a id="1-18-0-windows-velero-limitations"></a> Velero Does Not Support Backing Up Stateful Windows Workloads
+
+You can use Velero to back up stateless <%= vars.k8s_runtime_abbr %>-provisioned Windows workers only.
+You cannot use Velero to back up stateful Windows applications.
+For more information, see [Velero on Windows](https://velero.io/docs/v1.6/basic-install/#velero-on-windows) in
+_Basic Install_ in the Velero documentation.
+
+<hr>
+
+#### <a id="1-18-0-tmc-on-gcp"></a>Tanzu Mission Control Integration Not Supported on GCP
+
+<%= vars.k8s_runtime_abbr %> on Google Cloud Platform (GCP) does not support
+Tanzu Mission Control (TMC) integration, which is configured in
+the **<%= vars.product_tile %>** tile > the **Tanzu Mission Control** pane.
+
+If you intend to run <%= vars.k8s_runtime_abbr %> on GCP,
+skip this pane when configuring the <%= vars.product_tile %> tile.
+
+<hr>
+
+#### <a id="1-18-0-tmc-restic"></a>TMC Data Protection Feature Requires Privileged <%= vars.k8s_runtime_abbr %> Containers
+
+TMC Data Protection feature supports privileged <%= vars.k8s_runtime_abbr %> containers only.
+For more information, see [Plans](installing-vsphere.html#plans) in the _Installing TKGI_ topic for your IaaS.
+
+<hr>
+
+#### <a id="1-18-0-profile-no-win-gmsa"></a>Windows Worker Kubernetes Clusters with Group Managed Service Account Do Not Support Compute Profiles
+
+Windows worker-based Kubernetes clusters integrated with group Managed Service Account (gMSA) cannot be managed using compute profiles.
+
+<hr>
+
+#### <a id="1-18-0-profile-no-win-flannel"></a> Windows Worker Kubernetes Clusters on Flannel Do Not Support Compute Profiles
+
+On vSphere with NSX-T networking you can use compute profiles with both Linux and Windows worker&#8209;based Kubernetes clusters.
+On vSphere with Flannel networking, you can apply compute profiles only to Linux clusters.
+
+<hr>
+
+#### <a id="1-18-0-profile-resize-down"></a>TKGI CLI Does Not Prevent Reducing the Control Plane Node Count
+
+TKGI CLI does not prevent accidentally reducing a cluster's control plane node count using a compute profile.
+
+<p class="note warning"><strong>Warning:</strong>
+    Reducing a cluster's control plane node count can destroy the cluster.
+    Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile or by using a compute profile.
+    Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.
+</p>
+
+<hr>
+
+#### <a id="1-18-0-in-windows-notready-nodes"></a> Windows Cluster Nodes Not Deleted After VM Deleted
+
+**Symptom**
+
+After you delete a VM using the management console of your infrastructure provider, you notice a Windows worker node
+that had been on that VM is now in a `notReady` state.
+
+**Solution**
+
+1. To identify the leftover node:
+
+    ```
+    kubectl get no -o wide
+    ```
+1. Locate nodes on the returned list that are in a `notReady` state and have the same IP address as another node in the list.
+1. To manually delete a `notReady` node:
+
+    ```
+    kubectl delete node NODE-NAME
+    ```
+    Where `NODE-NAME` is the name of the node in the `notReady` state.
+
+<hr>
+
+#### <a id="1-18-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login
+
+**Symptom**
+
+You experience a "502 Bad Gateway" error from the NSX load balancer after you log in to OIDC.
+
+**Explanation**
+
+A large response header has exceeded your NSX-T load balancer maximum
+response header size. The default maximum response header size is 10,240 characters and should
+be resized to 50,000.
+
+**Workaround**
+
+If you experience this issue, manually reconfigure your NSX-T `request_header_size`
+and `response_header_size` to 50,000 characters.
+For information about configuring NSX-T default header sizes,
+see [OIDC Response Header Overflow](https://community.pivotal.io/s/article/OIDC-Response-Header-overflow) in the Knowledge Base.
+
+<hr>
+
+#### <a id="1-18-0-windows-proxy"></a> Difficulty Changing Proxy for Windows Workers
+
+You must configure a global proxy in the <%= vars.product_tile %> tile > **Networking** pane before you create any Windows workers that use the proxy.
+
+You cannot change the proxy configuration for Windows workers in an existing cluster.
+
+<hr>
+
+#### <a id="1-18-0-http-proxy-password"></a> Character Limitations in HTTP Proxy Password
+
+For vSphere with NSX-T, the HTTP Proxy password field does not support the following special characters: `&` or `;`.
+
+<hr>
+
+#### <a id="1-18-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
+
+**Symptom**
+
+You receive the following error after modifying your existing Harbor installation's storage configuration:
+
+```
+Error response from daemon: manifest for ... not found: manifest unknown: manifest unknown
+```
+
+**Explanation**
+
+Harbor does not support modifying an existing Harbor installation's storage configuration.
+
+**Workaround**
+
+To modify your Harbor storage configuration,
+re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
+
+<hr>
+
+#### <a id="1-18-0-resizing-worker-nodes"></a> Ingress Controller Statefulset Fails to Start After Resizing Worker Nodes
+
+**Symptom**
+
+Permissions are removed from your cluster's files and processes after resizing the persistent disk
+during a cluster upgrade. The ingress controller statefulset fails to start.
+
+**Explanation**
+
+When resizing a persistent disk, Bosh migrates the data from the old disk to the new disk but
+does not copy the files' extended attributes.
+
+**Workaround**
+
+To resolve the problem, complete the steps in
+[Ingress controller statefulset fails to start after resize of worker nodes with permission denied]
+(https://community.pivotal.io/s/article/5000e00001nCJxT1603094435795?language=en_US)
+in the VMware Tanzu Knowledge Base.
+
+<hr>
+
+#### <a id="1-18-0-security-group"></a>Azure Default Security Group Is Not Automatically Assigned to Cluster VMs
+
+**Symptom**
+
+You experience issues when configuring a load balancer for a multi-control plane node Kubernetes cluster or creating a service of type `LoadBalancer`.
+Additionally, in the Azure portal, the **VM** > **Networking** page does not display
+any inbound and outbound traffic rules for your cluster VMs.
+
+**Explanation**
+
+As part of configuring the <%= vars.product_tile %> tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
+When you create a Kubernetes cluster, <%= vars.product_short %> automatically assigns this security group to each VM in the cluster.
+However, on Azure the automatic assignment might not occur.
+
+As a result, your inbound and outbound traffic rules defined in the security group are not applied to the cluster VMs.
+
+**Workaround**
+
+If you experience this issue, manually assign the default security group to each VM NIC in your cluster.
+
+<hr>
+
+#### <a id="1-18-0-uuid-length"></a> One Plan ID Longer than Other Plan IDs
+
+**Symptom**
+
+One of your plan IDs is one character longer than your other plan IDs.
+
+**Explanation**
+
+In <%= vars.k8s_runtime_abbr %>, each plan has a unique plan ID.
+A plan ID is normally a UUID consisting of 32 alphanumeric characters and 4 hyphens.
+However, the **Plan 4** ID consists of 33 alphanumeric characters and 4 hyphens.
+
+**Solution**
+
+You can safely configure and use **Plan 4**.
+The length of the **Plan 4** ID does not affect the functionality of **Plan 4** clusters.
+
+If you require all plan IDs to have identical length, do not activate or use **Plan 4**.
+
+<hr>
+
+#### <a id="1-18-0-db-down-after-vm-stopped"></a> Database Cluster Stops After a Database Instance is Stopped
+
+**Symptom**
+
+After you stop one instance in a multiple-instance database cluster, the cluster stops,
+or communication between the remaining databases times out, and the entire cluster becomes unreachable.
+
+The following might be in your UAA log:
+
+```
+WSREP has not yet prepared node for application use
+```
+
+**Explanation**
+
+The database cluster is unable to recover automatically because a member is no longer available to reconcile quorum.
+
+<hr>
+
+#### <a id="1-18-0-velero-vsphere-pvs"></a> Velero Back Up Fails for vSphere PVs Attached to Clusters on Kubernetes v1.20 and Later
+
+**Symptom**
+
+Backing up vSphere persistent volumes using Velero fails and your Velero backup log includes the following error:
+
+```
+rpc error: code = Unknown desc = Failed during IsObjectBlocked check: Could not translate selfLink to CRD name
+```
+
+**Explanation**
+
+This is a known issue when backing up clusters on Kubernetes v1.20 and later using the
+Velero Plugin for vSphere v1.1.0 or earlier.
+
+**Workaround**
+
+To resolve the problem, complete the steps in
+[Velero backups of vSphere persistent volumes fail on Kubernetes clusters version 1.20 or higher (83314)](https://kb.vmware.com/s/article/83314)
+in the VMware Tanzu Knowledge Base.
+
+<hr>
+
+#### <a id="1-18-0-creating-two-windows-clusters-fails"></a> Creating Two Windows Clusters at the Same Time Fails
+
+**Symptom**
+
+The first time that you try to create two Windows clusters at the same time, the creation of one of
+the clusters fails. If you run `pks cluster CLUSTER-NAME` to examine the last action taken on the
+cluster, you see the following:
+
+<pre class="terminal">
+Last Action: Create
+Last Action State: failed
+Last Action Description: Instance provisioning failed: There was a problem completing your request.
+. . .
+operation: create, error-message: Failed to acquire lock
+. . .
+locking task id is 111, description: 'create deployment'
+</pre>
+
+**Explanation**
+
+This is a known issue that occurs the first time that you create two Windows clusters concurrently.
+
+**Workaround**
+
+Recreate the failed cluster. This issue only occurs the first time that you create two Windows
+clusters concurrently.
+
+
+<hr>
+
+#### <a id="1-18-0-delete-cluster-not-stopped"></a> Deleted Clusters are Listed in Cluster Lists
+
+**Symptom**
+
+After running `tkgi delete-cluster` and cluster deletion has completed,
+the deleted cluster continues to be listed when running `tkgi clusters`.
+
+**Workaround**
+
+You must manually remove the deleted cluster using a customized version of the ncp_cleanup script.
+For more information, see
+[Deleting a Tanzu Kubernetes Grid Integrated Edition cluster with "tkgi delete-cluster" stuck "in progress" status](https://community.pivotal.io/s/article/pks-delete-cluster-in-progress-after-the-cluster-has-been-deleted?language=en_US)
+in the VMware Tanzu Knowledge Base.
+
+<hr>
+
+#### <a id="1-18-0-errors-after-reinstall"></a> BOSH Director Logs the Error 'Duplicate vm extension name'
+
+**Symptom**
+
+After you uninstall <%= vars.k8s_runtime_abbr %>, then reinstall <%= vars.k8s_runtime_abbr %> in the same environment,
+BOSH Director logs errors similar to the following:
+
+```
+.../gems/bosh-director-0.0.0/lib/bosh/director/deployment_plan/cloud_manifest_parser.rb:120:in `parse_vm_extensions': Duplicate vm extension name 'disk_enable_uuid' (Bosh::Director::DeploymentDuplicateVmExtensionName)
+```
+
+**Explanation**
+
+The `pivotal-container-service` cloud-config was not removed when you uninstalled the <%= vars.k8s_runtime_abbr %> tile,
+and it remained active.
+When you reinstalled the <%= vars.k8s_runtime_abbr %> tile, an additional `pivotal-container-service` cloud-config was created,
+causing the metrics_server to fall into a crash-loop state.
+
+**Workaround**
+
+You must manually remove the `pivotal-container-service` cloud-config after removing your <%= vars.k8s_runtime_abbr %> deployment,
+including after removing the <%= vars.k8s_runtime_abbr %> tile from Ops Manager.
+
+For more information, see ["Duplicate vm extension name" error when metrics_server runs on Director VM in Tanzu Kubernetes Grid Integrated Edition](https://community.pivotal.io/s/article/5000e00001oHXvP1631027033087?language=en_US)
+in the VMware Tanzu Community Knowledge Base.
+
+<hr>
+
+#### <a id="1-18-0-whitespace-pksapi"></a> The <%= vars.control_plane %> FQDN Must Not Include Trailing Whitespace
+
+**Symptom**
+
+Your <%= vars.k8s_runtime_abbr %> logs include the following error:
+
+```
+'uaa'. Errors are:- Error filling in template 'uaa.yml.erb' (line 59: Client redirect-uri is invalid: uaa.clients.pks_cli.redirect-uri Client redirect-uri is invalid: uaa.clients.pks_cluster_client.redirect-uri)
+```
+
+**Explanation**
+
+The <%= vars.control_plane %> fully-qualified domain name (FQDN) for your cluster contains leading or trailing whitespace.
+
+**Workaround**
+
+Do not include whitespace in the <%= vars.k8s_runtime_abbr %> tile **API Hostname (FQDN)** field.
+
+<hr>
+
+#### <a id="1-18-0-cannot-backup-with-tmc"></a> TMC Cluster Data Protection Backup Fails After Upgrading <%= vars.k8s_runtime_abbr %>
+
+The TMC Cluster Data Protection Backup fails in <%= vars.k8s_runtime_abbr %> environments upgraded from an earlier version.
+
+**Symptom**
+
+The TMC Cluster Data Protection Backup fails to back up your existing clusters and logs the following error:
+
+```
+error executing custom action (groupResource=customresourcedefinitions.apiextensions.k8s.io, namespace=, name=ncpconfigs.nsx.vmware.com): rpc error: code = Unknown desc = error fetching v1beta1 version of ncpconfigs.nsx.vmware.com: the server could not find the requested resource
+```
+
+**Explanation**
+
+Kubernetes v1.22 disallows the `spec.preserveUnknownFields: true` configuration in your existing clusters and the creation of a v1 CustomResourceDefinitions configuration fails.
+
+<hr>
+
+#### <a id="1-18-0-cannot-restore-with-tmc"></a> TMC Cluster Data Protection Restore Fails When Using Antrea CNI
+
+The TMC Cluster Data Protection Restore operation can fail when restoring multiple Antea resources.
+
+**Symptom**
+
+The TMC Cluster Data Protection Restore fails and logs errors that requests to restore the `admission webhook` have been denied.
+
+**Explanation**
+
+Velero has encountered a race condition while operating a resource.
+For more information, see
+[Allow customizing restore order for Kubernetes controllers and their managed resources](https://github.com/vmware-tanzu/velero/issues/4045)
+in the Velero GitHub repository.
+
+<hr>
+
+#### <a id="1-18-0-cvds-with-nvds"></a> <%= vars.k8s_runtime_abbr %> Does Not Support CVDS / NVDS Mixed Environments
+
+<%= vars.k8s_runtime_abbr %> does not support environments where there are multiple matching networks, such as a mixed CVDS/NVDS environment.
+
+**Symptom**
+
+<%= vars.k8s_runtime_abbr %> logs errors similar to the following in an environment with multiple matching networks:
+
+```
+LastOperationstatus='failed', description='Instance provisioning failed:
+There was a problem completing your request. Please contact your operations team providing the following information:
+service: p.pks, service-instance-guid: ..., broker-request-id: ..., task-id: ..., operation: create,
+error-message: Unknown CPI error 'Unknown' with message 'undefined method `mob' for <VimSdk::Vim::OpaqueNetwork:' in create_vm' CPI method
+```
+
+**Explanation**
+
+<%= vars.k8s_runtime_abbr %> cannot identify which of the matching networks you intend to use and has selected the wrong network.
+
+<hr>
+
+#### <a id="1-18-0-ovsdb-server-failure"></a> Occasionally update-cluster Does Not Complete for Windows Workers
+
+Occasionally, `tkgi update-cluster` hangs while updating a Windows worker node instance and the BOSH task cannot finish and exits.
+
+**Symptom**
+
+The `ovsdb-server` service has stopped but other processes report that it is running.
+
+**Explanation**
+
+The `ovsdb-server.pid` file uses the pid for a process that is not the ovsdb-server.
+
+To confirm that this is the root cause for `tkgi update-cluster` to hang:
+
+* To verify the `ovsdb-server` service has actually stopped, run the PowerShell `Get-services` command on the Windows worker node.
+* To verify that other processes report the `ovsdb-server` service is still running:
+<br>
+    1. Review the ovsdb-server `job-service-wrapper.err.log` log file.
+<br>
+        The `job-service-wrapper.err.log` log file is located at:
+
+        ```
+        C:\var\vcap\sys\log\openvswitch-windows\ovsdb-server\job-service-wrapper.err.log
+        ```
+    1. Confirm that after the flushing processes, the log includes an error similar to the following:
+
+        ```
+        Pid-Guard : ovsdb-server is already runing, please stop it first
+        At C:\var\vcap\jobs\openvswitch-windows\bin\ovsdb-server_ctl.ps1:30 char:5
+        +     Pid-Guard $PIDFILE "ovsdb-server"
+        +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            + CategoryInfo          : NotSpecified: ( [Write-Error], WriteErrorException
+            + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Pid-Guard
+        ```
+* To verify the root cause:
+<br>
+    1. Run the following PowerShell commands on the Windows worker node:
+
+        ```
+        $RUN_DIR = "C:\var\vcap\sys\run\openvswitch-windows"
+        $PIDFILE = "$RUN_DIR\ovsdb-server.pid"
+        $pid1 = Get-Content $PidFile -First 1
+        echo $pid1
+        $rst = Get-Process -Id $pid1 -ErrorAction SilentlyContinue
+        echo $rst
+        ```
+    1. Confirm the returned `ProcessName` is not `ovsdb-server`.
+
+**Workaround**
+
+To resolve this issue for a single Windows worker:
+
+1. SSH to the affected worker node.
+1. Run the following:
+
+    ```
+    rm C:\var\vcap\sys\run\openvswitch-windows\ovsdb-server.pid
+    ```
+1. Wait for the `ovsdb-server` process to start.
+1. Confirm the dependent services also start.
+
+
+<hr>
+
+#### <a id="1-18-0-harbor-241"></a> Harbor Private Projects Are Inaccessible after Upgrading to <%= vars.k8s_runtime_abbr %> v1.13.0
+
+If LDAP is enabled, Harbor private projects are inaccessible after upgrading to <%= vars.k8s_runtime_abbr %> v1.13.0.
+For more information, see [Private projects become inaccessible after upgrading Harbor for TKGI to v2.4.x with LDAP feature enabled](https://community.pivotal.io/s/article/After-upgrading-Harbor-tile-to-v2-4-x-with-LDAP-feature-enabled-private-projects-turn-unaccessible?language=en_US)
+in the VMware Tanzu Knowledge Base.
+
+<hr>
+
+#### <a id="1-18-0-stemcell-tar-support"></a> Deployments Fail on <%= vars.k8s_runtime_abbr %> Windows Worker-based Kubernetes Clusters after the January 2022 Microsoft Windows Security Patch
+
+Microsoft changed Microsoft Windows' support for tar file commands in the January 2022 Microsoft Windows security patch.
+
+Packaging scripts that use tar commands for Windows worker-based Kubernetes Cluster deployments
+can fail after the Microsoft tar command patch update has been applied.
+
+The BOSH agent used by vSphere stemcells built by stembuild v2019.43 and earlier use tar commands that are no longer supported
+and will fail if the Microsoft Windows security patch has been applied.
+
+
+**Workaround**
+
+stembuild v2019.44 and later include a version of the BOSH agent that does not use unsupported tar commands.
+
+If you use vSphere stemcells, use stembuild 2019.44 or later to avoid the BOSH agent tar error.
+
+
+<hr>
+
+
+#### <a id="1-18-0-nsx-upgrade-w-policy-resources"></a> <%= vars.k8s_runtime_abbr %> Clusters Fail after NSX Upgrade If They Use NSGroup Policy API Resources
+
+<%= vars.k8s_runtime_abbr %> supports clusters that use NSGroup Policy API resources, but Policy API NSGroups created in one NSX version will be empty after upgrading NSX to a newer version.  
+
+**Workaround**  
+
+BOSH reconfigures a deployment's NSGroup members if the deployment is redeployed.  
+
+After upgrading NSX, redeploy affected deployments to reconfigure their NSGroup members:  
+
+1. Re-**Apply Changes** on the Ops Manager UI to redeploy <%= vars.k8s_runtime_abbr %> tile deployments.  
+1. Re-deploy the affected cluster deployments.  
+
+<hr>
+
+
+#### <a id="1-18-0-antrea-engress"></a> <%= vars.k8s_runtime_abbr %> Does Not Support the Antrea Egress Feature on AWS
+
+<% if vars.product_version == "COMMENTED"  %>
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.1](#1-18-1-bug-fixes).  
+<% end %>
+
+In AWS environments, <%= vars.k8s_runtime_abbr %> does not support the Antrea CNI `Egress` feature. 
+For example, the `Egress` resource `egressIP` and `externalIPPool` fields in an `antrea-config` configuration are ignored on AWS. 
+For more information about the Antra `Egress` feature, see [What is Egress](https://antrea.io/docs/v1.13.0/docs/egress/#what-is-egress) 
+in the Antrea documentation.  
+
 <hr>
 
 
@@ -404,1461 +1014,7 @@ in _Deploy <%= vars.product_short %> by Using the Configuration Wizard_.
 
 <hr>
 
-
-
-
-<br>
-## <a id="1-17-1"></a><%= vars.k8s_runtime_abbr %> <%= vars.product_version %>.1
-
-<br>
-**Release Date**: September 14, 2023
-
-<br>
-### <a id="1-17-1-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
-
-<table class="nice">
-    <tr>
-        <th colspan=3><h4>Release Details</h4></th>
-    </tr>
-    <tr>
-        <td>Version</td>
-        <td colspan=2><a href="https://network.pivotal.io/products/pivotal-container-service#/releases/1366468" target="_blank">v1.17.1</a></td>
-    </tr>
-    <tr>
-        <td>Release date</td>
-        <td colspan=2>September 14, 2023</td>
-    </tr>
-    <tr>
-        <th colspan=3><h4>Internal Component Versions</h4></th>
-    </tr>
-    <tr>
-        <td>Antrea</td>
-        <td>v1.7.0</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Container-Networking-with-Antrea/1.7.0/rn/vmware-container-networking-with-antrea-170-release-notes/index.html" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>cAdvisor</td>
-        <td colspan=2>v0.39.1</td>
-    </tr>
-    <tr>
-        <td>Containerd</td>
-        <td colspan=2>Linux: v1.6.18<br>Windows: v1.6.18</td>
-    </tr>
-    <tr>
-        <td>CoreDNS</td>
-        <td colspan=2>v1.9.3+vmware.16&#42;</td>
-    </tr>
-    <tr>
-        <td>CSI Driver for vSphere</td>
-        <td>v3.0.2</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/3.0/rn/vmware-vsphere-container-storage-plugin-30-release-notes/index.html" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>etcd</td>
-        <td colspan=2>v3.5.9</td>
-    </tr>
-    <tr>
-        <td>Harbor</td>
-        <td><a href="https://network.pivotal.io/products/harbor-container-registry/#/releases/1317228" target="_blank">v2.8.2</a></td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-release-notes.html#v282-0" target="_blank">Release Notes</a></td> 
-    </tr>
-    <tr>
-        <td>Kubernetes</td>
-        <td>v1.26.8&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.26.md#changelog-since-v1267" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Metrics Server</td>
-        <td colspan=2>v0.6.4&#42;</td>
-    </tr>
-    <tr>
-        <td>NCP</td>
-        <td>v4.1.1.1&#42;</td>
-        <td style="text-align: center;">
-        <a href="https://docs.vmware.com/en/VMware-NSX-Container-Plugin/4.1.1/rn/vmware-nsx-container-plugin-411-release-notes/index.html" target="_blank">Release Notes</a>
-        </td>
-    </tr>
-    <tr>
-        <td>Percona XtraDB Cluster (PXC)
-        <br>(in BOSH&nbsp;pxc-release)</td>
-        <td>v8.0.31-23
-        <br>pxc-release: v1.0.8</td>
-        <td style="text-align: center;">Release Notes:
-        <br><a href="https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/8.0.31-23.html">PXC</a>
-        <br><a href="https://github.com/cloudfoundry/pxc-release/releases/tag/v1.0.8">pxc-release</a>
-        </td>
-    </tr>
-    <tr>
-        <td>UAA</td>
-        <td colspan=2>v74.5.85&#42;</td>
-    </tr>
-    <tr>
-        <td>Velero</td>
-        <td><a href="https://customerconnect.vmware.com/downloads/get-download?downloadGroup=<%= vars.velero_version_vcc_link %>" target="_blank"><%= vars.velero_version %></a></td>
-        <td style="text-align: center;"><a href="https://github.com/vmware-tanzu/velero/releases/tag/<%= vars.velero_version %>" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Wavefront</td>
-        <td colspan=2>Wavefront Collector: v1.13.0<br>Wavefront Proxy: v12.4</td>
-    </tr>
-    <tr>
-        <th colspan=3><h4>Stemcell Compatibility</h4></th>
-    </tr>
-    <tr>
-        <td>Ubuntu Jammy stemcells</td>
-        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service#/releases/1366468" target="_blank"><%= vars.product_network %></a>.</td>
-    </tr>
-    <tr>
-        <td>Windows stemcells</td>
-        <td colspan=2>v2019.61 or later</td>
-    </tr>
-    <tr>
-        <th colspan=3><h4>Interoperability</h4></th>
-    </tr>
-    <tr>
-        <td>Ops Manager</td>
-        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service#/releases/1366468" target="_blank"><%= vars.product_network %></a>.</td>
-    </tr>
-    <tr>
-        <td>VMware Aria Operations Management Pack for Kubernetes</td>
-        <td>v2.0</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Aria-Operations-for-Integrations/services/rn/vmware-aria-operations-for-integrations-release-notes/index.html#August%2010,%202023" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>VMware Cloud Foundation (VCF)</td>
-        <td>v5.0&#42;&#42;, v4.5.2&#42;&#42;</td>
-        <td style="text-align: center;">Release Notes: 
-            <a href="https://docs.vmware.com/en/VMware-Cloud-Foundation/5.0/rn/vmware-cloud-foundation-50-release-notes/index.html" target="_blank">v5.0</a>, 
-            <a href="https://docs.vmware.com/en/VMware-Cloud-Foundation/4.5.2/rn/vmware-cloud-foundation-452-release-notes/index.html" target="_blank">v4.5.2</a>
-        </td>
-    </tr>
-    <tr>
-        <td>VMware NSX</td>
-        <td rowspan=2 colspan=2>See <a href="https://interopmatrix.vmware.com/Interoperability?col=644&row=0," target="_blank">VMware Product Interoperability Matrices</a>&#42;&#42;&#42;.</td>
-    </tr>
-    <tr>
-        <td>vSphere</td>
-    </tr>
-</table>
-
-<a id="1-17-1-component-updates"></a> &#42; Components marked with an asterisk have been updated.  
-&#42;&#42; VCF v5.0 and VCF v4.5.2 are supported but have not been tested with <%= vars.k8s_runtime_abbr %> <%= vars.product_version %>.  
-&#42;&#42;&#42; Migration from NSX Management Plane API to NSX Policy API requires VMware NSX v4.0.1.1 or later. NSX v4.0.1.1 supports only 50% of NSX Management Plane API 
-scale. To use Policy API at 100% of Management Plane API scale, you require NSX v4.1.1.
-
-<br>
-### <a id="1-17-1-upgrade"></a>Upgrade Path
-
-The supported upgrade paths to <%= vars.product_short %> v1.17.1 are from 
-<%= vars.k8s_runtime_abbr %> v1.17.0, and 
-<%= vars.k8s_runtime_abbr %> v1.16.3 and earlier <%= vars.k8s_runtime_abbr %> v1.16 patches.  
-
-
-<br>
-### <a id="1-17-1-breaking-changes"></a>Breaking Changes
-
-<%= vars.k8s_runtime_abbr %> v1.17.1 does not include any new breaking changes.  
-
-
-<br>
-### <a id="1-17-1-features"></a><a id="1-17-1-enhancements"></a> Features and Enhancements
-
-<%= vars.k8s_runtime_abbr %> v1.17.1 does not include any new features or enhancements.  
-
-<br>
-### <a id="1-17-1-bug-fixes"></a>Resolved Issues
-
-<%= vars.k8s_runtime_abbr %> v1.17.1 resolves the following issues:  
-
-* **[Security Fix]** Component bumps fix the following:  
-    * Upgrades Kubernetes to v1.26.8:  
-        * Fixes [CVE-2023-2728](https://nvd.nist.gov/vuln/detail/CVE-2023-2728).  
-    * Upgrades Metrics Server to v0.6.4:  
-        * Fixes [CVE-2022-28948](https://nvd.nist.gov/vuln/detail/CVE-2022-28948) and [CVE-2022-41721](https://nvd.nist.gov/vuln/detail/CVE-2022-41721).
-    * Fixes CVE-2023-3676, CVE-2023-3893, and CVE-2023-3955.    
-* Upgrades NCP to v4.1.1.1:  
-    * Fixes _`FailedCreatePodSandBox` error during cluster creation_.  
-* Fixes [Cluster Might Fail to Send the `cluster_name` Tag to Logging after Cluster Upgrade](#1-17-0-missing-cluster-name-tag). 
-        
-<% if vars.product_version == "COMMENTED"  %>
-* Fixes [](#1-17-0-).  
-* Component bumps fix the following:  
-    * Upgrades  to:  
-        * Fixes [](#1-17-0-).  
-<% end %>
-
-<br>
-###<a id="1-17-1-known-issues"></a>Known Issues
-
-Except where noted, the known issues in <%= vars.product_short %> v1.17.0 are also in <%= vars.product_short %> v1.17.1. 
-For more information, see [<%= vars.k8s_runtime_abbr %> v1.17.0 Known Issues](#1-17-0-known-issues) below.  
-
-<%= vars.k8s_runtime_abbr %> v1.17.1 does not include any additional known issues.  
-
-<hr>
-
-
-<br>
-<br>
-## <a id="management-console-1-17-1"></a> <%= vars.k8s_runtime_abbr %> Management Console <%= vars.product_version %>.1
-
-**Release Date**: September 14, 2023
-
-<%= vars.product_short %> Management Console provides an opinionated installation of <%= vars.k8s_runtime_abbr %>.  
-
-<br>
-### <a id="management-console-1-17-1-snapshot"></a>Product Snapshot  
-
-<p class="note"><strong>Note</strong>: The component versions supported by <%= vars.k8s_runtime_abbr %> Management Console might differ from or be more limited than
-    the versions supported by <%= vars.k8s_runtime_abbr %>.
-</p>
-
-<table class="nice">
-    <tr>
-        <th>Element</th>
-        <th colspan=2>Details</th>
-    </tr>
-    <tr>
-        <td>Version</td>
-        <td colspan=2><a href="https://customerconnect.vmware.com/downloads/info/slug/infrastructure_operations_management/vmware_tanzu_kubernetes_grid_integrated_edition/1_17" target="_blank">v1.17.1</td>
-    </tr>
-    <tr>
-        <td>Release date</td>
-        <td colspan=2>September 14, 2023</td>
-    </tr>
-    <tr>
-        <td>Installed <%= vars.k8s_runtime_abbr %> version</td>
-        <td colspan=2><a href="#1-17-1">v1.17.1</a></td>
-    </tr>
-    <tr>
-        <td>Installed Ops Manager version</td>
-        <td>v3.0.14&#42;</td>
-        <td style="text-align: center;"><a href="https://network.pivotal.io/products/ops-manager#/releases/1346291" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <th>Component</th>
-        <th colspan=2>Version</th>
-    </tr>
-    <tr>
-        <td>Installed Kubernetes version</td>
-        <td>v1.26.8&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.26.md#changelog-since-v1267" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Installed Harbor Registry version</td>
-        <td><a href="https://network.pivotal.io/products/harbor-container-registry/#/releases/1317228" target="_blank">v2.8.2</a></td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-release-notes.html#v282-0">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Ubuntu Jammy stemcell</td>
-        <td>v1.207&#42;</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/Stemcells-for-VMware-Tanzu/services/release-notes/stemcells.html#jammy-1-207" target="_blank">Release Notes</a></td>
-    </tr>
-</table>
-
-<a id="management-console-1-17-1-component-updates"></a> &#42; Components marked with an asterisk have been updated.
-
-<br>
-### <a id="management-console-1-17-1-upgrade"></a>Upgrade Path
-
-The supported upgrade paths to <%= vars.product_short %> Management Console v1.17.1 are from
-<%= vars.k8s_runtime_abbr %> MC v1.17.0, and 
-<%= vars.k8s_runtime_abbr %> MC v1.16.3 and earlier <%= vars.k8s_runtime_abbr %> v1.16 patches.  
-
-
-<br>
-### <a id="management-console-1-17-1-features"></a>Features and Resolved Issues
-
-<%= vars.k8s_runtime_abbr %> Management Console v1.17.1 includes the following enhancements:  
-
-* NSX Only: Enhances `tkgi delete-cluster` reliability by increasing the default <%= vars.k8s_runtime_abbr %> Operation Timeout value from 60 seconds to 120 seconds. <%= vars.k8s_runtime_abbr %> MC v1.17.1 also supports configuring the <%= vars.k8s_runtime_abbr %> Operation Timeout. 
-For more information about configuring the <%= vars.k8s_runtime_abbr %> Operation Timeout from the <%= vars.k8s_runtime_abbr %> MC, see [Generate Configuration File and Deploy <%= vars.product_short %>](console-deploy-wizard.html#deploy) 
-in _Deploy <%= vars.product_short %> by Using the Configuration Wizard_.  
-
-<% if vars.product_version == "COMMENTED"  %>
-<%= vars.k8s_runtime_abbr %> Management Console v1.17.1 includes the following features:  
-<%= vars.k8s_runtime_abbr %> Management Console v1.17.1 resolves the following issues:  
-<% end %>
-
-
-<br>
-### <a id="management-console-1-17-1-known-issues"></a> Known Issues
-
-Except where noted, the known issues in <%= vars.product_short %> Management Console v1.17.0 
-are also in <%= vars.product_short %> Management Console v1.17.1. 
-For more information, see [<%= vars.k8s_runtime_abbr %> v1.17.0 Known Issues](#1-17-0-known-issues) below.  
-
-<%= vars.k8s_runtime_abbr %> MC v1.17.1 does not include any additional known issues.  
-
-
-<hr>
-
-
-
-
-
-
-<br>
-## <a id="1-17-0"></a><%= vars.k8s_runtime_abbr %> <%= vars.product_version %>.0
-
-<br>
-**Release Date**: August 3, 2023
-
-<br>
-### <a id="1-17-0-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
-
-<table class="nice">
-    <tr>
-        <th colspan=3><h4>Release Details</h4></th>
-    </tr>
-    <tr>
-        <td>Version</td>
-        <td colspan=2><a href="https://network.pivotal.io/products/pivotal-container-service#/releases/1344816" target="_blank">v1.17.0</a></td>
-    </tr>
-    <tr>
-        <td>Release date</td>
-        <td colspan=2>August 3, 2023</td>
-    </tr>
-    <tr>
-        <th colspan=3><h4>Internal Component Versions</h4></th>
-    </tr>
-    <tr>
-        <td>Antrea</td>
-        <td>v1.7.0&#42;</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Container-Networking-with-Antrea/1.7.0/rn/vmware-container-networking-with-antrea-170-release-notes/index.html" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>cAdvisor</td>
-        <td colspan=2>v0.39.1</td>
-    </tr>
-    <tr>
-        <td>Containerd</td>
-        <td colspan=2>Linux: v1.6.18&#42;<br>Windows: v1.6.18&#42;</td>
-    </tr>
-    <tr>
-        <td>CoreDNS</td>
-        <td colspan=2>v1.9.3+vmware.11&#42;</td>
-    </tr>
-    <tr>
-        <td>CSI Driver for vSphere</td>
-        <td>v3.0.2&#42;</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/3.0/rn/vmware-vsphere-container-storage-plugin-30-release-notes/index.html" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>etcd</td>
-        <td colspan=2>v3.5.9&#42;</td>
-    </tr>
-    <tr>
-        <td>Harbor</td>
-        <td><a href="https://network.pivotal.io/products/harbor-container-registry/#/releases/1317228" target="_blank">v2.8.2&#42;</a></td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-release-notes.html#v282-0" target="_blank">Release Notes</a></td> 
-    </tr>
-    <tr>
-        <td>Kubernetes</td>
-        <td>v1.26.5&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.26.md#changelog-since-v1264" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Metrics Server</td>
-        <td colspan=2>v0.6.1</td>
-    </tr>
-    <tr>
-        <td>NCP</td>
-        <td>v4.1.1.0&#42;</td>
-        <td style="text-align: center;">
-        <% if vars.product_version == "COMMENTED"  %>
-        <a href="https://docs.vmware.com/en/VMware-NSX-Container-Plugin/4.1.1/rn/vmware-nsx-container-plugin-411-release-notes/index.html" target="_blank">Release Notes</a>
-        <% end %>
-        </td>
-    </tr>
-    <tr>
-        <td>Percona XtraDB Cluster (PXC)
-        <br>(in BOSH&nbsp;pxc-release)</td>
-        <td>v8.0.31-23&#42;
-        <br>pxc-release: v1.0.8&#42;</td>
-        <td style="text-align: center;">Release Notes:
-        <br><a href="https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/8.0.31-23.html">PXC</a>
-        <br><a href="https://github.com/cloudfoundry/pxc-release/releases/tag/v1.0.8">pxc-release</a>
-        </td>
-    </tr>
-    <tr>
-        <td>UAA</td>
-        <td colspan=2>v74.5.81&#42;</td>
-    </tr>
-    <tr>
-        <td>Velero</td>
-        <td><a href="https://customerconnect.vmware.com/downloads/get-download?downloadGroup=<%= vars.velero_version_vcc_link %>" target="_blank"><%= vars.velero_version %>&#42;</a></td>
-        <td style="text-align: center;"><a href="https://github.com/vmware-tanzu/velero/releases/tag/<%= vars.velero_version %>" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Wavefront</td>
-        <td colspan=2>Wavefront Collector: v1.13.0&#42;<br>Wavefront Proxy: v12.4&#42;</td>
-    </tr>
-    <tr>
-        <th colspan=3><h4>Stemcell Compatibility</h4></th>
-    </tr>
-    <tr>
-        <td>Ubuntu Jammy stemcells</td>
-        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/1344816" target="_blank"><%= vars.product_network %></a>.</td>
-    </tr>
-    <tr>
-        <td>Windows stemcells</td>
-        <td colspan=2>v2019.61&#42; or later</td>
-    </tr>
-    <tr>
-        <th colspan=3><h4>Interoperability</h4></th>
-    </tr>
-    <tr>
-        <td>Ops Manager</td>
-        <td colspan=2>See <a href="https://network.pivotal.io/products/pivotal-container-service/#/releases/1344816" target="_blank"><%= vars.product_network %></a>.</td>
-    </tr>
-    <tr>
-        <td>VMware Aria Operations Management Pack for Kubernetes</td>
-        <td>v2.0&#42;</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Aria-Operations-for-Integrations/services/rn/vmware-aria-operations-for-integrations-release-notes/index.html#August%2010,%202023" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>VMware Cloud Foundation (VCF)</td>
-        <td>v5.0&#42;&#42;, v4.5.2&#42;&#42;</td>
-        <td style="text-align: center;">Release Notes: 
-            <a href="https://docs.vmware.com/en/VMware-Cloud-Foundation/5.0/rn/vmware-cloud-foundation-50-release-notes/index.html" target="_blank">v5.0</a>, 
-            <a href="https://docs.vmware.com/en/VMware-Cloud-Foundation/4.5.2/rn/vmware-cloud-foundation-452-release-notes/index.html" target="_blank">v4.5.2</a>
-        </td>
-    </tr>
-    <tr>
-        <td>VMware NSX</td>
-        <td rowspan=2 colspan=2>See <a href="https://interopmatrix.vmware.com/Interoperability?col=644&row=0," target="_blank">VMware Product Interoperability Matrices</a>&#42;&#42;&#42;.</td></td>
-    </tr>
-    <tr>
-        <td>vSphere</td>
-    </tr>
-</table>
-
-<a id="1-17-0-component-updates"></a> &#42; Components marked with an asterisk have been updated.  
-&#42;&#42; VCF v5.0 and VCF v4.5.2 are supported but have not been tested with <%= vars.k8s_runtime_abbr %> <%= vars.product_version %>.  
-&#42;&#42;&#42; Migration from NSX Management Plane API to NSX Policy API requires VMware NSX v4.0.1.1 or later. NSX v4.0.1.1 supports only 50% of NSX Management Plane API 
-scale. To use Policy API at 100% of Management Plane API scale, you require NSX v4.1.1.
-
-<br>
-### <a id="1-17-0-upgrade"></a>Upgrade Path
-
-The supported upgrade paths to <%= vars.product_short %> v1.17.0 are from 
-<%= vars.k8s_runtime_abbr %> v1.16.2 and earlier <%= vars.k8s_runtime_abbr %> v1.16 patches.  
-
-<br>
-### <a id="1-17-0-breaking-changes"></a>Breaking Changes
-
-<%= vars.k8s_runtime_abbr %> v1.17.0 has the following breaking changes:  
-
-* **Removals in Kubernetes v1.26**: The following APIs are removed in Kubernetes v1.26:
-
-  * `v1alpha2` CRI API
-  * `v1beta1` flow control API group
-  * `v2beta2` HorizontalPodAutoscaler API
-  
-  For information on other removals in Kubernetes v1.26, see 
-  [Kubernetes Removals, Deprecations, and Major Changes in 1.26](https://kubernetes.io/blog/2022/11/18/upcoming-changes-in-kubernetes-1-26/) in 
-  Kubernetes Blog.
-
-* **In-Tree vSphere Storage Volume Support**:  In-Tree vSphere Storage volume support has been entirely removed. 
-The <%= vars.k8s_runtime_abbr %> v1.17 upgrade automatically migrates <%= vars.k8s_runtime_abbr %> clusters from in-tree vSphere storage to the CSI Driver for vSphere. 
-<%= vars.recommended_by %> strongly recommends that you migrate your in-tree vSphere storage volumes to vSphere CSI volumes before upgrading to <%= vars.k8s_runtime_abbr %> v1.17. 
-For information on how to manually migrate In-Tree vSphere Storage volumes on existing <%= vars.k8s_runtime_abbr %> clusters from In-Tree vSphere Storage 
-to the automatically installed vSphere CSI Driver, see 
-[Migrate an In-Tree vSphere Storage Volume to the vSphere CSI Driver](vsphere-cns.html#migrate-to-csi) 
-in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.  
-
-<p class="note warning"><strong>Warning:</strong> If you have <%= vars.k8s_runtime_abbr %>-provisioned Windows worker clusters, do not activate the <strong>Upgrade all clusters</strong> errand before upgrading to the <%= vars.k8s_runtime_abbr %> v1.17 tile.
-You cannot use the <strong>Upgrade all clusters</strong> errand because you must manually migrate each individual Windows worker cluster to the CSI Driver for vSphere. 
-For more information, see <a href="vsphere-cns.html#windows-configure-csi">Configure vSphere CSI for Windows</a> in <em>Deploying and Managing Cloud Native Storage (CNS) on vSphere</em>.</p>
-
-<br>
-### <a id="1-17-0-features"></a> Features and Enhancements
-
-<%= vars.k8s_runtime_abbr %> v1.17.0 includes the following features:  
-
-<br>
-#### <a id="1-17-0-upgrade-cluster-enhancements"></a> Cluster Upgrade Enhancements
-
-The `tkgi upgrade-cluster` CLI command includes the following enhancements:  
-
-* Supports upgrading a cluster's worker nodes in parallel. 
-For more information, see [Upgrade Worker Nodes in Parallel](upgrade-clusters.html#upgrade-nodes-in-parallel) in _Upgrading Clusters_.  
-* Supports automated cluster validation before upgrading a cluster. 
-For more information, see [Upgrade Cluster Validation](upgrade-clusters.html#upgrade-cluster-pre-check) in _Upgrading Clusters_.  
-
-<p class="note"><strong>Note</strong>: These enhancements apply to <code>tkgi upgrade-cluster</code> only. For example, when using <code>tkgi upgrade-clusters</code>, the clusters can be upgraded in parallel, 
-but the worker nodes within an upgrading cluster are always upgraded serially.
-</p>
-
-<% if vars.product_version == "COMMENTED"  %>
-To upgrade worker nodes in parallel in <%= vars.k8s_runtime_abbr %> v1.17.0 and later, 
-configure the <%= vars.k8s_runtime_abbr %> tile > **<%= vars.control_plane %>** tab > **Worker VM Max in Flight** setting 
-with the number of non-canary worker instances to upgrade in parallel. 
-For more information, see the [**<%= vars.control_plane %>**](installing-vsphere.html.md.erb#tkgi-api) 
-in the Installing <%= vars.k8s_runtime_abbr %> tile topic for your IaaS.  
-<% end %>
-
-
-
-<br>
-#### <a id="1-17-0-compute-profile-enhancements"></a> Compute Profile Enhancements
-
-<%= vars.k8s_runtime_abbr %> v1.17.0 includes the following compute profile enhancements:  
-
-* Supports configuring compute profiles with a node pool description. 
-For more information, see [`node_pools` Block](compute-profiles-manage.html#worker-nodes) in 
-_Creating and Managing Compute Profiles with the CLI (vSphere)_.  
-* Supports optionally skipping compute profile validation. For more information, 
-see [Assign a Compute Profile](compute-profiles-use.html#update-profile-procedure) in _Using Compute Profiles (vSphere)_.  
-* Prevents updating an existing compute profile with unsupported configuration changes. Prevents: Changing the number of control plane nodes, changing the node pool `name` property, and adding a new node pool while deleting an existing node pool.  
-
-<br>
-#### <a id="1-17-0-csi-enhancements"></a> CSI Driver for vSphere Enhancements
-
-<%= vars.k8s_runtime_abbr %> v1.17.0 includes the following CSI Driver for vSphere enhancements:  
-
-* Supports the XFS file system on Linux clusters. 
-For more information, see [Use XFS File System with vSphere Container Storage Plug-in](https://docs.vmware.com/en/VMware-vSphere-Container-Storage-Plug-in/3.0/vmware-vsphere-csp-getting-started/GUID-752B928E-8493-4387-8447-D72839899230.html) 
-in the VMware vSphere Container Storage Plug-in documentation.  
-* Supports the CSI Driver for vSphere on Windows clusters. 
-For more information, see [Configure vSphere CSI for Windows](vsphere-cns.html#windows-configure-csi) 
-in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.
-
-
-<br>
-#### <a id="1-17-0-enhancements"></a>Additional Features
-
-<%= vars.k8s_runtime_abbr %> v1.17.0 includes the following additional features:  
-
-* Supports VMware vSphere v8.0 and VMware vSAN 8.0. For more information, see 
-[Scenario 2: Upgrading to <%= vars.k8s_runtime_abbr %> <%= vars.product_version %> and vSphere v8.0](upgrade-scenarios.html#tkgi-vsphere) 
-in _Upgrade Order for <%= vars.k8s_runtime_abbr %> Environments on vSphere_ and 
-[VMware Product Interoperability Matrices](https://interopmatrix.vmware.com/Interoperability?col=644&row=0).  
-
-* TKGI API and the UAA connectivity now support TLS v1.3, in addition to TLS v1.2.
-
-* Supports configuring cluster-level Pod Security Admission (PSA). For more information, 
-see [Pod Security Admission in a <%= vars.k8s_runtime_abbr %> Cluster](pod-security-admission.html#psa-cluster).
-
-* NSX Only: Enhances `tkgi delete-cluster` reliability by increasing the default <%= vars.k8s_runtime_abbr %> Operation Timeout 
-from 60 seconds to 120 seconds. 
-For more information about configuring the **<%= vars.k8s_runtime_abbr %> Operation Timeout** field on the <%= vars.k8s_runtime_abbr %> Tile, 
-see [Networking](installing-nsx-t.html#networking) in _Installing <%= vars.product_short %> on vSphere with VMware NSX_.  
-
-* Upgrades the <%= vars.control_plane_db %> from MySQL v5.7 to MySQL v8. 
-For information about the differences between MySQL v5.7 to MySQL v8, 
-see [MySQL Server Version Reference](https://dev.mysql.com/doc/mysqld-version-reference/en/) in the MySQL documentation.  
-
-* Supports resizing clusters that have not been upgraded to the current <%= vars.k8s_runtime_abbr %> control plane version. 
-For more information, see 
-[Tasks Supported Following a <%= vars.k8s_runtime_abbr %> Control Plane Upgrade](understanding-upgrades.html#control-plane-upgrades-supported-tasks) 
-in _About <%= vars.k8s_runtime_abbr %> Upgrades_.  
-
-* vSphere with VMware NSX only: Supports specifying a network profile for configuring a <%= vars.k8s_runtime_abbr %> upgrade smoke test cluster. 
-For more information, see [Errands](installing-nsx-t.html#errands) in _Installing <%= vars.product_short %> on vSphere with VMware NSX_.  
-
-* Improves NSX resource clean-up when deleting a Kubernetes cluster in NSX Policy API mode.  
-
-* Supports configuring additional NCP Network Profiles parameters: 
-`nsx_v3.cookie_name`, `nsx_v3.members_per_medium_lbs`, `nsx_v3.members_per_small_lbs`, `nsx_v3.natfirewallmatch`, 
-`nsx_v3.ncp_enforced_pool_member_limit`, `nsx_v3.relax_scale_validation`. 
-For more information, see [cni_configurations Extensions Parameters](network-profiles-define.html#cni-extensions) 
-in _Creating and Managing Network Profiles_.  
-
-* Supports configuring the Fluent Bit container memory limit. 
-For more information, see [Log Sink Resources](installing-vsphere.html#log-sinks) in _Installing <%= vars.k8s_runtime_abbr %>_ 
-or [The Fluent Bit Pod restarts Due to Out-of-Memory Issue](troubleshoot-issues.html#fluent-bit-memory) 
-in _Troubleshooting_.  
-
-* Increases the default expiration period of the `monitoring-metric-cert` certificate from one to four years.  
-
-* Decreases the Fluentd default refresh interval to 30 seconds from 60 seconds. This ensures that all the logs are forwarded to 
-  VMware vRealize Log Insight consistently.
-  
-* Supports NSX Policy API  at 100% of Management Plane API scale with NSX v4.1.1.
-
-<br>
-### <a id="1-17-0-bug-fixes"></a>Resolved Issues
-
-<%= vars.k8s_runtime_abbr %> v1.17.0 resolves the following issues:
-
-* Fixes ['Input not an X.509 certificate' When Applying Change on the <%= vars.k8s_runtime_abbr %> Tile](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-cert-error-terminator).  
-* Fixes [The 'kube-state-metrics' ClusterRole Is Deleted during Cluster Upgrade](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-cluster-role-deleted).  
-* Fixes [Rotated <%= vars.k8s_runtime_abbr %> Certificates Remain Listed as Expiring on the Ops Manager Certificates List](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-rotated-certs-expiring-in-opsman).  
-* Fixes [Kubernetes API Server and etcd Daemon Occasionally Fail to Start During BBR Restore](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-bbr-restore-etcd-failure).  
-* Fixes [Cluster Deletion Incomplete If an Error Occurs](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-cluster-deletion-incomplete).  
-* Fixes [The Validator Secret Certificate Is Not Rotated](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-secrets-not-rotated).  
-* Fixes [HTTPS Ingress Outage During VMware NSX Certificate Rotation](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-https-ingress-outage).  
-* Fixes `NullPointerException` error when creating a Compute Profile configured with `instances: 0` and the `max_worker_instances` parameter.  
-* Fixes [<%= vars.k8s_runtime_abbr %> Sets the Maximum Persistent Volumes per Node to 59 Instead of 45](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-incorrect-max-volumes).  
-* Fixes [Some Telegraf Metric-Sink Pods Crash After <%= vars.k8s_runtime_abbr %> Upgrade](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-telegraf-metric-sink-crash).  
-* Fixes [Telemetry Does Not Report Large Metrics](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#1-16-0-token-too-long).  
-* Fixes [API Server Audit Logs Leak Tokens](#1-17-0-api-server-token-leak).  
-* Component bumps fix the following:  
-    * Upgrades CSI Driver for vSphere to v3.0.2:  
-        * Fixes [2.5 and older series has locking related issues: #2155](https://github.com/kubernetes-sigs/vsphere-csi-driver/issues/2155).  
-        * Fixes [vSphere CSI driver is unable to detect not authenticated sessions: #2157](https://github.com/kubernetes-sigs/vsphere-csi-driver/issues/2157).  
-
-
-<br>
-### <a id="1-17-0-deprecations"></a><a id="1-17-0-upcoming-deprecations"></a> Deprecations
-
-The following <%= vars.k8s_runtime_abbr %> features have been deprecated or removed from <%= vars.k8s_runtime_abbr %> v1.17:  
-
-* **In-Tree vSphere Storage Volume Support**: In-Tree vSphere Storage volume support has been entirely removed. 
-For more information, see [Breaking Changes](#1-17-0-breaking-changes) above.  
-
-*  **Google Cloud Platform**: Support for the Google Cloud Platform (GCP) is deprecated. 
-Support for GCP will be entirely removed in <%= vars.k8s_runtime_abbr %> v1.19.  
-
-* **The `log_dropped_traffic` CNI Configuration parameter**: In <%= vars.k8s_runtime_abbr %> v1.17.0 and later, 
-    the `log_dropped_traffic` CNI Configuration parameter is ignored.  
-
-    To configure logging in a Network Profile, modify the `log_firewall_traffic` parameter. For more information, 
-    see `log_settings` in the [`cni_configurations` Parameters](network-profiles-define.html#cni-params) section in _Creating and Managing Network Profiles_.  
-    
-* **Flannel Support**: Support for the Flannel Container Networking Interface (CNI) is deprecated.
-<%= vars.recommended_by %> recommends that you switch your Flannel CNI-configured clusters to the Antrea CNI.
-For more information about Flannel CNI deprecation, see
-[About Switching from the Flannel CNI to the Antrea CNI](understanding-upgrades.html#cni)
-in _About Tanzu Kubernetes Grid Integrated Edition Upgrades_.  
-
-
-
-
-<br>
-###<a id="1-17-0-known-issues"></a>Known Issues
-
-<%= vars.k8s_runtime_abbr %> v1.17.0 has the following known issues.  
-
-<hr>
-
-#### <a id="1-17-0-csi-driver-limits-vsphere"></a>Limitations on Using the VMware vSphere CSI Driver
-
-The VMware vSphere CSI Driver supports a limited set of VMware vSphere features. 
-Before enabling the vSphere CSI Driver on a <%= vars.k8s_runtime_abbr %> cluster, 
-confirm the cluster and storage configuration are supported by the driver. 
-For more information, see [Unsupported Features and Limitations](#unsupported-features) 
-in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.  
-
-
-<hr>
-
-#### <a id="1-17-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
-
-If you enable a public cloud CSI Driver on a <%= vars.k8s_runtime_abbr %> cluster, 
-you must take additional steps before deleting，upgrading, or updating the cluster.  
-
-
-**Deleting a Cluster on a Public Cloud**
-
-When deleting a cluster that uses a public cloud CSI Driver:  
-
-1. Manually delete the workload PVCs and PVs before deleting the cluster.  
-1. Delete the cluster. 
-For  more information on deleting clusters, see [Deleting Clusters](delete-cluster.html).  
-
-
-**Upgrading a Cluster on a Public Cloud**
-
-When upgrading a cluster that uses a public cloud CSI Driver:  
-
-* No preparation steps are needed when upgrading a multi-worker node cluster.  
-* To prepare a single-worker node cluster for upgrading:  
-
-    1. Resize the cluster to two or more worker nodes before upgrading the cluster. 
-    For more information, see [Scaling Existing Clusters](scale-clusters.html).  
-    1. Upgrade the cluster. 
-    For  more information on upgrading clusters, see [Upgrading Clusters](upgrade-clusters.html).  
-
-**Updating a Cluster on a Public Cloud**
-
-When updating a cluster that uses a public cloud CSI Driver:  
-
-* No preparation step are needed when updating a multi-worker node cluster.  
-* To prepare a single-worker node cluster for updating:  
-
-    1. Resize the cluster to two or more worker nodes before updating the cluster. 
-    For more information, see [Scaling Existing Clusters](scale-clusters.html).  
-    1. Update the cluster.  
-
-<hr>
-
-#### <a id="1-17-0-interoperability-with-tmc"></a> Interoperability with Tanzu Mission Control is Unavailable
-
-This issue is fixed by using the [July 21, 2023](https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/services/rn/vmware-tanzu-mission-control-release-notes/index.html#What's%20New%20July%2021,%202023) or later releases of Tanzu Mission Control.  
-
-Tanzu Mission Control (TMC) is not compatible with Kubernetes v1.26 at the time of the <%= vars.k8s_runtime_abbr %> v1.17 release and temporarily cannot manage <%= vars.k8s_runtime_abbr %> v1.17 Kubernetes clusters. 
-Interoperability between TMC and <%= vars.k8s_runtime_abbr %> v1.17 is expected at a later time.  
-
-Refer to the [VMware Tanzu Mission Control Release Notes](https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/services/rn/vmware-tanzu-mission-control-release-notes/index.html) for an announcement of compatibility with Kubernetes v1.26.  
-    
-<hr>
-<% if vars.product_version == "COMMENTED"  %>
-#### <a id="1-17-0-vcf-incompatible"></a> Interoperability with VMware Cloud Foundation Is Unavailable
-
-This issue is fixed by using VMware Cloud Foundation v5.0 or later.  
-
-Interoperability with VMware Cloud Foundation (VCF) is temporarily unavailable.  
-
-VCF is currently not compatible with <%= vars.k8s_runtime_abbr %> v1.17. 
-Interoperability between VCF and <%= vars.k8s_runtime_abbr %> v1.17 is expected at a later time.  
-    
-<hr>
-
-<% end %>
-
-#### <a id="1-17-0-vrops"></a> Interoperability with VMware Aria Operations Management Pack for Kubernetes Is Unavailable
-
-**This issue has been resolved:** VMware Aria Operations Management Pack for Kubernetes v2.0 provides interoperability with <%= vars.k8s_runtime_abbr %> v1.17. 
-For more information, see the [VMware Aria Operations for Integrations Release Notes](https://docs.vmware.com/en/VMware-Aria-Operations-for-Integrations/services/rn/vmware-aria-operations-for-integrations-release-notes/index.html#August%2010,%202023).  
-
-**Description**
-
-Interoperability with VMware Aria Operations Management Pack for Kubernetes is temporarily unavailable.  
-
-VMware Aria Operations Management Pack for Kubernetes is currently not compatible with <%= vars.k8s_runtime_abbr %> v1.17. 
-Interoperability between VMware Aria Operations Management Pack for Kubernetes and <%= vars.k8s_runtime_abbr %> v1.17 is expected at a later time.  
-
-<hr>
-
-
-#### <a id="1-17-0-renamed-ops-man"></a> TKGI MC Unable to Manage TKGI after Restoring the TKGI Control Plane from Backup
-
-**Symptom**
-
-After you restore Ops Manager and the <%= vars.control_plane %> VM from backup,
-<%= vars.k8s_runtime_abbr %> functions normally, but your <%= vars.k8s_runtime_abbr %> MC tabs
-include the following error: "...product 'pivotal-container service' is not deployed...".
-
-**Explanation**
-
-<%= vars.k8s_runtime_abbr %> MC is associated with an Ops Manager with a specific name.
-If you rename Ops Manager with a new name while restoring, your <%= vars.k8s_runtime_abbr %> MC
-will not recognize the restored Ops Manager and cannot manage it.
-
-<hr>
-
-#### <a id="1-17-0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
-
-**Symptom**
-
-After clicking **Apply Changes** on the <%= vars.k8s_runtime_abbr %> tile in an Azure environment,
-you experience an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
-
-* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_
-* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
-
-For example:
-
-```
-INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
-2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
-HTTP/1.1 500 Internal Server Error
-Transfer-Encoding: chunked
-Cache-Control: no-cache, no-store
-Connection: keep-alive
-Content-Type: application/json; charset=utf-8
-Date: Mon, 21 Sep 2020 17:51:50 GMT
-Expires: Fri, 01 Jan 1990 00:00:00 GMT
-Pragma: no-cache
-Referrer-Policy: strict-origin-when-cross-origin
-Server: Ops Manager
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-X-Content-Type-Options: nosniff
-X-Download-Options: noopen
-X-Frame-Options: SAMEORIGIN
-X-Permitted-Cross-Domain-Policies: none
-X-Request-Id: f5fc99c1-21a7-45c3-7f39
-X-Runtime: 9.905591
-X-Xss-Protection: 1; mode=block
-
-44
-{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
-0
-```
-
-**Explanation**
-
-The Azure CPI endpoint used by Ops Manager has been changed and
-your installed version of Ops Manager is not compatible with the new endpoint.
-
-**Workaround**
-
-Run the following Ops Manager CLI command:
-
-```
-om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
-```
-
-Where:
-
-* `USERNAME` is the account to use to run Ops Manager API commands.
-* `PASSWORD` is the password for the account.
-* `OPSMAN-API` is the IP address for the Ops Manager API
-
-For more information, see
-[Error 'undefined method location' is received when running Apply Change on Azure](https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US) in the VMware Tanzu Knowledge Base.
-
-<hr>
-
-#### <a id="1-17-0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
-
-VMware vRealize Operations (vROPs) does not support Windows worker-based Kubernetes clusters and
-cannot be used to manage <%= vars.k8s_runtime_abbr %>-provisioned Windows workers.
-
-<hr>
-
-#### <a id="1-17-0-wavefront-no-win"></a><%= vars.k8s_runtime_abbr %> Wavefront Requires Manual Installation for Windows Workers
-
-To monitor Windows-based worker node clusters with a Wavefront collector and proxy, you must first install Wavefront on the clusters manually, using Helm.
-For instructions, see the [Wavefront](windows-monitoring.html#wavefront) section of the
-_Monitoring Windows Worker Clusters and Nodes_ topic.
-
-<hr>
-#### <a id="1-17-0-ping"></a>Pinging Windows Worker Kubernetes Clusters Does Not Work
-
-<%= vars.k8s_runtime_abbr %>-provisioned Windows worker-based Kubernetes clusters inherit a Kubernetes limitation that prevents outbound ICMP communication from workers.
-As a result, pinging Windows workers does not work.
-
-For information about this limitation, see [Limitations > Networking](https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/#networking-1) in the _Windows in Kubernetes_ documentation.
-
-<hr>
-
-#### <a id="1-17-0-windows-velero-limitations"></a> Velero Does Not Support Backing Up Stateful Windows Workloads
-
-You can use Velero to back up stateless <%= vars.k8s_runtime_abbr %>-provisioned Windows workers only.
-You cannot use Velero to back up stateful Windows applications.
-For more information, see [Velero on Windows](https://velero.io/docs/v1.6/basic-install/#velero-on-windows) in
-_Basic Install_ in the Velero documentation.
-
-<hr>
-
-#### <a id="1-17-0-tmc-on-gcp"></a>Tanzu Mission Control Integration Not Supported on GCP
-
-<%= vars.k8s_runtime_abbr %> on Google Cloud Platform (GCP) does not support
-Tanzu Mission Control (TMC) integration, which is configured in
-the **<%= vars.product_tile %>** tile > the **Tanzu Mission Control** pane.
-
-If you intend to run <%= vars.k8s_runtime_abbr %> on GCP,
-skip this pane when configuring the <%= vars.product_tile %> tile.
-
-<hr>
-
-#### <a id="1-17-0-tmc-restic"></a>TMC Data Protection Feature Requires Privileged <%= vars.k8s_runtime_abbr %> Containers
-
-TMC Data Protection feature supports privileged <%= vars.k8s_runtime_abbr %> containers only.
-For more information, see [Plans](installing-vsphere.html#plans) in the _Installing TKGI_ topic for your IaaS.
-
-<hr>
-
-#### <a id="1-17-0-profile-no-win-gmsa"></a>Windows Worker Kubernetes Clusters with Group Managed Service Account Do Not Support Compute Profiles
-
-Windows worker-based Kubernetes clusters integrated with group Managed Service Account (gMSA) cannot be managed using compute profiles.
-
-<hr>
-
-#### <a id="1-17-0-profile-no-win-flannel"></a> Windows Worker Kubernetes Clusters on Flannel Do Not Support Compute Profiles
-
-On vSphere with NSX-T networking you can use compute profiles with both Linux and Windows worker&#8209;based Kubernetes clusters.
-On vSphere with Flannel networking, you can apply compute profiles only to Linux clusters.
-
-<hr>
-
-#### <a id="1-17-0-profile-resize-down"></a>TKGI CLI Does Not Prevent Reducing the Control Plane Node Count
-
-TKGI CLI does not prevent accidentally reducing a cluster's control plane node count using a compute profile.
-
-<p class="note warning"><strong>Warning:</strong>
-    Reducing a cluster's control plane node count can destroy the cluster.
-    Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile or by using a compute profile.
-    Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.
-</p>
-
-<hr>
-
-#### <a id="1-17-0-in-windows-notready-nodes"></a> Windows Cluster Nodes Not Deleted After VM Deleted
-
-**Symptom**
-
-After you delete a VM using the management console of your infrastructure provider, you notice a Windows worker node
-that had been on that VM is now in a `notReady` state.
-
-**Solution**
-
-1. To identify the leftover node:
-
-    ```
-    kubectl get no -o wide
-    ```
-1. Locate nodes on the returned list that are in a `notReady` state and have the same IP address as another node in the list.
-1. To manually delete a `notReady` node:
-
-    ```
-    kubectl delete node NODE-NAME
-    ```
-    Where `NODE-NAME` is the name of the node in the `notReady` state.
-
-<hr>
-
-#### <a id="1-17-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login
-
-**Symptom**
-
-You experience a "502 Bad Gateway" error from the NSX load balancer after you log in to OIDC.
-
-**Explanation**
-
-A large response header has exceeded your NSX-T load balancer maximum
-response header size. The default maximum response header size is 10,240 characters and should
-be resized to 50,000.
-
-**Workaround**
-
-If you experience this issue, manually reconfigure your NSX-T `request_header_size`
-and `response_header_size` to 50,000 characters.
-For information about configuring NSX-T default header sizes,
-see [OIDC Response Header Overflow](https://community.pivotal.io/s/article/OIDC-Response-Header-overflow) in the Knowledge Base.
-
-<hr>
-
-#### <a id="1-17-0-windows-proxy"></a> Difficulty Changing Proxy for Windows Workers
-
-You must configure a global proxy in the <%= vars.product_tile %> tile > **Networking** pane before you create any Windows workers that use the proxy.
-
-You cannot change the proxy configuration for Windows workers in an existing cluster.
-
-<hr>
-
-#### <a id="1-17-0-http-proxy-password"></a> Character Limitations in HTTP Proxy Password
-
-For vSphere with NSX-T, the HTTP Proxy password field does not support the following special characters: `&` or `;`.
-
-<hr>
-
-#### <a id="1-17-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
-
-**Symptom**
-
-You receive the following error after modifying your existing Harbor installation's storage configuration:
-
-```
-Error response from daemon: manifest for ... not found: manifest unknown: manifest unknown
-```
-
-**Explanation**
-
-Harbor does not support modifying an existing Harbor installation's storage configuration.
-
-**Workaround**
-
-To modify your Harbor storage configuration,
-re-install Harbor. Before starting Harbor, configure the new Harbor installation with the desired configuration.
-
-<hr>
-
-#### <a id="1-17-0-resizing-worker-nodes"></a> Ingress Controller Statefulset Fails to Start After Resizing Worker Nodes
-
-**Symptom**
-
-Permissions are removed from your cluster's files and processes after resizing the persistent disk
-during a cluster upgrade. The ingress controller statefulset fails to start.
-
-**Explanation**
-
-When resizing a persistent disk, Bosh migrates the data from the old disk to the new disk but
-does not copy the files' extended attributes.
-
-**Workaround**
-
-To resolve the problem, complete the steps in
-[Ingress controller statefulset fails to start after resize of worker nodes with permission denied]
-(https://community.pivotal.io/s/article/5000e00001nCJxT1603094435795?language=en_US)
-in the VMware Tanzu Knowledge Base.
-
-<hr>
-
-#### <a id="1-17-0-security-group"></a>Azure Default Security Group Is Not Automatically Assigned to Cluster VMs
-
-**Symptom**
-
-You experience issues when configuring a load balancer for a multi-control plane node Kubernetes cluster or creating a service of type `LoadBalancer`.
-Additionally, in the Azure portal, the **VM** > **Networking** page does not display
-any inbound and outbound traffic rules for your cluster VMs.
-
-**Explanation**
-
-As part of configuring the <%= vars.product_tile %> tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
-When you create a Kubernetes cluster, <%= vars.product_short %> automatically assigns this security group to each VM in the cluster.
-However, on Azure the automatic assignment might not occur.
-
-As a result, your inbound and outbound traffic rules defined in the security group are not applied to the cluster VMs.
-
-**Workaround**
-
-If you experience this issue, manually assign the default security group to each VM NIC in your cluster.
-
-<hr>
-
-#### <a id="1-17-0-uuid-length"></a> One Plan ID Longer than Other Plan IDs
-
-**Symptom**
-
-One of your plan IDs is one character longer than your other plan IDs.
-
-**Explanation**
-
-In <%= vars.k8s_runtime_abbr %>, each plan has a unique plan ID.
-A plan ID is normally a UUID consisting of 32 alphanumeric characters and 4 hyphens.
-However, the **Plan 4** ID consists of 33 alphanumeric characters and 4 hyphens.
-
-**Solution**
-
-You can safely configure and use **Plan 4**.
-The length of the **Plan 4** ID does not affect the functionality of **Plan 4** clusters.
-
-If you require all plan IDs to have identical length, do not activate or use **Plan 4**.
-
-<hr>
-
-#### <a id="1-17-0-db-down-after-vm-stopped"></a> Database Cluster Stops After a Database Instance is Stopped
-
-**Symptom**
-
-After you stop one instance in a multiple-instance database cluster, the cluster stops,
-or communication between the remaining databases times out, and the entire cluster becomes unreachable.
-
-The following might be in your UAA log:
-
-```
-WSREP has not yet prepared node for application use
-```
-
-**Explanation**
-
-The database cluster is unable to recover automatically because a member is no longer available to reconcile quorum.
-
-<hr>
-
-#### <a id="1-17-0-velero-vsphere-pvs"></a> Velero Back Up Fails for vSphere PVs Attached to Clusters on Kubernetes v1.20 and Later
-
-**Symptom**
-
-Backing up vSphere persistent volumes using Velero fails and your Velero backup log includes the following error:
-
-```
-rpc error: code = Unknown desc = Failed during IsObjectBlocked check: Could not translate selfLink to CRD name
-```
-
-**Explanation**
-
-This is a known issue when backing up clusters on Kubernetes v1.20 and later using the
-Velero Plugin for vSphere v1.1.0 or earlier.
-
-**Workaround**
-
-To resolve the problem, complete the steps in
-[Velero backups of vSphere persistent volumes fail on Kubernetes clusters version 1.20 or higher (83314)](https://kb.vmware.com/s/article/83314)
-in the VMware Tanzu Knowledge Base.
-
-<hr>
-
-#### <a id="1-17-0-creating-two-windows-clusters-fails"></a> Creating Two Windows Clusters at the Same Time Fails
-
-**Symptom**
-
-The first time that you try to create two Windows clusters at the same time, the creation of one of
-the clusters fails. If you run `pks cluster CLUSTER-NAME` to examine the last action taken on the
-cluster, you see the following:
-
-<pre class="terminal">
-Last Action: Create
-Last Action State: failed
-Last Action Description: Instance provisioning failed: There was a problem completing your request.
-. . .
-operation: create, error-message: Failed to acquire lock
-. . .
-locking task id is 111, description: 'create deployment'
-</pre>
-
-**Explanation**
-
-This is a known issue that occurs the first time that you create two Windows clusters concurrently.
-
-**Workaround**
-
-Recreate the failed cluster. This issue only occurs the first time that you create two Windows
-clusters concurrently.
-
-
-<hr>
-
-#### <a id="1-17-0-delete-cluster-not-stopped"></a> Deleted Clusters are Listed in Cluster Lists
-
-**Symptom**
-
-After running `tkgi delete-cluster` and cluster deletion has completed,
-the deleted cluster continues to be listed when running `tkgi clusters`.
-
-**Workaround**
-
-You must manually remove the deleted cluster using a customized version of the ncp_cleanup script.
-For more information, see
-[Deleting a Tanzu Kubernetes Grid Integrated Edition cluster with "tkgi delete-cluster" stuck "in progress" status](https://community.pivotal.io/s/article/pks-delete-cluster-in-progress-after-the-cluster-has-been-deleted?language=en_US)
-in the VMware Tanzu Knowledge Base.
-
-<hr>
-
-#### <a id="1-17-0-errors-after-reinstall"></a> BOSH Director Logs the Error 'Duplicate vm extension name'
-
-**Symptom**
-
-After you uninstall <%= vars.k8s_runtime_abbr %>, then reinstall <%= vars.k8s_runtime_abbr %> in the same environment,
-BOSH Director logs errors similar to the following:
-
-```
-.../gems/bosh-director-0.0.0/lib/bosh/director/deployment_plan/cloud_manifest_parser.rb:120:in `parse_vm_extensions': Duplicate vm extension name 'disk_enable_uuid' (Bosh::Director::DeploymentDuplicateVmExtensionName)
-```
-
-**Explanation**
-
-The `pivotal-container-service` cloud-config was not removed when you uninstalled the <%= vars.k8s_runtime_abbr %> tile,
-and it remained active.
-When you reinstalled the <%= vars.k8s_runtime_abbr %> tile, an additional `pivotal-container-service` cloud-config was created,
-causing the metrics_server to fall into a crash-loop state.
-
-**Workaround**
-
-You must manually remove the `pivotal-container-service` cloud-config after removing your <%= vars.k8s_runtime_abbr %> deployment,
-including after removing the <%= vars.k8s_runtime_abbr %> tile from Ops Manager.
-
-For more information, see ["Duplicate vm extension name" error when metrics_server runs on Director VM in Tanzu Kubernetes Grid Integrated Edition](https://community.pivotal.io/s/article/5000e00001oHXvP1631027033087?language=en_US)
-in the VMware Tanzu Community Knowledge Base.
-
-<hr>
-
-#### <a id="1-17-0-whitespace-pksapi"></a> The <%= vars.control_plane %> FQDN Must Not Include Trailing Whitespace
-
-**Symptom**
-
-Your <%= vars.k8s_runtime_abbr %> logs include the following error:
-
-```
-'uaa'. Errors are:- Error filling in template 'uaa.yml.erb' (line 59: Client redirect-uri is invalid: uaa.clients.pks_cli.redirect-uri Client redirect-uri is invalid: uaa.clients.pks_cluster_client.redirect-uri)
-```
-
-**Explanation**
-
-The <%= vars.control_plane %> fully-qualified domain name (FQDN) for your cluster contains leading or trailing whitespace.
-
-**Workaround**
-
-Do not include whitespace in the <%= vars.k8s_runtime_abbr %> tile **API Hostname (FQDN)** field.
-
-<hr>
-
-#### <a id="1-17-0-cannot-backup-with-tmc"></a> TMC Cluster Data Protection Backup Fails After Upgrading <%= vars.k8s_runtime_abbr %>
-
-The TMC Cluster Data Protection Backup fails in <%= vars.k8s_runtime_abbr %> environments upgraded from an earlier version.
-
-**Symptom**
-
-The TMC Cluster Data Protection Backup fails to back up your existing clusters and logs the following error:
-
-```
-error executing custom action (groupResource=customresourcedefinitions.apiextensions.k8s.io, namespace=, name=ncpconfigs.nsx.vmware.com): rpc error: code = Unknown desc = error fetching v1beta1 version of ncpconfigs.nsx.vmware.com: the server could not find the requested resource
-```
-
-**Explanation**
-
-Kubernetes v1.22 disallows the `spec.preserveUnknownFields: true` configuration in your existing clusters and the creation of a v1 CustomResourceDefinitions configuration fails.
-
-<hr>
-
-#### <a id="1-17-0-cannot-restore-with-tmc"></a> TMC Cluster Data Protection Restore Fails When Using Antrea CNI
-
-The TMC Cluster Data Protection Restore operation can fail when restoring multiple Antea resources.
-
-**Symptom**
-
-The TMC Cluster Data Protection Restore fails and logs errors that requests to restore the `admission webhook` have been denied.
-
-**Explanation**
-
-Velero has encountered a race condition while operating a resource.
-For more information, see
-[Allow customizing restore order for Kubernetes controllers and their managed resources](https://github.com/vmware-tanzu/velero/issues/4045)
-in the Velero GitHub repository.
-
-<hr>
-
-#### <a id="1-17-0-cvds-with-nvds"></a> <%= vars.k8s_runtime_abbr %> Does Not Support CVDS / NVDS Mixed Environments
-
-<%= vars.k8s_runtime_abbr %> does not support environments where there are multiple matching networks, such as a mixed CVDS/NVDS environment.
-
-**Symptom**
-
-<%= vars.k8s_runtime_abbr %> logs errors similar to the following in an environment with multiple matching networks:
-
-```
-LastOperationstatus='failed', description='Instance provisioning failed:
-There was a problem completing your request. Please contact your operations team providing the following information:
-service: p.pks, service-instance-guid: ..., broker-request-id: ..., task-id: ..., operation: create,
-error-message: Unknown CPI error 'Unknown' with message 'undefined method `mob' for <VimSdk::Vim::OpaqueNetwork:' in create_vm' CPI method
-```
-
-**Explanation**
-
-<%= vars.k8s_runtime_abbr %> cannot identify which of the matching networks you intend to use and has selected the wrong network.
-
-<hr>
-
-#### <a id="1-17-0-ovsdb-server-failure"></a> Occasionally update-cluster Does Not Complete for Windows Workers
-
-Occasionally, `tkgi update-cluster` hangs while updating a Windows worker node instance and the BOSH task cannot finish and exits.
-
-**Symptom**
-
-The `ovsdb-server` service has stopped but other processes report that it is running.
-
-**Explanation**
-
-The `ovsdb-server.pid` file uses the pid for a process that is not the ovsdb-server.
-
-To confirm that this is the root cause for `tkgi update-cluster` to hang:
-
-* To verify the `ovsdb-server` service has actually stopped, run the PowerShell `Get-services` command on the Windows worker node.
-* To verify that other processes report the `ovsdb-server` service is still running:
-<br>
-    1. Review the ovsdb-server `job-service-wrapper.err.log` log file.
-<br>
-        The `job-service-wrapper.err.log` log file is located at:
-
-        ```
-        C:\var\vcap\sys\log\openvswitch-windows\ovsdb-server\job-service-wrapper.err.log
-        ```
-    1. Confirm that after the flushing processes, the log includes an error similar to the following:
-
-        ```
-        Pid-Guard : ovsdb-server is already runing, please stop it first
-        At C:\var\vcap\jobs\openvswitch-windows\bin\ovsdb-server_ctl.ps1:30 char:5
-        +     Pid-Guard $PIDFILE "ovsdb-server"
-        +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            + CategoryInfo          : NotSpecified: ( [Write-Error], WriteErrorException
-            + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Pid-Guard
-        ```
-* To verify the root cause:
-<br>
-    1. Run the following PowerShell commands on the Windows worker node:
-
-        ```
-        $RUN_DIR = "C:\var\vcap\sys\run\openvswitch-windows"
-        $PIDFILE = "$RUN_DIR\ovsdb-server.pid"
-        $pid1 = Get-Content $PidFile -First 1
-        echo $pid1
-        $rst = Get-Process -Id $pid1 -ErrorAction SilentlyContinue
-        echo $rst
-        ```
-    1. Confirm the returned `ProcessName` is not `ovsdb-server`.
-
-**Workaround**
-
-To resolve this issue for a single Windows worker:
-
-1. SSH to the affected worker node.
-1. Run the following:
-
-    ```
-    rm C:\var\vcap\sys\run\openvswitch-windows\ovsdb-server.pid
-    ```
-1. Wait for the `ovsdb-server` process to start.
-1. Confirm the dependent services also start.
-
-
-<hr>
-
-#### <a id="1-17-0-harbor-241"></a> Harbor Private Projects Are Inaccessible after Upgrading to <%= vars.k8s_runtime_abbr %> v1.13.0
-
-If LDAP is enabled, Harbor private projects are inaccessible after upgrading to <%= vars.k8s_runtime_abbr %> v1.13.0.
-For more information, see [Private projects become inaccessible after upgrading Harbor for TKGI to v2.4.x with LDAP feature enabled](https://community.pivotal.io/s/article/After-upgrading-Harbor-tile-to-v2-4-x-with-LDAP-feature-enabled-private-projects-turn-unaccessible?language=en_US)
-in the VMware Tanzu Knowledge Base.
-
-<hr>
-
-#### <a id="1-17-0-stemcell-tar-support"></a> Deployments Fail on <%= vars.k8s_runtime_abbr %> Windows Worker-based Kubernetes Clusters after the January 2022 Microsoft Windows Security Patch
-
-Microsoft changed Microsoft Windows' support for tar file commands in the January 2022 Microsoft Windows security patch.
-
-Packaging scripts that use tar commands for Windows worker-based Kubernetes Cluster deployments
-can fail after the Microsoft tar command patch update has been applied.
-
-The BOSH agent used by vSphere stemcells built by stembuild v2019.43 and earlier use tar commands that are no longer supported
-and will fail if the Microsoft Windows security patch has been applied.
-
-
-**Workaround**
-
-stembuild v2019.44 and later include a version of the BOSH agent that does not use unsupported tar commands.
-
-If you use vSphere stemcells, use stembuild 2019.44 or later to avoid the BOSH agent tar error.
-
-
-<hr>
-
-
-#### <a id="1-17-0-nsx-upgrade-w-policy-resources"></a> <%= vars.k8s_runtime_abbr %> Clusters Fail after NSX Upgrade If They Use NSGroup Policy API Resources
-
-<%= vars.k8s_runtime_abbr %> supports clusters that use NSGroup Policy API resources, but Policy API NSGroups created in one NSX version will be empty after upgrading NSX to a newer version.  
-
-**Workaround**  
-
-BOSH reconfigures a deployment's NSGroup members if the deployment is redeployed.  
-
-After upgrading NSX, redeploy affected deployments to reconfigure their NSGroup members:  
-
-1. Re-**Apply Changes** on the Ops Manager UI to redeploy <%= vars.k8s_runtime_abbr %> tile deployments.  
-1. Re-deploy the affected cluster deployments.  
-
-<hr>
-
-#### <a id="1-17-0-api-server-token-leak"></a> API Server Audit Logs Leak Tokens
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.17.0](#1-17-0-bug-fixes).  
-
-The API Server audit logs include clear-text tokens on clusters master nodes that use the default audit policy.  
-
-**Description**  
-
-JSON Web Tokens in the `tokenrequests` API body are being written to the API Server audit log `/var/vcap/sys/log/kube-apiserver/audit/log` on <%= vars.k8s_runtime_abbr %> clusters.  
-
-<hr>
-
-#### <a id="1-17-0-antrea-engress"></a> <%= vars.k8s_runtime_abbr %> Does Not Support the Antrea Egress Feature on AWS
-
-<% if vars.product_version == "COMMENTED"  %>
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.17.1](#1-17-1-bug-fixes).  
-<% end %>
-
-In AWS environments, <%= vars.k8s_runtime_abbr %> does not support the Antrea CNI `Egress` feature. For example, the `Egress` resource `egressIP` and `externalIPPool` fields in an `antrea-config` configuration are ignored on AWS. For more information about the Antra `Egress` feature, see [What is Egress](https://antrea.io/docs/v1.13.0/docs/egress/#what-is-egress) in the Antrea documentation.  
-
-<hr>
-
-
-#### <a id="1-17-0-missing-cluster-name-tag"></a> Cluster Might Fail to Send the `cluster_name` Tag to Logging after Cluster Upgrade
-
-This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.17.1](#1-17-1-bug-fixes).  
-
-Occasionally, a cluster might fail to send the `cluster_name` tag to logging after being upgraded.  
-
-**Description**  
-
-After upgrading a cluster, the `Name record_modifier` filter will occasionally be missing from the cluster's fluent-bit ConfigMap, and the cluster_name is not included in log entries. This problem occurs if the sink-controller process configures the cluster before the observability-manager starts, which overwrites the desired configuration.  
-
-<hr>
-
-
-<br>
-<br>
-## <a id="management-console-1-17-0"></a> <%= vars.k8s_runtime_abbr %> Management Console <%= vars.product_version %>.0
-
-**Release Date**: August 3, 2023
-
-<%= vars.product_short %> Management Console provides an opinionated installation of <%= vars.k8s_runtime_abbr %>.  
-
-<br>
-### <a id="management-console-1-17-0-snapshot"></a>Product Snapshot  
-
-<p class="note"><strong>Note</strong>: The component versions supported by <%= vars.k8s_runtime_abbr %> Management Console might differ from or be more limited than
-    the versions supported by <%= vars.k8s_runtime_abbr %>.
-</p>
-
-<table class="nice">
-    <tr>
-        <th>Element</th>
-        <th colspan=2>Details</th>
-    </tr>
-    <tr>
-        <td>Version</td>
-        <td colspan=2><a href="https://customerconnect.vmware.com/downloads/info/slug/infrastructure_operations_management/vmware_tanzu_kubernetes_grid_integrated_edition/1_17" target="_blank">v1.17.0</td>
-    </tr>
-    <tr>
-        <td>Release date</td>
-        <td colspan=2>August 3, 2023</td>
-    </tr>
-    <tr>
-        <td>Installed <%= vars.k8s_runtime_abbr %> version</td>
-        <td colspan=2><a href="#1-17-0">v1.17.0</a></td>
-    </tr>
-    <tr>
-        <td>Installed Ops Manager version</td>
-        <td>v3.0.13&#42;</td>
-        <td style="text-align: center;"><a href="https://network.pivotal.io/products/ops-manager#/releases/1330404" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <th>Component</th>
-        <th colspan=2>Version</th>
-    </tr>
-    <tr>
-        <td>Installed Kubernetes version</td>
-        <td>v1.26.5&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.26.md#changelog-since-v1264" target="_blank">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Installed Harbor Registry version</td>
-        <td><a href="https://network.pivotal.io/products/harbor-container-registry/#/releases/1317228" target="_blank">v2.8.2&#42;</a></td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-release-notes.html#v282-0">Release Notes</a></td>
-    </tr>
-    <tr>
-        <td>Ubuntu Jammy stemcell</td>
-        <td>v1.179&#42;</td>
-        <td style="text-align: center;"><a href="https://docs.vmware.com/en/Stemcells-for-VMware-Tanzu/services/release-notes/stemcells.html#jammy-1-179" target="_blank">Release Notes</a></td>
-    </tr>
-</table>
-
-<a id="management-console-1-17-0-component-updates"></a>&#42; Components marked with an asterisk have been updated.
-
-<br>
-### <a id="management-console-1-17-0-upgrade"></a>Upgrade Path
-
-The supported upgrade paths to <%= vars.product_short %> Management Console v1.17.0 are from
-<%= vars.k8s_runtime_abbr %> MC v1.16.2 and earlier <%= vars.k8s_runtime_abbr %> v1.16 patches.  
-
-<br>
-### <a id="management-console-1-17-0-breaking-changes"></a>Breaking Changes
-
-
-<br>
-### <a id="management-console-1-17-0-features"></a>Features and Resolved Issues
-
-<%= vars.k8s_runtime_abbr %> Management Console v1.17.0 includes the following features:  
-
-* Upgrades the <%= vars.k8s_runtime_abbr %> MC database from MySQL v5.7 to MySQL v8. 
-For information about the differences between MySQL v5.7 to MySQL v8, 
-see [MySQL Server Version Reference](https://dev.mysql.com/doc/mysqld-version-reference/en/) in the MySQL documentation.  
-
-* Prevents deploying multiple <%= vars.k8s_runtime_abbr %> instances on a vCenter Server. By using the <%= vars.k8s_runtime_abbr %> MC, you can now deploy only one instance of <%= vars.k8s_runtime_abbr %> on a vCenter Server.  
-
-<br>
-<%= vars.k8s_runtime_abbr %> Management Console v1.17.0 resolves the following issues:  
-
-* Fixes [<%= vars.k8s_runtime_abbr %> MC Unable to Create a Network Profile Configured with Source IP Ingress Persistence](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#management-console-1-16-0-network-profile-ingress-persistence).  
-* Fixes [Previous nsx-t-superuser-certificate Is Restored during <%= vars.k8s_runtime_abbr %> MC Upgrade](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.16/tkgi/GUID-release-notes.html#management-console-1-16-0-cert-roll-back).  
-
-<br>
-### <a id="management-console-1-17-0-deprecations"></a> Deprecations
-
-The following <%= vars.k8s_runtime_abbr %> features have been deprecated 
-or removed from <%= vars.k8s_runtime_abbr %> Management Console v1.17:
-
-<br>
-### <a id="management-console-1-17-0-known-issues"></a> Known Issues
-
-The <%= vars.product_short %> Management Console v1.17.0 has the following known issues:
-
-<hr>
-
-#### <a id="management-console-1-17-0-vrli-https"></a> vRealize Log Insight Integration Does Not Support HTTPS Connections
+#### <a id="management-console-1-18-0-vrli-https"></a> vRealize Log Insight Integration Does Not Support HTTPS Connections
 
 **Symptom**
 
@@ -1893,7 +1049,7 @@ The <%= vars.product_short %> Management Console integration to vRealize Log Ins
 
 <hr>
 
-#### <a id="management-console-1-17-0-vsphere-ha"></a> vSphere HA causes Management Console ovfenv Data Corruption
+#### <a id="management-console-1-18-0-vsphere-ha"></a> vSphere HA causes Management Console ovfenv Data Corruption
 
 **Symptom**
 
@@ -1913,7 +1069,7 @@ correct network configuration.
 
 <hr>
 
-#### <a id="management-console-1-17-0-k8s-profile"></a> Base64 encoded file arguments are not decoded in Kubernetes profiles
+#### <a id="management-console-1-18-0-k8s-profile"></a> Base64 encoded file arguments are not decoded in Kubernetes profiles
 
 **Symptom**
 
@@ -1926,7 +1082,7 @@ Run `echo "$content" | base64 --decode`
 
 <hr>
 
-#### <a id="management-console-1-17-0-network-profile"></a> Network profiles not immediately selectable
+#### <a id="management-console-1-18-0-network-profile"></a> Network profiles not immediately selectable
 
 **Symptom**
 
@@ -1939,7 +1095,7 @@ Log out of the management console and log back in again.
 
 <hr>
 
-#### <a id="management-console-1-17-0-cluster-summary"></a> Real-Time IP information not displayed for network profiles
+#### <a id="management-console-1-18-0-cluster-summary"></a> Real-Time IP information not displayed for network profiles
 
 **Symptom**
 
@@ -1951,7 +1107,7 @@ rather than the real-time values from the associated network profile.
 None
 
 <hr>
-#### <a id="management-console-1-17-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
+#### <a id="management-console-1-18-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
 
 **Symptom**
 
@@ -1972,7 +1128,7 @@ re-install Harbor. Before starting Harbor, configure the new Harbor installation
 
 <hr>
 
-#### <a id="management-console-1-17-0-re-import-windows-stemcell"></a> Windows Stemcells Must be Re-Imported After Upgrading Ops Manager
+#### <a id="management-console-1-18-0-re-import-windows-stemcell"></a> Windows Stemcells Must be Re-Imported After Upgrading Ops Manager
 
 **Symptom**
 
@@ -1988,7 +1144,7 @@ If your Management Console does not recognize a Windows stemcell after upgrading
 
 <hr>
 
-#### <a id="management-console-1-17-0-cluster-group-name"></a> Your New Clusters Are Not Shown In Tanzu Mission Control
+#### <a id="management-console-1-18-0-cluster-group-name"></a> Your New Clusters Are Not Shown In Tanzu Mission Control
 
 **Symptom**
 
@@ -2019,3 +1175,7 @@ To resolve the problem, complete the steps in
 in the VMware Tanzu Knowledge Base.
 
 <hr>
+
+
+
+
