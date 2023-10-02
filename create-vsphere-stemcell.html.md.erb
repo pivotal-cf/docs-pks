@@ -107,7 +107,50 @@ To create and update a base Windows VM, follow these procedures in the TAS for V
 
 1. [Create a Base VM for the BOSH Stemcell](https://docs.pivotal.io/application-service-windows/create-vsphere-stemcell-automatically.html#create-base-vm)
 1. [Configure the Base VM](https://docs.pivotal.io/application-service-windows/create-vsphere-stemcell-automatically.html#install-windows-updates)
+1. [Expose oVM.Guest.Net](#expose-guest-net) below
 1. [Clone the Base VM](https://docs.pivotal.io/application-service-windows/create-vsphere-stemcell-automatically.html#clone-vm)
+
+<br>
+### <a id='expose-guest-net'></a> Expose oVM.Guest.Net
+
+You must expose `oVM.Guest.Net` on your Windows base OS image to avoid the [oVM.Guest.Net Error on Windows Clusters](troubleshoot-issues.html#windows-guest-net) issue.  
+
+To expose `oVM.Guest.Net`:  
+
+1. To create and configure a new `tools.conf` file:  
+
+    1. Copy the tools configuration from `C:\ProgramData\VMware\VMware Tools\tools.conf.example` to `C:\ProgramData\VMware\VMware Tools\tools.conf`.  
+    1. Edit the new copy of `tools.conf` and set `exclude-nics=""`.  
+    1. Save your changes.
+
+1. To restart the "VMware Tools" service:  
+
+    1. Run `net stop "VMware Tools"`.
+    1. Run `net start "VMware Tools"`.  
+
+1. Confirm `oVM.Guest.Net` contains a net array by using the CLI.  
+
+1. To confirm the vSphere CCM node resource has successfully initialized, review the vSphere CCM log. For example:  
+
+```
+110616 search.go:210] Hostname: ..., UUID: ...
+110616 nodemanager.go:159] Discovered VM using normal UUID format
+110616 nodemanager.go:268] Adding Hostname: 06fa89ed-e1f8-40a1-b717-b2958e926f57
+110616 nodemanager.go:438] Adding Internal IP: 30.0.0.23
+110616 nodemanager.go:443] Adding External IP: 30.0.0.23
+110616 nodemanager.go:351] Hostname: ... UUID: ...
+110616 instances.go:77] instances.NodeAddressesByProviderID() FOUND with ...
+110616 node_controller.go:536] Adding node label from cloud provider: beta.kubernetes.io/instance-type=vsphere-vm.cpu-2.mem-3gb.os-win10server
+110616 node_controller.go:537] Adding node label from cloud provider: node.kubernetes.io/instance-type=vsphere-vm.cpu-2.mem-3gb.os-win10server
+ 110616 node_controller.go:548] Adding node label from cloud provider: failure-domain.beta.kubernetes.io/zone=zone-1
+110616 node_controller.go:549] Adding node label from cloud provider: topology.kubernetes.io/zone=zone-1
+ 110616 node_controller.go:559] Adding node label from cloud provider: failure-domain.beta.kubernetes.io/region=region-1
+110616 node_controller.go:560] Adding node label from cloud provider: topology.kubernetes.io/region=region-1
+110616 node_controller.go:496] Successfully initialized node ... with cloud provider
+```
+
+5. To validate the node, review the node description and verify the internal and external IP addresses, and that the taint `"node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule"` is present.  
+
 
 <br>
 <br>

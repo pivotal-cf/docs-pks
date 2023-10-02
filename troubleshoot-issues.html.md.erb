@@ -28,6 +28,7 @@ Refer to the following for troubleshooting assistance:
 * [Error: FailedMount](#storage)  
 * [Error: Plan Not Found](#plan-not-found)  
 * [Failed to Allocate FIP from Pool](#fip-ip-reuse)  
+* [oVM.Guest.Net Error on Windows Clusters](#windows-guest-net)  
 
 
 <hr>
@@ -716,12 +717,39 @@ Error: an error occurred during FIP allocation
 
 **Explanation**
 
-<%= vars.k8s_runtime_abbr %> administrators can allocate floating IP pool IP Addresses in a Network Profile configuration.
-The <%= vars.k8s_runtime_abbr %> control plane allocates IP Addresses from the floating IP pool without accounting for the IPs allocated using Network Profiles.
+<%= vars.k8s_runtime_abbr %> administrators can allocate floating IP pool IP addresses in a Network Profile configuration.
+The <%= vars.k8s_runtime_abbr %> control plane allocates IP addresses from the floating IP pool without accounting for the IPs allocated using Network Profiles.
 
 **Workaround**
 
 <%= vars.k8s_runtime_abbr %> allocates IP addresses starting from the beginning of a floating IP pool range.
-When configuring a Network Profile, allocate IP Addresses starting at the end of the floating IP pool range instead of those at the beginning.
+When configuring a Network Profile, allocate IP addresses starting at the end of the floating IP pool range instead of those at the beginning.
+
+<hr>
+
+## <a id="windows-guest-net"></a> oVM.Guest.Net Error on Windows Clusters
+
+**Symptom**  
+
+You observe that pods cannot be scheduled on a Windows node. 
+Additionally, the Windows node's resources have an incorrect IP address and 
+taint `node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule`.  
+
+Checking further, you observe events similar to the following are logged 
+when vSphere CCM fetches VM information from vCenter to update the Windows node's resources:  
+
+```
+110616 search.go:210] Hostname: ..., UUID: ...
+110616 nodemanager.go:138] Discovered VM using FQDN or short-hand name
+110616 nodemanager.go:222] oVM.Guest.Net is empty, skipping node discovery. This could be caused by vmtool not reporting correct IP address
+110616 instances.go:64] instances.NodeAddresses() NOT FOUND with ...
+110616 node_controller.go:277] Error getting instance metadata for node addresses: error fetching node by provider ID: node not found, and error by node name: node not found
+```
+
+**Workaround**  
+
+When building the base OS image for your stemcell, you must expose `oVM.Guest.Net`. 
+For more information, see [Expose oVM.Guest.Net](create-vsphere-stemcell.html#expose-guest-net) 
+in _Creating a Windows Stemcell for vSphere Using Stembuild_.  
 
 <hr>
