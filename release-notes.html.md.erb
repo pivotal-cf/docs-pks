@@ -1715,25 +1715,26 @@ the pods on <%= vars.k8s_runtime_abbr %>-provisioned clusters can enter a `NotRe
 
 **Symptom**  
 
-In addition to your pods being `NotReady`, after restarting NSX Manager, 
-your NSX API logs include enumeral repetitions of `"POST /nsxapi/api/v1/firewall/sections/.../rules?operation=insert_bottom HTTP/1.1" ...`, 
-and your NCP logs include errors similar to:  
+In addition to your pods being `NotReady`, if you restart NSX Manager:  
 
-```
-"nsx-container-ncp" subcomp="ncp" level="ERROR" security="True" errorCode="NCP00034"] nsx_ujo.ncp.nsx.manager.firewall_service Failed to create health check rule for port ...: Service cluster: 'https://hal-pks-nsx-manager.na.blkint.com' is unavailable. Please, check NSX setup and/or configuration` 
-and your NSX API logs include enumeral repetitions of `"POST /nsxapi/api/v1/firewall/sections/.../rules?operation=insert_bottom HTTP/1.1" ...
-``` 
+* Your NSX API logs include numerous repetitions of 
+`"POST /nsxapi/api/v1/firewall/sections/.../rules?operation=insert_bottom HTTP/1.1" ...`.  
+* Your NCP logs include errors similar to:  
+
+    ```
+    "nsx-container-ncp" subcomp="ncp" level="ERROR" security="True" errorCode="NCP00034"] nsx_ujo.ncp.nsx.manager.firewall_service Failed to create health check rule for port ...: Service cluster: 'https://hal-pks-nsx-manager.na.blkint.com' is unavailable. Please, check NSX setup and/or configuration.
+    ``` 
 
 **Description**  
 
-As pods are created or deleted, DFW firewall rules are unintentionally duplicated while replicating them for the pod's livenessProbe. 
-After numerous pod creation/deletion events, the repeated duplications 
-result in a DFW firewall section large enough to create noticeable delays 
-and a `NotReady` state during pod operations.  
+As pods are created or deleted, DFW firewall rules are replicated for the pod's liveness probe. 
+In NSX v3.2.3, the firewall rules are unintentionally duplicated during this replication. 
+After numerous pod creation/deletion events, 
+the compounded duplication creates a DFW firewall section large enough to create noticeable delays during pod operations and, eventually, a pod `NotReady` state.  
 
 **Workaround**  
 
-To temporarily recover your NotReady pods, perform a rolling restart of your NSX Managers.  
+To temporarily recover your `NotReady` pods, perform a rolling restart of your NSX Managers.  
 
 
 <hr>
