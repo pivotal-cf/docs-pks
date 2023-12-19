@@ -1,5 +1,5 @@
 ---
-title: Generate and Register the NSX-T Management TLS Certificate and Private Key
+title: Generate and Register the NSX Management TLS Certificate and Private Key
 owner: TKGI-NSXT
 ---
 
@@ -11,17 +11,17 @@ Before completing this section, make sure you have completed the following secti
 
 <ul>
   <li>
-    <a href="./nsxt-install-prereqs.html">NSX-T Installation Prerequisites</a>
+    <a href="./nsxt-install-prereqs.html">NSX Installation Prerequisites</a>
   </li>
   <li>
-    <a href="./nsxt-install-managers.html">Install and Configure the NSX-T Manager Hosts</a>
+    <a href="./nsxt-install-managers.html">Install and Configure the NSX Manager Hosts</a>
   </li>
 </ul>
 
 
-##<a id='nsxt30-mgmt-ssl'></a> Generate and Register the NSX-T Management TLS Certificate and Private Key
+##<a id='nsxt30-mgmt-ssl'></a> Generate and Register the NSX Management TLS Certificate and Private Key
  
-An SSL certificate is automatically created for each NSX-T Manager. You can verify this by SSHing to one of the NSX Manager nodes and running the following command. 
+An SSL certificate is automatically created for each NSX Manager. You can verify this by SSHing to one of the NSX Manager nodes and running the following command. 
 
 ```
 nsx-manager-1> get certificate cluster
@@ -29,10 +29,10 @@ nsx-manager-1> get certificate cluster
 
 You will see that Subject Alternative Name (SAN) listed in the certificate is the hostname of the appliance, 
 for example `SAN=nsx-manager-1`. This means the cluster certificate is linked to a particular NSX Manager, 
-in this case NSX-T Manager 1. 
+in this case NSX Manager 1. 
 
-If you examine **System** > **Certificates**, you will see that the NSX-T manager VIP does not have a certificate. 
-You must generate a new SSL certificate that uses the NSX-T Management VIP address so that the cluster certificate contains `SAN=VIP-ADDRESS`.
+If you examine **System** > **Certificates**, you will see that the NSX manager VIP does not have a certificate. 
+You must generate a new SSL certificate that uses the NSX Management VIP address so that the cluster certificate contains `SAN=VIP-ADDRESS`.
 
   <img src="images/nsxt/nsxt-30/nsx-manager-1-34.png">
 
@@ -68,7 +68,7 @@ Complete the following steps to generate and register a SSL certificate and priv
     Where:  
 
     * `NSX-VIP-FQDN` is your NSX VIP FQDN.  
-    * `VIP-ADDRESS` is the VIP address for the NSX-T Management cluster.
+    * `VIP-ADDRESS` is the VIP address for the NSX Management cluster.
 
     <p class="note"><strong>Note</strong>: At a minimum you must use the SAN field for identifying the NSX Management VIP. You can also use the CN field, as long as the SAN field is populated. If you use only the CN field, the certificate will not be valid for TKGI.</p>
 
@@ -115,15 +115,15 @@ Complete the following steps to generate and register a SSL certificate and priv
             DNS:myvip.mydomain.com, IP Address:10.11.12.13
     ```
 
-##<a id='nsxt30-mgmt-cert-import'></a> Import the SSL Certificate and Private Key to the NSX-T Management Console
+##<a id='nsxt30-mgmt-cert-import'></a> Import the SSL Certificate and Private Key to the NSX Management Console
 
-Import certificate and private key to NSX-T by completing the following steps. These steps require populating the NSX-T Management Console fields with the certificate and private key. You can copy/paste the contents, or if you save the `nsx.crt` and `nsx.key` files to your local machine, you can import them.
+Import certificate and private key to NSX by completing the following steps. These steps require populating the NSX Management Console fields with the certificate and private key. You can copy/paste the contents, or if you save the `nsx.crt` and `nsx.key` files to your local machine, you can import them.
 
-1. In the NSX-T Management Console, navigate to the **System** > **Certificates** page.
+1. In the NSX Management Console, navigate to the **System** > **Certificates** page.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-34.png">
 1. Click **Import** > **Import Certificate**. The **Import Certificate** screen is displayed.  
     <p class="note"><strong>Note</strong>: Be sure to select <strong>Import Certificate</strong> and not <strong>Import CA Certificate</strong>.</p>
-1. Enter a **Name**. For example, `CERT-NSX-T-VIP`.
+1. Enter a **Name**. For example, `CERT-NSX-VIP`.
 1. Copy and paste the **Certificate Contents** from the `nsx.crt` file. Or, import the `nsx.crt` file clicking **Browse** and selecting it.
 1. Copy and paste the **Private Key** from the `nsx.key` file. Or, import the `nsx.key` file by clicking **Browse** and selecting it.
 1. For the **Service Certificate** option, make sure to select **No**.
@@ -132,12 +132,12 @@ Import certificate and private key to NSX-T by completing the following steps. T
 1. Verify that you see the certificate in the list of Certificates.  
   <img src="images/nsxt/nsxt-30/nsx-manager-1-36.png">  
 
-##<a id='nsxt30-mgmt-cert-reg'></a> Register the SSL Certificate and Private Key with the NSX-T API Server
+##<a id='nsxt30-mgmt-cert-reg'></a> Register the SSL Certificate and Private Key with the NSX API Server
 
-To register the imported VIP certificate with the NSX-T Management Cluster Certificate API, complete the following steps:
+To register the imported VIP certificate with the NSX Management Cluster Certificate API, complete the following steps:
 
-1. In the NSX-T Management Console, navigate to the **System** > **Certificates** page.
-1. View the UUID of the certificate from the NSX-T Management Console > **Certificates** screen. 
+1. In the NSX Management Console, navigate to the **System** > **Certificates** page.
+1. View the UUID of the certificate from the NSX Management Console > **Certificates** screen. 
   <img src="images/nsxt/nsxt-30/nsx-manager-1-37.png">
 1. Copy the UUID to the clipboard. For example, `170a6d52-5c61-4fef-a9e0-09c6229fe833`.
 1. Create the following environment variables. Replace the IP address with your VIP address and the UUID with the UUID of the imported certificate.
@@ -147,7 +147,7 @@ To register the imported VIP certificate with the NSX-T Management Cluster Certi
     export CERTIFICATE_ID=170a6d52-5c61-4fef-a9e0-09c6229fe833
     ```
 
-1. Post the certificate to the NSX-T Manager API.
+1. Post the certificate to the NSX Manager API.
 
     ```
     curl --insecure -u admin:'VMware1!VMware1!' -X POST "https://$NSX_MANAGER_IP_ADDRESS/api/v1/cluster/api-certificate?action=set_cluster_certificate&certificate_id=$CERTIFICATE_ID"
@@ -167,7 +167,7 @@ then you must also post the certificate to the Nodes API.
     ```
     <p class="note"><strong>Note</strong>: Using a single-node NSX Management cluster is an unsupported configuration.</p>
 
-1. Verify by SSHing to one of the NSX-T Management nodes and running the following command. 
+1. Verify by SSHing to one of the NSX Management nodes and running the following command. 
 
     Confirm the returned certificate matches the generated one.  
 
