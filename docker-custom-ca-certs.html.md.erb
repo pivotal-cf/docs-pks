@@ -1,44 +1,37 @@
 ---
-title: Configuring Cluster Access to Private Docker Registries (Beta)
+title: Configuring Cluster Access to Private Registries (Beta)
 owner: TKGI
 ---
 
-This topic describes how to configure <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) Kubernetes clusters 
-with private registry SSL Certificate Authority (CA) certificates.  
+This topic describes how to configure <%= vars.product_full %> (<%= vars.k8s_runtime_abbr %>) Kubernetes clusters to access private Docker or containerd registries that are secured by SSL Certificate Authority (CA) certificates.
 
 
-<p class="note warning"><strong>Warning: </strong> Configuring <%= vars.k8s_runtime_abbr %> clusters with private Docker registry CA certificates is 
-currently in beta and is intended for evaluation and test purposes only. 
+<p class="note warning"><strong>Warning: </strong> Configuring <%= vars.k8s_runtime_abbr %> clusters to use private registries is currently in beta and is intended for evaluation and test purposes only.
 Do not use this feature in a <%= vars.k8s_runtime_abbr %> production environment.
 </p>
 
 <br>
-<br>
 ## <a id="overview"></a><a id="configure-for-docker"></a>Overview
 
-You can store images in a private Docker registry and secure the registry with SSL CA certificates:  
+You can store images for <%= vars.k8s_runtime_abbr %> in private registries that are secured with SSL CA certificates.
 
-* You can enable your <%= vars.k8s_runtime_abbr %> Kubernetes clusters to authenticate
-into a private Docker registry by configuring your clusters with SSL CA certificates.
+To enable new and existing <%= vars.k8s_runtime_abbr %> Kubernetes clusters to access the private registries, you configure them with the local registry addresses and the SSL CA certificates needed to authenticate with the registries.
 
-* You can configure both new and existing <%= vars.k8s_runtime_abbr %> clusters to have
-Docker registry CA certificates.
-
-<p class="note"><strong>Note:</strong> Only Linux clusters can be configured to have Docker registry CA certificates.
+<p class="note"><strong>Note:</strong> Only Linux clusters can be configured to use private registries.
 </p>
 
-To create a new cluster configured with Docker registry SSL CA certificates, complete the following procedures:
+To create a new cluster configured to use private registries:
 
 1. [Set up Your API Access Token](#set-token)
-1. [Create a Cluster with SSL CA Certificates](#create-cluster)
+1. [Create a Cluster with Private Registry Access](#create-cluster)
 
-To update an existing cluster with Docker registry SSL CA certificates, complete the following procedures:
+To update an existing cluster to use private registries:
 
 1. [Set up Your API Access Token](#set-token)
-1. [Update a Cluster with SSL CA Certificates](#update-cluster)
+1. [Update a Cluster with Private Registry Access](#update-cluster)
 
 <p class="note"><strong>Note:</strong> The procedures documented in this topic configure an individual
-  <%= vars.k8s_runtime_abbr %> Kubernetes cluster with a Docker Registry SSL CA certificate. 
+  <%= vars.k8s_runtime_abbr %> Kubernetes cluster with SSL CA certificates.
   See <a href="https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-integrating-pks.html#provide-harbor-cert">
   Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH</a> in
   <i>Integrating VMware Harbor Registry with <%= vars.product_short %></i> if you want to
@@ -50,14 +43,14 @@ To update an existing cluster with Docker registry SSL CA certificates, complete
 <br>
 ## <a id='prerequisites'></a> Prerequisites
 
-Before configuring <%= vars.k8s_runtime_abbr %> Kubernetes clusters to have Docker registry CA certificates, you must have the following:
+Before configuring <%= vars.k8s_runtime_abbr %> Kubernetes clusters to access private registries, you must have the following:
 
-* A private Docker registry configured to use SSL CA certificates. 
+* A private registry secured with SSL CA certificates.
 For more information about securing a private Docker registry, see 
 [Use self-signed certificates](https://docs.docker.com/registry/insecure/#use-self-signed-certificates)
 in the _Docker Registry_ manual.
 
-<p class="note warning"><strong>Warning: </strong> The FQDN for the private Docker registry cannot contain a hyphen, dash, or semi-colon. 
+<p class="note warning"><strong>Warning: </strong> The FQDN for the private registry cannot contain a hyphen, dash, or semicolon.
   If such a character is included in the registry name the <%= vars.control_plane %> will reject it as not a valid character.
 </p>
 
@@ -65,14 +58,14 @@ in the _Docker Registry_ manual.
 <br>
 ## <a id='set-token'></a> Set up Your API Access Token
 
-The curl commands in this topic use an access token environment variable to
+The `curl` commands in this topic use an access token environment variable to
 authenticate to the <%= vars.control_plane %> endpoints.
 
 <%= partial 'create-auth-token-var' %>
 
 <br>
 <br>
-## <a id='create-cluster'></a> Create a Cluster with SSL CA Certificates
+## <a id='create-cluster'></a> Create a Cluster with Private Registry Access
 
 You can create a new cluster configured with one or more SSL CA certificates by
 using the <%= vars.control_plane %> `create-cluster` endpoint.
@@ -91,10 +84,14 @@ using the <%= vars.control_plane %> `create-cluster` endpoint.
       "plan_name": "PLAN-NAME",
       "parameters": {
         "kubernetes_master_host": "KUBERNETES-CONTROLPLANE-HOST",
+        "k8s_customization_parameters": {
+          "insecure_registries": ["DOMAIN-NAME"],
+          "unset_http_proxy": ["runtime", "kube-apiserver"]
+        },
         "custom_ca_certs": [
           {
             "domain_name": "DOMAIN-NAME",
-            "ca_cert": "CA-CERTFICATE"
+            "ca_cert": "CA-CERTIFICATE"
           }
         ]
       }
@@ -108,25 +105,26 @@ using the <%= vars.control_plane %> `create-cluster` endpoint.
         <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
         if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
         </p>
-    * `PLAN-NAME` is the name of your plan.  
+    * `PLAN-NAME` is the name of your plan.
     * `KUBERNETES-CONTROLPLANE-HOST` is your Kubernetes control plane host.  
-    *  `DOMAIN-NAME` is a Docker Registry URL. You cannot remove an existing Docker Registry URL from a cluster.
-    If you specify a URL that is already registered with your cluster,
-    the cluster's existing CA certificate for that URL is overwritten.  
-    * `CA-CERTFICATE` is the CA certificate that corresponds to `DOMAIN-NAME`.  
-    For more information about using a CA certificate in a <%= vars.control_plane %> command, see 
+    * `DOMAIN-NAME` is the address of the private registry, for example `registry.tkgi.local` or `10.148.253.20`.
+
+        - You cannot remove an existing Docker Registry URL from a cluster.
+        If you specify a URL that is already registered with your cluster, the cluster's existing CA certificate for that URL is overwritten.
+    * `CA-CERTIFICATE` is the CA certificate for the registry at `DOMAIN-NAME`.
+    For more information about including CA certificates in a <%= vars.control_plane %> command, see
     [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.  
     <br>
-    You can configure your cluster with additional certificates by including the certificates in
+    To configure your cluster with additional registries, add them to the `insecure_registries` list and include their certificates in
     the <code>custom_ca_certs</code> array as additional <code>domain_name</code>,
-    <code>ca_cert</code> pairs.  
+    <code>ca_cert</code> pairs.
     <p class="note"><strong>Note:</strong> You can include wildcard characters in your
     <code>domain_name</code> URLs. For example, <code>*.docker.com</code>.
     </p>
 
 <br>
 <br>
-## <a id='update-cluster'></a> Update a Cluster with SSL CA Certificates
+## <a id='update-cluster'></a> Update a Cluster with Private Registry Access
 
 You can update an existing cluster with one or more SSL CA certificates by using the <%= vars.control_plane %> `update-cluster` endpoint.
 
@@ -140,34 +138,37 @@ You can update an existing cluster with one or more SSL CA certificates by using
       -H 'Content-Type: application/json' \
       -H 'Host: TKGI-API:9021' \
       -d '{
+            "k8s_customization_parameters": {
+              "insecure_registries": ["DOMAIN-NAME"],
+              "unset_http_proxy": ["runtime", "kube-apiserver"]
+            },
             "custom_ca_certs": [
               {
                 "domain_name": "DOMAIN-NAME",
-                "ca_cert": "CA-CERTFICATE"
+                "ca_cert": "CA-CERTIFICATE"
               }
             ]
           }'
     ```
     Where:  
 
-    * `TKGI-API` is the FQDN of your <%= vars.control_plane %> endpoint. For example, `api.tkgi.example.com`.  
+    * `TKGI-API` is the FQDN of your <%= vars.control_plane %> endpoint. For example, `api.tkgi.example.com`.
     * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.  
-    * `CLUSTER-NAME` is the name of your cluster.  
-    *  `DOMAIN-NAME` is a Docker Registry URL. You cannot remove an existing Docker Registry URL from a cluster.
-    If you specify a URL that is already registered with your cluster, 
-    the cluster's existing CA certificate for that URL is overwritten.  
-    * `CA-CERTFICATE` is the CA certificate that corresponds to `DOMAIN-NAME`. 
-    For more information about using a CA certificate in a <%= vars.control_plane %> command, see 
+    * `CLUSTER-NAME` is the name of your cluster.
+    * `DOMAIN-NAME` is the address of the private registry, for example `registry.tkgi.local` or `10.148.253.20`.
+
+        - You cannot remove an existing Docker Registry URL from a cluster.
+        If you specify a URL that is already registered with your cluster, the cluster's existing CA certificate for that URL is overwritten.
+    * `CA-CERTIFICATE` is the CA certificate for the registry at `DOMAIN-NAME`.
+    For more information about including CA certificates in a <%= vars.control_plane %> command, see
     [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.  
     <br>
-    You can configure your cluster with additional certificates by including the certificates in
+    To configure your cluster with additional registries, add them to the `insecure_registries` list and include their certificates in
     the <code>custom_ca_certs</code> array as additional <code>domain_name</code>,
-	 <code>ca_cert</code> pairs.  
+    <code>ca_cert</code> pairs.
     <p class="note"><strong>Note:</strong> You can include wildcard characters in your
     <code>domain_name</code> URLs. For example, <code>*.docker.com</code>.
     </p>
-
-
 
 <br>
 <br>
@@ -205,4 +206,4 @@ PEM certificate files typically have the extensions `.pem`, `.crt`, `.cer`, or `
 
 PEM files start with the string `-----BEGIN CERTIFICATE-----`, terminate with `-----END CERTIFICATE-----`, 
 and are Base64-encoded. 
-Certificate strings are long and are frequently stored within a certificate file with newline wrapping every 64 characters.  
+Certificate strings are long and are frequently stored within a certificate file with newline wrapping every 64 characters.
