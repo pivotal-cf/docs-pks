@@ -658,6 +658,71 @@ Create or update your network profile as described in [Creating and Managing Net
 
 <hr>
 
+#### <a id="1-18-0-no-pool"></a> Error Scaling Clusters when Compute Profile Lacks Node Pool
+
+**Symptom**
+
+When you scale up a cluster by passing `--num-nodes` to `tkgi cluster-upgrade` you see the error `An error occurred in the PKS API`.
+
+The pks-api.log includes: `Request processing failed; nested exception is java.lang.NullPointerException`, which triggers within the nested `ClusterService` methods `extractCustomizationNodePoolNames` < `validateComputeProfileUuidAndKubernetesWorkerInstances` < `updateCluster`.
+
+**Explanation**
+
+The cluster's Compute Profile lacks a node-pool specification, and 
+setting `--num-nodes` for cluster updating does not work when the 
+Compute Profile does not specify a node pool.
+
+**Workaround**
+
+Create and apply a new compute profile that specifies a node pool:
+
+1. Create a new JSON compute profile definition that defines a node pool with a worker node instance count. For example, this code defines a compute profile `cp-1` with target instance count `16`:
+
+  ```
+    cat cp-1.json 
+    {
+      "name": "cp-1",
+      "description": "compute profile 1",
+      "parameters": {
+        "cluster_customization": {
+          "control_plane": {
+            "cpu": 2,
+            "memory_in_mb": 8192,
+            "persistent_disk_in_mb": 28240,
+            "ephemeral_disk_in_mb": 28240,
+            "instances": 3
+          },
+          "node_pools": [
+            {
+              "name": "pool-1",
+              "description": "node pool 1",
+              "instances": 16
+            }
+          ]
+        }
+      }
+    }
+  ```
+
+1. Apply the new compute profile to the cluster:
+
+  ```
+  tkgi update-cluster my-cluster --compute-profile cp-1.json
+  ```
+
+  When you apply the new profile, the worker nodes migrate from instance group `worker` to the new instance group, `worker-pool-1`. If the instance count exceeds the number specified in plan, <%= vars.k8s_runtime_abbr %> adds instances to the new group before updating existing instances.
+
+After the new node pool is created, you can scale the cluster by running:
+
+```
+tkgi update-cluster cluster-1 --node-pool-instances "POOL:COUNT" 
+```
+
+Where `POOL` is the node pool name and `COUNT` is its instance count.
+
+
+<hr>
+
 #### <a id="1-18-0-vrops"></a> Interoperability with VMware Aria Operations Management Pack for Kubernetes Is Unavailable
 <% if vars.product_version == "COMMENTED"  %>
 **This issue has been resolved:** VMware Aria Operations Management Pack for Kubernetes v2.0 provides interoperability with <%= vars.k8s_runtime_abbr %> <%= vars.product_version %>. 
