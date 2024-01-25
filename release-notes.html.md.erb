@@ -2084,6 +2084,53 @@ will not recognize the restored Ops Manager and cannot manage it.
 
 <hr>
 
+#### <a id="1-16-0-in-tree-pvc"></a> PVC multi-attach errors when upgrading to 1.16
+
+**Symptom**
+
+When upgrading a cluster that uses deprecated in-tree vSphere storage volumes to TKGI 1.16, upgrade fails with error `Warning FailedAttachVolume [...] Multi-Attach error for volume "pvc-[<ID-STRING>]"`.
+
+**Explanation**
+
+On Kubernetes v1.24 and later, a cluster's `vsphere-legacy-cloud-provider` component needs `ServiceAccount` permissions defined in order to update node objects. Upgrading to TKGI 1.16, which runs on Kubernetes v1.24, does not automatically create these permissions.
+
+**Workaround**
+
+Before you upgrade a cluster to TKGI 1.16, create and apply the following `ClusterRoleBinding` and `ClusterRole` objects within the cluster context:
+
+  ```
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: system:serviceaccount:kube-system:vsphere-legacy-cloud-provider
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:serviceaccount:kube-system:vsphere-legacy-cloud-provider
+    subjects:
+      - kind: ServiceAccount
+        name: vsphere-legacy-cloud-provider
+        namespace: kube-system
+
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: system:serviceaccount:kube-system:vsphere-legacy-cloud-provider
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - nodes
+        verbs:
+          - get
+          - list
+          - patch
+          - update
+  ```
+
+
+<hr>
+
 #### <a id="1-16-0-backslash-username"></a> vSphere CSI Failure When Backslash in User Name
 
 This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.16.6](#1-16-6-bug-fixes).
