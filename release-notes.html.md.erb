@@ -670,6 +670,41 @@ TKGI does not automatically set the feature state switch to enable `multi-vcente
 
 <hr>
 
+#### <a id="1-18-0-gmsa-join-fail"></a> GMSA authentication failures after stemcell upgrade
+
+**Symptom**
+
+For Windows worker clusters that authenticate users via a group Managed Service Account (gMSA) in Microsoft AD, upgrading the clusters to a new Windows stemcell may cause users to be unable to log in to the cluster.
+Valid credentials for containers on the cluster may no longer work.
+
+Logfile `join-domain/pre-start.stdout.log` contains:
+
+    ```
+    WARNING: The changes will take effect after you restart the computer WIN-<ID-STRING>.
+    Already joined to domain
+    ```
+
+**Explanation**
+
+When BOSH upgrades a VM's Windows stemcell, it re-creates the VM and then triggers a `join-domain` job to reconnect it with its GMSA group.
+Reconnecting with GMSA requires a second VM reboot, but <%= vars.k8s_runtime_abbr %> does not currently trigger the reboot automatically because its timing would interfere with other upgrade operations.
+
+**Workaround**
+
+After upgrading a Windows cluster with GMSA to a new stemcell, manually reboot its worker nodes:
+
+1. Run `bosh vms` to list the names of the worker nodes.
+
+1. For the worker nodes, which have `Instance` IDs that begin with `worker/`, run `bosh restart`.  For example:
+
+    ```
+    bosh -d service-instance_0d0f7798-e4e9-473f-8ddb-279bc61faef0 restart worker/2deca1a2-c6ed-4e37-8dce-91b141d98e8f
+    ```
+
+    Where `service-instance_0d0f7798-e4e9-473f-8ddb-279bc61faef0` is the example instance group and `worker/2deca1a2-c6ed-4e37-8dce-91b141d98e8f` is the example VM instance.
+
+<hr>
+
 <% if vars.product_version == "COMMENTED"  %>
 #### <a id="1-18-0-interoperability-with-tmc"></a> Interoperability with Tanzu Mission Control is Unavailable
 
