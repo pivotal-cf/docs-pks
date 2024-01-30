@@ -172,7 +172,8 @@ The supported upgrade paths to <%= vars.product_short %> v1.17.3 are from
 <%= vars.k8s_runtime_abbr %> v1.17.3 resolves the following issues:
 
 * Fixes [vSphere CSI Failure When Backslash in User Name](#1-17-0-backslash-username).
-* Fixes [Error Scaling Clusters when Compute Profile Lacks Node Pool](#1-17-0-no-pool)
+* Fixes [Error Scaling Clusters when Compute Profile Lacks Node Pool](#1-17-0-no-pool).
+* Fixes [Cannot SSH in to Ops Manager](1-17-2-no-ssh-opsman).
 * Fixes issue: Updating the compute profile for Kubernetes clusters loses `ClusterMetricSink` configuration details, preventing Prometheus from contacting Telegraf pods.
 * NCP update to v4.1.1.3 fixes bugs:
 
@@ -272,6 +273,7 @@ are also in <%= vars.product_short %> Management Console v1.17.3.
 For more information, see [<%= vars.k8s_runtime_abbr %> v1.17.2 Known Issues](#1-17-2-known-issues) below.
 
 <%= vars.k8s_runtime_abbr %> MC v1.17.3 does not include any additional known issues.
+
 
 <hr>
 
@@ -474,10 +476,43 @@ The supported upgrade paths to <%= vars.product_short %> v1.17.2 are from
 Except where noted, the known issues in <%= vars.product_short %> v1.17.1 are also in <%= vars.product_short %> v1.17.2. 
 For more information, see [<%= vars.k8s_runtime_abbr %> v1.17.1 Known Issues](#1-17-1-known-issues) below.  
 
-<%= vars.k8s_runtime_abbr %> v1.17.2 does not include any additional known issues.  
+<%= vars.k8s_runtime_abbr %> v1.17.2 has the following additional known issue.
+
+#### <a id="1-17-2-no-ssh-opsman"></a>Cannot SSH in to Ops Manager
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.17.3](#1-17-3-bug-fixes).
+
+**Symptom**
+
+After upgrading to TKGI v1.17.2 you cannot use `ssh` to log in to the Ops Manager VM as described in [Connect to Operations Manager with SSH](console-login-opsmanager.html#ops-manager-ssh).
+
+**Explanation**
+
+The upgrade process causes the Management Console > **Deployment Metadata** tab to display an SSH private key that does not match any public key in the Ops Manager VM's `/home/ubuntu/.ssh/authorized_keys`.
+
+**Workaround**
+
+Retrieve and use a working SSH private key from a configuration file on the TKG Management Console VM:
+
+1. From the Management Console (MC), retrieve the MC VM's host IP address under **Deployment Metadata** > **BOSH CLI invocation from console appliance**.
+
+1. `ssh` in to the MC VM as root:
+
+    ```
+    ssh root@IP-ADDRESS
+    ```
+
+1. Retrieve the private key from the file `/etc/vmware/.pks/om_root_ca`.
+
+1. `ssh` in to the Ops Manager VM by passing the private key to the `-i` flag of `ssh`. For example, to connect to the Ops Manager VM directly from the MC VM:
+
+    ```
+    ssh -i /etc/vmware/.pks/om_root_ca ubuntu@OPS-MANAGER-IP
+    ```
+
+    You can also copy the private key to `ssh` from your local workstation.
 
 <hr>
-
 
 <br>
 <br>
