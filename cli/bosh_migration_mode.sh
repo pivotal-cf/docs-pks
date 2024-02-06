@@ -3,7 +3,7 @@
 #Run this script on anywhere reachable to Opsmanager
 #The launcher should be able to run OMCLI, BOSH CLI, yq and has BOSH client env exported.
 #
-#OMCLI: https://docs.pivotal.io/ops-manager/2-10/install/cli.html
+#OMCLI: https://docs.vmware.com/en/VMware-Tanzu-Operations-Manager/3.0/vmware-tanzu-ops-manager/install-cli.html
 #BOSH CLI: https://bosh.io/docs/cli-v2-install/
 #yq CLI: https://github.com/mikefarah/yq
 #        https://mikefarah.gitbook.io/yq/v/v3.x/
