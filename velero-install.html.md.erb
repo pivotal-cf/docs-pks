@@ -1,17 +1,17 @@
 ---
-title: Installing Velero and Restic
+title: Installing Velero with File System Backup
 owner: TKGI
 ---
 
-This topic describes how to install Velero and restic for backing up and restoring <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)-provisioned Kubernetes workloads. 
-This topic also describes how to install MinIO for Velero with restic backup storage.  
+This topic describes how to install Velero for backing up and restoring <%= vars.product_short %> (<%= vars.k8s_runtime_abbr %>)-provisioned Kubernetes workloads. 
+This topic also describes how to install MinIO for Velero.  
 
 ##<a id="prereqs"></a> Prerequisites
 
-Ensure the following before installing Velero and restic for backing up and restoring <%= vars.k8s_runtime_abbr %>:
+Ensure the following before installing Velero for backing up and restoring <%= vars.k8s_runtime_abbr %>:
 
 * You have read: [Tanzu Kubernetes Workload Back Up and Restore Requirements](./backup-and-restore-work.html#requirements)
-in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero with Restic_.
+in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero_.
 * You have a Linux VM with sufficient storage to store several workload backups.
 You will install MinIO on this VM. For more information, see
 [Quick start evaluation install with MinIO](https://velero.io/docs/v1.8/contributions/minio/) in the Velero documentation.
@@ -21,13 +21,11 @@ If you do not have such a VM, you can install the Velero CLI locally
 but adjust the following installation steps to match your configuration.  
 * The Kubernetes environment has internet access and can be reached by the client VM.
 If the environment does not have internet access, refer to
-[Install Velero and Restic in an Air-Gapped Environment](velero-install.html#velero-cluster-install-airgapped) below.
+[Install Velero in an Air-Gapped Environment](velero-install.html#velero-cluster-install-airgapped) below.
 
 ##<a id="minio-deploy"></a> Deploy an Object Store
 
-restic requires an object store as the backup destination for workload backups.
-
-To deploy and configure a MinIO Server on a Linux Ubuntu VM as the Velero and restic backend object store:
+To deploy and configure a MinIO Server on a Linux Ubuntu VM as the Velero backend object store:
 
 1. [Install MinIO](#minio-install)
 1. [Enable MinIO as a Service](#minio-service)
@@ -211,13 +209,13 @@ To install the Velero CLI on the <%= vars.k8s_runtime_abbr %> client or on your 
         Version: <%= vars.velero_version %>
     ```
 
-##<a id='velero-cluster-install'></a> Install Velero and Restic on the Target Kubernetes Cluster
+##<a id='velero-cluster-install'></a> Install Velero on the Target Kubernetes Cluster
 
-To install the Velero and restic pods on each Kubernetes cluster whose workloads you intend to back up, complete the following:
+To install the Velero pods on each Kubernetes cluster whose workloads you intend to back up, complete the following:
 
 1. [Prerequisites](#velero-cluster-install-prereqs)
 1. [Set Up the kubectl Context](#velero-cluster-setup)
-1. [Install Velero and Restic](#velero-cluster-install-procedure)
+1. [Install Velero](#velero-cluster-install-procedure)
 
 ###<a id='velero-cluster-install-prereqs'></a>Prerequisites
 
@@ -230,7 +228,7 @@ For more information, see [Deploy an Object Store](#minio-deploy) above.
 ###<a id='velero-cluster-setup'></a>Set Up the kubectl Context
 
 The Velero CLI context will automatically follow the kubectl context.
-Before running Velero CLI commands to install Velero and restic on the target cluster, set the kubectl context:
+Before running Velero CLI commands to install Velero on the target cluster, set the kubectl context:
 
 1. Retrieve the name of the MinIO bucket. For example, `tkgi-velero`.
 1. Get the AccessKey and SecretKey for the MinIO bucket.
@@ -294,11 +292,11 @@ Update the file with the MinIO server access credentials that you collected abov
     ```
 
 
-###<a id='velero-cluster-install-procedure'></a><a id='velero-cluster-install-prodecure'></a>Install Velero and Restic
+###<a id='velero-cluster-install-procedure'></a><a id='velero-cluster-install-prodecure'></a>Install Velero
 
-To install Velero and restic:
+To install Velero:
 
-1. Run the following command to install Velero and restic on the target Kubernetes cluster:
+1. Run the following command to install Velero on the target Kubernetes cluster:
 
     ```
     velero install --image projects.registry.vmware.com/tkg/velero/velero:<%= vars.velero_version %>_vmware.1
@@ -307,7 +305,8 @@ To install Velero and restic:
     --bucket tkgi-velero \
     --secret-file ./credentials-minio \
     --use-volume-snapshots=false \
-    --use-restic \
+    --default-volumes-to-fs-backup \
+    --use-node-agent \
     --backup-location-config \
     region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
     ```
@@ -320,18 +319,20 @@ To install Velero and restic:
 <% end %>
     $ velero install --image projects.registry.vmware.com/tkg/velero/velero:<%= vars.velero_version %>_vmware.1  --provider aws  --plugins projects.registry.vmware.com/tkg/velero/velero-plugin-for-aws-<%= vars.velero_version_aws %>_vmware.1 \
     --bucket tkgi-velero  --secret-file ./credentials-minio  --use-volume-snapshots=false \
-    --use-restic  --backup-location-config \
+    --default-volumes-to-fs-backup \
+    --use-node-agent \
+    --backup-location-config \
     region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
 
     CustomResourceDefinition/backups.velero.io: created
     ...
     Waiting for resources to be ready in cluster...
     ...
-    DaemonSet/restic: created
+    DaemonSet/node-agent: created
     Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
     ```
 
-1. Verify the installation of Velero and restic:
+1. Verify the installation of Velero:
 
     ```
     kubectl logs deployment/velero -n velero
@@ -358,7 +359,7 @@ To install Velero and restic:
    ```
 
 
-1. Verify the `velero` and `restic` pods.
+1. Verify the `velero` and `node-agent` pods.
 
     ```
     kubectl get all -n velero
@@ -367,23 +368,23 @@ To install Velero and restic:
     For example:  
     
     ```console
-    $ kubectl get all -n velero
-    
-    NAME                         READY    STATUS            RESTARTS    AGE
-    pod/restic-25chx             0/1      CrashLoopBackOff    1         30s
-    pod/restic-rpxcp             0/1      CrashLoopBackOff    1         30s
-    pod/restic-wfxmg             0/1      CrashLoopBackOff    1         30s
-    pod/velero-8dc7498d9-9v7x4   1/1      Running             0         30s
+    $ kubectl get  all -n velero
+
+    NAME                          READY   STATUS             RESTARTS      AGE
+    pod/node-agent-96zjb          0/1     CrashLoopBackOff   4 (21s ago)   2m5s
+    pod/node-agent-9r7tn          0/1     CrashLoopBackOff   4 (29s ago)   2m5s
+    pod/node-agent-bw5pf          0/1     CrashLoopBackOff   4 (27s ago)   2m5s
+    pod/velero-7d459ffc95-44sps   1/1     Running            0             2m5s
     ```
 
 ###<a id='velero-privileged'></a> Modify the Host Path
 
-To run the three-pod restic DaemonSet on a Kubernetes cluster in <%= vars.k8s_runtime_abbr %>,
-you must modify the restic DaemonSet spec and modify the `hostpath` property.  
+To run the three-pod node-agent DaemonSet on a Kubernetes cluster in <%= vars.k8s_runtime_abbr %>,
+you must modify the node-agent DaemonSet spec and modify the `hostpath` property.  
 
-To modify the restic DaemonSet:
+To modify the node-agent DaemonSet:
 
-1. Verify the three-pod restic DaemonSet:
+1. Verify the three-pod node-agent DaemonSet:
 
     ```
     kubectl get pod -n velero
@@ -395,16 +396,16 @@ To modify the restic DaemonSet:
     $ kubectl get pod -n velero
     
     NAME                        READY     STATUS             RESTARTS    AGE
-    pod/restic-p5bdz            0/1       CrashLoopBackOff    4          3m8s
-    pod/restic-rbmnd            0/1       CrashLoopBackOff    4          3m8s
-    pod/restic-vcpjm            0/1       CrashLoopBackOff    4          3m8s
+    pod/node-agent-p5bdz            0/1       CrashLoopBackOff    4          3m8s
+    pod/node-agent-rbmnd            0/1       CrashLoopBackOff    4          3m8s
+    pod/node-agent-vcpjm            0/1       CrashLoopBackOff    4          3m8s
     pod/velero-68f47744f5-lb5df 1/1       Running             0          3m8s
     ```
 
 1. Run the following command:
 
     ```
-    kubectl edit daemonset restic -n velero
+    kubectl edit daemonset node-agent -n velero
     ```
 
 1. Change hostPath from `/var/lib/kubelet/pods` to `/var/vcap/data/kubelet/pods`:
@@ -417,7 +418,7 @@ To modify the restic DaemonSet:
 
 1. Save the file.
 
-1. To verify the three-pod restic DaemonSet:
+1. To verify the three-pod node-agent DaemonSet:
 
     ```
     kubectl get pod -n velero
@@ -428,15 +429,12 @@ To modify the restic DaemonSet:
     ```console
     kubectl get pod -n velero
     
-    NAME                      READY   STATUS    RESTARTS   AGE
-    restic-5jln8              1/1     Running   0          73s
-    restic-bpvtq              1/1     Running   0          73s
-    restic-vg8j7              1/1     Running   0          73s
-    velero-68f47744f5-lb5df   1/1     Running   0          10m
+    NAME                          READY   STATUS    RESTARTS   AGE
+    pod/node-agent-6ljm5          1/1     Running   0          23s
+    pod/node-agent-94cfd          1/1     Running   0          23s
+    pod/node-agent-brv77          1/1     Running   0          22s
+    pod/velero-7d459ffc95-44sps   1/1     Running   0          4m24s
     ```
-
-For information about the need to modify the restic DaemonSet spec,
-see [Restic Integration](https://velero.io/docs/v1.8/restic/) in the Velero documentation.
 
 ###<a id='velero-memory'></a> Adjust Velero Memory Limits If Necessary
 
@@ -471,9 +469,9 @@ To increase limits and requests memory settings:
     ```
 
 
-##<a id='velero-cluster-install-airgapped'></a> Install Velero and Restic in an Air-Gapped Environment
+##<a id='velero-cluster-install-airgapped'></a> Install Velero in an Air-Gapped Environment
 
-If you are working in an air-gapped environment, you can install Velero and restic using an internal registry.
+If you are working in an air-gapped environment, you can install Velero using an internal registry.
 For more information, see [Air-gapped deployments](https://velero.io/docs/v1.8/on-premises/#air-gapped-deployments)
 in the Velero documentation.
 
@@ -498,9 +496,10 @@ The instructions use Harbor.
     ```
     docker login harbor.example.com
     docker load -i velero-plugin-for-aws-<%= vars.velero_version_aws %>_vmware.1.tar.gz
-    docker tag vmware.io/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1 harbor.example.com/vmware-tanzu/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1
+    docker tag vmware.io/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1
     docker load -i velero-restic-restore-helper-<%= vars.velero_version %>+vmware.1.tar.gz
     docker tag projects.registry.vmware.com/tkg/velero/velero-restic-restore-helper:<%= vars.velero_version %>_vmware.1 harbor.example.com/vmware-tanzu/velero-restic-restore-helper:<%= vars.velero_version %>_vmware.1
+    harbor.example.com/vmware-tanzu/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1
     docker load -i velero-<%= vars.velero_version %>+vmware.1.tar.gz
     docker tag projects.registry.vmware.com/tkg/velero/velero:<%= vars.velero_version %>_vmware.1 harbor.example.com/vmware-tanzu/velero:<%= vars.velero_version %>_vmware.1
     docker push harbor.example.com/vmware-tanzu/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1
@@ -515,38 +514,32 @@ The instructions use Harbor.
     --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1 \
     --provider aws --bucket tkgi-velero --secret-file ./credentials-minio \
     --use-volume-snapshots=false \
-    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-restic
+    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-node-agent --default-volumes-to-fs-backup
     ```
 
     For example:  
     
     ```console
-    $ velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:<%= vars.velero_version %>_vmware.1 --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1 --provider aws --bucket tkgi-velero --secret-file ./credentials-minio --use-volume-snapshots=false    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-restic
+    $ velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:<%= vars.velero_version %>_vmware.1 --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:<%= vars.velero_version_aws %>_vmware.1 --provider aws --bucket tkgi-velero --secret-file ./credentials-minio --use-volume-snapshots=false    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-node-agent --default-volumes-to-fs-backup
     Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
     ```
 
-    For more information about installing Velero and restic, see
-    [On-Premises Environments](https://velero.io/docs/v1.8/on-premises/)
-    and [Restic Integration](https://velero.io/docs/v1.8/restic/)
-    in the Velero documentation.
+    For more information about installing Velero, see
+    [On-Premises Environments](https://velero.io/docs/v1.8/on-premises/) in the Velero documentation.
 
 
 5. After installing, configure the restic post-installation settings:
-    * Customize the restic helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+    * Customize the restore helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
     for the pod during the restore process.
-    You can do this by creating a ConfigMap and applying it in the Velero namespace, for example `kubectl apply -f restic-cm.yaml -n velero`.
-    Download the example ConfigMap [restic-cm.yaml](https://github.com/pivotal-cf/docs-pks/tree/<%= vars.product_version_raw %>/demos/velero-restic/) provided for this purpose.
+    You can do this by following [Customize Restore Helper Container](https://velero.io/docs/v1.11/file-system-backup/#customize-restore-helper-container) and using its ConfigMap example in the Velero documentation.
     * Modify the host path by editing the restic DaemonSet manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`.
     Verify that the restic pods are running.
     For more information, see [Modify the Host Path](#velero-privileged) above.
-    * (Optional) Increase your restic timeout: You can increase the restic timeout
-    for backups 1&nbsp;TB or larger by editing the Velero deployment manifest
-    and adding `'- --restic-timeout=900m'` to `spec.template.spec.containers`.
-    * (Optional) Adjust your restic Pod CPU and memory reserves: Depending on your requirements,
-    you can adjust the CPU and memory reserves and limits for your Velero and restic Pods.
+    * (Optional) Depending on your requirements,
+    you can adjust the CPU and memory reserves and limits for your Velero and node-agent pods.
     For more information, see [Adjust Velero Memory Limits (if necessary)](#velero-memory) above.
 <br>
-        **restic pod**
+        **node-agent pod**
 
         ```
         resources:
