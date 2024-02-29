@@ -507,7 +507,7 @@ The instructions use Harbor.
     docker push harbor.example.com/vmware-tanzu/velero:<%= vars.velero_version %>_vmware.1
     ```
 
-4. Install Velero with restic:
+4. Install Velero:
 
     ```
     velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:<%= vars.velero_version %>_vmware.1 \
@@ -528,18 +528,21 @@ The instructions use Harbor.
     [On-Premises Environments](https://velero.io/docs/v1.8/on-premises/) in the Velero documentation.
 
 
-5. After installing, configure the restic post-installation settings:
+5. After installing, configure the restic post-installation settings. Velero v1.10 sets its node-agent to `restic` by default:
     * Customize the restore helper container and make it the [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
     for the pod during the restore process.
     You can do this by following [Customize Restore Helper Container](https://velero.io/docs/v1.11/file-system-backup/#customize-restore-helper-container) and using its ConfigMap example in the Velero documentation.
     * Modify the host path by editing the restic DaemonSet manifest. Replace `/var/lib/kubelet/pods` with `/var/vcap/data/kubelet/pods`.
     Verify that the restic pods are running.
     For more information, see [Modify the Host Path](#velero-privileged) above.
-    * (Optional) Depending on your requirements,
-    you can adjust the CPU and memory reserves and limits for your Velero and node-agent pods.
+    * (Optional) You can increase the restic timeout
+    for backups 1&nbsp;TB or larger by editing the Velero deployment manifest
+    and adding `'- --restic-timeout=900m'` to `spec.template.spec.containers`.
+    * (Optional) Adjust your restic node-agent Pod CPU and memory reserves: Depending on your requirements,
+    you can adjust the CPU and memory reserves and limits for your Velero and restic Pods.
     For more information, see [Adjust Velero Memory Limits (if necessary)](#velero-memory) above.
 <br>
-        **node-agent pod**
+        **restic pod**
 
         ```
         resources:
