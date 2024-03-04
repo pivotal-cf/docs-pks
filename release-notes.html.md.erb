@@ -168,7 +168,7 @@ The supported upgrade paths to <%= vars.product_short %> v1.18.2 are from
 <br>
 ### <a id="1-18-2-features"></a><a id="1-18-2-enhancements"></a> Features and Enhancements
 
-<%= vars.k8s_runtime_abbr %> v1.18.2 does not include any new features or enhancements.
+* Prevents broker APIs from including base64-encoded PNG images in broker service metadata, to save syslog space.
 
 <br>
 ### <a id="1-18-2-bug-fixes"></a>Resolved Issues
@@ -177,7 +177,16 @@ The supported upgrade paths to <%= vars.product_short %> v1.18.2 are from
 
 * Fixes [Error Scaling Clusters when Compute Profile Lacks Node Pool](#1-18-0-no-pool)
 * Fixes [vSphere CSI Failure When Backslash in User Name](#1-18-0-backslash-username).
-* Fixes issue: Updating Kubernetes clusters loses `ClusterMetricSink` configuration details, preventing Prometheus from contacting Telegraf pods.
+* Fixes [Failed upgrade for clusters with Topology-aware volumes](#1-18-0-no-topology-set).
+* Fixes Updating Kubernetes clusters loses `ClusterMetricSink` configuration details, preventing Prometheus from contacting Telegraf pods.
+* Fixes security issue of `metrics` API endpoint exposing node OS version.
+* Containerd update to vTBD fixes issue [High-Severity CVE-2024-21626 in runc 1.1.11 and earlier](#1-18-0-cve-2024-21626).
+* NCP update to v4.1.0.5 fixes issues:
+
+    - The parameter `cookie_name` is configurable in the network profile when ingress `persistence_type` is set as `cookie`.
+    - Issue 3332908: Failure of load balancer during an edit of VS instance in TKGI.
+    - Issue 3310860: UDP connections with the same port may fail when endpoints of clusterIP Service restart.
+    - Issue 3305356 - Kubernetes LoadBalancer service is not accessible after being created
 
 <br>
 ###<a id="1-18-2-known-issues"></a>Known Issues
@@ -186,8 +195,6 @@ Except where noted, the known issues in <%= vars.k8s_runtime_abbr %> v1.18.1 are
 For more information, see [TKGI v1.18.1 Known Issues](#1-18-1-known-issues) below.
 
 TKGI v1.18.2 does not include any new known issues.
-
-<p class="note warning"><strong> Important:</strong> To address CVE-2024-21626 by patching <%= vars.k8s_runtime_abbr %> with a runc upgrade, see [High-Severity CVE-2024-21626 in runc 1.1.11 and earlier](#1-18-1-cve-2024-21626) below.
 
 <br>
 ### <a id="1-18-2-deprecations"></a> Deprecations
@@ -264,7 +271,7 @@ The supported upgrade paths to <%= vars.product_short %> Management Console v1.1
 <br>
 ### <a id="management-console-1-18-2-features"></a>Features and Resolved Issues
 
-<%= vars.k8s_runtime_abbr %> Management Console v1.18.2 does not include any new features or enhancements.
+* Fixes [Cannot SSH in to Ops Manager Using Displayed Key](#management-console-1-18-1-no-ssh-opsman).
 
 <br>
 ### <a id="management-console-1-18-2-known-issues"></a> Known Issues
@@ -549,7 +556,41 @@ The supported upgrade paths to <%= vars.product_short %> Management Console v1.1
 Except where noted, the known issues in <%= vars.k8s_runtime_abbr %> Management Console v1.18.0 are also in <%= vars.k8s_runtime_abbr %> Management Console v1.18.1.
 For more information, see [TKGI Management Console v1.18.0 Known Issues](#management-console-1-18-0-known-issues) below.
 
-TKGI v1.18.1 does not include any new known issues.
+#### <a id="management-console-1-18-1-no-ssh-opsman"></a>Cannot SSH in to Ops Manager Using Displayed Key
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.2](#management-console-1-18-2-features).
+
+**Symptom**
+
+After upgrading to TKGI v1.18.1 you cannot use the key displayed in the Management Console > **Deployment Metadata** tab to `ssh` in to the Ops Manager VM as described in [Connect to Operations Manager with SSH](console-login-opsmanager.html#ops-manager-ssh) .
+
+**Explanation**
+
+The upgrade process generates a new SSH private key but does not update its value as shown in the Management Console > **Deployment Metadata** tab. After upgrade, the displayed key no longer matches any public key in the Ops Manager VM's `/home/ubuntu/.ssh/authorized_keys`.
+
+**Workaround**
+
+Retrieve and use an up-to-date SSH private key from a configuration file on the TKG Management Console VM:
+
+1. `ssh` in to the Management Console VM as root:
+
+    ```
+    ssh root@MC-IP-ADDRESS
+    ```
+
+    Where `MC-IP-ADDRESS` is the IP address that you use to access the Management Console with a browser as described in [Step 2: Log In to <%= vars.k8s_runtime_abbr %> Management Console](console-deploy-ova.html#access-console).
+
+1. Retrieve the private key from the file `/etc/vmware/.pks/om_root_ca`.
+
+1. `ssh` in to the Ops Manager VM by passing the private key to the `-i` flag of `ssh`. For example, to connect to the Ops Manager VM directly from the MC VM:
+
+    ```
+    ssh -i /etc/vmware/.pks/om_root_ca ubuntu@OPS-MANAGER-IP
+    ```
+
+    You can also copy the private key to `ssh` from your local workstation.
+
+<hr>
 
 <br>
 ### <a id="management-console-1-18-1-deprecations"></a> Deprecations
@@ -840,6 +881,8 @@ in _About Tanzu Kubernetes Grid Integrated Edition Upgrades_.
 
 #### <a id="1-18-0-cve-2024-21626"></a>High-Severity CVE-2024-21626 in runc 1.1.11 and earlier
 
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.2](#1-18-2-bug-fixes).
+
 To address [CVE-2024-21626](https://www.cve.org/CVERecord?id=CVE-2024-21626), which [impacts runc v1.1.11 and earlier](https://github.com/opencontainers/runc/security/advisories/GHSA-xr7r-f8xq-vfvv), follow [Instructions to address CVE-2024-21626 for TKGI](https://kb.vmware.com/s/article/96500) in the VMware Knowledge Base.
 
 <hr>
@@ -912,6 +955,8 @@ For  more information on deleting clusters, see [Deleting Clusters](delete-clust
 <hr>
 
 #### <a id="1-18-0-no-topology-set"></a> Failed upgrade for clusters with Topology-aware volumes
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.2](#1-18-2-bug-fixes).
 
 **Symptom**
 
@@ -1040,6 +1085,8 @@ Refer to the [VMware Tanzu Mission Control Release Notes](https://docs.vmware.co
 
 #### <a id="1-18-0-backslash-username"></a> vSphere CSI Failure When Backslash in User Name
 
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.2](#1-18-2-bug-fixes).
+
 **Symptom**
 
 When installing or upgrading <%= vars.k8s_runtime_abbr %> with vSphere Container Storage Plug-in (CSI) enabled, CSI pods fail with the error `ErrImageNeverPull` and cluster logs show the error `unknown escape sequence`.
@@ -1071,6 +1118,8 @@ Create or update your network profile as described in [Creating and Managing Net
 <hr>
 
 #### <a id="1-18-0-no-pool"></a> Error Scaling Clusters when Compute Profile Lacks Node Pool
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.2](#1-18-2-bug-fixes).
 
 **Symptom**
 
