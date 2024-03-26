@@ -2043,11 +2043,12 @@ With TKGI deployed by the Management Console (MC), after you restart the Ops Man
 First, determine if the Ops Manager VM address changed when you restarted it.
 If so, the following steps will restore its original IP address.
 
-The MC deploys Ops Manager to the first IP in TKGI's Deployment CIDR range, configured under **Network Resources** in the MC.
-You can also retrieve the Deployment CIDR from the TKGI tile in Ops Manager.
+The MC deploys Ops Manager to the first IP in TKGI's Deployment CIDR range, following the Gateway address, as configured under **Network Resources** in the MC.
+You can also retrieve the Deployment CIDR from the TKGI tile in Ops Manager, under **Networks** > **Subnets** > **CIDR** and **Gateway**. If the Gateway address ends in `1` and is the first in the CIDR, the Ops Manager address ends in `2`.
+
 If the Ops Manager IP shown in vSphere is not the first IP in the Deployment CIDR range for TKGI, its address has changed.
 
-If the Ops Manager VM address has changed:
+If the Ops Manager VM address has changed, remove its `networkd` service and restart the VM so that its networking service picks up the correct, static IP from its OVF settings:
 
 1. From vSphere, `ssh` in to the Ops Manager VM.
 1. Run `sudo mv /usr/lib/systemd/system/*networkd* /root/`
@@ -2055,12 +2056,14 @@ If the Ops Manager VM address has changed:
 1. If the Ops Manager VM still does not have the correct IP address, continue with the following steps.
 1. From vSphere, power off the Ops Manager VM.
 1. Update the Ops Manager VM's network settings to specify a network that supports DHCP, and record its previous network settings.
+
+  - You will need to `ssh` in to the Ops Manager VM again, so if it lacks a DHCP network adapter you need some other way to access it. For example, mount its disk to another VM, inject a password, and log in with the new password.
 1. Power on the Ops Manager VM. It should have an IP address assigned by DHCP.
 1. `ssh` to the Ops Manager VM.
 1. Run `sudo mv /usr/lib/systemd/system/*networkd* /root/`
 1. Power off the Ops Manager VM.
 1. Update the VM's network settings again to revert to its previous network configuration.
-1. Power on the Ops Manager VM again. It should now have the correct static IP from its OVF settings.
+1. Power on the Ops Manager VM again. It should now have the correct static IP.
 
 <hr>
 
