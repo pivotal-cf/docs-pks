@@ -397,9 +397,41 @@ Reconnecting with gMSA requires a second VM reboot, but TKGI does not currently 
 
 After upgrading a Windows cluster with GMSA to a new stemcell, manually reboot its worker nodes:
 
-1. Run `bosh vms` to list the names of the worker nodes.
+1. Run `bosh vms` to list the names of the worker nodes, and record their `Deployment` ID and `Instance` IDs.
 
-1. For the worker nodes, which have `Instance` IDs that begin with `worker/`, run `bosh restart`.  For example:
+1. For the Windows worker nodes, which have `Instance` IDs that begin with `worker/`, log in to them and restart them as follows:
+
+1. Run `bosh -d DEPLOYMENT-ID ssh INSTANCE-ID`.
+1. Execute `powershell`.
+1. Run the following script, which restarts the VM and returns you to your local shell:
+
+  ```
+   Set-Service bosh-agent -StartupType Automatic
+   Set-Service bosh-dns-windows -StartupType Automatic
+   Set-Service bosh-dns-healthcheck-windows -StartupType Automatic
+   Set-Service bosh-dns-nameserverconfig-windows -StartupType Automatic
+   Set-Service kubelet -StartupType Automatic
+   Set-Service nsx-kube-proxy -StartupType Automatic
+   Set-Service nsx-node-agent -StartupType Automatic
+   Set-Service containerd -StartupType Automatic
+   Set-Service ovs-vswitchd -StartupType Automatic
+   Set-Service ovsdb-server -StartupType Automatic
+   Set-Service system-metrics-agent -StartupType Automatic
+   Get-Service bosh-agent | Select-Object -Property Name, StartType, Status
+   Stop-Service -Name bosh-agent -Force -NoWait
+   
+   # Restart to apply changes
+   echo "Restarting vm"
+   Restart-Computer
+  ```
+
+1. Wait until the VM is restarted and check the pod status:
+
+  ```
+  kubectl get pod POD-NAME
+  ```
+
+1. If the pod is stuck, `bosh restart` it, passing in DEPLOYMENT-ID and INSTANCE-ID. For example:
 
     ```
     bosh -d service-instance_0d0f7798-e4e9-473f-8ddb-279bc61faef0 restart worker/2deca1a2-c6ed-4e37-8dce-91b141d98e8f
