@@ -17,10 +17,83 @@ in the Kubernetes documentation.
 
 ##<a id='psa-interaction'></a> Pod Security Admission and <%= vars.k8s_runtime_abbr %>
 
-**Note**: To control the PSA security permissions in a <%= vars.k8s_runtime_abbr %> namespace, you must have the privileges to create, update, or 
-patch the namespace. To ensure security of the system, restrict the namespace permissions to the trusted user accounts.
+You can configure cluster-specific PSA in <%= vars.k8s_runtime_abbr %> by using a Kubernetes profile.
 
-The following table describes the required PSA level for <%= vars.k8s_runtime_abbr %> System namespaces:  
+1. Create the `psa-cluster` yaml file containing the following information:
+
+    ```
+    apiVersion: apiserver.config.k8s.io/v1
+    kind: AdmissionConfiguration
+    plugins:
+    - name: PodSecurity
+      configuration:
+        apiVersion: pod-security.admission.config.k8s.io/v1
+        kind: PodSecurityConfiguration
+        defaults:
+          enforce: ENFORCE-LEVEL
+          enforce-version: "ENFORCE-VERSION"
+          audit: AUDIT-LEVEL
+          audit-version: "AUDIT-VERSION"
+          warn: WARN-LEVEL
+          warn-version: "WARN-VERSION"
+        exemptions:
+          usernames: []
+          runtimeClasses: []
+          namespaces: [kube-system,pks-system,nsx-system,vmware-system-csi,CUSTOM-NAMESPACES]
+    ```
+    
+    Where:  
+    
+    - `ENFORCE-LEVEL` is the level for enforcing the security policy. Use a level that is accepted by Kubernetes, for example, `privileged`, `baseline`, or `restricted`.
+    - `ENFORCE-VERSION` is the version for enforcing the security policy. VMware strongly recommends using `latest` for the enforce version.
+    - `AUDIT-LEVEL` is the level for auditing a possible security policy violation. Use a level that is accepted by Kubernetes, for example, `privileged`, `baseline`, or `restricted`.
+    - `AUDIT-VERSION` is the version for auditing a possible security policy violation. VMware strongly recommends using `latest` for the audit version.
+    - `WARN-LEVEL` is the level for triggering a warning for a security policy violation. Use a level that is accepted by Kubernetes, for example, `privileged`, `baseline`, or `restricted`.
+    - `WARN-VERSION` is the version for the warning that is triggered for a security policy violation. VMware strongly recommends using `latest` for the warn version.
+    - `CUSTOM-NAMESPACES` is the <%= vars.k8s_runtime_abbr %> custom namespaces that you want to exclude.
+
+    <p class="note"><strong>Note</strong>: If you had configured any experimental admission control features by using a Kubernetes profile in the previous version 
+    of <%= vars.k8s_runtime_abbr %>, you must append it under the `plugin` field in the `psa-cluster` yaml file.
+    </p>
+
+1. Create the `config-psa-custom` json file containing the following information:
+
+    ```
+    {
+      "name":"psa-cluster-file",
+      "description":"PROFILE-DESCRIPTION",
+      "customizations":[
+          {
+              "component":"kube-apiserver",
+              "file-arguments":{
+                  "admission-control-config-file":"FILE-PATH"
+              }
+          }
+      ]
+    }
+    ```
+    Where:
+    
+    - `DESCRIPTION` is the decsription for your Kubernetes profile.
+    - `FILE-PATH` is the path to the `psa-cluster.yaml` file.
+
+1. Assign the profile to the cluster. For more iformation, see [Assign a Kubernetes Profile to an Existing Cluster](k8s-profiles.html#update).
+  
+For more information about configuring and using Kubernetes Profiles with TKGI, see [Using Kubernetes Profiles](k8s-profiles.html).
+  
+For more information about configuring cluster-level PSA, see [Enforce Pod Security Standards by Configuring the Built-in Admission Controller](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller) 
+in the Kubernetes documentation.
+
+##<a id='psa-interaction'></a> Pod Security Admission in a <%= vars.k8s_runtime_abbr %> Custom Namespace
+
+To allow for different customer scenarios and requirements, TKGI does not set default PSA policies for TKGI system namespaces.
+
+To ensure system integrity, <%= vars.recommended_by %> recommends securing TKGI system namespaces with PSA policies that are based on the PSA levels listed in the table below.
+
+> **Note** To control the PSA security permissions in a TKGI namespace, you must have the privileges to create, update, or patch the namespace.
+To ensure security of the system, restrict namespace permissions to trusted user accounts.
+
+The following table lists recommended PSA levels for TKGI system namespaces:
 
 <table>
   <tr>
@@ -49,7 +122,19 @@ The following table describes the required PSA level for <%= vars.k8s_runtime_ab
   </tr>
 </table>
 
-For more information on implementing Pod Security Standards with namespace labels, see [Enforce Pod Security Standards with Namespace Labels](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-namespace-labels/) in the Kubernetes documentation.  
+Customer-defined PSA policies do not change during TKGI cluster upgrade.
+
+The guide [Enforce Pod Security Standards with Namespace Labels](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-namespace-labels/) in the Kubernetes documentation explains how to set PSA polices for namespaces.
+For example, to enforce the recommended PSA levels for TKGI system namespaces as listed above, run:
+
+  ```
+  kubectl label ns kube-system pod-security.kubernetes.io/enforce=privileged
+  kubectl label ns nsx-system  pod-security.kubernetes.io/enforce=restricted
+  kubectl label ns pks-system  pod-security.kubernetes.io/enforce=privileged
+  kubectl label ns pks-system-host-monitoring  pod-security.kubernetes.io/enforce=restricted
+  kubectl label ns vmware-system-csi  pod-security.kubernetes.io/enforce=baseline
+  ```
+
 
 ##<a id='psa-migration'></a> Migrate from PSP to PSA Controller
 
