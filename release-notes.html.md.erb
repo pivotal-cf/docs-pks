@@ -198,6 +198,7 @@ The following have been removed from TKGI <%= vars.product_version %>:
 * A compute profile can specify both AZs and persistent disk sizes; you can set `azs` and `persistent_disk_in_mb` in one compute profile.
 * When NSX Manager is behind an HTTP/HTTPS proxy, the TKGI CLI can rotate NSX certificates; `tkgi rotate-certs` works when clusters are isolated from NCP via a proxy server.
 * When NSX Manager is behind an HTTP/HTTPS proxy, the TKGI CLI can rotate NSX certificates, with command `tkgi rotate-certificates`.
+* Reflecting dropped support for the `SecurityContextDeny` Admission Controller [in TKGI 1.18](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.18/tkgi/GUID-release-notes.html#1-18-0-breaking-changes), **Plan** configurations in the TKGI tile do not include the option.
 * Enhancements for command `tkgi upgrade-cluster --pre-check` when upgrading clusters to a new TKGI version:
 
     - Does not upgrade clusters with nodes that BOSH has marked as `ignored`.
@@ -292,50 +293,6 @@ For  more information on deleting clusters, see [Deleting Clusters](delete-clust
 
 TKGI on vSphere does not support running workload clusters in multiple vCenter server inventories.
 All vSphere clusters must be managed by the same vCenter server, due to an internal vSphere CPI change from in-tree to out-of-tree.
-
-<hr>
-
-#### <a id="1-19-0-no-topology-set"></a> Failed upgrade for clusters with Topology-aware volumes
-
-This issue is fixed in [TKGI v1.19.0](#1-19-0-bug-fixes).
-
-**Symptom**
-
-For clusters configured with Topology-aware volume provisioning, upgrading to TKGI 1.18.0 or 1.18.1 generates an error like:
-
-  ```
-  "failed to get vCenterInstance for vCenter Host: \"[vcsa027.zd.datev.de|http://vcsa027.zd.datev.de/]\". Error: virtual center was already registered","
-  ```
-
-**Explanation**
-
-TKGI does not automatically set the feature state switch to enable `multi-vcenter-csi-topology` for the cluster.
-
-**Workaround**
-
-1. Follow the instructions in [SSH into a Kubernetes Cluster VM](diagnostic-tools.html#cluster) to `ssh` into the master node of the failed cluster.
-
-1. Edit the file `/var/vcap/jobs/csi-controller/config/feature-switch.yml`.
-
-1. Add the following line to set the feature gate:
-
-    ```
-    "multi-vcenter-csi-topology": "true"
-    ```
-
-1. Stop the `csi-controller` and confirm that it has stopped:
-
-    ```
-    sudo monit stop csi-controller
-    sudo monit summary
-    ```
-
-1. Start the `csi-controller` and confirm that it has restarted:
-
-    ```
-    sudo monit start csi-controller
-    sudo monit summary
-    ```
 
 <hr>
 
@@ -443,24 +400,6 @@ After upgrading a Windows cluster with GMSA to a new stemcell, manually reboot i
 
 <hr>
 
-#### <a id="1-19-0-backslash-username"></a> vSphere CSI Failure When Backslash in User Name
-
-This issue is fixed in [TKGI v1.19.0](#1-19-0-bug-fixes).
-
-**Symptom**
-
-When installing or upgrading TKGI with vSphere Container Storage Plug-in (CSI) enabled, CSI pods fail with the error `ErrImageNeverPull` and cluster logs show the error `unknown escape sequence`.
-
-**Explanation**
-
-The CSI driver cannot correctly parse the vCenter username configuration setting if it contains a backslash  (`\`) character.
-
-**Workaround**
-
-When entering a vCenter user name in the TKGI Configuration Wizard or Ops Manager tile, use the format `user@domainname`, for example: "_user@example.com_". It cannot contain a backslash (`\`) character.
-
-<hr>
-
 #### <a id="1-19-0-chars-password"></a> Upgrade Failure When Special Characters in vSphere Password
 
 **Symptom**
@@ -499,108 +438,6 @@ Create or update your network profile as described in [Creating and Managing Net
 
 <hr>
 
-#### <a id="1-19-0-no-pool"></a> Error Scaling Clusters when Compute Profile Lacks Node Pool
-
-This issue is fixed in [TKGI v1.19.0](#1-19-0-bug-fixes).
-
-**Symptom**
-
-When you scale up a cluster by passing `--num-nodes` to `tkgi cluster-upgrade` you see the error `An error occurred in the PKS API`.
-
-The pks-api.log includes: `Request processing failed; nested exception is java.lang.NullPointerException`, which triggers within the nested `ClusterService` methods `extractCustomizationNodePoolNames` < `validateComputeProfileUuidAndKubernetesWorkerInstances` < `updateCluster`.
-
-**Explanation**
-
-The cluster's Compute Profile lacks a node-pool specification, and 
-setting `--num-nodes` for cluster updating does not work when the 
-Compute Profile does not specify a node pool.
-
-**Workaround**
-
-Create and apply a new compute profile that specifies a node pool:
-
-1. Create a new JSON compute profile definition that defines a node pool with a worker node instance count. For example, this code defines a compute profile `cp-1` with target instance count `16`:
-
-  ```
-    cat cp-1.json 
-    {
-      "name": "cp-1",
-      "description": "compute profile 1",
-      "parameters": {
-        "cluster_customization": {
-          "control_plane": {
-            "cpu": 2,
-            "memory_in_mb": 8192,
-            "persistent_disk_in_mb": 28240,
-            "ephemeral_disk_in_mb": 28240,
-            "instances": 3
-          },
-          "node_pools": [
-            {
-              "name": "pool-1",
-              "description": "node pool 1",
-              "instances": 16
-            }
-          ]
-        }
-      }
-    }
-  ```
-
-1. Apply the new compute profile to the cluster:
-
-  ```
-  tkgi update-cluster my-cluster --compute-profile cp-1.json
-  ```
-
-  When you apply the new profile, the worker nodes migrate from instance group `worker` to the new instance group, `worker-pool-1`. If the instance count exceeds the number specified in plan, TKGI adds instances to the new group before updating existing instances.
-
-After the new node pool is created, you can scale the cluster by running:
-
-  ```
-  tkgi update-cluster cluster-1 --node-pool-instances "POOL:COUNT" 
-  ```
-
-  Where `POOL` is the node pool name and `COUNT` is its instance count.
-
-
-<hr>
-
-#### <a id="1-19-0-scale-update"></a> Wrong Node Scale after Updating Cluster with New Compute Profile
-
-**Symptom**
-
-For clusters created with or assigned a compute profile as described in [Using Compute Profiles](compute-profiles-use.html), scaling the cluster by updating its compute profile and then performing additional cluster update operations may leave the cluster with the wrong node count.
-
-For example, after the following steps, the cluster may have a node count of 12 instead of 18 in its updated node pool:
-
-1. Create cluster `my-cluster` with a compute profile `cp-1` that defines a node pool `pool-1` with 6 nodes.
-1. Scale the cluster to 12 nodes by running `tkgi update-cluster my-cluster --node-pool-instances "pool-1:12"`.
-1. Create a new compute profile `cp-2` that sets the `pool-1` node pool to 18 nodes.
-1. Update the cluster with the profile `cp-2` by running `tkgi update-cluster my-cluster --compute-profile cp-2`.
-1. Rotate the cluster's certificates or perform other `tkgi update-cluster` operations.
-
-After the last step, the cluster pool's node count may erroneously revert to 12.
-
-**Workaround**
-
-After you update a cluster with a new compute profile that changes node counts, run `tkgi update-cluster CLUSTER-NAME  --node-pool-instances "NODEPOOL-NAME:NODE-COUNT"` where `NODE-COUNT` is the new node count.
-
-With the example above, after Step 3 run `tkgi update-cluster my-cluster --node-pool-instances "pool-1:18"`.
-
-<hr>
-
-#### <a id="1-19-0-vrops"></a> Interoperability with VMware Aria Operations Management Pack for Kubernetes Is Unavailable
-
-**Description**
-
-Interoperability with VMware Aria Operations Management Pack for Kubernetes is temporarily unavailable.  
-
-VMware Aria Operations Management Pack for Kubernetes is currently not compatible with TKGI <%= vars.product_version %>. 
-Interoperability between VMware Aria Operations Management Pack for Kubernetes and TKGI <%= vars.product_version %> is expected at a later time.  
-
-<hr>
-
 #### <a id="1-19-0-renamed-ops-man"></a> TKGI MC Unable to Manage TKGI after Restoring the TKGI Control Plane from Backup
 
 **Symptom**
@@ -614,107 +451,6 @@ include the following error: "...product 'pivotal-container service' is not depl
 TKGI MC is associated with an Ops Manager with a specific name.
 If you rename Ops Manager with a new name while restoring, your TKGI MC
 will not recognize the restored Ops Manager and cannot manage it.
-
-<hr>
-
-#### <a id="1-19-0-cloud-controller"></a> Error: Cloud Controller Manager Fails to Start
-
-**Symptom**
-
-Cluster upgrade or BOSH manifest deploy fails with cloud controller errors, for example:
-
-- **vSphere**: `Process 'vsphere-cloud-controller-manager' Does not exist`
-- **AWS**: `failed jobs` error for `aws-cloud-controller-manager` and related components.
-    - `aws-cloud-controller-manager` logs list `failed to create listener` errors for multiple processes.
-
-**Explanation**
-
-During cluster upgrade, the cluster's Cloud Controller Manager (CCM) initializes, and if the API server is not yet available, the initialization process waits. When the API server becomes available, the CCM may then launch redundant processes that confuse internal coordination.
-
-**Workaround**
-
-Restart the CCM:
-
-1. Log in to the cluster's control-plane node.
-
-1. Find the process ID (PID) for the CCM:
-
-    ```
-    ps aux | grep cloud-controller-manager
-    ```
-
-1. Kill the CCM process:
-
-    ```
-    kill CCM-PROCESS
-    ```
-
-    Where `CCM-PROCESS` is the PID listed by the previous step.
-
-1. The CCM and its sub-processes re-create automatically.
-
-<hr>
-
-#### <a id="1-19-0-azure-apply-changes"></a> Error: Could Not Execute "Apply-Changes" in Azure Environment
-
-**Symptom**
-
-After clicking **Apply Changes** on the TKGI tile in an Azure environment,
-you experience an error '_...could not execute "apply-changes"..._' with either of the following descriptions:
-
-* _{"errors":{"base":["undefined method 'location' for nil:NilClass"]}}_
-* _FailedError.new("Resource Groups in region '#{location}' do not support Availability Zones"))_
-
-For example:
-
-```
-INFO | 2020-09-21 03:46:49 +0000 | Vessel::Workflows::Installer#run | Install product (apply changes)
-2020/09/21 03:47:02 could not execute "apply-changes": installation failed to trigger: request failed: unexpected response from /api/v0/installations:
-HTTP/1.1 500 Internal Server Error
-Transfer-Encoding: chunked
-Cache-Control: no-cache, no-store
-Connection: keep-alive
-Content-Type: application/json; charset=utf-8
-Date: Mon, 21 Sep 2020 17:51:50 GMT
-Expires: Fri, 01 Jan 1990 00:00:00 GMT
-Pragma: no-cache
-Referrer-Policy: strict-origin-when-cross-origin
-Server: Ops Manager
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-X-Content-Type-Options: nosniff
-X-Download-Options: noopen
-X-Frame-Options: SAMEORIGIN
-X-Permitted-Cross-Domain-Policies: none
-X-Request-Id: f5fc99c1-21a7-45c3-7f39
-X-Runtime: 9.905591
-X-Xss-Protection: 1; mode=block
-
-44
-{"errors":{"base":["undefined method `location' for nil:NilClass"]}}
-0
-```
-
-**Explanation**
-
-The Azure CPI endpoint used by Ops Manager has been changed and
-your installed version of Ops Manager is not compatible with the new endpoint.
-
-**Workaround**
-
-Run the following Ops Manager CLI command:
-
-```
-om --skip-ssl-validation --username USERNAME --password PASSWORD --target https://OPSMAN-API curl --silent --path /api/v0/staged/director/verifiers/install_time/IaasConfigurationVerifier -x PUT -d '{ "enabled": false }'
-```
-
-Where:
-
-* `USERNAME` is the account to use to run Ops Manager API commands.
-* `PASSWORD` is the password for the account.
-* `OPSMAN-API` is the IP address for the Ops Manager API
-
-For more information, see
-[Error 'undefined method location' is received when running Apply Change on Azure](https://community.pivotal.io/s/article/undefined-method-location-when-running-Apply-Change-on-Azure?language=en_US) in the VMware Tanzu Knowledge Base.
 
 <hr>
 
