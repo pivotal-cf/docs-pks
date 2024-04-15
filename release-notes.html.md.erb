@@ -470,7 +470,32 @@ The supported upgrade paths to <%= vars.product_short %> v1.18.2 are from
 Except where noted, the known issues in <%= vars.k8s_runtime_abbr %> v1.18.1 are also in <%= vars.k8s_runtime_abbr %> v1.18.2.
 For more information, see [TKGI v1.18.1 Known Issues](#1-18-1-known-issues) below.
 
-TKGI v1.18.2 does not include any new known issues.
+TKGI v1.18.2 contains an additional known issue:
+
+#### <a id="1-18-2-chars-password"></a> Upgrade Failure When Special Characters in vSphere Password
+
+**Symptom**
+
+When upgrading TKGI with vSphere Container Storage Plug-in (CSI) enabled, pods listed by `kubectl get pods` remain stuck with `STATUS` `Pending`.
+
+Running `kubectl describe` on worker nodes lists `Taints:             node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule`.
+
+Log file `/var/vcap/sys/log/vsphere-cloud-controller-manager/vsphere-cloud-controller-manager.stderr.log` includes `Credentials not found` error, for example:
+
+  ```
+  E0326 02:55:12.479807 21110 node_controller.go:236] error syncing 'b9a897b1-bf26-4460-a002-1c16a84d40a0': failed to get provider ID for node b9a897b1-bf26-4460-a002-1c16a84d40a0 at cloudprovider: failed to get instance ID from cloud provider: Credentials not found, requeuing
+  ```
+
+This behavior occurs when your vSphere password starts with a special character or contains backslash (`\`) characters.
+
+**Explanation**
+
+With internal vSphere CPI change from in-tree to out-of-tree, the CSI driver upgrade operation parses vCenter passwords incorrectly and cannot retrieve node information.
+This leads to the `uninitialized=true:NoSchedule` taint being attached to nodes.
+
+**Workaround**
+
+Change your vSphere password to not start with a special character or contain backslash (`\`) characters.
 
 <br>
 ### <a id="1-18-2-deprecations"></a> Deprecations
@@ -1107,9 +1132,6 @@ For more information about configuring CNS data centers, see
 in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.  
 <% end %>
 
-
- 
-
 <br>
 ### <a id="1-18-0-bug-fixes"></a>Resolved Issues
 
@@ -1235,6 +1257,87 @@ When deleting a cluster that uses a public cloud CSI Driver:
 1. Manually delete the workload PVCs and PVs before deleting the cluster.  
 1. Delete the cluster. 
 For  more information on deleting clusters, see [Deleting Clusters](delete-cluster.html).  
+
+<hr>
+
+#### <a id="1-18-0-fluentd-logs"></a> Ephemeral storage overrun with temporary logfiles from Fluentd
+
+**Symptom**
+
+Fluentd component logfiles that contain error text `invalid byte sequence in UTF-8` fill up and overrun ephemeral storage on cluster, for example `/tmp/fluent/backup/worker0/object_c79c/` mapped to ephemeral storage disk `dev/sdb1`.
+
+**Workaround**
+
+Modify Fluentd configuration by changing its log handling code `out_loginsight_buffered.rb` as follows:
+
+1. Upload the latest BOSH release to the BOSH Director:
+
+  ```
+  bosh upload-release --sha1 daf34e35f1ac678ba05db3496c4226064b99b3e4 "https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=22.2.1" 
+  ```
+
+  For a different release, download it with `wget https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=RELEASE"` and calculate its SHA-1 with `shasum os-conf-release\?v\=RELEASE"`.
+
+1. Create a runtime config file `runtime.yml` with the following code, to modify the `out_loginsight_buffered.rb` code:
+
+  ```
+  releases:
+  - name: "os-conf"
+    version: "22.2.1"
+  addons:
+  - name: os-configuration
+    include:
+      deployments: [dep1,dep2...]  =====> need to change to the cluster deployment id that you want to apply the change, if you want apply the change to all the clusters, just delete the include section.
+    jobs:
+    - name: pre-start-script
+      release: os-conf
+      properties:
+        script: |-
+          #!/bin/bash
+          if [ -d "/var/vcap/jobs/fluentd/packages/vrli-fluentd/plugins/" ]; then
+            sed -i 's/force_encoding("utf-8")/encode!('\''UTF-8'\'', '\''binary'\'', invalid: :replace, undef: :replace, replace: '\'' '\'' )/g' /var/vcap/jobs/fluentd/packages/vrli-fluentd/plugins/out_loginsight_buffered.rb
+            echo "done"
+          fi
+  ```
+
+1. Apply the runtime config file to the BOSH Director, giving it the name `runtime-fluentd`:
+
+  ```
+  bosh update-runtime-config --name runtime-fluentd runtime.yml
+  ```
+
+1. Check if the runtime config been set successfully:
+
+  ```
+  bosh runtime-config  --name runtime-fluentd
+  ```
+
+  The command output should list the contents of `runtime.yml`.
+
+1. Upgrade the cluster with ephemeral storage overrun, to apply the new runtime config:
+
+  ```
+  tkgi upgrade-cluster CLUSTER-NAME
+  ```
+
+1. Log in to a cluster worker or master node and check that the file `/var/vcap/jobs/fluentd/packages/vrli-fluentd/plugins/out_loginsight_buffered.rb` includes the following lines:
+
+  ```
+  key.force_encoding("utf-8",invalid: :replace)
+  ...
+  value.force_encoding("utf-8",invalid: :replace)
+  ```
+
+1. Check that no more logfiles are routing to the directory `/tmp/fluent/backup/worker0` and no more error logs containing `invalid byte sequence in UTF-8` are writing to `/var/vcap/sys/log/fluentd.stdout.log`.
+
+1. (Optional) Delete the runtime config:
+
+  ```
+  bosh delete-config --type runtime --name runtime-fluentd
+  ```
+
+  Unless you delete it, the runtime config persists in the BOSH Director and is applied with TKGI updates and upgrades, and other operations that run `bosh deploy`.
+  After you upgrade to a TKGI version that fixes this issue, leaving the runtime config in place is harmless, but it does leave an unneeded file on the BOSH Director filesystem and make BOSH execute an unnecessary script.
 
 <hr>
 
