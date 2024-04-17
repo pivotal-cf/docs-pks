@@ -177,6 +177,8 @@ The supported upgrade paths to <%= vars.product_short %> v1.18.3 are from
 * Fixes [Wrong Node Scale after Updating Cluster with New Compute Profile](#1-18-0-scale-update).
 * Added `Strict-Transport-Security` header to nginx HTTPS server configuration on Management Console VM to improve security scan results.
 * Fixes cluster creation error when `service-cluster-ip-range` in a custom Kubernetes profile is set to a smaller range than the **Networking** > **Kubernetes Service Network CIDR Range** setting in the TKGI Ops Manager tile.
+* [Upgrade Failure When Special Characters in vSphere Password](#1-18-2-chars-password).
+* [Ephemeral storage overrun with temporary logfiles from Fluentd](#1-18-0-fluentd-logs).
 * SSH configuration improvements address [CVE-2023-48795](https://nvd.nist.gov/vuln/detail/CVE-2023-48795).
 * Updated SAMBA+ to 4.18.4 to address CVE-2023-0922.
 
@@ -186,10 +188,7 @@ The supported upgrade paths to <%= vars.product_short %> v1.18.3 are from
 Except where noted, the known issues in <%= vars.k8s_runtime_abbr %> v1.18.2 are also in <%= vars.k8s_runtime_abbr %> v1.18.3.
 For more information, see [TKGI v1.18.2 Known Issues](#1-18-2-known-issues) below.
 
-TKGI v1.18.3 does not include any new known issues, but the following two issues were found in previous releases:
-
-* [Upgrade Failure When Special Characters in vSphere Password](#1-18-2-chars-password) in TKGI 1.18.2
-* [Ephemeral storage overrun with temporary logfiles from Fluentd](#1-18-0-fluentd-logs) in TKGI 1.18.0.
+TKGI v1.18.3 does not include any new known issues.
 
 <br>
 ### <a id="1-18-3-deprecations"></a> Deprecations
@@ -476,6 +475,8 @@ For more information, see [TKGI v1.18.1 Known Issues](#1-18-1-known-issues) belo
 TKGI v1.18.2 contains an additional known issue:
 
 #### <a id="1-18-2-chars-password"></a> Upgrade Failure When Special Characters in vSphere Password
+
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.3](#1-18-3-bug-fixes).
 
 **Symptom**
 
@@ -1265,6 +1266,8 @@ For  more information on deleting clusters, see [Deleting Clusters](delete-clust
 
 #### <a id="1-18-0-fluentd-logs"></a> Ephemeral storage overrun with temporary logfiles from Fluentd
 
+This issue is fixed in [<%= vars.k8s_runtime_abbr %> v1.18.3](#1-18-3-bug-fixes).
+
 **Symptom**
 
 Fluentd component logfiles that contain error text `invalid byte sequence in UTF-8` fill up and overrun ephemeral storage on cluster, for example `/tmp/fluent/backup/worker0/object_c79c/` mapped to ephemeral storage disk `dev/sdb1`.
@@ -1326,9 +1329,9 @@ Modify Fluentd configuration by changing its log handling code `out_loginsight_b
 1. Log in to a cluster worker or master node and check that the file `/var/vcap/jobs/fluentd/packages/vrli-fluentd/plugins/out_loginsight_buffered.rb` includes the following lines:
 
   ```
-  key.force_encoding("utf-8",invalid: :replace)
+  key.encode!('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ' ' )
   ...
-  value.force_encoding("utf-8",invalid: :replace)
+  value.encode!('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: ' ' )
   ```
 
 1. Check that no more logfiles are routing to the directory `/tmp/fluent/backup/worker0` and no more error logs containing `invalid byte sequence in UTF-8` are writing to `/var/vcap/sys/log/fluentd.stdout.log`.
