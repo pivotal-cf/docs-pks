@@ -189,14 +189,21 @@ TKGI v1.19.1 does not include any new breaking changes.
 <br>
 ### <a id="1-19-1-features"></a>Features and Enhancements
 
-* 
+* Supports running clusters across multiple vSphere Datacenters. See [Configuring Multiple vSphere Datacenters](vsphere-nsxt-om-config.html#multi-dc) for NSX, or [Configuring Multiple vSphere Datacenters](vsphere-om-install-config.html#multi-dc) for Antrea networking.
 
 <br>
 ### <a id="1-19-1-bug-fixes"></a>Resolved Issues
 
 TKGI v1.19.1 resolves the following issues:
 
-* Fixes 
+* Fixes [Limitation on Multiple vSphere Datacenters](#1-19-0-no-multi-dc). See [Configuring Multiple vSphere Datacenters](vsphere-nsxt-om-config.html#multi-dc) for NSX, or [Configuring Multiple vSphere Datacenters](vsphere-om-install-config.html#multi-dc) for Antrea networking.
+* Fixes [Upgrading cluster with CLI loses tags on AWS](#1-19-0-lose-tags)
+* Fixes [Cannot upgrade after rotating Ops Manager CA](#1-19-0-om-cert).
+* Fixes [Updating cluster compute profile loses node drain and shutdown settings](#1-19-0-lose-adv-settings)
+* Fixes [With Antrea, Cannot Fill In Compute Profile Fields](#1-19-0-profile-fields-antrea)
+* Fixes [Ephemeral storage overrun with temporary logfiles from Fluentd](https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid-Integrated-Edition/1.18/tkgi/GUID-release-notes.html#1-18-0-fluentd-logs).
+* Fixes [Upgrade Failure When Special Characters in vSphere Password](#1-19-0-chars-password]
+* Fixes network configuration error "network configuration | Failed | failed to create overlay segment ... Invalid transport zone path" during cluster deploy after migrating NSX to Policy Mode as described in NSX Management Plane API to NSX Policy API](mp2p-migration.html).
 
 <br>
 ###<a id="1-19-1-known-issues"></a>Known Issues
@@ -505,6 +512,27 @@ All vSphere clusters must be managed by the same vCenter server, due to an inter
 
 <hr>
 
+#### <a id="1-19-0-om-cert"></a> Cannot upgrade after rotating Ops Manager CA
+
+This issue is fixed in [TKGI v1.19.1](#1-19-1-bug-fixes).
+
+**Symptom**
+
+With TKGI deployed by the Management Console (MC), after you rotate the Ops Manager CA certificate, you cannot upgrade <%= vars.product_short %>.
+The upgrade fails with errors that the MC cannot access BOSH:
+
+    ```
+    Error GetInstanceByID: cannot get BOSH client: 
+    [...]
+    Get [https://10.110.93.3:25555/info|https://10.110.93.3:25555/info/]: x509: certificate signed by unknown authority
+    ```
+
+**Workaround**
+
+Immediately after you rotate the Ops Manager CA, run the <%= vars.product_short %> MC Configuration Wizard, step through the configuration panes, run **Generate Configuration**, and then run **Apply Configuration**.
+
+<hr>
+
 #### <a id="1-19-0-containerd-istio"></a> TKGI version upgrade without new stemcell fails for Containerd runtime clusters with Istio CNI
 
 **Symptom**
@@ -626,6 +654,8 @@ After upgrading a Windows cluster with GMSA to a new stemcell, manually reboot i
 
 #### <a id="1-19-0-chars-password"></a> Upgrade Failure When Special Characters in vSphere Password
 
+This issue is fixed in [TKGI v1.19.1](#1-19-1-bug-fixes).
+
 **Symptom**
 
 When upgrading TKGI with vSphere Container Storage Plug-in (CSI) enabled, pods listed by `kubectl get pods` remain stuck with `STATUS` `Pending`.
@@ -670,6 +700,8 @@ Create or update your network profile as described in [Creating and Managing Net
 
 #### <a id="1-19-0-lose-adv-settings"></a> Updating cluster compute profile loses node drain and shutdown settings
 
+This issue is fixed in [TKGI v1.19.1](#1-19-1-bug-fixes).
+
 **Symptom**
 
 In the management console, when you update a Linux cluster that is created with a compute profile as described in [Update Cluster Configuration](console-create-clusters.md#update-clusters), the **Advanced Settings** panel shows and applies incorrect defaults for node drain and pod shutdown grace period settings.
@@ -686,6 +718,24 @@ Default settings are:
   - Enabled: Force drain if DaemonSet-managed pods
   - Enabled: Force drain if pods using emptyDir
   - Disabled: Force drain if pods running after timeout{panel}
+
+<hr>
+
+#### <a id="1-19-0-lose-tags"></a> Upgrading cluster with CLI loses tags on AWS
+
+This issue is fixed in [TKGI v1.19.1](#1-19-1-bug-fixes).
+
+**Symptom**
+
+After running `tkgi upgrade-cluster` with TKGI on AWS, the cluster's tags no longer appear in the AWS console.
+
+**Workaround**
+
+To restore the cluster tags on AWS after upgrading an AWS cluster with the TKGI CLI:
+
+1. Run `tkgi cluster CLUSTER-NAME` as described in [Review Your Tags](tag-clusters.html#tagging-review) and copy the `Tags:` value from the command output.
+
+1. Run `tkgi update-cluster CLUSTER-NAME --tags TAGS` and pass in the existing tags value.
 
 <hr>
 
