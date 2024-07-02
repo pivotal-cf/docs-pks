@@ -1,16 +1,47 @@
-# Enabling CUDA for GPUs
+# Create GPU Clusters with CUDA
 
-This page explains how to enable Compute Unified Device Architecture (CUDA) for NVIDIA GPUs that run hosted applications on TKGI.
+This page explains how to create TKGI clusters on vSphere with NVIDIA GPU worker nodes and Compute Unified Device Architecture (CUDA) enabled for hosted applications.
 
-## <a id="prep"></a> Hardware Preparation
+## <a id="overview"></a> Overview
 
-To enable cuda in TKGI, first you need to prepare the hardware, there
-should be cuda enabled GPU present on the ESXi host. We recommend
-grouping the hosts that have GPUs into one cluster(availability zone)
-for simple management.
+To create a CUDA-enabled GPU cluster with TKGI on vSphere, you:
 
-You need to configure PCI passthrough for the GPUs through vCenter UI,
-and write down the vendor_id/device_id for latter use.
+1. Plug compatible GPU cards into your ESXi hosts.
+1. Configure PCI passthrough for the cards, and retrieve the `vendor_id` and `device_id` that identify them.
+1. Configure a BOSH VM Extension for a VM instance group that uses the GPUs, as set by `pci_passthroughs`.
+1. (Optional) To enable the cluster to run workloads on either non-GPU or GPU processors, configure a compute profile that defines both non-GPU and GPU node pools.
+1. Create the cluster.
+1. Install the [NVIDIA GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) on the cluster to integrate the GPU with Kubernetes.
+  - By default, the NVIDIA GPU Operator installs a default GPU driver on worker nodes, but you can also customize the GPU driver image.
+
+
+## <a id="prereqs"></a> Prerequisites
+
+* TKGI v1.20 or later.
+* ESXi hosts running vSphere 7.0 Update 3 or later. Listed below are the builds for 7.0u3 which is the minimum required to support this.
+  * [VMware vCenter Server 7.0 Update 3 | ISO Build 18700403](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-vcenter-server-703-release-notes.html).
+  * [VMware ESXi 7.0 Update 3c | ISO Build 19193900](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-esxi-70u3c-release-notes.html).
+* NVIDIA GPU cards from G8x series or later, such as GeForce, Quadro, or Tesla
+  * These cards support CUDA.
+* Helm, the Kubernetes package manager. To install, see [Installing Helm](https://helm.sh/docs/intro/install/) in the Helm documentation.
+
+
+## <a id="prep"></a> Prepare the Hardware
+
+To prepare GPU hardware for supporting TKGI clusters with CUDA:
+
+1. Plug a GPU card into each ESXi host.
+  - To simplify management, VMware recommends grouping the hosts that have GPUs into the same cluster, so they run within a single availability zone (AZ).
+
+1. Enable PCI passthrough and record the GPU IDs:
+   1. In your vSphere Client, select the target ESXi host in the `GPU` cluster.
+   1. Select **Configure > Hardware > PCI Devices**.
+   1. Select the **All PCI Devices** tab.
+   1. For each target GPU:
+
+      1. Select the GPU from the list.
+      1. Click **Toggle Passthrough**.
+      1. Under **General Information**, record the **Device ID** and **Vendor ID**. Both IDs are the same for identical GPU cards.
 
 ![CUDA preparation](images/cudaprep.png)
 
@@ -144,6 +175,8 @@ pciPassthru.64bitMMIOSizeGB to the next power of 2 works.
 If the total GPU framebuffer memory falls between two powers-of-2, round
 up to the next power of 2, then round up again, to get a working
 setting.
+
+## <a id="create"></a>Create the Cluster
 
 Now you can create cluster with following commands:
 
