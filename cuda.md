@@ -191,30 +191,30 @@ How you create the cluster depends on whether you defined a compute profile:
 
   1. Create the compute profile:
 
-    ```
-    tkgi create-compute-profile  ~/work/x/tkgi-gpu/src/tkgi/gpu-compute-profile.json
-    ```
+      ```
+      tkgi create-compute-profile  ~/work/x/tkgi-gpu/src/tkgi/gpu-compute-profile.json
+      ```
 
   1. Create the cluster with the profile:
 
-    ```
-    tkgi create-cluster my-gpu-cluster \
-     --external-hostname my-gpu-cluster.example.com \
-    --plan small \
-    --compute-profile < compute profile defined above > \
-    --config-file < path to the vm_extension file save above >
-    ```
+      ```
+      tkgi create-cluster my-gpu-cluster \
+       --external-hostname my-gpu-cluster.example.com \
+      --plan small \
+      --compute-profile < compute profile defined above > \
+      --config-file < path to the vm_extension file save above >
+      ```
 
 * **No compute profile**:
 
   1. Create the GPU-only cluster:
 
-    ```
-     tkgi create-cluster my-gpu-cluster \
-     --external-hostname my-gpu-cluster.example.com \
-    --plan small \
-    --config-file < path to the vm_extension file save above >
-    ```
+      ```
+       tkgi create-cluster my-gpu-cluster \
+       --external-hostname my-gpu-cluster.example.com \
+      --plan small \
+      --config-file < path to the vm_extension file save above >
+      ```
 
 
 ## <a id="operator"></a>Install the GPU Operator
