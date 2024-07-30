@@ -1,6 +1,7 @@
-# Create GPU Clusters with CUDA
+# Create GPU Clusters (Beta)
 
-This page explains how to create TKGI clusters on vSphere with NVIDIA GPU worker nodes and Compute Unified Device Architecture (CUDA) enabled for hosted applications.
+This page explains how to create TKGI clusters on vSphere that run NVIDIA GPU worker nodes.
+Applications hosted on the GPU clusters access GPU functionality via Compute Unified Device Architecture (CUDA).
 
 ## <a id="overview"></a> Overview
 
@@ -23,15 +24,14 @@ To create a CUDA-enabled GPU cluster with TKGI on vSphere, you:
 * ESXi hosts running vSphere 7.0 Update 3 or later. Listed below are the builds for 7.0u3 which is the minimum required to support this.
   * [VMware vCenter Server 7.0 Update 3 | ISO Build 18700403](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-vcenter-server-703-release-notes.html).
   * [VMware ESXi 7.0 Update 3c | ISO Build 19193900](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-esxi-70u3c-release-notes.html).
-* Helm, the Kubernetes package manager. To install, see [Installing Helm](https://helm.sh/docs/intro/install/) in the Helm documentation.
 
 
 ## <a id="prep"></a> Prepare the Hardware
 
 To prepare GPU hardware for supporting TKGI clusters with CUDA:
 
-1. Plug a GPU card into each ESXi host.
-  - To simplify management, VMware recommends grouping the hosts that have GPUs into the same cluster, so they run within a single availability zone (AZ).
+1. Plug the GPU cards into your ESXi hosts.
+  - To simplify management, VMware recommends grouping the hosts that have GPUs into the same vSphere cluster, so they run within a single availability zone (AZ).
 
 1. Enable PCI passthrough and record the GPU IDs:
    1. In your vSphere Client, select the target ESXi host in the `GPU` cluster.
@@ -143,25 +143,31 @@ The IDs are the same for identical GPU boards, but you need to list them by the 
 
 The `vmx_options` sets extra properties for the GPU worker, for example:
 
-- `pciPassthru.use64bitMMIO: ‘TRUE’` - set this for GPUs that require 16GB or more of
-memory mapping
-- `pciPassthru.64bitMMIOSizeGB: 128` - set this option to the size of memory
-mapped I/O (MMIO).
-  - Calculate this value by adding up the total GB of framebuffer memory on all GPUs attached to the VM, and set it to the next power of 2 above the total. For example, if all attached GPUs use 50GB, set this to 64GB.
+- `pciPassthru.use64bitMMIO: ‘TRUE’` - set this for GPUs that require 16GB or more of memory mapping
+- `pciPassthru.64bitMMIOSizeGB: 128` - set this option to the total amount of memory mapped I/O (MMIO) needed by your GPU cards, which is at minimum their combined framebuffer memory.
+  - For example, if all attached GPUs use 120GB total, set `64bitMMIOSizeGB` to `128GB`.
+
 
 ## <a id="cp"></a> (Optional) Configure Compute Profile
 
-To create a Kubernetes cluster with both GPU and non-GPU worker nodes, configure a compute profile that defines two node pools, one for each worker type, as described in [Using Compute Profiles (vSphere)](compute-profiles-use.md).
+To create a Kubernetes cluster with both GPU and non-GPU worker nodes, configure a compute profile and custom AZs that define separate node pools, one for each worker type, as described in [Create a Compute Profile](compute-profiles-manage.html#create).
 
 Without a compute profile, the cluster you create will only have GPU workers.
 
-For example:
+For example, to use a node pool `gpu-pool` in AZ `gpu-az`, create a compute profile spec `gpu-compute-profile.json` with:
 
   ```
   {
       "name": "gpu-compute-profile",
       "description": "gpu-compute-profile",
       "parameters": {
+          "azs": [{
+              "name": "gpu-az",
+                [...]
+                }]
+              }
+            }
+          ],
           "cluster_customization": {
               "node_pools": [
                   {
@@ -171,6 +177,7 @@ For example:
                   },
                   {
                       "name": "gpu-pool",
+                      "az_names": ["gpu-az"],
                       "instances": 3,
                       "max_worker_instances": 5
                   }
@@ -223,6 +230,10 @@ To enable GPU integration with the Kubernetes environment, NVIDIA
 provides a [GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) Helm chart for managing GPUs.
 This Kubernetes operator handles GPU driver lifecycle management, node labeling, container-toolkit installation, etc.
 
+See [Supported NVIDIA Data Center GPUs and Systems](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/platform-support.html#supported-nvidia-data-center-gpus-and-systems) in the NVIDIA documentation to determine whether the GPU Operator supports your hardware and environment.
+
+> **Note** Broadcom does not support NVIDIA software.
+
 To install the GPU Operator in your TKGI GPU cluster, see [Installing the NVIDIA GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#operator-install-guide) in the NVIDIA documentation.
 
 For Helm chart customization options, see [Common Chart Customization Options](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#chart-customization-options).
@@ -261,6 +272,9 @@ For example, a typical installation might go like this:
       --set toolkit.env[3].name=CONTAINERD_SET_AS_DEFAULT \
       --set-string toolkit.env[3].value="true"
   ```
+
+  The values `/var/vcap/jobs/containerd/config/config.toml` and `/var/vcap/sys/run/containerd/containerd.sock` are specific to TKGI.
+  
 
 ### <a id="custom"></a> Customize the Driver Image
 
