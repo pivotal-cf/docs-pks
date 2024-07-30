@@ -238,7 +238,7 @@ To install the GPU Operator in your TKGI GPU cluster, see [Installing the NVIDIA
 
 For Helm chart customization options, see [Common Chart Customization Options](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#chart-customization-options).
 
-For example, a typical installation might go like this:
+In a typical installation for example, you might run the following on the local workstation where you have `kubectl` installed:
 
 1. Install Helm, if not already installed:
 
@@ -274,7 +274,7 @@ For example, a typical installation might go like this:
   ```
 
   The values `/var/vcap/jobs/containerd/config/config.toml` and `/var/vcap/sys/run/containerd/containerd.sock` are specific to TKGI.
-  
+
 
 ### <a id="custom"></a> Customize the Driver Image
 
