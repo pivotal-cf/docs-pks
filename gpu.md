@@ -3,6 +3,9 @@
 This page explains how to create TKGI clusters on vSphere that run NVIDIA GPU worker nodes.
 Applications hosted on the GPU clusters access GPU functionality via Compute Unified Device Architecture (CUDA).
 
+VMware ESXi hosts let VMs directly access plugged-in GPU devices via PCI passthrough as described in [GPU Device in PCI Passthrough](https://docs.vmware.com/en/VMware-Edge-Compute-Stack/3.0/ecs-enterprise-edge-ref-arch/GUID-412AD9B3-6B9B-4BE0-B833-9205ACBCF956.html) in the VMware Edge documentation.
+
+
 ## <a id="overview"></a> Overview
 
 To create a CUDA-enabled GPU cluster with TKGI on vSphere, you:
@@ -21,9 +24,11 @@ To create a CUDA-enabled GPU cluster with TKGI on vSphere, you:
 * TKGI v1.20 or later.
 * NVIDIA GPU cards from G8x series or later, such as GeForce, Quadro, or Tesla
   * These cards support CUDA.
-* ESXi hosts running vSphere 7.0 Update 3 or later. Listed below are the builds for 7.0u3 which is the minimum required to support this.
-  * [VMware vCenter Server 7.0 Update 3 | ISO Build 18700403](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-vcenter-server-703-release-notes.html).
-  * [VMware ESXi 7.0 Update 3c | ISO Build 19193900](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-esxi-70u3c-release-notes.html).
+* ESXi hosts running vSphere 7.0 Update 3 or later.
+  * For ESXi I/O requirements, see [vSphere VMDirectPath I/O and Dynamic DirectPath I/O: Requirements for Platforms and Devices](https://knowledge.broadcom.com/external/article/312208/vsphere-vmdirectpath-io-and-dynamic-dire.html) in the Broadcom Support Knowledge Base.
+  * Listed below are the builds for 7.0u3, which is the minimum required to support GPU clusters.
+      * [VMware vCenter Server 7.0 Update 3 | ISO Build 18700403](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-vcenter-server-703-release-notes.html).
+      * [VMware ESXi 7.0 Update 3c | ISO Build 19193900](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-esxi-70u3c-release-notes.html).
 
 
 ## <a id="prep"></a> Prepare the Hardware
@@ -146,6 +151,8 @@ The `vmx_options` sets extra properties for the GPU worker, for example:
 - `pciPassthru.use64bitMMIO: ‘TRUE’` - set this for GPUs that require 16GB or more of memory mapping
 - `pciPassthru.64bitMMIOSizeGB: 128` - set this option to the total amount of memory mapped I/O (MMIO) needed by your GPU cards, which is at minimum their combined framebuffer memory.
   - For example, if all attached GPUs use 120GB total, set `64bitMMIOSizeGB` to `128GB`.
+  - See [Requirements for Using vGPU on GPUs Requiring 64 GB or More of MMIO Space with Large-Memory VMs](https://docs.nvidia.com/ai-enterprise/latest/release-notes/index.html#tesla-p40-large-memory-vms) in the NVIDIA documentation.
+  - For one person's approach to determining the `64bitMMIOSizeGB` setting, see [Calculating the value for 64bitMMIOSizeGB](https://earlruby.org/2022/02/calculating-the-value-for-64bitmmiosizegb/).
 
 
 ## <a id="cp"></a> (Optional) Configure Compute Profile
@@ -281,13 +288,3 @@ In a typical installation for example, you might run the following on the local 
 If the default GPU driver does not work or suit your needs, you can install custom one as described in [Running a Custom Driver Image](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#running-a-custom-driver-image) in the NVIDIA documentation.
 
 If you use a custom driver, you need to add the `driver.repository` and `driver.version` options you install the gpu-operator.
-
-## <a id="resources"></a> Resources
-
-- [<u>GPU Device in PCI
-  Passthrough</u>](https://docs.vmware.com/en/VMware-Edge-Compute-Stack/3.0/ecs-enterprise-edge-ref-arch/GUID-412AD9B3-6B9B-4BE0-B833-9205ACBCF956.html)
-
-- [<u>64bitMMIOSizeGB</u>](https://earlruby.org/2022/02/calculating-the-value-for-64bitmmiosizegb/)
-
-- [<u>PCI
-  passthrough</u>](https://knowledge.broadcom.com/external/article/312208/vsphere-vmdirectpath-io-and-dynamic-dire.html)
