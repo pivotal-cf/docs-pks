@@ -1,0 +1,107 @@
+---
+title: Migrating to a New Datastore
+owner: TKGI
+iaas: vsphere-nsxt
+---
+
+This topic explains how to migrate a TKGI control plane and cluster container volumes to a new vSphere datastore without impacting workload cluster functioning.
+
+For prerequisites and notes, see [How to migrate TKGI environment from one datastore to another datastore](https://knowledge.broadcom.com/external/article?legacyId=67277) in the Broadcom Support KB.
+
+## <a id="overview"></a> Overview
+
+A growing TKGI environment may outgrow its host vSphere datastore.
+To avoid this, you can move TKGI to a new datastore by migrating its components in the following order:
+
+1. Container volumes
+2. BOSH Director and Ops Manager
+3. The TKGI API server and database server
+4. Harbor servers deployed by the TKGI tile
+5. The TKGI Management Console VM
+
+The following sections explain how to perform these migration steps.
+
+## <a id="volumes"></a> Step 1: Change the Datastore for Container Volumes
+
+1. Log in to your vCenter and navigate to the datacenter, datastore, or vSphere cluster that hosts your TKGI infrastructure.
+
+2. In the **Monitor** tab, select **Cloud Native Storage** > **Container Volumes**.
+
+3. Select the volumes used by TKGI and click **Migrate**.
+
+4. On the **Migrate Volume** page, select the target datastore to migrate to.
+
+5. Confirm in the **Acknowledge** checkbox and click **Migrate**. The migration operation proceeds.
+
+For limitations and considerations, see:
+
+    * [Migrating Container Volumes in vSphere](https://docs.vmware.com/en/VMware-vSphere/8.0/vsphere-storage/GUID-536DEB75-84F5-48DC-A425-3BF703B8F54E.html) in the vSphere 8.0 documentation
+    * [Guidelines/Limitations for Cloud Native Storage (CNS) Relocate on vSphere and known issues](https://kb.vmware.com/s/article/90607) in the Broadcom Support KB
+
+## <a id="foundation"></a> Step 2: Change the Datastore for the BOSH Director and Ops Manager
+
+1. Log in to the Tanzu Operations Manager Installation Dashboard.
+
+2. Click into the **BOSH Director** tile.
+
+3. Select **vCenter Config**.
+
+4. Update the **Ephemeral Datastore Names** and **Persistent Datastore Names** text boxes to reflect the new datastore names.
+
+5. Click **Save**.
+
+6. Click **Review Pending Changes**.
+
+7. Disable the **Select All Products** check box so that only BOSH Director selected.
+
+8. Click **Apply Changes**. The BOSH Director redeploys.
+
+9. Confirm that the BOSH Director VM has a persistent disk on the new datastore:
+
+    1. Log in to vCenter and find the BOSH Director VM.
+
+    1. Review the BOSH Director VM's **Related Objects** to verify its storage location has updated to the new datastore.
+
+## <a id="tile"></a> Change the Datastore for TKGI Tile
+
+1. Log in to the Tanzu Operations Manager Installation Dashboard.
+
+2. In the **BOSH Director** tile, click **Director Config**.
+
+3. Select the **Recreate VMs deployed by the BOSH Director** option.
+
+4. Click **Review Pending Changes**.
+
+5. If using any service tiles, select the **Recreate All On-Demand
+    > Service Instances** errand for each tile you migrate.
+
+6. Click **Apply Changes**.
+
+7. Confirm that the TKGI VMs are on the new datastore:
+
+    - From the vCenter, find the TKGI VM.
+
+    - In the **Related Objects** section, verify the storage has been
+      > updated to the new datastore.
+
+## <a id="clusters"></a> Change the Datastore for Kubernetes Clusters
+
+1. Go to the **TKGI** tile and select **Kubernetes Cloud Provider**.
+
+2. Change the datastore to the new datastore.
+
+3. Click **Apply Changes**.
+
+4. Get deployment IDs for all TKGI clusters:
+
+  ```
+  bosh deployments --column=name | grep service-instance_
+  ```
+
+5. Run `bosh recreate` for each `service-instance` deployment re-create each TKGI cluster:
+
+  ```
+  bosh -d service-instance_CLUSTER-ID
+  ```
+
+  - If the cluster has only one master, to ensure no downtime and that etcd maintains the correct status, scale out the master to three instances first, then run bosh recreate to recreate the cluster VM, and finally scale the master node back down from three to one.
