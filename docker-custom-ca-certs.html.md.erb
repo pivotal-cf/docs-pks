@@ -3,19 +3,145 @@ title: Configuring Cluster Access to Private Registries
 owner: TKGI
 ---
 
-This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters to access private Docker or containerd registries that are secured by SSL Certificate Authority (CA) certificates.
+This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters to access private Docker or containerd image registries that are secured by SSL Certificate Authority (CA) certificates.
 
-<br>
-## <a id="overview"></a><a id="configure-for-docker"></a>Overview
-
-You can store images for TKGI in private registries that are secured with SSL CA certificates.
-
-To enable new and existing TKGI Kubernetes clusters to access the private registries, you configure them with the local registry addresses and the SSL CA certificates needed to authenticate with the registries.
+The procedures below configure an individual TKGI Kubernetes cluster with certificates to access one or more private registries.
+To configure all of your TKGI clusters to share the same certificates for accessing Harbor registries, see [Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH](https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-integrating-pks.html#provide-harbor-cert) in the Harbor documentation.
 
 <p class="note"><strong>Note:</strong> Only Linux clusters can be configured to use private registries.
 </p>
 
-To create a new cluster configured to use private registries:
+
+## <a id='cli'></a> Use the `tkgi` CLI to Configure Private Registry Access
+
+The easiest way to configure registry access for a new or existing TKGI cluster is by passing a registry configuration file to the `--private-registries` option of the `tkgi create-cluster` or `tkgi update-cluster` command:
+
+1. Create a registry configuration file formatted as follows for JSON, or else a YAML equivalent. To configure multiple registries or multiple hosts under a registry, include multiple blocks under `"servers"` or `"hosts"`:
+
+  ```
+  {
+    "servers": [
+      {
+        "url": REGISTRY-URL,
+        "hosts": [
+          {
+            "url": HOST-URL,
+            "capabilities": [
+              CAPABILITIES
+            ],
+            "ca_cert": "-----BEGIN CERTIFICATE-----\nMIIFizC[...]\n-----END CERTIFICATE-----\n",
+            "skip_verify": SKIP-VERIFY
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  Where:
+
+  - `REGISTRY-URL` is the URL of a registry server to configure access to
+  - `HOST-URL` is the URL of the registry host to configure access to
+  - A `ca_cert` value is required if the host `url` uses `HTTPS` protocol and `skip_verify` is not `true`.
+      - The certificate value contains no newline characters; see [Prepare a Certificate String for Command Line Use](#preparing-certificate) below.
+  - `CAPABILITIES` is a list that can include `pull`, `resolve`, and `push`.
+  - `SKIP-VERIFY` is `true` or `false` to skip verification for a private registry.
+
+  You can also include `client`, `override_path` and other fields; see [Registry Configuration - Introduction](https://github.com/containerd/containerd/blob/main/docs/hosts.md) in the containerd repository for more information.
+
+  For example, to configure two image registries, each with one secure and one insecure host:
+
+    ```
+    {
+      "servers": [
+        {
+          "url": "https://reg1.example.com",
+          "hosts": [
+            {
+              "url": "https://reg1.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ],
+              "ca_cert": "-----BEGIN CERTIFICATE-----\nMIIFizC[...]\n-----END CERTIFICATE-----\n",
+              "skip_verify": false
+            },
+            {
+              "url": "http://reg2-insecure.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ]
+            }
+          ]
+        },
+        {
+          "url": "https://reg2.example.com",
+          "hosts": [
+            {
+              "url": "https://reg2.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ],
+              "ca_cert": "-----BEGIN CERTIFICATE-----\nMIIFizC[...]\n-----END CERTIFICATE-----\n",
+              "skip_verify": false
+            },
+            {
+              "url": "http://reg2-insecure.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    ```
+
+1. Pass the registry configuration file to the `--private-registries` option of one of the following commands:
+
+  - `tkgi create-cluster`: create a new cluster with private registry access
+  - `tkgi update-cluster`: update an existing cluster to grant private registry access
+
+  For example:
+
+    ```
+    tkgi create-cluster --private-registries CONFIG-FILE
+    ```
+
+    Where `CONFIG-FILE` is a the registry configuration file.
+
+
+## <a id='preparing-certificate'></a> Prepare a Certificate String for Command Line Use
+
+When you include a certificate string in a TKGI CLI or API command, it cannot contain newline wrapping.
+
+To remove newline wrapping from a certificate string, run the following command:
+
+    ```
+    awk 'NF {sub(/\r/, ""); printf "%s\\\\n",$0;}'  CA-PEM
+    ```
+
+    Where `CA-PEM` is the filename of your PEM-formatted CA certificate file.
+
+### <a id='certificate-formats'></a> SSL CA Certificate Formats
+
+SSL CA certificates are unique CA-issued ASCII text strings.  
+
+The CAs issue most certificates as a PEM formatted ASCII text files. 
+PEM certificate files typically have the extensions `.pem`, `.crt`, `.cer`, or `.key`.  
+
+PEM files start with the string `-----BEGIN CERTIFICATE-----`, terminate with `-----END CERTIFICATE-----`, 
+and are Base64-encoded. 
+Certificate strings are long and are frequently stored within a certificate file with newline wrapping every 64 characters.
+
+
+## <a id='api'></a> Use the TKGI API to Configure Private Registry Access (Deprecated)
+
+In previous TKGI versions, the `tkgi` CLI did not support configuring private registry access, and you could only configure access as follows via the TKGI API.
+This method is deprecated:
 
 1. [Set up Your API Access Token](#set-token)
 1. [Create a Cluster with Private Registry Access](#create-cluster)
@@ -25,18 +151,8 @@ To update an existing cluster to use private registries:
 1. [Set up Your API Access Token](#set-token)
 1. [Update a Cluster with Private Registry Access](#update-cluster)
 
-<p class="note"><strong>Note:</strong> The procedures documented in this topic configure an individual
-  TKGI Kubernetes cluster with SSL CA certificates.
-  See <a href="https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-integrating-pks.html#provide-harbor-cert">
-  Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH</a> in
-  <i>Integrating VMware Harbor Registry with Tanzu Kubernetes Grid Integrated Edition</i> if you want to
-  apply a single Harbor Registry certificate to all of your TKGI clusters.
-</p>
-
-
 <br>
-<br>
-## <a id='prerequisites'></a> Prerequisites
+### <a id='prerequisites'></a> Prerequisites
 
 Before configuring TKGI Kubernetes clusters to access private registries, you must have the following:
 
@@ -49,8 +165,6 @@ in the _Docker Registry_ manual.
   If such a character is included in the registry name the TKGI API will reject it as not a valid character.
 </p>
 
-<br>
-<br>
 ## <a id='set-token'></a> Set up Your API Access Token
 
 The `curl` commands in this topic use an access token environment variable to
@@ -60,7 +174,7 @@ authenticate to the TKGI API endpoints.
 
 <br>
 <br>
-## <a id='create-cluster'></a> Create a Cluster with Private Registry Access
+### <a id='create-cluster'></a> Create a Cluster with Private Registry Access
 
 You can create a new cluster configured with one or more SSL CA certificates by
 using the TKGI API `create-cluster` endpoint.
@@ -117,9 +231,7 @@ using the TKGI API `create-cluster` endpoint.
     <code>domain_name</code> URLs. For example, <code>*.docker.com</code>.
     </p>
 
-<br>
-<br>
-## <a id='update-cluster'></a> Update a Cluster with Private Registry Access
+### <a id='update-cluster'></a> Update a Cluster with Private Registry Access
 
 You can update an existing cluster with one or more SSL CA certificates by using the TKGI API `update-cluster` endpoint.
 
@@ -164,41 +276,3 @@ You can update an existing cluster with one or more SSL CA certificates by using
     <p class="note"><strong>Note:</strong> You can include wildcard characters in your
     <code>domain_name</code> URLs. For example, <code>*.docker.com</code>.
     </p>
-
-<br>
-<br>
-## <a id='preparing-certificate'></a> Prepare a Certificate String for Command Line Use
-
-When you provide a certificate string on a command line or TKGI API command, as in the TKGI API commands above, 
-your certificate string must be provided without newline wrapping.  
-
-For information on certificate string formatting, see [SSL CA Certificate Formats](#certificate-formats) below.  
-
-<p class="note"><strong>Note:</strong> The TKGI API does not validate certificate strings for correctness. 
-  Ensure your certificate string is free of newline characters before using the certificate string in a TKGI API command.
-</p>
-
-To prepare your certificate string for command line use: 
-
-1. To remove newline wrapping from a certificate string, run the following command:  
-
-    ```
-    awk 'NF {sub(/\r/, ""); printf "%s\\\\n",$0;}'  CA-PEM
-    ```
-
-    Where `CA-PEM` is the filename of your PEM-formatted CA certificate file.  
-<br>
-    This command returns your certificate string without newline wrapping.   
-
-
-<br>
-### <a id='certificate-formats'></a> SSL CA Certificate Formats
-
-SSL CA certificates are unique CA-issued ASCII text strings.  
-
-The CAs issue most certificates as a PEM formatted ASCII text files. 
-PEM certificate files typically have the extensions `.pem`, `.crt`, `.cer`, or `.key`.  
-
-PEM files start with the string `-----BEGIN CERTIFICATE-----`, terminate with `-----END CERTIFICATE-----`, 
-and are Base64-encoded. 
-Certificate strings are long and are frequently stored within a certificate file with newline wrapping every 64 characters.
