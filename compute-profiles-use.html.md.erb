@@ -111,6 +111,8 @@ To create a cluster with a compute profile:
     Network Profile Name:  
     Kubernetes Profile Name:  
     Compute Profile Name:     custom-node-pools-compute-profile  
+    NSX Policy:               true
+    Private Registries:       true
     Tags:  
     ```
 
@@ -142,7 +144,7 @@ Before assigning a compute profile to an existing cluster:
 
 1. Review the following strict validation rules for the `tkgi update-cluster --compute-profile` command:  
 
-    * You cannot use a compute profile to change the Availability Zones of an existing cluster.  
+    * You cannot use a compute profile to change the Availability Zones (AZs) of an existing cluster without specifying the `--enforce-compute-profile-update` option.
     * You cannot use a compute profile to change the number of control plane nodes for an existing cluster.  
     * If an optional compute profile field is unspecified at the time of cluster update, 
     the value of that field is set to the value of the corresponding field from the plan.  
@@ -150,16 +152,18 @@ Before assigning a compute profile to an existing cluster:
     * Values passed to `--node-pool-instances` must match a `name` property of the node pools in the compute profile.  
     * You cannot update a compute profile that was applied to a cluster in TKGI 1.8 or earlier.  
     
-1. Review the following precautions and warnings:  
+1. Review the following warnings and limitations:  
 
-    <p class="note warning"><strong>Warning:</strong> Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile. Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.</p>
-    
-    <p class="note warning"><strong>Warning:</strong> If cluster update fails while applying a new compute profile with revised node pool names, 
-    do not reapply the previous compute profile: the cluster's worker nodes will be deleted. 
-    If you encounter this scenario, fix the new compute profile configuration without modifying the node pool names, and retry your cluster update. 
-    For more information, see [tkgi update-cluster compute profile failure](https://knowledge.broadcom.com/external/article?legacyId=91596) in the Broadcom Support Knowledge Base.</p>
+  > **Caution**
 
-    <p class="note"><strong>Note:</strong> Compute profiles do not support moving a cluster's nodes to different Availability Zones.</p>
+  > - **Control Plane Scaling**: Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile.
+  > Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.
+
+  > - **Control Plane AZs**: Do not change multiple AZs for control plane nodes at the same time. Each time you run `tkgi update-cluster --compute-profile ... --enforce-compute-profile-update`, the `cluster_customization.control_plane.az_names` value can only change one AZ name.
+
+  > - **Node Pools**: If cluster update fails while applying a new compute profile with revised node pool names, do not reapply the previous compute profile: the cluster's worker nodes will be deleted.
+  > If you encounter this scenario, fix the new compute profile configuration without modifying the node pool names, and retry your cluster update.
+  For more information, see [tkgi update-cluster compute profile failure](https://knowledge.broadcom.com/external/article?legacyId=91596) in the Broadcom Support Knowledge Base.
     
 1.  Resolve any conditions matching the listed concerns, precautions or warnings.  
 
@@ -203,7 +207,7 @@ in _Release Notes_ for additional requirements.
 	Use 'tkgi cluster test' to monitor the state of your cluster  
     ```  
     
-1. (Optional) To bypass compute profile validation, include the `--enforce-compute-profile-update` parameter in your `tkgi update-cluster` command line. <%= vars.recommended_by %> recommends that you always allow validation when updating clusters in production environments.  
+1. (Optional) If you are changing Availability Zones, or to bypass compute profile validation, include the `--enforce-compute-profile-update` parameter in your `tkgi update-cluster` command line. <%= vars.recommended_by %> recommends that you always allow validation when updating clusters in production environments.
 
     For example:  
 

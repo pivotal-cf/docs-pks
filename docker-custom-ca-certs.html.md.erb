@@ -3,18 +3,26 @@ title: Configuring Cluster Access to Private Registries
 owner: TKGI
 ---
 
-This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters to access private Docker or containerd image registries that are secured by SSL Certificate Authority (CA) certificates.
+This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters to access private Docker or containerd image registries, including:
 
-The procedures below configure an individual TKGI Kubernetes cluster with certificates to access one or more private registries.
-To configure all of your TKGI clusters to share the same certificates for accessing Harbor registries, see [Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH](https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-integrating-pks.html#provide-harbor-cert) in the Harbor documentation.
+* **Secure private registries** that use `HTTPS` protocol and require an SSL Certificate Authority (CA) certificate for access.
+* **Insecure private registries** that use `HTTP` protocol.
 
-<p class="note"><strong>Note:</strong> Only Linux clusters can be configured to use private registries.
-</p>
+The ability to configure clusters to use private registries is enabled by default, but a platform admin can disable this ability from the TKGI Ops Manager tile > **TKGI API** pane > **Configure clusters to use private registries** option.
 
+For secure private registries, the procedures below configure an individual TKGI Kubernetes cluster with access certificates.
+To configure all of your TKGI clusters to share the same certificates for accessing secure Harbor registries, see [Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH](https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-integrating-pks.html#provide-harbor-cert) in the Harbor documentation.
 
-## <a id='cli'></a> Use the `tkgi` CLI to Configure Private Registry Access
+You can configure private registry access by using either the `tkgi` CLI or the TKGI API, as described in the sections below.
+The API method is deprecated, and once you use the CLI method, the API method no longer works.
 
-The easiest way to configure registry access for a new or existing TKGI cluster is by passing a registry configuration file to the `--private-registries` option of the `tkgi create-cluster` or `tkgi update-cluster` command:
+>**Note** Only Linux clusters can be configured to use private registries.
+
+## <a id='cli'></a> Use the `tkgi` CLI to Configure Registry Access
+
+The easiest way to configure private registry access for a new or existing TKGI cluster is by passing a registry configuration file to the `--private-registries` option of the `tkgi create-cluster` or `tkgi update-cluster` command:
+
+>**Note** Once you configure registry access for a cluster using the `tkgi` CLI, you can no longer configure its registry access by using the [deprecated API method](#api).
 
 1. Create a registry configuration file formatted as follows for JSON, or else a YAML equivalent. To configure multiple registries or multiple hosts under a registry, include multiple blocks under `"servers"` or `"hosts"`:
 
@@ -40,16 +48,14 @@ The easiest way to configure registry access for a new or existing TKGI cluster 
 
   Where:
 
-  - `REGISTRY-URL` is the URL of a registry server to configure access to
-  - `HOST-URL` is the URL of the registry host to configure access to
-  - A `ca_cert` value is required if the host `url` uses `HTTPS` protocol and `skip_verify` is not `true`.
+  - `REGISTRY-URL` is the URL of a private registry server to configure access to.
+  - `HOST-URL` is the URL of the registry host to configure access to, which starts with `https:` for secure registries and `http:` for insecure ones.
+  - A `ca_cert` value is required for secure registries unless `skip_verify` is `true`.
       - The certificate value contains no newline characters; see [Prepare a Certificate String for Command Line Use](#preparing-certificate) below.
-  - `CAPABILITIES` is a list that can include `pull`, `resolve`, and `push`.
-  - `SKIP-VERIFY` is `true` or `false` to skip verification for a private registry.
+  - `CAPABILITIES` is a list that can include `pull`, `resolve`, and `push`.  See [capabilities field](https://github.com/containerd/containerd/blob/main/docs/hosts.md#capabilities-field) in the containerd repository for more information.
+  - `SKIP-VERIFY` is `true` or `false` to skip verification for a secure registry.
 
-  You can also include `client`, `override_path` and other fields; see [Registry Configuration - Introduction](https://github.com/containerd/containerd/blob/main/docs/hosts.md) in the containerd repository for more information.
-
-  For example, to configure two image registries, each with one secure and one insecure host:
+  For example, to configure two private image registries, each with one secure and one insecure host:
 
     ```
     {
