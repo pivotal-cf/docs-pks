@@ -77,9 +77,11 @@ To prepare NVIDIA hardware for GPU, install NVIDIA vGPU software on ESXi host an
 1. After the host driver and `mgmtdaemon` are installed on ESXi:
   - In vCenter > **Configure** > **Graphics** > **Device**, make sure the mode is "Shared Direct". For example: `graphics_shared_type`.
   - In vCenter, make sure that PCI passthrough is disabled for the GPU.
-  - You should now be able to see and choose vGPU profiles when you create VMs from the "ADD PCI DEVICE", for example `vgpu_profiles`.
+  - You should now be able to see and choose vGPU profiles when you create VMs from the "ADD PCI DEVICE".
       - The vGPU profiles are hardware-dependent, so look up support on the NVIDIA site.
       - Choose vGPU profiles in the `C` series, which are for CUDA applications.
+
+      ![vgpu_profiles](images/vgpu_profiles.png)
 
 
 **Upgrading**: When you upgrade the ESXi host, remove the old drivers in the opposite order from installation, `mgmtdaemon` first and then the host driver, before you install new drivers.
@@ -280,8 +282,6 @@ This Kubernetes operator handles GPU driver lifecycle management, node labeling,
 
 See [Supported NVIDIA Data Center GPUs and Systems](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/platform-support.html#supported-nvidia-data-center-gpus-and-systems) in the NVIDIA documentation to determine whether the GPU Operator supports your hardware and environment.
 
-> **Note** Broadcom does not support NVIDIA software.
-
 To install the GPU Operator in your TKGI GPU cluster, see [Installing the NVIDIA GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#operator-install-guide) in the NVIDIA documentation.
 
 For Helm chart customization options, see [Common Chart Customization Options](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#chart-customization-options).
@@ -460,7 +460,10 @@ The pool name in the compute profile should be the same as its name in the VM ex
 
 ### <a id="vgpu-create"></a>Create vGPU Cluster
 
-Before you create a vGPU cluster, check that the driver container contains a plan to enable the "Allow Privileged" option.
+Before you create a vGPU cluster, make sure that the plan you will use to create the cluster is configured with **Allow Privileged** enabled.
+For more information, see [Plans](installing-vsphere.html#plans) in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere_.    
+
+  ![plan_allow_privileged](images/plan_allow_privileged.png)
 
 How you create the cluster depends on whether you defined a compute profile:
 
@@ -500,23 +503,18 @@ How you create the cluster depends on whether you defined a compute profile:
        --num-nodes 1
       ```
 
-  ![plan_allow_privileged](./plan_allow_privileged.png)
 
-
-
-## Build Driver Image
+### <a id="vgpu-create"></a> Build Driver Image
 
 The driver image is for installing the guest driver on vGPU worker, the guest driver binary should be version consistent with the host driver.
-Please follow Nvidia official document for [driver image customization](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container).
 
-xxx
+Please follow NVIDIA official document for [driver image customization](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container).
 
-  1. From the donwloaded NVAIe vGPU software, find the guest driver.
-  1. Upload the guest driver to a local file server where GenAI on Tanzu Platform can access it when it creates VMs.  This can be either:
+1. From the downloaded NVAIe vGPU software, find the guest driver.
+1. Upload the guest driver to a local file server where GenAI on Tanzu Platform can access it when it creates VMs.  This can be either:
 
-    - On Tanzu Application Service through a static file buildpack.
-    - On an existing customer file server.
-xxxx
+  - On Tanzu Application Service through a static file buildpack.
+  - On an existing customer file server.
 
 ## Configure the Cluster with the vGPU License Information and the Driver Container Image
 
@@ -526,11 +524,11 @@ The next step is configure vGPU License and driver information, [configure-the-c
 
 ## GPU Operator
 
-To enable GPU integration with the kubernetes environment, Nvidia provided [GPU-Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) helm chart for managing vGPUs. It can handle driver life-cycle management, node labeling, container-toolkit installation etc.
+To enable GPU integration with the Kubernetes environment, NVIDIA provided [GPU-Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) helm chart for managing vGPUs. It can handle driver life-cycle management, node labeling, container-toolkit installation etc.
 
 Please follow [GPU-Operator installation guide](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#operator-install-guide) to install it to the cluster.
 
-Here is an example for typical installation, you can customize the helm chart installation to suit your needs. You can reference nvidia documentation for the [chart-customization-options](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#chart-customization-options).
+Here is an example for typical installation, you can customize the Helm chart installation to suit your needs. You can reference nvidia documentation for the [chart-customization-options](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#chart-customization-options).
 
 The following are sample commands for installing GPU-Operator
 
