@@ -338,6 +338,7 @@ The following subsections explain how to configure and create vGPU clusters to w
 - [Configure BOSH VM Extension for vGPU](#vgpu-extension)
 - [(Optional) Configure Compute Profile for vGPU](#vgpu-cp)
 - [Create vGPU Cluster](#vgpu-create)
+- [Build and Store Guest Driver Image](#vgpu-driver) 
 - [Install vGPU Kubernetes Operator](#vgpu-operator)
 
 
@@ -503,22 +504,17 @@ How you create the cluster depends on whether you defined a compute profile:
        --num-nodes 1
       ```
 
+### <a id="vgpu-driver"></a> Build and Store Guest Driver Image
 
-### <a id="vgpu-create"></a> Build Driver Image
+The guest driver image, stored in the registry, enables the guest driver to be installed on vGPU worker nodes.
+The guest driver binary version must match the version of the host driver.
 
-The driver image is for installing the guest driver on vGPU worker, the guest driver binary should be version consistent with the host driver.
+To build and store the guest driver image:
 
-Please follow NVIDIA official document for [driver image customization](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container).
-
-1. From the downloaded NVAIe vGPU software, find the guest driver.
-1. Upload the guest driver to a local file server where GenAI on Tanzu Platform can access it when it creates VMs.  This can be either:
-
-  - On Tanzu Application Service through a static file buildpack.
-  - On an existing customer file server.
-
-## Configure the Cluster with the vGPU License Information and the Driver Container Image
-
-The next step is configure vGPU License and driver information, [configure-the-cluster-with-the-vgpu-license-information-and-the-driver-container-image](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#configure-the-cluster-with-the-vgpu-license-information-and-the-driver-container-image).
+1. From the NVAIe vGPU software that you downloaded in [Install NVIDIA Software for vGPU](#prep-vgpu) and obtained the host driver from, find the guest driver.
+1. Build a custom driver image by following[Build the Driver Container]](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container) in the NVIDIA documentation.
+1. Upload the guest driver image to the private image registry, so that TKGI can access it when it creates VMs.
+1. Configure vGPU License and driver information as described in [Configure the Cluster with the vGPU License Information and the Driver Container Image](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#configure-the-cluster-with-the-vgpu-license-information-and-the-driver-container-image) in the NVIDIA documentation.
 
 ### <a id="vgpu-operator"></a>Install vGPU Kubernetes Operator
 
