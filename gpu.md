@@ -518,8 +518,6 @@ To build and store the guest driver image:
 
 ### <a id="vgpu-operator"></a>Install vGPU Kubernetes Operator
 
-## GPU Operator
-
 To enable GPU integration with the Kubernetes environment, NVIDIA provided [GPU-Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) helm chart for managing vGPUs. It can handle driver life-cycle management, node labeling, container-toolkit installation etc.
 
 Please follow [GPU-Operator installation guide](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html#operator-install-guide) to install it to the cluster.
