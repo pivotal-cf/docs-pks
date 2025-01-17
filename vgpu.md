@@ -572,8 +572,8 @@ If you failed to obtain a license, please check /var/log/syslog of worker node, 
 
 ## Resources
 
-- [install-gpu-operator-vgpu](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html)
-- [VM Direct passthrough](https://knowledge.broadcom.com/external/article?legacyId=2142307)
-- [driver installation](https://www.youtube.com/watch?v=gJy2dS20so8)
-- [setup license service](https://www.youtube.com/watch?v=7NRKyXl9j6U)
+- [Using NVIDIA vGPU](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html) - NVIDIA documentation
+- [vSphere VMDirectPath I/O and Dynamic DirectPath I/O: Requirements for Platforms and Devices](https://knowledge.broadcom.com/external/article?legacyId=2142307) - Broadcom Support KB
+- [Step-by-Step Installation of NVIDIA Virtual GPU Software on VMware vSphere](https://www.youtube.com/watch?v=gJy2dS20so8) - NVIDIA video on YouTube
+- [Creating a License Service for NVIDIA AI Enterprise or Virtual GPU](https://www.youtube.com/watch?v=7NRKyXl9j6U) - NVIDIA video on YouTube
 
