@@ -1,9 +1,9 @@
-# Create GPU Clusters
+# Create vGPU Clusters
 
 This page explains how to create TKGI clusters on vSphere that run NVIDIA vGPU worker nodes.
 Applications hosted on these clusters access GPU functionality via Compute Unified Device Architecture (CUDA).
 
-To run NVIDIA GPU worker nodes, see [Create GPU Clusters](vgpu.html).
+To run NVIDIA GPU worker nodes, see [Create GPU Clusters](gpu.html).
 
 ## <a id="overview"></a> Overview
 
@@ -49,7 +49,7 @@ To prepare GPU hardware for supporting TKGI clusters with CUDA:
   - PCI passthrough software for GPU and software for vGPU are mutually exclusive; on any ESXi host, you can deploy clusters with GPU workers or vGPU workers, but not both.
 
 
-## <a id="nvidia-software"></a> Install NVIDIA Software for vGPU
+## <a id="nvidia-software"></a> Install NVIDIA Software
 
 To prepare NVIDIA hardware for GPU, install NVIDIA vGPU software on ESXi host and set up license server:
 
@@ -75,7 +75,7 @@ To prepare NVIDIA hardware for GPU, install NVIDIA vGPU software on ESXi host an
       * **On-premises**: See [Configuring a DLS Instance](https://docs.nvidia.com/license-system/latest/nvidia-license-system-quick-start-guide/index.html#configuring-dls-instance)
 
 
-## <a id="extension"></a>Configure BOSH VM Extension for vGPU
+## <a id="extension"></a>Configure BOSH VM Extension
 
 You configure a Kubernetes cluster to have vGPU-based workers by defining an instance group with VM extensions `vm_extensions.vgpu` values.
 See [Using BOSH VM Extensions](bosh-vm-extensions.html) for how to create the VM extension.

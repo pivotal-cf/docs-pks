@@ -1,11 +1,11 @@
 # Create GPU Clusters
 
 This page explains how to create TKGI clusters on vSphere that run NVIDIA GPU worker nodes.
-Applications hosted on these clusters access GPU functionality via Compute Unified Device Architecture (CUDA).
+Applications hosted on GPU clusters access GPU functionality via Compute Unified Device Architecture (CUDA).
 
 To run NVIDIA vGPU worker nodes, see [Create vGPU Clusters](vgpu.html).
 
-For GPU clusters, VMware ESXi hosts let VMs directly access plugged-in GPU hardware via PCI passthrough as described in [GPU Device in PCI Passthrough](https://docs.vmware.com/en/VMware-Edge-Compute-Stack/3.0/ecs-enterprise-edge-ref-arch/GUID-412AD9B3-6B9B-4BE0-B833-9205ACBCF956.html) in the VMware Edge documentation.
+VMware ESXi hosts let VMs directly access plugged-in GPU hardware via PCI passthrough as described in [GPU Device in PCI Passthrough](https://docs.vmware.com/en/VMware-Edge-Compute-Stack/3.0/ecs-enterprise-edge-ref-arch/GUID-412AD9B3-6B9B-4BE0-B833-9205ACBCF956.html) in the VMware Edge documentation.
 
 
 ## <a id="overview"></a> Overview
@@ -40,10 +40,10 @@ To prepare GPU hardware for supporting TKGI clusters with CUDA:
 1. Plug the GPU cards into your ESXi hosts.
   - To simplify management, VMware recommends grouping the hosts that have GPUs into the same vSphere cluster, so they run within a single availability zone (AZ).
 
-1. Install NVIDIA software for GPU as described in the sections below.
+1. Install NVIDIA software for GPU as described in the [Enable PCI Passthrough](#pci-passthrough) subsection below.
   - PCI passthrough software for GPU and software for vGPU are mutually exclusive; on any ESXi host, you can deploy clusters with GPU workers or vGPU workers, but not both.
 
-## <a id="pci-passthrough"></a> Enable PCI Passthrough
+### <a id="pci-passthrough"></a> Enable PCI Passthrough
 
 To prepare NVIDIA hardware for GPU, enable PCI passthrough and record the GPU IDs:
 
@@ -59,7 +59,7 @@ To prepare NVIDIA hardware for GPU, enable PCI passthrough and record the GPU ID
   ![CUDA preparation](images/cudaprep.png)
 
 
-## <a id="extension"></a> Configure BOSH VM Extension for GPU
+## <a id="extension"></a> Configure BOSH VM Extension
 
 You configure a Kubernetes cluster to have GPU-based workers by defining an instance group with VM extensions `vm_extensions.pci_passthroughs.vendor_id` and `.device_id` set to your GPU's vendor and device ID values.
 See [Using BOSH VM Extensions](bosh-vm-extensions.html) for how to create the VM extension.
@@ -153,7 +153,7 @@ For example, if you have two GPUs on every ESXi host that is hosting GPU workers
 
 The IDs are the same for identical GPU boards, but you need to list them by the correct count.
 
-## <a id="cp"></a> (Optional) Configure Compute Profile for GPU
+## <a id="cp"></a> (Optional) Configure Compute Profile
 
 To create a Kubernetes cluster with both GPU and non-GPU worker nodes, configure a compute profile and custom AZs that define separate node pools, one for each worker type, as described in [Create a Compute Profile](compute-profiles-manage.html#create).
 
