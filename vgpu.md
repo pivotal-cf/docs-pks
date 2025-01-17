@@ -10,6 +10,11 @@ To run NVIDIA GPU worker nodes, see [Create GPU Clusters](gpu.html).
 NVIDIA Virtual GPU (vGPU) enables multiple virtual machines (VMs) to have simultaneous, direct access to a single physical GPU card, using the same NVIDIA graphics drivers that are deployed on non-virtualized operating systems.
 With NVIDIA vGPU, multiple consumers can share scarce GPU hardware resources, using them more efficiently.
 
+NVIDIA vGPU is enabled by the following drivers:
+
+- A GPU manager driver (host driver) installed on the ESXi host
+- A guest driver installed on each worker node VM that uses vGPU
+
   ![vGPU Architecture](images/vgpu_architecture.png)
 
 ## <a id="prereqs"></a> Prerequisites
@@ -26,7 +31,7 @@ With NVIDIA vGPU, multiple consumers can share scarce GPU hardware resources, us
   * NVIDIA license server
   * NVIDIA AI Enterprise Software
       * Host driver for vGPU installed on ESXi hosts
-      * Guest driver for vGPU, used in custom driver image
+      * Guest driver for vGPU, used in custom driver image installed on worker VMs
   * A private image registry such as Harbor; see [Getting Started with VMware Harbor Registry](harbor.html)
       * Used to host the custom driver image.
 
@@ -47,11 +52,11 @@ To prepare GPU hardware for supporting TKGI clusters with CUDA:
 To prepare NVIDIA hardware for GPU, install NVIDIA vGPU software on ESXi host and set up license server:
 
 1. Find a supported NVIDIA AI Enterprise vGPU driver for your ESXi version, vCenter version, and vGPU card by referring to [NVIDIA AI Enterprise Product Support Matrix](https://docs.nvidia.com/ai-enterprise/5.1/product-support-matrix/index.html).
-1. For the appropriate version of the NVAIe vGPU software, follow NVIDIA instructions to [Download vGPU Software](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#download-vgpu-software).
-1. Install the NVIDIA GPU vSphere Installation Bundle (VIB) on your ESXi Host, as described in [Installing and configuring the NVIDIA VIB on ESXi](https://knowledge.broadcom.com/external/article?legacyId=2033434) in the Broadcom Support knowledge base.
-  - Download a host driver for the AI Enterprise series.
-  > **Note** It is critical that the guest driver and ESXi host driver / VIB come from the same NVIDIA software release.
-1. Install the `mgmtdaemon` VIB to your ESXi host, after the vGPU host driver is installed.
+1. For the appropriate version of the NVAIe vGPU software and vSphere, follow NVIDIA instructions to [Download vGPU Software](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#download-vgpu-software) and extract it to your workstation.
+  - The extracted bundle contains a `Host_Drivers` folder for your ESXi host and a `Guest_Drivers` folder that you will use in the [Build and Store Guest Driver Image](#driver) steps below.
+  > **Note** It is critical that the ESXi host driver and guest driver come from the same NVIDIA software release.
+1. Install the NVIDIA NVAIe vGPU vSphere Installation Bundle (VIB) on your ESXi host, as described in [Installing and configuring the NVIDIA VIB on ESXi](https://knowledge.broadcom.com/external/article?legacyId=2033434) in the Broadcom Support KB or the NVIDIA video [Step-by-Step Installation of NVIDIA Virtual GPU Software on VMware vSphere](https://www.youtube.com/watch?v=gJy2dS20so8) on YouTube.
+  - There are two VIBs to install on your ESXi host. Install the large driver named `NVD-AIE-*` first, before installing the smaller `nvd-gpu-mgmt-daemon` software.
 1. After the host driver and `mgmtdaemon` are installed on ESXi:
   - In vCenter > **Configure** > **Graphics** > **Device**, make sure the mode is "Shared Direct". For example: `graphics_shared_type`.
   - In vCenter, make sure that PCI passthrough is disabled for the GPU.
@@ -61,11 +66,10 @@ To prepare NVIDIA hardware for GPU, install NVIDIA vGPU software on ESXi host an
 
       ![vgpu_profiles](images/vgpu_profiles.png)
 
-**Upgrading**: When you upgrade the ESXi host, remove the old drivers in the opposite order from installation, `mgmtdaemon` first and then the host driver, before you install new drivers.
-
-  1. Install an NVIDIA license server, either in the cloud (CLS) or on-premises (DLS) on your ESXi host:
-      * **Cloud**: See [Configuring a CLS Instance](https://docs.nvidia.com/license-system/latest/nvidia-license-system-quick-start-guide/index.html#configuring-cls-instance)
-      * **On-premises**: See [Configuring a DLS Instance](https://docs.nvidia.com/license-system/latest/nvidia-license-system-quick-start-guide/index.html#configuring-dls-instance)
+1. Install an NVIDIA license server, either in the cloud (CLS) or on-premises (DLS) on your ESXi host:
+  * **Cloud**: See [Configuring a CLS Instance](https://docs.nvidia.com/license-system/latest/nvidia-license-system-quick-start-guide/index.html#configuring-cls-instance)
+  * **On-premises**: See [Configuring a DLS Instance](https://docs.nvidia.com/license-system/latest/nvidia-license-system-quick-start-guide/index.html#configuring-dls-instance)
+  * For a how-to video, see [Creating a License Service for NVIDIA AI Enterprise or Virtual GPU](https://www.youtube.com/watch?v=7NRKyXl9j6U).
 
 
 ## <a id="extension"></a>Configure BOSH VM Extension
@@ -238,7 +242,7 @@ The guest driver binary version must match the version of the host driver.
 To build and store the guest driver image:
 
 1. From the NVAIe vGPU software that you downloaded in [Install NVIDIA Software for vGPU](#nvidia-software) and obtained the host driver from, find the guest driver.
-1. Build a custom driver image by following[Build the Driver Container]](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container) in the NVIDIA documentation.
+1. Build a custom driver image by following [Build the Driver Container]](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container) in the NVIDIA documentation.
 1. Upload the guest driver image to the private image registry, so that TKGI can access it when it creates VMs.
 1. Configure vGPU License and driver information as described in [Configure the Cluster with the vGPU License Information and the Driver Container Image](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#configure-the-cluster-with-the-vgpu-license-information-and-the-driver-container-image) in the NVIDIA documentation.
 
@@ -565,12 +569,15 @@ GPU 00000000:02:00.0
     Processes                             : None
 ```
 
+## <a id="upgrade"></a> Upgrading NVIDIA Drivers on ESXi
 
-## Troubleshooting
+When you upgrade the ESXi host, remove the old NVIDIA drivers in the opposite order from installation, `mgmtdaemon` first and then the host driver, before you install new drivers.
+
+## <a id="troubleshoot"></a> Troubleshooting
 
 If you failed to obtain a license, please check /var/log/syslog of worker node, see if it is network error or license server error.
 
-## Resources
+## <a id="resources"></a> Resources
 
 - [Using NVIDIA vGPU](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html) - NVIDIA documentation
 - [vSphere VMDirectPath I/O and Dynamic DirectPath I/O: Requirements for Platforms and Devices](https://knowledge.broadcom.com/external/article?legacyId=2142307) - Broadcom Support KB
