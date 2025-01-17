@@ -14,7 +14,7 @@ With NVIDIA vGPU, multiple consumers can share scarce GPU hardware resources, us
 
 ## <a id="prereqs"></a> Prerequisites
 
-* TKGI v1.20 or later
+* TKGI v1.21 or later
 * NVIDIA GPU cards from G8x series or later, such as GeForce, Quadro, or Tesla
   * These cards support CUDA.
 * ESXi hosts running vSphere 7.0 Update 3 or later
