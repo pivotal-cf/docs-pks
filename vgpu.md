@@ -7,15 +7,8 @@ To run NVIDIA GPU worker nodes, see [Create GPU Clusters](gpu.html).
 
 ## <a id="overview"></a> Overview
 
-To create a CUDA-enabled GPU cluster with TKGI on vSphere, you:
-
-1. Plug compatible GPU cards into your ESXi hosts.
-1. Configure PCI passthrough for the cards, and retrieve the `vendor_id` and `device_id` that identify them.
-1. Configure a BOSH VM Extension for a VM instance group that uses the GPUs, as set by `pci_passthroughs`.
-1. (Optional) To enable the cluster to run workloads on either non-GPU or GPU processors, configure a compute profile that defines both non-GPU and GPU node pools.
-1. Create the cluster.
-1. Install the [NVIDIA GPU Operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html) on the cluster to integrate the GPU with Kubernetes.
-  - By default, the NVIDIA GPU Operator installs a default GPU driver on worker nodes, but you can also customize the GPU driver image.
+NVIDIA Virtual GPU (vGPU) enables multiple virtual machines (VMs) to have simultaneous, direct access to a single physical GPU card, using the same NVIDIA graphics drivers that are deployed on non-virtualized operating systems.
+With NVIDIA vGPU, multiple consumers can share scarce GPU hardware resources, using them more efficiently.
 
   ![vGPU Architecture](images/vgpu_architecture.png)
 
@@ -154,7 +147,7 @@ instance_groups:
       pciPassthru.64bitMMIOSizeGB: 128
 ```
 
-Configure `vmx_options` as described in [`vmx_options` Extension Options](gpu.html/#vmx) on the _Create GPU Clusters_ page.
+To make sure you have enough vGPUs for the workers, configure `vmx_options` as described in [`vmx_options` Extension Options](gpu.html/#vmx) on the _Create GPU Clusters_ page.
 
 
 ## <a id="cp"></a>(Optional) Configure Compute Profile for vGPU
@@ -239,7 +232,7 @@ How you create the cluster depends on whether you defined a compute profile:
 
 ## <a id="driver"></a> Build and Store Guest Driver Image
 
-The guest driver image, stored in the registry, enables the guest driver to be installed on vGPU worker nodes.
+The guest driver image is stored in an image registry so that TKGI can install it on vGPU worker nodes that it creates.
 The guest driver binary version must match the version of the host driver.
 
 To build and store the guest driver image:
