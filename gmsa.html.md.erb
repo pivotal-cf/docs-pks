@@ -97,7 +97,42 @@ Once you have a cluster configured in Tanzu Kubernetes Grid and AD to access the
 This procedure is described in [Configure GMSA for Windows Pods and containers](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#configure-gmsas-and-windows-nodes-in-active-directory) in the Kubernetes documentation, with one exception.
 The exception is that you used the `--config-file` flag in the `tkgi` CLI to add the Windows nodes into the AD, instead of following the step [Configure GMSAs and Windows nodes in Active Directory](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#configure-gmsas-and-windows-nodes-in-active-directory) in the Kubernetes documentation. For information about GMSA command line configuration, see [GMSA Configuration Settings](#settings) below.  
 
-1. [Install the GMSACredentialSpec CRD](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#install-the-gmsacredentialspec-crd).
+1. Create and install a `GMSACredentialSpec` object by creating and applying a CRD `gmsa.yaml` file as described in [Install the GMSACredentialSpec CRD](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#install-the-gmsacredentialspec-crd).
+
+    - To support pods that can join gMSA domains dynamically, as set by the `non_domain_joined` configuration described below, create a CRD that sets `HostAccountConfig` values as in this example:
+
+        ```
+        apiVersion: windows.k8s.io/v1
+        kind: GMSACredentialSpec
+        metadata:
+          name: gmsa-webapp02  # This is an arbitrary name but it will be used as a reference
+        credspec:
+          ActiveDirectoryConfig:
+            GroupManagedServiceAccounts:
+            - Name: WebApp02   # Username of the GMSA account
+              Scope: MYDOMAIN  # NETBIOS Domain Name
+            - Name: WebApp02   # Username of the GMSA account
+              Scope: mydomain.com # DNS Domain Name
+            HostAccountConfig:
+              PluginGUID: "{f919de1a-efc4-4902-b7e5-56a314a87262}"
+              PluginInput: DOMAINNAME=mydomain.com;USERNAME=myuser;PASSWORD=mypassword;logFile=c:\\temp\\logfile.log
+              PortableCcgVersion: "1"
+          CmsPlugins:
+          - ActiveDirectory
+          DomainJoinConfig:
+            DnsName: mydomain.com  # DNS Domain Name
+            DnsTreeName: mydomain.com # DNS Domain Name Root
+            Guid: bae5a583-612f-4e8a-9b69-9df1c5c9b81a  # GUID
+            MachineAccountName: WebApp02 # Username of the GMSA account
+            NetBiosName: MYDOMAIN  # NETBIOS Domain Name
+            Sid: S-1-5-21-922537405-2102905723-2121843970 # SID of GMSA
+        ```
+
+        For security, it is not mandatory to set `PluginInput` `DOMAINNAME`; `USERNAME`; and `PASSWORD` in this object. If omitted, these values can come from a temporary configuration file:
+
+        ```
+        DOMAINNAME=;USERNAME=;PASSWORD=;logFile=c:\\temp\\logfile.log
+        ```
 
 1. To prepare for the next step, download the [example script `deploy-gmsa-webhook.sh`](https://github.com/kubernetes-sigs/windows-gmsa/blob/master/admission-webhook/deploy/deploy-gmsa-webhook.sh) and update its `CA_BUNDLE` setting:
     1. `bosh ssh` into the cluster's control plane node. For more information, see [SSH into a Kubernetes Cluster VM](diagnostic-tools.html#cluster).
@@ -160,6 +195,7 @@ You combine all such settings into a single, general-purpose configuration file 
 gMSA settings in the cluster configuration file are:
 
   - `enable_gmsa`: _Boolean_. `true` to configure gMSA for a cluster. `false` to ignore all settings below.
+  - `non_domain_joined`: _Boolean_. `true` enable pods to join gMSA domains independently from their host VM, making it unnecessary for host VMs to join or rejoin gMSA after reboot, as described in [Create gMSAs for Windows containers](https://learn.microsoft.com/en-us/virtualization/windowscontainers/manage-containers/manage-serviceaccounts) in the Microsoft Containers on Windows documentation.
   - `domain_controller_ip_address`: Address of the AD server with the gMSA account.
   - `domain_fqdn`: FQDN to add the cluster nodes to, created in AD.
   - `domain_user_username`: Username for an AD account with permission to add nodes to a new domain.
@@ -172,6 +208,7 @@ For example:
 ```
 {
   "enable_gmsa": true,
+  "non_domain_joined": true,
   "domain_controller_ip_address": "10.199.17.52",
   "domain_fqdn": "tkgi-ad.local",
   "domain_user_username": "tkgi-admin",
