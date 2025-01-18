@@ -88,8 +88,38 @@ in _Release Notes_ for additional requirements.
 
 1. Integrate the cluster with the AD gMSA as described in [Integrate the Cluster with Active Directory](#integrate), below.
 
-<br>
-<br>
+## <a id='non-joined-nodes'></a> Change a Cluster to Pod-Based gMSA
+
+To change an existing cluster that joins gMSA domains at the node level to instead use `non_domain_joined` option to integrate at the pod level:
+
+1. Make sure domain-controller is configured correctly for non-domain-joined gMSA.
+
+1. Add `non_domain_joined: "true"` to the config file.
+
+1. Set `HostAccountConfig` in `GMSACredentialSpec`.
+
+1. Update gMSA related CRs if you create new ADGroup/ADUser/ServiceAccount.
+
+1. Run:
+
+    ```
+    tkgi update-cluster CLUSTER --config-file=CONFIG-FILE
+    ```
+
+1. Apply the `GMSACredentialSpec` and the other modified CRDs.
+
+1. Roll out the deployments.
+
+### <a id='non-joined-nodes'></a> Pod-Based gMSA Troubleshooting
+
+Troubleshooting tips for `non_domain_joined` gMSA:
+
+- Please make sure IP of Domain-Controller is set as DNS server for both nodes and pods.
+- Plugin's log is at `c:/temp/logfile.log`, this is specified in the `GMSACredentialSpec`.
+- To find the events of Windows, run `get-winevent -logname Microsoft-Windows-Containers-CCG/Admin` in the node.
+- To make sure the non-domain-joined setup successfully, please refer to the logs in `C:/var/vcap/sys/log/join-domain` and `C:/var/vcap/sys/log/join-gmsa`.
+
+
 ## <a id='integrate'></a>Integrate a Cluster with Active Directory
 
 Once you have a cluster configured in Tanzu Kubernetes Grid and AD to access the gMSA, you need to run the following Kubernetes operations to integrate the cluster with the gMSA at the Kubernetes level.
