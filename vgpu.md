@@ -80,11 +80,6 @@ See [Using BOSH VM Extensions](bosh-vm-extensions.html) for how to create the VM
 The instance group's `name` value must start with `worker`, to specify that it applies to worker nodes.
 
 You can define the instance groups using either YAML or JSON format.
-The formats differ in how you set the ID values:
-
-* YAML: Hexadecimal, e.g. `0x10de`; prepend `0x` to the vSphere client listing
-* JSON: Decimal, e.g. `4318`; convert from the vSphere client listing
-
 For example:
 
 * **YAML**:
@@ -218,7 +213,6 @@ How you create the cluster depends on whether you defined a compute profile:
        --plan small \
        --compute-profile gpu-compute-profile \
        --config-file vgpu-extension-8c.yml \
-       --num-nodes 1
       ```
 
 * **No compute profile**:
@@ -242,7 +236,7 @@ The guest driver binary version must match the version of the host driver.
 To build and store the guest driver image:
 
 1. From the NVAIe vGPU software that you downloaded in [Install NVIDIA Software for vGPU](#nvidia-software) and obtained the host driver from, find the guest driver.
-1. Build a custom driver image by following [Build the Driver Container]](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container) in the NVIDIA documentation.
+1. Build a custom driver image by following [Build the Driver Container](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#build-the-driver-container) in the NVIDIA documentation.
 1. Upload the guest driver image to the private image registry, so that TKGI can access it when it creates VMs.
 1. Configure vGPU License and driver information as described in [Configure the Cluster with the vGPU License Information and the Driver Container Image](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/install-gpu-operator-vgpu.html#configure-the-cluster-with-the-vgpu-license-information-and-the-driver-container-image) in the NVIDIA documentation.
 
