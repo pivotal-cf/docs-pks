@@ -61,8 +61,7 @@ To prepare NVIDIA hardware for GPU, install NVIDIA vGPU software on ESXi host an
   - In vCenter > **Configure** > **Graphics** > **Device**, make sure the mode is "Shared Direct". For example: `graphics_shared_type`.
   - In vCenter, make sure that PCI passthrough is disabled for the GPU.
   - You should now be able to see and choose vGPU profiles when you create VMs from the "ADD PCI DEVICE".
-      - The vGPU profiles are hardware-dependent, so look up support on the NVIDIA site.
-      - Choose vGPU profiles in the `C` series, which are for CUDA applications.
+      - vGPU profiles are hardware-dependent. Look up compatible vGPU profiles in the `C` series, which are for CUDA applications, in the [NVIDIA vGPU (C-Series) Documentation](https://docs.nvidia.com/ai-enterprise/release-5/latest/appendix/appendix-misc.html).
 
       ![vgpu_profiles](images/vgpu_profiles.png)
 
