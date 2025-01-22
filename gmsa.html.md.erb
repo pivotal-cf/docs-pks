@@ -90,15 +90,15 @@ in _Release Notes_ for additional requirements.
 
 ## <a id='non-joined-nodes'></a> Change a Cluster to Pod-Based gMSA
 
-To change an existing cluster that joins gMSA domains at the node level to instead use `non_domain_joined` option to integrate at the pod level:
+To change an existing cluster that joins gMSA domains at the node level to instead use the `non_domain_joined` option to integrate at the pod level:
 
-1. Make sure domain-controller is configured correctly for non-domain-joined gMSA.
+1. Set up the AD server with the gMSA account is configured to work as a DNS server for both nodes and pods.
 
 1. Add `non_domain_joined: "true"` to the config file.
 
 1. Set `HostAccountConfig` in `GMSACredentialSpec`.
 
-1. Update gMSA related CRs if you create new ADGroup/ADUser/ServiceAccount.
+1. If you created new Group, User, or Service Account objects in AD, modify your gMSA-related CRD's in Kubernetes to reflect the changes.
 
 1. Run:
 
@@ -106,7 +106,7 @@ To change an existing cluster that joins gMSA domains at the node level to inste
     tkgi update-cluster CLUSTER --config-file=CONFIG-FILE
     ```
 
-1. Apply the `GMSACredentialSpec` and the other modified CRDs.
+1. Apply the `GMSACredentialSpec` and any other CRDs that you modified.
 
 1. Roll out the deployments.
 
@@ -114,7 +114,7 @@ To change an existing cluster that joins gMSA domains at the node level to inste
 
 Troubleshooting tips for `non_domain_joined` gMSA:
 
-- Please make sure IP of Domain-Controller is set as DNS server for both nodes and pods.
+- Make sure the AD server with the gMSA account is configured to work as a DNS server for both nodes and pods.
 - Plugin's log is at `c:/temp/logfile.log`, this is specified in the `GMSACredentialSpec`.
 - To find the events of Windows, run `get-winevent -logname Microsoft-Windows-Containers-CCG/Admin` in the node.
 - To make sure the non-domain-joined setup successfully, please refer to the logs in `C:/var/vcap/sys/log/join-domain` and `C:/var/vcap/sys/log/join-gmsa`.
@@ -129,7 +129,7 @@ The exception is that you used the `--config-file` flag in the `tkgi` CLI to add
 
 1. Create and install a `GMSACredentialSpec` object by creating and applying a CRD `gmsa.yaml` file as described in [Install the GMSACredentialSpec CRD](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#install-the-gmsacredentialspec-crd).
 
-    - To support pods that can join gMSA domains dynamically, as set by the `non_domain_joined` configuration described below, create a CRD that sets `HostAccountConfig` values as in this example:
+    - To support pods that can join gMSA domains dynamically, as set by the `non_domain_joined` cluster configuration described below, create a CRD that sets `HostAccountConfig` values as in this example:
 
         ```
         apiVersion: windows.k8s.io/v1
@@ -158,11 +158,10 @@ The exception is that you used the `--config-file` flag in the `tkgi` CLI to add
             Sid: S-1-5-21-922537405-2102905723-2121843970 # SID of GMSA
         ```
 
-        For security, it is not mandatory to set `PluginInput` `DOMAINNAME`; `USERNAME`; and `PASSWORD` in this object. If omitted, these values can come from a temporary configuration file:
+        The `PluginGUID` value `{f919de1a-efc4-4902-b7e5-56a314a87262}` is a fixed value in the TKGI source code.
 
-        ```
-        DOMAINNAME=;USERNAME=;PASSWORD=;logFile=c:\\temp\\logfile.log
-        ```
+        For security, it is not mandatory to set `PluginInput` `DOMAINNAME`; `USERNAME`; and `PASSWORD` in this `GMSACredentialSpec` object.
+        If omitted, you can set these values as `domain_user_username` and `domain_user_password` in a local cluster configuration file that you pass to the `--config-file` option of `tkgi create-cluster`.
 
 1. To prepare for the next step, download the [example script `deploy-gmsa-webhook.sh`](https://github.com/kubernetes-sigs/windows-gmsa/blob/master/admission-webhook/deploy/deploy-gmsa-webhook.sh) and update its `CA_BUNDLE` setting:
     1. `bosh ssh` into the cluster's control plane node. For more information, see [SSH into a Kubernetes Cluster VM](diagnostic-tools.html#cluster).
