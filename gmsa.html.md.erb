@@ -7,8 +7,6 @@ topic: gmsa-cluster
 This topic describes how to integrate Microsoft Active Directory (AD) 
 with your Tanzu Kubernetes Grid Integrated Edition (TKGI) Windows worker-based Kubernetes clusters.
 
-<br>
-<br>
 ## <a id='overview'></a>Overview
 
 Windows Server with Active Directory can control access to Windows worker-based Kubernetes clusters in TKGI.
@@ -22,14 +20,13 @@ in the Microsoft Windows Server documentation.
 
 To manage AD integration with a TKGI-provisioned Windows worker-based Kubernetes cluster:  
 
-* [Create and Integrate a Cluster with AD Authentication](#create)  
-* [Change a Cluster's Active Directory Authentication](#change-ad)  
-* [Integrate a Cluster with Active Directory](#integrate)  
+* [Create a New Cluster with AD Authentication](#create)
+* [Add or Change a Cluster's AD Authentication](#change-ad)
+* [Change a Cluster with AD Authentication to use Pod-Based gMSA](#non-joined-nodes)
+* [Integrate Kubernetes with Active Directory](#integrate)
 * [View a Cluster's gMSA Configuration](#list)  
 
 
-<br>
-<br>
 ## <a id='prereqs'></a>Prerequisites
 
 To use AD to control access to Windows worker-based Kubernetes clusters, you need an AD server configured with:
@@ -38,9 +35,7 @@ To use AD to control access to Windows worker-based Kubernetes clusters, you nee
   - A security group that includes the gMSA account
 
 
-<br>
-<br>
-## <a id='create'></a>Create and Integrate a Cluster with AD Authentication
+## <a id='create'></a>Create a New Cluster with AD Authentication
 
 To create a TKGI cluster configured with AD gMSA authentication:
 
@@ -50,11 +45,10 @@ For configuration information, see [GMSA Configuration Settings](#settings), bel
 1. Pass the file location to the `--config-file` flag of `tkgi create-cluster`. 
 For information about creating clusters, see [Creating Clusters](create-cluster.html).  
 
-1. Integrate the cluster with the AD gMSA as described in [Integrate the Cluster with Active Directory](#integrate), below.
+1. Integrate the cluster with the AD gMSA as described in [Integrate Kubernetes with Active Directory](#integrate), below.
 
-<br>
-<br>
-## <a id='change-ad'></a>Change a Cluster's Active Directory Authentication
+
+## <a id='change-ad'></a>Add or Change a Cluster's AD Authentication
 
 To configure an existing TKGI cluster for Active Directory gMSA authentication, or to change its gMSA configuration:  
 
@@ -86,19 +80,21 @@ in _Release Notes_ for additional requirements.
     <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
     </p>
 
-1. Integrate the cluster with the AD gMSA as described in [Integrate the Cluster with Active Directory](#integrate), below.
+1. Integrate the cluster with the AD gMSA as described in [Integrate Kubernetes with Active Directory](#integrate), below.
 
-## <a id='non-joined-nodes'></a> Change a Cluster to Pod-Based gMSA
+## <a id='non-joined-nodes'></a> Change a Cluster with AD Authentication to use Pod-Based gMSA
 
 To change an existing cluster that joins gMSA domains at the node level to instead use the `non_domain_joined` option to integrate at the pod level:
 
 1. Set up the AD server with the gMSA account is configured to work as a DNS server for both nodes and pods.
 
-1. Add `non_domain_joined: "true"` to the config file.
-
-1. Set `HostAccountConfig` in `GMSACredentialSpec`.
+1. Set `HostAccountConfig` values in a `GMSACredentialSpec` CRD as described in [Integrate Kubernetes with Active Directory](#integrate).
 
 1. If you created new Group, User, or Service Account objects in AD, modify your gMSA-related CRD's in Kubernetes to reflect the changes.
+
+1. Apply the `GMSACredentialSpec` and any other CRDs that you modified.
+
+1. Add `non_domain_joined: "true"` to the cluster configuration file.
 
 1. Run:
 
@@ -106,9 +102,8 @@ To change an existing cluster that joins gMSA domains at the node level to inste
     tkgi update-cluster CLUSTER --config-file=CONFIG-FILE
     ```
 
-1. Apply the `GMSACredentialSpec` and any other CRDs that you modified.
-
 1. Roll out the deployments.
+
 
 ### <a id='non-joined-nodes'></a> Pod-Based gMSA Troubleshooting
 
@@ -120,7 +115,7 @@ Troubleshooting tips for `non_domain_joined` gMSA:
 - To make sure the non-domain-joined setup successfully, please refer to the logs in `C:/var/vcap/sys/log/join-domain` and `C:/var/vcap/sys/log/join-gmsa`.
 
 
-## <a id='integrate'></a>Integrate a Cluster with Active Directory
+## <a id='integrate'></a>Integrate Kubernetes with Active Directory
 
 Once you have a cluster configured in Tanzu Kubernetes Grid and AD to access the gMSA, you need to run the following Kubernetes operations to integrate the cluster with the gMSA at the Kubernetes level.
 
@@ -184,8 +179,7 @@ The exception is that you used the `--config-file` flag in the `tkgi` CLI to add
 
 1. [Configure GMSA credential spec reference in Pod spec](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#configure-gmsa-credential-spec-reference-in-pod-spec) for the Pod spec created earlier.
 
-<br>
-<br>
+
 ## <a id='list'></a>View a Cluster's gMSA Configuration
 
 You can see a cluster's current gMSA configuration by viewing its BOSH manifest:
@@ -211,8 +205,6 @@ You can see a cluster's current gMSA configuration by viewing its BOSH manifest:
 For configuration information, see [GMSA Configuration Settings](#settings), below.  
 
 
-<br>
-<br>
 ## <a id='settings'></a>GMSA Configuration Settings
 
 The `tkgi` CLI uses a JSON-formatted cluster configuration file to add the cluster's Windows nodes into the AD domain server and security groups, giving them access to the gMSA.
