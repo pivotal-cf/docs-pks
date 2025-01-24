@@ -237,9 +237,93 @@ TKGI v1.20.0 deprecates the following:
 * See also [Deprecations and removals](https://kubernetes.io/blog/2023/12/13/kubernetes-v1-29-release/#deprecations-and-removals) in the Kubernetes v1.29 documentation.
 
 <br>
+
 ###<a id="1-20-0-known-issues"></a>Known Issues
 
 TKGI v1.20.0 has the following known issues:
+
+<hr>
+
+#### <a id="1-20-0-no-pods-win"></a>Pods fail to get scheduled on Windows worker nodes
+
+**Symptom**
+
+On Windows worker nodes, pods fail to get scheduled.
+Most are in Pending state and some are in Evicted state.
+
+Running `kubectl describe pod` on these pods shows no available nodes to schedule them on, `Node: <none>`.
+
+**Explanation**
+
+Windows nodes created with the `node.cloudprovider.kubernetes.io/uninitialized` taint have an issue that when they join a gMSA domain, their DNS entry adds their domain name to their node name.
+As a result, when the CPI does not have the node UUID tries using the node name to retrieve the node from vCenter, it finds no match.
+The CPI then reports that no VM is found and does not remove the taint from the Windows node.\, righ prevends the Windows gMSA pod from being scheduled.
+
+**Workaround**
+
+Manually remove the `node.cloudprovider.kubernetes.io/uninitialized` taint from the Windows nodes. 
+
+<hr>
+
+#### <a id="1-20-0-tmc-csp"></a>Authentication failure when attaching or detaching TMC clusters
+
+**Symptom**
+
+Attempting to attach or detach TKGI clusters to or from Tanzu Mission Control (TMC) fails with authentication errors.
+
+**Explanation**
+
+The VMware Cloud Services Platform address change from https://console.cloud.vmware.com to https://console.tanzu.broadcom.com invalidated pre-existing access tokens.
+
+**Workaround**
+
+1. Retrieve the cluster deployment name as described in [Retrieve your Cluster Deployment Name](bbr-backup-clusters.html#cluster-deployment-name), for example `service-instance_6fa04929-b0c5-4531-8070-e20a8951d0c2`.
+
+1. Run `bosh -d  CLUSTER-DEPLOYMENT-NAME run-errand dettach-to-tmc --keep-alive`
+
+1. Run `bosh -d CLUSTER-DEPLOYMENT-NAME ssh apply-addons`
+
+1. Edit the file `/var/vcap/jobs/attach-to-tmc/config/config.json` and change the `csp_api` value to `https://console.tanzu.broadcom.com`
+
+1. Run `bosh -d CLUSTER-DEPLOYMENT-NAME run-errand dettach-to-tmc --keep-alive`
+
+<hr>
+
+#### <a id="1-20-0-telegraf"></a>Telegraf exporter does not collect in-cluster Kubernetes metrics after TKGI upgrade
+
+**Symptom**
+
+Telegraf exporter does not collect in-cluster Kubernetes metrics after TKGI upgrade.
+Telegraf logs show `[inputs.kubernetes] Error in plugin: ... returned HTTP status 403 Forbidden`
+
+**Explanation**
+
+In recent Telegraf versions, the the Kubernetes input plugin has significant changes.
+
+**Workaround**
+
+On any affected clusters:
+
+1. Create a `ClusterRoleBinding` object as follows:
+
+    ```
+    kind: ClusterRoleBinding
+    apiVersion: rbac.authorization.k8s.io/v1
+    metadata:
+      name: metric-scanner-kubelet-api-admin
+    subjects:
+    - kind: ServiceAccount
+      name: telegraf
+      namespace: pks-system
+    roleRef:
+      kind: ClusterRole
+      name: system:kubelet-api-admin
+      apiGroup: rbac.authorization.k8s.io
+    ```
+
+1. Update the `ClusterRole`.
+
+1. Restart the `telegraf` pods.
 
 <hr>
 
