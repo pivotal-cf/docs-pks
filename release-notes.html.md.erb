@@ -226,6 +226,63 @@ TKGI v1.21.0 has the following known issues:
 
 <hr>
 
+#### <a id="1-21-0-no-cluster-info"></a>Management Console does not display cluster information
+
+**Symptom**
+
+In TKGI deployments that use OIDC authentication for workload clusters, the Management Console (MC) shows cluster and node status as `running`, but shows **Failed to retrieve current K8s Cluster** errors for cluster summary, volumes, nodes, and network information.
+
+Logs from `pks-mgmt-server` container, retrieved by running `docker logs -f pks-mgmt-server`, show an error resembling:
+
+  ```
+  [signal SIGSEGV: segmentation violation code=0x80 addr=0x0 pc=0x47112f]
+  goroutine 1329 gp=0xc000d54700 m=8 mp=0xc000104808 [running]:
+  runtime.throw({0x1f65830?, 0x28?})
+  ```
+
+**Explanation**
+
+The TKGI management server crashed and needs patching as described below.
+
+**Workaround**
+
+Patch the management server:
+
+1. Download the patch file `tkgi-1-21-0-mgmt-server-patch.tar` from [TKGI v1.21.0 mgmt-server patch](https://community.broadcom.com/education/viewdocument/tkgi-v1210-mgmt-server-patch?CommunityKey=7abbf9e5-26d5-4ee7-8e46-524497a180a2) in the VMware Tanzu Kubernetes Grid Integrated community library.
+
+1. Upload the patch file to the MC VM:
+
+  ```
+  scp tkgi-1-21-0-mgmt-server-patch.tar root@<mgmt-server-IP>:/root/
+  ```
+
+1. Use SSH to log in to the Management Console VM as `root` user.
+  - Use the password that you specified when you  deployed the OVA.
+
+
+1. Untar the patch file:
+
+  ```
+  tar -zxvf tkgi-1-21-0-mgmt-server-patch.tar
+  ```
+
+1. Make the patch executable:
+
+  ```
+  cd ./patch
+  chmod +x ./patch.sh
+  ```
+
+3. Run the patch script `patch.sh`:
+
+  ```
+  ./patch.sh
+  ```
+
+4. After the script completes, log in to the TKGI Management Console UI and verify that it shows cluster information.
+
+<hr>
+
 #### <a id="1-21-0-pause-image-pin"></a>Pause image not pinned in upgraded clusters
 
 In upgraded clusters, the pause image cannot be automatically pinned by containerd.
