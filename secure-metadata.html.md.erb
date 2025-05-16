@@ -3,42 +3,42 @@ title: Securing Access to the AWS Metadata Service
 owner: PKS
 ---
 
-This topic describes how to use a Kubernetes Network Policy to secure access to the AWS instance metadata service 
-from Kubernetes clusters created with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to use a Kubernetes Network Policy to secure access to the AWS instance metadata service
+from Kubernetes clusters created with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 ## <a id='overview'></a> Overview
 
-For Pods on TKGI clusters deployed on AWS, 
-you can manage access to the AWS instance metadata service using a Kubernetes Network Policy:  
+For Pods on TKGI clusters deployed on AWS,
+you can manage access to the AWS instance metadata service using a Kubernetes Network Policy:
 
-* You can block app access to the instance metadata service for apps in either all cluster namespaces or specific namespaces. 
-* You can grant app access to the instance metadata service for apps in one or more labeled Pods.  
+* You can block app access to the instance metadata service for apps in either all cluster namespaces or specific namespaces.
+* You can grant app access to the instance metadata service for apps in one or more labeled Pods.
 
 To manage access to the AWS instance metadata service, complete one of the following:
 
-* [Secure Access to AWS Instance Metadata for a Namespace](#secure-namespaces)  
-* [Secure Access for All Namespaces Using an Antrea Cluster-Wide Network Policy](#secure-namespace-antrea)  
+* [Secure Access to AWS Instance Metadata for a Namespace](#secure-namespaces)
+* [Secure Access for All Namespaces Using an Antrea Cluster-Wide Network Policy](#secure-namespace-antrea)
 
-For information on why it is recommended that you secure access to AWS instance metadata, see 
-[Instance metadata and user data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) 
-in the AWS documentation.  
+For information on why it is recommended that you secure access to AWS instance metadata, see
+[Instance metadata and user data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html)
+in the AWS documentation.
 
 
 ## <a id='secure-namespaces'></a> Secure Access to AWS Instance Metadata for a Namespace
 
-You can use Kubernetes Network Policies to deny access to the AWS instance metadata service by default from all apps in a namespace 
-and if desired, grant access to the service from specific Pods:  
+You can use Kubernetes Network Policies to deny access to the AWS instance metadata service by default from all apps in a namespace
+and if desired, grant access to the service from specific Pods:
 
 * [Deny Access from a Specific Namespace](#deny-namespace-access)
 * [Grant Access to Specific Apps in a Namespace](#grant-namespace-access)
 
 ### <a id='deny-namespace-access'></a> Deny Access from a Specific Namespace
 
-To use a Kubernetes Network Policy to deny access to AWS instance metadata by default from a specific namespace: 
+To use a Kubernetes Network Policy to deny access to AWS instance metadata by default from a specific namespace:
 
 1. To create a `deny` Network Policy:
     1. Create a YAML configuration file named `np.yml`.
-    1. Populate the YAML file with one of the following `deny` Network Policy configurations:  
+    1. Populate the YAML file with one of the following `deny` Network Policy configurations:
 
         ```
         apiVersion: networking.k8s.io/v1
@@ -46,7 +46,7 @@ To use a Kubernetes Network Policy to deny access to AWS instance metadata by de
         metadata:
           name: POLICY-NAME
           namespace: NAMESPACE
-          annotations:  
+          annotations:
             kubernetes.io/ingress.class: "nsx"
         spec:
           podSelector: {}
@@ -59,46 +59,46 @@ To use a Kubernetes Network Policy to deny access to AWS instance metadata by de
                 except:
                 - 169.254.169.254/32
         ```
-        Where:  
+        Where:
 
-        * `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.  
-        * `NAMESPACE` is the name of the namespace to apply the Network Policy to. 
-        For example, `default` to manage access from Pods in the `default` namespace.  
-    1. Save the YAML configuration file.  
-1. To apply the `deny` Network Policy to your cluster:  
+        * `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.
+        * `NAMESPACE` is the name of the namespace to apply the Network Policy to.
+        For example, `default` to manage access from Pods in the `default` namespace.
+    1. Save the YAML configuration file.
+1. To apply the `deny` Network Policy to your cluster:
 
     ```
     kubectl apply -f np.yml
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl apply -f np.yml
-    networkpolicy.networking.k8s.io/deny-metadata-access created  
+    networkpolicy.networking.k8s.io/deny-metadata-access created
     ```
-1. Verify the Network Policy has been applied:  
+1. Verify the Network Policy has been applied:
 
     ```
     kubectl get networkpolicy
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl get networkpolicy
     NAME                    POD-SELECTOR   AGE
     deny-metadata-access    <none>         8s
     ```
-1. Verify that all apps in Pods in the namespace are blocked from accessing the AWS instance metadata service.  
+1. Verify that all apps in Pods in the namespace are blocked from accessing the AWS instance metadata service.
 
 ### <a id='grant-namespace-access'></a> Grant Access to Specific Apps in a Namespace
 
 To configure a Kubernetes Network Policy to grant access to the AWS instance metadata service for apps in a specific Pod:
 
-1. To create an `allow` Network Policy for apps in a Pod with a specific Pod label:  
+1. To create an `allow` Network Policy for apps in a Pod with a specific Pod label:
     1. Create a YAML configuration file named `np-allow.yml`.
-    1. Populate the YAML file with one of the following `allow`  Network Policy configurations:  
+    1. Populate the YAML file with one of the following `allow`  Network Policy configurations:
 
         ```
         apiVersion: networking.k8s.io/v1
@@ -106,7 +106,7 @@ To configure a Kubernetes Network Policy to grant access to the AWS instance met
         metadata:
           name: POLICY-NAME
           namespace: NAMESPACE
-          annotations:  
+          annotations:
             kubernetes.io/ingress.class: "nsx"
         spec:
           podSelector:
@@ -117,69 +117,69 @@ To configure a Kubernetes Network Policy to grant access to the AWS instance met
           egress:
           - to:
             - ipBlock:
-                cidr: 169.254.169.254/32        
+                cidr: 169.254.169.254/32
         ```
-        Where:  
+        Where:
 
-        * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.  
-        * `NAMESPACE` is the name of the namespace to apply the Network Policy to. 
-        For example, `default` to manage access from Pods in the `default` namespace.  
-        * `POD-LABEL` is the Pod label for the Pod to grant access to. 
-        Only the Pods tagged with the `POD-LABEL` label are affected by this configuration.  For example, `app: nginx`.  
-    1. Save the YAML configuration file.  
-1. To apply the `allow` Network Policy to your cluster:  
+        * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.
+        * `NAMESPACE` is the name of the namespace to apply the Network Policy to.
+        For example, `default` to manage access from Pods in the `default` namespace.
+        * `POD-LABEL` is the Pod label for the Pod to grant access to.
+        Only the Pods tagged with the `POD-LABEL` label are affected by this configuration.  For example, `app: nginx`.
+    1. Save the YAML configuration file.
+1. To apply the `allow` Network Policy to your cluster:
 
     ```
     kubectl apply -f np-allow.yml
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl apply -f np-allow.yml
     networkpolicy.networking.k8s.io/allow-metadata-access created
     ```
-1. Verify the Network Policy has been applied:  
+1. Verify the Network Policy has been applied:
 
     ```
     kubectl get networkpolicy
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl get networkpolicy
     NAME                    POD-SELECTOR   AGE
     allow-metadata-access   app=nginx      3s
     ```
-1. Verify that only the apps in Pod(s) with the specified label have access to AWS instance metadata.  
+1. Verify that only the apps in Pod(s) with the specified label have access to AWS instance metadata.
 
 
 
 ## <a id='secure-namespace-antrea'></a> Secure Access for All Namespaces Using an Antrea Cluster-Wide Network Policy
 
-You can use an Antrea cluster-wide Kubernetes Network Policy to manage Pod access to AWS instance metadata.  
+You can use an Antrea cluster-wide Kubernetes Network Policy to manage Pod access to AWS instance metadata.
 
-The benefit of using an Antrea cluster-wide Network Policy is that a single configuration applies to all namespaces, 
-avoiding the need to create a standard Network Policy for each namespace you want to manage.  
+The benefit of using an Antrea cluster-wide Network Policy is that a single configuration applies to all namespaces,
+avoiding the need to create a standard Network Policy for each namespace you want to manage.
 
-To manage app access to AWS instance metadata using an Antrea cluster-wide Kubernetes Network Policy:  
+To manage app access to AWS instance metadata using an Antrea cluster-wide Kubernetes Network Policy:
 
-* [Deny Access to All Namespaces Using Antrea](#deny-namespace-access-antrea)  
-* [Allow Access to a Specific Application Using Antrea](#grant-namespace-access-antrea)  
+* [Deny Access to All Namespaces Using Antrea](#deny-namespace-access-antrea)
+* [Allow Access to a Specific Application Using Antrea](#grant-namespace-access-antrea)
 
 
-For more information on the benefits of using an Antrea Network Policy configuration, see 
-[Antrea Network Policy CRDs](https://github.com/antrea-io/antrea/blob/main/docs/antrea-network-policy.md) 
+For more information on the benefits of using an Antrea Network Policy configuration, see
+[Antrea Network Policy CRDs](https://github.com/antrea-io/antrea/blob/main/docs/antrea-network-policy.md)
 in the Antrea GitHub repository.
 
 ### <a id='deny-namespace-access-antrea'></a> Deny Access to All Namespaces Using Antrea
 
-To deny app access to AWS instance metadata from all cluster namespaces using an Antrea cluster-wide Kubernetes Network Policy:  
+To deny app access to AWS instance metadata from all cluster namespaces using an Antrea cluster-wide Kubernetes Network Policy:
 
 1. To create a `deny` Network Policy:
     1. Create a YAML configuration file named `np-cluster-deny.yml`.
-    1. Populate the YAML file with the following `deny` Network Policy configuration:  
+    1. Populate the YAML file with the following `deny` Network Policy configuration:
 
         ```
         apiVersion: crd.antrea.io/v1alpha1
@@ -196,34 +196,34 @@ To deny app access to AWS instance metadata from all cluster namespaces using an
              - ipBlock:
                 cidr: 169.254.169.254/32
         ```
-        Where `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.  
-    1. Save the YAML configuration file.  
-1. To apply the `deny` Network Policy to your cluster:  
+        Where `POLICY-NAME` is the name for this Network Policy. For example `deny-metadata-access`.
+    1. Save the YAML configuration file.
+1. To apply the `deny` Network Policy to your cluster:
 
     ```
     kubectl apply -f np-cluster-deny.yml
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl apply -f np-cluster-deny.yml
-    clusternetworkpolicy.crd.antrea.io/deny-metadata-access created 
+    clusternetworkpolicy.crd.antrea.io/deny-metadata-access created
     ```
-1. Verify the Network Policy has been applied:  
+1. Verify the Network Policy has been applied:
 
     ```
     kubectl get clusternetworkpolicies.crd.antrea.io -owide
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl get clusternetworkpolicies.crd.antrea.io -owide
     NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
     deny-metadata-access    application   3          3               3               37s
     ```
-1. Verify that apps in all namespaces are blocked from accessing AWS instance metadata.  
+1. Verify that apps in all namespaces are blocked from accessing AWS instance metadata.
 
 ### <a id='grant-namespace-access-antrea'></a> Allow Access to a Specific App Using Antrea
 
@@ -231,7 +231,7 @@ To configure an Antrea Kubernetes Network Policy to grant access to AWS instance
 
 1. To create an Antrea `allow` Network Policy:
     1. Create a YAML configuration file named `np-cluster-allow.yml`.
-    1. Populate the YAML file with the following `allow` Network Policy configuration:  
+    1. Populate the YAML file with the following `allow` Network Policy configuration:
 
         ```
         apiVersion: crd.antrea.io/v1alpha1
@@ -248,37 +248,37 @@ To configure an Antrea Kubernetes Network Policy to grant access to AWS instance
            - action: Allow
              to:
                - ipBlock:
-                   cidr: 169.254.169.254/32       
+                   cidr: 169.254.169.254/32
         ```
-        Where:  
+        Where:
 
-        * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.  
-        * `POD-LABEL` is the Pod label for the Pod to grant access to. 
-        Only the Pods tagged with the `POD-LABEL` label are affected by this configuration.  For example, `app: nginx`.   
-    1. Save the YAML configuration file.  
-1. To apply the `allow` Network Policy to your cluster:  
+        * `POLICY-NAME` is the name for this Network Policy. For example `allow-metadata-access`.
+        * `POD-LABEL` is the Pod label for the Pod to grant access to.
+        Only the Pods tagged with the `POD-LABEL` label are affected by this configuration.  For example, `app: nginx`.
+    1. Save the YAML configuration file.
+1. To apply the `allow` Network Policy to your cluster:
 
     ```
     kubectl apply -f np-cluster-allow.yml
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl apply -f np-cluster-allow.yml
     clusternetworkpolicy.crd.antrea.io/allow-metadata-access created
     ```
-1. Verify the Network Policy has been applied:  
+1. Verify the Network Policy has been applied:
 
     ```
     kubectl get clusternetworkpolicies.crd.antrea.io -owide
     ```
 
-    For example:  
+    For example:
 
     ```console
     # kubectl get clusternetworkpolicies.crd.antrea.io -owide
     NAME                    TIER          PRIORITY   DESIRED NODES   CURRENT NODES   AGE
     allow-metadata-access   application   2          1               1               33s
     ```
-1. Verify that only the apps in Pod(s) with the specified label have access to AWS instance metadata.  
+1. Verify that only the apps in Pod(s) with the specified label have access to AWS instance metadata.

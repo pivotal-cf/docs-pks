@@ -1,11 +1,11 @@
 ---
-title: Shutting Down and Restarting Tanzu Kubernetes Grid Integrated Edition 
+title: Shutting Down and Restarting Tanzu Kubernetes Grid Integrated Edition
 owner: TKGI
 iaas: vsphere-nsxt
 ---
 
-This topic describes how to shut down and startup VMware Tanzu Kubernetes Grid Integrated Edition (TKGI), 
-including TKGI-provisioned Kubernetes cluster nodes, TKGI components, and vSphere hosts (vSphere only).  
+This topic describes how to shut down and startup VMware Tanzu Kubernetes Grid Integrated Edition (TKGI),
+including TKGI-provisioned Kubernetes cluster nodes, TKGI components, and vSphere hosts (vSphere only).
 
 Many of these operations use your IaaS dashboard, such as vSphere Client, Azure Portal, or AWS Management Console.
 
@@ -16,13 +16,13 @@ To perform a graceful shutdown of all Kubernetes, Tanzu Kubernetes Grid Integrat
 ###<a id="stop-resurrector"></a>Step 1: Deactivate BOSH Resurrection
 
 If you have the **Enable VM Resurrector Plugin** check box selected in the BOSH Director tile > **Director Config** pane,
-you must turn BOSH resurrection off before restarting TKGI, to prevent BOSH from recreating VMs. 
+you must turn BOSH resurrection off before restarting TKGI, to prevent BOSH from recreating VMs.
 
 To do this, run the command `bosh update-resurrection off`.
 
 ###<a id="delete-pdbs"></a>Step 2: Delete All PodDisruptionBudgets
 
-To ensure that all workloads are drained as the worker nodes shutdown, remove all PodDisruptionBudgets 
+To ensure that all workloads are drained as the worker nodes shutdown, remove all PodDisruptionBudgets
 before deleting your apps.
 
 1. To confirm the names of your existing PodDisruptionBudgets:
@@ -31,9 +31,9 @@ before deleting your apps.
     kubectl get poddisruptionbudgets -A
     ```
 
-2. Back up all PodDisruptionBudgets.  
+2. Back up all PodDisruptionBudgets.
 <br>
-    To back up a single PodDisruptionBudget:   
+    To back up a single PodDisruptionBudget:
 
     ```
     kubectl get poddisruptionbudget PDB-NAME -o yaml > PDB-NAME.yaml
@@ -41,9 +41,9 @@ before deleting your apps.
 
     Where `PDB-NAME` is the name of one of your PodDisruptionBudgets.
 
-3. Delete each PodDisruptionBudget until you have removed all PodDisruptionBudgets.  
+3. Delete each PodDisruptionBudget until you have removed all PodDisruptionBudgets.
 <br>
-    To delete a single PodDisruptionBudget:   
+    To delete a single PodDisruptionBudget:
 
     ```
     kubectl edit poddisruptionbudget PDB-NAME
@@ -64,14 +64,14 @@ Shut down all Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes cl
 For each Kubernetes cluster that you intend to shut down, do the following:
 
 1. Using the BOSH CLI, retrieve the BOSH deployment name of your Tanzu Kubernetes Grid Integrated Edition clusters by running the following command:
-    
+
     ```
     bosh deployments
     ```
-     
+
     Kubernetes cluster deployment names begin with `service-instance_` and include a unique BOSH-generated hash.
 
-1. Using the BOSH CLI, stop the Kubernetes worker nodes:  
+1. Using the BOSH CLI, stop the Kubernetes worker nodes:
     * For a Linux worker:
 
         ```
@@ -81,20 +81,20 @@ For each Kubernetes cluster that you intend to shut down, do the following:
 
         ```
         bosh -d service-instance_CLUSTER-UUID stop windows-worker
-        ```        
+        ```
 
-    Where `CLUSTER-UUID` is the BOSH deployment name of your Tanzu Kubernetes Grid Integrated Edition cluster.  
+    Where `CLUSTER-UUID` is the BOSH deployment name of your Tanzu Kubernetes Grid Integrated Edition cluster.
 
-    For example:  
+    For example:
 
     ```console
     $ bosh -d service-instance_aa1234567bc8de9f0a1c stop worker
-    ```  
+    ```
 
     <p class="note"><strong>Note:</strong> When you use the BOSH <code>stop</code> command, all
     processes on the Kubernetes node are stopped. BOSH marks them stopped so that when the VM is
     powered back on, the processes do not start automatically.</p>
-        
+
 1. Using the BOSH CLI, stop the Kubernetes control plane nodes by running the following command:
 
     ```
@@ -120,8 +120,8 @@ For each Kubernetes cluster that you intend to shut down, do the following:
 
 To shut down the TKGI control plane, stop and shut down the TKGI API and TKGI Database VMs as follows:
 
-1. [Stop TKGI Control Plane Processes](#stop-tkgi-control)  
-1. [Shut Down the TKGI API and Database VMs](#shutdown-tkgi-vms)  
+1. [Stop TKGI Control Plane Processes](#stop-tkgi-control)
+1. [Shut Down the TKGI API and Database VMs](#shutdown-tkgi-vms)
 
 ####<a id="stop-tkgi-control"></a>Stop TKGI Control Plane Processes
 
@@ -140,9 +140,9 @@ To stop Tanzu Kubernetes Grid Integrated Edition control plane processes and ser
     bosh -d pivotal-container-service-DEPLOYMENT-ID stop
     ```
 
-    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your Tanzu Kubernetes Grid Integrated Edition deployment.  
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your Tanzu Kubernetes Grid Integrated Edition deployment.
 
-    For example:  
+    For example:
 
     ```console
     $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 stop
@@ -157,23 +157,23 @@ To shut down the TKGI API and TKGI Database VMs, do the following:
     ```
     bosh -d pivotal-container-service-DEPLOYMENT-ID vms
     ```
-    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your Tanzu Kubernetes Grid Integrated Edition deployment.  
+    Where `DEPLOYMENT-ID` is the BOSH-generated ID of your Tanzu Kubernetes Grid Integrated Edition deployment.
 
-    For example:  
+    For example:
 
     ```console
     $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 vms
     ```
 
-1. Review the `bosh vms` output:  
-    * Record the TKGI API VM name, 
-listed under **Instances** as `pivotal-container-service/` followed by a unique BOSH-generated hash.  
-    * Record the TKGI Database VM name(s), 
+1. Review the `bosh vms` output:
+    * Record the TKGI API VM name,
+listed under **Instances** as `pivotal-container-service/` followed by a unique BOSH-generated hash.
+    * Record the TKGI Database VM name(s),
 listed under **Instances** as `pks-db/` followed by a unique BOSH-generated hash.
 
-1. Using your IaaS dashboard, locate and gracefully shut down the TKGI control plane VMs:  
-    1. The TKGI API VMs.  
-    1. The TKGI Database VMs.  
+1. Using your IaaS dashboard, locate and gracefully shut down the TKGI control plane VMs:
+    1. The TKGI API VMs.
+    1. The TKGI Database VMs.
 
     <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shut Down TKGI API VM">
 
@@ -334,38 +334,38 @@ To speed up the BOSH startup process:
     ```
     monit summary
     ```
-    Confirm that the `uaa` and `credhub` processes are now running, and that the BOSH Director is fully up and running.  
+    Confirm that the `uaa` and `credhub` processes are now running, and that the BOSH Director is fully up and running.
 
 ###<a id="start-tkgi-control"></a>Step 6: Start the TKGI Control Plane
 
 To start the TKGI Control Plane, do the following:
 
-1. Using your IaaS dashboard:  
+1. Using your IaaS dashboard:
 
-    1. Power on the TKGI Database VMs.  
-    1. Power on the TKGI API VMs.  
-    
-1. Restart the TKGI Database deployments. The procedure to follow depends on whether the TKGI Database is scaled at `1` or `3`:  
-    * **TKGI Database Scaled at `1`**:  
-        To start the TKGI Database deployment:  
+    1. Power on the TKGI Database VMs.
+    1. Power on the TKGI API VMs.
+
+1. Restart the TKGI Database deployments. The procedure to follow depends on whether the TKGI Database is scaled at `1` or `3`:
+    * **TKGI Database Scaled at `1`**:
+        To start the TKGI Database deployment:
 
         ```
         bosh -d DEPLOYMENT-ID start pks-db
         ```
 
-        Where `DEPLOYMENT-ID` is the BOSH-generated ID of the Tanzu Kubernetes Grid Integrated Edition deployment.  
-  * **TKGI Database Scaled at `3`**:  
+        Where `DEPLOYMENT-ID` is the BOSH-generated ID of the Tanzu Kubernetes Grid Integrated Edition deployment.
+  * **TKGI Database Scaled at `3`**:
 
-        Run the `bootstrap` errand:  
+        Run the `bootstrap` errand:
 
         ```
         bosh -d tkgi-db-DEPLOYMENT-ID run-errand bootstrap
         ```
 
-        Where `DEPLOYMENT-ID` is the BOSH-generated ID of the Tanzu Kubernetes Grid Integrated Edition deployment.  
+        Where `DEPLOYMENT-ID` is the BOSH-generated ID of the Tanzu Kubernetes Grid Integrated Edition deployment.
         <p class="note"><strong>Note:</strong> For more information about the <code>bootstrap</code> errand, see <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/data-solutions/bootstrapping.html#assisted-bootstrap">Run the Bootstrap Errand</a> in the VMware Tanzu SQL with MySQL for VMs documentation</em>.</p>
 
-    For more information on TKGI Database scaling, see [Stop the TKGI Control Plane](#shutdown-tkgi-control).  
+    For more information on TKGI Database scaling, see [Stop the TKGI Control Plane](#shutdown-tkgi-control).
 1. To restart the TKGI API deployment:
 
     ```
@@ -394,10 +394,10 @@ To start Harbor Registry, do the following:
 
 ###<a id="start-k8s"></a> Step 8: Start the Kubernetes Clusters
 
-For each Kubernetes cluster that you intend to start: 
+For each Kubernetes cluster that you intend to start:
 
-1. Using your IaaS dashboard, power on the cluster VMs.  
-1. Follow the procedure appropriate for the number of control plane nodes in the cluster:  
+1. Using your IaaS dashboard, power on the cluster VMs.
+1. Follow the procedure appropriate for the number of control plane nodes in the cluster:
 
     * [Start a Cluster with Three Control Plane Nodes](#three-node-start)
     * [Start a Cluster with Five Control Plane Nodes](#five-node-start)

@@ -146,7 +146,7 @@ For example, if you have two GPUs on every ESXi host that is hosting GPU workers
 ```
     pci_passthroughs:
     - vendor_id: 0x10de
-      device_id: 0x1db6 
+      device_id: 0x1db6
     - vendor_id: 0x10de
       device_id: 0x1db6
 ```

@@ -186,7 +186,7 @@ The pool name in the compute profile should be the same as its name in the VM ex
 ## <a id="create"></a>Create vGPU Cluster
 
 Before you create a vGPU cluster, make sure that the plan you will use to create the cluster is configured with **Allow Privileged** enabled.
-For more information, see [Plans](installing-vsphere.html#plans) in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere_.    
+For more information, see [Plans](installing-vsphere.html#plans) in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere_.
 
   ![plan_allow_privileged](images/plan_allow_privileged.png)
 
@@ -466,7 +466,7 @@ GPU 00000000:02:00.0
         Pending                           : Enabled
     ECC Errors
         Volatile
-            Single Bit            
+            Single Bit
                 Device Memory             : 0
                 Register File             : 0
                 L1 Cache                  : 0
@@ -475,7 +475,7 @@ GPU 00000000:02:00.0
                 Texture Shared            : N/A
                 CBU                       : N/A
                 Total                     : 0
-            Double Bit            
+            Double Bit
                 Device Memory             : 0
                 Register File             : 0
                 L1 Cache                  : 0
@@ -485,7 +485,7 @@ GPU 00000000:02:00.0
                 CBU                       : 0
                 Total                     : 0
         Aggregate
-            Single Bit            
+            Single Bit
                 Device Memory             : 0
                 Register File             : 0
                 L1 Cache                  : 0
@@ -494,7 +494,7 @@ GPU 00000000:02:00.0
                 Texture Shared            : N/A
                 CBU                       : N/A
                 Total                     : 0
-            Double Bit            
+            Double Bit
                 Device Memory             : 0
                 Register File             : 0
                 L1 Cache                  : 0
