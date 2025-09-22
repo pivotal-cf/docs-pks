@@ -1,0 +1,443 @@
+---
+title: Upgrade Order for Tanzu Kubernetes Grid Integrated Edition Environments on vSphere
+owner: TKGI
+---
+
+This topic describes upgrade scenarios for
+VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) environments that are upgraded from
+{{{ vars.product_version_prev }}} to {{{ vars.product_version }}} on vSphere.
+
+## <a id="overview"></a>Overview
+
+When you upgrade TKGI on vSphere, you might also upgrade
+vSphere and, if you are using it, NSX.
+
+TKGI, NSX, and vSphere upgrades depend on each other.
+Some combinations also require upgrading VMware Tanzu Operations Manager (Ops Manager) or
+TKGI-provisioned Kubernetes clusters.
+
+For any combination of upgrades that you perform, you must follow the upgrade
+order described in this topic.
+
+* If your environment is on vSphere with NSX networking,
+see [TKGI on vSphere with NSX Networking](#nsxt) below.
+* If your environment is on vSphere with Antrea networking,
+see
+[TKGI on vSphere (Antrea Networking)](#antrea)
+below.
+
+## <a id="nsxt"></a>TKGI on vSphere with NSX Networking
+
+When upgrading a TKGI
+environment on vSphere with NSX networking, you can choose to upgrade any
+of the following:
+
+* TKGI only, optionally including Kubernetes clusters
+* TKGI, Kubernetes clusters, and NSX
+* TKGI, Kubernetes clusters, NSX, and vSphere
+
+
+For more information, see below:
+
+<table class="nice upgrade-table">
+<col width="20%">
+<col width="40%">
+<col width="40%">
+    <th>To upgrade these components...</th>
+    <th>Use this order...</th>
+    <th>For more information, see...</th>
+    <tr>
+        <td>TKGI</td>
+        <td>
+            <ol>
+              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade TKGI.</li>
+              <li>(Recommended) Upgrade Kubernetes clusters.</li>
+            </ol>
+        </td>
+        <td><a href="#tkgi-only">Upgrading to TKGI {{{ vars.product_version }}}</a></td>
+    </tr>
+    <tr>
+        <td>TKGI and NSX</td>
+        <td>
+            <ol>
+              <li>Upgrade NSX.</li>
+              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade TKGI.</li>
+              <li>Upgrade Kubernetes clusters.</li>
+            </ol>
+        </td>
+        <td><a href="#tkgi-nsxt">Upgrading to TKGI {{{ vars.product_version }}} and NSX v4.0</a></td>
+    </tr>
+    <tr>
+        <td>TKGI, NSX, and vSphere</td>
+        <td>
+            <ol>
+              <li>Upgrade NSX.</li>
+              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade TKGI.</li>
+              <li>Upgrade Kubernetes clusters.</li>
+              <li>Upgrade vSphere.</li>
+            </ol>
+        </td>
+        <td><a href="#tkgi-nsxt-vsphere">Upgrading to TKGI {{{ vars.product_version }}}, NSX, and vSphere v8.0</a></td>
+    </tr>
+</table>
+
+<p class="note warning">
+<strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.
+</p>
+
+For a list of NSX and vSphere versions compatible with
+Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}, see:
+
+* [Product Snapshot](release-notes.html) in _Release Notes_
+* [VMware Product Interoperability Matrices](https://interopmatrix.vmware.com/Interoperability?col=644&row=0,)
+
+### <a id="tkgi-only"></a>Scenario 1: Upgrading to TKGI {{{ vars.product_version }}}
+
+In this upgrade scenario, you upgrade Tanzu Kubernetes Grid Integrated Edition
+from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} and do not upgrade your NSX or vSphere infrastructure.
+
+The upgrade scenario includes the following steps:
+
+1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended Ops Manager versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+[{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
+1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
+1. If you are upgrading a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
+1. (Recommended) Upgrade all Kubernetes clusters to
+Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+This upgrades the NCP version of your clusters.
+
+See the table below for version information and instructions for this
+upgrade scenario:
+
+<table class="nice">
+<col width="15%">
+<col width="20%">
+<col width="20%">
+<col width="45%">
+    <th>Component</th>
+    <th>Pre-upgrade version</th>
+    <th>Post-upgrade version</th>
+    <th>Instructions</th>
+    <tr>
+        <td>TKGI</td>
+        <td><strong>{{{ vars.product_version_prev }}}</strong></td>
+        <td><strong>{{{ vars.product_version }}}</strong></td>
+        <td>See <a href="upgrade-nsxt.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)</a>.</td>
+    </tr>
+    <tr>
+        <td>Ops Manager</td>
+        <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
+        <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
+        <td><em>n/a</em></td>
+    </tr>
+</table>
+
+### <a id="tkgi-nsxt"></a>Scenario 2: Upgrading to TKGI {{{ vars.product_version }}} and NSX v4.0
+
+<p class="note warning">
+<strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.
+</p>
+
+
+In this upgrade scenario, you upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to
+{{{ vars.product_version }}} and NSX from v3.2.3, to v4.0.1 or later.
+
+The upgrade scenario includes the following steps:
+
+1. Upgrade NSX from v3.2.3 or later to v4.0.1 or later.
+1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended Ops Manager versions
+for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+[{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
+1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
+1. If you are upgrading a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-16-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
+1. Upgrade all Kubernetes clusters to
+Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+This upgrades the NCP version of your clusters.
+
+See the table below for version information and instructions for this
+upgrade scenario:
+
+<table class="nice">
+<col width="15%">
+<col width="20%">
+<col width="20%">
+<col width="45%">
+    <th>Component</th>
+    <th>Pre-upgrade version</th>
+    <th>Post-upgrade version</th>
+    <th>Instructions</th>
+    <tr>
+        <td>TKGI</td>
+        <td><strong>{{{ vars.product_version_prev }}}</strong></td>
+        <td><strong>{{{ vars.product_version }}}</strong></td>
+        <td>See <a href="upgrade-nsxt.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)</a>.</td>
+    </tr>
+    <tr>
+        <td>Ops Manager</td>
+        <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
+        <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
+        <td><em>n/a</em></td>
+    </tr>
+    <tr>
+        <td>NSX</td>
+        <td><strong>v3.2.3</strong> or later</td>
+        <td><strong>v4.0.1</strong> or later</td>
+        <td>
+        </td>
+    </tr>
+    <tr>
+        <td>NCP</td>
+        <td><strong>v4.1.1.0</strong></td>
+        <td><strong>v4.1.2.0</strong></td>
+        <td><em>n/a</em></td>
+    </tr>
+</table>
+
+### <a id="tkgi-nsxt-vsphere"></a>Scenario 3: Upgrading to TKGI {{{ vars.product_version }}}, NSX v4.0, and vSphere v8.0
+
+<p class="note warning">
+<strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.
+</p>
+
+In this upgrade scenario, you upgrade:
+
+* Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
+* NSX from v3.2.3 or later to v4.0.1 or later.
+* vSphere from v7.0 to v8.0
+
+The upgrade scenario includes the following steps:
+
+1. Upgrade NSX from v3.2.3 or later, to v4.0.1. or later.
+1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended Ops Manager versions
+for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+[{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
+1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
+1. If you are upgrading a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
+1. Upgrade all Kubernetes clusters to
+Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+This upgrades the NCP version of your clusters.
+1. Upgrade vSphere from v7.0 to v8.0.
+
+See the table below for version information and instructions for this
+upgrade scenario:
+
+<table class="nice upgrade-table">
+<col width="15%">
+<col width="18%">
+<col width="18%">
+<col width="49%">
+    <th>Component</th>
+    <th>Pre-upgrade version</th>
+    <th>Post-upgrade version</th>
+    <th>Instructions</th>
+    <tr>
+        <td>TKGI</td>
+        <td><strong>{{{ vars.product_version_prev }}}</strong></td>
+        <td><strong>{{{ vars.product_version }}}</strong></td>
+        <td>See <a href="upgrade-nsxt.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)</a>.</td>
+    </tr>
+    <tr>
+        <td>Ops Manager</td>
+        <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
+        <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
+        <td><em>n/a</em></td>
+    </tr>
+    <tr>
+        <td>NSX</td>
+        <td><strong>v3.2.3</strong> or later</td>
+        <td><strong>v4.0.1</strong> or later</td>
+        <td>See <a href="upgrade-nsxt.html#upgrade-nsxt">Upgrade NSX Data Center to v4.0.1</a>
+        in <em>Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)</em>.</td>
+    </tr>
+    <tr>
+        <td>NCP</td>
+        <td><strong>v4.1.1.0</strong></td>
+        <td><strong>v4.1.2.0</strong> or later</td>
+        <td><em>n/a</em></td>
+    </tr>
+    <tr>
+        <td>vSphere</td>
+        <td><strong>v7.0</strong></td>
+        <td><strong>v8.0</strong></td>
+        <td>
+            <p>See the vSphere documentation:</p>
+            <ol>
+                <li><a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-server-upgrade-7-0/upgrading-and-updating-the-vcenter-server-appliance.html">Upgrading the vCenter Server Appliance</a></li>
+                <li><a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/8-0/upgrading-esxi-hosts.html">Upgrading ESXi Hosts</a></li>
+            </ol>
+            Also, see
+            <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vcenter-server-upgrade-8-0.html">Overview of the vSphere Upgrade Process</a>.
+        </td>
+    </tr>
+</table>
+
+
+## <a id="antrea"></a>TKGI on vSphere (Antrea Networking)
+
+When upgrading a Tanzu Kubernetes Grid Integrated Edition environment on vSphere with Antrea
+networking, you can choose to upgrade any of the following:
+
+* TKGI only, optionally including Kubernetes clusters
+* TKGI, Kubernetes clusters, and vSphere
+
+
+For more information, see below:
+
+<table class="nice upgrade-table">
+<col width="20%">
+<col width="40%">
+<col width="40%">
+    <th>To upgrade these components...</th>
+    <th>Use this order...</th>
+    <th>For more information, see...</th>
+    <tr>
+        <td>TKGI</td>
+        <td>
+            <ol>
+              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade TKGI.</li>
+              <li>(Recommended) Upgrade Kubernetes clusters.</li>
+            </ol>
+        </td>
+        <td><a href="#tkgi-only-antrea">Upgrading to TKGI {{{ vars.product_version }}}</a></td>
+    </tr>
+    <tr>
+        <td>TKGI and vSphere</td>
+        <td>
+            <ol>
+              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade TKGI.</li>
+              <li>Upgrade Kubernetes clusters.</li>
+              <li>Upgrade vSphere.</li>
+            </ol>
+        </td>
+        <td><a href="#tkgi-vsphere">Upgrading to TKGI {{{ vars.product_version }}} and vSphere v7.0</a></td>
+    </tr>
+</table>
+
+For a list of vSphere versions compatible with
+Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}, see [VMware Product Interoperability Matrices](https://interopmatrix.vmware.com/Interoperability?col=644&row=0,).
+
+### <a id="tkgi-only-antrea"></a>Scenario 1: Upgrading to TKGI {{{ vars.product_version }}}
+
+In this upgrade scenario, you upgrade Tanzu Kubernetes Grid Integrated Edition
+from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} and do not upgrade your vSphere infrastructure.
+
+The upgrade scenario includes the following steps:
+
+1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended Ops Manager versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+[{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
+1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
+1. If you are upgrading a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
+1. (Recommended) Upgrade all Kubernetes clusters to
+Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+This upgrades the NCP version of your clusters.
+
+See the table below for version information and instructions for this
+upgrade scenario:
+
+<table class="nice">
+<col width="15%">
+<col width="20%">
+<col width="20%">
+<col width="45%">
+    <th>Component</th>
+    <th>Pre-upgrade version</th>
+    <th>Post-upgrade version</th>
+    <th>Instructions</th>
+    <tr>
+        <td>TKGI</td>
+        <td><strong>{{{ vars.product_version_prev }}}</strong></td>
+        <td><strong>{{{ vars.product_version }}}</strong></td>
+        <td>See <a href="upgrade.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)</a>.</td>
+    </tr>
+    <tr>
+        <td>Ops Manager</td>
+        <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
+        <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
+        <td><em>n/a</em></td>
+    </tr>
+    <tr>
+        <td>vSphere</td>
+        <td><strong>v7.0</strong></td>
+        <td><strong>v7.0</strong></td>
+        <td><em>n/a</em></td>
+    </tr>
+</table>
+
+
+### <a id="tkgi-vsphere"></a>Scenario 2: Upgrading to TKGI {{{ vars.product_version }}} and vSphere v8.0
+
+In this upgrade scenario, you upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to
+{{{ vars.product_version }}} and vSphere from v7.0 to v8.0.
+
+The upgrade scenario includes the following steps:
+
+1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended Ops Manager versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+[{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
+1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
+1. Upgrade all Kubernetes clusters to
+Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+This upgrades the NCP version of your clusters.
+1. Upgrade vSphere from v7.0 to v8.0.
+
+See the table below for version information and instructions for this
+upgrade scenario:
+
+<table class="nice upgrade-table">
+<col width="15%">
+<col width="18%">
+<col width="18%">
+<col width="49%">
+    <th>Component</th>
+    <th>Pre-upgrade version</th>
+    <th>Post-upgrade version</th>
+    <th>Instructions</th>
+    <tr>
+        <td>TKGI</td>
+        <td><strong>{{{ vars.product_version_prev }}}</strong></td>
+        <td><strong>{{{ vars.product_version }}}</strong></td>
+        <td>See <a href="upgrade.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)</a>.</td>
+    </tr>
+    <tr>
+        <td>Ops Manager</td>
+        <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
+        <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
+        <td><em>n/a</em></td>
+    </tr>
+    <tr>
+        <td>vSphere</td>
+        <td><strong>v7.0</strong></td>
+        <td><strong>v8.0</strong></td>
+        <td>
+            <p>See the vSphere documentation:</p>
+            <ol>
+                <li><a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-server-upgrade-7-0/upgrading-and-updating-the-vcenter-server-appliance.html">Upgrading the vCenter Server Appliance</a></li>
+                <li><a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/8-0/upgrading-esxi-hosts.html">Upgrading ESXi Hosts</a></li>
+            </ol>
+            Also, see
+            <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vcenter-server-upgrade-8-0.html">Overview of the vSphere Upgrade Process</a>.
+        </td>
+    </tr>
+</table>

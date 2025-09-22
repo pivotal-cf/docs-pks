@@ -1,0 +1,46 @@
+---
+title: Firewall Ports and Protocols Requirements for vSphere (Antrea Networking)
+owner: TKGI
+netenv: vsphere
+---
+
+This topic describes the firewall ports and protocols requirements for using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+on vSphere with Antrea container networking.  
+
+If you are not using TKGI on vSphere Antrea container networking, see one of the follow topics instead:
+
+* [Firewall Ports and Protocols Requirements for vSphere with NSX](ports-protocols-nsx-t.html)  
+* [Firewall Ports and Protocols Requirements (Antrea Networking)](ports-protocols-antrea.html)  
+
+
+
+## <a id="overview"></a> Overview
+
+Apps frequently require the ability to pass internal communication between system components on 
+different networks.  
+
+Firewalls and Kubernetes Pod Security Admission are used to filter traffic and limit access in environments with strict 
+inter-network access control policies and your apps require one or more conduits through a secured environment's firewalls. 
+
+{{{ vars.recommended_by }}} recommends that 
+rather than using a Kubernetes Pod Security Admission to filter traffic between networks and 
+TKGI system components and clusters that you instead 
+enable access to apps through standard Kubernetes load-balancers and ingress controller types. 
+This enables you to designate specific ports and protocols as a firewall conduit.  
+
+Consult the following tables when configuring port settings to install or upgrade TKGI 
+or configure a Kubernetes cluster:
+
+* [TKGI Users Ports and Protocols](#users)  
+* [TKGI Core Ports and Protocols](#core)  
+* [VMware Virtual Infrastructure Ports and Protocols](#virtual-infra)  
+* [VMware Optional Integration Ports and Protocols](#optional-integration)  
+
+<p class="note"><strong>Note</strong>: To control which groups access deploying and scaling 
+your organization's Tanzu Kubernetes Grid Integrated Edition-deployed Kubernetes clusters, configure your firewall settings 
+as described on the Operator –> TKGI API server lines below.</p>
+
+{{> ports-protocols }}
+
+{{> ports-protocols-sphere }}
+

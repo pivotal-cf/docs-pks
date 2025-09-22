@@ -1,0 +1,228 @@
+---
+title: Using BOSH VM&nbsp;Extensions
+owner: TKGI
+---
+
+This topic describes how to configure Kubernetes clusters with BOSH VM&nbsp;extensions using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+
+## <a id='overview'></a>Overview
+
+BOSH VM&nbsp;extensions are VM configurations stored in the BOSH cloud config. 
+BOSH VM&nbsp;extensions allow you to specify IaaS-specific configurations for your VMs
+such as custom security group and load balancer configurations.  
+
+TKGI supports configuring Kubernetes clusters using BOSH VM&nbsp;extensions. 
+You can use BOSH VM extensions to configure TKGI-provisioned Linux and Windows clusters.  
+
+For information about BOSH VM Extensions, see [VM Extensions Block](https://bosh.io/docs/cloud-config/#vm-extensions) in _Usage_ in the Cloud Foundry BOSH documentation.
+
+<p class="note warning"><strong>Warning:</strong> Configure VM Extensions only if you are already familiar with BOSH VM Extensions. 
+  If you use VM extensions, you might accidentally override more settings than you intend. 
+  For example, if you use a VM extension to add tags, the default tags are removed from all instance groups.
+</p>
+
+
+## <a id='create-cluster'></a>Create a Cluster Using VM Extensions
+
+To create a new Kubernetes cluster configured with VM&nbsp;extensions:
+
+1. Create a VM&nbsp;extensions configuration file. For more information, see [Create a Cluster Configuration File for BOSH VM Extensions](#create-configuration) below.  
+1. To create a cluster using a VM&nbsp;extensions file:  
+
+    ```
+    tkgi create-cluster CLUSTER-NAME --config-file CONFIG-FILENAME
+    ```
+    Where:  
+
+    * `CLUSTER-NAME` is the name of the cluster to create.  
+    * `CONFIG-FILENAME` is the name of the VM extension configuration file created above.  
+
+## <a id='modify-cluster'></a>Configure a Cluster Using VM Extensions
+
+To configure an existing Kubernetes cluster with VM&nbsp;extensions:
+
+1. If you are updating a cluster that uses a public cloud CSI driver, 
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
+in _Release Notes_ for additional requirements.  
+1. Create a VM&nbsp;extensions configuration file. For more information, see [Create a Cluster Configuration File for BOSH VM Extensions](#create-configuration) below.  
+1. To modify a cluster using a VM&nbsp;extensions file:  
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILENAME
+    ```
+    Where:  
+
+    * `CLUSTER-NAME` is the name of the cluster to modify.  
+    * `CONFIG-FILENAME` is the name of the VM extension configuration file created above.  
+
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+</p>
+
+## <a id='create-configuration'></a>Create a Cluster Configuration File for BOSH VM Extensions
+
+To create a VM&nbsp;extensions configuration file in JSON format:
+
+1. Create a new configuration file containing the following content:  
+    * **vSphere VM Extension Configuration File Template**:  
+
+        ```
+        {
+            "instance_groups":[
+              {
+                "name":"master",
+                "vm_extension":{
+                  "vmx_options":{
+                    "disk.enableUUID": "1"
+                  },
+                  "nsxt":{ 
+                    "ns_groups":[NSX-NS-GROUPS] 
+                  }
+                }
+              },
+              {
+                "name":"WORKER-NAME",
+                "vm_extension":{
+                  "vmx_options":{
+                    "disk.enableUUID": "1"
+                  }
+                }
+              },  	
+              {
+                "name":"NODE-POOL-NAME",
+                "vm_extension":{
+                  "vmx_options":{
+                    "disk.enableUUID": "1"
+                  }
+                }
+              }
+           ]
+        }
+        ```
+
+    * **Public Cloud VM Extension Configuration File Template**:  
+
+        ```
+        {
+            "instance_groups":[
+              {
+                "name":"master",
+                "vm_extension":{
+                  "vmx_options":{
+                    "disk.enableUUID": "1"
+                  }
+                }
+              },
+              {
+                "name":"WORKER-NAME",
+                "vm_extension":{
+                  "vmx_options":{
+                    "disk.enableUUID": "1"
+                  }
+                }
+              }
+           ]
+        }
+        ```
+    Where:  
+
+    * `NSX-NS-GROUPS` (vSphere with VMware NSX Only) is a comma-separated list of NS&nbsp;Group names that the instances belong to.  
+    * `NODE-POOL-NAME` (vSphere Only) is the instance group name for the node pool VM extensions. 
+        The node pool must be configured in the cluster's compute profile. 
+        For Linux clusters, the node pool name must be prefixed `worker-` and for Windows Workers `windows-worker-`. 
+        For example: `worker-tiny-1` and `windows-worker-tiny-1`.   
+    * `WORKER-NAME` is `worker` for Linux clusters and `windows-worker` for Windows Worker clusters.  
+
+1. Update the `vm_extension` and `vmx_options` parameters of each instance group with the custom BOSH VM&nbsp;extensions and VMX&nbsp;options to apply to the Kubernetes cluster.  
+
+    {{{{raw}}}} <!--     The default value of all VM extensions configuration file parameters is blank. Settings that are not included in the configuration file overwrite the default TKGI configuration values with blank. # --> {{{{/raw}}}}
+    <p class="note warning"><strong>Warning:</strong> Volumes will not attach to your nodes 
+      if you do not include the <code>disk.enableUUID</code> <code>vmx_options</code> parameter in your configuration.
+    </p>
+    {{{{raw}}}} <!--     Always include the <code>disk.enableUUID</code> <code>vmx_options</code> parameter when configuring a VM extensions configuration file.  # --> {{{{/raw}}}}
+
+    For example:  
+
+    ```
+    {
+        "instance_groups":[
+          {
+            "name":"master",
+            "vm_extension":{
+              "cpu_hot_add_enabled": "true",
+              "nsxt":{ 
+                "ns_groups":["master-2"] 
+              },
+              "vmx_options":{
+                "disk.enableUUID": "1"
+              }
+            }
+          },
+          {
+            "name":"windows-worker",
+            "vm_extension":{
+              "cpu_hot_add_enabled": "true",
+              "vmx_options":{
+                "disk.enableUUID": "1"
+              }
+            }
+          },  	
+          {
+            "name":"windows-worker-tiny-1",
+            "vm_extension":{
+              "cpu_hot_add_enabled": "true",
+              "vmx_options":{
+                "ctkEnabled": "TRUE",
+                "disk.enableUUID": "1"
+              }
+            }
+          }
+       ]
+    }
+    ```  
+
+    The supported BOSH VM&nbsp;extensions are specific to each IaaS. 
+    For the names of the cloud properties you can use in your VM extension configurations, 
+    see the following topics in _Usage_ in the Cloud Foundry BOSH documentation:  
+    
+    * For AWS, see: [VM Types / VM&nbsp;extensions](https://bosh.io/docs/aws-cpi/#resource-pools).  
+    * For Azure, see: [VM Types / VM&nbsp;extensions](https://bosh.io/docs/azure-cpi/#resource-pools).  
+    * For vSphere, see: [VM Types / VM&nbsp;extensions](https://bosh.io/docs/vsphere-cpi/#resource-pools).  
+    
+
+   
+## <a id='remove-configuration'></a>Remove BOSH VM Extensions From a Cluster
+
+To remove a VM&nbsp;extensions instance group from a cluster:  
+
+1. Create a VM extension configuration file containing the following:  
+
+    ```
+    {
+        "instance_groups":[
+          {
+            "name":"INSTANCE-GROUP",
+            "vm_extension":{
+            }
+          }
+       ]
+    }
+    ```
+
+    Where:  
+    
+    * `INSTANCE-GROUP` is the name of the instance group VM&nbsp;extensions to be removed.
+        Specify either `master`, `worker`, `windows-worker` 
+        or a node pool VM&nbsp;extension instance group name.  
+
+1. To remove the VM&nbsp;extensions instance group using the CLI:  
+
+    ```
+    tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILENAME
+    ```
+    Where:  
+
+    * `CLUSTER-NAME` is the name of the cluster to remove VM&nbsp;extensions from.  
+    * `CONFIG-FILENAME` is the name of the VM extension configuration file created above.  
+
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+</p>

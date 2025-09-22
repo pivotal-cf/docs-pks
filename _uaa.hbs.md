@@ -1,0 +1,60 @@
+To configure the UAA server:
+
+1. Click **UAA**.
+1. Under **TKGI API Access Token Lifetime**, enter a time in seconds for the
+TKGI API access token lifetime. This field defaults to `600`.
+
+    <img src="images/uaa.png" alt="UAA pane configuration">
+
+1. Under **TKGI API Refresh Token Lifetime**, enter a time in seconds for the
+TKGI API refresh token lifetime. This field defaults to `21600`.
+1. Under **TKGI Cluster Access Token Lifetime**, enter a time in seconds for the
+cluster access token lifetime. This field defaults to `600`.
+1. Under **TKGI Cluster Refresh Token Lifetime**, enter a time in seconds for the
+cluster refresh token lifetime. This field defaults to `21600`.
+<p class="note"><strong>Note:</strong> {{{ vars.recommended_by }}} recommends
+using the default UAA token timeout values.
+By default, access tokens expire after ten minutes and refresh tokens expire
+after six hours.
+</p>
+1. Under **Configure created clusters to use UAA as the OIDC provider**,
+select **Enabled** or **Disabled**. This is a global default setting for
+TKGI-provisioned clusters. For more information, see
+[OIDC Provider for Kubernetes Clusters](oidc-provider.html).  
+<br><br>
+  To configure Tanzu Kubernetes Grid Integrated Edition to use UAA as the OIDC provider:
+  1. Under **Configure created clusters to use UAA as the OIDC provider**,
+  select **Enabled**.  
+    ![OIDC configuration check box](images/oidc.png)
+  1. For **UAA OIDC Groups Claim**, enter the name of your groups claim.
+  This is used to set a user's group in the JSON Web Token (JWT) claim.
+  The default value is `roles`.
+  1. For **UAA OIDC Groups Prefix**, enter a prefix for your groups claim.
+  This prevents conflicts with existing names. For example, if you enter the
+  prefix `oidc:`, UAA creates a group name like `oidc:developers`.
+  The default value is `oidc:`.
+  1. For **UAA OIDC Username Claim**, enter the name of your user name claim.
+  This is used to set a user's user name in the JWT claim.
+  The default value is `user_name`. Depending on your provider, you can enter
+  claims besides `user_name`, like `email` or `name`.
+  1. For **UAA OIDC Username Prefix**, enter a prefix for your user name claim.
+  This prevents conflicts with existing names. For example, if you enter the
+  prefix `oidc:`, UAA creates a user name like `oidc:admin`. The default value
+  is `oidc:`.
+    <p class="note warning"><strong>Warning:</strong> {{{ vars.recommended_by }}}
+    recommends adding OIDC prefixes to prevent users and groups from gaining
+    unintended cluster privileges. If you change the above values for a
+    pre-existing Tanzu Kubernetes Grid Integrated Edition installation, you must change any
+    existing role bindings that bind to a user name or group. If you do not
+    change your role bindings, developers cannot access Kubernetes clusters.
+    For instructions, see <a href="./manage-cluster-permissions.html">Managing Cluster Access and Permissions</a>.</p>
+1. (Optional) For **TKGI cluster client redirect URIs**, enter one or more comma-delimited UAA redirect URIs. 
+Configure **TKGI cluster client redirect URIs** to assign persistent UAA `cluster_client` `redirect_uri` URIs to your clusters. 
+UAA redirect URIs configured in the **TKGI cluster client redirect URIs** field persist through cluster updates and TKGI upgrades.  
+1. Select one of the following options:
+  * To use an internal user account store for UAA, select **Internal UAA**.
+  Click **Save** and continue to [(Optional) Host Monitoring](#syslog).
+  * To use LDAP for UAA, select **LDAP Server** and continue to
+  [Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server](configuring-ldap.html).
+  * To use SAML for UAA, select **SAML Identity Provider** and continue to
+  [Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider](configuring-saml.html).

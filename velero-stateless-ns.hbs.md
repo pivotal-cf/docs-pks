@@ -1,0 +1,325 @@
+---
+title: Back Up and Restore Stateless App with Namespace
+owner: TKGI
+---
+
+This topic describes how to use Velero to back up and restore a stateless application using the namespace feature with Velero.  
+
+##<a id="overview"></a> Overview
+
+The application we are going to use to test back up/restore with Velero is the standard Guestbook app (stateless app).
+
+##<a id="prereqs"></a> Prerequisites
+
+[Install and configure](./velero-install.html) Minio and Velero.
+
+Download the [Guestbook app YAML files](https://github.com/pivotal-cf/docs-pks/tree/{{{ vars.product_version_raw }}}/demos/guestbook-app/) to a local known directory:
+
+- redis-leader-deployment.yaml
+- redis-leader-service.yaml
+- redis-follower-deployment.yaml
+- redis-follower-service.yaml
+- frontend-deployment.yaml 
+- frontend-service.yaml
+
+## <a id='guestbook-deploy'></a> Deploy Guestbook App
+
+Create Guestbook namespace:
+
+```
+kubectl create ns guestbook
+namespace/guestbook created
+```
+
+Deploy the Guestbook app:
+
+```
+kubectl apply -f . -n guestbook
+deployment.apps/frontend created
+service/frontend created
+deployment.apps/redis-leader created
+service/redis-leader created
+deployment.apps/redis-follower created
+service/redis-follower created
+root@PKS-client-VM-WA:/DATA/K8s-Apps
+```
+
+Verify:
+
+```
+kubectl get pod -n guestbook
+NAME                            READY   STATUS    RESTARTS   AGE
+frontend-6cb7f8bd65-kqbf6       1/1     Running   0          38s
+frontend-6cb7f8bd65-s7mk9       1/1     Running   0          38s
+frontend-6cb7f8bd65-vtz4k       1/1     Running   0          38s
+redis-leader-7b8487bf68-2mhcd   1/1     Running   0          38s
+redis-follower-5bdcfd74c7-4hhqs 1/1  Running   0          37s
+redis-follower-5bdcfd74c7-hl8hf 1/1     Running   0          37s
+```
+
+```
+kubectl get svc -n guestbook
+NAME           TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)        AGE
+frontend       LoadBalancer   10.100.200.3     10.199.41.10   80:32498/TCP   47s
+redis-leader   ClusterIP      10.100.200.192   <none>         6379/TCP       47s
+redis-follower ClusterIP      10.100.200.218   <none>         6379/TCP       46s
+```
+
+Access the Guestbook app at <http://10.199.41.10/>.
+
+  <img src="images/backup-restore/guestbook-01.png" alt="Guestbook App" width="538">
+
+## <a id='guestbook-br-ns'></a> Back Up the Guestbook App using Namespace
+
+This example shows how to back up and restore the Guestbook app using the `--include namespace` tag.
+
+```
+velero backup create guestbook-backup --include-namespaces guestbook
+
+Back up request "guestbook-backup" submitted successfully.
+Run `velero backup describe guestbook-backup` or `velero backup logs guestbook-backup` for more details.
+```
+
+Verify:
+
+```
+velero backup describe guestbook-backup
+```
+
+Expect result:
+
+```
+Name:         guestbook-backup
+Namespace:    velero
+Labels:       velero.io/storage-location=default
+Annotations:  velero.io/source-cluster-k8s-gitversion=v1.17.8+vmware.1
+              velero.io/source-cluster-k8s-major-version=1
+              velero.io/source-cluster-k8s-minor-version=17
+
+Phase:  Completed
+
+Errors:    0
+Warnings:  0
+
+Namespaces:
+  Included:  guestbook
+  Excluded:  <none>
+
+Resources:
+  Included:        *
+  Excluded:        <none>
+  Cluster-scoped:  auto
+
+Label selector:  <none>
+
+Storage Location:  default
+
+Velero-Native Snapshot PVs:  auto
+
+TTL:  720h0m0s
+
+Hooks:  <none>
+
+Backup Format Version:  1
+
+Started:    2020-07-21 14:45:51 -0700 PDT
+Completed:  2020-07-21 14:45:52 -0700 PDT
+
+Expiration:  2020-08-20 14:45:51 -0700 PDT
+
+Total items to be backed up:  60
+Items backed up:              60
+
+Velero-Native Snapshots: <none included>
+```
+
+Verify the backup that was created.
+
+```
+velero backup get
+
+NAME               STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+guestbook-backup   Completed   0        0          2020-07-21 14:45:51 -0700 PDT   29d       default            <none>
+```
+
+Check the `tkgi-velero` bucket on the MinIO server.
+
+  <img src="images/backup-restore/minio-10.png" alt="Guestbook App" width="538">
+
+Velero writes some metadata in Kubernetes CustomResourceDefinition (CRD).
+
+```
+kubectl get crd
+```
+
+Expected result:
+
+```
+NAME                                CREATED AT
+backups.velero.io                   2020-07-21T21:04:39Z
+backupstoragelocations.velero.io    2020-07-21T21:04:39Z
+clusterlogsinks.pksapi.io           2020-07-07T22:55:25Z
+clustermetricsinks.pksapi.io        2020-07-07T22:55:26Z
+deletebackuprequests.velero.io      2020-07-21T21:04:39Z
+downloadrequests.velero.io          2020-07-21T21:04:39Z
+loadbalancers.vmware.com            2020-07-07T22:39:04Z
+logsinks.pksapi.io                  2020-07-07T22:55:25Z
+metricsinks.pksapi.io               2020-07-07T22:55:26Z
+nsxerrors.nsx.vmware.com            2020-07-07T22:39:04Z
+nsxlbmonitors.vmware.com            2020-07-07T22:39:05Z
+nsxlocks.nsx.vmware.com             2020-07-07T22:39:04Z
+podvolumebackups.velero.io          2020-07-21T21:04:39Z
+podvolumerestores.velero.io         2020-07-21T21:04:39Z
+resticrepositories.velero.io        2020-07-21T21:04:39Z
+restores.velero.io                  2020-07-21T21:04:39Z
+schedules.velero.io                 2020-07-21T21:04:40Z
+serverstatusrequests.velero.io      2020-07-21T21:04:40Z
+volumesnapshotlocations.velero.io   2020-07-21T21:04:40Z
+```
+
+The Velero CRDs let you run certain commands, such as the following:
+
+```
+kubectl get backups.velero.io -n velero
+
+NAME               AGE
+guestbook-backup   4m58s
+```
+
+```
+kubectl describe backups.velero.io guestbook-backup -n velero
+
+Name:         guestbook-backup
+Namespace:    velero
+Labels:       velero.io/storage-location=default
+Annotations:  velero.io/source-cluster-k8s-gitversion: v1.17.8+vmware.1
+              velero.io/source-cluster-k8s-major-version: 1
+              velero.io/source-cluster-k8s-minor-version: 17
+API Version:  velero.io/v1
+Kind:         Backup
+Metadata:
+  Creation Timestamp:  2020-07-21T21:45:51Z
+  Generation:          5
+  Resource Version:    3355027
+  Self Link:           /apis/velero.io/v1/namespaces/velero/backups/guestbook-backup
+  UID:                 9d71a2c4-6fdd-42a2-963d-e85a91926dac
+Spec:
+  Hooks:
+  Included Namespaces:
+    guestbook
+  Storage Location:  default
+  Ttl:               720h0m0s
+Status:
+  Completion Timestamp:  2020-07-21T21:45:52Z
+  Expiration:            2020-08-20T21:45:51Z
+  Format Version:        1.1.0
+  Phase:                 Completed
+  Progress:
+    Items Backed Up:  60
+    Total Items:      60
+  Start Timestamp:    2020-07-21T21:45:51Z
+  Version:            1
+Events:               <none>
+```
+
+## <a id='guestbook-br-ns'></a> Restore the Guestbook App
+
+To test the restoration of the Guestbook app, delete it.
+
+Delete the namespace:
+
+```
+kubectl delete ns guestbook
+namespace "guestbook" deleted
+```
+
+Restore the app:
+
+```
+velero restore create --from-backup guestbook-backup
+
+Restore request "guestbook-backup-20200721145620" submitted successfully.
+Run `velero restore describe guestbook-backup-20200721145620` or `velero restore logs guestbook-backup-20200721145620` for more details.
+```
+
+Verify that the app is restored:
+
+```
+velero restore describe guestbook-backup-20200721145620
+Name:         guestbook-backup-20200721145620
+Namespace:    velero
+Labels:       <none>
+Annotations:  <none>
+
+Phase:  Completed
+
+Backup:  guestbook-backup
+
+Namespaces:
+  Included:  all namespaces found in the backup
+  Excluded:  <none>
+
+Resources:
+  Included:        *
+  Excluded:        nodes, events, events.events.k8s.io, backups.velero.io, restores.velero.io, resticrepositories.velero.io
+  Cluster-scoped:  auto
+
+Namespace mappings:  <none>
+
+Label selector:  <none>
+
+Restore PVs:  auto
+```
+
+Run the following commands to verify:
+
+```
+velero restore get
+NAME                              BACKUP             STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+guestbook-backup-20200721145620   guestbook-backup   Completed   0        0          2020-07-21 14:56:20 -0700 PDT   <none>
+```
+
+```
+kubectl get ns
+
+NAME              STATUS   AGE
+default           Active   13d
+guestbook         Active   19s
+kube-node-lease   Active   13d
+kube-public       Active   13d
+kube-system       Active   13d
+pks-system        Active   13d
+velero            Active   50m
+```
+
+```
+kubectl get pod -n guestbook
+
+NAME                            READY   STATUS    RESTARTS   AGE
+frontend-6cb7f8bd65-kqbf6       1/1     Running   0          29s
+frontend-6cb7f8bd65-s7mk9       1/1     Running   0          29s
+frontend-6cb7f8bd65-vtz4k       1/1     Running   0          29s
+redis-leader-7b8487bf68-2mhcd   1/1     Running   0          29s
+redis-follower-5bdcfd74c7-4hhqs 1/1     Running   0          29s
+redis-follower-5bdcfd74c7-hl8hf 1/1     Running   0          29s
+```
+
+```
+kubectl get svc -n guestbook
+
+NAME           TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)        AGE
+frontend       LoadBalancer   10.100.200.127   10.199.41.14   80:32673/TCP   34s
+redis-leader   ClusterIP      10.100.200.78    <none>         6379/TCP       34s
+redis-follower ClusterIP      10.100.200.250   <none>         6379/TCP       34s
+```
+
+Access the Guestbook app at <http://10.199.41.14/>.
+
+  <img src="images/backup-restore/guestbook-02.png" alt="Guestbook App" width="538">
+
+## <a id='guestbook-conclusions-ns'></a> Conclusions
+
+Note the following:
+
+- The namespace `guestbook` is automatically re-created.  
+- The IP address for the Kubernetes service load balancer is changed from `10.199.41.10` to `.14`.  

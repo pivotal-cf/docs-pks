@@ -1,0 +1,181 @@
+The following table describes the Ingress Controller configuration parameters:
+
+{{# evalExpression "current_page.data.lbtype == 'layer4controller' || current_page.data.lbtype == 'ncplogging'"}}
+  <table>
+    <th width="30%">Parameter</th>
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.lbtype == 'layer7controller'"}}
+  <table>
+    <th width="40%">Parameter</th>
+{{/ evalExpression }}
+    <th>Type</th>
+    <th>Description</th>
+    <tr>
+      <td><code>name</code></td>
+      <td>String</td>
+      <td>User-defined name of the network profile.</td>
+    </tr>
+    <tr>
+      <td><code>description</code></td>
+      <td>String</td>
+      <td>User-defined description for the network profile.</td>
+    </tr>
+    <tr>
+      <td><code>parameters</code></td>
+      <td>Map</td>
+      <td>Map containing one or more key-value pairs.</td>
+    </tr>
+    <tr>
+      <td><code>cni\_configurations</code></td>
+      <td>Map</td>
+      <td>Map containing <code>type</code> and <code>parameters</code> key-value pairs for configuring NCP.</td>
+    </tr>
+    <tr>
+      <td><code>type</code></td>
+      <td>Constant<br>String</td>
+      <td>Values: <code>"nsxt"</code>.</td>
+    </tr>
+    <tr>
+      <td><code>parameters</code></td>
+      <td>Map</td>
+      <td>Map containing one or more key-value pairs for NCP settings.</td>
+    </tr>
+{{# evalExpression "current_page.data.lbtype == 'layer4controller' || current_page.data.lbtype == 'layer7controller'"}}
+    <tr>
+      <td><code>nsx\_lb</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>Boolean<br><strong>Updatable</strong></td>
+      <td>Use NSX layer 4 virtual server for each Kubernetes service of type LoadBalancer.<br>Values: <code>true</code>, <code>false</code>.<br>Default: <code>true</code>.</td>
+    </tr>
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.lbtype == 'layer4controller'"}}
+    <tr>
+      <td><code>x\_forwarded\_for</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>String<br><strong>Updatable</strong></td>
+      <td>Sets the original client source IP in the request header. 
+        Enabling the network profile <code>x\_forwarded\_for</code> parameter automatically enables the 
+        <code>x\_forwarded\_port</code> and <code>x\_forward\_protocol</code> parameters.<br>Values: <code>"none"</code>, <code>"insert"</code>, 
+        <code>"replace"</code>.<br>Default: <code>"none"</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><code>max\_l4\_lb\_service</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>Integer<br><strong>Updatable</strong></td>
+        <td>Limit the maximum number of layer 4 virtual servers per cluster.<br>Minimum Value:<code>1</code>.<br>See also: <code>l4_lb_algorithm</code> and <code>l4_persistence_type</code>.</td>
+    </tr>
+    <tr>
+      <td><code>l4\_persistence\_type</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>String<br><strong>Updatable</strong></td>
+      <td>Connection stickiness based on <code>source_ip</code>.<br>Values: <code>"source_ip"</code>.<br>See also: <code>l4_lb_algorithm</code> and <code>max_l4_lb_service</code>.</td>
+    </tr>
+    <tr>
+      <td><code>l4\_lb\_algorithm</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>String<br><strong>Updatable</strong></td>
+      <td>Layer 4 load balancer behavior.<br>Values: <code>"round_robin"</code>, <code>"least_connection"</code>,<code>"ip_hash"</code>, <code>"weighted_round_robin"</code>.<br>Default: <code>"round_robin"</code>.
+        <br>See also: <code>l4_persistence_type</code> and <code>max_l4_lb_service</code>.</td>
+    </tr>
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.lbtype == 'layer7controller'"}}
+    <tr>
+      <td><code>nsx\_ingress\_controller</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>Boolean</td>
+      <td>Use NSX layer 7 virtual server as the ingress controller for the Kubernetes cluster. <br>Values: <code>true</code>, <code>false</code>.<br>Default: <code>true</code>.</td>
+    </tr>
+    <tr>
+      <td><code>ingress\_ip</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>String</td>
+      <td>IP address to use for ingress controller load balancer.</td>
+    </tr>
+    <tr>
+      <td><code>ingress\_persistence\_settings</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>String<br><strong>Updatable</strong></td>
+      <td>Map containing one or more key-value pairs for customizing Layer 7 persistence.<br>See also: <code>persistence_timeout</code> and <code>persistence_type</code></td>
+    </tr>
+    <tr>
+      <td><code>persistence\_type</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>String<br><strong>Updatable</strong></td>
+      <td>An <code>ingress_persistence_settings</code> parameter. Specify the ingress persistence type.<br>Values: <code>"none"</code>, <code>"cookie"</code>, <code>"source_ip"</code>.</td>
+    </tr>
+    <tr>
+      <td><code>persistence\_timeout</code></td>
+        {{{{raw}}}} <!--  Also update tables in:
+            network-profiles-define 
+            _ic-network-profile  
+            # --> {{{{/raw}}}}
+      <td>Integer<br><strong>Updatable</strong></td>
+      <td>An <code>ingress_persistence_settings</code> parameter. Persistence timeout interval in seconds.<br>See also: <code>connect_retry_timeout</code> and <code>lb_http_response_timeout</code>.</td>
+    </tr>
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.lbtype == 'ncplogging'"}}
+  <tr>
+    <td><code>log_settings</code></td>
+    <td>Map</td>
+    <td>Map containing one or more key-value pairs for  configuring NCP logging.</td>
+  </tr>
+  <tr>
+    <td><code>log_level</code></td>
+    <td>String</td>
+    <td>The logging level.<br>Values: <code>"INFO"</code>, <code>"WARNING"</code>, <code>"DEBUG"</code>, <code>"ERROR"</code>, <code>"CRITICAL"</code>.</td>
+  </tr>
+  <tr>
+    <td><code>log_dropped_traffic</code></td>
+    <td>Boolean</td>
+    <td>Log dropped firewall traffic.<br>Values: <code>true</code>, <code>false</code>.<br>Default: <code>false</code>.</td>
+  </tr>
+{{/ evalExpression }}
+  </table>
+
+The `nsx_lb` parameter is used to control the TCP layer 4 virtual server that is provisioned for each Kubernetes service of 
+[type: LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer).  
+
+When you configure an NSX Load Balancer as your Kubernetes cluster [ingress resource](https://kubernetes.io/docs/concepts/services-networking/ingress/), 
+NCP instructs the NSX Load Balancer to provision two layer 7 virtual services (HTTP and HTTPS) as the cluster 
+[Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/):
+
+<table>
+  <th width="20%">nsx_lb setting</th>
+  <th>Description</th>
+  <tr>
+    <td>nsx_lb: <code>true</code></td>
+    <td>Use an NSX Layer 4 LoadBalancer and NCP-provisioned Layer 7 Ingress Controller.</td>
+  </tr>
+  <tr>
+    <td>nsx_lb: <code>false</code></td>
+    <td>Use a third-party load balancer and a third-party ingress controller, such as <a href="https://kubernetes.github.io/ingress-nginx/">NGINX</a>.</td>
+  </tr>
+</table> 

@@ -1,0 +1,101 @@
+---
+title: Sink Architecture in Tanzu Kubernetes Grid Integrated Edition
+owner: TKGI
+---
+
+This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition
+(TKGI) implements sinks for collecting logs and
+metrics from Kubernetes worker nodes and workloads.  
+
+For step-by-step instructions on creating sinks in TKGI,
+see [Creating and Managing Sink Resources](./create-sinks.html).
+
+## <a id="overview"></a> Overview
+
+A sink collects logs or metrics about Kubernetes worker nodes in a
+TKGI deployment and workloads that are running on them.
+
+For more information, see:
+
+* [Sink Types](#types) below
+* [Sink Architecture](#architecture) below
+
+## <a id="types"></a>Sink Types
+
+You can create two types of sinks:
+
+* Log sinks
+* Metric sinks
+
+See the table below for information about these sink types.
+
+{{> sink-resources }}
+
+
+## <a id="architecture"></a>Sink Architecture
+
+TKGI-provisioned Kubernetes clusters include an
+observability manager that manages log sink and metric sink configurations
+within a cluster.
+
+The following diagram details TKGI cluster observability architecture:
+
+![Observability Manager architecture in TKGI.](images/manager-architecture.png)  
+[View a larger version of this image.](images/manager-architecture.png)  
+{{{{raw}}}} <!-- = Image source: https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g8588387d0b_0_0 %  > # --> {{{{/raw}}}}
+
+In the **Tanzu Kubernetes Grid Integrated Edition** tile > **In-Cluster Monitoring**:
+
+- **Enable Metric Sink Resources** enables metric sinks.
+- **Enable Log Sink Resources** enables log sinks.
+- **Enable node exporter on workers** forwards additional infrastructure metrics.
+
+Setting these check boxes in Ops Manager directs how BOSH configures the observability manager.
+
+For more information about enabling log sinks and metrics sinks,
+see [(Optional) In-Cluster Monitoring](./installing-vsphere.html#cluster-monitoring) in the _Installing_ topic for your IaaS.
+  
+### <a id="log-architecture"></a> Log Sink Architecture
+
+The TKGI log sink aggregates workload logs and forwards them to a common log destination.
+
+The following diagram details TKGI log sink architecture:
+
+![Log sink architecture in TKGI.](images/log-architecture.png)  
+[View a larger version of this image.](images/log-architecture.png)  
+{{{{raw}}}} <!-- = original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %  > # --> {{{{/raw}}}}
+
+Logs are monitored and aggregated by a Fluent Bit `DaemonSet` running as a pod on each worker node.
+
+An event-controller collects Kubernetes API events and sends them to a second Fluent Bit daemon pod for aggregation.
+
+All aggregated log entries are marshaled to a common log destination.
+
+<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Fluent Bit pods are refreshed with new sink information.</p>
+
+### <a id="metric-architecture"></a> Metric Sink Architecture
+
+The TKGI metric sink aggregates workload metrics and forwards them to a common metrics destination.
+
+The following diagram details TKGI metric sink architecture:
+
+![Metric Sink architecture in TKGI.](images/metric-architecture.png)  
+[View a larger version of this image.](images/metric-architecture.png)  
+{{{{raw}}}} <!-- = original graphic is here https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g5df94f27fe_0_397 %  >   # --> {{{{/raw}}}}
+
+A metric sink collects and writes metrics from a cluster to specified outputs using input and output plugins.
+
+Workload metrics are monitored by a set of third-party plugins. The plugins forward the metrics to a Telegraf service pod. 
+
+A pair of kubelets monitors Kubernetes and forwards Kubernetes metrics to a pair of Telegraf service pods. 
+
+If Node Exporter is enabled on the worker nodes in the Tanzu Kubernetes Grid Integrated Edition tile, a Node Exporter `DaemonSet` is included in all clusters.
+For more information about Node Exporter metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) repository in GitHub.
+
+To define the collected unstructured metrics, a metric-controller monitors Kubernetes for custom resource definitions and forwards those definitions 
+to the Telegraf services.
+
+The Telegraf services collect, process, and aggregate gathered metrics. All aggregated metrics are marshaled 
+to an additional plugin for forwarding to a third-party application. 
+
+<p class="note"><strong>Note</strong>: When sinks are added or removed, all of the Telegraf pods are refreshed with new sink information.</p>

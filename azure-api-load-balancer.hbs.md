@@ -1,0 +1,166 @@
+---
+title: Configuring an Azure Load Balancer for the TKGI API
+owner: TKGI
+---
+
+This topic describes how to create a load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) using Microsoft Azure.
+
+Refer to the procedures in this topic to create a load balancer using Azure. To use a different
+load balancer, use this topic as a guide.
+
+##<a id='overview'></a> Overview
+
+{{{ vars.recommended_by }}} recommends that you create a TKGI API
+load balancer when installing Tanzu Kubernetes Grid Integrated Edition on Azure.
+You simplify future upgrades of Tanzu Kubernetes Grid Integrated Edition by creating a load balancer when installing.
+
+To configure your TKGI API Load Balancer on Azure, complete the following:
+
+* [Create a Load Balancer](#create-load-balancer)
+* [Create a Backend Pool](#create-backend-pool)
+* [Create Health Probes](#create-health-probes)
+* [Create Load Balancing Rules](#create-load-balancing-role)
+* [Create an Inbound Security Rule](#create-inbound-rule)
+* [Add the TKGI API to the Backend Pool](#add-api-to-backend-pool)
+* [Verify TKGI API Hostname Resolution](#verify)
+
+###<a id='create-load-balancer'></a> Create a Load Balancer
+
+To create a new load balancer:
+
+1. In a browser, navigate to the [Azure Dashboard](https://portal.azure.com).
+1. Open the **Load Balancers** service.
+1. To add a new load balancer, click **Add** and complete the **Create load balancer** form as follows:
+  1. **Name**: Enter a name for the load balancer.
+  1. **Type**: Select **Public**.
+  1. **SKU**: Select **Standard**.
+  1. **Public IP address**: Select **Create new**.
+  1. **Public IP address name**: Enter the name for the new IP address.
+  1. **Availability zone**: Select an availability zone or **Zone-redundant**.
+  1. **Subscription**: Select the subscription where Tanzu Kubernetes Grid Integrated Edition has been deployed.
+  1. **Resource group**: Select the resource group where Tanzu Kubernetes Grid Integrated Edition has been deployed.
+  1. **Location**: Select the location group where Tanzu Kubernetes Grid Integrated Edition has been deployed.
+  1. Click **Create**.
+
+###<a id='create-backend-pool'></a> Create a Backend Pool
+An Azure backend pool is a logical grouping of instances that receive similar traffic.
+
+To create a backend pool for your load balancer:
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. Click the name of the load balancer that you created in [Create Load Balancer](#create) above.
+1. On your load balancer page, locate and record the IP address of your load balancer.
+1. In the **Settings** menu, select **Backend pools**.
+1. To add a new backend pool, click **Add** and complete the **Backend pools** form as follows:
+  1. **Name**: Enter the name for the backend pool.
+  1. Click **Add**.
+
+For information about Azure backend pools, see [Backend pools](https://docs.microsoft.com/en-us/azure/frontdoor/front-door-backend-pool#backend-pools)
+in the Azure documentation. For more information about configuring your backend pool, see
+[Remove or add VMs from the backend pool](https://docs.microsoft.com/en-us/azure/load-balancer/tutorial-load-balancer-standard-manage-portal#remove-or-add-vms-from-the-backend-pool)
+in the Azure documentation.
+
+##<a id='create-health-probes'></a> Create Health Probes
+
+To create health probes for your load balancer and UAA:
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. To open the **Health probes** page, select **Health probes** in the **Settings** menu.
+1. To create a new TKGI API server health probe, click **Add** and complete the form as follows:
+  1. **Name**: Enter the name for the health probe.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `9021`.
+  1. **Interval**: Enter the interval of time to wait between probe attempts.
+  1. **Unhealthy Threshold**: Enter a number of consecutive probe failures that must occur before
+    a VM is considered unhealthy.
+1. To create a new UAA health probe, click **Add** and complete the form as follows:
+  1. **Name**: Enter the name for the UAA health probe.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `8443`.
+  1. **Interval**: Enter the interval of time to wait between probe attempts.
+  1. **Unhealthy Threshold**: Enter a number of consecutive probe failures that must occur before
+    a VM is considered unhealthy.
+1. Click **OK**.
+
+##<a id='create-load-balancing-role'></a> Create Load Balancing Rules
+
+To create load balancer rules for your load balancer:
+
+1. From the Azure Dashboard, open the **Load Balancers** service.
+1. To open the **Load balancing rules** page, select **Load Balancing Rules** in the **Settings** menu.
+1. To create a new TKGI API server load balancer rule, click **Add** and complete the **Add load balancing rules** form as follows:
+  1. **Name**: Enter a name for the load balancing rule.
+  1. **IP Version**: Select **IPv4**.
+  1. **Frontend IP address**: Select the appropriate IP address. Clients communicate with your load
+    balancer on the selected IP address and service traffic is routed to the target VM by this NAT
+    rule.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `9021`.
+  1. **Backend port**: Enter `9021`.
+  1. **Health Probe**: Select the TKGI API server health probe that you created in
+    [Create Health Probe](#create-health-probes) above.
+  1. **Session persistence**: Select **None**.
+1. To create a new UAA load balancer rule, click **Add** and complete the **Add load balancing rules** form as follows:
+  1. **Name**: Enter a name for the UAA load balancing rule.
+  1. **IP Version**: Select **IPv4**.
+  1. **Frontend IP address**: Select the appropriate IP address. Clients communicate with your load
+    balancer on the selected IP address and service traffic is routed to the target VM by this NAT
+    rule.
+  1. **Protocol**: Select **TCP**.
+  1. **Port**: Enter `8443`.
+  1. **Backend port**: Enter `8443`.
+  1. **Health Probe**: Select the UAA health probe that you created in
+    [Create Health Probe](#create-health-probes) above.
+  1. **Session persistence**: Select **None**.
+1. Click **OK**.
+
+##<a id='create-inbound-rule'></a> Create an Inbound Security Rule
+
+To create an inbound security rule for your load balancer:
+
+1. From the Azure Dashboard, open the **Network Security Groups** service.
+1. Click the name of the Security Group attached to the subnet where the TKGI API is deployed.  
+1. To open the **Inbound security rules** page, select **Inbound security rules** in the **Settings** menu for your security group.
+1. To add a new inbound security rule, click **Add** and complete the **Add inbound security rule** form as follows:
+  1. Click **Advanced**.
+  1. **Name**: Enter the name for the inbound security rule.
+  1. **Source**: Select **Any**.
+  1. **Source port range**: Enter `*`.
+  1. **Destination**: Select **Any**.
+  1. **Destination port range**: Enter `9021,8443`.
+  1. Click **OK**.
+
+##<a id='add-api-to-backend-pool'></a> Add the TKGI API to the Backend Pool
+
+To assign a load balancer to the TKGI API VM and add the TKGI API VM to the backend pool:
+
+1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. Open the **Resource Config** pane.
+1. Select **TKGI API**.
+1. Review **Load Balancers**.
+1. If **Load Balancers** does not include the load balancer to use for the TKGI API VM:
+    1. Input the load balancer to use for TKGI API VM.
+    1. Click **Apply Changes**.
+
+For information about Azure backend pools, see [Backend pools](https://docs.microsoft.com/en-us/azure/frontdoor/front-door-backend-pool#backend-pools)
+in the Azure documentation. For more information about configuring your backend pool, see
+[Remove or add VMs from the backend pool](https://docs.microsoft.com/en-us/azure/load-balancer/tutorial-load-balancer-standard-manage-portal#remove-or-add-vms-from-the-backend-pool)
+in the Azure documentation.
+
+##<a id='verify'></a> Verify TKGI API Hostname Resolution
+
+To verify that your TKGI API hostname resolves correctly:  
+
+1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. Select **TKGI API**.
+1. Record the **API Hostname (FQDN)**.
+1. Verify that the TKGI API hostname resolves to the IP address of the load balancer.
+
+##<a id='next-step'></a> Next Step
+
+After you have configured an Azure load balancer for the TKGI API,
+complete the Tanzu Kubernetes Grid Integrated Edition installation by returning to the
+[Install the TKGI and Kubernetes CLIs](installing-azure.html#clis)
+step of _Installing Tanzu Kubernetes Grid Integrated Edition on Azure_.
