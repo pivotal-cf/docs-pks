@@ -1,7 +1,7 @@
 ---
 title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere (Antrea Networking)
 owner: TKGI
-windowsclusters: false
+iaas: vSphere
 ---
 
 This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
