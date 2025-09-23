@@ -2,6 +2,7 @@
 title: Upgrading Tanzu Kubernetes Grid Integrated Edition (VMware NSX Networking)
 owner: TKGI
 windowsclusters: #Empty var to prevent build breaking
+iaas: #Empty var to prevent build breaking
 ---
 
 This topic describes how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
