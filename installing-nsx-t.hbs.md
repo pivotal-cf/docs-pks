@@ -3,6 +3,8 @@ title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMwar
 owner: TKGI
 iaas: vSphere-NSX
 windowsclusters: #Empty var to prevent build breaking
+topic: #Empty var to prevent build breaking
+thistopic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
