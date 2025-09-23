@@ -34,8 +34,8 @@
     <td>Configure cluster-specific PSA in TKGI. For more information, see <a href="./pod-security-admission.html#psa-cluster">Pod Security Admission in a TKGI Cluster</a> in <em>Pod Security Admission in TKGI</em>.</td>
   </tr>
   <tr>
-    <td>Customize etcd quota backend bytes.</td>
-    <td>Configure the etcd quota-backend-bytes parameter to set the storage size limit for the etcd backend database.
+    <td>Customize <code>etcd</code> quota backend bytes.</td>
+    <td>Configure the <code>etcd quota-backend-bytes</code> parameter to set the storage size limit for the <code>etcd</code> backend database.
     For more information, see <a href="#etcd-quota">Set etcd Quota Backend Bytes</a> below.</td>
   </tr>
 </table>
