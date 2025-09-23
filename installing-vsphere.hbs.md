@@ -2,7 +2,8 @@
 title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere (Antrea Networking)
 owner: TKGI
 iaas: vSphere
-windowsclusters:
+windowsclusters: #Empty var to prevent build breaking
+topic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
@@ -15,9 +16,6 @@ For more information, see [vSphere Prerequisites and Resource Requirements](vsph
 
 {{> prerequisites }}
 
-
-
-
 ## <a id='overview'></a>Overview
 
 To install and configure TKGI:
@@ -26,12 +24,9 @@ To install and configure TKGI:
 1. [Configure Tanzu Kubernetes Grid Integrated Edition](#configure)
 1. [Apply Changes](#apply-changes)
 
-
-
 ##<a id='install'></a> Step 1: Install Tanzu Kubernetes Grid Integrated Edition
 
 {{> install }}
-
 
 ##<a id='configure'></a> Step 2: Configure Tanzu Kubernetes Grid Integrated Edition
 
@@ -79,56 +74,45 @@ used by the {{{ vars.product_short }}} control plane:
 
 {{> api }}
 
-
 ### <a id='plans'></a> Plans
 
 {{> plans }}
-
 
 ### <a id='cloud-provider'></a> Kubernetes Cloud Provider
 
 {{> cloud-provider }}
 
-
 ### <a id='networking'></a> Networking
 
 {{> networking-vsphere }}
-
 
 ### <a id='uaa'></a> UAA
 
 {{> uaa }}
 
-
 ### <a id='syslog'></a> (Optional) Host Monitoring
 
 {{> host-monitoring }}
-
 
 ### <a id='cluster-monitoring'></a> (Optional) In-Cluster Monitoring
 
 {{> cluster-monitoring }}
 
-
 ### <a id='tmc'></a> Tanzu Mission Control
 
 {{> tmc }}
-
 
 ### <a id='telemetry'></a> VMware CEIP
 
 {{> usage-data }}
 
-
 ### <a id='storage-config'></a> Storage
 
 {{> storage-config }}
 
-
 ### <a id='errands'></a> Errands
 
 {{> errands }}
-
 
 ### <a id='resource-config'></a> Resource Config
 
@@ -148,8 +132,6 @@ To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition
 ## <a id='apply-changes'></a> Step 3: Apply Changes
 
 {{> apply-changes }}
-
-
 
 ## <a id='next-install-step'></a> Next Installation Step
 
