@@ -58,11 +58,10 @@ instructions.
           }
       ],
     ```
-    Where:
+    Where `PLUGINS-LIST` is one of the following:
 
-    * `PLUGINS-LIST` is one of the following:
-        * The string `"ResourceQuota"`.
-        * A comma-delimited string list of validated plugins that includes `ResourceQuota`.
+      * The string `"ResourceQuota"`.
+      * A comma-delimited string list of validated plugins that includes `ResourceQuota`.
 
 For more information, see [ResourceQuota](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#resourcequota) in the Kubernetes documentation.
 
@@ -160,11 +159,11 @@ To create a Kubernetes profile that configures the etcd `quota-backend-bytes` pa
 
 The `quota-backend-bytes` parameter sets the storage size limit for the etcd backend database. When the database size approaches this limit, etcd will raise alarms and only allow read operations and delete operations. This helps to prevent the etcd cluster from running out of storage space.
 
-> **Note** The default etcd quota-backend-bytes value is 2 GB. Consider your cluster's storage requirements when setting this value. Setting it too low can cause issues with cluster operations, while setting it too high can consume excessive storage resources.
+The default etcd `quota-backend-bytes` value is 2 GB. Consider your cluster's storage requirements when setting this value. Setting it too low can cause issues with cluster operations, while setting it too high can consume excessive storage resources.
 
 > **Warning** When the etcd database size approaches the quota limit, etcd will raise alarms and enter a read-only mode, preventing write operations. Monitor your etcd usage and ensure that the quota is set appropriately for your workload.
 
-Considerations when setting quota-backend-bytes:
+Considerations when setting `quota-backend-bytes`:
 
 * **Cluster size**: Larger clusters with more nodes, pods, and resources require more etcd storage.
 * **Workload type**: Clusters with frequent configuration changes or many secrets or configmaps need higher quotas.
