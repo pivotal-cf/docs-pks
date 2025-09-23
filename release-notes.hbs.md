@@ -9,7 +9,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
 
 ## <a id="1-23-0"></a>TKGI {{{ vars.product_version }}}.0
 
-**Release Date**: October 3, 2025
+**Release Date**: October 15, 2025
 
 ### <a id="1-23-0-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
 
@@ -180,7 +180,9 @@ TKGI v1.23.0 has no breaking changes.
 
 ### <a id="1-23-0-features"></a>Features and Enhancements
 
-TKGI v1.23.0 has no new features and enhancements.
+TKGI v1.23.0 includes the following new features and enhancements:
+
+- Adds a configuration parameter to set the size of the etcd database. For information, see [Set etcd Quota Backend Bytes](./k8s-profiles.hbs.md#etcd-quota).
 
 ### <a id="1-23-0-bug-fixes"></a>Resolved Issues
 
