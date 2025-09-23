@@ -3,6 +3,8 @@ title: Configuring Windows Worker-Based Kubernetes Clusters
 owner: TKGI
 windowsclusters: true
 iaas: #Empty var to prevent build breaking
+topic: #Empty var to prevent build breaking
+thistopic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to configure Windows worker-based Kubernetes clusters in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
