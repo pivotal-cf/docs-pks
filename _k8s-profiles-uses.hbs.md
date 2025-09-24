@@ -2,17 +2,17 @@
   <tr><th>Use Case</th><th>Description</th></tr>
   <tr>
     <td>Encrypt a secret in an etcd database.</td>
-    <td>Use an encryption provider to encrypt secrets in a cluster's etcd database. For more information, see 
+    <td>Use an encryption provider to encrypt secrets in a cluster's etcd database. For more information, see
     <a href="./k8s-profiles-encrypt-etcd.html">Encrypt Secrets in an etcd Database</a>.</td>
   </tr>
   <tr>
     <td>Limit the resource usage of incoming requests.</td>
-    <td>Use the <code>ResourceQuota</code> admission control plugin to restrict incoming requests by resource usage. 
+    <td>Use the <code>ResourceQuota</code> admission control plugin to restrict incoming requests by resource usage.
     For more information, see <a href="#admission-quota">Admission Control: ResourceQuota</a> below.</td>
   </tr>
   <tr>
     <td>Assign an IP range for the NodePort Service</a>.</td>
-    <td>Use <code>service-node-port-range</code> to specify an IP range for for <code>NodePort</code> services. 
+    <td>Use <code>service-node-port-range</code> to specify an IP range for for <code>NodePort</code> services.
     For more information, see <a href="#port-range">Set Service Node Port Range</a> below.</td>
   </tr>
   <tr>
@@ -21,17 +21,22 @@
   </tr>
   <tr>
     <td>Restrict Apiserver client authentication.</td>
-    <td>Set <code>requestheader-allowed-names</code> for Apiserver client authentication. 
+    <td>Set <code>requestheader-allowed-names</code> for Apiserver client authentication.
     For more information, see <a href="#request-allowed">Restrict Request Header Names</a> below.</td>
   </tr>
   <tr>
     <td>Define the service cluster IP range.</td>
-    <td>Change the service cluster IP range. 
+    <td>Change the service cluster IP range.
     For more information, see <a href="#extend-service-ip-range">Modify the Service Cluster IP Range</a> below.</td>
   </tr>
   <tr>
     <td>Configure Pod Security Admission.</td>
     <td>Configure cluster-specific PSA in TKGI. For more information, see <a href="./pod-security-admission.html#psa-cluster">Pod Security Admission in a TKGI Cluster</a> in <em>Pod Security Admission in TKGI</em>.</td>
+  </tr>
+  <tr>
+    <td>Customize <code>etcd</code> quota backend bytes.</td>
+    <td>Configure the <code>etcd quota-backend-bytes</code> parameter to set the storage size limit for the <code>etcd</code> backend database.
+    For more information, see <a href="#etcd-quota">Set etcd Quota Backend Bytes</a> below.</td>
   </tr>
 </table>
 
@@ -53,11 +58,10 @@ instructions.
           }
       ],
     ```
-    Where:  
-    
-    * `PLUGINS-LIST` is one of the following:  
-        * The string `"ResourceQuota"`.  
-        * A comma-delimited string list of validated plugins that includes `ResourceQuota`.  
+    Where `PLUGINS-LIST` is one of the following:
+
+      * The string `"ResourceQuota"`.
+      * A comma-delimited string list of validated plugins that includes `ResourceQuota`.
 
 For more information, see [ResourceQuota](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#resourcequota) in the Kubernetes documentation.
 
@@ -126,8 +130,81 @@ instructions.
       ],
     ```
 
-    Where `IP-RANGE` is a CIDR notation IP range from which to assign service cluster IPs. 
+    Where `IP-RANGE` is a CIDR notation IP range from which to assign service cluster IPs.
     The IP range can be a maximum of two dual-stack CIDRs and must not overlap with any IP ranges assigned to nodes or pods.
 
-For more information, see kube-apiserver [Options](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/#options) 
-in the Kubernetes documentation.  
+For more information, see `kube-apiserver` [Options](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/#options)
+in the Kubernetes documentation.
+
+#### <a id='etcd-quota'></a> Set etcd Quota Backend Bytes
+
+To create a Kubernetes profile that configures the etcd `quota-backend-bytes` parameter:
+
+1. Follow the instructions in [Create a Kubernetes Profile](./k8s-profiles.html#create).
+
+2. Include the following `customizations` in your profile configuration file:
+
+    ```
+      "customizations": [
+          {
+              "component": "etcd",
+              "arguments": {
+                  "quota-backend-bytes": QUOTA-SIZE
+              }
+          }
+      ],
+    ```
+
+    Where `QUOTA-SIZE` is the storage size limit for the etcd backend database in bytes, for example `8589934592` (8 GB).
+
+The `quota-backend-bytes` parameter sets the storage size limit for the etcd backend database. When the database size approaches this limit, etcd will raise alarms and only allow read operations and delete operations. This helps to prevent the etcd cluster from running out of storage space.
+
+The default etcd `quota-backend-bytes` value is 2 GB. Consider your cluster's storage requirements when setting this value. Setting it too low can cause issues with cluster operations, while setting it too high can consume excessive storage resources.
+
+> **Warning** When the etcd database size approaches the quota limit, etcd will raise alarms and enter a read-only mode, preventing write operations. Monitor your etcd usage and ensure that the quota is set appropriately for your workload.
+
+Considerations when setting `quota-backend-bytes`:
+
+* **Cluster size**: Larger clusters with more nodes, pods, and resources require more etcd storage.
+* **Workload type**: Clusters with frequent configuration changes or many secrets or configmaps need higher quotas.
+* **Backup strategy**: Ensure that your back up processes can handle the configured quota size.
+* **Monitoring**: Implement monitoring to track etcd database size relative to the quota.
+
+For example, to create a Kubernetes profile that sets the etcd quota to 8 GB:
+
+1. Create a JSON configuration file named `etcd-quota-profile.json`:
+
+    ```json
+    {
+        "name": "etcd-quota-8gb",
+        "description": "Profile to set etcd quota backend bytes to 8 GB",
+        "customizations": [
+            {
+                "component": "etcd",
+                "arguments": {
+                    "quota-backend-bytes": "8589934592"
+                }
+            }
+        ]
+    }
+    ```
+
+2. Create the Kubernetes profile:
+
+    ```
+    tkgi create-k8s-profile etcd-quota-profile.json
+    ```
+
+3. Create a cluster using this profile:
+
+    ```
+    tkgi create-cluster my-cluster --external-hostname my-cluster.example.com --plan small --kubernetes-profile etcd-quota-8gb
+    ```
+
+    Or apply the profile to an existing cluster:
+
+    ```
+    tkgi update-cluster my-cluster --kubernetes-profile etcd-quota-8gb
+    ```
+
+For more information about etcd quotas, see [Space quota](https://etcd.io/docs/v3.5/op-guide/maintenance/#space-quota) in the etcd documentation.
