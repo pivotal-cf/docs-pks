@@ -182,7 +182,7 @@ TKGI v1.23.0 has no breaking changes.
 
 TKGI v1.23.0 includes the following new features and enhancements:
 
-- Adds a configuration parameter to set the size of the etcd database. For information, see [Set etcd Quota Backend Bytes](./k8s-profiles.hbs.md#etcd-quota).
+- Added support for customizing etcd `quota-backend-bytes` parameter through Kubernetes profiles. For information, see [Set etcd Quota Backend Bytes](./k8s-profiles.hbs.md#etcd-quota).
 
 ### <a id="1-23-0-bug-fixes"></a>Resolved Issues
 
