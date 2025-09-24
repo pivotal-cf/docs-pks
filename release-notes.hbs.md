@@ -79,9 +79,9 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>NCP</td>
-        <td>v4.2.1.1</td>
+        <td>v4.2.3.0</td>
         <td style="text-align: center;">
-        <a href="https://techdocs.broadcom.com/kr/ko/vmware-cis/nsx/event-catalog/4-2/release-notes/vmware-nsx-container-plugin-4211-release-notes.html" target="_blank">Release Notes</a>
+        <a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/event-catalog/4-2/release-notes/vmware-nsx-container-plugin-423-release-notes.html" target="_blank">Release Notes</a>
         </td>
     </tr>
     <tr>
