@@ -322,9 +322,9 @@ Your vCenter login contains special characters, or you have `GOVC` environment v
 
 **Solution**
 
-For special characters, see [Authentication Error with Special Characters in stembuild Commands](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#special-characters), in the TAS for VMs [Windows] documentation.
+For special characters, see [Authentication Error with Special Characters in stembuild Commands](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#special-characters), in the {{ vars.app_runtime }} [Windows] documentation.
 
-For `GOVC` variables, follow the steps to unset the variables in [Step 4: Construct the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#construct-stemcell), in the TAS for VMs [Windows] documentation.
+For `GOVC` variables, follow the steps to unset the variables in [Step 4: Construct the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#construct-stemcell), in the {{ vars.app_runtime }} [Windows] documentation.
 
 <hr>
 

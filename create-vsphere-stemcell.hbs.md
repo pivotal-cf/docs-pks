@@ -99,7 +99,7 @@ For more information, see
 [CVE-2023-3893: Insufficient input sanitization on kubernetes-csi-proxy leads to privilege escalation #119594](https://github.com/kubernetes/kubernetes/issues/119594)
 in the Kubernetes GitHub repository.</p>
 
-To create and update a base Windows VM, follow these procedures in the TAS for VMs [Windows] documentation, in order:
+To create and update a base Windows VM, follow these procedures in the {{ vars.app_runtime }} [Windows] documentation, in order:
 
 1. [Create a Base VM for the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#create-base-vm)
 1. [Configure the Base VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#install-windows-updates)
@@ -137,9 +137,9 @@ To ensure Ethernet adapter information is exposed on worker node VMs:
 
 To create, configure, and package a BOSH Stemcell, follow these procedures, in order:
 
-1. [Construct the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#construct-stemcell), in the TAS for VMs [Windows] documentation.
+1. [Construct the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#construct-stemcell), in the {{ vars.app_runtime }} [Windows] documentation.
 1. [Remove Hidden Devices](#remove-hidden-devised), below.
-1. [Package the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#package-stemcell), in the TAS for VMs [Windows] documentation.
+1. [Package the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#package-stemcell), in the {{ vars.app_runtime }} [Windows] documentation.
 
 
 ### <a id='remove-hidden-devised'></a> Remove Hidden Devices
@@ -197,7 +197,7 @@ Microsoft typically releases Windows updates with security patches on the second
 After each Microsoft Windows security update, update your BOSH stemcell by following these procedures, in order:
 
 1. [Configure the Base VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#install-windows-updates)
-in the TAS for VMs [Windows] documentation.
+in the {{ vars.app_runtime }} [Windows] documentation.
 
 1. [Construct and Package the BOSH Stemcell](#construct-package-stemcell), above.
 
@@ -209,4 +209,4 @@ in the TAS for VMs [Windows] documentation.
 
 For known issues with stemcell creation, see
 [Known Issues](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#known-issues)
-in the TAS for VMs [Windows] documentation.
+in the {{ vars.app_runtime }} [Windows] documentation.

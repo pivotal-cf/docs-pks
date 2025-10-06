@@ -79,7 +79,7 @@ in _Release Notes_.
     To create a Windows stemcell for vSphere,
     complete the procedures in
     <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html">
-    Creating a Windows Stemcell for vSphere Using Stembuild</a> in the TAS for VMs [Windows] documentation.
+    Creating a Windows Stemcell for vSphere Using Stembuild</a> in the {{ vars.app_runtime }} [Windows] documentation.
     </p>
 * If your Tanzu Kubernetes Grid Integrated Edition installation is in an air-gapped environment, you must prepare a Windows
 pause image in a private registry. For information about setting up a Windows pause image, see
