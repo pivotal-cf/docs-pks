@@ -1,5 +1,5 @@
 ---
-title: Sink Architecture in Tanzu Kubernetes Grid Integrated Edition
+title: Sink Architecture in {{  vars.product }}
 
 ---
 
@@ -44,7 +44,7 @@ The following diagram details TKGI cluster observability architecture:
 [View a larger version of this image.](images/manager-architecture.png)
 {{{{raw}}}} <!-- = Image source: https://docs.google.com/presentation/d/1xFhfrNPPKrSts4U4HsAZAl1pWuHkhq4vXWN8gLGY3G8/edit#slide=id.g8588387d0b_0_0 %  > # --> {{{{/raw}}}}
 
-In the **Tanzu Kubernetes Grid Integrated Edition** tile > **In-Cluster Monitoring**:
+In the **{{  vars.product }}** tile > **In-Cluster Monitoring**:
 
 - **Enable Metric Sink Resources** enables metric sinks.
 - **Enable Log Sink Resources** enables log sinks.
@@ -89,7 +89,7 @@ Workload metrics are monitored by a set of third-party plugins. The plugins forw
 
 A pair of kubelets monitors Kubernetes and forwards Kubernetes metrics to a pair of Telegraf service pods.
 
-If Node Exporter is enabled on the worker nodes in the Tanzu Kubernetes Grid Integrated Edition tile, a Node Exporter `DaemonSet` is included in all clusters.
+If Node Exporter is enabled on the worker nodes in the {{  vars.product }} tile, a Node Exporter `DaemonSet` is included in all clusters.
 For more information about Node Exporter metrics, see the [Node Exporter](https://github.com/prometheus/node_exporter#enabled-by-default) repository in GitHub.
 
 To define the collected unstructured metrics, a metric-controller monitors Kubernetes for custom resource definitions and forwards those definitions

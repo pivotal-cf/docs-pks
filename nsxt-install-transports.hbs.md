@@ -35,9 +35,9 @@ Before completing this section, make sure you have completed the following secti
 
 
 
-##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition
+##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for {{  vars.product }}
 
-To perform a new installation of VMware NSX for Tanzu Kubernetes Grid Integrated Edition, complete the following steps in the order presented.
+To perform a new installation of VMware NSX for {{  vars.product }}, complete the following steps in the order presented.
 
 
 ##<a id='nsxt30-esxi-tn'></a> Deploy ESXi Host Transport Nodes Using VDS

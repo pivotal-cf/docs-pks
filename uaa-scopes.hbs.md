@@ -1,5 +1,5 @@
 ---
-title: UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users
+title: UAA Scopes for {{  vars.product }} Users
 
 ---
 
@@ -7,14 +7,14 @@ This topic describes User Account and Authentication (UAA) scopes that a UAA adm
 
 ## <a id="overview"></a> Overview
 
-UAA is the identity management service for Tanzu Kubernetes Grid Integrated Edition.
+UAA is the identity management service for {{  vars.product }}.
 {{> uaa-scopes }}
 
 
 ##<a id='uaa-scopes'></a> UAA Scopes
 
-Each UAA scope grants Tanzu Kubernetes Grid Integrated Edition users a set of permissions
-for creating, managing, and auditing Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes clusters.
+Each UAA scope grants {{  vars.product }} users a set of permissions
+for creating, managing, and auditing {{  vars.product }}-provisioned Kubernetes clusters.
 For information about the permissions, see the table below.
 
 <table>
@@ -79,12 +79,12 @@ For information about the permissions, see the table below.
     <td class="cell light-red"><strong>No.</strong> Cannot create, update, and delete quotas.</td>
   </tr>
   <tr>
-    <td><strong>List Tanzu Kubernetes Grid Integrated Edition plans</strong></td>
+    <td><strong>List {{  vars.product }} plans</strong></td>
     <td class="cell light-teal"><strong>Yes.</strong> Can list all available plans.</td>
     <td class="cell light-teal"><strong>Yes.</strong> Can list all available plans.</td>
     <td class="cell light-teal"><strong>Yes.</strong> Can list all available plans.</td>
   </tr>
 </table>
 
-To assign UAA scopes in Tanzu Kubernetes Grid Integrated Edition,
-follow the instructions in [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).
+To assign UAA scopes in {{  vars.product }},
+follow the instructions in [Managing {{  vars.product }} Users with UAA](manage-users.html).

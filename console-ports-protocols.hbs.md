@@ -1,22 +1,22 @@
 ---
-title: Firewall Ports and Protocols Requirements for Tanzu Kubernetes Grid Integrated Edition Management Console
+title: Firewall Ports and Protocols Requirements for {{  vars.product }} Management Console
 
 ---
 Firewalls and security policies are used to filter traffic and limit access in environments with strict inter-network access control policies.
 
 Apps frequently require the ability to pass internal communication between system components on different networks and require one or more conduits through the environment's firewalls. Firewall rules are also required to enable interfacing with external systems such as with enterprise apps or apps and data on the public Internet.
 
-For Tanzu Kubernetes Grid Integrated Edition on vSphere, it is recommended to deactivate security policies that filter traffic between the networks supporting the system. To secure the environment and grant access between system components with Tanzu Kubernetes Grid Integrated Edition, use one of the following methods:
+For {{  vars.product }} on vSphere, it is recommended to deactivate security policies that filter traffic between the networks supporting the system. To secure the environment and grant access between system components with {{  vars.product }}, use one of the following methods:
 
 * Enable access to apps through standard Kubernetes load-balancers and ingress
 controller types. This enables you to designate specific ports and protocols as a firewall conduit.
 * Enable access using the NSX load balancer and ingress. This enables you to configure external addresses and ports that are automatically mapped and resolved to internal/local addresses and ports.
 
-If you are unable to implement your security policy using these methods, refer to the table below, which identifies the flows between the system components in an Tanzu Kubernetes Grid Integrated Edition Management Console deployment.
+If you are unable to implement your security policy using these methods, refer to the table below, which identifies the flows between the system components in an {{  vars.product }} Management Console deployment.
 
-<p class="note"><strong>Notes</strong>: The Source Component is IP address of the Tanzu Kubernetes Grid Integrated Edition Management Console VM.
+<p class="note"><strong>Notes</strong>: The Source Component is IP address of the {{  vars.product }} Management Console VM.
 <br>
-<br>In a standard Tanzu Kubernetes Grid Integrated Edition deployment, it is assumed that {{ vars.platform_name }} and BOSH are already deployed before you deploy Tanzu Kubernetes Grid Integrated Edition. This is not the case with Tanzu Kubernetes Grid Integrated Edition deployments from the management console, in which you do not know the IP addresses in the deployment network that will be assigned to TKGI API VM, BOSH VM, and {{ vars.platform_name }} VM. As a consequence, it is recommended to create a firewall rule that allows access by the management console VM to the entire deployment subnet.</p>
+<br>In a standard {{  vars.product }} deployment, it is assumed that {{ vars.platform_name }} and BOSH are already deployed before you deploy {{  vars.product }}. This is not the case with {{  vars.product }} deployments from the management console, in which you do not know the IP addresses in the deployment network that will be assigned to TKGI API VM, BOSH VM, and {{ vars.platform_name }} VM. As a consequence, it is recommended to create a firewall rule that allows access by the management console VM to the entire deployment subnet.</p>
 
 | Source Component | Destination Component | Destination Protocol | Destination Port | Service |
 | --- | --- | --- | --- | --- |

@@ -31,16 +31,16 @@ both TKGI admins and cluster users, such as developers.
 To monitor Kubernetes worker nodes and workloads in your
 TKGI deployment:
 
-1. Enable one or more supported components and integrations in the **Tanzu Kubernetes Grid Integrated Edition** tile >
+1. Enable one or more supported components and integrations in the **{{  vars.product }}** tile >
 **In-Cluster Monitoring**. For more information about supported components and integrations, see [Monitoring Components and Integrations](#integrations) below.
 
 1. To activate TKGI sink resources, Wavefront, or vRealize Operations integration,
 follow the instructions in _In-Cluster Monitoring_ for your IaaS:
 
-    * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#cluster-monitoring)
-    * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](installing-nsx-t.html#cluster-monitoring)
-    * [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#cluster-monitoring)
-    * [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#cluster-monitoring)
+    * [Installing {{  vars.product }} on vSphere](installing-vsphere.html#cluster-monitoring)
+    * [Installing {{  vars.product }} on vSphere with NSX](installing-nsx-t.html#cluster-monitoring)
+    * [Installing {{  vars.product }} on AWS](installing-aws.html#cluster-monitoring)
+    * [Installing {{  vars.product }} on Azure](installing-azure.html#cluster-monitoring)
 
 1. To configure a monitoring integration:
 
@@ -108,7 +108,7 @@ monitor your Kubernetes worker nodes and workloads that are running on them.
 
 To deploy a log or a metric sink:
 
-1. Enable sink resources in the **Tanzu Kubernetes Grid Integrated Edition** tile >
+1. Enable sink resources in the **{{  vars.product }}** tile >
 **In-Cluster Monitoring**.
 You can enable both log and metric sink resources or only one of them.
 1. (Optional) Enable Node Exporter on worker nodes by selecting the
@@ -118,5 +118,5 @@ You can enable both log and metric sink resources or only one of them.
 
 For more information about sink resources, see:
 
-* Conceptual information: [Sink Architecture in Tanzu Kubernetes Grid Integrated Edition](sink-architecture.html)
+* Conceptual information: [Sink Architecture in {{  vars.product }}](sink-architecture.html)
 * Sink resource types, outputs, and identifying strings: [Monitoring Clusters with Log Sinks](monitor-sinks.html)

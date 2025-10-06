@@ -1,5 +1,5 @@
 ---
-title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Management Console
+title: Install {{  vars.product }} on vSphere with the Management Console
 
 ---
 
@@ -16,9 +16,9 @@ The TKGI Management Console automates installation of the following:
 
 - Deploys {{ vars.platform_name }}
 - Deploys BOSH Director
-- Deploys Tanzu Kubernetes Grid Integrated Edition
+- Deploys {{  vars.product }}
 - Deploys Harbor Registry
-- Configures networking for Tanzu Kubernetes Grid Integrated Edition
+- Configures networking for {{  vars.product }}
 - Generates and registers SSL certificates
 
 The TKGI Management Console is provided as a virtual appliance that you deploy to vSphere by using an OVA template.
@@ -26,23 +26,23 @@ If you are experienced with installing TKGI on vSphere,
 the help and the tool tips in the installer UI provide enough information to complete the process.
 If you are new to TKGI, refer to the following documentation as needed to assist with the installation:
 
-- [Prerequisites for Tanzu Kubernetes Grid Integrated Edition Management Console Deployment](console-ova-deployment-prereqs.html)
-- [Deploy the Tanzu Kubernetes Grid Integrated Edition Management Console](console-deploy-ova.html)
-- [Deploy Tanzu Kubernetes Grid Integrated Edition from the Management Console](console-deploy.html)
+- [Prerequisites for {{  vars.product }} Management Console Deployment](console-ova-deployment-prereqs.html)
+- [Deploy the {{  vars.product }} Management Console](console-deploy-ova.html)
+- [Deploy {{  vars.product }} from the Management Console](console-deploy.html)
 
 ## <a id='decide-when-to-use-console'></a>Decide When to Use TKGI Management Console
 
-The TKGI Management Console provides an opinionated process for deploying Tanzu Kubernetes Grid Integrated Edition.
+The TKGI Management Console provides an opinionated process for deploying {{  vars.product }}.
 Whether to use the management console depends on your situation.
 
-#### <a id='when-to-use-console'></a>When Should I Use Tanzu Kubernetes Grid Integrated Edition Management Console?
+#### <a id='when-to-use-console'></a>When Should I Use {{  vars.product }} Management Console?
 
-Use the TKGI Management Console to simplify deploying Tanzu Kubernetes Grid Integrated Edition to less complex vSphere environments.
+Use the TKGI Management Console to simplify deploying {{  vars.product }} to less complex vSphere environments.
 
 Users on vSphere who do not have a custom {{ vars.platform_name }} installation might prefer to install TKGI
 using the curated workflow provided by the TKGI Management Console.
 
-#### <a id='when-not-to-use-console'></a>When Should I Not Use Tanzu Kubernetes Grid Integrated Edition Management Console?
+#### <a id='when-not-to-use-console'></a>When Should I Not Use {{  vars.product }} Management Console?
 
 Users who already have {{ vars.platform_name }} installed for other uses, for example to run
 [{{{ vars.app_runtime_full }}}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/concepts-overview.html),
@@ -60,7 +60,7 @@ Do not use the TKGI Management Console if any the following conditions apply to 
 Before using TKGI Management Console to deploy TKGI, consider the following factors:
 
 - If you want to deploy TKGI Management Console to a No-NAT topology with an VMware NSX logical switch, you must perform a BYOT deployment.
-- Deployments to a [Multi-Tier-0](./nsxt-multi-t0.html) topology are supported in BYOT deployments only and require additional configuration. For information about the additional configuration required, see [Tanzu Kubernetes Grid Integrated Edition Management Console Cannot Retrieve Cluster Data in a Multi-Tier0 Topology](console-troubleshooting.html#multi-T0-deployments) in *Troubleshooting Tanzu Kubernetes Grid Integrated Edition Management Console*.
+- Deployments to a [Multi-Tier-0](./nsxt-multi-t0.html) topology are supported in BYOT deployments only and require additional configuration. For information about the additional configuration required, see [{{  vars.product }} Management Console Cannot Retrieve Cluster Data in a Multi-Tier0 Topology](console-troubleshooting.html#multi-T0-deployments) in *Troubleshooting {{  vars.product }} Management Console*.
 
 
 For information about the supported topologies for a manual installation, see [NSX Deployment Topologies for TKGI](./nsxt-topologies.html).
@@ -68,13 +68,13 @@ For information about the supported topologies for a manual installation, see [N
 
 ## <a id='use-console-for-day-two'></a>Use the TKGI Management Console After Installing TKGI
 
-After you have deployed Tanzu Kubernetes Grid Integrated Edition on vSphere, you can use the TKGI Management Console
-to deploy Kubernetes clusters and manage their lifecycle, and monitor and manage the operation of your Tanzu Kubernetes Grid Integrated Edition deployment.
+After you have deployed {{  vars.product }} on vSphere, you can use the TKGI Management Console
+to deploy Kubernetes clusters and manage their lifecycle, and monitor and manage the operation of your {{  vars.product }} deployment.
 For information about how to use the TKGI Management Console after deployment, see the following topics:
 
 - [Create and Manage Clusters in the Management Console](console-create-and-manage-clusters.html)
-- [Monitor and Manage Tanzu Kubernetes Grid Integrated Edition in the Management Console](console-monitor-manage.html)
-- [Troubleshooting Tanzu Kubernetes Grid Integrated Edition Management Console](console-troubleshooting.html)
+- [Monitor and Manage {{  vars.product }} in the Management Console](console-monitor-manage.html)
+- [Troubleshooting {{  vars.product }} Management Console](console-troubleshooting.html)
 
 
 

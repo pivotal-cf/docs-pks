@@ -3,11 +3,11 @@ title: Connect to Operations Manager
 
 ---
 
-When you use Tanzu Kubernetes Grid Integrated Edition Management Console to deploy Tanzu Kubernetes Grid Integrated Edition on vSphere, it deploys Operations Manager. The **Deployment Metadata** view of the management console displays the credentials that you need to log in to the deployed Operations Manager instance.
+When you use {{  vars.product }} Management Console to deploy {{  vars.product }} on vSphere, it deploys Operations Manager. The **Deployment Metadata** view of the management console displays the credentials that you need to log in to the deployed Operations Manager instance.
 
 ## <a id='ops-manager-ssh'></a>Connect to Operations Manager with SSH
 
-Tanzu Kubernetes Grid Integrated Edition Management Console generates an SSH private key to control SSH access to the Operations Manager VM when you deploy Tanzu Kubernetes Grid Integrated Edition.
+{{  vars.product }} Management Console generates an SSH private key to control SSH access to the Operations Manager VM when you deploy {{  vars.product }}.
 
 1. Go to **Deployment Metadata** in the management console.
 1. Click the clipboard icon at the end of the **{{ vars.platform_name }} VM SSH Private Key** row to copy its contents.
@@ -24,7 +24,7 @@ Tanzu Kubernetes Grid Integrated Edition Management Console generates an SSH pri
 
 ## <a id='ops-manager-ui'></a>Log In to the Operations Manager UI
 
-Tanzu Kubernetes Grid Integrated Edition Management Console generates a random password for the Operations Manager admin account when you deploy Tanzu Kubernetes Grid Integrated Edition.
+{{  vars.product }} Management Console generates a random password for the Operations Manager admin account when you deploy {{  vars.product }}.
 
 1. Go to **Deployment Metadata** in the management console.
 1. Click the clipboard icon at the end of the **{{ vars.platform_name }} VM Password** row to copy the password.

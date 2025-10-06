@@ -7,7 +7,7 @@ This topic describes how to define network profiles for {{  vars.product_full }}
 
 ## <a id='multi-t0'></a> Edge Router Selection
 
-Using Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX, you can deploy Kubernetes clusters on dedicated Tier-0 routers,
+Using {{  vars.product }} on vSphere with NSX, you can deploy Kubernetes clusters on dedicated Tier-0 routers,
 creating a multi-tenant environment for each Kubernetes cluster.
 As shown in the diagram below, with this configuration a shared Tier-0 router hosts the TKGI control plane
 and connects to each customer Tier-0 router using BGP. To support multi-tenancy, configure firewall rules and security settings in NSX Manager.

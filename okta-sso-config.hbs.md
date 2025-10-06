@@ -7,7 +7,7 @@ This topic describes how to configure single sign-on (SSO) between Okta and {{  
 
 ## <a id='prerequisites'></a> Prerequisites
 
-To configure Okta to designate Tanzu Kubernetes Grid Integrated Edition as a service provider,
+To configure Okta to designate {{  vars.product }} as a service provider,
 you must have the following:
 
 + An Okta Single-Sign On admin account
@@ -15,7 +15,7 @@ you must have the following:
 
 ## <a id='configure-saml'></a> Configure SAML in Okta
 
-To configure Okta as a SAML identity provider for  Tanzu Kubernetes Grid Integrated Edition, do
+To configure Okta as a SAML identity provider for  {{  vars.product }}, do
 	the following:
 
 1. Log in to Okta as an admin.
@@ -58,19 +58,19 @@ To configure Okta as a SAML identity provider for  Tanzu Kubernetes Grid Integra
         <tr>
             <td><strong>Name ID format</strong></td>
             <td>Select a name identifier format.
-                By default, Tanzu Kubernetes Grid Integrated Edition uses <code>EmailAddress</code>.</td>
+                By default, {{  vars.product }} uses <code>EmailAddress</code>.</td>
         </tr>
         <tr>
             <td><strong>Attribute Statements</strong></td>
             <td>Enter any attribute statements that you want to map to users in the ID token.<br>
-                In Tanzu Kubernetes Grid Integrated Edition you can define first name, last name, and email attributes.
+                In {{  vars.product }} you can define first name, last name, and email attributes.
             </td>
         </tr>
         <tr>
             <td><strong>Group Attribute Statements</strong></td>
             <td>Enter any group attribute statements that you want to map to users in the ID token.
                 In Okta, these are groups that users belong to.
-                You can use filters to define which groups are passed to Tanzu Kubernetes Grid Integrated Edition.
+                You can use filters to define which groups are passed to {{  vars.product }}.
             </td>
         </tr>
     </table>
@@ -88,6 +88,6 @@ To configure Okta as a SAML identity provider for  Tanzu Kubernetes Grid Integra
 
     <img src="images/id_provider_metadata.png" alt="The Settings pane Sign On Method warning: 'SAML 2.0 is not configured until you complete the setup instructions.'">
 
-1. Use the Okta metadata you retrieved in the above step to configure SAML in the Tanzu Kubernetes Grid Integrated Edition tile.
+1. Use the Okta metadata you retrieved in the above step to configure SAML in the {{  vars.product }} tile.
 See
-[Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider](configuring-saml.html).
+[Connecting {{  vars.product }} to a SAML Identity Provider](configuring-saml.html).

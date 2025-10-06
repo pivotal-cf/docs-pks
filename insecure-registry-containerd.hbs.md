@@ -36,7 +36,7 @@ To update an existing cluster configured to access insecure Containerd registrie
 Before configuring TKGI Kubernetes clusters to have access to an insecure Containerd registry, you must have the following:
 
 - The FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
-- Your Tanzu Kubernetes Grid Integrated Edition User ID and Password.
+- Your {{  vars.product }} User ID and Password.
 - The names of the insecure registry servers and the hosts that you want to connect to them.
 
 <p class="note warning"><strong>Warning: </strong> The FQDN for the registry cannot contain a hyphen, dash, or semi-colon.
@@ -58,8 +58,8 @@ authenticate to the TKGI API endpoints.
     Where:
 
     * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
-    * `USER-ID` is your Tanzu Kubernetes Grid Integrated Edition user ID.
-    * `PASSWORD` is your Tanzu Kubernetes Grid Integrated Edition password.
+    * `USER-ID` is your {{  vars.product }} user ID.
+    * `PASSWORD` is your {{  vars.product }} password.
     * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.
 
     For example:

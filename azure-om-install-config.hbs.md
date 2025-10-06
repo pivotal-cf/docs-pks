@@ -61,5 +61,5 @@ see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
 
 ## <a id="next-steps"></a>Next Installation Step
 
-To create managed identities for Tanzu Kubernetes Grid Integrated Edition,
-follow the instructions in [Creating Managed Identities in Azure for Tanzu Kubernetes Grid Integrated Edition](azure-managed-identities.html).
+To create managed identities for {{  vars.product }},
+follow the instructions in [Creating Managed Identities in Azure for {{  vars.product }}](azure-managed-identities.html).

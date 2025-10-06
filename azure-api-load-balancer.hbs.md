@@ -11,8 +11,8 @@ load balancer, use this topic as a guide.
 ##<a id='overview'></a> Overview
 
 {{{ vars.recommended_by }}} recommends that you create a TKGI API
-load balancer when installing Tanzu Kubernetes Grid Integrated Edition on Azure.
-You simplify future upgrades of Tanzu Kubernetes Grid Integrated Edition by creating a load balancer when installing.
+load balancer when installing {{  vars.product }} on Azure.
+You simplify future upgrades of {{  vars.product }} by creating a load balancer when installing.
 
 To configure your TKGI API Load Balancer on Azure, complete the following:
 
@@ -37,9 +37,9 @@ To create a new load balancer:
   1. **Public IP address**: Select **Create new**.
   1. **Public IP address name**: Enter the name for the new IP address.
   1. **Availability zone**: Select an availability zone or **Zone-redundant**.
-  1. **Subscription**: Select the subscription where Tanzu Kubernetes Grid Integrated Edition has been deployed.
-  1. **Resource group**: Select the resource group where Tanzu Kubernetes Grid Integrated Edition has been deployed.
-  1. **Location**: Select the location group where Tanzu Kubernetes Grid Integrated Edition has been deployed.
+  1. **Subscription**: Select the subscription where {{  vars.product }} has been deployed.
+  1. **Resource group**: Select the resource group where {{  vars.product }} has been deployed.
+  1. **Location**: Select the location group where {{  vars.product }} has been deployed.
   1. Click **Create**.
 
 ###<a id='create-backend-pool'></a> Create a Backend Pool
@@ -135,7 +135,7 @@ To create an inbound security rule for your load balancer:
 To assign a load balancer to the TKGI API VM and add the TKGI API VM to the backend pool:
 
 1. Open {{ vars.platform_name }} to the **Installation Dashboard** pane.
-1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. Click the **{{  vars.product }}** tile.
 1. Open the **Resource Config** pane.
 1. Select **TKGI API**.
 1. Review **Load Balancers**.
@@ -153,7 +153,7 @@ in the Azure documentation.
 To verify that your TKGI API hostname resolves correctly:
 
 1. Open {{ vars.platform_name }} to the **Installation Dashboard** pane.
-1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. Click the **{{  vars.product }}** tile.
 1. Select **TKGI API**.
 1. Record the **API Hostname (FQDN)**.
 1. Verify that the TKGI API hostname resolves to the IP address of the load balancer.
@@ -161,6 +161,6 @@ To verify that your TKGI API hostname resolves correctly:
 ##<a id='next-step'></a> Next Step
 
 After you have configured an Azure load balancer for the TKGI API,
-complete the Tanzu Kubernetes Grid Integrated Edition installation by returning to the
+complete the {{  vars.product }} installation by returning to the
 [Install the TKGI and Kubernetes CLIs](installing-azure.html#clis)
-step of _Installing Tanzu Kubernetes Grid Integrated Edition on Azure_.
+step of _Installing {{  vars.product }} on Azure_.

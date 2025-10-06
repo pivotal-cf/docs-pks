@@ -1,5 +1,5 @@
 ---
-title: Load Balancers in Tanzu Kubernetes Grid Integrated Edition
+title: Load Balancers in {{  vars.product }}
 
 ---
 
@@ -10,21 +10,21 @@ This topic describes the {{  vars.product_full }} ({{ vars.product_short }}) loa
 
 Load balancers used with TKGI differ by the type of deployment:
 
-* [Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments without NSX](#without-nsx-t)
-* [Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments on vSphere with NSX](#with-nsx-t)
+* [Load Balancers in {{  vars.product }} Deployments without NSX](#without-nsx-t)
+* [Load Balancers in {{  vars.product }} Deployments on vSphere with NSX](#with-nsx-t)
 
 
 
-## <a id='without-nsx-t'></a>Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments without NSX
+## <a id='without-nsx-t'></a>Load Balancers in {{  vars.product }} Deployments without NSX
 
-For Tanzu Kubernetes Grid Integrated Edition deployments on AWS or vSphere without NSX, you can configure load balancers for the following:
+For {{  vars.product }} deployments on AWS or vSphere without NSX, you can configure load balancers for the following:
 
 * **[TKGI API Load Balancer](#tkgi-api)**: Configuring this load balancer enables you to run TKGI Command Line Interface (TKGI CLI) commands from your local workstation.
 * **[Kubernetes Cluster Load Balancers](#cluster)**: Configuring a load balancer for each new cluster enables you to run Kubernetes CLI (kubectl) commands on the cluster.
 * **[Workload Load Balancers)](#workload)**: Configuring a load balancer for your application workloads enables external access to the services that run on your cluster.
 
 The following diagram, applicable to AWS and vSphere without NSX, shows where each of the above load balancers can be used
-within your Tanzu Kubernetes Grid Integrated Edition deployment.
+within your {{  vars.product }} deployment.
 {{ image_tag src="images/lb-diagram.png" alt="TKGI load balancer diagram including all load balancer options for TKGI deployments without NSX" }}
 {{{{raw}}}} <!-- = Image source: https://docs.google.com/drawings/d/17Zzznn0J8j3sEICByPnAF1mSKg0pisqtrZNWi8KbOh8/edit  --> {{{{/raw}}}}
 
@@ -33,14 +33,14 @@ If your cloud provider does not offer load balancing, you can use any external T
 
 ### <a id='tkgi-api'></a>TKGI API Load Balancer
 
-The TKGI API load balancer enables you to access the TKGI API from outside the network on Tanzu Kubernetes Grid Integrated Edition deployments on AWS or vSphere without NSX.
+The TKGI API load balancer enables you to access the TKGI API from outside the network on {{  vars.product }} deployments on AWS or vSphere without NSX.
 For example, configuring a load balancer for the TKGI API enables you to run TKGI CLI commands from your local workstation.
 
 For information about configuring the TKGI API load balancer on vSphere without NSX, see [Configuring TKGI API Load Balancer](./vsphere-configure-api.html).
 
 ### <a id='cluster'></a>Kubernetes Cluster Load Balancers
 
-When you create an Tanzu Kubernetes Grid Integrated Edition cluster on AWS or vSphere without NSX,
+When you create an {{  vars.product }} cluster on AWS or vSphere without NSX,
 you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
 The load balancer enables the Kubernetes CLI to communicate with the cluster.
 
@@ -52,12 +52,12 @@ To enable kubectl to access the cluster without a load balancer, you can do one 
 
 For more information about configuring a cluster load balancer, see the following:
 
-* [Creating and Configuring an AWS Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters](aws-cluster-load-balancer.html)
-* [Creating and Configuring an Azure Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters](azure-cluster-load-balancer.html)
+* [Creating and Configuring an AWS Load Balancer for {{  vars.product }} Clusters](aws-cluster-load-balancer.html)
+* [Creating and Configuring an Azure Load Balancer for {{  vars.product }} Clusters](azure-cluster-load-balancer.html)
 
 ### <a id='workload'></a>Workload Load Balancers
 
-To enable external access to your Tanzu Kubernetes Grid Integrated Edition app on AWS or vSphere without NSX, you can either create a load balancer or expose a static port on your workload.
+To enable external access to your {{  vars.product }} app on AWS or vSphere without NSX, you can either create a load balancer or expose a static port on your workload.
 
 For information about configuring a load balancer for your app workload, see [Deploying and Exposing Basic Linux Workloads](deploy-workloads.html).
 
@@ -70,29 +70,29 @@ See the [AWS Prerequisites](deploy-workloads.html#aws) section of _Deploying and
 A Kubernetes ingress controller sits behind a load balancer, routing HTTP and HTTPS requests from outside the cluster to services within the cluster.
 Kubernetes ingress resources can be configured to load balance traffic, provide externally reachable URLs to services, and manage other aspects of network traffic.
 
-If you add an ingress controller to your Tanzu Kubernetes Grid Integrated Edition deployment, traffic routing is controlled by the ingress resource rules you define.
-{{{ vars.recommended_by }}} recommends configuring Tanzu Kubernetes Grid Integrated Edition deployments with both a workload load balancer and an ingress controller.
+If you add an ingress controller to your {{  vars.product }} deployment, traffic routing is controlled by the ingress resource rules you define.
+{{{ vars.recommended_by }}} recommends configuring {{  vars.product }} deployments with both a workload load balancer and an ingress controller.
 
 The following diagram shows how the ingress routing can be used
-within your Tanzu Kubernetes Grid Integrated Edition deployment.
+within your {{  vars.product }} deployment.
 {{ image_tag src="images/ingress-routing.png" alt="TKGI diagram that shows ingress routing for both Istio and NSX" }}
 {{{{raw}}}} <!-- = Image source: https://docs.google.com/drawings/d/1IB2juuTQlwJ4QpRaMmjFvGAC3cS7irFy3OII-pb6GGE/edit  --> {{{{/raw}}}}
 
-The load balancer on Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX is automatically provisioned with Kubernetes ingress resources
+The load balancer on {{  vars.product }} on vSphere with NSX is automatically provisioned with Kubernetes ingress resources
 without the need to deploy and configure an additional ingress controller.
 
 For information about deploying a load balancer configured with ingress routing on AWS, Azure, and vSphere without NSX, see [Configuring Ingress Routing](configure-ingress.html).
 For information about ingress routing on vSphere with NSX, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).
 
 
-## <a id='with-nsx-t'></a>Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments on vSphere with NSX
+## <a id='with-nsx-t'></a>Load Balancers in {{  vars.product }} Deployments on vSphere with NSX
 
-Tanzu Kubernetes Grid Integrated Edition deployments on vSphere with NSX in high-availability mode require you configure a load balancer to access the TKGI API.
+{{  vars.product }} deployments on vSphere with NSX in high-availability mode require you configure a load balancer to access the TKGI API.
 To configure an NSX load balancer for TKGI API traffic, see [Provisioning an NSX Load Balancer for the TKGI API Server](nsxt-lb-tkgi-api.html).
 
 TKGI deployments on vSphere with NSX in singleton mode require you configure only a DNAT rule so that the TKGI API host is accessible.
 These TKGI deployments do not require you to configure a load balancer to access the TKGI API.
-For more information, see [Share the Tanzu Kubernetes Grid Integrated Edition Endpoint](installing-nsx-t.html#retrieve-endpoint) in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Integration_.
+For more information, see [Share the {{  vars.product }} Endpoint](installing-nsx-t.html#retrieve-endpoint) in _Installing {{  vars.product }} on vSphere with NSX Integration_.
 
 At runtime, NSX automatically handles load balancer creation, configuration, and deletion as part of the Kubernetes cluster create, update, and delete process.
 When a new Kubernetes cluster is created, NSX creates and configures a dedicated load balancer tied to it. The load balancer is a shared resource designed to provide efficient traffic distribution to control plane nodes as well as services deployed on worker nodes.
@@ -107,7 +107,7 @@ Virtual server instances are created on the load balancer to provide access to t
 
 Load balancers are deployed in high-availability mode so that they are resilient to potential failures and able to recover quickly from critical conditions.
 
-<p class="note"><strong>Note</strong>: The <code>NodePort</code> Service type is not supported for Tanzu Kubernetes Grid Integrated Edition deployments on vSphere with NSX. Only <code>type:LoadBalancer</code>Services and Services associated with Ingress rules are supported on vSphere with NSX.</p>
+<p class="note"><strong>Note</strong>: The <code>NodePort</code> Service type is not supported for {{  vars.product }} deployments on vSphere with NSX. Only <code>type:LoadBalancer</code>Services and Services associated with Ingress rules are supported on vSphere with NSX.</p>
 
 ### <a id='resize-lb'></a> Resizing Load Balancers
 

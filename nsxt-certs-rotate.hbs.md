@@ -86,12 +86,12 @@ For more information, see the **Disable SSL certification verification** configu
 
     You are about to rotate nsx related certificates for cluster tkgi-cluster-01. This operation requires bosh deployment, and will take a significant time. Are you sure you want to continue? (y/n):
     ```
-    <p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
 1. If running `tkgi rotate-certs` fails to rotate the certificates, you must manually rotate the certificates.
     To manually rotate certificates, see
-    [How to rotate Tanzu Kubernetes Grid Integrated Edition tls-nsx-t cluster certificate](https://knowledge.broadcom.com/external/article?legacyId=80324)
+    [How to rotate {{  vars.product }} tls-nsx-t cluster certificate](https://knowledge.broadcom.com/external/article?legacyId=80324)
     in the Broadcom Support Knowledge Base.
 <br>
 

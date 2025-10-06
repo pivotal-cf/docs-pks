@@ -1,5 +1,5 @@
 ---
-title: Using Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters
+title: Using Admission Control Plugins for {{  vars.product }} Clusters
 
 ---
 
@@ -9,8 +9,8 @@ For more information about Admission Controllers, see [Using Admission Controlle
 
 For details on the admission control plugins supported by TKGI, see:
 
-* [Enabling the PodSecurityAdmission Plugin for Tanzu Kubernetes Grid Integrated Edition Clusters and Using Pod Security Admission](./pod-security-admission.html)
+* [Enabling the PodSecurityAdmission Plugin for {{  vars.product }} Clusters and Using Pod Security Admission](./pod-security-admission.html)
 
 To deactivate an admission control plugin, see:
 
-* [Deactivating Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters](./admission-plugins-disable.html)
+* [Deactivating Admission Control Plugins for {{  vars.product }} Clusters](./admission-plugins-disable.html)

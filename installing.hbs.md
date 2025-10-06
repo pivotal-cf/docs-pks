@@ -1,5 +1,5 @@
 ---
-title: Installing Tanzu Kubernetes Grid Integrated Edition
+title: Installing {{  vars.product }}
 
 ---
 
@@ -9,22 +9,22 @@ This topics below describe how to install and configure {{  vars.product_full }}
 
 ## <a id='overview'></a>Overview
 
-You can install TKGI manually as a {{ vars.platform_name }} tile or use the Tanzu Kubernetes Grid Integrated Edition Management Console which provides a graphical user interface to assist with
+You can install TKGI manually as a {{ vars.platform_name }} tile or use the {{  vars.product }} Management Console which provides a graphical user interface to assist with
 configuring and deploying TKGI to vSphere.
 
 To install and configure TKGI:
 
-* [Tanzu Kubernetes Grid Integrated Edition Management Console (vSphere Only)](#install-mc)
-* [Tanzu Kubernetes Grid Integrated Edition on {{ vars.platform_name }}](#install-manual)
+* [{{  vars.product }} Management Console (vSphere Only)](#install-mc)
+* [{{  vars.product }} on {{ vars.platform_name }}](#install-manual)
 
 
 ## <a id='install-mc'></a>TKGI Management Console (vSphere Only)
 
 See the following documentation for the TKGI Management Console, which is the recommended method for installing TKGI on vSphere:
 
-* [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Management Console](./console-install-vsphere.html)
+* [Install {{  vars.product }} on vSphere with the Management Console](./console-install-vsphere.html)
 
-For more information, see [When Should I Use Tanzu Kubernetes Grid Integrated Edition Management Console?](./vsphere-index.html#when-to-use-console).
+For more information, see [When Should I Use {{  vars.product }} Management Console?](./vsphere-index.html#when-to-use-console).
 
 
 ## <a id='install-manual'></a>TKGI on {{ vars.platform_name }}
@@ -46,4 +46,4 @@ To manually install TKGI on {{ vars.platform_name }}:
   </li>
 </ul>
 
-<p class="note"><strong>Note:</strong> Tanzu Kubernetes Grid Integrated Edition supports air-gapped deployments on vSphere with Antrea networking or with NSX integration.</p>
+<p class="note"><strong>Note:</strong> {{  vars.product }} supports air-gapped deployments on vSphere with Antrea networking or with NSX integration.</p>

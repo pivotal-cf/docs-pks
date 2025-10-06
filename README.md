@@ -1,6 +1,6 @@
 # {{  vars.product_full }} Documentation
 
-This repository contains the content for the documentation for Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This repository contains the content for the documentation for {{  vars.product }} (TKGI).
 
 In versions 1.7 and earlier, the product was named Enterprise PKS, not TKGI, and those versions
 of the document set continue to use the name Enterprise PKS.

@@ -3,11 +3,11 @@ title: Creating and Managing Network Profiles in the Management Console
 
 ---
 
-You can add, view and remove network profiles using the Tanzu Kubernetes Grid Integrated Edition Management Console on vSphere.
+You can add, view and remove network profiles using the {{  vars.product }} Management Console on vSphere.
 
 ## <a id='network-profile-using'></a>Using Network Profiles
 
-Network profiles let you customize the NSX infrastructure networking and the runtime NCP networking for Kubernetes clusters provisioned by Tanzu Kubernetes Grid Integrated Edition. For example, using a network profile you can change the size of the control plane load balancer, add an additional subnet for nodes, and enable the use of a third party ingress controller. For a complete list of use cases, see [Network Profile Use Cases](./network-profiles.html#use-cases).
+Network profiles let you customize the NSX infrastructure networking and the runtime NCP networking for Kubernetes clusters provisioned by {{  vars.product }}. For example, using a network profile you can change the size of the control plane load balancer, add an additional subnet for nodes, and enable the use of a third party ingress controller. For a complete list of use cases, see [Network Profile Use Cases](./network-profiles.html#use-cases).
 
 ## <a id='network-profile-reqs'></a>Requirements for Network Profiles
 
@@ -15,7 +15,7 @@ Network profiles are supported in NSX mode only; there is no support for vSphere
 
 ## <a id='network-profile-cluster-create'></a>Create Cluster with Network Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to create a cluster with an existing network profile.
+Use the {{  vars.product }} Management Console to create a cluster with an existing network profile.
 
 1. Select **TKG Integrated Edition** > **Clusters**, and select **Create Cluster**.
 1. Use the **Network Profile** drop-down menu to select the network profile to use.
@@ -26,7 +26,7 @@ Use the Tanzu Kubernetes Grid Integrated Edition Management Console to create a 
 
 ## <a id='network-profile-define'></a>Define Network Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to define a network profile.
+Use the {{  vars.product }} Management Console to define a network profile.
 
 <p class="note"><strong>NOTE:</strong> You must be at the console home page to view the <strong>Network Profiles</strong> tab.</p>
 
@@ -46,7 +46,7 @@ Use the Tanzu Kubernetes Grid Integrated Edition Management Console to define a 
 
 ## <a id='network-profile-delete'></a>Delete Network Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to delete network profile.
+Use the {{  vars.product }} Management Console to delete network profile.
 
 <p class="note"><strong>NOTE:</strong> You cannot delete a network profile that is in use by a cluster.</p>
 

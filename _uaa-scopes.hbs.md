@@ -1,6 +1,6 @@
-By assigning UAA scopes, you grant users the ability to create, manage, and audit Kubernetes clusters in Tanzu Kubernetes Grid Integrated Edition.
+By assigning UAA scopes, you grant users the ability to create, manage, and audit Kubernetes clusters in {{  vars.product }}.
 
-A UAA admin user can assign the following UAA scopes to Tanzu Kubernetes Grid Integrated Edition users:
+A UAA admin user can assign the following UAA scopes to {{  vars.product }} users:
 
   * `pks.clusters.admin`: Accounts with this scope can create and access all clusters.
   * `pks.clusters.manage`: Accounts with this scope can create and access their own clusters.

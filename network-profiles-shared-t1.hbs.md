@@ -9,7 +9,7 @@ This topic also explains how to define a network profile that overrides the Shar
 
 ## <a id='shared-t1'></a> Shared Tier-1 Topology
 
-By default, Kubernetes clusters in Tanzu Kubernetes Grid Integrated Edition with NSX have the Shared Tier-1 network topology, in which each cluster shares a single Tier-1 router for its external-facing components: the Kubernetes node, namespace, and NSX load balancer.
+By default, Kubernetes clusters in {{  vars.product }} with NSX have the Shared Tier-1 network topology, in which each cluster shares a single Tier-1 router for its external-facing components: the Kubernetes node, namespace, and NSX load balancer.
 
 <p class="note"><strong>Note:</strong> The Shared Tier-1 topology requires VMware NSX v2.5.</p>
 
@@ -37,7 +37,7 @@ supported in a given cluster.
 
 ## <a id='dedicated-t1'></a> Dedicated Tier-1 Topology
 
-When you provision a Kubernetes cluster with a network profile that overrides the Shared Tier-1 topology, Tanzu Kubernetes Grid Integrated Edition creates following NSX objects:
+When you provision a Kubernetes cluster with a network profile that overrides the Shared Tier-1 topology, {{  vars.product }} creates following NSX objects:
 
 * 1 Logical Switch and Tier-1 Router for each Kubernetes Nodes subnet
 * 1 Logical Switch and Tier-1 Router for each Kubernetes namespace
@@ -72,7 +72,7 @@ To create a cluster using a Shared Tier-1 network profile, see [Create a Cluster
 
 In a Shared Tier-1 Router topology, all Kubernetes cluster traffic is automatically NATed in the single Tier-1 router that services that cluster. However, in a <a href="./nsxt-multi-t0.html">Multi-Tier-0 environment</a>, traffic from Kubernetes Node Networks to the Shared Tier-0 Router cannot be NATed.
 
-To implement a Shared Tier-1 topology in a <a href="./nsxt-multi-t0.html">Multi-Tier-0 environment</a>, use the `infrastructure_networks` field in the network profile and include the subnets where your infrastructure is running. During Kubernetes cluster creation, Tanzu Kubernetes Grid Integrated Edition will add a NO_SNAT rule from the Node Network to subnets specified in the `infrastructure_networks` field.
+To implement a Shared Tier-1 topology in a <a href="./nsxt-multi-t0.html">Multi-Tier-0 environment</a>, use the `infrastructure_networks` field in the network profile and include the subnets where your infrastructure is running. During Kubernetes cluster creation, {{  vars.product }} will add a NO_SNAT rule from the Node Network to subnets specified in the `infrastructure_networks` field.
 
 In the following example network profile, the `infrastructure-networks` field includes three subnets for which NO_SNAT rules will be created. These subnets map to the PKS Control Plane (`30.0.0.0/24`), vCenter and NSX VMs (`192.168.111.0/24`), and the Nodes DNS server (`192.168.115.1`).
 

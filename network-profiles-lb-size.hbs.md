@@ -7,17 +7,17 @@ This topic describes how to size a load balancer using a network profile for {{ 
 
 ## <a id='lb-size'></a> Load Balancer Sizing
 
-When you deploy a Kubernetes cluster using Tanzu Kubernetes Grid Integrated Edition on NSX, an NSX Load Balancer is automatically provisioned. By default the size of this load balancer is `small`. Using a network profile, you can customize the size of this load balancer and use a `medium` or `large` load balancer for Kubernetes clusters.
+When you deploy a Kubernetes cluster using {{  vars.product }} on NSX, an NSX Load Balancer is automatically provisioned. By default the size of this load balancer is `small`. Using a network profile, you can customize the size of this load balancer and use a `medium` or `large` load balancer for Kubernetes clusters.
 
 The NSX Load Balancer is a logical load balancer that handles a number of functions using virtual servers and pools. For more information, see [Supported Load Balancer Features](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/administration-guide/load-balancer/key-load-balancer-concepts/supported-load-balancer-features.html) in the NSX documentation.
 
-The following virtual servers are required for Tanzu Kubernetes Grid Integrated Edition:
+The following virtual servers are required for {{  vars.product }}:
 
 - 1 global virtual server for the Kubernetes API which runs on the control plane nodes
 - 1 TCP layer 4 virtual server for **each** Kubernetes service of `type:LoadBalancer`
 - 2 HTTP and HTTPS layer 7 global virtual servers for Kubernetes ingress controller resources
 
-The number of virtual servers that you can run depends on the size of the load balancer, which in turn depends on the size of the NSX Edge Node hosting the load balancer service. See [Scaling Load Balancer Resources](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-1/administration-guide/load-balancer/key-load-balancer-concepts/scaling-load-balancer-resources.html) in the NSX documentation. Because of the number of virtual servers required by Tanzu Kubernetes Grid Integrated Edition, you can only use the large NSX Edge Node VM or the bare metal NSX Edge Node with Tanzu Kubernetes Grid Integrated Edition.
+The number of virtual servers that you can run depends on the size of the load balancer, which in turn depends on the size of the NSX Edge Node hosting the load balancer service. See [Scaling Load Balancer Resources](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-1/administration-guide/load-balancer/key-load-balancer-concepts/scaling-load-balancer-resources.html) in the NSX documentation. Because of the number of virtual servers required by {{  vars.product }}, you can only use the large NSX Edge Node VM or the bare metal NSX Edge Node with {{  vars.product }}.
 
 You cannot modify the Load Balancer Size configuration on an existing cluster.
 

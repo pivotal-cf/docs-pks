@@ -1,5 +1,5 @@
 ---
-title: Creating and Configuring an Azure Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters
+title: Creating and Configuring an Azure Load Balancer for {{  vars.product }} Clusters
 
 ---
 
@@ -15,7 +15,7 @@ You can also use a load balancer to secure and facilitate access to a TKGI clust
 
 Using an Azure load balancer is optional, but adding one to your Kubernetes cluster can make it easier to manage the cluster using the TKGI API and Kubernetes CLI (`kubectl`).
 
-For more information about the different types of load balancers used in a Tanzu Kubernetes Grid Integrated Edition deployment see [Load Balancers in TKGI](./about-lb.html).
+For more information about the different types of load balancers used in a {{  vars.product }} deployment see [Load Balancers in TKGI](./about-lb.html).
 
 <p class='note'><strong>Note:</strong> If your Kubernetes control plane node VMs are recreated for any
 reason, you must reconfigure your cluster load balancers to point to the new control plane VMs. For
@@ -32,7 +32,7 @@ the name in the following ways:
 
 ## <a id='define-lb'></a>Create and Configure a Load Balancer
 
-Follow the steps below to create and configure an Azure load balancer for your Tanzu Kubernetes Grid Integrated Edition cluster.
+Follow the steps below to create and configure an Azure load balancer for your {{  vars.product }} cluster.
 
 ###<a id='create-load-balancer'></a> Create Load Balancer
 
@@ -45,9 +45,9 @@ Follow the steps below to create and configure an Azure load balancer for your T
   1. **SKU**: Select **Standard**.
   1. **Public IP address**: Select **Create new** and name the new IP address.
   1. **Availability zone**: Select an availability zone or **Zone-redundant**.
-  1. **Subscription**: Select the subscription which has Tanzu Kubernetes Grid Integrated Edition deployed.
-  1. **Resource group**: Select the resource group which has Tanzu Kubernetes Grid Integrated Edition deployed.
-  1. **Location**: Select the location group which has Tanzu Kubernetes Grid Integrated Edition deployed.
+  1. **Subscription**: Select the subscription which has {{  vars.product }} deployed.
+  1. **Resource group**: Select the resource group which has {{  vars.product }} deployed.
+  1. **Location**: Select the location group which has {{  vars.product }} deployed.
 1. Click **Create**.
 
 ###<a id='create-backend-pool'></a> Create Backend Pool

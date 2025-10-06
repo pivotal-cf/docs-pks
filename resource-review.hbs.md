@@ -12,7 +12,7 @@ the TKGI API.
 
 ## <a id="overview"></a> Overview
 
-Your Tanzu Kubernetes Grid Integrated Edition administrator might set a limit on
+Your {{  vars.product }} administrator might set a limit on
 the number of clusters you can provision and
 the resources, such as amount of memory and number of CPUs,
 that are allocated in total to any clusters you create and workloads you deploy.
@@ -47,7 +47,7 @@ Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
 * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
-* `USER-ID` is your Tanzu Kubernetes Grid Integrated Edition user ID.
+* `USER-ID` is your {{  vars.product }} user ID.
 
 For example:
 ```console
@@ -80,7 +80,7 @@ Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
 * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
-* `USER-ID` is your Tanzu Kubernetes Grid Integrated Edition user ID.
+* `USER-ID` is your {{  vars.product }} user ID.
 
 For example:
 ```console

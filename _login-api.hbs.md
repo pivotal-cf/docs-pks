@@ -4,10 +4,10 @@
     ```
     Where:
 
-    * `TKGI-API` is the domain name for the TKGI API that you entered in **{{ vars.platform_name }}** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**.
+    * `TKGI-API` is the domain name for the TKGI API that you entered in **{{ vars.platform_name }}** > **{{  vars.product }}** > **TKGI API** > **API Hostname (FQDN)**.
     For example, `api.tkgi.example.com`.
     * `USERNAME` is your user name.
 <br><br>
-    See [Logging in to Tanzu Kubernetes Grid Integrated Edition](login.html) for more information about the `tkgi login` command.
+    See [Logging in to {{  vars.product }}](login.html) for more information about the `tkgi login` command.
     {{> saml-sso-login }}
 

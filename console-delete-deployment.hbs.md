@@ -1,5 +1,5 @@
 ---
-title: Delete Your Tanzu Kubernetes Grid Integrated Edition Deployment
+title: Delete Your {{  vars.product }} Deployment
 
 ---
 
@@ -27,5 +27,5 @@ To remove a TKGI MC deployment:
 1. Use the TKGI CLI to delete any existing clusters and nodes before deleting your TKGI deployment.
 1. Open the TKGI MC.
 1. Go to the **TKG Integrated Edition** view.
-1. Click the **Action** drop-down menu and select **Delete Tanzu Kubernetes Grid Integrated Edition Deployment**.
+1. Click the **Action** drop-down menu and select **Delete {{  vars.product }} Deployment**.
 1. Click **Delete** to confirm the deletion of the deployment.

@@ -1,9 +1,9 @@
 ---
-title: Tanzu Kubernetes Grid Integrated Edition Certificates
+title: {{  vars.product }} Certificates
 
 ---
 
-This topic summarizes Tanzu Kubernetes Grid Integrated Edition (TKGI) certificates
+This topic summarizes {{  vars.product }} (TKGI) certificates
 and how to rotate them.
 
 

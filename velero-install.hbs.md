@@ -3,7 +3,7 @@ title: Installing Velero with File System Backup
 
 ---
 
-This topic describes how to install Velero for backing up and restoring Tanzu Kubernetes Grid Integrated Edition (TKGI)-provisioned Kubernetes workloads.
+This topic describes how to install Velero for backing up and restoring {{  vars.product }} (TKGI)-provisioned Kubernetes workloads.
 This topic also describes how to install MinIO for Velero.
 
 ##<a id="prereqs"></a> Prerequisites

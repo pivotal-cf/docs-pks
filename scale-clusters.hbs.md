@@ -14,7 +14,7 @@ To change the default number of worker nodes created in new clusters,
 
 <p class="note warning"><strong>WARNING</strong>: Do not change the number of control plane/etcd nodes
 for any plan that was used to create currently-running clusters.
-Tanzu Kubernetes Grid Integrated Edition does not support changing the number of control plane/etcd nodes for plans
+{{  vars.product }} does not support changing the number of control plane/etcd nodes for plans
 with existing clusters.
 </p>
 
@@ -48,7 +48,7 @@ To increase or decrease the number of worker nodes on a cluster:
         worker nodes.
         * To scale up your existing cluster, enter a number higher than the current number of worker
         nodes. The maximum number of worker nodes you can set is configured in the **Plan** pane of
-        the Tanzu Kubernetes Grid Integrated Edition tile in {{ vars.platform_name }}.
+        the {{  vars.product }} tile in {{ vars.platform_name }}.
         <p class="note"><strong>Note</strong>: VMware recommends that you avoid using the
         <code>tkgi resize</code> command to perform resizing operations.</p>
 

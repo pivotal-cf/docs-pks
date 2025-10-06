@@ -199,7 +199,7 @@ Kubernetes profile my-profile3 successfully created
 
 ## <a id="manage"></a> Manage TKGI Kubernetes Profiles
 
-Tanzu Kubernetes Grid Integrated Edition cluster administrators and managers can perform the following operations on Kubernetes profiles and the clusters that use them:
+{{  vars.product }} cluster administrators and managers can perform the following operations on Kubernetes profiles and the clusters that use them:
 
 * [List TKGI Kubernetes Profiles](#list)
 * [Delete a TKGI Kubernetes Profile](#delete)
@@ -303,7 +303,7 @@ For information on the supported scenarios for using Kubernetes Profiles:
 
 You can assign a Kubernetes profile to a Kubernetes cluster at the time of cluster creation.
 
-To create an Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes cluster with a Kubernetes profile, run the following command:
+To create an {{  vars.product }}-provisioned Kubernetes cluster with a Kubernetes profile, run the following command:
 
 ```
 tkgi create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --kubernetes-profile KUBERNETES-PROFILE-NAME
@@ -316,7 +316,7 @@ Where:
     if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
     </p>
 * `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
-* `PLAN-NAME` is the name of the Tanzu Kubernetes Grid Integrated Edition plan you want to use for your cluster.
+* `PLAN-NAME` is the name of the {{  vars.product }} plan you want to use for your cluster.
 * `KUBERNETES-PROFILE-NAME` is the name of the Kubernetes profile you want to use for your cluster.
 
 ### <a id="update"></a> Assign a Kubernetes Profile to an Existing TKGI Cluster
@@ -327,7 +327,7 @@ You can use this procedure to:
 - assign a Kubernetes profile to a cluster that does not have one, or
 - change a cluster's existing profile to a new one
 
-<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 This is the procedure to change a cluster's Kubernetes profile:

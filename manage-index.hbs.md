@@ -7,7 +7,7 @@ The following topics describe how to use the {{  vars.product_full }} Command Li
 
 <ul>
   <li>
-    <a href="login.html">Logging in to Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="login.html">Logging in to {{  vars.product }}</a>
   </li>
   <li>
     <a href="create-cluster.html">Creating Clusters</a>

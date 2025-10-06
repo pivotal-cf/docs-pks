@@ -1,5 +1,5 @@
 ---
-title: Configuring VMware NSX v3 Transport Zones and Edge Node Switches for Tanzu Kubernetes Grid Integrated Edition
+title: Configuring VMware NSX v3 Transport Zones and Edge Node Switches for {{  vars.product }}
  -NSXT
 ---
 

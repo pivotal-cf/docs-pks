@@ -1,27 +1,27 @@
 For each job, review the **Automatic** values in the following fields:
-  * **INSTANCES**: Tanzu Kubernetes Grid Integrated Edition defaults to the minimum configuration.
+  * **INSTANCES**: {{  vars.product }} defaults to the minimum configuration.
   If you want a highly available configuration (beta), scale the number of VM instances as follows:
-      1. To configure your Tanzu Kubernetes Grid Integrated Edition database for high availability (beta),
+      1. To configure your {{  vars.product }} database for high availability (beta),
       increase the **INSTANCES** value for **TKGI Database** to `3`.
-      1. To configure your Tanzu Kubernetes Grid Integrated Edition API and UAA for high availability (beta),
+      1. To configure your {{  vars.product }} API and UAA for high availability (beta),
       increase the **INSTANCES** value for **TKGI API** to `2` or more.
       <p class="note warning"><strong>Warning:</strong> High availability mode is a beta feature. Do not scale your <strong>TKGI API</strong> or <strong>TKGI Database</strong> to more than one instance in production environments.</p>
       {{# evalExpression "current_page.data.iaas == 'Azure'"}}
-        <p class="note"><strong>Note</strong>: On Azure, you must reconfigure your 
-        TKGI API load balancer backend pool 
-        whenever you modify your TKGI API VM group. 
-        For more information about configuring your TKGI API 
-        load balancer backend pool, see 
-        <a href="azure-api-load-balancer.html#create-load-balancer">Create a Load Balancer</a> 
+        <p class="note"><strong>Note</strong>: On Azure, you must reconfigure your
+        TKGI API load balancer backend pool
+        whenever you modify your TKGI API VM group.
+        For more information about configuring your TKGI API
+        load balancer backend pool, see
+        <a href="azure-api-load-balancer.html#create-load-balancer">Create a Load Balancer</a>
         in <i>Configuring an Azure Load Balancer for the TKGI API</i>.
         </p>
       {{/ evalExpression }}
       {{# evalExpression "current_page.data.iaas == 'vSphere-NSX-T'"}}
-        <p class="note"><strong>Note</strong>: On vSphere with NSX, you must manually deploy 
+        <p class="note"><strong>Note</strong>: On vSphere with NSX, you must manually deploy
         an NSX load balancer so that you can select it as part of the resource configuration.
-        For more information, see 
+        For more information, see
         <a href="nsxt-lb-tkgi-api.html">Provisioning an NSX Load Balancer for the TKGI API Server</a>.
-        </p>  
+        </p>
       {{/ evalExpression }}
   * **VM TYPE**: By default, the **TKGI Database** and **TKGI API** jobs are set to the same **Automatic** VM type.
   If you want to adjust this value, we recommend that you select the same VM type for both jobs.

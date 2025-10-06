@@ -2,16 +2,16 @@
 ## <a id="enterprise"></a> TKGI Ports and Protocols
 
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-The following tables list ports and protocols required for network communications between Tanzu Kubernetes Grid Integrated Edition v1.5.0
+The following tables list ports and protocols required for network communications between {{  vars.product }} v1.5.0
 and later, and vSphere 6.7 and NSX-T or NSX 2.4.0.1 and later.
 {{/ evalExpression }}
 {{# evalExpression "current_page.data.netenv == 'vsphere'"}}
-The following tables list ports and protocols required for network communications between Tanzu Kubernetes Grid Integrated Edition v1.5.0
+The following tables list ports and protocols required for network communications between {{  vars.product }} v1.5.0
 and later, and vSphere 6.7 and later.
 {{/ evalExpression }}
 {{# evalExpression "current_page.data.netenv == 'vsphere' || current_page.data.netenv == 'nsxt' "}}
 {{ else }}
-The following tables list ports and protocols required for network communications between Tanzu Kubernetes Grid Integrated Edition v1.5.0
+The following tables list ports and protocols required for network communications between {{  vars.product }} v1.5.0
 and later, and other components.
 {{/ evalExpression }}
 

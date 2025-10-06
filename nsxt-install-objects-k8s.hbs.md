@@ -36,7 +36,7 @@ Before completing this section, make sure you have completed the following secti
   </li>
 </ul>
 
-##<a id='nsxt-control-plane-reqs'></a> Required NSX Objects for the Tanzu Kubernetes Grid Integrated Edition Control Plane
+##<a id='nsxt-control-plane-reqs'></a> Required NSX Objects for the {{  vars.product }} Control Plane
 
 To install TKGI on vSphere with NSX, you need to create the following NSX objects:
 

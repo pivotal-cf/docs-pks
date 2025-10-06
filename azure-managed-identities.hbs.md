@@ -1,5 +1,5 @@
 ---
-title: Creating Managed Identities in Azure for Tanzu Kubernetes Grid Integrated Edition
+title: Creating Managed Identities in Azure for {{  vars.product }}
 owner: {{ vars.platform_name }}
 ---
 
@@ -16,16 +16,16 @@ You need separate managed identities for the Kubernetes cluster control plane an
 
 ## <a id='id-resource-group'></a>Retrieve Your Subscription ID and Resource Group
 
-To perform the procedures in this topic, you must have your Azure Subscription ID and the name of your Tanzu Kubernetes Grid Integrated Edition Resource Group.
+To perform the procedures in this topic, you must have your Azure Subscription ID and the name of your {{  vars.product }} Resource Group.
 
 If you do not know your Subscription ID or Resource Group:
 
 1. Navigate to the Azure portal.
 1. Click **Resource groups**.
-1. Determine the name of your Tanzu Kubernetes Grid Integrated Edition Resource Group.
-1. Determine the Subscription ID for your Tanzu Kubernetes Grid Integrated Edition Resource Group.
+1. Determine the name of your {{  vars.product }} Resource Group.
+1. Determine the Subscription ID for your {{  vars.product }} Resource Group.
 
-<p class="note"><strong>Note:</strong> You specified the Subscription ID to use and your Tanzu Kubernetes Grid Integrated Edition Resource Group name
+<p class="note"><strong>Note:</strong> You specified the Subscription ID to use and your {{  vars.product }} Resource Group name
   when completing the steps in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-deploy-manual.html#network">Step 1: Create Network Resources</a>
 in <i>Deploying {{ vars.platform_name }} on Azure Manually</i>.
 </p>
@@ -66,7 +66,7 @@ Perform the following steps to create the managed identity for the control plane
     Where:
 
     * `SUBSCRIPTION-ID` is your Subscription ID.
-    * `RESOURCE-GROUP` is the name of your Tanzu Kubernetes Grid Integrated Edition Resource Group.
+    * `RESOURCE-GROUP` is the name of your {{  vars.product }} Resource Group.
 
     For more information about custom roles in Azure, see
     [Custom Roles in Azure](https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles)
@@ -89,12 +89,12 @@ Perform the following steps to create the managed identity for the control plane
     ```
     az identity create -g RESOURCE-GROUP -n tkgi-master
     ```
-    Where `RESOURCE-GROUP` is the name of your Tanzu Kubernetes Grid Integrated Edition resource group.
+    Where `RESOURCE-GROUP` is the name of your {{  vars.product }} resource group.
     <br><br>
     For more information about managed identities, see [Create a user-assigned managed identity](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-cli#create-a-user-assigned-managed-identity) in the Azure documentation.
-1. Assign managed identity access to the Tanzu Kubernetes Grid Integrated Edition resource group by performing the following steps:
+1. Assign managed identity access to the {{  vars.product }} resource group by performing the following steps:
   1. Navigate to the Azure Portal and log in.
-  1. Open the Tanzu Kubernetes Grid Integrated Edition resource group.
+  1. Open the {{  vars.product }} resource group.
   1. Click **Access control (IAM)** on the left panel.
   1. Click **Add role assignment**.
   1. On the **Add role assignment** page, enter the following configurations:
@@ -139,7 +139,7 @@ Perform the following steps to create the managed identity for the worker nodes:
     Where:
 
     * `SUBSCRIPTION-ID` is your Subscription ID.
-    * `RESOURCE-GROUP` is the name of your Tanzu Kubernetes Grid Integrated Edition Resource Group.
+    * `RESOURCE-GROUP` is the name of your {{  vars.product }} Resource Group.
 
 1. Save your template as `tkgi_worker_role.json`.
 1. Create the role in Azure by running the following command from the directory with `tkgi_worker_role.json`:
@@ -153,10 +153,10 @@ Perform the following steps to create the managed identity for the worker nodes:
     ```
     az identity create -g RESOURCE-GROUP -n tkgi-worker
     ```
-    Where `RESOURCE-GROUP` is the name of your Tanzu Kubernetes Grid Integrated Edition resource group.
-1. Assign managed identity access to the Tanzu Kubernetes Grid Integrated Edition resource group by performing the following steps:
+    Where `RESOURCE-GROUP` is the name of your {{  vars.product }} resource group.
+1. Assign managed identity access to the {{  vars.product }} resource group by performing the following steps:
   1. Navigate to the Azure Portal and log in.
-  1. Open the Tanzu Kubernetes Grid Integrated Edition resource group.
+  1. Open the {{  vars.product }} resource group.
   1. Click **Access control (IAM)** on the left panel.
   1. Click **Add role assignment**.
   1. On the **Add role assignment** page, enter the following configurations:
@@ -170,5 +170,5 @@ you can select the <strong>Storage Account Contributor</strong> built-in role in
 
 ## <a id="next-steps"></a>Next Installation Step
 
-To install and configure Tanzu Kubernetes Grid Integrated Edition, follow the instructions in
-[Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html).
+To install and configure {{  vars.product }}, follow the instructions in
+[Installing {{  vars.product }} on Azure](installing-azure.html).

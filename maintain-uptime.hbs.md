@@ -14,7 +14,7 @@ To increase uptime, you can also refer to the documentation for the services tha
 
 ##<a id='upgrades'></a> About Cluster Upgrades
 
-The Tanzu Kubernetes Grid Integrated Edition tile contains an errand that upgrades all Kubernetes clusters.
+The {{  vars.product }} tile contains an errand that upgrades all Kubernetes clusters.
 Upgrades run on a single VM at a time:
 
 * While a control plane VM is upgraded, the VM's workloads are distributed to the cluster's remaining control plane VMs.
@@ -154,6 +154,6 @@ Depending on the underlying storage type, PVs are either completely free of zona
 To ensure the uptime of your PVs during a cluster upgrade, {{{ vars.recommended_by }}} recommends that you have at least two nodes per AZ.
 By configuring your workload as suggested, Kubernetes reschedules pods in the other node of the same AZ while BOSH is performing the upgrade.
 
-For information about configuring PVs in Tanzu Kubernetes Grid Integrated Edition, see [Configuring and Using PersistentVolumes](volumes.html).
+For information about configuring PVs in {{  vars.product }}, see [Configuring and Using PersistentVolumes](volumes.html).
 
-For information about the supported storage topologies for Tanzu Kubernetes Grid Integrated Edition on vSphere, see [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html).
+For information about the supported storage topologies for {{  vars.product }} on vSphere, see [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html).

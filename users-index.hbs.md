@@ -1,5 +1,5 @@
 ---
-title: Managing Tanzu Kubernetes Grid Integrated Edition Users
+title: Managing {{  vars.product }} Users
 
 ---
 

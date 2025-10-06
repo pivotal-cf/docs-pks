@@ -46,7 +46,7 @@ Before completing this section, make sure you have completed the following secti
 
 The default NSX password expiration interval is 90 days. After this period, the NSX passwords will expire on all NSX Manager Nodes and all NSX Edge Nodes. To avoid this, you can extend or remove the password expiration interval, or change the password if needed.
 
-<p class="note"><strong>Note:</strong> For existing Tanzu Kubernetes Grid Integrated Edition deployments, anytime the NSX password is changed you must update the BOSH and PKS tiles with the new passwords. See <a href="./password-management.html">Adding Infrastructure Password Changes to the Tanzu Kubernetes Grid Integrated Edition Tile</a> for more information.</p>
+<p class="note"><strong>Note:</strong> For existing {{  vars.product }} deployments, anytime the NSX password is changed you must update the BOSH and PKS tiles with the new passwords. See <a href="./password-management.html">Adding Infrastructure Password Changes to the {{  vars.product }} Tile</a> for more information.</p>
 
 ###<a id='nsxt-manager-password'></a> Update the NSX Manager Password and Password Interval
 
@@ -188,4 +188,4 @@ Password expiration not configured for this user
 
 ##<a id='next'></a> Next Step
 
-Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).
+Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install {{  vars.product }} on vSphere with NSX Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).

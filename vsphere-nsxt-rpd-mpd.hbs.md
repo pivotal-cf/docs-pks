@@ -1,5 +1,5 @@
 ---
-title: Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX
+title: Hardware Requirements for {{  vars.product }} on vSphere with NSX
   with NSX
 ---
 
@@ -7,17 +7,17 @@ This topic describes the hardware requirements for production deployments of {{ 
 
 ##<a id='tkgi-cluster-chars'></a> vSphere Cluster Requirements
 
-A vSphere cluster is a collection of ESXi hosts and associated virtual machines (VMs) with shared resources and a shared management interface. Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX requires the following vSphere clusters:
+A vSphere cluster is a collection of ESXi hosts and associated virtual machines (VMs) with shared resources and a shared management interface. Installing {{  vars.product }} on vSphere with NSX requires the following vSphere clusters:
 
-- [Tanzu Kubernetes Grid Integrated Edition Management Cluster](#tkgi-mgmt-cluster)
-- [Tanzu Kubernetes Grid Integrated Edition Edge Cluster](#tkgi-edge-cluster)
-- [Tanzu Kubernetes Grid Integrated Edition Compute Cluster](#tkgi-compute-cluster)
+- [{{  vars.product }} Management Cluster](#tkgi-mgmt-cluster)
+- [{{  vars.product }} Edge Cluster](#tkgi-edge-cluster)
+- [{{  vars.product }} Compute Cluster](#tkgi-compute-cluster)
 
 For more information on creating vSphere clusters, see <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/8-0/creating-and-configuring-clusters.html">Creating Clusters</a> in the vSphere documentation.</p>
 
 ###<a id='tkgi-mgmt-cluster'></a> Management Cluster
 
-The Tanzu Kubernetes Grid Integrated Edition Management Cluster on vSphere comprises the following components:
+The {{  vars.product }} Management Cluster on vSphere comprises the following components:
 
 - vCenter Server
 - NSX-T Manager v3.0 or later (quantity 3)
@@ -33,7 +33,7 @@ For more information, see [Installing and Configuring NSX-T Data Center v3.0 for
 
 ###<a id='tkgi-compute-cluster'></a> Compute Cluster
 
-The Tanzu Kubernetes Grid Integrated Edition Compute Cluster on vSphere comprises the following components:
+The {{  vars.product }} Compute Cluster on vSphere comprises the following components:
 
 - Kubernetes control plane nodes (quantity 3)
 - Kubernetes worker nodes
@@ -42,18 +42,18 @@ For more information, see [Installing and Configuring NSX-T Data Center v3.0 for
 
 ###<a id='tkgi-cluster-consids'></a> Management Plane Placement
 
-The Tanzu Kubernetes Grid Integrated Edition Management Plane comprises the following components:
+The {{  vars.product }} Management Plane comprises the following components:
 
 - {{ vars.platform_name }}
 - BOSH Director
 - TKGI Control Plane
 - VMware Harbor Registry
 
-Depending on your design choice, TKGI management components can be deployed in the Tanzu Kubernetes Grid Integrated Edition Management Cluster on the standard vSphere network or in the Tanzu Kubernetes Grid Integrated Edition Compute Cluster on the NSX-defined virtual network. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition</a>.</p>
+Depending on your design choice, TKGI management components can be deployed in the {{  vars.product }} Management Cluster on the standard vSphere network or in the {{  vars.product }} Compute Cluster on the NSX-defined virtual network. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for {{  vars.product }}</a>.</p>
 
 ###<a id='tkgi-cluster-reqs'></a> vSphere Cluster Configuration Requirements
 
-For each vSphere cluster defined for Tanzu Kubernetes Grid Integrated Edition, the following configurations are required to support production workloads:
+For each vSphere cluster defined for {{  vars.product }}, the following configurations are required to support production workloads:
 
 - All vSphere clusters are managed by the same vCenter server. TKGI does not support workload clusters in multiple vCenter server inventories.
 
@@ -69,13 +69,13 @@ For each vSphere cluster defined for Tanzu Kubernetes Grid Integrated Edition, t
 
 ##<a id='tkgi-rpd'></a> RPD Topology with NSX
 
-The recommended production deployment (RPD) topology represents the VMware-recommended configuration to run production workloads in Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX.
+The recommended production deployment (RPD) topology represents the VMware-recommended configuration to run production workloads in {{  vars.product }} on vSphere with NSX.
 
 <p class="note"><strong>Note</strong>: The RPD differs depending on whether you are using vSAN or not.</p>
 
 ###<a id='tkgi-rpd-vsan'></a> RPD with vSAN
 
-The RPD for Tanzu Kubernetes Grid Integrated Edition with vSAN storage requires 12 ESXi hosts. The diagram below shows the topology for this deployment.
+The RPD for {{  vars.product }} with vSAN storage requires 12 ESXi hosts. The diagram below shows the topology for this deployment.
 
 <img src="images/nsxt/pks-vs-nsxt-rpd-vsan.png" alt="RPD for TKGI with vSAN">
 
@@ -97,7 +97,7 @@ The RPD with vSAN topology includes three Compute Clusters with the following ch
 	- Compute cluster1 (AZ1) with three ESXi hosts.
 	- Compute cluster2 (AZ2) with three ESXi hosts.
 	- Compute cluster3 (AZ3) with three ESXi hosts.
-- Each Compute cluster runs one instance of an Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes cluster with three control plane nodes per cluster and a per-plan number of worker nodes.
+- Each Compute cluster runs one instance of an {{  vars.product }}-provisioned Kubernetes cluster with three control plane nodes per cluster and a per-plan number of worker nodes.
 
 #### Storage (vSAN)
 
@@ -107,7 +107,7 @@ The RPD with vSAN topology requires the following storage configuration:
 - An external shared datastore (using NFS or iSCSI, for instance) must be provided to store Kubernetes Pod PV (Persistent Volumes).
 - Three ESXi hosts are required per Compute cluster because of the vSAN cluster requirements. For data protection, vSAN creates two copies of the data and requires one witness.
 
-For more information on using vSAN with Tanzu Kubernetes Grid Integrated Edition, see <a href="./vsphere-persistent-storage.html">PersistentVolume Storage Options on vSphere</a>.
+For more information on using vSAN with {{  vars.product }}, see <a href="./vsphere-persistent-storage.html">PersistentVolume Storage Options on vSphere</a>.
 
 #### Future Growth
 
@@ -118,11 +118,11 @@ The RPD with vSAN topology can be scaled as follows to accommodate future growth
 
 ###<a id='tkgi-rpd-no-vsan'></a> RPD without vSAN
 
-The RPD for Tanzu Kubernetes Grid Integrated Edition without vSAN storage requires nine ESXi hosts. The diagram below shows the topology for this deployment.
+The RPD for {{  vars.product }} without vSAN storage requires nine ESXi hosts. The diagram below shows the topology for this deployment.
 
 <img src="images/nsxt/pks-vs-nsxt-rpd.png" alt="RPD for TKGI without vSAN">
 
-The following subsections describe configuration details for the RPD of Tanzu Kubernetes Grid Integrated Edition without vSAN.
+The following subsections describe configuration details for the RPD of {{  vars.product }} without vSAN.
 
 #### Management/Edge Cluster
 
@@ -140,13 +140,13 @@ The RPD without vSAN topology includes three Compute Clusters with the following
 	- Compute cluster1 (AZ1) with two ESXi hosts.
 	- Compute cluster2 (AZ2) with two ESXi hosts.
 	- Compute cluster3 (AZ3) with two ESXi hosts.
-- Each Compute cluster runs one instance of a Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes cluster with three control plane nodes per cluster and a per-plan number of worker nodes.
+- Each Compute cluster runs one instance of a {{  vars.product }}-provisioned Kubernetes cluster with three control plane nodes per cluster and a per-plan number of worker nodes.
 
 #### Storage (non-vSAN)
 
 The RPD without vSAN topology requires the following storage configuration:
 
-- All Compute Clusters are connected to same shared datastore that is used for persistent VM disks for Tanzu Kubernetes Grid Integrated Edition components and Persistent Volumes (PVs) for Kubernetes pods.
+- All Compute Clusters are connected to same shared datastore that is used for persistent VM disks for {{  vars.product }} components and Persistent Volumes (PVs) for Kubernetes pods.
 - All datastores can be collapses to single datastore, if needed.
 
 #### Future Growth
@@ -158,32 +158,32 @@ The RPD without vSAN topology can be scaled as follows to accommodate future gro
 
 ##<a id='tkgi-mpd'></a> MPD Topology with NSX
 
-The minimum production deployment (MPD) topology represents the baseline requirements for running Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX.
+The minimum production deployment (MPD) topology represents the baseline requirements for running {{  vars.product }} on vSphere with NSX.
 
-<p class="note"><strong>Note:</strong> The MPD topology for Tanzu Kubernetes Grid Integrated Edition applies to both vSAN and non-vSAN environments.</p>
+<p class="note"><strong>Note:</strong> The MPD topology for {{  vars.product }} applies to both vSAN and non-vSAN environments.</p>
 
 The diagram below shows the topology for this deployment.
 
 <img src="images/nsxt/pks-vs-nsxt-mpd.png" alt="MPD for TKGI">
 
-The following subsections describe configuration details for an MPD of Tanzu Kubernetes Grid Integrated Edition.
+The following subsections describe configuration details for an MPD of {{  vars.product }}.
 
 ###<a id='tkgi-mpd-topology'></a> MPD Topology Requirements
 
-The MPD topology for Tanzu Kubernetes Grid Integrated Edition requires the following minimum configuration:
+The MPD topology for {{  vars.product }} requires the following minimum configuration:
 
 - A single collapsed Management/Edge/Compute cluster running three ESXi hosts in total.
 - Each ESXi host runs one NSX Manager. The NSX Control Plane has three NSX Managers in total.
 - Each ESXi host runs one Kubernetes control plane node. Each Kubernetes cluster has three control plane nodes in total.
 - Two NSX edge nodes are deployed across two different ESXi hosts.
-- The shared datastore (NFS or iSCSI, for instance) or vSAN datastore is used for persistent VM disks for Tanzu Kubernetes Grid Integrated Edition components and Persistent Volumes (PVs) for Kubernetes pods.
+- The shared datastore (NFS or iSCSI, for instance) or vSAN datastore is used for persistent VM disks for {{  vars.product }} components and Persistent Volumes (PVs) for Kubernetes pods.
 - The collapsed Management/Edge/Compute cluster can be expanded to include up to 64 ESXi hosts.
 
-<p class="note"><strong>Note</strong>: For an MPD deployment, each ESXi host must have four physical network interface controllers (PNICs). In addition, while a Tanzu Kubernetes Grid Integrated Edition deployment requires a minimum of three nodes, Tanzu Kubernetes Grid Integrated Edition upgrades require four ESXi hosts to ensure full survivability of the NSX Manager appliance.</p>
+<p class="note"><strong>Note</strong>: For an MPD deployment, each ESXi host must have four physical network interface controllers (PNICs). In addition, while a {{  vars.product }} deployment requires a minimum of three nodes, {{  vars.product }} upgrades require four ESXi hosts to ensure full survivability of the NSX Manager appliance.</p>
 
 ###<a id='tkgi-mpd-config'></a> MPD Topology Configuration
 
-When configuring vSphere for an MPD topology for Tanzu Kubernetes Grid Integrated Edition, keep in mind the following requirements:
+When configuring vSphere for an MPD topology for {{  vars.product }}, keep in mind the following requirements:
 
 - When deploying the NSX Manager to each ESXi host, create a vSphere distributed resource scheduler (DRS) anti-affinity rule of type "separate virtual machines" for each of the three NSX Managers.
 - When deploying the NSX Edge Nodes across two different ESXi hosts, create a DRS anti-affinity rule of type "separate virtual machines" for both Edge Node VMs.
@@ -193,21 +193,21 @@ For more information on defining DRS anti-affinity rules, see <a href="https://t
 
 ###<a id='tkgi-mpd-config'></a> MPD Considerations
 
-When planning an MPD topology for Tanzu Kubernetes Grid Integrated Edition, keep in mind the following:
+When planning an MPD topology for {{  vars.product }}, keep in mind the following:
 
-- Leverage vSphere resource pools to allocate proper hardware resources for the Tanzu Kubernetes Grid Integrated Edition Management Plane components and tune reservation and resource limits accordingly.
-- There is no fault tolerance for the Kubernetes cluster because Tanzu Kubernetes Grid Integrated Edition Availability Zones are not fully leveraged with this topology.
-- Confirm at least the Tanzu Kubernetes Grid Integrated Edition AZ is mapped to a vSphere Resource Pool.
+- Leverage vSphere resource pools to allocate proper hardware resources for the {{  vars.product }} Management Plane components and tune reservation and resource limits accordingly.
+- There is no fault tolerance for the Kubernetes cluster because {{  vars.product }} Availability Zones are not fully leveraged with this topology.
+- Confirm at least the {{  vars.product }} AZ is mapped to a vSphere Resource Pool.
 
 For more information, see [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) and [Create IP Blocks and Pool for Compute Plane](./nsxt-3-0-install.html#nsxt30-ip-blocks-pool) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.</p>
 
 ##<a id='vm-size-inventory'></a> VM Inventory and Sizes
 
-The following tables list the VMs and their sizes for deployments of Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX.
+The following tables list the VMs and their sizes for deployments of {{  vars.product }} on vSphere with NSX.
 
 ###<a id='control-plane-sizes'></a> Management Plane VMs and Sizes
 
-The following table lists the resource requirements for NSX infrastructure and Tanzu Kubernetes Grid Integrated Edition Management Plane VMs.
+The following table lists the resource requirements for NSX infrastructure and {{  vars.product }} Management Plane VMs.
 
 <table>
   <tr>
@@ -318,7 +318,7 @@ The following table lists the resource requirements for each VM in the Edge Clus
 
 ###<a id='k8s-node-sizes'></a> Kubernetes Cluster Nodes VMs and Sizes
 
-The following table lists sizing information for Kubernetes cluster node VMs. The size and resource consumption of these VMs are configurable in the **Plans** section of the Tanzu Kubernetes Grid Integrated Edition tile.
+The following table lists sizing information for Kubernetes cluster node VMs. The size and resource consumption of these VMs are configurable in the **Plans** section of the {{  vars.product }} tile.
 
 <table>
   <tr>
@@ -405,7 +405,7 @@ each cluster consisting of three of the control plane nodes and five of the work
 
 ##<a id='hardware-reqs'></a> Hardware Requirements
 
-The following tables list the hardware requirements for RDP and MPD topologies for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX.
+The following tables list the hardware requirements for RDP and MPD topologies for {{  vars.product }} on vSphere with NSX.
 
 ###<a id='rpd-hardware'></a> RPD Hardware Requirements
 
@@ -530,7 +530,7 @@ The following table lists the hardware requirements for the MPD topology with a 
 
 ###<a id='hardware-capacity'></a> Adding Hardware Capacity
 
-To add hardware capacity to your Tanzu Kubernetes Grid Integrated Edition environment on vSphere, do the following:
+To add hardware capacity to your {{  vars.product }} environment on vSphere, do the following:
 
 1. Add one or more ESXi hosts to the vSphere compute cluster. For more information, see the [VMware vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-server-installation-and-setup-7-0/introduction-to-vsphere-installation-and-setup/overview-of-the-installation-and-setup-process.html).
 

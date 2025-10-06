@@ -23,7 +23,7 @@ management.
 You can install Harbor alongside TKGI on vSphere, Amazon
 Web Services (AWS), and Microsoft Azure.
 
-To use the VMware Harbor Registry with Tanzu Kubernetes Grid Integrated Edition:
+To use the VMware Harbor Registry with {{  vars.product }}:
 
 * [Install Harbor](#installing)
 * [Use Harbor](#using)
@@ -34,7 +34,7 @@ To use the VMware Harbor Registry with Tanzu Kubernetes Grid Integrated Edition:
 
 To install Harbor, do the following:
 
-1. Install Tanzu Kubernetes Grid Integrated Edition. For more information, see the _Installing Tanzu Kubernetes Grid Integrated Edition_
+1. Install {{  vars.product }}. For more information, see the _Installing {{  vars.product }}_
 topic for your cloud provider.
 1. Install Harbor. For more information, see [Installing and Configuring VMware Harbor Registry](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/installing.html).
 

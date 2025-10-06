@@ -5,7 +5,7 @@ topic: gmsa-cluster
 ---
 
 This topic describes how to integrate Microsoft Active Directory (AD)
-with your Tanzu Kubernetes Grid Integrated Edition (TKGI) Windows worker-based Kubernetes clusters.
+with your {{  vars.product }} (TKGI) Windows worker-based Kubernetes clusters.
 
 ## <a id='overview'></a>Overview
 
@@ -77,7 +77,7 @@ in _Release Notes_ for additional requirements.
     * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
     For information about GMSA command line configuration, see [GMSA Configuration Settings](#settings) below.
 
-    <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
 1. Integrate the cluster with the AD gMSA as described in [Integrate Kubernetes with Active Directory](#integrate), below.
@@ -108,7 +108,7 @@ To change an existing cluster that joins gMSA domains at the node level to inste
     * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
     For information about GMSA command line configuration, see [GMSA Configuration Settings](#settings) below.
 
-    <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
 1. Roll out the deployments.

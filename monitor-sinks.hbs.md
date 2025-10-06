@@ -52,7 +52,7 @@ For more information, see:
 
 ### <a id='log-format'></a>Log Format
 
-In Tanzu Kubernetes Grid Integrated Edition,
+In {{  vars.product }},
 you can create `ClusterLogSink` and `LogSink` resources of the following types:</p>
 
 * Syslog
@@ -61,7 +61,7 @@ you can create `ClusterLogSink` and `LogSink` resources of the following types:<
 
 Your log format depends on the type of `ClusterLogSink` or `LogSink` you want to use.
 For example, if you use a `ClusterLogSink` or `LogSink` resource of type `syslog`,
-Tanzu Kubernetes Grid Integrated Edition formats your logs as described in the sections below.
+{{  vars.product }} formats your logs as described in the sections below.
 
 #### <a id='syslog'></a>Syslog Format
 
@@ -121,7 +121,7 @@ Where:
 
 ### <a id="important-events"></a>Notable Kubernetes API Events
 
-The following section lists Kubernetes API events that can help assess Kubernetes scheduling problems in Tanzu Kubernetes Grid Integrated Edition.
+The following section lists Kubernetes API events that can help assess Kubernetes scheduling problems in {{  vars.product }}.
 
 To monitor for these events, look for log entries that contain the <strong>Identifying String</strong> indicated below for each event.
 
@@ -227,7 +227,7 @@ For more information about log sinks, see:
 
     Follow these instructions to create `ClusterLogSink` and `LogSink` resources,
     described in [Overview](#overview) above.
-* [Sink Architecture in Tanzu Kubernetes Grid Integrated Edition](./sink-architecture.html).
+* [Sink Architecture in {{  vars.product }}](./sink-architecture.html).
 
     See this topic for conceptual information about sinks.
 

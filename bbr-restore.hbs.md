@@ -1,5 +1,5 @@
 ---
-title: Restoring Tanzu Kubernetes Grid Integrated Edition
+title: Restoring {{  vars.product }}
 
 ---
 
@@ -9,7 +9,7 @@ the BOSH Director, {{  vars.product_full }} ({{ vars.product_short }}) control p
 ##<a id="overview"></a> Overview
 
 In the event of a disaster, you might lose your environment's VMs, disks, and your IaaS network and load balancer resources as well.
-You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition {{ vars.platform_name }} Installation settings,
+You can re-create your environment, configured with your saved {{  vars.product }} {{ vars.platform_name }} Installation settings,
 using your BBR backup artifacts.
 
 Before restoring using BBR:
@@ -24,11 +24,11 @@ Use BBR to restore the following:
 
 * The BOSH Director plane, see
 [Restore the BOSH Director](#redeploy-restore-director) below.
-* The Tanzu Kubernetes Grid Integrated Edition control plane, see
-[Restore Tanzu Kubernetes Grid Integrated Edition Control Plane](#redeploy-restore-control-plane)
+* The {{  vars.product }} control plane, see
+[Restore {{  vars.product }} Control Plane](#redeploy-restore-control-plane)
 below.
-* The Tanzu Kubernetes Grid Integrated Edition clusters, see
-[Restore Tanzu Kubernetes Grid Integrated Edition Clusters](#redeploy-restore-clusters)
+* The {{  vars.product }} clusters, see
+[Restore {{  vars.product }} Clusters](#redeploy-restore-clusters)
 below.
 
 ## <a id="compatibility"></a> Compatibility of Restore
@@ -61,7 +61,7 @@ backups by using the backup artifacts in a restore.
 
 ## <a id="artifacts-jumpbox"></a> Transfer Artifacts to Your Jump Box
 
-To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jump box.
+To restore BOSH director, {{  vars.product }} control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jump box.
 
 1. To copy an artifact onto a jump box, run the following SCP command:
 
@@ -82,7 +82,7 @@ To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane
 In the event of losing your BOSH Director or {{ vars.platform_name }} environment, you must first recreate the BOSH Director VM
 before restoring the BOSH Director.
 
-You can restore your BOSH Director configuration by using Tanzu Kubernetes Grid Integrated Edition
+You can restore your BOSH Director configuration by using {{  vars.product }}
 {{ vars.platform_name }} to restore the installation settings artifacts saved when following the [Export Installation Settings](bbr-backup.html#export-opsman-settings) back up procedure steps.
 
 To redeploy and restore your {{ vars.platform_name }} and BOSH Director follow the procedures below.
@@ -92,8 +92,8 @@ To redeploy and restore your {{ vars.platform_name }} and BOSH Director follow t
 In the event of a disaster, you might lose your IaaS resources. You must recreate your IaaS resources before restoring using your BBR artifacts.
 
 1. To recreate your IaaS resources, such as networks and load balancers, prepare your
-environment for Tanzu Kubernetes Grid Integrated Edition by following the installation instructions
-specific to your IaaS in [Installing Tanzu Kubernetes Grid Integrated Edition](installing.html).
+environment for {{  vars.product }} by following the installation instructions
+specific to your IaaS in [Installing {{  vars.product }}](installing.html).
 
 1. After recreating IaaS resources, you must add those resources to {{ vars.platform_name }}
 by performing the procedures in the [(Optional) Configure {{ vars.platform_name }} for New Resources](#config-new-resources) section.
@@ -103,7 +103,7 @@ by performing the procedures in the [(Optional) Configure {{ vars.platform_name 
 <p class="note warning">
 <strong>WARNING:</strong> After importing installation settings, do not click <strong>Apply Changes</strong>
 in {{ vars.platform_name }} before instructed to in the steps <a href="#deploy-bosh-director">Deploy the BOSH Director</a> or
-<a href="#redeploy-restore-control-plane">Redeploy the Tanzu Kubernetes Grid Integrated Edition
+<a href="#redeploy-restore-control-plane">Redeploy the {{  vars.product }}
 Control Plane</a>.
 </p>
 
@@ -204,7 +204,7 @@ Restore the BOSH Director by running BBR commands on your jump box.
 
 To restore the BOSH Director:
 
-1. Ensure the Tanzu Kubernetes Grid Integrated Edition BOSH Director backup artifact is in the folder from which you run BBR.
+1. Ensure the {{  vars.product }} BOSH Director backup artifact is in the folder from which you run BBR.
 
 1. Run the BBR restore command to restore the TKGI BOSH Director:
 
@@ -273,16 +273,16 @@ After BOSH Director has been restored, you must reconcile BOSH Director's intern
     * `DEPLOYMENT-NAME` is a deployment name retrieved in the previous step.
 1. Repeat the last command for each deployment in the IaaS.
 
-## <a id='redeploy-restore-control-plane'></a> Restore the Tanzu Kubernetes Grid Integrated Edition Control Plane
+## <a id='redeploy-restore-control-plane'></a> Restore the {{  vars.product }} Control Plane
 
-You must redeploy the Tanzu Kubernetes Grid Integrated Edition tile before restoring the Tanzu Kubernetes Grid Integrated Edition control plane.
-By redeploying the Tanzu Kubernetes Grid Integrated Edition tile you create the VMs that constitute the control plane deployment.
+You must redeploy the {{  vars.product }} tile before restoring the {{  vars.product }} control plane.
+By redeploying the {{  vars.product }} tile you create the VMs that constitute the control plane deployment.
 
-To redeploy the Tanzu Kubernetes Grid Integrated Edition tile, do the following:
+To redeploy the {{  vars.product }} tile, do the following:
 
 * [Determine the Required Stemcell](#determine-stemcell) needed by the tile.
 * Upload that stemcell as described in [Upload Stemcells](#upload-stemcell).
-* [Redeploy the Tanzu Kubernetes Grid Integrated Edition Control Plane](#redeploy-control-plane).
+* [Redeploy the {{  vars.product }} Control Plane](#redeploy-control-plane).
 * [Restore the TKGI Control Plane](#restore-control-plane) from a BBR backup on top of the deployment.
 
 ### <a id='determine-stemcell'></a> Determine the Required Stemcell
@@ -321,7 +321,7 @@ For more information about stemcells in {{ vars.platform_name }}, see [Importing
 
 ### <a id='upload-stemcell'></a> Upload Stemcells
 
-To upload the stemcell used by your Tanzu Kubernetes Grid Integrated Edition tile:
+To upload the stemcell used by your {{  vars.product }} tile:
 
 1. Download the stemcell from [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Ubuntu%20Xenial)).
 1. Run the following command to upload the stemcell used by TKGI:
@@ -344,9 +344,9 @@ To upload the stemcell used by your Tanzu Kubernetes Grid Integrated Edition til
 repeat the last step, running the `bosh upload-stemcell --fix PATH-TO-STEMCELL` command,
 for each required stemcell that is different from the already uploaded TKGI stemcell.
 
-### <a id='redeploy-control-plane'></a> Redeploy the Tanzu Kubernetes Grid Integrated Edition Control Plane
+### <a id='redeploy-control-plane'></a> Redeploy the {{  vars.product }} Control Plane
 
-To redeploy your Tanzu Kubernetes Grid Integrated Edition tile's control plane:
+To redeploy your {{  vars.product }} tile's control plane:
 
 1. From the {{ vars.platform_name }} Installation Dashboard, navigate to **{{  vars.product_full }}** > **Resource Config**.
 
@@ -368,11 +368,11 @@ when the backup you are restoring was created.
 
 ### <a id='restore-control-plane'></a> Restore the TKGI Control Plane
 
-Restore the Tanzu Kubernetes Grid Integrated Edition control plane by running BBR commands on your jump box.
+Restore the {{  vars.product }} control plane by running BBR commands on your jump box.
 
-To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
+To restore the {{  vars.product }} control plane:
 
-1. Ensure the Tanzu Kubernetes Grid Integrated Edition deployment backup artifact is in the folder from which you run BBR.
+1. Ensure the {{  vars.product }} deployment backup artifact is in the folder from which you run BBR.
 
 1. Run the BBR restore command to restore the TKGI control plane:
 
@@ -394,7 +394,7 @@ To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
     * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in
     [Download the BOSH Commandline Credentials](#bosh-cli-creds).
     * `DEPLOYMENT-NAME` is the deployment name retrieved in
-    [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name](#locate-deploy-name).
+    [Locate the {{  vars.product }} Deployment Name](#locate-deploy-name).
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in
     [Download the Root CA Certificate](#root-ca-cert).
     * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the TKGI control plane backup that you want to restore.
@@ -414,7 +414,7 @@ To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
     If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will
     run separately from your SSH session and will continue to run, even if your SSH connection to the jump box fails.
     </p>
-1. If your Tanzu Kubernetes Grid Integrated Edition control plane restore fails, do one or more of the following:
+1. If your {{  vars.product }} control plane restore fails, do one or more of the following:
     * Run the command again, adding the `--debug` flag to activate debug logs. For more information,
       see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.
@@ -423,7 +423,7 @@ To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
 
 ## <a id='redeploy-restore-clusters'></a> Redeploy and Restore Clusters
 
-After restoring the Tanzu Kubernetes Grid Integrated Edition control plane,
+After restoring the {{  vars.product }} control plane,
 perform the following steps to redeploy the TKGI-provisioned Kubernetes clusters
 and restore their state from backup.
 
@@ -441,7 +441,7 @@ see [Redeploy a Single Cluster](#redeploy-single-cluster).
 
 To redeploy all clusters:
 
-1. In {{ vars.platform_name }}, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. In {{ vars.platform_name }}, navigate to the **{{  vars.product }}** tile.
 1. Click **Errands**.
 1. Ensure the **Upgrade all clusters** errand is **On**.
 This errand redeploys all your TKGI-provisioned clusters.
@@ -527,7 +527,7 @@ To restore a cluster:
 </p>
 1. To cancel a running `bbr restore`, see [Cancel a Restore](#cancel-restore) below.
 1. After you restore a Kubernetes cluster, you must register its workers with their control plane nodes by following the [Register Restored Worker VMs](#register-nodes) steps below.
-1. If your Tanzu Kubernetes Grid Integrated Edition cluster restore fails, do one or more of the following:
+1. If your {{  vars.product }} cluster restore fails, do one or more of the following:
     * Run the command again, adding the `--debug` flag to activate debug logs. For more information,
       see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.

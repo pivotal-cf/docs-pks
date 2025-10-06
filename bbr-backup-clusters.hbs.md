@@ -1,5 +1,5 @@
 ---
-title: Backing Up Tanzu Kubernetes Grid Integrated Edition
+title: Backing Up {{  vars.product }}
 
 ---
 
@@ -21,22 +21,22 @@ To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup
 
 {{{ vars.recommended_by }}} recommends:
 
-* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of {{ vars.platform_name }} and Tanzu Kubernetes Grid Integrated Edition to restore from.
+* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of {{ vars.platform_name }} and {{  vars.product }} to restore from.
 
-* Back up your Kubernetes clusters frequently, especially before upgrading your Tanzu Kubernetes Grid Integrated Edition deployment.
+* Back up your Kubernetes clusters frequently, especially before upgrading your {{  vars.product }} deployment.
 
 * For BOSH v270.0 and above (currently in {{{ vars.platform_name }}} 2.7), prune the BOSH blobstore by running `bosh clean-up --all` prior to running a back up of the BOSH director. This removes all unused resources, including packages compiled against older stemcell versions, which can result in a smaller, faster back up of the BOSH Director. For more information see the [`clean-Up`](https://bosh.io/docs/cli-v2/#clean-up) command.
 
-<p class="note"><strong>Note:</strong>The command <code>bosh clean-up --all</code> is a destructive operation and can remove resources that are unused but needed. For example, if an On-Demand Service Broker such as Tanzu Kubernetes Grid Integrated Edition is deployed <strong>and</strong> no service instances have been created, the releases needed to create a service instance will be categorized as unused and removed.</p>
+<p class="note"><strong>Note:</strong>The command <code>bosh clean-up --all</code> is a destructive operation and can remove resources that are unused but needed. For example, if an On-Demand Service Broker such as {{  vars.product }} is deployed <strong>and</strong> no service instances have been created, the releases needed to create a service instance will be categorized as unused and removed.</p>
 
 ## <a id="prepare"></a> Prepare to Back Up
 
 {{> preparing-for-bbr }}
 
 
-## <a id='backup'></a> Back Up Tanzu Kubernetes Grid Integrated Edition
+## <a id='backup'></a> Back Up {{  vars.product }}
 
-To back up your Tanzu Kubernetes Grid Integrated Edition environment you must first connect to your jump box before executing `bbr` back up commands.
+To back up your {{  vars.product }} environment you must first connect to your jump box before executing `bbr` back up commands.
 
 ### <a id='connect-to-jumpbox'></a> Connect to Your Jump Box
 
@@ -195,7 +195,7 @@ deployments that can be backed up.
      BOSH deployment name of a TKGI cluster.
 
 1. If the pre-backup-check command fails, do one or more of the following:
-    * Make sure you are using the correct Tanzu Kubernetes Grid Integrated Edition credentials.
+    * Make sure you are using the correct {{  vars.product }} credentials.
     * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
     see [BBR Logging](bbr-logging.html).
     * Make the changes suggested in the output and run the pre-backup check again. For example,
@@ -333,7 +333,7 @@ To cancel a back up, perform the following steps:
 1. Because stopping a back up can leave the system in an unusable state and prevent additional
 back ups, follow the procedures in [Clean up After a Failed Back Up](#manual-clean) below.
 
-## <a id="after-backup"></a> After Backing Up Tanzu Kubernetes Grid Integrated Edition
+## <a id="after-backup"></a> After Backing Up {{  vars.product }}
 
 After the back up has completed review and manage the generated backup artifacts.
 
@@ -360,10 +360,10 @@ Keep your backup artifacts safe by following these steps:
 1. Make redundant copies of your backup and store them in multiple locations. This minimizes the
 risk of losing your backups in the event of a disaster.
 
-1. Each time you redeploy Tanzu Kubernetes Grid Integrated Edition, test your backup artifact by following the procedures in:
-    * [Restore the Tanzu Kubernetes Grid Integrated Edition BOSH Director](bbr-restore.html#redeploy-restore-director)
-    * [Restore the Tanzu Kubernetes Grid Integrated Edition Control Plane](bbr-restore.html#redeploy-restore-control-plane)
-    * [Restore Tanzu Kubernetes Grid Integrated Edition Clusters](bbr-restore.html#redeploy-restore-clusters)
+1. Each time you redeploy {{  vars.product }}, test your backup artifact by following the procedures in:
+    * [Restore the {{  vars.product }} BOSH Director](bbr-restore.html#redeploy-restore-director)
+    * [Restore the {{  vars.product }} Control Plane](bbr-restore.html#redeploy-restore-control-plane)
+    * [Restore {{  vars.product }} Clusters](bbr-restore.html#redeploy-restore-clusters)
 
 ### <a id="recover-from-failing-command"></a> Recover from a Failing Command
 
@@ -436,8 +436,8 @@ leaving the instance in a locked state.</p>
     workstation where you run `bbr` commands.
     * `BOSH-CLIENT` is your BOSH Client Name. If you do not know your BOSH Client Name, open your BOSH Director tile,
     navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.
-    * `DEPLOYMENT-NAME` is the Tanzu Kubernetes Grid Integrated Edition BOSH deployment name that you located in
-    the [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Names](#locate-deploy-name) section above.
+    * `DEPLOYMENT-NAME` is the {{  vars.product }} BOSH deployment name that you located in
+    the [Locate the {{  vars.product }} Deployment Names](#locate-deploy-name) section above.
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in
     [Download the Root CA Certificate](#root-ca-cert) above.
 

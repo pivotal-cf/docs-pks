@@ -60,5 +60,5 @@ see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
 
 ## <a id="next-steps"></a>Next Installation Step
 
-To install and configure Tanzu Kubernetes Grid Integrated Edition,
-follow the instructions in [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html).
+To install and configure {{  vars.product }},
+follow the instructions in [Installing {{  vars.product }} on AWS](installing-aws.html).

@@ -23,12 +23,12 @@ To collect metrics using Telegraf:
 
 1. Create a configuration file for your output plugin.
 See [Create a Configuration File](#toml) below.
-1. Configure Telegraf in the Tanzu Kubernetes Grid Integrated Edition tile.
+1. Configure Telegraf in the {{  vars.product }} tile.
 See [Configure Telegraf in the Tile](#connect) below.
 
 ### <a id="toml"></a> Create a Configuration File
 
-To connect a monitoring service to TKGI, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the Tanzu Kubernetes Grid Integrated Edition tile to connect the service.
+To connect a monitoring service to TKGI, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the {{  vars.product }} tile to connect the service.
 
 To create a configuration file for your monitoring service:
 
@@ -53,7 +53,7 @@ For example, if you want to create a configuration file for an HTTP output plugi
 
 To configure TKGI to use Telegraf for metric collection:
 
-1. Navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile > **Settings** > **Host Monitoring**.
+1. Navigate to the **{{  vars.product }}** tile > **Settings** > **Host Monitoring**.
 
 1. Under **Enable Telegraf Outputs?**, select **Yes**.
   ![Host Monitoring pane](images/host-monitoring-telegraf.png)
@@ -188,7 +188,7 @@ see [Agent configuration](https://docs.influxdata.com/telegraf/v1.15/administrat
 in the Telegraf documentation.
 1. Click **Save**.
 
-1. To deploy the Tanzu Kubernetes Grid Integrated Edition tile, return to the {{ vars.platform_name }}
+1. To deploy the {{  vars.product }} tile, return to the {{ vars.platform_name }}
 Installation Dashboard and click **Review Pending Changes** >
 **Apply Changes**.
 

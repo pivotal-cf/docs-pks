@@ -20,11 +20,11 @@ after six hours.
 1. Under **Configure created clusters to use UAA as the OIDC provider**,
 select **Enabled** or **Disabled**. This is a global default setting for
 TKGI-provisioned clusters. For more information, see
-[OIDC Provider for Kubernetes Clusters](oidc-provider.html).  
+[OIDC Provider for Kubernetes Clusters](oidc-provider.html).
 <br><br>
-  To configure Tanzu Kubernetes Grid Integrated Edition to use UAA as the OIDC provider:
+  To configure {{  vars.product }} to use UAA as the OIDC provider:
   1. Under **Configure created clusters to use UAA as the OIDC provider**,
-  select **Enabled**.  
+  select **Enabled**.
     ![OIDC configuration check box](images/oidc.png)
   1. For **UAA OIDC Groups Claim**, enter the name of your groups claim.
   This is used to set a user's group in the JSON Web Token (JWT) claim.
@@ -44,17 +44,17 @@ TKGI-provisioned clusters. For more information, see
     <p class="note warning"><strong>Warning:</strong> {{{ vars.recommended_by }}}
     recommends adding OIDC prefixes to prevent users and groups from gaining
     unintended cluster privileges. If you change the above values for a
-    pre-existing Tanzu Kubernetes Grid Integrated Edition installation, you must change any
+    pre-existing {{  vars.product }} installation, you must change any
     existing role bindings that bind to a user name or group. If you do not
     change your role bindings, developers cannot access Kubernetes clusters.
     For instructions, see <a href="./manage-cluster-permissions.html">Managing Cluster Access and Permissions</a>.</p>
-1. (Optional) For **TKGI cluster client redirect URIs**, enter one or more comma-delimited UAA redirect URIs. 
-Configure **TKGI cluster client redirect URIs** to assign persistent UAA `cluster_client` `redirect_uri` URIs to your clusters. 
-UAA redirect URIs configured in the **TKGI cluster client redirect URIs** field persist through cluster updates and TKGI upgrades.  
+1. (Optional) For **TKGI cluster client redirect URIs**, enter one or more comma-delimited UAA redirect URIs.
+Configure **TKGI cluster client redirect URIs** to assign persistent UAA `cluster_client` `redirect_uri` URIs to your clusters.
+UAA redirect URIs configured in the **TKGI cluster client redirect URIs** field persist through cluster updates and TKGI upgrades.
 1. Select one of the following options:
   * To use an internal user account store for UAA, select **Internal UAA**.
   Click **Save** and continue to [(Optional) Host Monitoring](#syslog).
   * To use LDAP for UAA, select **LDAP Server** and continue to
-  [Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server](configuring-ldap.html).
+  [Connecting {{  vars.product }} to an LDAP Server](configuring-ldap.html).
   * To use SAML for UAA, select **SAML Identity Provider** and continue to
-  [Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider](configuring-saml.html).
+  [Connecting {{  vars.product }} to a SAML Identity Provider](configuring-saml.html).

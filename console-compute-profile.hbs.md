@@ -36,7 +36,7 @@ For more information, see [Compute Profiles vs. Plans](compute-profiles-manage.h
 
 ## <a id='compute-profile-cluster-create'></a>Create Cluster with Compute Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to create a cluster with an existing compute profile.
+Use the {{  vars.product }} Management Console to create a cluster with an existing compute profile.
 
 To create a cluster with a compute profile:
 
@@ -54,7 +54,7 @@ To create a cluster with a compute profile:
 
 ## <a id='compute-profile-define'></a>Define Compute Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to define a compute profile.
+Use the {{  vars.product }} Management Console to define a compute profile.
 
 <p class="note"><strong>NOTE:</strong> You must be at the console home page to view the <strong>Compute Profiles</strong> tab.</p>
 
@@ -97,7 +97,7 @@ To define a compute profile:
 
 ## <a id='compute-profile-delete'></a>Delete Compute Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to delete compute profile.
+Use the {{  vars.product }} Management Console to delete compute profile.
 
 <p class="note"><strong>NOTE:</strong> You cannot delete a compute profile that is in use by a cluster.</p>
 

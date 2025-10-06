@@ -326,7 +326,7 @@ in _Release Notes_ for additional requirements.
 TKGI validates the network profile before updating the cluster with the new network profile.
 For more information, see [Update-Cluster Network Profile Validation Rules](#update-restrictions) below.
 
-<p class="note warning"><strong>WARNING</strong>: Update the network profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the network profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ### <a id="update-restrictions"></a> Update-Cluster Network Profile Validation Rules

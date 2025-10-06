@@ -21,7 +21,7 @@ you must have a Windows container image in a private Docker registry:
 
 * [Prepare Your Private Docker Registry](#prepare-registry)
 * [Prepare a Windows Pause Image for an Air-Gapped Environment](#prepare-windows-pause-image)
-* [Configure Tanzu Kubernetes Grid Integrated Edition to Use the Windows Pause Image](#configure-to-use-pause-image)
+* [Configure {{  vars.product }} to Use the Windows Pause Image](#configure-to-use-pause-image)
 
 
 
@@ -29,7 +29,7 @@ you must have a Windows container image in a private Docker registry:
 
 Your private Docker registry must meet the following requirements:
 
-* The registry must be accessible from your Tanzu Kubernetes Grid Integrated Edition environment.
+* The registry must be accessible from your {{  vars.product }} environment.
 * The registry must be configured to support Microsoft Windows images.
 For an example of a Windows-supporting registry, see
 [Pushing Images](https://goharbor.io/docs/2.0.0/working-with-projects/working-with-images/pulling-pushing-images/)
@@ -72,11 +72,11 @@ see [Allow push of nondistributable artifacts](https://docs.docker.com/engine/re
     Specify a pause image URI that follows the pattern: `my.private.registry/windows/pause:3.6`.
 
 
-## <a id='configure-to-use-pause-image'></a> Configure Tanzu Kubernetes Grid Integrated Edition to Use the Windows Pause Image
-To configure Tanzu Kubernetes Grid Integrated Edition to fetch your accessible Windows container image when
+## <a id='configure-to-use-pause-image'></a> Configure {{  vars.product }} to Use the Windows Pause Image
+To configure {{  vars.product }} to fetch your accessible Windows container image when
 deploying Windows pods, perform the following:
 
-1. Open the Tanzu Kubernetes Grid Integrated Edition tile.
+1. Open the {{  vars.product }} tile.
 1. Click the Windows worker Plan that you want to configure to use your accessible private registry.
 1. Modify the **Kubelet customization - Windows pause image location** property to be your pause image URI.
 <br>

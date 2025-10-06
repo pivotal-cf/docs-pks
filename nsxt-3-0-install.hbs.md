@@ -1,17 +1,17 @@
 ---
-title: Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition
+title: Installing and Configuring NSX-T Data Center v3.0 for {{  vars.product }}
  -NSXT
 ---
 
 This topic describes how to install and configure NSX-T Data Center v3.0 for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
-##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition
+##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for {{  vars.product }}
 
-To perform a new installation of NSX-T Data Center for Tanzu Kubernetes Grid Integrated Edition, complete the following steps in the order presented.
+To perform a new installation of NSX-T Data Center for {{  vars.product }}, complete the following steps in the order presented.
 
 1. Verify NSX-T v3.0 support for your TKGI version. For more information, see the [Release Notes](./release-notes.html) for the TKGI version you are installing.
 
-1. Read the topics in the [Preparing to Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T Data Center](./vsphere-nsxt-index-prepare.html) section of the documentation.
+1. Read the topics in the [Preparing to Install {{  vars.product }} on vSphere with NSX-T Data Center](./vsphere-nsxt-index-prepare.html) section of the documentation.
 
 1. Read the [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html) topic.
 
@@ -264,15 +264,15 @@ For each ESXi host in the MANAGEMENT-cluster, or each ESXi host in the vCenter c
 
 In this section you deploy two NSX-T Edge Nodes.
 
-NSX-T Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for Tanzu Kubernetes Grid Integrated Edition run load balancers for TKGI API traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in Tanzu Kubernetes Grid Integrated Edition](./about-lb.html) for more information.
+NSX-T Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for {{  vars.product }} run load balancers for TKGI API traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in {{  vars.product }}](./about-lb.html) for more information.
 
-In NSX-T, a load balancer is deployed on the Edge Nodes as a virtual server. The following virtual servers are required for Tanzu Kubernetes Grid Integrated Edition:
+In NSX-T, a load balancer is deployed on the Edge Nodes as a virtual server. The following virtual servers are required for {{  vars.product }}:
 
 - 1 TCP Layer 4 virtual server for each Kubernetes service of type:`LoadBalancer`
 - 2 Layer 7 global virtual servers for Kubernetes pod ingress resources (HTTP and HTTPS)
 - 1 global virtual server for the TKGI API
 
-The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node. Tanzu Kubernetes Grid Integrated Edition supports the `medium` and `large` VM Edge Node form factor, as well as the bare metal Edge Node. The default size of the load balancer deployed by NSX-T for a Kubernetes cluster is `small`. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>.
+The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node. {{  vars.product }} supports the `medium` and `large` VM Edge Node form factor, as well as the bare metal Edge Node. The default size of the load balancer deployed by NSX-T for a Kubernetes cluster is `small`. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>.
 
 For this installation, we use the Large VM form factor for the Edge Node. See [VMware Configuration Maximums](https://configmax.vmware.com/guest?vmwareproduct=VMware%20NSX-T&release=NSX-T%20Data%20Center%203.0.0&categories=17-0) for more information.
 
@@ -784,7 +784,7 @@ You need to create the following NAT rules on the Tier-0 router for the TKGI Man
 
 The default NSX-T password expiration interval is 90 days. After this period, the NSX-T passwords will expire on all NSX-T Manager Nodes and all NSX-T Edge Nodes. To avoid this, you can extend or remove the password expiration interval, or change the password if needed.
 
-<p class="note"><strong>Note:</strong> For existing Tanzu Kubernetes Grid Integrated Edition deployments, anytime the NSX-T password is changed you must update the BOSH and TKGI tiles with the new passwords. See <a href="./password-management.html">Adding Infrastructure Password Changes to the Tanzu Kubernetes Grid Integrated Edition Tile</a> for more information.</p>
+<p class="note"><strong>Note:</strong> For existing {{  vars.product }} deployments, anytime the NSX-T password is changed you must update the BOSH and TKGI tiles with the new passwords. See <a href="./password-management.html">Adding Infrastructure Password Changes to the {{  vars.product }} Tile</a> for more information.</p>
 
 ###<a id='nsxt-manager-password'></a> Update the NSX-T Manager Password and Password Interval
 
@@ -926,4 +926,4 @@ Password expiration not configured for this user
 
 ##<a id='next'></a> Next Steps
 
-Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX-T Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).
+Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install {{  vars.product }} on vSphere with NSX-T Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).

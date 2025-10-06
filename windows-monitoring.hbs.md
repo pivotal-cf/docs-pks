@@ -38,7 +38,7 @@ in the Healthwatch documentation.
 
 Wavefront runs as an external service that you set up to monitor Windows worker-based clusters the same way that you set it up to monitor clusters running Linux worker nodes:
 
-1. Install Helm on your local machine, if you do not already have it, by following [Install and Configure Helm](./helm.html#install-helm) in the topic _Using Helm with Tanzu Kubernetes Grid Integrated Edition_.
+1. Install Helm on your local machine, if you do not already have it, by following [Install and Configure Helm](./helm.html#install-helm) in the topic _Using Helm with {{  vars.product }}_.
 
 1. Use the Helm CLI to deploy Wavefront to the target cluster:
 

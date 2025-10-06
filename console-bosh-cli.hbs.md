@@ -10,7 +10,7 @@ This topic describes how to use the BOSH CLI from both the {{  vars.product_full
 
 After you deploy TKGI from TKGI Management Console on vSphere, you can use the BOSH CLI from both the TKGI MC VM and the {{ vars.platform_name }} VM:
 
-* [Using the BOSH CLI from the Tanzu Kubernetes Grid Integrated Edition Management Console VM](#bosh-cli-appliance)
+* [Using the BOSH CLI from the {{  vars.product }} Management Console VM](#bosh-cli-appliance)
 * [Using BOSH SSH](#bosh-ssh)
 
 
@@ -45,7 +45,7 @@ To  use the BOSH CLI `bosh ssh` command to connect to the BOSH VM, you must use 
 
 To connect to the BOSH VM:
 
-1. In Tanzu Kubernetes Grid Integrated Edition Management Console, go to the **Deployment Metadata** view.
+1. In {{  vars.product }} Management Console, go to the **Deployment Metadata** view.
 1. Expand the row for **BOSH CLI invocation from {{ vars.platform_name }}**.
 1. Click the clipboard icon at the end of the row to copy the BOSH CLI invocation command.
 1. Connect to the {{ vars.platform_name }} VM by using SSH.

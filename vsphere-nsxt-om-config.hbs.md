@@ -1,5 +1,5 @@
 ---
-title: Configuring BOSH Director with VMware NSX for Tanzu Kubernetes Grid Integrated Edition
+title: Configuring BOSH Director with VMware NSX for {{  vars.product }}
 owner: {{ vars.platform_name }}
 iaas: vSphere
 authenttype: boshtile
@@ -14,21 +14,21 @@ This topic describes how to configure BOSH Director for vSphere with NSX integra
 
 ##<a id='prerequisites'></a>Prerequisites
 
-Before you begin this procedure, ensure that you have successfully completed all preceding steps for installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX, including:
+Before you begin this procedure, ensure that you have successfully completed all preceding steps for installing {{  vars.product }} on vSphere with NSX, including:
 
 <ul>
   <li>
-    <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX</a>
+    <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install {{  vars.product }} on vSphere with VMware NSX</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-rpd-mpd.html">Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX</a>
+    <a href="./vsphere-nsxt-rpd-mpd.html">Hardware Requirements for {{  vars.product }} on vSphere with NSX</a>
   </li>
   <li>
     <strong>NSX-T v3.0:</strong>
-    <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for {{  vars.product }}</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-om-deploy.html">Deploying {{ vars.platform_name }} with NSX for Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./vsphere-nsxt-om-deploy.html">Deploying {{ vars.platform_name }} with NSX for {{  vars.product }}</a>
   </li>
   <li>
     <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>
@@ -40,14 +40,14 @@ Before you begin this procedure, ensure that you have successfully completed all
 To configure BOSH Director:
 
 1. Log in to {{ vars.platform_name }} with the user name and password credentials that you set up in
-[Configure {{ vars.platform_name }} for Tanzu Kubernetes Grid Integrated Edition](vsphere-nsxt-om-deploy.html#config-om).
+[Configure {{ vars.platform_name }} for {{  vars.product }}](vsphere-nsxt-om-deploy.html#config-om).
 
 1. Click the **BOSH Director for vSphere** tile.
 
 
     {{ image_tag src="images/nsxt/bosh/config-bosh-01.png" alt="{{ vars.platform_name }} UI before the TKGI tile has been imported" }}
 
-## <a id='vcenter-config'></a>Step 2: Configure vCenter for Tanzu Kubernetes Grid Integrated Edition
+## <a id='vcenter-config'></a>Step 2: Configure vCenter for {{  vars.product }}
 
 To configure BOSH Director with your vCenter settings:
 
@@ -67,7 +67,7 @@ To configure BOSH Director with your vCenter settings:
     * **Ephemeral Datastore Names (comma delimited)**: The names of the datastores that store ephemeral VM disks deployed by {{ vars.platform_name }}.
     * **Persistent Datastore Names (comma delimited)**: The names of the datastores that store persistent VM disks deployed by {{ vars.platform_name }}.
 
-    <p class="note"><strong>Note</strong>: The vSphere datastore type must be Datastore. Tanzu Kubernetes Grid Integrated Edition does not support the use of vSphere Datastore Clusters with or without Storage DRS. For more information, see <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vsphere-monitoring-and-performance-7-0/monitoring-inventory-objects/overview-performance-charts/datastores.html">Datastores and Datastore Clusters</a> in the vSphere documentation.</p>
+    <p class="note"><strong>Note</strong>: The vSphere datastore type must be Datastore. {{  vars.product }} does not support the use of vSphere Datastore Clusters with or without Storage DRS. For more information, see <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vsphere-monitoring-and-performance-7-0/monitoring-inventory-objects/overview-performance-charts/datastores.html">Datastores and Datastore Clusters</a> in the vSphere documentation.</p>
 
 1. For Networking, select **NSX Networking**.
 
@@ -116,12 +116,12 @@ To configure BOSH Director settings:
 1. Select the **Enable VM Resurrector Plugin** to enable BOSH Resurrector functionality.
 
 1. Select **Enable Post Deploy Scripts** to run a post-deploy script after deployment. This script allows the job to execute additional commands against a deployment.
-  <p class="note"><strong>Note</strong>: You must enable post-deploy scripts to install Tanzu Kubernetes Grid Integrated Edition.</p>
+  <p class="note"><strong>Note</strong>: You must enable post-deploy scripts to install {{  vars.product }}.</p>
 
 1. Select **Recreate VMs deployed by the BOSH Director** to force BOSH to recreate all BOSH-managed VMs on the next deploy. This process does not destroy any persistent disk data.
 
-1. For typical Tanzu Kubernetes Grid Integrated Edition deployments, the default settings for all other BOSH Director configuration parameters are suitable. Optionally you can apply additional configurations to BOSH Director. See [Director Config Pane](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#dir-config) in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.
-<p class="note"><strong>Note</strong>: If you need to be able to remotely access the BOSH Director VM using the BOSH CLI, and you are deploying Tanzu Kubernetes Grid Integrated Edition with NSX in a NAT topology, you must provide the <strong>Director Hostname</strong> for BOSH at the time of installation. See <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#dir-config">Director Config Pane</a> in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.</p>
+1. For typical {{  vars.product }} deployments, the default settings for all other BOSH Director configuration parameters are suitable. Optionally you can apply additional configurations to BOSH Director. See [Director Config Pane](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#dir-config) in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.
+<p class="note"><strong>Note</strong>: If you need to be able to remotely access the BOSH Director VM using the BOSH CLI, and you are deploying {{  vars.product }} with NSX in a NAT topology, you must provide the <strong>Director Hostname</strong> for BOSH at the time of installation. See <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#dir-config">Director Config Pane</a> in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.</p>
 
 1. Click **Save**.
 
@@ -132,10 +132,10 @@ To configure BOSH Director settings:
 On vSphere with NSX, operators define and create Availability Zones (AZs) using vCenter clusters and resource pools.
 Plans defined in the TKGI tile then use these AZs to enable high availability for TKGI clusters.
 
-The Tanzu Kubernetes Grid Integrated Edition control plane also runs in one of the AZs.
+The {{  vars.product }} control plane also runs in one of the AZs.
 
 For more information on AZs in TKGI, see [Availability Zones](./control-plane.html#azs)
-in _Tanzu Kubernetes Grid Integrated Edition Architecture_.
+in _{{  vars.product }} Architecture_.
 
 To configure Availability Zones:
 
@@ -143,13 +143,13 @@ To configure Availability Zones:
 
     {{ image_tag src="images/nsxt/bosh/config-bosh-08.png" alt="TKGI tile Create Availability Zones tab default configuration" }}
 
-1. Use the following steps to create one or more Availability Zones for Tanzu Kubernetes Grid Integrated Edition to use:
-    1. Click **Add** and create the Tanzu Kubernetes Grid Integrated Edition Management AZ.
+1. Use the following steps to create one or more Availability Zones for {{  vars.product }} to use:
+    1. Click **Add** and create the {{  vars.product }} Management AZ.
     1. Enter a unique **Name** for the Availability Zone, such as `AZ-MGMT`.
     1. Select the IaaS configuration (vSphere/vCenter).
     1. Enter the name of an existing vCenter **Cluster** to use as an Availability Zone, such as `COMP-Cluster-1`.
-    1. Enter the name of the Tanzu Kubernetes Grid Integrated Edition Management **Resource Pool** in the vCenter cluster that you specified above, such as `RP-MGMT-TKGI`. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
-    1. Click **Add Cluster** and create at least one Tanzu Kubernetes Grid Integrated Edition Compute AZ.
+    1. Enter the name of the {{  vars.product }} Management **Resource Pool** in the vCenter cluster that you specified above, such as `RP-MGMT-TKGI`. The jobs running in this Availability Zone share the CPU and memory resources defined by the pool.
+    1. Click **Add Cluster** and create at least one {{  vars.product }} Compute AZ.
     1. Specify the **Cluster** and the **Resource Pool**, such as `RP-TKGI-AZ`.
     Alternatively, specify the **Cluster** and the **Host Group**.
     See [Using vSphere Host Group](./vsphere-host-group.html) for more information.
@@ -197,9 +197,9 @@ To configure BOSH Director networking:
     {{ image_tag src="images/nsxt/bosh/config-bosh-16.png" alt="TKGI tile Create Networks tab NET-MGMT-PKS network configuration" }}
 
 1. Create the following network:
-  * `NET-MGMT-TKGI`: Network for {{ vars.platform_name }}, BOSH Director, and Tanzu Kubernetes Grid Integrated Edition components. This network maps to the NSX logical switch created for the Tanzu Kubernetes Grid Integrated Edition Management Network. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
+  * `NET-MGMT-TKGI`: Network for {{ vars.platform_name }}, BOSH Director, and {{  vars.product }} components. This network maps to the NSX logical switch created for the {{  vars.product }} Management Network. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
 
-      <p class="note"><strong>Note</strong>: NSX automatically creates the service network to be used by the control plane and worker nodes (VMs) for Kubernetes clusters managed by Tanzu Kubernetes Grid Integrated Edition. Do not manually create this network.</p>
+      <p class="note"><strong>Note</strong>: NSX automatically creates the service network to be used by the control plane and worker nodes (VMs) for Kubernetes clusters managed by {{  vars.product }}. Do not manually create this network.</p>
 
     Use the following values as a guide when you define the network in BOSH. Replace the IP addresses with ranges you defined for the [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_. Reserve any IP addresses from the subnet that are already in use, such as the IP for {{ vars.platform_name }} and subnet gateway.
     <table>
@@ -251,9 +251,9 @@ To configure the AZs and the Network for BOSH Director:
 
     {{ image_tag src="images/nsxt/bosh/config-bosh-18.png" alt="TKGI tile Assign AZs and Networks tab default configuration" }}
 
-1. Use the drop-down menu to select a **Singleton Availability Zone**. The {{ vars.platform_name }} Director installs in this Availability Zone. For Tanzu Kubernetes Grid Integrated Edition, this will be the `AZ-MGMT` availability zone.
+1. Use the drop-down menu to select a **Singleton Availability Zone**. The {{ vars.platform_name }} Director installs in this Availability Zone. For {{  vars.product }}, this will be the `AZ-MGMT` availability zone.
 
-1. Use the drop-down menu to select a **Network** for BOSH Director. BOSH Director runs on the Tanzu Kubernetes Grid Integrated Edition Management Plane network. Select the `NST-MGTM-TKGI` network.
+1. Use the drop-down menu to select a **Network** for BOSH Director. BOSH Director runs on the {{  vars.product }} Management Plane network. Select the `NST-MGTM-TKGI` network.
 
 1. Click **Save**.
 
@@ -269,7 +269,7 @@ To configure a BOSH Director certificate and password:
 
 	If you are using self-signed CAs for the infrastructure components (NSX, vCenter), you need to add every CA of every component your deployment might connect to. In other words, the bundle must include all certificates for any component that connects to or from BOSH.
 
-    If you are using a private Docker registry, such as VMware Harbor, use this field to enter the certificate for the registry. See [Integrating Harbor Registry with Tanzu Kubernetes Grid Integrated Edition](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html) for details.
+    If you are using a private Docker registry, such as VMware Harbor, use this field to enter the certificate for the registry. See [Integrating Harbor Registry with {{  vars.product }}](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html) for details.
 
 1. Choose **Generate passwords** or **Use default BOSH password**. Use the **Generate passwords** option for increased security.
 
@@ -352,13 +352,13 @@ To deploy BOSH:
 
     {{ image_tag src="images/nsxt/bosh/config-bosh-23.png" alt="{{ vars.platform_name }} UI Apply Changes - Changes Applied notification" }}
 
-1. Check BOSH VM. Log in to vCenter and check for the `p-bosh` VM deployment in the Tanzu Kubernetes Grid Integrated Edition Management resource pool.
+1. Check BOSH VM. Log in to vCenter and check for the `p-bosh` VM deployment in the {{  vars.product }} Management resource pool.
 
     {{ image_tag src="images/nsxt/bosh/config-bosh-24.png" alt="vCenter UI p-bosh VM deployment configuration" }}
 
 ## <a id='update-network-azs'></a>Step 13: Update Network Availability Zones
 
-After successfully deploying BOSH, ensure that both the Management AZ and the Compute AZs appear in the Tanzu Kubernetes Grid Integrated Edition tile Plans.
+After successfully deploying BOSH, ensure that both the Management AZ and the Compute AZs appear in the {{  vars.product }} tile Plans.
 
 To ensure that the Management AZ and the Compute AZs are included in the `NET-MGMT-TKGI` network you defined above:
 
@@ -378,4 +378,4 @@ To ensure that the Management AZ and the Compute AZs are included in the `NET-MG
 
 ##<a id='next'></a> Next Step
 
-<a href="./nsxt-generate-pi-cert.html">Generate and Register the NSX Manager Superuser Principal Identity Certificate and Key for Tanzu Kubernetes Grid Integrated Edition</a>.
+<a href="./nsxt-generate-pi-cert.html">Generate and Register the NSX Manager Superuser Principal Identity Certificate and Key for {{  vars.product }}</a>.

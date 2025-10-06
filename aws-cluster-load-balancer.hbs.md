@@ -1,5 +1,5 @@
 ---
-title: Creating and Configuring an AWS Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters
+title: Creating and Configuring an AWS Load Balancer for {{  vars.product }} Clusters
 
 ---
 
@@ -12,21 +12,21 @@ A load balancer is a third-party device that distributes network and application
 You can use a load balancer to prevent individual network components from being overloaded by high traffic.
 You can also use a load balancer to secure and facilitate access to a TKGI cluster from outside the network.
 
-You can use an AWS TKGI cluster load balancer to secure and facilitate access to a Tanzu Kubernetes Grid Integrated Edition cluster from outside the network.
-You can also [reconfigure](#reconfigure) your AWS Tanzu Kubernetes Grid Integrated Edition cluster load balancers.
+You can use an AWS TKGI cluster load balancer to secure and facilitate access to a {{  vars.product }} cluster from outside the network.
+You can also [reconfigure](#reconfigure) your AWS {{  vars.product }} cluster load balancers.
 
 Using an AWS TKGI cluster load balancer is optional, but adding one to your Kubernetes cluster can make it easier to manage the cluster using the TKGI API and `kubectl`.
 
-For more information about the different types of load balancers used in a Tanzu Kubernetes Grid Integrated Edition deployment see [Load Balancers in TKGI](./about-lb.html).
+For more information about the different types of load balancers used in a {{  vars.product }} deployment see [Load Balancers in TKGI](./about-lb.html).
 
 <p class="note"><strong>Note</strong>: If Kubernetes control plane node VMs are recreated for any reason, you must reconfigure your
 AWS TKGI cluster load balancers to point to the new control plane VMs.</p>
 
 ##<a id="prereqs"></a> Prerequisite
 
-The version of the TKGI CLI you are using must match the version of the Tanzu Kubernetes Grid Integrated Edition tile that you are installing.
+The version of the TKGI CLI you are using must match the version of the {{  vars.product }} tile that you are installing.
 
-<p class="note"><strong>Note</strong>: Modify the example commands in this procedure to match the details of your Tanzu Kubernetes Grid Integrated Edition installation.</p>
+<p class="note"><strong>Note</strong>: Modify the example commands in this procedure to match the details of your {{  vars.product }} installation.</p>
 
 ##<a id="create"></a> Configure AWS Load Balancer
 

@@ -415,7 +415,7 @@ into vCenter.
       name: YOUR-CPI-NAME
     ```
 
-    For more information about running BOSH commands in your Tanzu Kubernetes Grid Integrated Edition deployment, see [Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
+    For more information about running BOSH commands in your {{  vars.product }} deployment, see [Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html).
 
 #### <a id="control-plane"></a>`control_plane` Block
 

@@ -1,5 +1,5 @@
 ---
-title: Using vSphere Host Groups with Tanzu Kubernetes Grid Integrated Edition
+title: Using vSphere Host Groups with {{  vars.product }}
 owner: vsphere
 ---
 
@@ -11,13 +11,13 @@ In vSphere, a cluster is a collection of ESXi servers that run virtual machines 
 
 Another way to segment resources within a cluster is using host groups. This means that within a cluster object you can specify certain ESXi hosts to be part of a host group.
 
-Tanzu Kubernetes Grid Integrated Edition users can define host groups in vSphere, then in the TKGI tile can specify the host group. Host groups align with the Availability Zone (AZ) construct in BOSH.
+{{  vars.product }} users can define host groups in vSphere, then in the TKGI tile can specify the host group. Host groups align with the Availability Zone (AZ) construct in BOSH.
 
 For more information on vSphere host groups, refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsan/vsan/8-0/vsan-planning/designing-and-sizing-a-virtual-san-cluster/designing-and-sizing-virtual-san-fault-domains.html).
 
-## <a id="host-groups-uses"></a>Host Group Use Cases for Tanzu Kubernetes Grid Integrated Edition
+## <a id="host-groups-uses"></a>Host Group Use Cases for {{  vars.product }}
 
-This subsection describes use cases for using host groups with Tanzu Kubernetes Grid Integrated Edition.
+This subsection describes use cases for using host groups with {{  vars.product }}.
 
 ### Enabling Support for vSAN Fault Domains
 
@@ -34,7 +34,7 @@ In the case of multi-control plane node Kubernetes clusters, with the Datacenter
 
 ## <a id="host-groups-define"></a>Defining a Host Group in vSphere
 
-To implement host groups with Tanzu Kubernetes Grid Integrated Edition, the first step is to define a host group in vSphere.
+To implement host groups with {{  vars.product }}, the first step is to define a host group in vSphere.
 
 1. Log in to vCenter.
 1. Select the compute **Cluster**.
@@ -49,9 +49,9 @@ To implement host groups with Tanzu Kubernetes Grid Integrated Edition, the firs
 
     <img src="images/vsphere/vSphere-host-group.png" alt="New Host Group added to the VM/Host Groups section of the vSAN_Cluster tab.">
 
-## <a id="host-groups-use"></a>Using a Host Group with Tanzu Kubernetes Grid Integrated Edition
+## <a id="host-groups-use"></a>Using a Host Group with {{  vars.product }}
 
-Once the host group is defined in vSphere, the next step is to declare this host group when defining the BOSH Availability Zone (AZ) for use with Tanzu Kubernetes Grid Integrated Edition.
+Once the host group is defined in vSphere, the next step is to declare this host group when defining the BOSH Availability Zone (AZ) for use with {{  vars.product }}.
 
 1. Log in to {{ vars.platform_name }}.
 1. Select the BOSH Director tile.

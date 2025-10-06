@@ -9,10 +9,10 @@ See the following topics to create or configure load balancers:
 
 <ul>
   <li>
-      <a href="./aws-cluster-load-balancer.html">Creating and Configuring an AWS Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters</a>
+      <a href="./aws-cluster-load-balancer.html">Creating and Configuring an AWS Load Balancer for {{  vars.product }} Clusters</a>
   </li>
   <li>
-      <a href="./azure-cluster-load-balancer.html">Creating and Configuring an Azure Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters</a>
+      <a href="./azure-cluster-load-balancer.html">Creating and Configuring an Azure Load Balancer for {{  vars.product }} Clusters</a>
   </li>
   <li>
       <a href="./configure-ingress.html">Configuring Ingress Routing</a>

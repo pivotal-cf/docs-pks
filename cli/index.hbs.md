@@ -10,7 +10,7 @@ This topic lists {{  vars.product_full }} Command Line Interface (TKGI CLI) comm
 ## <a id="overview"></a>Overview
 
 The TKGI CLI is a command-line tool
-to manage Tanzu Kubernetes Grid Integrated Edition provisioned Kubernetes clusters.
+to manage {{  vars.product }} provisioned Kubernetes clusters.
 Use the TKGI CLI to create, manage, and delete Kubernetes clusters.
 
 To install the TKGI CLI, see [Installing the TKGI CLI](../installing-cli.html).
@@ -20,7 +20,7 @@ To deploy workloads to a Kubernetes cluster, use [kubectl](../installing-kubectl
 The `TKGI CLI` was previously named the `PKS CLI`, and both
 CLIs accept the same commands and arguments.
 
-This version of Tanzu Kubernetes Grid Integrated Edition is compatible with both the TKGI and the PKS CLIs.
+This version of {{  vars.product }} is compatible with both the TKGI and the PKS CLIs.
 Enterprise PKS v1.7 and earlier versions are compatible with only the `PKS CLI`.
 
 If you are using the `PKS CLI`:
@@ -832,7 +832,7 @@ tkgi rotate-certificates CLUSTER-NAME [flags]
 ```
 Where `CLUSTER-NAME` is the name of your cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Run <code>tkgi rotate-certificates</code> only on TKGI clusters that have been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Run <code>tkgi rotate-certificates</code> only on TKGI clusters that have been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
@@ -927,7 +927,7 @@ tkgi update-cluster CLUSTER-NAME [flags]
 
 Where `CLUSTER-NAME` is the name of your cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Some <code>tkgi update-cluster</code> options are not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Some <code>tkgi update-cluster</code> options are not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ### Synopsis

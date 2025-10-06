@@ -4,7 +4,7 @@ owner: Windows
 ---
 
 This topic describes how to use the tool Stembuild to create a Windows stemcell for BOSH,
-for use by Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
+for use by {{  vars.product }} (TKGI) on vSphere.
 
 
 ## <a id='stembuild-overview'></a> Overview of Stembuild
@@ -12,7 +12,7 @@ for use by Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
 A [BOSH stemcell](https://bosh.io/stemcells) is a versioned operating system image.
 
 You must create a BOSH stemcell for Windows before you can deploy Windows workers in Kubernetes clusters
-using Tanzu Kubernetes Grid Integrated Edition on vSphere.
+using {{  vars.product }} on vSphere.
 
 Stembuild is a binary that you use to build BOSH stemcells for Windows Server 2019.
 
@@ -39,7 +39,7 @@ The BOSH stemcell that you create in this topic is based on Windows Server 2019.
 If you already have a BOSH stemcell for Windows on vSphere, see [Monthly Stemcell Upgrades](#upgrade-stemcell) below.
 
 For more information, see
-[Best Practices for Stembuild for {{ vars.app_runtime }} & Tanzu Kubernetes Grid Integrated Edition](https://tanzu.vmware.com/content/practitioners/best-practices-for-stembuild-for-tanzu-application-service-tanzu-kubernetes-grid-integrated-edition)
+[Best Practices for Stembuild for {{ vars.app_runtime }} & {{  vars.product }}](https://tanzu.vmware.com/content/practitioners/best-practices-for-stembuild-for-tanzu-application-service-tanzu-kubernetes-grid-integrated-edition)
 in _VMware Tanzu Tech Tutorials_.
 
 To construct, package and upload a BOSH Stemcell for Windows to TKGI, complete the following:
@@ -52,7 +52,7 @@ To construct, package and upload a BOSH Stemcell for Windows to TKGI, complete t
 
 ## <a id='prerequisites'></a> Prerequisites
 
-Before you create a BOSH Windows stemcell for Tanzu Kubernetes Grid Integrated Edition on vSphere, you must have:
+Before you create a BOSH Windows stemcell for {{  vars.product }} on vSphere, you must have:
 
 * A vSphere environment. To ensure the VM hardware used by the stemcell is compatible
   with your deployment environment's ESXi/ESX host and vCenter Server versions, see

@@ -7,7 +7,7 @@ This topic describes the prerequisites and resource requirements for installing 
 
 ##<a id='prerequisites'></a> Prerequisites
 
-Before installing Tanzu Kubernetes Grid Integrated Edition:
+Before installing {{  vars.product }}:
 
 1. Review the sections below.
 
@@ -16,7 +16,7 @@ To install {{ vars.platform_name }}, follow the instructions in [Installing and 
 
 ##<a id='resources'></a> Resource Requirements
 
-Installing {{ vars.platform_name }} and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
+Installing {{ vars.platform_name }} and {{  vars.product }} requires the following virtual machines (VMs):
 
 <table>
   <tr>
@@ -48,7 +48,7 @@ Installing {{ vars.platform_name }} and Tanzu Kubernetes Grid Integrated Edition
 
 <h3> Kubernetes Cluster Resources </h3>
 
-Each Kubernetes cluster provisioned through Tanzu Kubernetes Grid Integrated Edition deploys the VMs listed below. If you deploy more
+Each Kubernetes cluster provisioned through {{  vars.product }} deploys the VMs listed below. If you deploy more
 than one Kubernetes cluster, you must scale your allocated resources appropriately.
 
 <table>

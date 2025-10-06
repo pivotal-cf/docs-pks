@@ -1,14 +1,14 @@
 ---
-title: Deploy Tanzu Kubernetes Grid Integrated Edition from the Management Console
+title: Deploy {{  vars.product }} from the Management Console
 
 ---
 
 You can deploy a new {{  vars.product_full }} ({{ vars.product_short }}) instance on vSphere either by using the {{  vars.product_full }} Management Portal configuration wizard to guide you through the configuration process, or by importing an existing YAML configuration file into the YAML editor.
 
-- [Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard](console-deploy-wizard.html)
-- [Deploy Tanzu Kubernetes Grid Integrated Edition by Importing a YAML Configuration File](console-deploy-yaml.html)
+- [Deploy {{  vars.product }} by Using the Configuration Wizard](console-deploy-wizard.html)
+- [Deploy {{  vars.product }} by Importing a YAML Configuration File](console-deploy-yaml.html)
 
-If you deploy  TKGI with plans that use Windows worker nodes, further configuration is required. See <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a> for information about how to install a Windows Server stemcell and other necessary configuration actions that you must perform after you deploy Tanzu Kubernetes Grid Integrated Edition.
+If you deploy  TKGI with plans that use Windows worker nodes, further configuration is required. See <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a> for information about how to install a Windows Server stemcell and other necessary configuration actions that you must perform after you deploy {{  vars.product }}.
 
 ## <a id='ops-man'></a>Additional {{ vars.platform_name }} Configurations
 
@@ -35,7 +35,7 @@ and the management console will not override their values:
   * **Resource Config** pane:
       * **Master Compilation Job**
 
-* **TKGI tile** tile fields, described in [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#configure):
+* **TKGI tile** tile fields, described in [Installing {{  vars.product }} on vSphere](installing-vsphere.html#configure):
   * **Networking** pane:
       * **Enable outbound internet access**
   * **Host Monitoring** pane:

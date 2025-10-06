@@ -35,7 +35,7 @@
                 *   [Migrating to Policy API](./mp2p-migration-concepts.html)
                     *   [Migrating to Policy API with {{ vars.platform_name }}](./mp2p-migration.html)
                     *   [Migrating to Policy API with Management Console](./mp2p-migration-mc.html)
-            *   [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX](./vsphere-nsxt-index-install.html)
+            *   [Installing {{  vars.product }} on vSphere with VMware NSX](./vsphere-nsxt-index-install.html)
                 *   [Installation Prerequisites](./nsxt-install-prereqs.html)
                 *   [Install and Configure VMware NSX Managers](./nsxt-install-managers.html)
                 *   [Generate and Register TLS Certificate and Private Key](./nsxt-install-tls-certs.html)

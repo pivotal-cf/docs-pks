@@ -1,5 +1,5 @@
 ---
-title: Restoring Kubernetes Clusters Provisioned Using the Tanzu Kubernetes Grid Integrated Edition
+title: Restoring Kubernetes Clusters Provisioned Using the {{  vars.product }}
 
 ---
 
@@ -9,7 +9,7 @@ the BOSH Director, {{  vars.product_full }} ({{ vars.product_short }}) control p
 ##<a id="overview"></a> Overview
 
 In the event of a disaster, you might lose your environment's VMs, disks, and your IaaS network and load balancer resources as well.
-You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition {{ vars.platform_name }} Installation settings,
+You can re-create your environment, configured with your saved {{  vars.product }} {{ vars.platform_name }} Installation settings,
 using your BBR backup artifacts.
 
 Before restoring using BBR:
@@ -24,11 +24,11 @@ Use BBR to restore the following:
 
 * The BOSH Director plane, see
 [Restore the BOSH Director](#redeploy-restore-director) below.
-* The Tanzu Kubernetes Grid Integrated Edition control plane, see
-[Restore Tanzu Kubernetes Grid Integrated Edition Control Plane](#redeploy-restore-control-plane)
+* The {{  vars.product }} control plane, see
+[Restore {{  vars.product }} Control Plane](#redeploy-restore-control-plane)
 below.
-* The Tanzu Kubernetes Grid Integrated Edition clusters, see
-[Restore Tanzu Kubernetes Grid Integrated Edition Clusters](#redeploy-restore-clusters)
+* The {{  vars.product }} clusters, see
+[Restore {{  vars.product }} Clusters](#redeploy-restore-clusters)
 below.
 
 ## <a id="compatibility"></a> Compatibility of Restore
@@ -61,7 +61,7 @@ backups by using the backup artifacts in a restore.
 
 ## <a id="artifacts-jumpbox"></a> Transfer Artifacts to Your Jump Box
 
-To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jump box.
+To restore BOSH director, {{  vars.product }} control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jump box.
 
 1. To copy an artifact onto a jump box, run the following SCP command:
 
@@ -98,7 +98,7 @@ see [Redeploy a Single Cluster](#redeploy-single-cluster).
 
 To redeploy all clusters:
 
-1. In {{ vars.platform_name }}, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. In {{ vars.platform_name }}, navigate to the **{{  vars.product }}** tile.
 1. Click **Errands**.
 1. Ensure the **Upgrade all clusters** errand is **On**.
 This errand redeploys all your TKGI-provisioned clusters.
@@ -184,7 +184,7 @@ To restore a cluster:
 </p>
 1. To cancel a running `bbr restore`, see [Cancel a Restore](#cancel-restore) below.
 1. After you restore a Kubernetes cluster, you must register its workers with their control plane nodes by following the [Register Restored Worker VMs](#register-nodes) steps below.
-1. If your Tanzu Kubernetes Grid Integrated Edition cluster restore fails, do one or more of the following:
+1. If your {{  vars.product }} cluster restore fails, do one or more of the following:
     * Run the command again, adding the `--debug` flag to activate debug logs. For more information,
       see [BBR Logging](bbr-logging.html).
     * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.

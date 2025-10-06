@@ -215,7 +215,7 @@ in _Release Notes_ for additional requirements.
 	Use 'tkgi cluster test' to monitor the state of your cluster
     ```
 
-<p class="note warning"><strong>WARNING</strong>: Updating a cluster with a compute profile is not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Updating a cluster with a compute profile is not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 

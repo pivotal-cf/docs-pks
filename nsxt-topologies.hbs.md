@@ -1,5 +1,5 @@
 ---
-title: NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition
+title: NSX Deployment Topologies for {{  vars.product }}
 
 ---
 
@@ -15,7 +15,7 @@ The following figure shows a Network Address Translation (NAT) deployment:
 
 This topology has the following characteristics:
 
-* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and Tanzu Kubernetes Grid Integrated Edition VMs such as the TKGI API and TKGI Database VMs) components are all located on a logical switch that has undergone Network Address Translation on a T0.
+* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and {{  vars.product }} VMs such as the TKGI API and TKGI Database VMs) components are all located on a logical switch that has undergone Network Address Translation on a T0.
 * Kubernetes cluster control plane and worker nodes are located on a logical switch
 that has undergone Network Address Translation on a T0. This requires DNAT rules to allow access to Kubernetes APIs.
 
@@ -35,7 +35,7 @@ The following figure shows a No-NAT with Virtual Switch (VSS/VDS) deployment:
 
 This topology has the following characteristics:
 
-* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and Tanzu Kubernetes Grid Integrated Edition VMs such as the TKGI API and TKGI Database VMs) components are using corporate routable IP addresses.
+* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and {{  vars.product }} VMs such as the TKGI API and TKGI Database VMs) components are using corporate routable IP addresses.
 * Kubernetes cluster control plane and worker nodes are using corporate routable IP addresses.
 * The TKGI Management Plane is deployed outside of the NSX network and the Kubernetes clusters are deployed and managed within the NSX network. Since BOSH needs routable access to the Kubernetes Nodes to monitor and manage them, the Kubernetes Nodes need routable access.
 * (Optional) You can use multiple vCenter Servers to separate management plane components.
@@ -54,7 +54,7 @@ The following figure shows a No-NAT with Logical Switch (NSX) deployment:
 
 This topology has the following characteristics:
 
-* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and Tanzu Kubernetes Grid Integrated Edition VMs such as the TKGI API and TKGI Database VMs) components are using corporate routable IP addresses.
+* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and {{  vars.product }} VMs such as the TKGI API and TKGI Database VMs) components are using corporate routable IP addresses.
 * Kubernetes cluster control plane and worker nodes are using corporate routable IP addresses.
 * The TKGI Management Plane is deployed inside of the NSX network. Both the TKGI Management Plane components (VMs) and the Kubernetes Nodes use corporate routable IP addresses.
 
@@ -70,7 +70,7 @@ The following figure shows a hybrid topology deployment:
 
 This topology has the following characteristics:
 
-* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and Tanzu Kubernetes Grid Integrated Edition VMs such as the TKGI API and TKGI Database VMs) components are using corporate routable IP addresses.
+* TKGI Management Plane ({{ vars.platform_name }}, BOSH Director, and {{  vars.product }} VMs such as the TKGI API and TKGI Database VMs) components are using corporate routable IP addresses.
 * Kubernetes cluster control plane and worker nodes are located on a logical switch that has undergone Network Address Translation on a T0. This requires DNAT rules to allow access to Kubernetes APIs.
 
 ## <a id='stretched'></a> vSAN Stretched Cluster Topologies

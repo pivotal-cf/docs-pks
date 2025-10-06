@@ -82,13 +82,13 @@ with the unique name for your cluster.
     NSX Policy:               true
     Private Registries:       true
     ```
-    While Tanzu Kubernetes Grid Integrated Edition is deleting the cluster, the value for `Last Action Description` is
+    While {{  vars.product }} is deleting the cluster, the value for `Last Action Description` is
     `Instance deletion in progress`.
 
 1. Continue running the `tkgi cluster CLUSTER-NAME` command to track cluster deletion.
 The cluster is deleted when the CLI returns `Error: Cluster CLUSTER-NAME not found`.
 
-1. Run `tkgi clusters`. Confirm the cluster you deleted is not included in the list of Tanzu Kubernetes Grid Integrated Edition clusters.
+1. Run `tkgi clusters`. Confirm the cluster you deleted is not included in the list of {{  vars.product }} clusters.
   <p class="note"><strong>Note</strong>: If the cluster is not deleted, see <a href="troubleshoot-issues.html#cluster-delete-fail">Cluster Deletion Fails</a> in <em>Troubleshooting</em>.</p>
 
 

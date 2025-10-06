@@ -1,55 +1,55 @@
-Errands are scripts that run at designated points during an installation.  
+Errands are scripts that run at designated points during an installation.
 
-To configure which post-deploy and pre-delete errands run for 
-Tanzu Kubernetes Grid Integrated Edition:
+To configure which post-deploy and pre-delete errands run for
+{{  vars.product }}:
 
-1. Make a selection in the dropdown next to each errand.  
+1. Make a selection in the dropdown next to each errand.
 {{# evalExpression "current_page.data.iaas == 'vSphere-NSX-T'"}}
-    <p class="note"><strong>Note</strong>: We recommend that you use the 
-    default settings for all errands except for the <strong>NSX validation</strong> 
+    <p class="note"><strong>Note</strong>: We recommend that you use the
+    default settings for all errands except for the <strong>NSX validation</strong>
     and <strong>Run smoke tests</strong> errands.
-    </p> 
+    </p>
 {{ else }}
-    <p class="note"><strong>Note</strong>: We recommend that you use the 
+    <p class="note"><strong>Note</strong>: We recommend that you use the
     	default settings for all errands except for the **Run smoke tests** errand.
-    </p> 
+    </p>
 {{/ evalExpression }}
 {{# evalExpression "current_page.data.iaas == 'vSphere-NSX-T'"}}
-1. (Optional) Set the **NSX validation** errand to **On**.  
+1. (Optional) Set the **NSX validation** errand to **On**.
 
     This errand verifies the NSX objects.
 {{/ evalExpression }}
-1. (Optional) Set the **Run smoke tests** errand to **On**.  
+1. (Optional) Set the **Run smoke tests** errand to **On**.
 
-    The Smoke Test errand smoke tests the TKGI upgrade by creating and deleting a test Kubernetes cluster. 
-    If test cluster creation or deletion fails, the errand fails, and the installation of the 
-    TKGI tile halts.  
-    
+    The Smoke Test errand smoke tests the TKGI upgrade by creating and deleting a test Kubernetes cluster.
+    If test cluster creation or deletion fails, the errand fails, and the installation of the
+    TKGI tile halts.
+
 {{# evalExpression "current_page.data.iaas == 'vSphere-NSX-T'"}}
-    The errand uses the TKGI CLI to create the test cluster configured using either 
-    the configuration settings on the TKGI tile - the default, or a network profile.  
+    The errand uses the TKGI CLI to create the test cluster configured using either
+    the configuration settings on the TKGI tile - the default, or a network profile.
 
-1. (Optional) To configure the Smoke Test errand to use a network profile instead of the default configuration settings on the TKGI tile:  
+1. (Optional) To configure the Smoke Test errand to use a network profile instead of the default configuration settings on the TKGI tile:
 
-    * Create a network profile with your preferred smoke test settings.  
-    * Configure **Errand Settings** > **Smoke tests - Network Profile Name** with the network profile name.  
-    
+    * Create a network profile with your preferred smoke test settings.
+    * Configure **Errand Settings** > **Smoke tests - Network Profile Name** with the network profile name.
+
     <img src="images/nsxt/upgrade-smoke-test-network-profile-config.png" alt="Smoke Test cluster network profile assignment in the Smoke tests - Network Profile Name field.">
 {{ else }}
-    The errand uses the TKGI CLI to create the test cluster configured using 
-    the configuration settings on the TKGI tile.  
+    The errand uses the TKGI CLI to create the test cluster configured using
+    the configuration settings on the TKGI tile.
 {{/ evalExpression }}
 
-1. (Optional) To ensure that all of your cluster VMs are patched, 
-    configure the **Upgrade all clusters errand** errand to **On**.  
+1. (Optional) To ensure that all of your cluster VMs are patched,
+    configure the **Upgrade all clusters errand** errand to **On**.
 <br>
-    Updating the Tanzu Kubernetes Grid Integrated Edition tile with a new 
-	Linux stemcell and the **Upgrade all clusters errand** enabled 
-	triggers the rolling of every Linux VM in each Kubernetes cluster. 
-	Similarly, updating the Tanzu Kubernetes Grid Integrated Edition tile with a new Windows stemcell triggers 
-	the rolling of every Windows VM in your Kubernetes clusters.  
-    <p class="note"><strong>Note:</strong> {{{ vars.recommended_by }}} recommends that you 
-    review the Broadcom Support metadata and confirm stemcell version compatibility before using 
-    the Broadcom Support APIs to update the stemcells in your automated pipeline. 
+    Updating the {{  vars.product }} tile with a new
+	Linux stemcell and the **Upgrade all clusters errand** enabled
+	triggers the rolling of every Linux VM in each Kubernetes cluster.
+	Similarly, updating the {{  vars.product }} tile with a new Windows stemcell triggers
+	the rolling of every Windows VM in your Kubernetes clusters.
+    <p class="note"><strong>Note:</strong> {{{ vars.recommended_by }}} recommends that you
+    review the Broadcom Support metadata and confirm stemcell version compatibility before using
+    the Broadcom Support APIs to update the stemcells in your automated pipeline.
     For more information, see the <a href="https://support.broadcom.com/docs/api#release_dependencies">API reference</a>.
     </p>

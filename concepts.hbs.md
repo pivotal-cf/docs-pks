@@ -1,5 +1,5 @@
 ---
-title: Tanzu Kubernetes Grid Integrated Edition Concepts
+title: {{  vars.product }} Concepts
 
 ---
 
@@ -9,24 +9,24 @@ See the following topics for an architectural overview of TKGI systems and compo
 
 <ul>
   <li>
-    <a href="./control-plane.html">Tanzu Kubernetes Grid Integrated Edition Architecture</a>
+    <a href="./control-plane.html">{{  vars.product }} Architecture</a>
   </li>
   <li>
-    <a href="./understanding-upgrades.html">About Tanzu Kubernetes Grid Integrated Edition Upgrades</a>
+    <a href="./understanding-upgrades.html">About {{  vars.product }} Upgrades</a>
   </li>
   <li>
     <a href="./api-auth.html">TKGI API Authentication</a>
   </li>
   <li>
-    <a href="./about-lb.html">Load Balancers in Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./about-lb.html">Load Balancers in {{  vars.product }}</a>
   </li>
   <li>
-    <a href="./vm-sizing.html">VM Sizing for Tanzu Kubernetes Grid Integrated Edition Clusters</a>
+    <a href="./vm-sizing.html">VM Sizing for {{  vars.product }} Clusters</a>
   </li>
   <li>
     <a href="./telemetry.html">Telemetry</a>
   </li>
   <li>
-    <a href="./sink-architecture.html">Sink Architecture in Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./sink-architecture.html">Sink Architecture in {{  vars.product }}</a>
   </li>
 </ul>

@@ -15,7 +15,7 @@ Verify the health of your Kubernetes nodes and pods by following the steps below
     bosh -e ENVIRONMENT login
     ```
     Where `ENVIRONMENT` is the alias you set for your BOSH Director. For more information, see
-[Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
+[Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html).
 <br>
     For example:
     ```console
@@ -44,7 +44,7 @@ Verify the health of your Kubernetes clusters by following the steps below:
     bosh -e ENVIRONMENT login
     ```
     Where `ENVIRONMENT` is the alias you set for your BOSH Director. For more information, see
-[Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
+[Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html).
 <br>
     For example:
     ```console
@@ -249,7 +249,7 @@ multiple control plane nodes, one NCP process is active while the others are on 
 
 To verify the `ncp` process is running, do the following:
 
-1. Run `bosh instances` in your Tanzu Kubernetes Grid Integrated Edition environment:
+1. Run `bosh instances` in your {{  vars.product }} environment:
 
     ```
     bosh -e ENVIRONMENT -d K8S-DEPLOYMENT instances --ps

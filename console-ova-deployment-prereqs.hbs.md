@@ -1,20 +1,20 @@
 ---
-title: Prerequisites for Tanzu Kubernetes Grid Integrated Edition Management Console Deployment
+title: Prerequisites for {{  vars.product }} Management Console Deployment
 
 ---
 
 {{  vars.product_full }} Management Console is provided as an OVA template that requires at a minimum the vSphere resources described in [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
 
-For more information, see [When Should I Use Tanzu Kubernetes Grid Integrated Edition Management Console?](./vsphere-index.html#when-to-use-console)
+For more information, see [When Should I Use {{  vars.product }} Management Console?](./vsphere-index.html#when-to-use-console)
 
 ## <a id='network-configurations'></a>Network Configurations
 
-Tanzu Kubernetes Grid Integrated Edition Management Console provides 3 network configuration options for your Tanzu Kubernetes Grid Integrated Edition deployments. Each network configuration option has specific prerequisites.
+{{  vars.product }} Management Console provides 3 network configuration options for your {{  vars.product }} deployments. Each network configuration option has specific prerequisites.
 
-- **Bring your own topology**: Deploy Tanzu Kubernetes Grid Integrated Edition to an existing VMware NSX network that you have fully configured yourself. See [Prerequisites for a Bring Your Own Topology Deployment to VMware NSX](console-prereqs-nsxt-byot.html).
-- **Automated NAT deployment**: Deploy Tanzu Kubernetes Grid Integrated Edition to an existing VMware NSX network that you have not fully set up, that Tanzu Kubernetes Grid Integrated Edition Management Console helps to configure for you. See [Prerequisites for an Automated NAT Deployment to VMware NSX](console-prereqs-nsxt-automatednat.html).
-- **vSphere Without NSX**: Deploy Tanzu Kubernetes Grid Integrated Edition to vSphere without an NSX network that Tanzu Kubernetes Grid Integrated Edition Management Console provisions for you. See [Prerequisites for vSphere Without an NSX Network](console-prereqs-cni.html).
+- **Bring your own topology**: Deploy {{  vars.product }} to an existing VMware NSX network that you have fully configured yourself. See [Prerequisites for a Bring Your Own Topology Deployment to VMware NSX](console-prereqs-nsxt-byot.html).
+- **Automated NAT deployment**: Deploy {{  vars.product }} to an existing VMware NSX network that you have not fully set up, that {{  vars.product }} Management Console helps to configure for you. See [Prerequisites for an Automated NAT Deployment to VMware NSX](console-prereqs-nsxt-automatednat.html).
+- **vSphere Without NSX**: Deploy {{  vars.product }} to vSphere without an NSX network that {{  vars.product }} Management Console provisions for you. See [Prerequisites for vSphere Without an NSX Network](console-prereqs-cni.html).
 
-For the list of firewall ports that must be open for Tanzu Kubernetes Grid Integrated Edition Management Console deployments, see [Firewall Ports and Protocols Requirements for Tanzu Kubernetes Grid Integrated Edition Management Console](console-ports-protocols.html).
+For the list of firewall ports that must be open for {{  vars.product }} Management Console deployments, see [Firewall Ports and Protocols Requirements for {{  vars.product }} Management Console](console-ports-protocols.html).
 
-When your environment meets the prerequisites for vSphere and for your chosen type of networking, you can [Deploy the Tanzu Kubernetes Grid Integrated Edition Management Console](console-deploy-ova.html).
+When your environment meets the prerequisites for vSphere and for your chosen type of networking, you can [Deploy the {{  vars.product }} Management Console](console-deploy-ova.html).

@@ -11,11 +11,11 @@ This topic describes how to review and restrict the usage of
 
 ## <a id="overview"></a> Overview
 
-As an Tanzu Kubernetes Grid Integrated Edition administrator,
+As an {{  vars.product }} administrator,
 you can set a limit on each user's total resource allocation
-within Tanzu Kubernetes Grid Integrated Edition.
+within {{  vars.product }}.
 
-You manage resources in Tanzu Kubernetes Grid Integrated Edition
+You manage resources in {{  vars.product }}
 by defining quotas for individual users with the TKGI API.
 
 The `quotas` API endpoint allows you to restrict
@@ -23,7 +23,7 @@ the total amount of memory and number of CPUs
 that a user can allocate in total across their deployed clusters.
 
 In addition, you can limit the total number of clusters
-a user can provision within Tanzu Kubernetes Grid Integrated Edition.
+a user can provision within {{  vars.product }}.
 
 To review overall resource usage and for individual users,
 you access the TKGI API `usages` endpoint.

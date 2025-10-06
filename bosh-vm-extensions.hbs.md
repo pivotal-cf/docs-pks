@@ -55,7 +55,7 @@ in _Release Notes_ for additional requirements.
     * `CLUSTER-NAME` is the name of the cluster to modify.
     * `CONFIG-FILENAME` is the name of the VM extension configuration file created above.
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ## <a id='create-configuration'></a>Create a Cluster Configuration File for BOSH VM Extensions
@@ -224,5 +224,5 @@ To remove a VM&nbsp;extensions instance group from a cluster:
     * `CLUSTER-NAME` is the name of the cluster to remove VM&nbsp;extensions from.
     * `CONFIG-FILENAME` is the name of the VM extension configuration file created above.
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>

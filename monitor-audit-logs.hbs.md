@@ -1,5 +1,5 @@
 ---
-title: Auditing Tanzu Kubernetes Grid Integrated Edition Logs
+title: Auditing {{  vars.product }} Logs
 
 ---
 
@@ -93,7 +93,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserAuthenticationSuccess<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>A user has successfully logged into Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>A user has successfully logged into {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -116,7 +116,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserAuthenticationFailure<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>A user has failed a login attempt into Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>A user has failed a login attempt into {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -140,7 +140,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>ClientAuthenticationSuccess<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>A user has successfully gained access to a cluster in Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>A user has successfully gained access to a cluster in {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -164,7 +164,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserCreatedEvent<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>An administrator has successfully created a new user for Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>An administrator has successfully created a new user for {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -186,7 +186,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserDeletedEvent<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>An administrator has successfully deleted a user for Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>An administrator has successfully deleted a user for {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -208,8 +208,8 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>Telemetry Ping<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>The optional telemetry system has successfully reached an external host for collecting product data for Tanzu Kubernetes Grid Integrated Edition.<br><br>
-      To learn more about the Tanzu Kubernetes Grid Integrated Edition telemetry program, see <a href="./telemetry.html">Telemetry</a>.</td>
+      <td>The optional telemetry system has successfully reached an external host for collecting product data for {{  vars.product }}.<br><br>
+      To learn more about the {{  vars.product }} telemetry program, see <a href="./telemetry.html">Telemetry</a>.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -272,6 +272,6 @@ Event Log format see the [Kubernetes documentation](https://kubernetes.io/docs/t
 
 ## <a id="related-links"></a>Related Links
 
-* For information about configuring syslog log transport, see [Installing Tanzu Kubernetes Grid Integrated Edition](./installing.html).
+* For information about configuring syslog log transport, see [Installing {{  vars.product }}](./installing.html).
 * For information about downloading TKGI logs, see [Downloading Logs from VMs](./download-logs.html).
 * For information about Kubernetes Audit Log format, see [Kubernetes documentation](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/)

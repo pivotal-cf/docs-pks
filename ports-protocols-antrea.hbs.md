@@ -32,7 +32,7 @@ or configure a Kubernetes cluster:
 * [Antrea Networking Ports and Protocols](#antrea)
 
 <p class="note"><strong>Note</strong>: To control which groups access deploying and scaling
-your organization's Tanzu Kubernetes Grid Integrated Edition-deployed Kubernetes clusters, configure your firewall settings
+your organization's {{  vars.product }}-deployed Kubernetes clusters, configure your firewall settings
 as described on the Operator –> TKGI API server lines below.</p>
 
 {{> ports-protocols }}

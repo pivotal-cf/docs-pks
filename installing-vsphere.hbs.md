@@ -1,5 +1,5 @@
 ---
-title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere (Antrea Networking)
+title: Installing {{  vars.product }} on vSphere (Antrea Networking)
 
 iaas: vSphere
 windowsclusters: #Empty var to prevent build breaking
@@ -21,24 +21,24 @@ For more information, see [vSphere Prerequisites and Resource Requirements](vsph
 
 To install and configure TKGI:
 
-1. [Install Tanzu Kubernetes Grid Integrated Edition](#install)
-1. [Configure Tanzu Kubernetes Grid Integrated Edition](#configure)
+1. [Install {{  vars.product }}](#install)
+1. [Configure {{  vars.product }}](#configure)
 1. [Apply Changes](#apply-changes)
 
-##<a id='install'></a> Step 1: Install Tanzu Kubernetes Grid Integrated Edition
+##<a id='install'></a> Step 1: Install {{  vars.product }}
 
 {{> install }}
 
-##<a id='configure'></a> Step 2: Configure Tanzu Kubernetes Grid Integrated Edition
+##<a id='configure'></a> Step 2: Configure {{  vars.product }}
 
 To configure TKGI:
 
-1. Click the orange **Tanzu Kubernetes Grid Integrated Edition** tile to start the configuration process.
+1. Click the orange **{{  vars.product }}** tile to start the configuration process.
 
     ![TKGI tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
 
-    <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile, do not use spaces in any field entries. This includes spaces between characters as well as
-    leading and trailing spaces. If you use a space in any field entry, the deployment of Tanzu Kubernetes Grid Integrated Edition fails.</p>
+    <p class="note warning"><strong>WARNING</strong>: When you configure the {{  vars.product }} tile, do not use spaces in any field entries. This includes spaces between characters as well as
+    leading and trailing spaces. If you use a space in any field entry, the deployment of {{  vars.product }} fails.</p>
 1. [Assign AZs and Networks](#azs-networks)
 1. [TKGI API](#tkgi-api)
 1. [Plans](#plans)
@@ -117,7 +117,7 @@ used by the {{{ vars.product_short }}} control plane:
 
 ### <a id='resource-config'></a> Resource Config
 
-To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition, follow the steps below:
+To modify the resource configuration of {{  vars.product }}, follow the steps below:
 
 1. Select **Resource Config**.
 1. {{> resource-config }}
@@ -125,7 +125,7 @@ To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition
 1. Under each job, leave **NSX CONFIGURATION** and **NSX-V CONFIGURATION** blank.
 
   <p class="note warning"><strong>Warning:</strong> To avoid workload downtime, use the resource configuration recommended in
-  <a href="understanding-upgrades.html">About Tanzu Kubernetes Grid Integrated Edition Upgrades</a>
+  <a href="understanding-upgrades.html">About {{  vars.product }} Upgrades</a>
   and <a href="maintain-uptime.html">Maintaining Workload Uptime</a>.
   </p>
 

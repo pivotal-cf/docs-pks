@@ -1,5 +1,5 @@
 ---
-title: Rotating Tanzu Kubernetes Grid Integrated Edition Control Plane Certificates
+title: Rotating {{  vars.product }} Control Plane Certificates
 
 ---
 
@@ -19,7 +19,7 @@ see [Rotating Cluster Certificates](./rotate-cluster-certificates.html).
   you must use the Management Console to rotate the NSX Manager CA Certificate.
   To manage your NSX Manager CA Certificate using the TKGI Management Console, see
   <a href="console-reconfigure.html#reconfigure-options ">Which Options Can I Reconfigure?</a>
-  in <em>Reconfigure Your Tanzu Kubernetes Grid Integrated Edition Deployment</em>.
+  in <em>Reconfigure Your {{  vars.product }} Deployment</em>.
 </p>
 
 ## <a id="overview"></a>Overview

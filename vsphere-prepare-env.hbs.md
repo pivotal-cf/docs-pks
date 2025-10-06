@@ -5,11 +5,11 @@ owner: {{ vars.platform_name }}
 
 This topic describes how to create dedicated users and roles for your vSphere environment before deploying {{  vars.product_full }} ({{ vars.product_short }}).
 
-<p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by Tanzu Kubernetes Grid Integrated Edition. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the Tanzu Kubernetes Grid Integrated Edition and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the TKGI and Kubernetes cluster VMs, skip this topic.</p>
+<p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by {{  vars.product }}. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the {{  vars.product }} and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the TKGI and Kubernetes cluster VMs, skip this topic.</p>
 
 ## <a id='overview'></a>Overview
 
-Before you install Tanzu Kubernetes Grid Integrated Edition on vSphere, you can prepare your vSphere environment by creating the
+Before you install {{  vars.product }} on vSphere, you can prepare your vSphere environment by creating the
 required user accounts and configuring DNS for the TKGI API endpoint.
 
 You can create the following service accounts in vSphere:
@@ -25,7 +25,7 @@ the accounts privileges in vSphere:
 
 * **Master Node User Account**: Kubernetes control plane node VMs require storage permissions to create load balancers
 and attach persistent disks to pods. Creating a custom role for this service account allows vSphere to apply
-the same privileges to all Kubernetes control plane node VMs in your Tanzu Kubernetes Grid Integrated Edition installation.
+the same privileges to all Kubernetes control plane node VMs in your {{  vars.product }} installation.
 
 * **BOSH/{{ vars.platform_name }} User Account**: BOSH Director requires permissions to create VMs.
 You can apply privileges directly to this service account without creating a role.
@@ -75,7 +75,7 @@ Before you prepare your vSphere environment, fulfill the prerequisites in [vSphe
 Kubernetes control plane node VM user accounts require the following:
 
 * Read access to the folder, host, and data center of the cluster node VMs
-* Permission to create and delete VMs within the resource pool where Tanzu Kubernetes Grid Integrated Edition is deployed
+* Permission to create and delete VMs within the resource pool where {{  vars.product }} is deployed
 
 Grant these permissions to the control plane node user account based on your storage configuration using one of the procedures below:
 
@@ -324,9 +324,9 @@ There are two options for granting permissions to the BOSH/{{ vars.platform_name
 
 Navigate to your DNS provider and create an entry for a fully qualified domain name (FQDN) within your system domain. For example, `api.tkgi.example.com`.
 
-When you configure the Tanzu Kubernetes Grid Integrated Edition tile, enter this FQDN in the **TKGI API** pane.
+When you configure the {{  vars.product }} tile, enter this FQDN in the **TKGI API** pane.
 
-After you deploy Tanzu Kubernetes Grid Integrated Edition, you map the IP address of the TKGI API to this FQDN. You can then use this FQDN to access the TKGI API from your local system.
+After you deploy {{  vars.product }}, you map the IP address of the TKGI API to this FQDN. You can then use this FQDN to access the TKGI API from your local system.
 
 ## <a id="next-steps"></a>Next Installation Step
 

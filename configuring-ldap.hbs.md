@@ -1,5 +1,5 @@
 ---
-title: Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server
+title: Connecting {{  vars.product }} to an LDAP Server
 
 ---
 
@@ -10,14 +10,14 @@ to an external LDAP server.
 ## <a id='overview'></a>Overview
 
 User Account and Authentication (UAA), the identity management
-service for Tanzu Kubernetes Grid Integrated Edition, can
+service for {{  vars.product }}, can
 authenticate users either through its internal user account store or external
 authentication mechanisms such as an LDAP server or a SAML identity provider.
 
 To enable an internal user account store for UAA, you select **Internal UAA**
-in the **Tanzu Kubernetes Grid Integrated Edition** tile > **UAA**.
+in the **{{  vars.product }}** tile > **UAA**.
 
-If you want to connect Tanzu Kubernetes Grid Integrated Edition to an external LDAP server, you
+If you want to connect {{  vars.product }} to an external LDAP server, you
 must integrate the UAA server with your LDAP server by following the
 instructions in [Integrate UAA with an LDAP Server](#integrate) below.
 This enables UAA to delegate authentication to your LDAP user store.
@@ -27,7 +27,7 @@ This enables UAA to delegate authentication to your LDAP user store.
 
 To integrate UAA with one or more LDAP servers:
 
-1. In **Tanzu Kubernetes Grid Integrated Edition** > **UAA**, under **Configure your UAA user
+1. In **{{  vars.product }}** > **UAA**, under **Configure your UAA user
 account store with either internal or external authentication mechanisms**,
 select **LDAP Server**.
   <img src="images/ldap1.png" alt="LDAP Server configuration pane">
@@ -65,7 +65,7 @@ For example, the standard LDAP search filter `cn=Smith` returns all objects
 with a common name equal to `Smith`.
 <br><br>
 In the LDAP search filter string that you use to configure
-Tanzu Kubernetes Grid Integrated Edition, use `{0}` instead of the user name. For example, use
+{{  vars.product }}, use `{0}` instead of the user name. For example, use
 `cn={0}` to return all LDAP objects with the same common name as the user name.
 In addition to `cn`, other common attributes are `mail`, `uid`, and
 for Active Directory, `sAMAccountName`.
@@ -79,10 +79,10 @@ where the LDAP group search begins. For example, a domain named
 search base.
 You must configure **Group Search Base**
 if you want to map an external LDAP group to a role in
-Tanzu Kubernetes Grid Integrated Edition or a Kubernetes group.
+{{  vars.product }} or a Kubernetes group.
     <p class="note"><strong>Note:</strong> To map the groups under this
-    search base to roles in Tanzu Kubernetes Grid Integrated Edition, follow the instructions
-    in <a href="manage-users.html#external-group">Grant Tanzu Kubernetes Grid Integrated Edition Access to an External LDAP Group</a>.</p>
+    search base to roles in {{  vars.product }}, follow the instructions
+    in <a href="manage-users.html#external-group">Grant {{  vars.product }} Access to an External LDAP Group</a>.</p>
 
 1. Under **Group Search Filter**, enter a string that defines LDAP group
 search criteria. The default value is `member={0}`.
@@ -132,22 +132,22 @@ to support searching all subtrees in your groups.
 ## <a id='complete'></a>Complete Your Tile Configuration
 
 * If you do not need to configure any other settings in the
-Tanzu Kubernetes Grid Integrated Edition tile, return to the {{ vars.platform_name }} Installation Dashboard and
+{{  vars.product }} tile, return to the {{ vars.platform_name }} Installation Dashboard and
 click **Review Pending Changes** > **Apply Changes**.
-* If you need to configure any other settings in the Tanzu Kubernetes Grid Integrated Edition
-tile, return to the _Installing Tanzu Kubernetes Grid Integrated Edition_ topic for your IaaS and
+* If you need to configure any other settings in the {{  vars.product }}
+tile, return to the _Installing {{  vars.product }}_ topic for your IaaS and
 follow the instructions for the pane you want to configure:
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](installing-nsx-t.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#uaa)
+  * [Installing {{  vars.product }} on vSphere](installing-vsphere.html#uaa)
+  * [Installing {{  vars.product }} on vSphere with NSX](installing-nsx-t.html#uaa)
+  * [Installing {{  vars.product }} on AWS](installing-aws.html#uaa)
+  * [Installing {{  vars.product }} on Azure](installing-azure.html#uaa)
 
 
 ## <a id='next'></a>Next Steps
 
-For information about creating Tanzu Kubernetes Grid Integrated Edition roles and
+For information about creating {{  vars.product }} roles and
 managing Kubernetes cluster access, see:
 
-* [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users](vsphere-configure-users.html)
+* [Setting Up {{  vars.product }} Admin Users](vsphere-configure-users.html)
 for your IaaS
 * [Managing Cluster Access and Permissions](manage-cluster-permissions.html)

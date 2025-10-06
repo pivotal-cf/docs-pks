@@ -13,7 +13,7 @@ This topic describes deploying Windows worker-based Kubernetes clusters in {{  v
 
 ## <a id='overview'></a>Overview
 
-In Tanzu Kubernetes Grid Integrated Edition, you can deploy Windows-based workloads to Kubernetes clusters on vSphere with NSX.
+In {{  vars.product }}, you can deploy Windows-based workloads to Kubernetes clusters on vSphere with NSX.
 Additionally, TKGI provides beta support for deploying Windows-based workloads to
 Kubernetes clusters on vSphere without NSX.
 
@@ -39,9 +39,9 @@ documentation before following the procedures below.
 
 You can deploy Windows workloads to Windows-based clusters only.
 
-You must configure the Tanzu Kubernetes Grid Integrated Edition tile to support Windows-based clusters
+You must configure the {{  vars.product }} tile to support Windows-based clusters
 before you can use Windows-based clusters in TKGI.
-For instructions on configuring the Tanzu Kubernetes Grid Integrated Edition tile,
+For instructions on configuring the {{  vars.product }} tile,
 see [Configuring Windows Worker-Based Clusters](windows-workers.html).
 
 

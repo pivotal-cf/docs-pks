@@ -92,7 +92,7 @@ see [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) 
 
 NSX supports autoscaling, which spins up a new Kubernetes `type: LoadBalancer` service
 if the previous one has reached its scale limit. The NSX load balancer that is
-automatically provisioned by Tanzu Kubernetes Grid Integrated Edition provides two Layer 7 virtual servers
+automatically provisioned by {{  vars.product }} provides two Layer 7 virtual servers
 for Kubernetes ingress resources, one for HTTP and the other for HTTPS.
 
 For more information, see [Supported Load Balancer Features](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/administration-guide/load-balancer/key-load-balancer-concepts/supported-load-balancer-features.html)
@@ -132,7 +132,7 @@ For example, `8080` or `http`.
 Kubernetes requires the port name be specified for multi-port services.
 
 For example, the following is a `LoadBalancer` service definition for an
-Tanzu Kubernetes Grid Integrated Edition-provisioned cluster with NSX:
+{{  vars.product }}-provisioned cluster with NSX:
 
 ```
 kind: Service

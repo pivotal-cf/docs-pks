@@ -1,5 +1,5 @@
 ---
-title: Upgrading Tanzu Kubernetes Grid Integrated Edition
+title: Upgrading {{  vars.product }}
 
 ---
 
@@ -7,9 +7,9 @@ The following topics describe how to upgrade {{  vars.product_full }} ({{ vars.p
 
 <ul>
   <li>
-    <a href="./console-upgrade.html">Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console</a>
+    <a href="./console-upgrade.html">Upgrade {{  vars.product }} Management Console</a>
   </li>
   <li>
-    <a href="./upgrading-opsman.html">Upgrading Tanzu Kubernetes Grid Integrated Edition with {{ vars.platform_name }}</a>
+    <a href="./upgrading-opsman.html">Upgrading {{  vars.product }} with {{ vars.platform_name }}</a>
   </li>
 </ul>

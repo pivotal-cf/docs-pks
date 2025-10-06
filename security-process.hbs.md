@@ -1,13 +1,13 @@
 ---
-title: Tanzu Kubernetes Grid Integrated Edition Security Disclosure and Release Process
+title: {{  vars.product }} Security Disclosure and Release Process
 
 ---
 
 This topic describes the processes for disclosing security issues and releasing related fixes for {{  vars.product_full }} ({{ vars.product_short }}), Kubernetes, VMware NSX, and VMware Harbor.
 
-##<a id='security-tkgi'></a> Security Issues in Tanzu Kubernetes Grid Integrated Edition
+##<a id='security-tkgi'></a> Security Issues in {{  vars.product }}
 
-VMware provides security coverage for Tanzu Kubernetes Grid Integrated Edition.
+VMware provides security coverage for {{  vars.product }}.
 Please report any vulnerabilities directly to the [VMware Security Response Center](https://www.vmware.com/security/vsrc.html).
 
 Security fixes are provided in accordance with the [{{ vars.platform_name }} Security Overview and Policy](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-process-pcf-security.html#release-policy).
@@ -19,14 +19,14 @@ VMware follows the Kubernetes responsible disclosure process to work within the 
 
 This process is discussed in [Kubernetes Security and Disclosure Information](https://kubernetes.io/docs/reference/issues-security/security/).
 
-When the Kubernetes project releases security fixes, Tanzu Kubernetes Grid Integrated Edition releases fixes according to the [{{ vars.platform_name }} Security Overview and Policy](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-process-pcf-security.html#release-policy).
+When the Kubernetes project releases security fixes, {{  vars.product }} releases fixes according to the [{{ vars.platform_name }} Security Overview and Policy](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-process-pcf-security.html#release-policy).
 
 ##<a id='security'></a> Security Issues from CFF
 VMware follows the Cloud Foundry Foundation (CFF) responsible disclosure process to report and address suspected security issues.
 
 This process is discussed in [Cloud Foundry Security](https://www.cloudfoundry.org/security/).
 
-When the Cloud Foundry Foundation releases security fixes, Tanzu Kubernetes Grid Integrated Edition releases fixes according to the [{{ vars.platform_name }} Security Overview and Policy](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-process-pcf-security.html#release-policy).
+When the Cloud Foundry Foundation releases security fixes, {{  vars.product }} releases fixes according to the [{{ vars.platform_name }} Security Overview and Policy](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-process-pcf-security.html#release-policy).
 
 ##<a id='security-nsx'></a> Security Issues in VMware NSX
 Security issues in VMware NSX are coordinated with the [VMware Security Response Center](https://www.vmware.com/security/vsrc.html).

@@ -1,5 +1,5 @@
 ---
-title: Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition
+title: Using BOSH Diagnostic Commands in {{  vars.product }}
 owner: {{ vars.platform_name }}
 ---
 

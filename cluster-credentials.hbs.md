@@ -52,11 +52,11 @@ Perform the following steps to populate your local kubeconfig with cluster crede
     You can now switch between clusters by using:
     $kubectl config use-context <cluster-name>
     ```
-  <p class="note"><strong>Note</strong>: If you enable OpenID Connect (OIDC) in the Tanzu Kubernetes Grid Integrated Edition tile,
+  <p class="note"><strong>Note</strong>: If you enable OpenID Connect (OIDC) in the {{  vars.product }} tile,
     TKGI requires your password to run the <code>tkgi get-credentials CLUSTER-NAME</code> command.
     This allows TKGI to retrieve valid tokens for the kubeconfig file. You can provide your password at the prompt
     or as the <code>TKGI&#95;USER&#95;PASSWORD</code> environment variable. For more information, see the
-    <em>Configure OpenID Connect</em> section of <a href="installing.html">Installing Tanzu Kubernetes Grid Integrated Edition</a>
+    <em>Configure OpenID Connect</em> section of <a href="installing.html">Installing {{  vars.product }}</a>
   for your IaaS.</p>
 
     {{> saml-sso-login }}

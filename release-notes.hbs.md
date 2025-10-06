@@ -5,7 +5,7 @@ topictype: releasenotes
 ---
 
 
-This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (TKGI) {{{ vars.product_version }}}.
+This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.product_version }}}.
 
 ## <a id="1-23-0"></a>TKGI {{{ vars.product_version }}}.0
 
@@ -172,7 +172,7 @@ To use Policy API at 100% of Management Plane API scale, use NSX v4.1.1 or later
 
 ### <a id="1-23-0-upgrade"></a>Upgrade Path
 
-The supported upgrade paths to Tanzu Kubernetes Grid Integrated Edition v1.23.0 is from TKGI v1.21.0.
+The supported upgrade paths to {{  vars.product }} v1.23.0 is from TKGI v1.21.0.
 
 ### <a id="1-23-0-breaking-changes"></a>Breaking Changes
 
@@ -525,7 +525,7 @@ For information about configuring NSX default header sizes, see [OIDC Response H
 
 #### <a id="1-22-0-windows-proxy"></a> Difficulty Changing Proxy for Windows Workers
 
-You must configure a global proxy in the Tanzu Kubernetes Grid Integrated Edition tile > **Networking** pane before you create any Windows workers that use the proxy.
+You must configure a global proxy in the {{  vars.product }} tile > **Networking** pane before you create any Windows workers that use the proxy.
 
 You cannot change the proxy configuration for Windows workers in an existing cluster.
 
@@ -589,8 +589,8 @@ any inbound and outbound traffic rules for your cluster VMs.
 
 **Explanation**
 
-As part of configuring the Tanzu Kubernetes Grid Integrated Edition tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
-When you create a Kubernetes cluster, Tanzu Kubernetes Grid Integrated Edition automatically assigns this security group to each VM in the cluster.
+As part of configuring the {{  vars.product }} tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
+When you create a Kubernetes cluster, {{  vars.product }} automatically assigns this security group to each VM in the cluster.
 However, on Azure the automatic assignment might not occur.
 
 As a result, your inbound and outbound traffic rules defined in the security group are not applied to the cluster VMs.
@@ -705,7 +705,7 @@ the deleted cluster continues to be listed when running `tkgi clusters`.
 
 You must manually remove the deleted cluster using a customized version of the ncp_cleanup script.
 For more information, see
-[Deleting a Tanzu Kubernetes Grid Integrated Edition cluster with "tkgi delete-cluster" stuck "in progress" status](https://knowledge.broadcom.com/external/article/298683/)
+[Deleting a {{  vars.product }} cluster with "tkgi delete-cluster" stuck "in progress" status](https://knowledge.broadcom.com/external/article/298683/)
 in the Broadcom Support Knowledge Base.
 
 <hr>
@@ -733,7 +733,7 @@ causing the metrics_server to fall into a crash-loop state.
 You must manually remove the `pivotal-container-service` cloud-config after removing your TKGI deployment,
 including after removing the TKGI tile from {{ vars.platform_name }}.
 
-For more information, see ["Duplicate vm extension name" error when metrics_server runs on Director VM in Tanzu Kubernetes Grid Integrated Edition](https://knowledge.broadcom.com/external/article/298692/)
+For more information, see ["Duplicate vm extension name" error when metrics_server runs on Director VM in {{  vars.product }}](https://knowledge.broadcom.com/external/article/298692/)
 in the VMware Tanzu Community Knowledge Base.
 
 <hr>

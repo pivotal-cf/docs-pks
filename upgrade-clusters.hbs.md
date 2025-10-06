@@ -7,37 +7,37 @@ This topic describes how to use the {{  vars.product_full }} Command Line Interf
 to upgrade TKGI-provisioned Kubernetes clusters.
 
 For information about how to upgrade TKGI-provisioned clusters
-through the Tanzu Kubernetes Grid Integrated Edition tile,
+through the {{  vars.product }} tile,
 see _Verify Errand Configuration_ in one of the following topics:
 
-* [Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)](upgrade.html)
-* [Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)](upgrade-nsxt.html)
+* [Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html)
+* [Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html)
 
-For conceptual information about Tanzu Kubernetes Grid Integrated Edition upgrades,
-see [About Tanzu Kubernetes Grid Integrated Edition Upgrades](understanding-upgrades.html).
+For conceptual information about {{  vars.product }} upgrades,
+see [About {{  vars.product }} Upgrades](understanding-upgrades.html).
 
 
 ## <a id="overview"></a>Overview
 
 Upgrading a TKGI-provisioned Kubernetes cluster updates
-the Tanzu Kubernetes Grid Integrated Edition version and the Kubernetes version
+the {{  vars.product }} version and the Kubernetes version
 of the cluster.
 
 TKGI-provisioned Kubernetes clusters upgrade when:
 
-* You upgrade Tanzu Kubernetes Grid Integrated Edition
-with the **Upgrade all clusters errand** enabled in the **Tanzu Kubernetes Grid Integrated Edition** tile > **Errands**.
+* You upgrade {{  vars.product }}
+with the **Upgrade all clusters errand** enabled in the **{{  vars.product }}** tile > **Errands**.
 * You run `tkgi upgrade-cluster` or `tkgi upgrade-clusters`
 as described in [Upgrade Clusters](#upgrade-clusters) below.
 
 For example, running `tkgi upgrade-cluster`
-upgrades the cluster you specify to your current version of Tanzu Kubernetes Grid Integrated Edition
+upgrades the cluster you specify to your current version of {{  vars.product }}
 and to the version of Kubernetes
-that is included with your current version of Tanzu Kubernetes Grid Integrated Edition.
+that is included with your current version of {{  vars.product }}.
 
 <p class="note warning"><strong>WARNING</strong>: Do not change the number of control plane/etcd nodes
 for any plan that was used to create currently-running clusters.
-Tanzu Kubernetes Grid Integrated Edition does not support changing the number of control plane/etcd nodes for plans
+{{  vars.product }} does not support changing the number of control plane/etcd nodes for plans
 with existing clusters.
 </p>
 
@@ -51,14 +51,14 @@ current TKGI version. For information,
 see [Installing the TKGI CLI](installing-cli.html).
 1. Verify the cluster you are upgrading supports upgrading.
 For information, see [Verify Your Clusters Support Upgrading](checklist.html#resource-usage)
- in the _Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Edition_.
+ in the _Upgrade Preparation Checklist for {{  vars.product }}_.
 1. Verify that your Kubernetes environment is healthy.
 For information, see [Verifying Deployment Health](verify-health.html).
 1. If you are upgrading a cluster that uses a public cloud CSI driver,
 see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
 in _Release Notes_ for additional requirements.
-1. Log in to Tanzu Kubernetes Grid Integrated Edition using `tkgi login`.
-For more information, see [Logging in to Tanzu Kubernetes Grid Integrated Edition](login.html).
+1. Log in to {{  vars.product }} using `tkgi login`.
+For more information, see [Logging in to {{  vars.product }}](login.html).
 
 
 ## <a id='upgrade-clusters'></a>Upgrade Clusters
@@ -79,7 +79,7 @@ To upgrade a cluster's TKGI version:
 
 ### <a id='upgrade-cluster'></a>Upgrade a Single Cluster
 
-The Tanzu Kubernetes Grid Integrated Edition CLI provides `upgrade-cluster` for upgrading an individual Tanzu Kubernetes Grid Integrated Edition-provisioned
+The {{  vars.product }} CLI provides `upgrade-cluster` for upgrading an individual {{  vars.product }}-provisioned
 Kubernetes cluster.
 
 To upgrade an individual Kubernetes cluster:
@@ -171,7 +171,7 @@ Accepts `1` or `2`. When configured as `1`, the default, parallel upgrading is d
 
 ### <a id='upgrade-clusters-multi'></a>Upgrade Multiple Clusters
 
-The Tanzu Kubernetes Grid Integrated Edition CLI provides `upgrade-clusters` for upgrading multiple Tanzu Kubernetes Grid Integrated Edition-provisioned
+The {{  vars.product }} CLI provides `upgrade-clusters` for upgrading multiple {{  vars.product }}-provisioned
 Kubernetes clusters.
 You can upgrade clusters serially, serially with some clusters designated as canary clusters, or entirely in parallel.
 
@@ -301,7 +301,7 @@ Upgrade task ce31a1bb-380a-453f-afa0-835ffa1ce6ac is done.
 
 ## <a id='manage-upgrade'></a> Manage Your Cluster Upgrade Job
 
-You can use the TKGI CLI to monitor and manage your Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes cluster
+You can use the TKGI CLI to monitor and manage your {{  vars.product }}-provisioned Kubernetes cluster
 upgrade jobs:
 
 * [Monitor Your Clusters](#monitor-upgrades)

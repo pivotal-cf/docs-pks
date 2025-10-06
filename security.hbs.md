@@ -1,12 +1,12 @@
 ---
-title: Tanzu Kubernetes Grid Integrated Edition Security
+title: {{  vars.product }} Security
 
 ---
 
 The following topics describe {{  vars.product_full }} ({{ vars.product_short }}) security and security procedures:
 
-* **Security Disclosure and Release Process**: See <a href="./security-process.html">Tanzu Kubernetes Grid Integrated Edition Security Disclosure and Release Process</a>
-* **Certificates**: See <a href="./certificate-concepts.html">Tanzu Kubernetes Grid Integrated Edition Certificates</a>
+* **Security Disclosure and Release Process**: See <a href="./security-process.html">{{  vars.product }} Security Disclosure and Release Process</a>
+* **Certificates**: See <a href="./certificate-concepts.html">{{  vars.product }} Certificates</a>
 * **Benchmarks**: See [TKGI Cluster Benchmarks](#benchmarks), below.
 
 ##<a id='benchmarks'></a> CIS Kubernetes Benchmarks

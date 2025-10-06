@@ -1,20 +1,20 @@
 ---
-title: Tanzu Kubernetes Grid Integrated Edition Architecture
+title: {{  vars.product }} Architecture
 
 ---
 
 This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) deploys and manages Kubernetes clusters.
 
 
-## <a id="overview"></a>Tanzu Kubernetes Grid Integrated Edition Overview
+## <a id="overview"></a>{{  vars.product }} Overview
 
-A Tanzu Kubernetes Grid Integrated Edition environment consists of a TKGI Control Plane
+A {{  vars.product }} environment consists of a TKGI Control Plane
 and one or more workload clusters.
 
-Tanzu Kubernetes Grid Integrated Edition administrators use the TKGI Control Plane to
+{{  vars.product }} administrators use the TKGI Control Plane to
 deploy and manage Kubernetes clusters. The workload clusters run the apps pushed by developers.
 
-The following illustrates the interaction between Tanzu Kubernetes Grid Integrated Edition components:
+The following illustrates the interaction between {{  vars.product }} components:
 <br>
 {{ image_tag src="images/tkgi-overview-ha.png" alt="HA TKGI Control Plane with HA TKGI API VM Group and HA DB VM cluster" }}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/drawings/d/1TZkaTSCiddEE7mZtOTjTg6jBuDAy0D3CI9JY56HBIAY/edit  --> {{{{/raw}}}}
@@ -35,7 +35,7 @@ For information about `kubectl`, see [Overview of kubectl](https://kubernetes.io
 ## <a id="cluster-management"></a><a id="control-plane"></a>TKGI Control Plane Overview
 
 The TKGI Control Plane manages the lifecycle of Kubernetes clusters deployed
-using Tanzu Kubernetes Grid Integrated Edition.
+using {{  vars.product }}.
 
 The control plane provides the following via the TKGI API:
 
@@ -48,7 +48,7 @@ The control plane provides the following via the TKGI API:
 * Create and manage network profiles for VMware NSX
 
 In addition, the TKGI Control Plane can upgrade all existing clusters using the **Upgrade all clusters** BOSH errand.
-For more information, see [Upgrade Kubernetes Clusters](upgrade.html#upgrade-instances) in _Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)_.
+For more information, see [Upgrade Kubernetes Clusters](upgrade.html#upgrade-instances) in _Upgrading {{  vars.product }} (Antrea Networking)_.
 
 <br>
 TKGI Control Plane is hosted on a pair of VM groups:
@@ -77,7 +77,7 @@ The TKGI API permits only authenticated users to manage Kubernetes clusters.
 For more information about authenticating, see [TKGI API Authentication](api-auth.html).
 
 UAA must be configured with the appropriate users and user permissions.
-For more information, see [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).
+For more information, see [Managing {{  vars.product }} Users with UAA](manage-users.html).
 
 
 #### <a id="tkgi-api"></a>TKGI API
@@ -90,7 +90,7 @@ TKGI API within the control plane via the TKGI API Load Balancer.
 On vSphere with NSX deployments the TKGI API host is accessible via a DNAT rule.
 For information about enabling the TKGI API on vSphere with NSX, see the
 [Share the TKGI API Endpoint](installing-nsx-t.html#retrieve-endpoint) section in
-_Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Integration_.
+_Installing {{  vars.product }} on vSphere with NSX Integration_.
 
 The TKGI API sends all cluster management requests, except read-only requests, to the TKGI Broker.
 
@@ -101,7 +101,7 @@ When the TKGI API receives a request to modify a Kubernetes cluster, it instruct
 
 The TKGI Broker consists of an [On-Demand Service Broker](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/on-demand-services-sdk-for-tanzu/0-42.html) and a Service Adapter. The TKGI Broker generates a BOSH manifest and instructs the BOSH Director to deploy or delete the Kubernetes cluster.
 
-For Tanzu Kubernetes Grid Integrated Edition deployments on vSphere with NSX, there is an additional component, the Tanzu Kubernetes Grid Integrated Edition NSX Proxy Broker.
+For {{  vars.product }} deployments on vSphere with NSX, there is an additional component, the {{  vars.product }} NSX Proxy Broker.
 The TKGI API communicates with the TKGI NSX Proxy Broker, which in turn communicates with the NSX Manager to provision the Node Networking resources.
 The TKGI NSX Proxy Broker then forwards the request to the On-Demand Service Broker to deploy the cluster.
 
@@ -120,7 +120,7 @@ These data-related functions persist TKGI Control Plane data for the the followi
 
 ## <a id="overview-ha"></a>High Availability Modes
 
-Tanzu Kubernetes Grid Integrated Edition can be configured for TKGI Control Plane and workload high availability.
+{{  vars.product }} can be configured for TKGI Control Plane and workload high availability.
 
 ####<a id="control-plane-ha"></a>TKGI Control Plane High Availability Mode (Beta)
 
@@ -137,7 +137,7 @@ The TKGI Control Plane can be configured in either standard or high availability
 	to more than one instance in production environments.
 </p>
 
-The following illustrates the interaction between Tanzu Kubernetes Grid Integrated Edition components in high availability mode:
+The following illustrates the interaction between {{  vars.product }} components in high availability mode:
 <br>
 {{ image_tag src="images/tkgi-overview-ha.png" alt="HA TKGI Control Plane with HA TKGI API VM Group and HA DB VM cluster" }}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/drawings/d/1hTTmoBpkcjvZJTwlwsXMy9fn91x3KGfIeM4_dzIrW60/edit  --> {{{{/raw}}}}
@@ -157,12 +157,12 @@ Windows worker-based cluster Linux nodes can be configured in either standard or
 multiple control plane/etcd and Linux worker nodes manage a cluster's Windows Kubernetes VMs.
 
 The following illustrates the interaction between the
-Tanzu Kubernetes Grid Integrated Edition Management Plane and Windows worker-based Kubernetes clusters:
+{{  vars.product }} Management Plane and Windows worker-based Kubernetes clusters:
 <br>
 {{ image_tag src="images/overview-windows-ha-linux-workers.png" alt="HA Windows worker clusters include HA ETCD Nodes that communicate out to a BOSH VM and internally to HA Linux workers that communicate with Windows Kubernetes nodes" }}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/drawings/d/1ec0T8iZx3P8Uf-dxnl1dLesuvtabTwapXClf2kxZ3qA/edit  --> {{{{/raw}}}}
 <br>
-To configure Tanzu Kubernetes Grid Integrated Edition Windows worker-based clusters for high availability, set these fields in the **Plan** pane as described in [Plans](windows-workers.html#plans) in _Configuring Windows Worker-Based Kubernetes Clusters_:
+To configure {{  vars.product }} Windows worker-based clusters for high availability, set these fields in the **Plan** pane as described in [Plans](windows-workers.html#plans) in _Configuring Windows Worker-Based Kubernetes Clusters_:
 
 * **Enable HA Linux workers**
 * **Master/ETCD Node Instances**

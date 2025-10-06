@@ -1,5 +1,5 @@
 ---
-title: Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider
+title: Connecting {{  vars.product }} to a SAML Identity Provider
 
 ---
 
@@ -10,11 +10,11 @@ to a SAML identity provider (IdP).
 ## <a id='overview'></a>Overview
 
 User Account and Authentication (UAA), the identity management
-service for Tanzu Kubernetes Grid Integrated Edition, can
+service for {{  vars.product }}, can
 authenticate users either through its internal user account store or external
 authentication mechanisms such as an LDAP server or a SAML IdP.
 
-To connect Tanzu Kubernetes Grid Integrated Edition to a SAML IdP:
+To connect {{  vars.product }} to a SAML IdP:
 
 1. Configure your SAML IdP. For more information, see [Configure a SAML IdP](#prerequisites) below.
 1. Integrate the UAA server with your SAML IdP by enabling UAA to
@@ -25,11 +25,11 @@ delegate authentication to your SAML IdP.
 
 ## <a id='prerequisites'></a>Configure a SAML IdP
 
-You must configure a SAML IdP to designate Tanzu Kubernetes Grid Integrated Edition
-as a service provider (SP) before configuring the SAML IdP in the Tanzu Kubernetes Grid Integrated Edition tile.
+You must configure a SAML IdP to designate {{  vars.product }}
+as a service provider (SP) before configuring the SAML IdP in the {{  vars.product }} tile.
 
 See the table below for information about industry-standard SAML IdPs and
-how to integrate them with Tanzu Kubernetes Grid Integrated Edition:
+how to integrate them with {{  vars.product }}:
 
 <table>
   <tr>
@@ -53,7 +53,7 @@ how to integrate them with Tanzu Kubernetes Grid Integrated Edition:
 
 To integrate UAA with your SAML IdP:
 
-1. In the Tanzu Kubernetes Grid Integrated Edition tile, click **UAA**.
+1. In the {{  vars.product }} tile, click **UAA**.
 1. Under **Configure your UAA user account store with either internal or external authentication mechanisms**,
 select **SAML Identity Provider**.
 
@@ -80,7 +80,7 @@ enable **Enable tkgi cli automatic approval**.
 enable **Enable cluster client tkgi cli automatic approval**.
 
 1. Retrieve the metadata from your IdP. You recorded your IdP metadata when you
-configured your IdP to designate Tanzu Kubernetes Grid Integrated Edition as a SP.
+configured your IdP to designate {{  vars.product }} as a SP.
 See [Prerequisites](#prerequisites) above.
 
 1. Enter your IdP metadata into either the **Provider Metadata** or the
@@ -97,7 +97,7 @@ See [Prerequisites](#prerequisites) above.
     defaults to the <strong>(OR) Provider Metadata URL</strong>.</p>
 
 1. For **Name ID Format**, select the name identifier format for your SAML
-IdP. This translates to `username` in Tanzu Kubernetes Grid Integrated Edition.
+IdP. This translates to `username` in {{  vars.product }}.
 The default is `Email Address`.
 
     ![SAML Fields 2](images/saml2.png)
@@ -113,10 +113,10 @@ for example, `EmailID`. This field is case sensitive.
 1. For **External Groups Attribute**, enter the attribute name in your
 SAML database for your user groups. This field is case sensitive.
 To map the groups from the SAML assertion to admin roles in TKGI, see
-[Grant Tanzu Kubernetes Grid Integrated Edition Access to an External SAML Group](./manage-users.html#saml)
-in _Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA_.
+[Grant {{  vars.product }} Access to an External SAML Group](./manage-users.html#saml)
+in _Managing {{  vars.product }} Users with UAA_.
 
-1. By default, all SAML authentication requests from Tanzu Kubernetes Grid Integrated Edition
+1. By default, all SAML authentication requests from {{  vars.product }}
 are signed. To change this, deactivate **Sign Authentication Requests** and
 configure your IdP to verify SAML authentication requests.
 
@@ -133,22 +133,22 @@ for signed requests and assertions. The default value is `SHA256`.
 ## <a id='complete'></a>Complete Your Tile Configuration
 
 * If you do not need to configure any other settings in the
-Tanzu Kubernetes Grid Integrated Edition tile, return to the {{ vars.platform_name }} Installation Dashboard and
+{{  vars.product }} tile, return to the {{ vars.platform_name }} Installation Dashboard and
 click **Review Pending Changes** > **Apply Changes**.
-* If you need to configure any other settings in the Tanzu Kubernetes Grid Integrated Edition
-tile, return to the _Installing Tanzu Kubernetes Grid Integrated Edition_ topic for your IaaS and
+* If you need to configure any other settings in the {{  vars.product }}
+tile, return to the _Installing {{  vars.product }}_ topic for your IaaS and
 follow the instructions for the pane you want to configure:
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](installing-nsx-t.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#uaa)
+  * [Installing {{  vars.product }} on vSphere](installing-vsphere.html#uaa)
+  * [Installing {{  vars.product }} on vSphere with NSX](installing-nsx-t.html#uaa)
+  * [Installing {{  vars.product }} on AWS](installing-aws.html#uaa)
+  * [Installing {{  vars.product }} on Azure](installing-azure.html#uaa)
 
 
 ## <a id='next'></a>Next Steps
 
-For information about creating Tanzu Kubernetes Grid Integrated Edition roles and
+For information about creating {{  vars.product }} roles and
 managing Kubernetes cluster access, see:
 
-* [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users](vsphere-configure-users.html)
+* [Setting Up {{  vars.product }} Admin Users](vsphere-configure-users.html)
 for your IaaS
 * [Managing Cluster Access and Permissions](manage-cluster-permissions.html)

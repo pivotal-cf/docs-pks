@@ -125,7 +125,7 @@ tkgi rotate-certificates CLUSTER-NAME --all
 
 This command rotates [all certificates](#cluster-certs) except a custom CA `kubo_master_ca_2021` (if implemented).
 
-<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ### <a id="rotate-all-but-nsx"></a>Rotate All Cluster Certificates Except NSX
@@ -138,7 +138,7 @@ tkgi rotate-certificates CLUSTER-NAME --skip-nsx --all
 
 This command rotates [all certificates](#cluster-certs) except `tls-nsx-t` and `tls-nsx-lb`.
 
-<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
@@ -162,7 +162,7 @@ You are about to rotate nsx related certificates for cluster tkgi-cluster-01. Th
 
 For more information, see [Rotate NSX Certificates for Kubernetes Clusters](./nsxt-certs-rotate.html).
 
-<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
@@ -189,7 +189,7 @@ in _Release Notes_ for additional requirements.
 
     For complete usage, see [Use a Custom CA for Kubernetes Clusters](./custom-ca.html).
 
-<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
@@ -214,5 +214,5 @@ Flags:
       --wait              Wait for the operation to finish
 ```
 
-<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>

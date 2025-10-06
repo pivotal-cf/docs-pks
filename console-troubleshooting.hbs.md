@@ -1,23 +1,23 @@
 ---
-title: Troubleshooting Tanzu Kubernetes Grid Integrated Edition Management Console
+title: Troubleshooting {{  vars.product }} Management Console
 
 ---
 
-The following sections describe how to troubleshoot failures to deploy of the {{  vars.product_full }} Management Console and of Tanzu Kubernetes Grid Integrated Edition instances from the management console.
+The following sections describe how to troubleshoot failures to deploy of the {{  vars.product_full }} Management Console and of {{  vars.product }} instances from the management console.
 
-For information about how to deploy the management console and install Tanzu Kubernetes Grid Integrated Edition, see [Install on vSphere with the Management Console](console-install-vsphere.html).
+For information about how to deploy the management console and install {{  vars.product }}, see [Install on vSphere with the Management Console](console-install-vsphere.html).
 
 <hr>
 
-## <a id='ova-fails'></a> Deployment of the Tanzu Kubernetes Grid Integrated Edition Management Console Fails
+## <a id='ova-fails'></a> Deployment of the {{  vars.product }} Management Console Fails
 
 **Problem**
 
-Tanzu Kubernetes Grid Integrated Edition Management Console VM fails to deploy from the OVA template.
+{{  vars.product }} Management Console VM fails to deploy from the OVA template.
 
 **Solution**
 
-1. Use SSH to log in to the Tanzu Kubernetes Grid Integrated Edition Management Console VM as `root` user.
+1. Use SSH to log in to the {{  vars.product }} Management Console VM as `root` user.
 <br>Use the password that you specified when you  deployed the OVA.
 1. Run the following command to obtain the server logs:
 
@@ -29,24 +29,24 @@ Tanzu Kubernetes Grid Integrated Edition Management Console VM fails to deploy f
 
 <hr>
 
-## <a id='tkgi-deployment-fails'></a>Deployment of Tanzu Kubernetes Grid Integrated Edition from the Management Console Fails
+## <a id='tkgi-deployment-fails'></a>Deployment of {{  vars.product }} from the Management Console Fails
 
 **Problem**
 
-Tanzu Kubernetes Grid Integrated Edition fails to deploy from the management console.
+{{  vars.product }} fails to deploy from the management console.
 
 **Solution**
 
-1. Follow the procedure in [Delete Your Tanzu Kubernetes Grid Integrated Edition Deployment](console-delete-deployment.html) to cleanly remove all Tanzu Kubernetes Grid Integrated Edition components from vSphere and to clean up related objects in the management console VM.
-1. Attempt to deploy Tanzu Kubernetes Grid Integrated Edition again.
+1. Follow the procedure in [Delete Your {{  vars.product }} Deployment](console-delete-deployment.html) to cleanly remove all {{  vars.product }} components from vSphere and to clean up related objects in the management console VM.
+1. Attempt to deploy {{  vars.product }} again.
 
 <hr>
 
-## <a id='multi-T0-deployments'></a>Tanzu Kubernetes Grid Integrated Edition Management Console Cannot Retrieve Cluster Data in a Multi-Tier0 Topology
+## <a id='multi-T0-deployments'></a>{{  vars.product }} Management Console Cannot Retrieve Cluster Data in a Multi-Tier0 Topology
 
 **Problem**
 
-In a deployment to a multiple-tier0 topology, Tanzu Kubernetes Grid Integrated Edition Management Console cannot display cluster information when you go to **TKG Integrated Edition** > **Clusters** and select a cluster. You see errors of the following type:
+In a deployment to a multiple-tier0 topology, {{  vars.product }} Management Console cannot display cluster information when you go to **TKG Integrated Edition** > **Clusters** and select a cluster. You see errors of the following type:
 
 ```
 Failed to retrieve current K8s Cluster summary. cannot get cluster details: cannot get cluster namespaces: Get https://<address>:8443/api/v1/namespaces: dial tcp <address>:8443: i/o timeout
@@ -55,11 +55,11 @@ Failed to retrieve current K8s Cluster Volumes. cannot get namespaces of cluster
 
 **Cause**
 
-In a single tier0 topology, Tanzu Kubernetes Grid Integrated Edition Management Console is deployed to the same infrastructure network as vSphere and VMware NSX. In a multiple-tier0 topology, due to tenant isolation, the infrastructure network is not routable to tenant tier0 uplink networks. In a multiple-tier0 topology, data from the Kubernetes API is exposed by floating IP addresses on tenant tier0 routers. Consequently, the management console cannot retrieve cluster data from the Kubernetes API because it is not on the same network as the tenants.
+In a single tier0 topology, {{  vars.product }} Management Console is deployed to the same infrastructure network as vSphere and VMware NSX. In a multiple-tier0 topology, due to tenant isolation, the infrastructure network is not routable to tenant tier0 uplink networks. In a multiple-tier0 topology, data from the Kubernetes API is exposed by floating IP addresses on tenant tier0 routers. Consequently, the management console cannot retrieve cluster data from the Kubernetes API because it is not on the same network as the tenants.
 
 **Solution**
 
-Make sure that the Tanzu Kubernetes Grid Integrated Edition Management Console can connect to tenant floating IP addresses.
+Make sure that the {{  vars.product }} Management Console can connect to tenant floating IP addresses.
 
 
 1. Connect to the management console VM by using `ssh`.
@@ -156,13 +156,13 @@ To upgrade TKGI MC after converting a network from N-VDS to VDS:
 
 <hr>
 
-## <a id='log-insight'></a>Obtain the vRealize Log Insight Agent ID for Tanzu Kubernetes Grid Integrated Edition Management Console
+## <a id='log-insight'></a>Obtain the vRealize Log Insight Agent ID for {{  vars.product }} Management Console
 
-If you enabled integration with VMware vRealize Log Insight, Tanzu Kubernetes Grid Integrated Edition Management Console generates a unique vRealize Log Insight agent ID for the management console VM. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console.
+If you enabled integration with VMware vRealize Log Insight, {{  vars.product }} Management Console generates a unique vRealize Log Insight agent ID for the management console VM. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console.
 
 You obtain the vRealize Log Insight agent ID as follows:
 
-1. Use SSH to log in to the Tanzu Kubernetes Grid Integrated Edition Management Console VM as `root` user.
+1. Use SSH to log in to the {{  vars.product }} Management Console VM as `root` user.
 1. Run the following command to obtain the ID:
 
     ```

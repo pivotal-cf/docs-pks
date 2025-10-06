@@ -16,6 +16,6 @@ The topics below describe how to deploy workloads to Kubernetes clusters provisi
     <a href="custom-workloads.html">Adding Custom Linux Workloads</a>
   </li>
   <li>
-    <a href="helm.html">Using Helm with Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="helm.html">Using Helm with {{  vars.product }}</a>
   </li>
 </ul>

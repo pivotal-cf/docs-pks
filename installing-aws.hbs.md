@@ -1,5 +1,5 @@
 ---
-title: Installing Tanzu Kubernetes Grid Integrated Edition on AWS (Antrea Networking)
+title: Installing {{  vars.product }} on AWS (Antrea Networking)
 
 iaas: AWS
 windowsclusters: #Empty var to prevent build breaking
@@ -27,32 +27,32 @@ For more information, see [Installing and Configuring {{ vars.platform_name }} o
 
 To install and configure TKGI:
 
-1. [Install Tanzu Kubernetes Grid Integrated Edition](#install)
-1. [Configure Tanzu Kubernetes Grid Integrated Edition](#configure)
+1. [Install {{  vars.product }}](#install)
+1. [Configure {{  vars.product }}](#configure)
 1. [Apply Changes](#apply-changes)
 1. [Retrieve the TKGI API Endpoint](#retrieve-tkgi-api)
 1. [Configure an AWS Load Balancer for the TKGI API](#lb-tkgi-api)
 1. [Install the TKGI and Kubernetes CLIs](#clis)
-1. [Configure Authentication for Tanzu Kubernetes Grid Integrated Edition](#auth)
+1. [Configure Authentication for {{  vars.product }}](#auth)
 
 
 
-## <a id='install'></a> Step 1: Install Tanzu Kubernetes Grid Integrated Edition
+## <a id='install'></a> Step 1: Install {{  vars.product }}
 
 {{> install }}
 
 
 
-## <a id='configure'></a> Step 2: Configure Tanzu Kubernetes Grid Integrated Edition
+## <a id='configure'></a> Step 2: Configure {{  vars.product }}
 
 To configure TKGI:
 
-1. Click the orange **Tanzu Kubernetes Grid Integrated Edition** tile to start the configuration process.
+1. Click the orange **{{  vars.product }}** tile to start the configuration process.
 
     ![TKGI tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
-    <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile,
+    <p class="note warning"><strong>WARNING</strong>: When you configure the {{  vars.product }} tile,
     do not use spaces in any field entries. This includes spaces between characters as well as
-    leading and trailing spaces. If you use a space in any field entry, the deployment of Tanzu Kubernetes Grid Integrated Edition fails.</p>
+    leading and trailing spaces. If you use a space in any field entry, the deployment of {{  vars.product }} fails.</p>
 1. [Assign AZs and Networks](#azs-networks)
 1. [TKGI API](#tkgi-api)
 1. [Plans](#plans)
@@ -120,7 +120,7 @@ To configure networking, do the following:
     * Ensure that the CIDR range for the **Kubernetes Pod Network CIDR Range** is large enough to accommodate the expected maximum number of pods.
 <br>
 1. (Optional) Configure a global proxy for all outgoing HTTP and HTTPS traffic from your Kubernetes clusters and
-the TKGI API server. See [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on AWS](proxies-aws.html) for instructions to enable a proxy.
+the TKGI API server. See [Using Proxies with {{  vars.product }} on AWS](proxies-aws.html) for instructions to enable a proxy.
 1. (Optional) If you do not use a NAT instance, select **Allow outbound internet access from Kubernetes cluster vms (IaaS-dependent)**. Enabling this functionality assigns external IP addresses to VMs in clusters.
 
 1. Click **Save**.
@@ -155,7 +155,7 @@ the TKGI API server. See [Using Proxies with Tanzu Kubernetes Grid Integrated Ed
 
 ### <a id='resource-config'></a> Resource Config
 
-To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition and specify your TKGI API load balancer, follow the steps below:
+To modify the resource configuration of {{  vars.product }} and specify your TKGI API load balancer, follow the steps below:
 
 1. Select **Resource Config**.
 
@@ -173,7 +173,7 @@ To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition
     * (Optional) If you do not use a NAT instance, select **INTERNET CONNECTED**. This allows component instances direct access to the internet.
 
   <p class="note warning"><strong>Warning:</strong> To avoid workload downtime, use the resource configuration recommended in
-  <a href="understanding-upgrades.html">About Tanzu Kubernetes Grid Integrated Edition Upgrades</a>
+  <a href="understanding-upgrades.html">About {{  vars.product }} Upgrades</a>
   and <a href="maintain-uptime.html">Maintaining Workload Uptime</a>.
   </p>
 
@@ -205,14 +205,14 @@ Follow the procedures in [Configuring an AWS Load Balancer for the TKGI API](aws
 
 
 
-## <a id='auth'></a> Step 7: Configure Authentication for Tanzu Kubernetes Grid Integrated Edition
+## <a id='auth'></a> Step 7: Configure Authentication for {{  vars.product }}
 
-Follow the procedures in [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on AWS](aws-configure-users.html).
+Follow the procedures in [Setting Up {{  vars.product }} Admin Users on AWS](aws-configure-users.html).
 
 
 ## <a id='next-steps'></a> Next Steps
 
-After installing Tanzu Kubernetes Grid Integrated Edition on AWS, you might want to do one or more of the following:
+After installing {{  vars.product }} on AWS, you might want to do one or more of the following:
 
-* Create a load balancer for your Tanzu Kubernetes Grid Integrated Edition clusters. For more information, see [Creating and Configuring an AWS Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters](aws-cluster-load-balancer.html).
-* Create your first Tanzu Kubernetes Grid Integrated Edition cluster. For more information, see [Creating Clusters](create-cluster.html).
+* Create a load balancer for your {{  vars.product }} clusters. For more information, see [Creating and Configuring an AWS Load Balancer for {{  vars.product }} Clusters](aws-cluster-load-balancer.html).
+* Create your first {{  vars.product }} cluster. For more information, see [Creating Clusters](create-cluster.html).

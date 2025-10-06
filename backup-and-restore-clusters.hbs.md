@@ -28,7 +28,7 @@ In context of TKGI, BBR does not back up and restore:
 To use BBR to back up and restore Kubernetes clusters provisioned by TKGI, see the following topics:
 
 * [Install and Configure BOSH Backup and Restore](bbr-install-config.html)
-* [Back Up Kubernetes Clusters Provisioned by Tanzu Kubernetes Grid Integrated Edition](bbr-backup-clusters.html)
+* [Back Up Kubernetes Clusters Provisioned by {{  vars.product }}](bbr-backup-clusters.html)
 * [Restore Kubernetes Clusters Provisioned by](bbr-restore-clusters.html)
 
 ## Testing Considerations

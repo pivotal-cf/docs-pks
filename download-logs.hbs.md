@@ -67,4 +67,4 @@ by listing the VMs in your target BOSH deployment:
     logs master/000a1111-222b-3333-4cc5-de66f7a8899b
     ```
 	For more information about log files,
-	see [View Log Files](diagnostic-tools.html#bosh-tkgi-map) in _Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition_.
+	see [View Log Files](diagnostic-tools.html#bosh-tkgi-map) in _Using BOSH Diagnostic Commands in {{  vars.product }}_.

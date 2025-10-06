@@ -19,7 +19,7 @@ You can create two types of sinks:
 * Metric sinks
 
 For more conceptual information about sinks, see
-[Sink Architecture in Tanzu Kubernetes Grid Integrated Edition](sink-architecture.html).
+[Sink Architecture in {{  vars.product }}](sink-architecture.html).
 
 
 ## <a id='prerequisites'></a>Prerequisites
@@ -27,8 +27,8 @@ For more conceptual information about sinks, see
 Before creating a sink resource:
 
 1. Review [Sink Types](sink-architecture.html#types) in
-_Sink Architecture in Tanzu Kubernetes Grid Integrated Edition_.
-1. Configure sink resources in the **Tanzu Kubernetes Grid Integrated Edition** tile >
+_Sink Architecture in {{  vars.product }}_.
+1. Configure sink resources in the **{{  vars.product }}** tile >
 **In-Cluster Monitoring**:
   * If you want to create a `ClusterLogSink` or `LogSink` resource, select
   the **Enable Log Sink Resources** check box.
@@ -41,10 +41,10 @@ _Sink Architecture in Tanzu Kubernetes Grid Integrated Edition_.
   <br><br>
       For more information about these configuration settings,
       see the TKGI installation topic for your IaaS:
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#cluster-monitoring)
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Integration](installing-nsx-t.html#cluster-monitoring)
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#cluster-monitoring)
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on vSphere](installing-vsphere.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on vSphere with NSX Integration](installing-nsx-t.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on AWS](installing-aws.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on Azure](installing-azure.html#cluster-monitoring)
 
 1. Install the Kubernetes CLI, <code>kubectl</code>.
 For installation instructions, see <a href="installing-kubectl-cli.html">Installing the Kubernetes CLI</a>.
@@ -717,7 +717,7 @@ To define a `ClusterMetricSink` or `MetricSink` resource, perform the following 
 To define a `ClusterMetricSink` resource for collecting Node Exporter metrics, perform the following steps:
 
 1. Activate Node Exporter on your cluster workers by selecting the **Enable node exporter on workers**
-check box in the **Tanzu Kubernetes Grid Integrated Edition** tile > **In-Cluster Monitoring**.
+check box in the **{{  vars.product }}** tile > **In-Cluster Monitoring**.
 1. Create a YAML file in the following format:
 
     ```

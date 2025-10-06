@@ -9,9 +9,9 @@ This topic describes how to create a Kubernetes cluster using the {{  vars.produ
 
 ## <a id='overview'></a>Overview
 
-Use the TKGI CLI to create Kubernetes clusters in your Tanzu Kubernetes Grid Integrated Edition environment.
+Use the TKGI CLI to create Kubernetes clusters in your {{  vars.product }} environment.
 
-To create an Tanzu Kubernetes Grid Integrated Edition Kubernetes cluster, do the following:
+To create an {{  vars.product }} Kubernetes cluster, do the following:
 
 * [Configure Cluster Access](#cluster-access)
 * [Create a Kubernetes Cluster](#create)
@@ -23,29 +23,29 @@ the TKGI version of the current TKGI control plane.
 
 ## <a id='cluster-access'></a>Configure Cluster Access
 
-Cluster access configuration differs by the type of Tanzu Kubernetes Grid Integrated Edition deployment.
+Cluster access configuration differs by the type of {{  vars.product }} deployment.
 
 ### <a id='cluster-access-nsx-t'></a>vSphere with NSX
 
-Tanzu Kubernetes Grid Integrated Edition deploys a load balancer automatically when clusters are created. The load balancer is configured automatically when workloads are being deployed on these Kubernetes clusters.
-For more information, see [Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments with NSX](about-lb.html#with-nsx-t).
+{{  vars.product }} deploys a load balancer automatically when clusters are created. The load balancer is configured automatically when workloads are being deployed on these Kubernetes clusters.
+For more information, see [Load Balancers in {{  vars.product }} Deployments with NSX](about-lb.html#with-nsx-t).
 
-<p class="note"><strong>Note</strong>: For a complete list of the objects that Tanzu Kubernetes Grid Integrated Edition creates by default when you create a Kubernetes cluster on vSphere with NSX, see <a href="vsphere-nsxt-cluster-objects.html">vSphere with NSX Cluster Objects</a>.</p>
+<p class="note"><strong>Note</strong>: For a complete list of the objects that {{  vars.product }} creates by default when you create a Kubernetes cluster on vSphere with NSX, see <a href="vsphere-nsxt-cluster-objects.html">vSphere with NSX Cluster Objects</a>.</p>
 
 ### <a id='cluster-access-general'></a>AWS, Azure, or vSphere without NSX
 
 When you create a Kubernetes cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
-This load balancer allows you to run TKGI CLI commands on the cluster from your local workstation. For more information, see [Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments without NSX](about-lb.html#without-nsx-t).
+This load balancer allows you to run TKGI CLI commands on the cluster from your local workstation. For more information, see [Load Balancers in {{  vars.product }} Deployments without NSX](about-lb.html#without-nsx-t).
 
 You can configure any load balancer of your choice.
 If you use AWS, Azure, or vSphere without NSX, you can create a load balancer using your cloud provider console.
 
-For more information about configuring a Tanzu Kubernetes Grid Integrated Edition cluster load balancer, see the following:
+For more information about configuring a {{  vars.product }} cluster load balancer, see the following:
 
-* [Creating and Configuring an AWS Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters](aws-cluster-load-balancer.html)
-* [Creating and Configuring an Azure Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters](azure-cluster-load-balancer.html)
+* [Creating and Configuring an AWS Load Balancer for {{  vars.product }} Clusters](aws-cluster-load-balancer.html)
+* [Creating and Configuring an Azure Load Balancer for {{  vars.product }} Clusters](azure-cluster-load-balancer.html)
 
-Create the Tanzu Kubernetes Grid Integrated Edition cluster load balancer before you create the cluster. Use the load balancer IP address
+Create the {{  vars.product }} cluster load balancer before you create the cluster. Use the load balancer IP address
 as the external hostname, and then point the load balancer to the IP address of the control plane
 virtual machine (VM) after cluster creation. If the cluster has multiple control plane nodes, you
 must configure the load balancer to point to all control plane VMs for the cluster.
@@ -61,7 +61,7 @@ To locate the IP addresses and VM IDs of the control plane VMs, see [Identify th
 Perform the following steps:
 
 1. Grant cluster access to a new or existing user in UAA.
-For more information, see the [Grant Tanzu Kubernetes Grid Integrated Edition Access to an Individual User](manage-users.html#uaa-user) section of _Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA_.
+For more information, see the [Grant {{  vars.product }} Access to an Individual User](manage-users.html#uaa-user) section of _Managing {{  vars.product }} Users with UAA_.
 
 1. {{> login-api }}
 
@@ -117,7 +117,7 @@ For more information, see the [Grant Tanzu Kubernetes Grid Integrated Edition Ac
     <p class="note"><strong>Note</strong>: It can take up to 30 minutes to create a cluster.</p>
     For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use PersistentVolumes (PVs). For example, if you deploy across three AZs, you must have six worker nodes. For more information about PVs, see [PersistentVolumes](maintain-uptime.html#persistent-volumes) in *Maintaining Workload Uptime*. Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
 <br><br>
-    The maximum value you can specify is configured in the **Plans** pane of the Tanzu Kubernetes Grid Integrated Edition tile. If you do not specify a number of worker nodes, the cluster is deployed with the default number, which is also configured in the **Plans** pane. For more information, see the *Installing Tanzu Kubernetes Grid Integrated Edition* topic for your IaaS, such as [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#plans).
+    The maximum value you can specify is configured in the **Plans** pane of the {{  vars.product }} tile. If you do not specify a number of worker nodes, the cluster is deployed with the default number, which is also configured in the **Plans** pane. For more information, see the *Installing {{  vars.product }}* topic for your IaaS, such as [Installing {{  vars.product }} on vSphere](installing-vsphere.html#plans).
 
 1. To track cluster creation, run the following command:
 
@@ -156,7 +156,7 @@ For more information, see the [Grant Tanzu Kubernetes Grid Integrated Edition Ac
 
 1. Depending on your deployment:
   * For **vSphere with NSX**, choose one of the following:
-      * Specify the hostname or FQDN and register the FQDN with the IP provided by Tanzu Kubernetes Grid Integrated Edition after cluster deployment. You can do this using `resolv.conf` or via DNS registration.
+      * Specify the hostname or FQDN and register the FQDN with the IP provided by {{  vars.product }} after cluster deployment. You can do this using `resolv.conf` or via DNS registration.
       * Specify a temporary placeholder value for FQDN, then replace the FQDN in the `kubeconfig` with the IP address assigned to the load balancer dedicated to the cluster.<br><br>
   To retrieve the IP address to access the Kubernetes API and UI services, use the `tkgi cluster CLUSTER-NAME` command.
   * For **vSphere without NSX**, **AWS**, and **Azure**, configure external access to the cluster's control plane nodes using either DNS records or an external load balancer. Use the output from the `tkgi cluster` command to locate the control plane node IP addresses and ports.
@@ -190,7 +190,7 @@ For more information about the `tkgi get-credentials` command, see [Retrieving C
     kubectl cluster-info
     ```
 
-    See [Managing Tanzu Kubernetes Grid Integrated Edition](managing.html) for information about checking cluster health and viewing cluster logs.
+    See [Managing {{  vars.product }}](managing.html) for information about checking cluster health and viewing cluster logs.
 
 1. To review the status, container runtime or other information about the nodes in your cluster, run the following command:
 
@@ -202,7 +202,7 @@ For more information about the `tkgi get-credentials` command, see [Retrieving C
 
 ## <a id="master-id"></a>Identify Kubernetes Cluster Control Plane VMs
 
-<p class="note"><strong>Note</strong>: This section applies only to Tanzu Kubernetes Grid Integrated Edition deployments on vSphere without NSX. Skip this section if your Tanzu Kubernetes Grid Integrated Edition deployment is on vSphere with NSX, AWS, or Azure. For more information, see <a href="about-lb.html">Load Balancers in Tanzu Kubernetes Grid Integrated Edition</a>.
+<p class="note"><strong>Note</strong>: This section applies only to {{  vars.product }} deployments on vSphere without NSX. Skip this section if your {{  vars.product }} deployment is on vSphere with NSX, AWS, or Azure. For more information, see <a href="about-lb.html">Load Balancers in {{  vars.product }}</a>.
 </p>
 To reconfigure the load balancer or DNS record for an existing cluster, you might need to locate VM ID and IP address information for the cluster's control plane VMs.
 Use the information you locate in this procedure when configuring your load balancer backend.
@@ -253,10 +253,10 @@ To locate the IP addresses and VM IDs for the control plane VMs of an existing c
 ## <a id='next'></a>Next Steps
 
 If you did not tag your new cluster during creation, tag your cluster's VMs now.
-If your Tanzu Kubernetes Grid Integrated Edition deployment is on:
+If your {{  vars.product }} deployment is on:
 
 * **AWS**: Tag your subnets with your new cluster's unique identifier before adding the subnets to the
-Tanzu Kubernetes Grid Integrated Edition workload load balancer.
+{{  vars.product }} workload load balancer.
 After you complete the [Create a Kubernetes Cluster](#create) procedure above,
 follow the instructions in [AWS Prerequisites](./deploy-workloads.html#aws) in _Deploying and Exposing Basic Linux Workloads_.
 * **Azure**, **vSphere**, or **vSphere with NSX**: You can use the TKGI CLI to tag clusters by following the steps in

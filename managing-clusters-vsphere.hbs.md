@@ -16,6 +16,6 @@ The following topics describe how to configure and apply compute profiles and ho
     <a href="./compute-profiles-use.html">Using Compute Profiles (vSphere)</a>
   </li>
   <li>
-    <a href="./vsphere-host-group.html">Using vSphere Host Groups with Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./vsphere-host-group.html">Using vSphere Host Groups with {{  vars.product }}</a>
   </li>
 <ul>

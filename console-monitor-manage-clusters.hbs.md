@@ -3,7 +3,7 @@ title: Monitor and Manage Clusters, Nodes, and Namespaces in the Management Cons
 
 ---
 
-You can find general information about your deployment on vSphere, and information about all of the clusters and nodes running it, in the **TKG Integrated Edition** view of Tanzu Kubernetes Grid Integrated Edition Management Console.
+You can find general information about your deployment on vSphere, and information about all of the clusters and nodes running it, in the **TKG Integrated Edition** view of {{  vars.product }} Management Console.
 
 ## <a id='cluster-status'></a>Obtain Cluster Information
 
@@ -26,8 +26,8 @@ On the **Summary** tab for the cluster, you see general information about that c
 
 ## <a id='kubectl'></a>Connect to Clusters with kubectl
 
-1. Go to the Tanzu Kubernetes Grid Integrated Edition view of the management console.
-1. Select the **Clusters** tab for your Tanzu Kubernetes Grid Integrated Edition instance.
+1. Go to the {{  vars.product }} view of the management console.
+1. Select the **Clusters** tab for your {{  vars.product }} instance.
 1. Select a cluster.
 1. Select **Access Cluster** for instructions about how to access the cluster by using `kubectl`.
     ![Connect to a cluster in K8S Dashboard](images/console/kubectl.png)
@@ -35,10 +35,10 @@ On the **Summary** tab for the cluster, you see general information about that c
 
 ## <a id='node-status'></a>Obtain Node Information
 
-1. Go to the Tanzu Kubernetes Grid Integrated Edition view of the management console.
+1. Go to the {{  vars.product }} view of the management console.
 1. Select the **Nodes** tab to see detailed information about all of the nodes running in this instance.
 
-    This tab shows the general status, type, name, IP, and availability zone for all of the nodes that are running in your Tanzu Kubernetes Grid Integrated Edition instance.
+    This tab shows the general status, type, name, IP, and availability zone for all of the nodes that are running in your {{  vars.product }} instance.
 
     ![All nodes](images/console/summary-nodes.png)
 1. Click the links in the Kubernetes Clusters columns to go the **Summary** tab of that cluster.

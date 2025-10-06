@@ -1,5 +1,5 @@
 ---
-title: Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Edition
+title: Upgrade Preparation Checklist for {{  vars.product }}
 
 ---
 
@@ -36,36 +36,36 @@ in _Release Notes_ for additional requirements.
 
 
 After completing the steps in this topic, continue to
-[Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)](upgrade.html) or
-[Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)](upgrade-nsxt.html).
+[Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html) or
+[Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html).
 
 
-##<a id='backup'></a> Back Up Your Tanzu Kubernetes Grid Integrated Edition Deployment
+##<a id='backup'></a> Back Up Your {{  vars.product }} Deployment
 
-{{{ vars.recommended_by }}} recommends backing up your Tanzu Kubernetes Grid Integrated Edition
+{{{ vars.recommended_by }}} recommends backing up your {{  vars.product }}
 deployment and workloads before upgrading.
-To back up Tanzu Kubernetes Grid Integrated Edition, see
-[Backing Up and Restoring Tanzu Kubernetes Grid Integrated Edition](backup-and-restore.html).
+To back up {{  vars.product }}, see
+[Backing Up and Restoring {{  vars.product }}](backup-and-restore.html).
 
-##<a id='understand-upgrades'></a> Review What Happens During Tanzu Kubernetes Grid Integrated Edition Upgrades
+##<a id='understand-upgrades'></a> Review What Happens During {{  vars.product }} Upgrades
 
-If you have not already done so, review [About Tanzu Kubernetes Grid Integrated Edition Upgrades](understanding-upgrades.html).
+If you have not already done so, review [About {{  vars.product }} Upgrades](understanding-upgrades.html).
 
 Plan your upgrade based on your workload capacity and uptime requirements.
 
-##<a id='review-changes'></a> Review Changes in Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}
+##<a id='review-changes'></a> Review Changes in {{  vars.product }} {{{ vars.product_version }}}
 
-Review the [Release Notes](release-notes.html) for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+Review the [Release Notes](release-notes.html) for {{  vars.product }} {{{ vars.product_version }}}.
 
 ##<a id='upgrade-order'></a> Determine Upgrade Order (vSphere Only)
 
-To determine the upgrade order for your Tanzu Kubernetes Grid Integrated Edition environment,
+To determine the upgrade order for your {{  vars.product }} environment,
 review
-[Upgrade Order for Tanzu Kubernetes Grid Integrated Edition Environments on vSphere](upgrade-scenarios.html).
+[Upgrade Order for {{  vars.product }} Environments on vSphere](upgrade-scenarios.html).
 
 ##<a id='expectations'></a> Set User Expectations and Restrict Cluster Access
 
-Coordinate the Tanzu Kubernetes Grid Integrated Edition upgrade with cluster admins and users.
+Coordinate the {{  vars.product }} upgrade with cluster admins and users.
 During the upgrade:
 
 * Their workloads will remain active and accessible.
@@ -82,10 +82,10 @@ Wait for cluster operations to complete before upgrading.
 
 ##<a id='upgrade-clusters'></a> Upgrade All Clusters to {{{ vars.product_version_prev }}}
 
-Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}} does not support clusters
+{{  vars.product }} {{{ vars.product_version }}} does not support clusters
 running versions of TKGI earlier than {{{ vars.product_version_prev }}}.
 
-Before you upgrade from Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version_prev }}} to {{{ vars.product_version }}},
+Before you upgrade from {{  vars.product }} {{{ vars.product_version_prev }}} to {{{ vars.product_version }}},
 you must upgrade all of your TKGI-provisioned clusters
 to {{{ vars.product_version_prev }}}.
 
@@ -160,7 +160,7 @@ To verify the health of your Kubernetes environment, see [Verifying Deployment H
 
 ##<a id='review-configurations'></a> Verify Your Environment Configuration
 
-If you are upgrading Tanzu Kubernetes Grid Integrated Edition,
+If you are upgrading {{  vars.product }},
 verify the configuration of your environment supports the TKGI version you are installing:
 
 * [Verify Your vSphere with NSX Configuration](#review-vsphere-nsxt)
@@ -168,7 +168,7 @@ verify the configuration of your environment supports the TKGI version you are i
 
 ###<a id='review-vsphere-nsxt'></a> Verify Your vSphere with NSX Configuration
 
-If you are upgrading Tanzu Kubernetes Grid Integrated Edition for environments using vSphere with NSX, perform the following steps:
+If you are upgrading {{  vars.product }} for environments using vSphere with NSX, perform the following steps:
 
 1. Verify that the vSphere datastores have enough space.
 1. Verify that the vSphere hosts have enough memory.
@@ -178,11 +178,11 @@ If you are upgrading Tanzu Kubernetes Grid Integrated Edition for environments u
   <p class="note"><strong>Note</strong>: Workloads in your Kubernetes cluster are unavailable while
   the NSX Edge nodes run the upgrade unless you configure NSX Edge for high availability. For more
   information, see the <a href="./nsxt-prepare-env.html#nsx-edge-ha">Configure NSX Edge for High Availability (HA)</a>
-section of <em>Preparing NSX Before Deploying Tanzu Kubernetes Grid Integrated Edition</em>.</p>
+section of <em>Preparing NSX Before Deploying {{  vars.product }}</em>.</p>
 
 ###<a id='review-non-nsxt'></a> Verify Your Antrea Environment Configuration
 
-If you are upgrading Tanzu Kubernetes Grid Integrated Edition in an environment using Antrea networking,
+If you are upgrading {{  vars.product }} in an environment using Antrea networking,
 perform the following steps:
 
 1. Verify the 6081 UDP port is open on all worker node VMs.
@@ -223,9 +223,9 @@ Verify that existing Kubernetes clusters have unique external hostnames by check
 Kubernetes clusters with the same external hostname. Perform the following steps:
 
 1. Log in to the TKGI CLI. For more information, see
-[Logging in to Tanzu Kubernetes Grid Integrated Edition](login.html). You must log in with an account that has the
+[Logging in to {{  vars.product }}](login.html). You must log in with an account that has the
 UAA scope of `pks.clusters.admin`. For more information about UAA scopes, see
-[Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).
+[Managing {{  vars.product }} Users with UAA](manage-users.html).
 
 1. View your deployed TKGI clusters by running the following command:
 
@@ -257,7 +257,7 @@ Verify your current TKGI proxy configuration by performing the following steps:
 
 ##<a id='check-poddisruptionbudget-value'></a> Check PodDisruptionBudget Value
 
-Tanzu Kubernetes Grid Integrated Edition upgrades can run without ever completing if any Kubernetes app has a `PodDisruptionBudget`
+{{  vars.product }} upgrades can run without ever completing if any Kubernetes app has a `PodDisruptionBudget`
 with `maxUnavailable` set to `0`.
 
 To ensure that no apps have a `PodDisruptionBudget` with
@@ -273,7 +273,7 @@ To ensure that no apps have a `PodDisruptionBudget` with
 
 ## <a id="configure-node-drain"></a> (Optional) Configure Node Drain Behavior
 
-During the Tanzu Kubernetes Grid Integrated Edition upgrade process, worker nodes are cordoned and drained.
+During the {{  vars.product }} upgrade process, worker nodes are cordoned and drained.
 Workloads can prevent worker nodes from draining and cause the upgrade to fail or hang.
 
 To prevent hanging cluster upgrades, you can configure default node drain behavior using the following methods:
@@ -287,7 +287,7 @@ not immediately after configuring the behavior.
 
 ### <a id="node-drain-tile"></a> Configure with the TKGI Tile
 
-To configure node drain behavior in the Tanzu Kubernetes Grid Integrated Edition tile,
+To configure node drain behavior in the {{  vars.product }} tile,
 see <a href="./troubleshoot-issues.html#upgrade-drain-hangs">Worker Node Hangs Indefinitely</a>
 in <i>Troubleshooting</i>.</p>
 

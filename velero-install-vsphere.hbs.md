@@ -4,7 +4,7 @@ title: Installing Velero vSphere Plugin
 ---
 
 This topic describes how to install Velero for backing up and restoring
-Tanzu Kubernetes Grid Integrated Edition (TKGI)-provisioned Kubernetes workloads on vSphere.
+{{  vars.product }} (TKGI)-provisioned Kubernetes workloads on vSphere.
 
 ##<a id="prereqs"></a> Prerequisites
 
@@ -14,7 +14,7 @@ Ensure the following before installing Velero for backing up and restoring TKGI 
 see [Deploying and Managing Cloud Native Storage (CNS) on vSphere](vsphere-cns.html).
 * **Allow Privileged** is enabled in the plan for the cluster being backed up.
 For more information, see [Plans](installing-vsphere.html#plans) in
-_Installing Tanzu Kubernetes Grid Integrated Edition on vSphere_.
+_Installing {{  vars.product }} on vSphere_.
 * You have read: [Tanzu Kubernetes Workload Back Up and Restore Requirements](./backup-and-restore-work.html#requirements)
 in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero_.
 * You have a Linux VM with sufficient storage to store several workload backups.

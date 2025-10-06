@@ -48,9 +48,9 @@ spec:
 
 ## <a id='apply'></a> Apply Custom Workloads
 
-To apply custom Kubernetes workloads to every cluster created on a plan, enter your YAML configuration in the **(Optional) Add-ons - Use with caution** field in the pane for configuring a plan in the Tanzu Kubernetes Grid Integrated Edition tile.
+To apply custom Kubernetes workloads to every cluster created on a plan, enter your YAML configuration in the **(Optional) Add-ons - Use with caution** field in the pane for configuring a plan in the {{  vars.product }} tile.
 
-For more information, see the *Plans* section of the *Installing Tanzu Kubernetes Grid Integrated Edition* topic for your IaaS. For example, [Plans](installing-vsphere.html#plans) in *Installing Tanzu Kubernetes Grid Integrated Edition on vSphere*.
+For more information, see the *Plans* section of the *Installing {{  vars.product }}* topic for your IaaS. For example, [Plans](installing-vsphere.html#plans) in *Installing {{  vars.product }} on vSphere*.
 
 
 

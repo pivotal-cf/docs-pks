@@ -2,7 +2,7 @@ Before creating TKGI users, you must log in to the UAA server as a UAA admin. To
 
 1. Retrieve the UAA management admin client secret:
 
-  1. In a web browser, navigate to the {{ vars.platform_name }} **Installation Dashboard** and click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+  1. In a web browser, navigate to the {{ vars.platform_name }} **Installation Dashboard** and click the **{{  vars.product }}** tile.
 
   1. Click the **Credentials** tab.
 
@@ -16,7 +16,7 @@ Before creating TKGI users, you must log in to the UAA server as a UAA admin. To
 
     Where:
 
-    * `TKGI-API` is the domain name of your TKGI API server. You entered this domain name in the **Tanzu Kubernetes Grid Integrated Edition** tile > **TKGI API** > **API Hostname (FQDN)**.
+    * `TKGI-API` is the domain name of your TKGI API server. You entered this domain name in the **{{  vars.product }}** tile > **TKGI API** > **API Hostname (FQDN)**.
     * `CERTIFICATE-PATH` is the path to your {{ vars.platform_name }} root CA certificate. Provide this certificate to validate the TKGI API certificate with SSL.
         * If you are logged in to the {{ vars.platform_name }} VM, specify `/var/tempest/workspaces/default/root_ca_certificate` as the path. This is the default location of the root certificate on the {{ vars.platform_name }} VM.
         * If you downloaded the {{ vars.platform_name }} root CA certificate to your machine, specify the path where you stored the certificate.

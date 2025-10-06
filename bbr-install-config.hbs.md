@@ -12,7 +12,7 @@ then copy the `bbr` executable to the jump box and configure BBR.
 
 For more information, see [Install and Configure BOSH Backup and Restore](#install-bbr-overview) below.
 
-After installing BBR, you can run `bbr` commands to back up and restore your Tanzu Kubernetes Grid Integrated Edition
+After installing BBR, you can run `bbr` commands to back up and restore your {{  vars.product }}
 deployment.
 
 For more information about using BOSH Backup and Restore, see:
@@ -35,7 +35,7 @@ Using BBR requires the following:
 
 * A `bbr` executable file. You must have the correct BBR executable version for your TKGI installation.
 
-    * To determine the correct version of BBR for your deployment, see the [Tanzu Kubernetes Grid Integrated Edition Release Notes](release-notes.html).
+    * To determine the correct version of BBR for your deployment, see the [{{  vars.product }} Release Notes](release-notes.html).
     * To download a BBR installation file, see [BOSH Backup and Restore](https://support.broadcom.com/group/ecx/productdownloads?subfamily=BOSH%20Backup%20and%20Restore) on the Broadcom Support.
 
 <p class="note"><strong>Note</strong>: BBR does not support SSH gateways.</p>
@@ -57,9 +57,9 @@ You can use the {{ vars.platform_name }} VM as your jump box if it can be config
 To configure your jump box to meet BBR requirements:
 
 1. Size the jump box to have sufficient storage space for your backups.
-1. Ensure the jump box can communicate with the network containing your Tanzu Kubernetes Grid Integrated Edition deployment.
+1. Ensure the jump box can communicate with the network containing your {{  vars.product }} deployment.
 <br>
-    BBR uses SSH to orchestrate the back up of your Tanzu Kubernetes Grid Integrated Edition instances using port 22 by default.
+    BBR uses SSH to orchestrate the back up of your {{  vars.product }} instances using port 22 by default.
 
 1. Configure the jump box to be in the same network as the deployed VMs.
 <br>

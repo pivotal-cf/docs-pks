@@ -14,7 +14,7 @@ When you deploy Kubernetes clusters from the TKGI MC, you select the following p
 
 * A plan from the list of plans that were defined when the TKGI MC was deployed.
 * An optional network profile. Network profiles allow cluster administrators and cluster managers to customize the networking for different types of Kubernetes cluster. For information about how to create network profiles in the TKGI MC, see [Working with Network Profiles](console-network-profile.html).
-* An optional Kubernetes profile. Kubernetes profiles enable cluster administrators and cluster managers to customize Kubernetes component settings for any clusters that they provision. You create Kubernetes profiles outside of the TKGI MC, by using the TKGI CLI to define the Kubernetes profile in your Tanzu Kubernetes Grid Integrated Edition instance.
+* An optional Kubernetes profile. Kubernetes profiles enable cluster administrators and cluster managers to customize Kubernetes component settings for any clusters that they provision. You create Kubernetes profiles outside of the TKGI MC, by using the TKGI CLI to define the Kubernetes profile in your {{  vars.product }} instance.
 
 To manager TKGI clusters in the TKGI MC:
 
@@ -32,7 +32,7 @@ To create a cluster:
 1. Select the **Clusters** tab and click **Create Cluster**.
     ![Create cluster](images/console/create-cluster.png)
     [View a larger version of this image](images/console/create-cluster.png)
-1. Use the **Plan** drop-down menu to select one of the plans that were configured during the deployment of Tanzu Kubernetes Grid Integrated Edition Management Console.
+1. Use the **Plan** drop-down menu to select one of the plans that were configured during the deployment of {{  vars.product }} Management Console.
 <br>
     The plan defines the set of resources that the Kubernetes cluster will use. A summary of the selected plan appears as you hover over each option.
     ![Select plan for cluster](images/console/select-plan.png)
@@ -46,12 +46,12 @@ To create a cluster:
 
     ![Network profile](images/console/select-network-profile.png)
 
-     If you have not created any network or compute profiles, the management console uses the default profiles. In this case, Tanzu Kubernetes Grid Integrated Edition Management Console configures networking and compute for you, based on the plan that you selected.
+     If you have not created any network or compute profiles, the management console uses the default profiles. In this case, {{  vars.product }} Management Console configures networking and compute for you, based on the plan that you selected.
 1. Optionally use the Kubernetes Profile drop-down menu to select an existing Kubernetes profile for the cluster to use.
 
     ![Kubernetes profile](images/console/select-k8s-profiles.png)
 
-     If you have not created any Kubernetes profiles, the management console uses the default Kubernetes profile. In this case, Tanzu Kubernetes Grid Integrated Edition Management Console configures the cluster for you, based on the plan that you selected.
+     If you have not created any Kubernetes profiles, the management console uses the default Kubernetes profile. In this case, {{  vars.product }} Management Console configures the cluster for you, based on the plan that you selected.
 
 1. Click **Create** to deploy your cluster.
 <br>
@@ -76,7 +76,7 @@ To modify the configuration of an existing cluster:
 
 ## <a id='upgrade-clusters'></a> Upgrade Clusters to a New Version of Kubernetes
 
-If you make a new version of Kubernetes available by upgrading Tanzu Kubernetes Grid Integrated Edition Management Console, you can upgrade your existing clusters in the management console.
+If you make a new version of Kubernetes available by upgrading {{  vars.product }} Management Console, you can upgrade your existing clusters in the management console.
 
 To upgrade the TKGI and Kubernetes version on a cluster:
 

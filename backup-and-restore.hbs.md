@@ -1,5 +1,5 @@
 ---
-title: Backing Up and Restoring Tanzu Kubernetes Grid Integrated Edition
+title: Backing Up and Restoring {{  vars.product }}
 
 ---
 

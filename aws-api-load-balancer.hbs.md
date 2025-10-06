@@ -10,7 +10,7 @@ To configure a load balancer for a different environment, see [Configuring an Az
 ## <a id='overview'></a>Overview
 
 {{{ vars.recommended_by }}} recommends that you create a TKGI API
-load balancer when installing Tanzu Kubernetes Grid Integrated Edition on AWS.
+load balancer when installing {{  vars.product }} on AWS.
 
 To configure your TKGI API Load Balancer on AWS, complete the following:
 
@@ -35,14 +35,14 @@ Perform the following steps:
 1. On the **Define Load Balancer** page, complete the **Basic Configuration** section as follows:
 1. **Load Balancer name**: Name the load balancer. {{{ vars.recommended_by }}} recommends naming your load balancer `tkgi-api`.
   1. **Create LB inside**: Select the VPC where you installed {{ vars.platform_name }}.
-  1. **Create an internal load balancer**: Do not activate this check box. The Tanzu Kubernetes Grid Integrated Edition API load balancer must be internet-facing.
+  1. **Create an internal load balancer**: Do not activate this check box. The {{  vars.product }} API load balancer must be internet-facing.
 1. Complete the **Listeners Configuration** section as follows:
   1. Configure the listener for UAA as follows:
       * Under **Load Balancer Protocol**, select **TCP**.
       * Under **Load Balancer Port**, enter `8443`.
       * Under **Instance Protocol**, select **TCP**.
       * Under **Instance Port**, enter `8443`.
-  1. Configure the listener for Tanzu Kubernetes Grid Integrated Edition API Server as follows:
+  1. Configure the listener for {{  vars.product }} API Server as follows:
       * Under **Load Balancer Protocol**, select **TCP**.
       * Under **Load Balancer Port**, enter `9021`.
       * Under **Instance Protocol**, select **TCP**.
@@ -84,7 +84,7 @@ Perform the following steps to configure the health check:
 Perform the following steps to add EC2 Instances for the Load Balancer:
 
 1. Open {{ vars.platform_name }} to the **Installation Dashboard** pane.
-1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. Click the **{{  vars.product }}** tile.
 1. Open the **Resource Config** pane.
 1. Select **TKGI API**.
 1. Review **Load Balancers**.

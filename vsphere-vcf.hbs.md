@@ -1,5 +1,5 @@
 ---
-title: Install Tanzu Kubernetes Grid Integrated Edition on VMware Cloud Foundation
+title: Install {{  vars.product }} on VMware Cloud Foundation
 
 ---
 
@@ -16,7 +16,7 @@ VCF 5.0 is supported with TKGI {{{ vars.product_version }}}, but has not been te
 VMware Cloud Foundation (VCF) is a unified SDDC platform that brings together vSphere, vSAN, NSX, and vRealize components into an integrated stack to deliver enterprise-ready infrastructure for private and public clouds. For more information,
 see the [VCF Documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2.html).
 
-You can install Tanzu Kubernetes Grid Integrated Edition (TKGI) on VCF. You can use either the [TKGI Management Console](console-install-vsphere.html) or [{{ vars.platform_name }}](vsphere-nsxt-index.html) to install TKGI on VCF. The installation procedure on the VCF platform is generally the same as the installation procedure without VCF.
+You can install {{  vars.product }} (TKGI) on VCF. You can use either the [TKGI Management Console](console-install-vsphere.html) or [{{ vars.platform_name }}](vsphere-nsxt-index.html) to install TKGI on VCF. The installation procedure on the VCF platform is generally the same as the installation procedure without VCF.
 
 For more information, see:
 
@@ -69,8 +69,8 @@ These instructions are high-level and assume hands-on experience deploying VCF, 
 For assistance with installing VCF, see
 [VMWare Cloud Foundation Deployment Guide](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vvs/1-0/about-the-vmware-cloud-foundation-deployment-guide.html).
 For assistance with installing NSX, see
-[Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition](./nsxt-3-0-install.html).
-For assistance with installing TKGI, see [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](./vsphere-index.html).
+[Installing and Configuring NSX-T Data Center v3.0 for {{  vars.product }}](./nsxt-3-0-install.html).
+For assistance with installing TKGI, see [Installing {{  vars.product }} on vSphere](./vsphere-index.html).
 
 <br>
 <p class="note warning"><strong>Warning:</strong>

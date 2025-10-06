@@ -7,7 +7,7 @@ This topic describes how to deploy an NSX load balancer for the {{  vars.product
 
 ##<a id='about'></a> About the NSX Load Balancer for the TKGI API Server
 
-If you deploy Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX with the TKGI API in high-availability mode, you must configure an NSX load balancer for the TKGI API traffic. For more information, see [Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments on vSphere with NSX‑T](./about-lb.html#with-nsx-t).
+If you deploy {{  vars.product }} on vSphere with NSX with the TKGI API in high-availability mode, you must configure an NSX load balancer for the TKGI API traffic. For more information, see [Load Balancers in {{  vars.product }} Deployments on vSphere with NSX‑T](./about-lb.html#with-nsx-t).
 
 To provision an NSX load balancer for the TKGI API Server VM, complete the following steps.
 
@@ -18,7 +18,7 @@ If you are using a Dynamic Server Pool, create an NSGroup as described in this s
 1. Log in to an NSX Manager Node.
     <p class="note"><strong>Note</strong>: You can connect to any NSX Manager Node in the management cluster to provision the load balancer.</p>
 1. Select the **Advanced Networking & Security** tab.
-    <p class="note"><strong>Note</strong>: You must use the <strong>Advanced Networking and Security</strong> tab in NSX Manager to create, read, update, and delete all NSX networking objects used for Tanzu Kubernetes Grid Integrated Edition.</p>
+    <p class="note"><strong>Note</strong>: You must use the <strong>Advanced Networking and Security</strong> tab in NSX Manager to create, read, update, and delete all NSX networking objects used for {{  vars.product }}.</p>
 1. Select **Inventory > Groups**.
     <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-01.png" width="425">
 1. Click **+ADD** to add an new NSGroup.
@@ -31,7 +31,7 @@ If you are using a Dynamic Server Pool, create an NSGroup as described in this s
 
 The TKGI API Sever virtual machine hosts two server processes and exposes two ports: the TKGI API Server on port 9021, and the UAA server on port 8443. Each NSX Virtual Server listens on one port. Thus, you need two Virtual Servers, one for the TKGI API server and the other for UAA.
 
-If you deploy your Tanzu Kubernetes Grid Integrated Edition using [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), You only need to deploy ONE virtual Server
+If you deploy your {{  vars.product }} using [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), You only need to deploy ONE virtual Server
 
 ###<a id='create-vs-api'></a> Create a Virtual Server for the TKGI API Server
 
@@ -67,7 +67,7 @@ If you deploy your Tanzu Kubernetes Grid Integrated Edition using [No-NAT with V
   - Click **Next**
   For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias),
   - Membership Type: **Static**
-  - Static Membership: Add your Tanzu Kubernetes Grid Integrated Edition API Server one by one, leave port column empty
+  - Static Membership: Add your {{  vars.product }} API Server one by one, leave port column empty
   - Click **Next**
 1. Configure Health Monitors for the virtual server:
   - Click **Create A New Active Monitor**
@@ -250,7 +250,7 @@ Skip this if you deployed as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsx
 Now that the load balancer for the TKGI API control plane is configured, update the TKGI tile to point to the load balancer.
 
 1. Log in to {{ vars.platform_name }}.
-1. Go to **Tanzu Kubernetes Grid Integrated Edition Tile Resource Config**.
+1. Go to **{{  vars.product }} Tile Resource Config**.
 1. Click **TKGI API**. You will see a drop down for **TKGI API config**.
 1. Change the **TKGI API Instances Number** to `2` or `3`. We recommend `3` for quorum.
 1. Set the **NSGroup** if you configured **Dynamic Server Pool**. Otherwise leave it empty.

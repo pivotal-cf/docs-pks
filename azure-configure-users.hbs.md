@@ -1,5 +1,5 @@
 ---
-title: Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on Azure
+title: Setting Up {{  vars.product }} Admin Users on Azure
 
 iaas: Azure
 ---
@@ -18,7 +18,7 @@ You can also install UAAC on a workstation and run UAAC commands from there.
 
 ## <a id='prerequisites'></a> Prerequisites
 
-Before setting up admin users for Tanzu Kubernetes Grid Integrated Edition, you must have one of the following:
+Before setting up admin users for {{  vars.product }}, you must have one of the following:
 
 * SSH access to the {{ vars.platform_name }} VM
 
@@ -88,25 +88,25 @@ To connect to the TKGI API VM and run UAA commands, do the following:
 {{> uaa-admin-login }}
 
 
-##<a id='tkgi-access'></a>Step 3: Assign Tanzu Kubernetes Grid Integrated Edition Cluster Scopes
+##<a id='tkgi-access'></a>Step 3: Assign {{  vars.product }} Cluster Scopes
 
 The `pks.clusters.manage` and `pks.clusters.admin` UAA scopes grant users the ability
-to create and manage Kubernetes clusters in Tanzu Kubernetes Grid Integrated Edition.
-For information about UAA scopes in Tanzu Kubernetes Grid Integrated Edition, see
-[UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](uaa-scopes.html).
+to create and manage Kubernetes clusters in {{  vars.product }}.
+For information about UAA scopes in {{  vars.product }}, see
+[UAA Scopes for {{  vars.product }} Users](uaa-scopes.html).
 
-To create Tanzu Kubernetes Grid Integrated Edition users with the `pks.clusters.manage` or `pks.clusters.admin` UAA scope,
+To create {{  vars.product }} users with the `pks.clusters.manage` or `pks.clusters.admin` UAA scope,
 perform one or more of the following procedures based on the needs of your deployment:
 
 * To assign TKGI cluster scopes to an individual user, see
-[Grant Tanzu Kubernetes Grid Integrated Edition Access to an Individual User](manage-users.html#uaa-user).
- Follow this procedure if you selected **Internal UAA** when you configured **UAA** in the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#uaa).
-* To assign TKGI cluster scopes to an LDAP group, see [Grant Tanzu Kubernetes Grid Integrated Edition Access to an External LDAP Group](manage-users.html#external-group). Follow this procedure if you selected **LDAP Server** when you configured **UAA** in the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Installing Tanzu Kubernetes Grid Integrated Edition TKGI on Azure](installing-azure.html#uaa).
-* To assign TKGI cluster scopes to a SAML group, see [Grant Tanzu Kubernetes Grid Integrated Edition Access to an External SAML Group](manage-users.html#saml). Follow this procedure if you selected **SAML Identity Provider** when you configured **UAA** in the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Installing Tanzu Kubernetes Grid Integrated Edition TKGI on Azure](installing-azure.html#uaa).
-* To assign TKGI cluster scopes to a client, see [Grant Tanzu Kubernetes Grid Integrated Edition Access to a Client](manage-users.html#uaa-client).
+[Grant {{  vars.product }} Access to an Individual User](manage-users.html#uaa-user).
+ Follow this procedure if you selected **Internal UAA** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} on Azure](installing-azure.html#uaa).
+* To assign TKGI cluster scopes to an LDAP group, see [Grant {{  vars.product }} Access to an External LDAP Group](manage-users.html#external-group). Follow this procedure if you selected **LDAP Server** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} TKGI on Azure](installing-azure.html#uaa).
+* To assign TKGI cluster scopes to a SAML group, see [Grant {{  vars.product }} Access to an External SAML Group](manage-users.html#saml). Follow this procedure if you selected **SAML Identity Provider** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} TKGI on Azure](installing-azure.html#uaa).
+* To assign TKGI cluster scopes to a client, see [Grant {{  vars.product }} Access to a Client](manage-users.html#uaa-client).
 
 ##<a id="next-steps"></a> Next Step
 
-After you create admin users in Tanzu Kubernetes Grid Integrated Edition, the admin users can create and manage
-Kubernetes clusters in Tanzu Kubernetes Grid Integrated Edition.
+After you create admin users in {{  vars.product }}, the admin users can create and manage
+Kubernetes clusters in {{  vars.product }}.
 For more information, see [Managing Kubernetes Clusters and Workloads](managing-clusters.html).

@@ -1,5 +1,5 @@
 ---
-title: About Tanzu Kubernetes Grid Integrated Edition Upgrades
+title: About {{  vars.product }} Upgrades
 
 ---
 
@@ -8,14 +8,14 @@ This topic provides conceptual information about upgrading {{  vars.product_full
 For step-by-step instructions on upgrading TKGI
 and TKGI-provisioned Kubernetes clusters, see:
 
-* [Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)](upgrade.html)
-* [Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)](upgrade-nsxt.html)
+* [Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html)
+* [Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html)
 * [Upgrading Clusters](upgrade-clusters.html)
 
 
 ## <a id="overview"></a>Overview
 
-An Tanzu Kubernetes Grid Integrated Edition upgrade modifies the TKGI version,
+An {{  vars.product }} upgrade modifies the TKGI version,
 for example, upgrading TKGI from {{{ vars.product_version_prev }}}.x to {{{ vars.product_version }}}.0 or from {{{ vars.product_version }}}.0 to {{{ vars.product_version }}}.1.
 
 There are two ways you can upgrade TKGI:
@@ -40,10 +40,10 @@ in both development and production environments and you want to upgrade
 only one environment first, you can achieve your goal by
 upgrading the TKGI control plane and TKGI-provisioned Kubernetes separately.
 
-* Faster Tanzu Kubernetes Grid Integrated Edition tile upgrades.
+* Faster {{  vars.product }} tile upgrades.
 If you have a large number of clusters in your TKGI deployment,
 performing a full upgrade can significantly increase the amount of time required to
-upgrade the Tanzu Kubernetes Grid Integrated Edition tile.
+upgrade the {{  vars.product }} tile.
 
 * More granular control over cluster upgrades.
 In addition to enabling you to upgrade subsets of clusters,
@@ -52,16 +52,16 @@ the TKGI CLI supports upgrading each cluster individually.
 * Not a monolithic upgrade.
 This helps isolate the root cause of an error when troubleshooting upgrades.
 For example, when a cluster-related upgrade error occurs during a full upgrade,
-the entire Tanzu Kubernetes Grid Integrated Edition tile upgrade might fail.
+the entire {{  vars.product }} tile upgrade might fail.
 
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
 <p class="note warning">
 <strong>Warning:</strong> If you deactivate the default full upgrade
 and upgrade only the TKGI control plane,
-you must upgrade all your TKGI-provisioned Kubernetes clusters before the next Tanzu Kubernetes Grid Integrated Edition tile
+you must upgrade all your TKGI-provisioned Kubernetes clusters before the next {{  vars.product }} tile
 upgrade. Deactivating the default full upgrade
 and upgrading only the TKGI control plane cause the TKGI version
-tagged in your Kubernetes clusters to fall behind the Tanzu Kubernetes Grid Integrated Edition tile version.
+tagged in your Kubernetes clusters to fall behind the {{  vars.product }} tile version.
 If your TKGI-provisioned Kubernetes clusters fall more than one version behind the tile,
 TKGI cannot upgrade the clusters.
 </p>
@@ -69,13 +69,13 @@ TKGI cannot upgrade the clusters.
 
 ### <a id="decide-method"></a> Deciding Between Tile or CLI Upgrade
 
-You can use either the Tanzu Kubernetes Grid Integrated Edition tile or the TKGI CLI to perform TKGI upgrades:
+You can use either the {{  vars.product }} tile or the TKGI CLI to perform TKGI upgrades:
 
 * To perform a full upgrade of the TKGI control plane and
-TKGI-provisioned Kubernetes clusters, use the Tanzu Kubernetes Grid Integrated Edition tile .
-* To upgrade the TKGI control plane only, use the Tanzu Kubernetes Grid Integrated Edition tile.
+TKGI-provisioned Kubernetes clusters, use the {{  vars.product }} tile .
+* To upgrade the TKGI control plane only, use the {{  vars.product }} tile.
 * To upgrade TKGI-provisioned Kubernetes clusters, use either the TKGI CLI
-or the Tanzu Kubernetes Grid Integrated Edition tile.
+or the {{  vars.product }} tile.
 
 <table>
 <col width="20%">
@@ -111,7 +111,7 @@ you will upgrade them through the TKGI CLI.
 
 ## <a id="what-happens"></a> What Happens During Full TKGI and TKGI Control Plane Only Upgrades
 
-After you add a new Tanzu Kubernetes Grid Integrated Edition tile version to your staging area
+After you add a new {{  vars.product }} tile version to your staging area
 on the {{ vars.platform_name }} Installation Dashboard,
 {{ vars.platform_name }} automatically migrates your configuration settings into the new tile version.
 
@@ -124,7 +124,7 @@ You can perform a full TKGI upgrade or a TKGI control plane only upgrade:
 ### <a name="full-upgrades"></a>Full TKGI Upgrades
 
 During a **full TKGI upgrade**,
-the Tanzu Kubernetes Grid Integrated Edition tile does the following:
+the {{  vars.product }} tile does the following:
 
 1. **Recreates the Control Plane VMs**:
     * Upgrades the TKGI version on the TKGI control plane.
@@ -132,13 +132,13 @@ the Tanzu Kubernetes Grid Integrated Edition tile does the following:
 
 1. **Upgrades Clusters**:
     * Upgrades all of the TKGI-provisioned Kubernetes clusters.
-    * Requires the **Upgrade all clusters errand** check box is activated in the **Errands** pane on the Tanzu Kubernetes Grid Integrated Edition tile.
+    * Requires the **Upgrade all clusters errand** check box is activated in the **Errands** pane on the {{  vars.product }} tile.
     * For more information, see [What Happens During Cluster Upgrades](#cluster-upgrades) below.
 
 ### <a name="control-plane-upgrades"></a>TKGI Control Plane Only Upgrades
 
 During a **TKGI control plane only** upgrade,
-the Tanzu Kubernetes Grid Integrated Edition tile does the following:
+the {{  vars.product }} tile does the following:
 
 1. **Recreates the Control Plane VMs**:
     * Upgrades the TKGI version on the TKGI control plane.
@@ -146,7 +146,7 @@ the Tanzu Kubernetes Grid Integrated Edition tile does the following:
 
 1. **Does Not Upgrade Clusters**:
     * Does not automatically upgrade TKGI-provisioned Kubernetes clusters after upgrading the TKGI control plane.
-    * Requires the **Upgrade all clusters errand** check box is deactivated in the **Errands** pane on the Tanzu Kubernetes Grid Integrated Edition tile.
+    * Requires the **Upgrade all clusters errand** check box is deactivated in the **Errands** pane on the {{  vars.product }} tile.
     * The TKGI-provisioned Kubernetes clusters remain on the previous TKGI version until you manually upgrade them.
     For more information, see [What Happens During Cluster Upgrades](#cluster-upgrades) below, and [Upgrading Clusters](upgrade-clusters.html).
     * Some cluster management tasks are not supported for clusters that are running the previous TKGI version.
@@ -177,17 +177,17 @@ When the TKGI control plane is not scaled for high availability (beta), upgradin
 These outages do not affect the Kubernetes clusters themselves.
 During a TKGI control plane upgrade, you can still interact with clusters and their workloads using the Kubernetes Command Line Interface, `kubectl`.
 
-For more information about the TKGI control plane and high availability (beta), see [TKGI Control Plane Overview](control-plane.html#control-plane) in _Tanzu Kubernetes Grid Integrated Edition Architecture_.
+For more information about the TKGI control plane and high availability (beta), see [TKGI Control Plane Overview](control-plane.html#control-plane) in _{{  vars.product }} Architecture_.
 
 ### <a name="canary"></a>Canary Instances
 
-The Tanzu Kubernetes Grid Integrated Edition tile is a BOSH deployment.
+The {{  vars.product }} tile is a BOSH deployment.
 
 BOSH-deployed products can set a number of canary instances to upgrade first, before the rest of the deployment VMs.
 BOSH continues the upgrade only if the canary instance upgrade succeeds.
 If the canary instance encounters an error, the upgrade stops running and other VMs are not affected.
 
-The Tanzu Kubernetes Grid Integrated Edition tile uses one canary instance when deploying or upgrading Tanzu Kubernetes Grid Integrated Edition.
+The {{  vars.product }} tile uses one canary instance when deploying or upgrading {{  vars.product }}.
 
 ### <a name="control-plane-upgrades-supported-tasks"></a>Tasks Supported Following a TKGI Control Plane Only Upgrade
 
@@ -323,7 +323,7 @@ The following summarizes the TKGI CLI cluster management commands that are suppo
 Upgrading a TKGI-provisioned Kubernetes cluster upgrades the cluster to the TKGI version of the TKGI control plane and tags the cluster with the upgrade version.
 
 Upgrading the cluster also upgrades the cluster's Kubernetes version to the version
-included with the Tanzu Kubernetes Grid Integrated Edition tile.
+included with the {{  vars.product }} tile.
 
 During an upgrade of TKGI-provisioned clusters,
 TKGI recreates your clusters.
@@ -339,7 +339,7 @@ as described below.
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
 <p class="note">
 <strong>Note:</strong> When the <strong>Upgrade all clusters errand</strong>
-is enabled in the Tanzu Kubernetes Grid Integrated Edition tile, updating the tile with
+is enabled in the {{  vars.product }} tile, updating the tile with
 a new Linux or Windows stemcell rolls every Linux or Windows VM in each Kubernetes cluster.
 This automatic rolling ensures that all your VMs are patched.
 To avoid workload downtime, use the resource configuration recommended
@@ -349,7 +349,7 @@ in <a href="./maintain-uptime.html">Maintaining Workload Uptime</a>.
 </p>
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
 
-You can upgrade TKGI-provisioned Kubernetes clusters either through the Tanzu Kubernetes Grid Integrated Edition tile
+You can upgrade TKGI-provisioned Kubernetes clusters either through the {{  vars.product }} tile
 or the TKGI CLI. See the table below.
 
 <table>
@@ -361,7 +361,7 @@ or the TKGI CLI. See the table below.
   </tr>
   <tr>
     <td>The <strong>Upgrade all clusters errand</strong> in<br>
-    the <strong>Tanzu Kubernetes Grid Integrated Edition</strong> tile > <strong>Errands</strong></td>
+    the <strong>{{  vars.product }}</strong> tile > <strong>Errands</strong></td>
     <td>All clusters. Clusters are upgraded serially.</td>
   </tr>
   <tr>

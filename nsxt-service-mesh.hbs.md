@@ -113,7 +113,7 @@ Istio installs a few pods that have a Pod Disruption Budget that conflict with t
 Grid Integrated Edition cleanup errand.
 This might result in the errand running for an extended period of time.
 
-Tanzu Kubernetes Grid Integrated Edition allows the user to select a timeout for Pod Disruption Budget, and the
+{{  vars.product }} allows the user to select a timeout for Pod Disruption Budget, and the
 errand runs up to that timeout.
 
 **Workaround**

@@ -1,5 +1,5 @@
 ---
-title: Upgrading Tanzu Kubernetes Grid Integrated Edition (VMware NSX Networking)
+title: Upgrading {{  vars.product }} (VMware NSX Networking)
 
 windowsclusters: #Empty var to prevent build breaking
 iaas: #Empty var to prevent build breaking
@@ -10,7 +10,7 @@ from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
 on vSphere with NSX networking.
 
 For instructions on upgrading TKGI with Antrea networking,
-see [Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)](upgrade.html).
+see [Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html).
 
 <p class="note"><strong>Note:</strong> You cannot directly upgrade to TKGI v1.22 from older build versions of the TKGI MC v1.21. See <a href="release-notes.html#1-22-0-no-upgrade-ova">Cannot upgrade to TKGI v1.22 from the TKGI MC v1.21 OVA</a> for workarounds.</p>
 
@@ -40,7 +40,7 @@ consult [Product Snapshot](release-notes.html) in _Release Notes_ for TKGI {{{ v
 
 ## <a id="prepare"></a>Prepare to Upgrade
 
-To prepare for upgrading Tanzu Kubernetes Grid Integrated Edition
+To prepare for upgrading {{  vars.product }}
 from TKGI {{{ vars.product_version_prev }}} to TKGI {{{ vars.product_version }}}:
 
 * Complete all of the steps in
@@ -66,7 +66,7 @@ This section describes the steps required to upgrade to TKGI {{{ vars.product_ve
 
 ### <a id="upgrade-nsxt"></a>Upgrade NSX
 
-Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}} supports running on NSX-T Data Center v3.2.3 or later and NSX v4.0 or later.
+{{  vars.product }} {{{ vars.product_version }}} supports running on NSX-T Data Center v3.2.3 or later and NSX v4.0 or later.
 
 You cannot upgrade directly from NSX-T v3.2.2 and earlier to NSX v4.0+, but you can upgrade stepwise by following the supported upgrade paths listed in the NSX-T and NSX upgrade documentation linked below.
 
@@ -146,7 +146,7 @@ To upgrade {{ vars.platform_name }}:
 
 1. Deploy the upgraded {{ vars.platform_name }} VM by following the first two steps of [Deploying {{ vars.platform_name }} with NSX for TKGI](vsphere-nsxt-om-deploy.html):
   1. [Step 1: Generate SSH Key Pair](vsphere-nsxt-om-deploy.html#ssh-key)
-  1. [Step 2: Deploy {{ vars.platform_name }} for Tanzu Kubernetes Grid Integrated Edition](vsphere-nsxt-om-deploy.html#deploy-om)
+  1. [Step 2: Deploy {{ vars.platform_name }} for {{  vars.product }}](vsphere-nsxt-om-deploy.html#deploy-om)
 
 1. Using a browser, navigate to the newly-deployed {{ vars.platform_name }} web interface.
 
@@ -193,11 +193,11 @@ from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produ
 The Smoke Test errand smoke tests the TKGI upgrade
 by creating and deleting a test Kubernetes cluster.
 For more information, see [Errands](installing-nsx-t.html#errands)
-in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX_.
+in _Installing {{  vars.product }} on vSphere with VMware NSX_.
 
 1. (Optional) Configure the Smoke Test errand to use a network profile instead of the default configuration settings on the TKGI tile.
 For more information, see [Errands](installing-nsx-t.html#errands)
-in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX_.
+in _Installing {{  vars.product }} on vSphere with VMware NSX_.
 
 ### <a id="stemcell"></a>Download and Import Stemcells
 
@@ -248,7 +248,7 @@ To complete the upgrade of the TKGI tile:
   <img src="images/nsxt/nsxt-30/upgrade-06.png" alt="The {{ vars.platform_name }} Review Pending Changes page, with options to select which product updates to apply, and the Apply Changes button.">
 
 1. (Optional) If you activated the **Upgrade all clusters errand**, you can use the BOSH CLI to monitor its progress:
-      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your TKGI deployment. For more information, see [Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
+      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your TKGI deployment. For more information, see [Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html).
       1. Run `bosh -e MY-ENVIRONMENT tasks`.
       1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
       1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.

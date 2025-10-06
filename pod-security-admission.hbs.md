@@ -1,5 +1,5 @@
 ---
-title: Pod Security Admission in Tanzu Kubernetes Grid Integrated Edition
+title: Pod Security Admission in {{  vars.product }}
 
 ---
 

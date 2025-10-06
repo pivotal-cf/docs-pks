@@ -19,4 +19,4 @@ Cluster creation in the TKGI MC involves the following actions:
 
 You can create Kubernetes clusters in your {{  vars.product_full }} deployment by using the {{  vars.product_full }} CLI or by using the {{  vars.product_full }} Management Console. For information about using the {{  vars.product_full }} CLI to create clusters, see [Creating Clusters](./create-cluster.html).
 
-For information about how to deploy the management console and install Tanzu Kubernetes Grid Integrated Edition, see [Install on vSphere with the Management Console](console-install-vsphere.html).
+For information about how to deploy the management console and install {{  vars.product }}, see [Install on vSphere with the Management Console](console-install-vsphere.html).

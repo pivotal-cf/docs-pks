@@ -129,7 +129,7 @@ To retrieve your BOSH Director credentials using the {{ vars.platform_name }} AP
 
 To obtain BOSH credentials for your BBR operations, perform the following steps:
 
-1. From the {{ vars.platform_name }} Installation Dashboard, click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. From the {{ vars.platform_name }} Installation Dashboard, click the **{{  vars.product }}** tile.
 1. Select the **Credentials** tab.
 1. Navigate to **Credentials > UAA Client Credentials**.
 1. Record the value for `uaa_client_secret`.
@@ -177,7 +177,7 @@ To obtain your BOSH Director's IP address:
     ```
 
 ### <a id='root-ca-cert'></a> Download the Root CA Certificate
-To download the root CA certificate for your Tanzu Kubernetes Grid Integrated Edition deployment,
+To download the root CA certificate for your {{  vars.product }} deployment,
 perform the following steps:
 
 1. Open the {{ vars.platform_name }} Installation Dashboard.

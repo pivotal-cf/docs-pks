@@ -13,7 +13,7 @@ The following topics describe how to support Kubernetes clusters provisioned by 
     <a href="manage-cluster-permissions.html">Managing Cluster Access and Permissions</a>
   </li>
   <li>
-    <a href="admission-plugins.html">Using Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters</a>
+    <a href="admission-plugins.html">Using Admission Control Plugins for {{  vars.product }} Clusters</a>
   </li>
   <li>
     <a href="harbor.html">Getting Started with VMware Harbor Registry</a>
@@ -29,4 +29,4 @@ The following topics describe how to support Kubernetes clusters provisioned by 
   </li>
 </ul>
 
-<p class="note"><strong>Note:</strong> Tanzu Kubernetes Grid Integrated Edition does not currently support the Kubernetes Service Catalog.</p>
+<p class="note"><strong>Note:</strong> {{  vars.product }} does not currently support the Kubernetes Service Catalog.</p>

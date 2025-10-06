@@ -1,5 +1,5 @@
 ---
-title: Solution Guides for Tanzu Kubernetes Grid Integrated Edition
+title: Solution Guides for {{  vars.product }}
 
 ---
 

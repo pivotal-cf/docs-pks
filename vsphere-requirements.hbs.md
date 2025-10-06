@@ -8,11 +8,11 @@ This topic describes the prerequisites and resource requirements for installing 
 
 For prerequisites and resource requirements for installing TKGI on vSphere with NSX integration,
 see +AFs-vSphere with NSX Version Requirements+AF0-(vsphere-nsxt-requirements.html) and
-+AFs-Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX+AF0-(./vsphere-nsxt-rpd-mpd.html).
++AFs-Hardware Requirements for {{  vars.product }} on vSphere with NSX+AF0-(./vsphere-nsxt-rpd-mpd.html).
 
 +ACMAIwA8-a id+AD0-'prerequisites'+AD4APA-/a+AD4- Prerequisites
 
-Before installing Tanzu Kubernetes Grid Integrated Edition:
+Before installing {{  vars.product }}:
 
 1. Review the sections below and the instructions in +AFs-Creating Dedicated Users and Roles for vSphere (Optional)+AF0-(vsphere-prepare-env.html).
 
@@ -25,7 +25,7 @@ Before installing Tanzu Kubernetes Grid Integrated Edition:
 
 +ACMAIwA8-a id+AD0-'resources'+AD4APA-/a+AD4- Resource Requirements
 
-Installing +AHsAew- vars.platform+AF8-name +AH0AfQ- and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
+Installing +AHsAew- vars.platform+AF8-name +AH0AfQ- and {{  vars.product }} requires the following virtual machines (VMs):
 
 +ADw-table+AD4-
   +ADw-tr+AD4-
@@ -67,11 +67,11 @@ Installing +AHsAew- vars.platform+AF8-name +AH0AfQ- and Tanzu Kubernetes Grid In
 
 +ADw-h3+AD4- Ephemeral VM Resources +ADw-/h3+AD4-
 
-Each Tanzu Kubernetes Grid Integrated Edition deployment requires ephemeral VMs during installation and upgrades of Tanzu Kubernetes Grid Integrated Edition.
-After you deploy Tanzu Kubernetes Grid Integrated Edition, BOSH automatically deletes these VMs.
+Each {{  vars.product }} deployment requires ephemeral VMs during installation and upgrades of {{  vars.product }}.
+After you deploy {{  vars.product }}, BOSH automatically deletes these VMs.
 
-To enable Tanzu Kubernetes Grid Integrated Edition to dynamically create the ephemeral VMs when needed, ensure that the following
-resources are available in your vSphere infrastructure before deploying Tanzu Kubernetes Grid Integrated Edition:
+To enable {{  vars.product }} to dynamically create the ephemeral VMs when needed, ensure that the following
+resources are available in your vSphere infrastructure before deploying {{  vars.product }}:
 
 +ADw-table+AD4-
   +ADw-tr+AD4-
@@ -92,7 +92,7 @@ resources are available in your vSphere infrastructure before deploying Tanzu Ku
 
 +ADw-h3+AD4- Kubernetes Cluster Resources +ADw-/h3+AD4-
 
-Each Kubernetes cluster provisioned through Tanzu Kubernetes Grid Integrated Edition deploys the VMs listed below. If you deploy more
+Each Kubernetes cluster provisioned through {{  vars.product }} deploys the VMs listed below. If you deploy more
 than one Kubernetes cluster, you must scale your allocated resources appropriately.
 
 +ADw-table+AD4-

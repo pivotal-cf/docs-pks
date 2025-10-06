@@ -1,14 +1,14 @@
 ---
-title: Install Tanzu Kubernetes Grid Integrated Edition with Antrea on vSphere Using {{ vars.platform_name }}
+title: Install {{  vars.product }} with Antrea on vSphere Using {{ vars.platform_name }}
 
 iaas: vSphere
 ---
 
 The following topics describe how to use {{ vars.platform_name }} to manually install {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with Antrea networking.
 
-<p class="note"><strong>Note</strong>: The recommended method for installing Tanzu Kubernetes Grid Integrated Edition on vSphere is to use the Tanzu Kubernetes Grid Integrated Edition Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
+<p class="note"><strong>Note</strong>: The recommended method for installing {{  vars.product }} on vSphere is to use the {{  vars.product }} Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 
-To install Tanzu Kubernetes Grid Integrated Edition on vSphere with Antrea networking follow the instructions below:
+To install {{  vars.product }} on vSphere with Antrea networking follow the instructions below:
 
 <ul>
   <li>
@@ -24,16 +24,16 @@ To install Tanzu Kubernetes Grid Integrated Edition on vSphere with Antrea netwo
     <a href="./vsphere-om-install-config.html">Installing and Configuring {{ vars.platform_name }} on vSphere</a>
   </li>
   <li>
-    <a href="./installing-vsphere.html">Installing Tanzu Kubernetes Grid Integrated Edition on vSphere</a>
+    <a href="./installing-vsphere.html">Installing {{  vars.product }} on vSphere</a>
   </li>
   <li>
     <a href="./vsphere-configure-api.html">Configuring a TKGI API Load Balancer</a>
   </li>
   <li>
-    <a href="./vsphere-configure-users.html">Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on vSphere</a>
+    <a href="./vsphere-configure-users.html">Setting Up {{  vars.product }} Admin Users on vSphere</a>
   </li>
   <li>
-    <a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html">(Optional) Integrating VMware Harbor with Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html">(Optional) Integrating VMware Harbor with {{  vars.product }}</a>
   </li>
 </ul>
 
@@ -44,7 +44,7 @@ container images. For more information, see
 
 ## Install the TKGI and Kubernetes CLIs
 
-The TKGI CLI and Kubernetes CLI help you interact with your Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes clusters and Kubernetes workloads.
+The TKGI CLI and Kubernetes CLI help you interact with your {{  vars.product }}-provisioned Kubernetes clusters and Kubernetes workloads.
 
 To install the CLIs, follow the instructions below:
 

@@ -15,7 +15,7 @@ You can isolate a cluster and its workloads using NSX Tier-0 (T0) logical router
 
 ### <a id='about-t0-router-isolation'></a> Using a Multi-T0 Router Configuration for Tenant Isolation
 
-Tanzu Kubernetes Grid Integrated Edition multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks.
+{{  vars.product }} multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks.
 As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers.
 The Shared Tier-0 router handles traffic between the TKGI management network and the vSphere standard network
 where vCenter and NSX Manager are deployed.
@@ -34,7 +34,7 @@ To isolate a cluster and its workloads behind T0 routers:
 
 ### <a id='about-vrf-gateway-isolation'></a> Using a VRF Tier-0 Gateway Configuration for Tenant Isolation
 
-Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Policy API also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway.
+{{  vars.product }} on vSphere with NSX Policy API also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway.
 
 As shown in the diagram below, instead of using one or more T0 routers, clusters are isolated behind a VRF gateway.
 The Shared Tier-0 router handles traffic between the TKGI management network and the
@@ -198,11 +198,11 @@ To configure static routes:
 
 ### <a id="consider-nat-shared"></a>Step 8: Considerations for NAT Topology on Shared Tier-0
 
-The Multi-T0 configuration steps documented here apply to deployments where NAT mode is **not** used on the Shared Tier-0 router. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition</a>.
+The Multi-T0 configuration steps documented here apply to deployments where NAT mode is **not** used on the Shared Tier-0 router. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for {{  vars.product }}</a>.
 
 For deployments where NAT-mode is used on the Shared Tier-0 router, additional provisioning steps must be followed to preserve NAT functionality to external networks while bypassing NAT rules for traffic flowing from the Shared Tier-0 router to each Tenant Tier-0 router.
 
-Existing Tanzu Kubernetes Grid Integrated Edition deployments where NAT mode is configured on the Shared Tier-0 router cannot be re-purposed to support a Multi-T0 deployment following this documentation.
+Existing {{  vars.product }} deployments where NAT mode is configured on the Shared Tier-0 router cannot be re-purposed to support a Multi-T0 deployment following this documentation.
 
 ### <a id="consider-nat-tenant"></a>Step 9: Considerations for NAT Topology on Tenant Tier-0
 
@@ -579,13 +579,13 @@ Securing inter-cluster communications is achieved by provisioning security group
 
 To secure communication between clusters in the same tenancy:
 
-1. [Create NSGroup for All Tanzu Kubernetes Grid Integrated Edition Clusters](#ns-group)
+1. [Create NSGroup for All {{  vars.product }} Clusters](#ns-group)
 1. [Create DFW Section](#dfw-section)
 1. [Create NSGroups](#ns-groups)
 1. [Create DFW Rules](#dfw-rules)
 
 
-#### <a id="ns-group"></a>Step 1: Create NSGroup for All Tanzu Kubernetes Grid Integrated Edition Clusters
+#### <a id="ns-group"></a>Step 1: Create NSGroup for All {{  vars.product }} Clusters
 
 1. In NSX Manager, navigate to **Inventory > Groups > Groups** and **Add new group**.
 1. Configure the new NSGroup as follows:

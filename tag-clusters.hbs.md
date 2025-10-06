@@ -12,7 +12,7 @@ Apply one or more tags to your clusters to simplify organizing, managing, search
 You can use the TKGI CLI to tag clusters by following the steps in
 [Tag Your Clusters as They Are Created](#tagging-cli) below.
 
-<p class="note"><strong>Note</strong>: Tanzu Kubernetes Grid Integrated Edition Cluster tagging requires {{ vars.platform_name }} v2.8.0 or later.
+<p class="note"><strong>Note</strong>: {{  vars.product }} Cluster tagging requires {{ vars.platform_name }} v2.8.0 or later.
 </p>
 
 ## <a id='tagging-cli'></a>Tag Your Clusters as They Are Created
@@ -71,7 +71,7 @@ and specify the `--tags` parameter and a comma-delimited list of `key:value` pai
     $ tkgi update-cluster my-cluster --tags "status:non-billable, region:northwest"
     ```
 
-<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ### <a id='modify-tags'></a>Modify Cluster Tags
@@ -108,7 +108,7 @@ in _Release Notes_ for additional requirements.
     ```
     Where `TAGS` is a comma-delimited list of revised `key:value` pairs.
 
-<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 #### <a id='modify-existing-tags-remove'></a>Remove All Tags From Your Cluster
@@ -128,7 +128,7 @@ in _Release Notes_ for additional requirements.
 
     Where `CLUSTER-NAME` is the cluster to remove tags from.
 
-<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ## <a id='tagging-review'></a>Review Your Tags
@@ -175,7 +175,7 @@ The tagging you apply must adhere to the following rules:
 * The value can contain a maximum of 80 alphanumeric characters.
 * Tag keys and values must not include any of the following symbols: `"`, `:`, `,`.
 * Surrounding double quotes are required if there are one or more spaces in your tag list, such as a space after a comma delimiter.
-* Tag keys and values must adhere to the tagging rules of the IaaS hosting your Tanzu Kubernetes Grid Integrated Edition environment.
+* Tag keys and values must adhere to the tagging rules of the IaaS hosting your {{  vars.product }} environment.
 
 <br>
 For information about IaaS-specific tagging rules see the following:
@@ -198,7 +198,7 @@ These reserved tags impose the following limitations:
 * The maximum number of custom tags you can apply to a cluster is 10 less than
 the maximum number of tags supported by your IaaS.
     * For example: Azure limits tagging to a maximum of 50 tags per entity.
-Therefore, if your Tanzu Kubernetes Grid Integrated Edition environment is hosted on Azure,
+Therefore, if your {{  vars.product }} environment is hosted on Azure,
 apply fewer than 40 custom tags to your clusters.
 
 * You cannot set or change BOSH system-level tags using the TKGI CLI.

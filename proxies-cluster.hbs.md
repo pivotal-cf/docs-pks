@@ -25,8 +25,8 @@ To view a cluster's proxy configuration, see:
 <br>
 To configure global HTTP/HTTPS proxies for TKGI on vSphere or AWS, see:
 
-- **vSphere**: [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on NSX](proxies.html), or
-- **AWS**: [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on AWS](proxies-aws.html)
+- **vSphere**: [Using Proxies with {{  vars.product }} on NSX](proxies.html), or
+- **AWS**: [Using Proxies with {{  vars.product }} on AWS](proxies-aws.html)
 
 These two topics also cover how the proxies work, and how they can be useful.
 
@@ -65,7 +65,7 @@ in _Release Notes_ for additional requirements.
     * `CLUSTER-NAME` is the name of the existing Kubernetes cluster.
     * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ##<a id='settings'></a>Proxy Configuration Settings

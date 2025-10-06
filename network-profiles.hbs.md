@@ -96,7 +96,7 @@ For more information, see [Create a Network Profile](./network-profiles.html#cre
 
 TKGI supports assigning a network profile to an existing cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Update the network profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the network profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 To assign a network profile to a cluster that does not have a network profile already applied:

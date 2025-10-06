@@ -1,5 +1,5 @@
 ---
-title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere
+title: Installing {{  vars.product }} on vSphere
 
 iaas: vSphere
 ---
@@ -21,4 +21,4 @@ and which container networking overlay you use.
 Where possible, {{{ vars.recommended_by }}} recommends using the TKGI Management Console
 to install TKGI on vSphere.
 For more information, see [Decide When to Use TKGI Management Console](console-install-vsphere.html#decide-when-to-use-console)
-in _Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Management Console_.
+in _Install {{  vars.product }} on vSphere with the Management Console_.

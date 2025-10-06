@@ -2,7 +2,7 @@
 A plan defines a set of resource types used for deploying a cluster.
 ####<a id='plan-activate'></a> Activate a Plan
 <p class="note"><strong>Note</strong>: Before configuring your Windows worker plan, you must first activate and configure <strong>Plan 1</strong>.
-See <a href="installing-nsx-t.html#plans">Plans</a> in <i>Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX</i> for more information.
+See <a href="installing-nsx-t.html#plans">Plans</a> in <i>Installing {{  vars.product }} on vSphere with NSX</i> for more information.
 </p>
 {{ else }}
 A plan defines a set of resource types used for deploying a cluster.
@@ -65,19 +65,19 @@ A high availability Linux worker cluster consists of three Linux worker nodes.
   <p class="note"><strong>Note</strong>: If you deploy a cluster with multiple control plane/etcd node VMs,
     confirm that you have sufficient hardware to handle the increased load on disk write and network traffic. For more information, see <a href="https://github.com/etcd-io/etcd/blob/master/Documentation/op-guide/hardware.md#example-hardware-configurations">Hardware recommendations</a> in the etcd documentation.<br><br>
     In addition to meeting the hardware requirements for a multi-control plane node cluster, we recommend configuring monitoring for etcd to monitor disk latency, network latency, and other indicators for the health of the cluster. For more information, see <a href="monitor-etcd.html">Configuring Telegraf in TKGI</a>.</p>
-  <p class="note warning"><strong>WARNING</strong>: To change the number of control plane/etcd nodes for a plan, you must ensure that no existing clusters use the plan. Tanzu Kubernetes Grid Integrated Edition does not support changing the number of control plane/etcd nodes for plans with existing clusters.
+  <p class="note warning"><strong>WARNING</strong>: To change the number of control plane/etcd nodes for a plan, you must ensure that no existing clusters use the plan. {{  vars.product }} does not support changing the number of control plane/etcd nodes for plans with existing clusters.
   </p>
-1. Under **Master/ETCD VM Type**, select the type of VM to use for Kubernetes control plane/etcd nodes. For more information, including control plane node VM customization options, see the [Control Plane Node VM Size](vm-sizing.html#master-sizing) section of _VM Sizing for Tanzu Kubernetes Grid Integrated Edition Clusters_.
+1. Under **Master/ETCD VM Type**, select the type of VM to use for Kubernetes control plane/etcd nodes. For more information, including control plane node VM customization options, see the [Control Plane Node VM Size](vm-sizing.html#master-sizing) section of _VM Sizing for {{  vars.product }} Clusters_.
 
 1. Under **Master Persistent Disk Type**, select the size of the persistent disk for the Kubernetes control plane node VM.
 
-1. Under **Master/ETCD Availability Zones**, select one or more AZs for the Kubernetes clusters deployed by Tanzu Kubernetes Grid Integrated Edition.
-If you select more than one AZ, Tanzu Kubernetes Grid Integrated Edition deploys the control plane VM in the first AZ and the worker VMs across the remaining AZs.
+1. Under **Master/ETCD Availability Zones**, select one or more AZs for the Kubernetes clusters deployed by {{  vars.product }}.
+If you select more than one AZ, {{  vars.product }} deploys the control plane VM in the first AZ and the worker VMs across the remaining AZs.
 If you are using multiple control plane nodes, {{{ vars.product_short }}} deploys the control plane and worker VMs across the AZs in round-robin fashion.
 
-  <p class="note"><strong>Note:</strong> Tanzu Kubernetes Grid Integrated Edition does not support changing the AZs of existing control plane nodes.</p>
+  <p class="note"><strong>Note:</strong> {{  vars.product }} does not support changing the AZs of existing control plane nodes.</p>
 1. Under **Maximum number of workers on a cluster**, set the maximum number of
-Kubernetes worker node VMs that Tanzu Kubernetes Grid Integrated Edition can deploy for each cluster. Enter any whole number in this field.
+Kubernetes worker node VMs that {{  vars.product }} can deploy for each cluster. Enter any whole number in this field.
 <br>
 {{# evalExpression "current_page.data.windowsclusters == true"}}
   ![Plan pane configuration, part two](images/plan2-win.png)
@@ -99,9 +99,9 @@ Kubernetes worker node VMs that Tanzu Kubernetes Grid Integrated Edition can dep
     </p>
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker node VMs.
 For more information, including worker node VM customization options,
-see [Worker Node VM Number and Size](vm-sizing.html#worker-sizing) in _VM Sizing for Tanzu Kubernetes Grid Integrated Edition Clusters_.
+see [Worker Node VM Number and Size](vm-sizing.html#worker-sizing) in _VM Sizing for {{  vars.product }} Clusters_.
     <p class="note"><strong>Note</strong>:
-      Tanzu Kubernetes Grid Integrated Edition requires a <strong>Worker VM Type</strong> with an ephemeral disk size of 32&nbsp;GB or more.
+      {{  vars.product }} requires a <strong>Worker VM Type</strong> with an ephemeral disk size of 32&nbsp;GB or more.
     </p>
 {{# evalExpression "current_page.data.windowsclusters == true"}}
     <p class="note"><strong>Note:</strong> BOSH does not support persistent disks for Windows VMs.
@@ -112,15 +112,15 @@ see [Worker Node VM Number and Size](vm-sizing.html#worker-sizing) in _VM Sizing
 1. Under **Worker Persistent Disk Type**, select the size of the persistent disk for the Kubernetes worker node VMs.
 {{/ evalExpression }}
 
-1. Under **Worker Availability Zones**, select one or more AZs for the Kubernetes worker nodes. Tanzu Kubernetes Grid Integrated Edition deploys worker nodes equally across the AZs you select.
+1. Under **Worker Availability Zones**, select one or more AZs for the Kubernetes worker nodes. {{  vars.product }} deploys worker nodes equally across the AZs you select.
 
-1. Under **Kubelet customization - system-reserved**, enter resource values that Kubelet can use to reserve resources for system daemons. 
-For example, `memory=250Mi, cpu=150m`. For more information about system-reserved values, 
-see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/#system-reserved).  
+1. Under **Kubelet customization - system-reserved**, enter resource values that Kubelet can use to reserve resources for system daemons.
+For example, `memory=250Mi, cpu=150m`. For more information about system-reserved values,
+see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/#system-reserved).
 {{# evalExpression "current_page.data.windowsclusters == true "}}
-![Plan pane configuration, part two](images/plan2b-win.png)  
+![Plan pane configuration, part two](images/plan2b-win.png)
 {{ else }}
-![Plan pane configuration, part two](images/plan2b.png)  
+![Plan pane configuration, part two](images/plan2b.png)
 {{/ evalExpression }}
 1. Under **Kubelet customization - eviction-hard**, enter threshold limits that Kubelet can use to evict pods when they exceed the limit. Enter limits in the format `EVICTION-SIGNAL=QUANTITY`. For example, `memory.available=100Mi, nodefs.available=10%, nodefs.inodesFree=5%`.
   - In offline environments, include `imagefs.available=15%` to prevent the Kubelet garbage collector from deleting images when disk usage is high, as described in [Core Images Deleted by Garbage Collector Are Not Reloaded in TKGI Air-Gapped Environment](https://knowledge.broadcom.com/external/article?articleNumber=380917) in the Broadcom Support Knowledge Base.
@@ -129,7 +129,7 @@ see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-c
 {{# evalExpression "current_page.data.windowsclusters == true"}}
 1. Under **Kubelet customization - Windows pause image location**, enter the location of your Windows pause image.
 The **Kubelet customization - Windows pause image location** default value of `mcr.microsoft.com/k8s/core/pause:3.6`
-configures Tanzu Kubernetes Grid Integrated Edition to pull the Windows pause image from the Microsoft Docker registry.
+configures {{  vars.product }} to pull the Windows pause image from the Microsoft Docker registry.
 <br>The Microsoft Docker registry cannot be accessed from within air-gapped environments.
 If you want to deploy Windows pods in an air-gapped environment you must upload a Windows pause image to
 an accessible private registry, and configure the **Kubelet customization -
@@ -137,24 +137,24 @@ Windows pause image location** field with the URI to this accessible Windows pau
 For more information about uploading a Windows pause image to a private registry, see
 [Using a Windows Pause Image for an Air-Gapped Environment](windows-pause-internetless.html).
 {{/ evalExpression }}
-1. Under **Errand VM Type**, select the size of the VM that contains the errand. 
+1. Under **Errand VM Type**, select the size of the VM that contains the errand.
 The smallest instance possible is sufficient, as the only errand running on this VM is the one that applies the **Default Cluster App** YAML configuration.
-1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to add custom workloads to each cluster in this plan. 
-You can specify multiple files using `---` as a separator. 
-For more information, see [Adding Custom Linux Workloads](custom-workloads.html).  
+1. (Optional) Under **(Optional) Add-ons - Use with caution**, enter additional YAML configuration to add custom workloads to each cluster in this plan.
+You can specify multiple files using `---` as a separator.
+For more information, see [Adding Custom Linux Workloads](custom-workloads.html).
 {{# evalExpression "(current_page.data.iaas == 'vSphere-NSX-T' || current_page.data.iaas == 'vSphere')"}}
-1. (Optional) Select the **Allow Privileged** option to allow users to either create Pods with privileged containers 
-or create clusters with resizable persistent volumes using a manually installed vSphere CSI driver. 
+1. (Optional) Select the **Allow Privileged** option to allow users to either create Pods with privileged containers
+or create clusters with resizable persistent volumes using a manually installed vSphere CSI driver.
 For more information about privileged mode, see [Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers)
 in the Kubernetes documentation.  <br><br>
-**Allow Privileged** is not required if clusters use the automatically installed vSphere CSI driver for vSphere CNS. 
-For information about using the automatically installed vSphere CSI driver, see [Storage](#storage-config) below and 
+**Allow Privileged** is not required if clusters use the automatically installed vSphere CSI driver for vSphere CNS.
+For information about using the automatically installed vSphere CSI driver, see [Storage](#storage-config) below and
 [Deploying Cloud Native Storage (CNS) on vSphere](vsphere-cns.html).  <br><br>
 {{/ evalExpression }}
 {{# evalExpression "(current_page.data.iaas == 'AWS' || current_page.data.iaas == 'Azure')"}}
 1. (Optional) To allow users to create pods with privileged containers, select the **Allow Privileged** option.
 For more information, see [Pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers)
-in the Kubernetes documentation.  
+in the Kubernetes documentation.
 {{/ evalExpression }}
 {{# evalExpression "current_page.data.windowsclusters == true"}}
     <p class="note"><strong>Note:</strong> Windows in Kubernetes does not support privileged containers.
@@ -163,8 +163,8 @@ in the Kubernetes documentation.
     </p>
 {{/ evalExpression }}
 {{# evalExpression "current_page.data.windowsclusters != true"}}
-1. (Optional) Under **Node Drain Timeout(mins)**, enter the timeout in minutes for the node to drain pods. 
-If you set this value to `0`, the node drain does not terminate.  
+1. (Optional) Under **Node Drain Timeout(mins)**, enter the timeout in minutes for the node to drain pods.
+If you set this value to `0`, the node drain does not terminate.
     ![Node Drain Timeout fields](images/node-drain.png)
 1. (Optional) Under **Pod Shutdown Grace Period (seconds)**, enter a timeout in seconds for the node to wait before it forces the pod to terminate. If you set this value to `-1`, the default timeout is set to the one specified by the pod.
 

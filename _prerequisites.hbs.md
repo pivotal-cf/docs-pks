@@ -1,4 +1,4 @@
-If you use an instance of {{ vars.platform_name }} that you configured previously to install other runtimes, perform the following steps before you install Tanzu Kubernetes Grid Integrated Edition:
+If you use an instance of {{ vars.platform_name }} that you configured previously to install other runtimes, perform the following steps before you install {{  vars.product }}:
 
 1. Navigate to {{ vars.platform_name }}.
 1. Open the **Director Config** pane.

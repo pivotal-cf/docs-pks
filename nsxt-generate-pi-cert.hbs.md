@@ -10,7 +10,7 @@ This topic describes how to generate and register the NSX Manager superuser prin
 
 You must generate and register the NSX Manager superuser principal identity certificate and key for two situations:
 
-- You are preparing to install  Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX.  For instructions, see [Generating the Certificate and Key for Installation](#certificates-nsx-pid-install).
+- You are preparing to install  {{  vars.product }} (TKGI) on vSphere with NSX.  For instructions, see [Generating the Certificate and Key for Installation](#certificates-nsx-pid-install).
 - You need to rotate the NSX Manager certificate and key for an existing TKGI installation.  For instructions, see [Rotate the Principal Identity Certificate and Key](#certificates-nsx-pid-rotate).
 
 The NSX Manager superuser for TKGI has the Enterprise Administrator role and permissions.
@@ -24,23 +24,23 @@ If you are rotating the NSX Manager certificate for an existing TKGI installatio
 
 <ul>
   <li>
-    <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX</a>
+    <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install {{  vars.product }} on vSphere with VMware NSX</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-rpd-mpd.html">Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX</a>
+    <a href="./vsphere-nsxt-rpd-mpd.html">Hardware Requirements for {{  vars.product }} on vSphere with NSX</a>
   </li>
   <li>
     <strong>NSX-T v3.0:</strong>
-    <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for {{  vars.product }}</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-om-deploy.html">Deploying {{ vars.platform_name }} with NSX-T for Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./vsphere-nsxt-om-deploy.html">Deploying {{ vars.platform_name }} with NSX-T for {{  vars.product }}</a>
   </li>
   <li>
     <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>
   </li>
   <li>
-    <a href="./vsphere-nsxt-om-config.html">Configuring BOSH Director with NSX for Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./vsphere-nsxt-om-config.html">Configuring BOSH Director with NSX for {{  vars.product }}</a>
   </li>
 </ul>
 
@@ -53,7 +53,7 @@ If you are rotating the NSX Manager certificate for an existing TKGI installatio
 The TKGI API accesses the NSX Manager through an Enterprise Administrator account.
 This superuser account lets TKGI use NSX to create, delete, and modify networking resources for Kubernetes cluster nodes.
 
-When you configure Tanzu Kubernetes Grid Integrated Edition with NSX as the container networking interface, you must provide the certificate and private key for the NSX Manager Enterprise Administrator account in the **Networking** pane of the Tanzu Kubernetes Grid Integrated Edition tile.
+When you configure {{  vars.product }} with NSX as the container networking interface, you must provide the certificate and private key for the NSX Manager Enterprise Administrator account in the **Networking** pane of the {{  vars.product }} tile.
 
 See the **NSX Manager Super User Principal Identity Certificate** field in the following screenshot:
 
@@ -61,7 +61,7 @@ See the **NSX Manager Super User Principal Identity Certificate** field in the f
 
   [View a larger version of this image.](images/nsxt/nsx-pi-cert.png)
 
-For more information, see the [Networking](installing-nsx-t.html#networking) section of _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX_.
+For more information, see the [Networking](installing-nsx-t.html#networking) section of _Installing {{  vars.product }} on vSphere with NSX_.
 
 ##<a id='certificates-nsx-pid-install'></a> Generating the Certificate and Key for Installation
 
@@ -69,14 +69,14 @@ There are two options for generating the principal identity certificate and priv
 
 - [Option A](#certificate-super-user-script): Run a script on a Linux host with OpenSSL installed that generates the certificate and private key.
 For more information, see [Option A: Generate and Register the Certificate and Key Using Scripts](#certificate-super-user-script) below.
-- [Option B](#certificate-super-user-ui): Use the automatic **Generate RSA Certificate** option in the Tanzu Kubernetes Grid Integrated Edition tile.
-For more information, see [Option B: Generate and Register the Certificate and Key Using the Tanzu Kubernetes Grid Integrated Edition Tile](#certificate-super-user-ui) below.
+- [Option B](#certificate-super-user-ui): Use the automatic **Generate RSA Certificate** option in the {{  vars.product }} tile.
+For more information, see [Option B: Generate and Register the Certificate and Key Using the {{  vars.product }} Tile](#certificate-super-user-ui) below.
 
 After you have generated the principal identity certificate and key, you must register both with the NSX Manager using an HTTPS POST operation on the NSX API. There is no user interface for this operation.
 
 ###<a id='certificate-super-user-script'></a> Option A: Generate and Register the Certificate and Key Using a Script
 
-This option uses a Bash shell script to generate and register the NSX Manager superuser principal identity certificate and key. When you configure TKGI for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the Tanzu Kubernetes Grid Integrated Edition tile.
+This option uses a Bash shell script to generate and register the NSX Manager superuser principal identity certificate and key. When you configure TKGI for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the {{  vars.product }} tile.
 
 <p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the TKGI client VM where you install the TKGI CLI.</p>
 
@@ -86,7 +86,7 @@ You must generate a certificate and private key, and create the Super User Princ
 
 To create the Super User Principal Identity, create and run the `create_certificate_pi.sh` script:
 
-1. Log in to a Linux VM in your Tanzu Kubernetes Grid Integrated Edition environment.
+1. Log in to a Linux VM in your {{  vars.product }} environment.
 1. Create an empty file using `vi create_certificate_pi.sh` or `nano create_certificate_pi.sh`.
 1. Modify the file you created to have the following script contents:
 
@@ -166,13 +166,13 @@ with the role `Enterprise Admin` on the NSX Manager **System** > **Users** > **R
 
     [View a larger version of this image.](images/nsxt/nsx-create_pi-result.png)
 
-###<a id='certificate-super-user-ui'></a> Option B: Generate and Register the Certificate and Key Using the Tanzu Kubernetes Grid Integrated Edition Tile
+###<a id='certificate-super-user-ui'></a> Option B: Generate and Register the Certificate and Key Using the {{  vars.product }} Tile
 
 ####<a id='generate-pi-cert-ui'></a> Step 1: Generate the Certificate and Key
 
-To generate the certificate and key automatically in the **Networking** pane in the Tanzu Kubernetes Grid Integrated Edition tile, follow the steps below:
+To generate the certificate and key automatically in the **Networking** pane in the {{  vars.product }} tile, follow the steps below:
 
-1. Navigate to the **Networking** pane in the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Networking](installing-nsx-t.html#networking) in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Integration_.
+1. Navigate to the **Networking** pane in the {{  vars.product }} tile. For more information, see [Networking](installing-nsx-t.html#networking) in _Installing {{  vars.product }} on vSphere with NSX Integration_.
 1. Click **Generate RSA Certificate** and provide a wildcard domain. For example, `*.nsx.tkgi.vmware.local`.
 
 ####<a id='copy-pi-cert'></a> Step 2: Copy the Certificate and Key to the Linux VM

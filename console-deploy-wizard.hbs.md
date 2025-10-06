@@ -1,14 +1,14 @@
 ---
-title: Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard
+title: Deploy {{  vars.product }} by Using the Configuration Wizard
 
 thistopic: wizard
 ---
 
 This topic describes how to use the {{  vars.product_full }} Management Console (TKGI MC) Configuration Wizard to deploy TKGI on vSphere.
 
-To deploy TKGI from a YAML, see [Deploy Tanzu Kubernetes Grid Integrated Edition by Importing a YAML Configuration File](console-deploy-yaml.html).
+To deploy TKGI from a YAML, see [Deploy {{  vars.product }} by Importing a YAML Configuration File](console-deploy-yaml.html).
 
-To upgrade an existing TKGI MC installation, see [Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console](console-upgrade.html).
+To upgrade an existing TKGI MC installation, see [Upgrade {{  vars.product }} Management Console](console-upgrade.html).
 
 
 
@@ -27,7 +27,7 @@ To deploy the TKGI using TKGI MC Configuration Wizard:
 1. [Configure Integrations](#integrations)
 1. [Configure Harbor](#harbor)
 1. [Configure CEIP](#ceip-telemetry)
-1. [Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy)
+1. [Generate Configuration File and Deploy {{  vars.product }}](#deploy)
 
 
 
@@ -35,13 +35,13 @@ To deploy the TKGI using TKGI MC Configuration Wizard:
 
 Ensure your environment satisfies the following:
 
-- [Deploy the Tanzu Kubernetes Grid Integrated Edition Management Console](console-deploy-ova.html) to vCenter Server.
-- The vCenter Server instance must be correctly configured for Tanzu Kubernetes Grid Integrated Edition deployment. For information about the vCenter Server requirements, see [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
+- [Deploy the {{  vars.product }} Management Console](console-deploy-ova.html) to vCenter Server.
+- The vCenter Server instance must be correctly configured for {{  vars.product }} deployment. For information about the vCenter Server requirements, see [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
 - Depending on the type of networking you want to use, your infrastructure must meet the appropriate prerequisites. For information about networking prerequisites, see the following topics:
   - [Prerequisites for an Automated NAT Deployment to VMware NSX](console-prereqs-nsxt-automatednat.html)
   - [Prerequisites for a Bring Your Own Topology Deployment to VMware NSX](console-prereqs-nsxt-byot.html)
   - [Prerequisites for vSphere Without an NSX Network](console-prereqs-cni.html)
-- [Log in to Tanzu Kubernetes Grid Integrated Edition Management Console](console-deploy-ova.html#access-console).
+- [Log in to {{  vars.product }} Management Console](console-deploy-ova.html#access-console).
 
 
 ## <a id='launch-wizard'></a>Step 0: Launch the Configuration Wizard
@@ -62,12 +62,12 @@ To get help in the wizard at any time, click the **?** icon at the top of the pa
 
 To connect to a  vCenter Server:
 
-1. Enter the IP address or FQDN for the vCenter Server instance on which to deploy Tanzu Kubernetes Grid Integrated Edition.
+1. Enter the IP address or FQDN for the vCenter Server instance on which to deploy {{  vars.product }}.
 
     - The FQDN for the vCenter Server cannot contain uppercase letters.
 1. Enter the vCenter Single Sign On user name and password for a user account that has vSphere administrator permissions.
 1. Click **Connect**.
-1. Select the data center in which to deploy Tanzu Kubernetes Grid Integrated Edition from the drop-down menu.
+1. Select the data center in which to deploy {{  vars.product }} from the drop-down menu.
 
     <p class="note warning"><strong> WARNING:</strong> Ideally, do not deploy TKGI from the management console to a data center that also includes TKGI instances that you deployed manually. If deploying management console and manual instances of TKGI to the same data center cannot be avoided, make sure that the TKGI instances that you deployed manually do not use the folder names <code>BoshVMFolder: pks_vms</code>, <code>BoshTemplateFolder: pks_templates</code>, <code>BoshDiskPath: pks_disk</code>. If a manual installation uses these folder names, the VMs that they contain will be deleted when you delete a TKGI instance from the management console.</p>
 1. Click **Next** to configure networking.
@@ -75,23 +75,23 @@ To connect to a  vCenter Server:
 
 ## <a id='networking'></a>Step 2: Configure Networking
 
-Provide connection information for the container networking interface to use with Tanzu Kubernetes Grid Integrated Edition. Tanzu Kubernetes Grid Integrated Edition Management Console provides 3 network configuration options for your Tanzu Kubernetes Grid Integrated Edition deployments: Automated NAT deployment, Bring your own topology, and Antrea CNI.
+Provide connection information for the container networking interface to use with {{  vars.product }}. {{  vars.product }} Management Console provides 3 network configuration options for your {{  vars.product }} deployments: Automated NAT deployment, Bring your own topology, and Antrea CNI.
 
 Each network configuration option has specific prerequisites:
 
-* **Automated NAT deployment**: Deploy Tanzu Kubernetes Grid Integrated Edition to an existing VMware NSX network that you have not fully set up, that Tanzu Kubernetes Grid Integrated Edition Management Console configures for you. See [Configure an Automated NAT Deployment to VMware NSX](#nsxt-automated-nat) below for instructions.
-* **Bring your own topology**: Deploy Tanzu Kubernetes Grid Integrated Edition to an existing VMware NSX network that you have fully configured yourself. See [Configure a Bring Your Own Topology Deployment to VMware NSX](#nsxt-byot) below for instructions.
-* **Antrea**: Deploy Tanzu Kubernetes Grid Integrated Edition with an Antrea network that Tanzu Kubernetes Grid Integrated Edition Management Console provisions for you. See [Configure an Antrea Network](#antrea) below for instructions.
+* **Automated NAT deployment**: Deploy {{  vars.product }} to an existing VMware NSX network that you have not fully set up, that {{  vars.product }} Management Console configures for you. See [Configure an Automated NAT Deployment to VMware NSX](#nsxt-automated-nat) below for instructions.
+* **Bring your own topology**: Deploy {{  vars.product }} to an existing VMware NSX network that you have fully configured yourself. See [Configure a Bring Your Own Topology Deployment to VMware NSX](#nsxt-byot) below for instructions.
+* **Antrea**: Deploy {{  vars.product }} with an Antrea network that {{  vars.product }} Management Console provisions for you. See [Configure an Antrea Network](#antrea) below for instructions.
 
 ![Select Networking](images/console/select-networking.png)
 [View a larger version of this image.](images/console/select-networking.png)
 
-<p class="note"><strong>Important</strong>: You cannot change the type of networking after you deploy Tanzu Kubernetes Grid Integrated Edition.</p>
+<p class="note"><strong>Important</strong>: You cannot change the type of networking after you deploy {{  vars.product }}.</p>
 
 
 ### <a id='nsxt-automated-nat'></a>Configure an Automated NAT Deployment to VMware NSX
 
-Provide information about an VMware NSX network that you have not already configured for use with Tanzu Kubernetes Grid Integrated Edition. You provide information about your VMware NSX setup, and Tanzu Kubernetes Grid Integrated Edition Management Console creates the necessary objects and configures them for you. Make sure that your VMware NSX setup satisfies the [Prerequisites for an Automated NAT Deployment to VMware NSX](console-prereqs-nsxt-automatednat.html) before you begin.
+Provide information about an VMware NSX network that you have not already configured for use with {{  vars.product }}. You provide information about your VMware NSX setup, and {{  vars.product }} Management Console creates the necessary objects and configures them for you. Make sure that your VMware NSX setup satisfies the [Prerequisites for an Automated NAT Deployment to VMware NSX](console-prereqs-nsxt-automatednat.html) before you begin.
 
 To provide information about an VMware NSX network:
 
@@ -114,20 +114,20 @@ To provide information about an VMware NSX network:
     By default, the management console sets the high availability (HA) mode of the tier 0 router to active-standby. You can optionally activate active-active mode on the tier 0 router, so that all NAT configuration moves from the tier 0 to the tier 1 router.
 
     ![Automated NAT Deployment network configuration](images/console/automatednat-network.png)
-1. Enter information about the network resources for the Tanzu Kubernetes Grid Integrated Edition deployment to use.
-	* **Deployment CIDR**: Enter a CIDR range to use for Tanzu Kubernetes Grid Integrated Edition components, for example 10.192.182.1/22.
-	* **Deployment DNS**: Enter the IP address of the DNS server to use for deploying Tanzu Kubernetes Grid Integrated Edition components, for example 192.168.111.155.
+1. Enter information about the network resources for the {{  vars.product }} deployment to use.
+	* **Deployment CIDR**: Enter a CIDR range to use for {{  vars.product }} components, for example 10.192.182.1/22.
+	* **Deployment DNS**: Enter the IP address of the DNS server to use for deploying {{  vars.product }} components, for example 192.168.111.155.
 	* **NTP Server**: Enter the IP address of an NTP server.
 	* **Pod IP Block CIDR**: Enter a CIDR range to use for pods, with a maximum suffix of 24. For example 11.192.183.1/22.
 	* **Node IP Block CIDR**: Enter a CIDR range to use for nodes, with a maximum suffix of 22. For example 11.192.184.1/22.
 	* **Nodes DNS**: Enter the Domain Name Server used by the Kubernetes nodes.
-	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment. You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment. You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy {{  vars.product }}](#deploy).
 	* **Usable range of floating IPs**: Enter the floating IP range, for example **From** 192.168.160.100 **To** 192.168.160.199. Click **Add Range** to add more IP ranges.
 
     ![Automated NAT Deployment network resources configuration](images/console/automatednat-network-resources.png)
 1. Optionally activate **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
 
-    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, Tanzu Kubernetes Grid Integrated Edition Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
+    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, {{  vars.product }} Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
 
     Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
 
@@ -147,7 +147,7 @@ For the next steps, see [Configure Identity Management](#identity).
 
 ### <a id='nsxt-byot'></a>Configure a Bring Your Own Topology Deployment to VMware NSX
 
-Provide information about an VMware NSX network that you have already fully configured for use with Tanzu Kubernetes Grid Integrated Edition. Make sure that your VMware NSX setup satisfies the [Prerequisites for a Bring Your Own Topology Deployment to VMware NSX](console-prereqs-nsxt-byot.html) before you begin.
+Provide information about an VMware NSX network that you have already fully configured for use with {{  vars.product }}. Make sure that your VMware NSX setup satisfies the [Prerequisites for a Bring Your Own Topology Deployment to VMware NSX](console-prereqs-nsxt-byot.html) before you begin.
 
 To provide information about an VMware NSX network:
 
@@ -159,7 +159,7 @@ To provide information about an VMware NSX network:
 1. Use the drop-down menus to select existing network resources for each of the following items.
 	* **Network for TKGI Management Plane**: Select the name of an opaque network on an NSX Virtual Distributed Switch (N-VDS).
 
-         <p class="note warning"><strong>Important</strong>: Do not use the network on which you deployed the Tanzu Kubernetes Grid Integrated Edition Management Console VM as the network for the management plane. Using the same network for the management console VM and the management plane requires additional VMware NSX configuration and is not recommended.</p>
+         <p class="note warning"><strong>Important</strong>: Do not use the network on which you deployed the {{  vars.product }} Management Console VM as the network for the management plane. Using the same network for the management console VM and the management plane requires additional VMware NSX configuration and is not recommended.</p>
 	* **Pod IP Block ID**: Select the UUID for the IP block to use for Kubernetes pods.
 	* **Node IP Block ID**: Select the UUID for the IP block to use for Kubernetes nodes.
 	* **T0 Router ID**: Select the UUID for the Tier-0 Logical Router configured in VMware NSX.
@@ -168,19 +168,19 @@ To provide information about an VMware NSX network:
 	* **Nodes DNS**: Enter the IP address for the DNS server to use for Kubernetes nodes and pods.
 	* **Deployment DNS**: Enter the IP address for the DNS server to use for the TKGI control plane VMs, for example 192.168.111.155.
 	* **NTP Server**: Enter the IP address of an NTP server.
-	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy {{  vars.product }}](#deploy).
 
     ![Bring your own topology network configuration](images/console/byot-network.png)
 1. If you are using the NSX Policy API, select this option. See [Considerations for Using the NSX Policy API with TKGI](./nsxt-policy-api-considerations.html).
 1. Optionally deactivate **NAT Mode** to implement a routable (No-NAT) topology.
 
-     Tanzu Kubernetes Grid Integrated Edition supports NAT topologies, No-NAT with logical switch (NSX) topologies, No-NAT with virtual switch (VSS/VDS) topologies, and multiple tier-0 routers for tenant isolation. For information about implementing a routable topology, see [No-NAT Topology](./nsxt-topologies.html#topology-no-nat) in *NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition*.
+     {{  vars.product }} supports NAT topologies, No-NAT with logical switch (NSX) topologies, No-NAT with virtual switch (VSS/VDS) topologies, and multiple tier-0 routers for tenant isolation. For information about implementing a routable topology, see [No-NAT Topology](./nsxt-topologies.html#topology-no-nat) in *NSX Deployment Topologies for {{  vars.product }}*.
 1. If you left NAT mode activated, optionally activate **Hybrid NAT Mode**.
 <br><br>
-If you activate hybrid NAT mode, the Tanzu Kubernetes Grid Integrated Edition management plane runs on a routable subnet but the cluster node network uses a non-routable subnet.
+If you activate hybrid NAT mode, the {{  vars.product }} management plane runs on a routable subnet but the cluster node network uses a non-routable subnet.
 1. Optionally activate **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
 
-    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, Tanzu Kubernetes Grid Integrated Edition Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
+    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, {{  vars.product }} Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
 
     Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
 
@@ -200,16 +200,16 @@ For the next steps, see [Configure Identity Management](#identity).
 
 ### <a id='antrea'></a>Configure an Antrea Network
 
-Provide networking information so that Tanzu Kubernetes Grid Integrated Edition Management Console can provision an Antrea network for you during deployment. Make sure that you have the information listed in [Prerequisites for vSphere Without an NSX Network](console-prereqs-cni.html) before you begin.
+Provide networking information so that {{  vars.product }} Management Console can provision an Antrea network for you during deployment. Make sure that you have the information listed in [Prerequisites for vSphere Without an NSX Network](console-prereqs-cni.html) before you begin.
 
 To provide networking information:
 
 1. Configure the Deployment Network Resource options.
-	* **Deployment Network**: Select a vSphere network on which to deploy Tanzu Kubernetes Grid Integrated Edition.
-	* **Deployment Network CIDR**: Enter a CIDR range to use for Tanzu Kubernetes Grid Integrated Edition components, for example 10.192.182.1/22.
+	* **Deployment Network**: Select a vSphere network on which to deploy {{  vars.product }}.
+	* **Deployment Network CIDR**: Enter a CIDR range to use for {{  vars.product }} components, for example 10.192.182.1/22.
 	* **Deployment Network Gateway IP**: Enter the IP address for the gateway for the deployment network, for example 10.192.182.1.
 	* **Deployment DNS**: Enter the IP address for the deployment network DNS server, for example 192.168.111.155.
-	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy {{  vars.product }}](#deploy).
 
     ![vSphere without NSX network configuration](images/console/cni-network.png)
 1. Configure the Service Network Resource options.
@@ -217,7 +217,7 @@ To provide networking information:
 	* **Service Network CIDR**: Enter a CIDR range to use for the service network, for example 10.192.182.1/23.
 	* **Service Network Gateway IP**: Enter the IP address for the gateway for the service network.
 	* **Service DNS**: Enter the IP address for the service network DNS server, for example 192.168.111.155.
-	* **Service Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify the reserved IP range after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](#deploy).
+	* **Service Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify the reserved IP range after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy {{  vars.product }}](#deploy).
 	* **NTP Server**: Enter the IP address of an NTP server.
 
     ![vSphere without NSX service network configuration](images/console/cni-service-network.png)
@@ -232,7 +232,7 @@ To provide networking information:
 
 ## <a id='identity'></a>Step 3: Configure Identity Management
 
-Tanzu Kubernetes Grid Integrated Edition Management Console provides 3 identity management options for your Tanzu Kubernetes Grid Integrated Edition deployments.
+{{  vars.product }} Management Console provides 3 identity management options for your {{  vars.product }} deployments.
 
 To configure identity management:
 
@@ -246,7 +246,7 @@ To configure identity management:
 
 ### <a id='identity-db'></a>Use a Local Database
 
-You can manage users by using a local database that is created during Tanzu Kubernetes Grid Integrated Edition deployment. After deployment, you can add users and groups to the database and assign roles to them in the Identity Management view of the Tanzu Kubernetes Grid Integrated Edition Management Console.
+You can manage users by using a local database that is created during {{  vars.product }} deployment. After deployment, you can add users and groups to the database and assign roles to them in the Identity Management view of the {{  vars.product }} Management Console.
 
 1. Select the **Local user database** radio button.
 1. In the **TKGI API FQDN** text box, enter an address for the TKGI API Server VM, for example `api.tkgi.example.com`.
@@ -277,7 +277,7 @@ Provide information about an existing external Active Directory or LDAP server:
         <p class="note"><strong>Note</strong>: Increasing the LDAP group search depth impacts performance.</p>
 	* **External Groups Whitelist**: Optionally enter a comma-separated list of group patterns to be populated in the user's `id_token`.
 	* **Email Attribute**: Enter the attribute name in the AD/LDAP directory that contains user email addresses. For example, `mail`.
-	* **Email Domains**: Optionally enter a comma-separated list of the email domains for external users who can receive invitations to Tanzu Kubernetes Grid Integrated Edition.
+	* **Email Domains**: Optionally enter a comma-separated list of the email domains for external users who can receive invitations to {{  vars.product }}.
 	* **First Name Attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user first names, for example `cn`.
 	* **Last Name Attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user last names. for example `sn`.
 	* **Server SSL Certificate**: If you are using an LDAPS endpoint, paste the contents of the LDAP server certificate certificate into the text box.
@@ -290,12 +290,12 @@ Provide information about an existing external Active Directory or LDAP server:
 
 ### <a id='identity-saml'></a>Use a SAML Identity Provider
 
-You can configure Tanzu Kubernetes Grid Integrated Edition so that Kubernetes authenticates users against a SAML identity provider. Before you configure a SAML identity provider, you must configure your identity provider to designate Tanzu Kubernetes Grid Integrated Edition as a service provider. For information about how to configure Okta and Azure Active Directory, see the following topics:
+You can configure {{  vars.product }} so that Kubernetes authenticates users against a SAML identity provider. Before you configure a SAML identity provider, you must configure your identity provider to designate {{  vars.product }} as a service provider. For information about how to configure Okta and Azure Active Directory, see the following topics:
 
 - [Configuring Okta as a SAML Identity Provider](./okta-sso-config.html)
 - [Configuring Azure Active Directory as a SAML Identity Provider](./azure-ad-sso-config.html)
 
-After you have configured your identity provider, enter information about the provider in Tanzu Kubernetes Grid Integrated Edition Management Console:
+After you have configured your identity provider, enter information about the provider in {{  vars.product }} Management Console:
 
 1. Select the **SAML Identity Provider** radio button.
 1. For **Provider Name**, enter a unique name you create for the Identity Provider.
@@ -325,9 +325,9 @@ This field is case sensitive.
 
 1. For **External Groups Attribute**, enter the attribute name in your SAML database for your user groups.
 <br>
-This field is case sensitive. To map the groups from the SAML assertion to admin roles in Tanzu Kubernetes Grid Integrated Edition, see [Grant Tanzu Kubernetes Grid Integrated Edition Access to an External LDAP Group](./manage-users.html#external-group).
+This field is case sensitive. To map the groups from the SAML assertion to admin roles in {{  vars.product }}, see [Grant {{  vars.product }} Access to an External LDAP Group](./manage-users.html#external-group).
 
-1. By default, all SAML authentication requests from Tanzu Kubernetes Grid Integrated Edition are signed, but you can optionally deactivate **Sign Authentication Requests**.
+1. By default, all SAML authentication requests from {{  vars.product }} are signed, but you can optionally deactivate **Sign Authentication Requests**.
 <br>
 If you deactivate this option, you must configure your identity provider to verify SAML authentication requests.
 
@@ -349,7 +349,7 @@ The default value is SHA256.
 
 However you manage identities, you can use OpenID Connect (OIDC) to instruct Kubernetes to verify end-user identities based on authentication performed by a User Account and Authentication (UAA) server. Using OIDC lets you set up an external IDP, such as Okta, to authenticate users who access Kubernetes clusters with `kubectl`. If you activate OIDC, administrators can grant namespace-level or cluster-wide access to Kubernetes end users. If you do not activate OIDC, you must use service accounts to authenticate <code>kubectl</code> users.
 
-<p class="note"><strong>Note</strong>: You cannot activate OIDC if you intend to integrate Tanzu Kubernetes Grid Integrated Edition with VMware vRealize Operations Management Pack for Container Monitoring.</p>
+<p class="note"><strong>Note</strong>: You cannot activate OIDC if you intend to integrate {{  vars.product }} with VMware vRealize Operations Management Pack for Container Monitoring.</p>
 
 To configure UAA to verify and authenticate end-user identities:
 
@@ -385,16 +385,16 @@ Enter the contents of the certificate in the **TKGI API Certificate** text box:
 
 ## <a id='availability-zones'></a>Step 4: Configure Availability Zones
 
-Availability zones specify the compute resources for Kubernetes cluster deployment. Availability zones are a BOSH construct, that in Tanzu Kubernetes Grid Integrated Edition deployments to vSphere correspond to vCenter Server clusters, host groups, and resource pools. Availability zones allow you to provide high-availability and load balancing to applications. When you run more than one instance of an application, those instances are balanced across all of the availability zones that are assigned to the application. You must configure at least one availability zone. You can configure multiple additional availability zones.
+Availability zones specify the compute resources for Kubernetes cluster deployment. Availability zones are a BOSH construct, that in {{  vars.product }} deployments to vSphere correspond to vCenter Server clusters, host groups, and resource pools. Availability zones allow you to provide high-availability and load balancing to applications. When you run more than one instance of an application, those instances are balanced across all of the availability zones that are assigned to the application. You must configure at least one availability zone. You can configure multiple additional availability zones.
 
-<p class="note"><strong>Note</strong>: If you select a cluster as an availability zone, Tanzu Kubernetes Grid Integrated Edition Management Console sets the DRS VM-host affinity rule on that cluster to <code>MUST</code>. If you select a host group as an availability zone, Tanzu Kubernetes Grid Integrated Edition Management Console sets the DRS VM-host affinity rule on that group to <code>SHOULD</code>.</p>
+<p class="note"><strong>Note</strong>: If you select a cluster as an availability zone, {{  vars.product }} Management Console sets the DRS VM-host affinity rule on that cluster to <code>MUST</code>. If you select a host group as an availability zone, {{  vars.product }} Management Console sets the DRS VM-host affinity rule on that group to <code>SHOULD</code>.</p>
 
 To configure availability zones:
 
 1. In the **Name** field, enter a name for the availability zone.
 1. Optionally select **This is the management availability zone**.
 
-    The management availability zone is the availability zone in which to deploy the TKGI Management Plane. The management plane consists of the TKGI API VM, {{ vars.platform_name }}, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, Tanzu Kubernetes Grid Integrated Edition Management Console selects the first one.
+    The management availability zone is the availability zone in which to deploy the TKGI Management Plane. The management plane consists of the TKGI API VM, {{ vars.platform_name }}, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, {{  vars.product }} Management Console selects the first one.
 1. In the **Compute Resource** tree, select clusters, host groups, or resource pools for this availability zone to use.
 1. Click **Save Availability Zone**.
 
@@ -408,38 +408,38 @@ To configure availability zones:
 
 ## <a id='storage'></a>Step 5: Configure Resources and Storage
 
-Resource Settings allow you to configure the resources that are allocated to the VM on which the Tanzu Kubernetes Grid Integrated Edition API and other component services, such as UAA, run. Allocate resources according to the workloads that TKGI will run. You can also activate High Availability for the TKGI Database and deploy multiple instances of the TKGI API VM.
+Resource Settings allow you to configure the resources that are allocated to the VM on which the {{  vars.product }} API and other component services, such as UAA, run. Allocate resources according to the workloads that TKGI will run. You can also activate High Availability for the TKGI Database and deploy multiple instances of the TKGI API VM.
 
-Tanzu Kubernetes Grid Integrated Edition, the MySQL database runs on a separate VM to the Tanzu Kubernetes Grid Integrated Edition API and other components.
+{{  vars.product }}, the MySQL database runs on a separate VM to the {{  vars.product }} API and other components.
 
-You must also designate the datastores to use for the different types of storage required by your Tanzu Kubernetes Grid Integrated Edition deployment.
+You must also designate the datastores to use for the different types of storage required by your {{  vars.product }} deployment.
 
-- Ephemeral storage is used to contain the files for ephemeral VMs that Tanzu Kubernetes Grid Integrated Edition creates during installation, upgrade, and operation. Ephemeral VMs are automatically created and deleted as needed.
-- Permanent storage is used for permanent Tanzu Kubernetes Grid Integrated Edition data.
+- Ephemeral storage is used to contain the files for ephemeral VMs that {{  vars.product }} creates during installation, upgrade, and operation. Ephemeral VMs are automatically created and deleted as needed.
+- Permanent storage is used for permanent {{  vars.product }} data.
 - Kubernetes persistent volume storage is used to store Kubernetes persistent volumes, for use in stateful applications.
 
-You can use different datastores for the storage of permanent and ephemeral data. If you deactivate the permanent storage option, Tanzu Kubernetes Grid Integrated Edition uses the ephemeral storage for permanent data. For information about when it is appropriate to share the ephemeral, permanent, and persistent volume datastores or use separate ones, see [PersistentVolume Storage Options on vSphere](./vsphere-persistent-storage.html).
+You can use different datastores for the storage of permanent and ephemeral data. If you deactivate the permanent storage option, {{  vars.product }} uses the ephemeral storage for permanent data. For information about when it is appropriate to share the ephemeral, permanent, and persistent volume datastores or use separate ones, see [PersistentVolume Storage Options on vSphere](./vsphere-persistent-storage.html).
 
 You can use VMware vSAN, Network File Share (NFS), or VMFS storage for ephemeral, permanent, and Kubernetes persistent storage. Datastores can only be selected if their minimum capacity is greater than 250GB.
 
-To configure the resources available on the Tanzu Kubernetes Grid Integrated Edition API VM:
+To configure the resources available on the {{  vars.product }} API VM:
 
 1. (Optional) Toggle **TKGI Database** to activate database HA mode.
-1. For **TKGI Database Persistent Disk Size**, select the size of the persistent disk for the Tanzu Kubernetes Grid Integrated Edition MySQL database VM.
+1. For **TKGI Database Persistent Disk Size**, select the size of the persistent disk for the {{  vars.product }} MySQL database VM.
 
     * Set the TKGI Database Persistent Disk Size according to the amount of data that you expect the cluster workload to store.
-1. Use the **TKGI Database VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the Tanzu Kubernetes Grid Integrated Edition MySQL database VM.
+1. Use the **TKGI Database VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the {{  vars.product }} MySQL database VM.
 
     * Choose the configuration for the TKGI Database VM depending on the volume of database operations that it will run.
 1. Use the **TKGI API Instances** drop-down menu to select 1, 2, or 3 instances of the TKGI API VM.
-1. For **TKGI API Persistent Disk Size**, select the size of the persistent disk for the Tanzu Kubernetes Grid Integrated Edition API VM.
+1. For **TKGI API Persistent Disk Size**, select the size of the persistent disk for the {{  vars.product }} API VM.
 
     Set the TKGI API Persistent Disk Size according to the number of pods that you expect the cluster workload to run continuously. It is recommended to allocate 10GB for every 500 pods. For example:
 
     * For 1000 pods, allocate `20GB`.
     * For 10,000 pods, allocate `200GB`.
     * For 50,000 pods, allocate `1TB`.
-1. Use the **TKGI API VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the Tanzu Kubernetes Grid Integrated Edition API VM.
+1. Use the **TKGI API VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the {{  vars.product }} API VM.
 
     Choose the configuration for the API VM depending on the expected CPU, memory, and storage consumption of the workloads that it will run. For example, some workloads might require a large compute capacity but relatively little storage, while others might require a large amount of storage and less compute capacity.
 
@@ -456,17 +456,17 @@ To configure the resources available on the Tanzu Kubernetes Grid Integrated Edi
 
 ## <a id='plans'></a>Step 6: Configure Plans
 
-A plan is a cluster configuration template that defines the set of resources for Tanzu Kubernetes Grid Integrated Edition to use when deploying Kubernetes clusters. A plan allows you to configure the numbers of control plane and worker nodes, select between Linux and Windows OS for worker nodes, specify the configuration of the control plane and worker VMs, set disk sizes, select availability zones for control plane and node VMs, and configure advanced settings.
+A plan is a cluster configuration template that defines the set of resources for {{  vars.product }} to use when deploying Kubernetes clusters. A plan allows you to configure the numbers of control plane and worker nodes, select between Linux and Windows OS for worker nodes, specify the configuration of the control plane and worker VMs, set disk sizes, select availability zones for control plane and node VMs, and configure advanced settings.
 
-Tanzu Kubernetes Grid Integrated Edition Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can activate the plans as they are. You must activate at least one plan configuration because when you use the TKGI CLI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are activated, you cannot create Kubernetes clusters.
+{{  vars.product }} Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can activate the plans as they are. You must activate at least one plan configuration because when you use the TKGI CLI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are activated, you cannot create Kubernetes clusters.
 
-Tanzu Kubernetes Grid Integrated Edition plans support privileged containers and three admission control plugins. For information about privileged containers and the supported admission plugins, see
+{{  vars.product }} plans support privileged containers and three admission control plugins. For information about privileged containers and the supported admission plugins, see
 [Privileged mode for pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers)
-in the Kubernetes documentation. For information about admission plugins, see [Using Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters](./admission-plugins.html).
+in the Kubernetes documentation. For information about admission plugins, see [Using Admission Control Plugins for {{  vars.product }} Clusters](./admission-plugins.html).
 
 You can create a maximum of 10 Linux plans and a maximum of 3 Windows plans.
 
-After you have deployed Tanzu Kubernetes Grid Integrated Edition, when you use the management console to create clusters, you can override some of the values that you define in plans by using [Compute Profiles](./console-compute-profile.html).
+After you have deployed {{  vars.product }}, when you use the management console to create clusters, you can override some of the values that you define in plans by using [Compute Profiles](./console-compute-profile.html).
 
 To configure a plan:
 
@@ -511,10 +511,10 @@ To configure a plan:
 Consider the following when configuring plans for Windows worker nodes:
 
 * You can use Windows worker nodes if you implement either vSphere with NSX or vSphere without VMware NSX networking.
-* You can create a maximum of 3 plans that implement Windows worker nodes in a given Tanzu Kubernetes Grid Integrated Edition deployment.
+* You can create a maximum of 3 plans that implement Windows worker nodes in a given {{  vars.product }} deployment.
 * If you use Windows worker nodes, certain options are not available, and the default values of other options change. See the option descriptions below for more information.
 * If you use Windows worker nodes, by default one Linux worker node is deployed per Windows cluster. The Linux node provides cluster services to the Windows worker nodes. You can optionally make the cluster services Linux node highly available, in which case two Linux nodes are deployed.
-* If you use Windows worker nodes, after you deploy Tanzu Kubernetes Grid Integrated Edition, you must use Operations Manager to manually install a Windows Server Stemcell in BOSH. For information about how to install a Windows Server Stemcell and other steps to perform after you deploy Tanzu Kubernetes Grid Integrated Edition with Windows worker nodes, see [Enable Plans with Windows Worker Nodes](console-windows-workers.html).
+* If you use Windows worker nodes, after you deploy {{  vars.product }}, you must use Operations Manager to manually install a Windows Server Stemcell in BOSH. For information about how to install a Windows Server Stemcell and other steps to perform after you deploy {{  vars.product }} with Windows worker nodes, see [Enable Plans with Windows Worker Nodes](console-windows-workers.html).
 
 
 
@@ -533,7 +533,7 @@ To configure TKGI integration with other products:
 
 ### <a id='integrations-tanzumc'></a>Configure a Connection to VMware Tanzu Mission Control
 
-Tanzu Mission Control integration lets you monitor and manage Tanzu Kubernetes Grid Integrated Edition clusters from the Tanzu Mission Control console, making the Tanzu Mission Control console a single point of control for all Kubernetes clusters.
+Tanzu Mission Control integration lets you monitor and manage {{  vars.product }} clusters from the Tanzu Mission Control console, making the Tanzu Mission Control console a single point of control for all Kubernetes clusters.
 
 For more information about Tanzu Mission Control, see the [Tanzu Mission Control documentation](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components.html).
 
@@ -562,7 +562,7 @@ For more information about Tanzu Mission Control, see the [Tanzu Mission Control
 
 > **Note** Wavefront integration in TKGI has been deprecated.
 
-By connecting your Tanzu Kubernetes Grid Integrated Edition deployment to an existing deployment of Wavefront by VMware, you can obtain detailed metrics about Kubernetes clusters and pods.
+By connecting your {{  vars.product }} deployment to an existing deployment of Wavefront by VMware, you can obtain detailed metrics about Kubernetes clusters and pods.
 
 To configure Wavefront integration:
 
@@ -571,7 +571,7 @@ To configure Wavefront integration:
 1. Select the **Enable** toggle to activate a connection to Wavefront.
 1. Enter the address of your Wavefront instance in the **Wavefront URL** text box.
 1. Enter the Wavefront API token in the **Wavefront Access Token** text box.
-1. In the **HTTP Proxy for TKGI** text box, enter the address of the proxy server to use when it is not possible for the Tanzu Kubernetes Grid Integrated Edition Wavefront component to connect to an outside address over HTTP. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
+1. In the **HTTP Proxy for TKGI** text box, enter the address of the proxy server to use when it is not possible for the {{  vars.product }} Wavefront component to connect to an outside address over HTTP. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
 1. Click **Save**.
 1. Configure integrations with other applications, or click **Next** to install Harbor.
 
@@ -609,7 +609,7 @@ vRealize Log Insight must be installed, licensed, running, and available in your
 1. Click **Save**.
 1. Configure integrations with other applications, or click **Next** to install Harbor.
 
-<p class="note"><strong>Note</strong>: If you activate integration with vRealize Log Insight, Tanzu Kubernetes Grid Integrated Edition Management Console generates a unique vRealize Log Insight agent ID for the management console. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console VM. For information about how to obtain the agent ID, see <a href="console-troubleshooting.html#log-insight">Obtain the VMware vRealize Log Insight Agent ID for TKGI Management Console</a> in <i>Troubleshooting Tanzu Kubernetes Grid Integrated Edition Management Console</i>. </p>
+<p class="note"><strong>Note</strong>: If you activate integration with vRealize Log Insight, {{  vars.product }} Management Console generates a unique vRealize Log Insight agent ID for the management console. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console VM. For information about how to obtain the agent ID, see <a href="console-troubleshooting.html#log-insight">Obtain the VMware vRealize Log Insight Agent ID for TKGI Management Console</a> in <i>Troubleshooting {{  vars.product }} Management Console</i>. </p>
 
 
 ### <a id='integrations-syslog'></a>Configure a Connection to Syslog
@@ -638,7 +638,7 @@ Harbor uses Trivy to perform vulnerability and security scanning of images in th
 
 To deploy and configure Harbor registry:
 
-1. Select the **Enable** toggle to deploy Harbor when you deploy Tanzu Kubernetes Grid Integrated Edition.
+1. Select the **Enable** toggle to deploy Harbor when you deploy {{  vars.product }}.
 1. In the **Harbor FQDN** text box, enter a name for the Harbor VM, for example `harbor.tkgi.example.com`.
 
     This is the address at which you access the Harbor administration UI and registry service. Before you set the host name, you must check for potential host name conflicts between TKGI and Harbor.
@@ -649,8 +649,8 @@ To deploy and configure Harbor registry:
 1. Select the method to use for authenticating connections to Harbor.
 	* **Harbor internal user management**: Create a local database of users in the Harbor VM.
 	* **Log in Harbor with LDAP users**: Use AD or LDAP to manage users. You configure the connection to the LDAP server in Harbor after deployment.
-	* **UAA in Pivotal Container Service**: Use the same UAA as you use for Tanzu Kubernetes Grid Integrated Edition.
-1. If your environment does not allow Harbor components to access the external network on which Tanzu Kubernetes Grid Integrated Edition Management Console is running, provide proxy addresses.
+	* **UAA in Pivotal Container Service**: Use the same UAA as you use for {{  vars.product }}.
+1. If your environment does not allow Harbor components to access the external network on which {{  vars.product }} Management Console is running, provide proxy addresses.
     - In the **HTTP Proxy** field, enter the proxy server to use when it is not possible for Harbor to connect to an outside address over HTTP. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
     - In the **HTTPS Proxy** field, enter the proxy server to use when it is not possible for Harbor to connect to an outside address over HTTPS. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
 
@@ -733,30 +733,30 @@ To deploy and configure Harbor registry:
 VMware's Customer Experience Improvement Program (CEIP) provides VMware
 with information to improve the products and services, fix problems, and advise you on how best to deploy and use our products.
 As part of the CEIP program, VMware collects technical information about your organization's use
-of Tanzu Kubernetes Grid Integrated Edition Management Console.
+of {{  vars.product }} Management Console.
 
 {{> console-usage-data }}
 
 
 
 
-## <a id='deploy'></a>Step 10: Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition
+## <a id='deploy'></a>Step 10: Generate Configuration File and Deploy {{  vars.product }}
 
 When all of the sections of the wizard are green, you can generate a YAML configuration file and deploy TKGI.
 
 <p class="note"><strong>Note</strong>: If TKGI MC fails to deploy TKGI correctly, always use TKGI MC to cleanly remove the failed deployment.
-For more information see <a href="console-delete-deployment.html">Delete Your Tanzu Kubernetes Grid Integrated Edition Deployment</a>.</p>
+For more information see <a href="console-delete-deployment.html">Delete Your {{  vars.product }} Deployment</a>.</p>
 
 To deploy TKGI:
 
 1. Click **Generate Configuration** to see the generated YAML file.
 
-    ![Generate Tanzu Kubernetes Grid Integrated Edition configuration](images/console/generate-config.png)
+    ![Generate {{  vars.product }} configuration](images/console/generate-config.png)
 
 1. (Optional) Click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`.
 
 1. (Optional) Specify an FQDN address for the {{ vars.platform_name }} VM by editing the YAML directly in the YAML editor.
-    <p class='note warning'><strong>WARNING:</strong> You cannot change the {{ vars.platform_name }} FQDN of Tanzu Kubernetes Grid Integrated Edition once it has already deployed.</p>
+    <p class='note warning'><strong>WARNING:</strong> You cannot change the {{ vars.platform_name }} FQDN of {{  vars.product }} once it has already deployed.</p>
     To specify an FQDN address for the {{ vars.platform_name }} VM, update the YAML as follows:
 
 	1. Locate the `opsman_fqdn:` entry in the YAML file.
@@ -812,22 +812,22 @@ To deploy TKGI:
     1. Locate the `nsx_feign_client_read_timeout` entry in the YAML file.
     1. Update the `nsx_feign_client_read_timeout` value with your optimal Operation Timeout setting, in milliseconds.
 
-1. Click **Apply Configuration** then **Continue** to deploy Tanzu Kubernetes Grid Integrated Edition.
+1. Click **Apply Configuration** then **Continue** to deploy {{  vars.product }}.
 
     ![Apply the generated YAML configuration](images/console/apply-yaml.png)
 1. On the TKGI Configuration page, follow the progress of the deployment.
 1. When the deployment has completed successfully, click **Continue** to monitor and manage your deployment.
 
-    ![A successful Tanzu Kubernetes Grid Integrated Edition deployment](images/console/deployment-complete.png)
+    ![A successful {{  vars.product }} deployment](images/console/deployment-complete.png)
 
 
 
 ## <a id='next-steps'></a>Next Steps
 
-You can now access the Tanzu Kubernetes Grid Integrated Edition control plane and begin deploying Kubernetes clusters. For information about how to deploy clusters directly from the management console, see [Create and Manage Clusters in the Management Console](console-create-and-manage-clusters.html).
+You can now access the {{  vars.product }} control plane and begin deploying Kubernetes clusters. For information about how to deploy clusters directly from the management console, see [Create and Manage Clusters in the Management Console](console-create-and-manage-clusters.html).
 
-For information about how you can use Tanzu Kubernetes Grid Integrated Edition Management Console to monitor and manage your Tanzu Kubernetes Grid Integrated Edition deployment, see [Monitor and Manage Tanzu Kubernetes Grid Integrated Edition in the Management Console](console-monitor-manage.html).
+For information about how you can use {{  vars.product }} Management Console to monitor and manage your {{  vars.product }} deployment, see [Monitor and Manage {{  vars.product }} in the Management Console](console-monitor-manage.html).
 
-<p class="note"><strong>Important</strong>: If you deployed Tanzu Kubernetes Grid Integrated Edition with plans that use Windows worker nodes, see <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a> for information about how to install a Windows Server stemcell and other necessary configuration actions that you must perform. Plans that use Linux worker nodes are available immediately, but plans that use Windows worker nodes are ignored until you install the Windows Server stemcell.</p>
+<p class="note"><strong>Important</strong>: If you deployed {{  vars.product }} with plans that use Windows worker nodes, see <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a> for information about how to install a Windows Server stemcell and other necessary configuration actions that you must perform. Plans that use Linux worker nodes are available immediately, but plans that use Windows worker nodes are ignored until you install the Windows Server stemcell.</p>
 
-If Tanzu Kubernetes Grid Integrated Edition fails to deploy, see  [Troubleshooting](console-troubleshooting.html).
+If {{  vars.product }} fails to deploy, see  [Troubleshooting](console-troubleshooting.html).

@@ -3,7 +3,7 @@ title: Encrypt Secrets in an etcd Database
 
 ---
 
-This topic describes how to create and use a Kubernetes profile to encrypt a cluster's etcd database with the Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI).
+This topic describes how to create and use a Kubernetes profile to encrypt a cluster's etcd database with the {{  vars.product }} Command Line Interface (TKGI CLI).
 
 For more information and other uses of Kubernetes profiles, see [Using Kubernetes Profiles](./k8s-profiles.html).
 
@@ -267,7 +267,7 @@ This section describes how to use `encryption provider config` to rotate a key.
 For highly-available deployments running multiple kube-apiserver processes, changing a secret
 without incurring downtime requires a multi-step process.
 
-<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 To rotate an encryption key for a secret in an etcd database:
@@ -591,7 +591,7 @@ on the modified Kubernetes profile configuration file.
 
     For information about using `update-cluster`, see [Rotate Encryption Key for Secrets in etcd Database](#rotate) above.
 
-    <p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
 1. To force all secrets to be decrypted:
