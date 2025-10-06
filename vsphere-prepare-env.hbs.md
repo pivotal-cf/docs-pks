@@ -304,7 +304,7 @@ This role includes the following privileges at the **vCenter, Datacenter, Datast
 
 ## <a id='create-bosh-ops-man'></a>Create the BOSH/Ops Manager User Account
 1. From the vCenter console, create the BOSH/Ops Manager User Account.
-1. If you are deploying both {{{ vars.app_runtime }}} and TKGI
+1. If you are deploying both Tanzu Application Service (TAS) and TKGI
 within the same vSphere environment, create an additional BOSH/Ops Manager Service Account so that
 you have one account for TAS and a separate account for TKGI.
 
