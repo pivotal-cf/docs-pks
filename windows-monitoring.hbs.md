@@ -58,7 +58,7 @@ Wavefront runs as an external service that you set up to monitor Windows worker-
     * `API-TOKEN` is the Wavefront API token for your Wavefront subscription.
 
 1. Do one of the following:
-  - Configure Wavefront Integration in {{ vars.platform_name }} using the [VMware Tanzu Kubernetes Grid Integrated Edition Integration](https://docs.wavefront.com/tkgi.html) procedure in the Wavefront documentation.
+  - Configure Wavefront Integration in {{ vars.platform_name }} using the [{{  vars.product_full }} Integration](https://docs.wavefront.com/tkgi.html) procedure in the Wavefront documentation.
   - Set up a metric sink to send metrics to Wavefront following the instructions in [Creating and Managing Sink Resources](./create-sinks.html).
 
 

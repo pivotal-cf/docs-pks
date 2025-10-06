@@ -5,7 +5,7 @@ title: TKGI CLI Reference
 
 {{{{raw}}}} <!--  NOTE: This page is automatically generated from the PKS CLI source. Do not manually edit this file.  --> {{{{/raw}}}}
 
-This topic lists VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) commands, used to interact with the TKGI API.
+This topic lists {{  vars.product_full }} Command Line Interface (TKGI CLI) commands, used to interact with the TKGI API.
 
 ## <a id="overview"></a>Overview
 

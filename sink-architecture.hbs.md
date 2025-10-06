@@ -3,7 +3,7 @@ title: Sink Architecture in Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition
+This topic describes how {{  vars.product_full }}
 (TKGI) implements sinks for collecting logs and
 metrics from Kubernetes worker nodes and workloads.
 

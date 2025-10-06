@@ -8,7 +8,7 @@ This topic describes how to define network profiles for logging NCP configuratio
 
 ## <a id='log-about'></a> About Logging for NCP Configurations
 
-VMware Tanzu Kubernetes Grid Integrated Edition provides network profile parameters for logging `ncp.ini` configurations.
+{{  vars.product_full }} provides network profile parameters for logging `ncp.ini` configurations.
 
 ## <a id='log-params'></a> Parameters for NCP Logging
 

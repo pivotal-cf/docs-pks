@@ -3,7 +3,7 @@ title: Configuring an Azure Load Balancer for the TKGI API
 
 ---
 
-This topic describes how to create a load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) using Microsoft Azure.
+This topic describes how to create a load balancer for the {{  vars.product_full }} API (TKGI API) using Microsoft Azure.
 
 Refer to the procedures in this topic to create a load balancer using Azure. To use a different
 load balancer, use this topic as a guide.

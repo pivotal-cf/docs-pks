@@ -45,7 +45,7 @@ When the OVA deployment has completed successfully, you can access the new versi
 1. In the vSphere Client, right-click the new Management Console VM and select **Power** > **Power On**.
 1. When the new Management Console VM has booted, go to the **Summary** tab for the VM and  copy its IP address, if you do not know it already.
 1. Enter the IP address of the new Management Console VM in a browser.
-1. At the VMware Tanzu Kubernetes Grid Integrated Edition log in page, enter user name `root` and the root password that you set when you deployed the new version of the OVA template.
+1. At the {{  vars.product_full }} log in page, enter user name `root` and the root password that you set when you deployed the new version of the OVA template.
 
 
 ## <a id='migrate-config'></a>Step 3: Migrate the Configuration from the Old Appliance to the New Version
@@ -54,7 +54,7 @@ Tanzu Kubernetes Grid Integrated Edition Management Console provides an upgrade 
 
 To get help in the wizard at any time, click the **?** icon at the top of the page, or click the **More Info...** links in each section to see help topics relevant to that section. Click the **i** icons for tips about how to fill in specific fields.
 
-1. On the VMware Tanzu Kubernetes Grid Integrated Edition Management Console landing page for the new version, click **Upgrade**.
+1. On the {{  vars.product_full }} Management Console landing page for the new version, click **Upgrade**.
     ![Management console welcome page](images/console/console-install-upgrade.png)
     [View a larger version of this image](images/console/console-install-upgrade.png)
 1. Enter the IP address of the old version of the Tanzu Kubernetes Grid Integrated Edition Management Console VM in the **Endpoint** text box.
@@ -79,7 +79,7 @@ To get help in the wizard at any time, click the **?** icon at the top of the pa
     If you start the upgrade and you have not mapped the FQDN to an IP address, the deployment fails with an error. If this happens, configure the mapping as above, return to the YAML editor, and start the upgrade again.
 1. Optionally click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`.
 1. Click **Apply Configuration** then **Continue** to upgrade Tanzu Kubernetes Grid Integrated Edition.
-1. On the VMware Tanzu Kubernetes Grid Integrated Edition Upgrade page, follow the progress of the upgrade.
+1. On the {{  vars.product_full }} Upgrade page, follow the progress of the upgrade.
 
 
 ## <a id='next-steps'></a>Next Steps

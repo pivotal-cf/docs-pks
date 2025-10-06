@@ -4,7 +4,7 @@ title: Creating Clusters
 pkscommand: create
 ---
 
-This topic describes how to create a Kubernetes cluster using the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI).
+This topic describes how to create a Kubernetes cluster using the {{  vars.product_full }} Command Line Interface (TKGI CLI).
 
 
 ## <a id='overview'></a>Overview

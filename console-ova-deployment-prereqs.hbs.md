@@ -3,7 +3,7 @@ title: Prerequisites for Tanzu Kubernetes Grid Integrated Edition Management Con
 
 ---
 
-VMware Tanzu Kubernetes Grid Integrated Edition Management Console is provided as an OVA template that requires at a minimum the vSphere resources described in [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
+{{  vars.product_full }} Management Console is provided as an OVA template that requires at a minimum the vSphere resources described in [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
 
 For more information, see [When Should I Use Tanzu Kubernetes Grid Integrated Edition Management Console?](./vsphere-index.html#when-to-use-console)
 

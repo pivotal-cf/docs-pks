@@ -8,7 +8,7 @@ This topic describes how to plan your environment before installing {{  vars.pro
 
 +ACMAIwA8-a id+AD0-'overview'+AD4APA-/a+AD4-Overview
 
-Before installing VMware Tanzu Kubernetes Grid Integrated Edition on VMware vSphere with NSX integration, plan your environment as described in the following sections:
+Before installing {{  vars.product_full }} on VMware vSphere with NSX integration, plan your environment as described in the following sections:
 
 +ACo- +AFs-Prerequisites+AF0-(+ACM-prerequisites)
 +ACo- +AFs-Understand Component Interactions+AF0-(+ACM-components)

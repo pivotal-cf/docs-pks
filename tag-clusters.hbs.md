@@ -3,7 +3,7 @@ title: Tagging Clusters
 
 ---
 
-This topic describes how to tag new and existing clusters using the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI).
+This topic describes how to tag new and existing clusters using the {{  vars.product_full }} Command Line Interface (TKGI CLI).
 
 ## <a id='overview'></a>Overview
 IaaSes provide the ability for customers to "tag" VMs, databases, and other resources with custom labels and metadata values.

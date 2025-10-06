@@ -1,4 +1,4 @@
-# VMware Tanzu Kubernetes Grid Integrated Edition Documentation
+# {{  vars.product_full }} Documentation
 
 This repository contains the content for the documentation for Tanzu Kubernetes Grid Integrated Edition (TKGI).
 

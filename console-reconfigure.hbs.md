@@ -3,7 +3,7 @@ title: Reconfigure Your Tanzu Kubernetes Grid Integrated Edition Deployment
 
 ---
 
-After deployment, you can reconfigure your your Tanzu Kubernetes Grid Integrated Edition installation in VMware Tanzu Kubernetes Grid Integrated Edition Management Console, either by using the wizard or by importing an updated YAML file.
+After deployment, you can reconfigure your your Tanzu Kubernetes Grid Integrated Edition installation in {{  vars.product_full }} Management Console, either by using the wizard or by importing an updated YAML file.
 
 ## <a id='reconfigure-wizard'></a>Reconfigure Your Tanzu Kubernetes Grid Integrated Edition Deployment in the Wizard
 

@@ -3,7 +3,7 @@ title: Viewing Cluster Plans
 
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) to view information about the plans available for deploying a TKGI cluster.
+This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) to view information about the plans available for deploying a TKGI cluster.
 
 1. {{> login-api }}
 

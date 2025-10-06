@@ -3,7 +3,7 @@ title: Retrieving Cluster Credentials and Configuration
 
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) `get-credentials` command.
+This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) `get-credentials` command.
 
 
 ## <a id='overview'></a> Overview

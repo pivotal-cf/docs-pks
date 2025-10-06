@@ -16,7 +16,7 @@ on Amazon Web Services (AWS) as a {{ vars.platform_name }} tile.
 Before performing the procedures in this topic, you must have deployed and configured {{ vars.platform_name }}.
 For more information, see [AWS Prerequisites and Resource Requirements](aws-requirements.html).
 
-This topic assumes that you have prepared the AWS environment for this VMware Tanzu Kubernetes Grid Integrated Edition deployment.
+This topic assumes that you have prepared the AWS environment for this {{  vars.product_full }} deployment.
 For more information, see [Installing and Configuring {{ vars.platform_name }} on AWS](aws-om-install-config.html).
 
 {{> prerequisites }}

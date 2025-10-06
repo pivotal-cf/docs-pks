@@ -4,7 +4,7 @@ title: Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuratio
 thistopic: wizard
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) Configuration Wizard to deploy TKGI on vSphere.
+This topic describes how to use the {{  vars.product_full }} Management Console (TKGI MC) Configuration Wizard to deploy TKGI on vSphere.
 
 To deploy TKGI from a YAML, see [Deploy Tanzu Kubernetes Grid Integrated Edition by Importing a YAML Configuration File](console-deploy-yaml.html).
 
@@ -48,7 +48,7 @@ Ensure your environment satisfies the following:
 
 To launch the Configuration Wizard:
 
-1. On the VMware Tanzu Kubernetes Grid Integrated Edition landing page, click **Install**.
+1. On the {{  vars.product_full }} landing page, click **Install**.
     ![Management console welcome page](images/console/console-install-upgrade.png)
     [View a larger version of this image](images/console/console-install-upgrade.png)
 1. Click **Start Configuration**.

@@ -3,7 +3,7 @@ title: Creating and Managing Compute Profiles in the Management Console
 
 ---
 
-This topic describes how to manage compute profiles in the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) on vSphere.
+This topic describes how to manage compute profiles in the {{  vars.product_full }} Management Console (TKGI MC) on vSphere.
 
 
 ## <a id='overview'></a>Overview

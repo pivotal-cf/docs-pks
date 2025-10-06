@@ -7,7 +7,7 @@ This topic describes how to integrate {{  vars.product_full }} ({{ vars.product_
 
 > **Note** Tanzu Service Mesh integration in TKGI has been deprecated and is slated for removal in the next minor release.
 
-Tanzu Service Mesh brings application-layer visibility, control, and security to microservices deployed on VMware Tanzu Kubernetes Grid Integrated Edition-managed Kubernetes clusters.
+Tanzu Service Mesh brings application-layer visibility, control, and security to microservices deployed on {{  vars.product_full }}-managed Kubernetes clusters.
 
 
 ## <a id='about'></a> About VMware Tanzu Service Mesh by VMware NSX
@@ -23,7 +23,7 @@ For more information, see [NSX Service Mesh on VMware Tanzu: CONNECT & PROTECT A
 
 These instructions assume that:
 
-* You have deployed VMware Tanzu Kubernetes Grid Integrated Edition.
+* You have deployed {{  vars.product_full }}.
 
 * You have provisioned a target Kubernetes cluster for Tanzu Service Mesh.
 

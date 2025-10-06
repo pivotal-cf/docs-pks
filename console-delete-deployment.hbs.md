@@ -3,7 +3,7 @@ title: Delete Your Tanzu Kubernetes Grid Integrated Edition Deployment
 
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) to remove a TKGI deployment.
+This topic describes how to use the {{  vars.product_full }} Management Console (TKGI MC) to remove a TKGI deployment.
 
 
 

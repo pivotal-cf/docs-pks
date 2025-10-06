@@ -341,7 +341,7 @@ for each required stemcell that is different from the already uploaded TKGI stem
 
 To redeploy your Tanzu Kubernetes Grid Integrated Edition tile's control plane:
 
-1. From the {{ vars.platform_name }} Installation Dashboard, navigate to **VMware Tanzu Kubernetes Grid Integrated Edition** > **Resource Config**.
+1. From the {{ vars.platform_name }} Installation Dashboard, navigate to **{{  vars.product_full }}** > **Resource Config**.
 
 1. Ensure the **Upgrade all clusters** errand is **Off**.
 

@@ -6,7 +6,7 @@ title: Deleting Tanzu Kubernetes Grid Integrated Edition
 This topic describes how to delete the Tanzu Kubernetes Grid Integrated Edition (TKGI) tile from the {{ vars.platform_name }} Installation Dashboard.
 
 <p class='note'><strong>Note</strong>:
-If you used the VMware Tanzu Kubernetes Grid Integrated Edition Management Console to deploy TKGI, you must remove TKGI from the TKGI Management Console. For more information, see
+If you used the {{  vars.product_full }} Management Console to deploy TKGI, you must remove TKGI from the TKGI Management Console. For more information, see
 <a href="console-delete-deployment.html">Delete Your Tanzu Kubernetes Grid Integrated Edition Deployment</a>.
 </p>
 

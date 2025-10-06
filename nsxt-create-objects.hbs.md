@@ -7,7 +7,7 @@ This topic describes how to create VMware NSX Objects for {{  vars.product_full 
 
 ##<a id='overview'></a>Overview
 
-Installing VMware Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX requires the creation of NSX IP blocks for Kubernetes node and pod networks, as well as a Floating IP Pool from which you can assign routable IP addresses to cluster resources.
+Installing {{  vars.product_full }} on vSphere with NSX requires the creation of NSX IP blocks for Kubernetes node and pod networks, as well as a Floating IP Pool from which you can assign routable IP addresses to cluster resources.
 
 Create separate NSX IP Blocks for the [node networks](./nsxt-prepare-env.html#nodes-ip-block)
 and the [pod networks](./nsxt-prepare-env.html#pods-ip-block), with subnets of size 256 (/16) for both nodes and pods.

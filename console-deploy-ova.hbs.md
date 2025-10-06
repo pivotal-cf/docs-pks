@@ -3,7 +3,7 @@ title: Deploy the Tanzu Kubernetes Grid Integrated Edition Management Console
 
 ---
 
-This topic describes how to deploy the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) from an OVA template.
+This topic describes how to deploy the {{  vars.product_full }} Management Console (TKGI MC) from an OVA template.
 
 To upgrade an existing TKGI MC installation, see [Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console](console-upgrade.html).
 
@@ -120,7 +120,7 @@ To start and access the TKGI Management Console:
 1. In the vSphere Client, right-click the management console VM and select **Power** > **Power On**.
 1. When the management console VM has booted, go to the **Summary** tab for the VM and  copy its IP address.
 1. Enter the management console VM IP address in a browser.
-1. At the VMware Tanzu Kubernetes Grid Integrated Edition log in page, enter user name `root` and the root password that you set when you deployed the OVA template.
+1. At the {{  vars.product_full }} log in page, enter user name `root` and the root password that you set when you deployed the OVA template.
 
 
 ## <a id='next-steps'></a> Next Steps

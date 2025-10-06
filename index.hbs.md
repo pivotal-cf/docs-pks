@@ -1,5 +1,5 @@
 ---
-title: VMware Tanzu Kubernetes Grid Integrated Edition
+title: {{  vars.product_full }}
 
 ---
 

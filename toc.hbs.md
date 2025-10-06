@@ -1,4 +1,4 @@
-*   [VMware Tanzu Kubernetes Grid Integrated Edition](./index.html)
+*   [{{  vars.product_full }}](./index.html)
 *   [Release Notes](./release-notes.html)
 *   [TKGI Concepts](./concepts.html)
     *   [Architecture](./control-plane.html)

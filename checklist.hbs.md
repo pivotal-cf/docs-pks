@@ -111,7 +111,7 @@ To upgrade TKGI-provisioned clusters:
 It is critical that you confirm that a cluster's resource usage is within the
 recommended maximum limits before upgrading the cluster.
 
-VMware Tanzu Kubernetes Grid Integrated Edition upgrades a cluster by upgrading control plane and worker nodes individually.
+{{  vars.product_full }} upgrades a cluster by upgrading control plane and worker nodes individually.
 The upgrade processes a control plane node by redistributing the node's workload, stopping the node, upgrading it and restoring its workload.
 This redistribution of a node's workloads increases the resource usage on the remaining nodes during the upgrade process.
 
@@ -246,7 +246,7 @@ Verify your current TKGI proxy configuration by performing the following steps:
 
 1. Check whether an existing proxy is enabled:
     1. Log in to {{ vars.platform_name }}.
-    1. Click the **VMware Tanzu Kubernetes Grid Integrated Edition** tile.
+    1. Click the **{{  vars.product_full }}** tile.
     1. Click **Networking**.
     1. If **HTTP/HTTPS Proxy** is **Disabled**, no action is required. Continue to the next section.
        If **HTTP/HTTPS Proxy** is **Enabled**, continue to the next step.

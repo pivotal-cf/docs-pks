@@ -3,7 +3,7 @@ title: Viewing Cluster Lists
 
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) to view a list of deployed TKGI Kubernetes clusters.
+This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) to view a list of deployed TKGI Kubernetes clusters.
 
 
 1. {{> login-api }}

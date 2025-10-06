@@ -9,7 +9,7 @@ This topic describes how to set up the VMware Harbor Registry (Harbor) image reg
 ## <a id="overview"></a>Overview
 
 VMware Harbor Registry is an enterprise-class image registry
-server that stores and distributes container images for VMware Tanzu Kubernetes Grid Integrated Edition.
+server that stores and distributes container images for {{  vars.product_full }}.
 
 Harbor allows you to store and manage container images for your TKGI
 deployment. Deploying an image registry alongside TKGI improves

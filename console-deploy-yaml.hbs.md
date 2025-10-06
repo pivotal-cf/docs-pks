@@ -3,7 +3,7 @@ title: Deploy Tanzu Kubernetes Grid Integrated Edition by Importing a YAML Confi
 
 ---
 
-If you have an existing YAML configuration file from a previous deployment of VMware Tanzu Kubernetes Grid Integrated Edition, you can use the VMware Tanzu Kubernetes Grid Integrated Edition Management Console to deploy a new Tanzu Kubernetes Grid Integrated Edition instance from that file.
+If you have an existing YAML configuration file from a previous deployment of {{  vars.product_full }}, you can use the {{  vars.product_full }} Management Console to deploy a new Tanzu Kubernetes Grid Integrated Edition instance from that file.
 
 You can import a YAML from an earlier supported version of Tanzu Kubernetes Grid Integrated Edition Management Console. In this case, after you import the YAML, open the configuration in the wizard and configure any missing settings that are new in this version.
 
@@ -39,7 +39,7 @@ The `<hidden>` tag includes a GUID that refers to a database entry for the passw
 
 ## <a id='import-yaml'></a>Import a YAML Configuration File
 
-1. On the VMware Tanzu Kubernetes Grid Integrated Edition landing page, click **Install** then **Import Configuration File**.
+1. On the {{  vars.product_full }} landing page, click **Install** then **Import Configuration File**.
     ![Start configuration wizard or import YAML file](images/console/config-yaml.png)
     [View a larger version of this image](images/console/config-yaml.png)
 1. Drag the YAML file into the Import Configuration File window, or click **Browse** to navigate to it.

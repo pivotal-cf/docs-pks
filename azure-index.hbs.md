@@ -4,7 +4,7 @@ owner: {{ vars.platform_name }}
 iaas: Azure
 ---
 
-The topics below describe the procedures to follow to install VMware Tanzu Kubernetes Grid Integrated Edition on Microsoft Azure.
+The topics below describe the procedures to follow to install {{  vars.product_full }} on Microsoft Azure.
 
 ## Install Tanzu Kubernetes Grid Integrated Edition on Azure
 

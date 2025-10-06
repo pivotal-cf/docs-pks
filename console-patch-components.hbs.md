@@ -3,7 +3,7 @@ title: Patch Tanzu Kubernetes Grid Integrated Edition Management Console Compone
 
 ---
 
-You can use VMware Tanzu Kubernetes Grid Integrated Edition Management Console on vSphere to update some of the components of your deployment individually when a new minor version of those components is available.
+You can use {{  vars.product_full }} Management Console on vSphere to update some of the components of your deployment individually when a new minor version of those components is available.
 
 1. In Tanzu Kubernetes Grid Integrated Edition Management Console, go to **Configuration** &gt; **TKGI Component Patch** to view the list of components that are ready for patching.
 1. Obtain the patch installers.

@@ -3,7 +3,7 @@ title: Viewing Cluster Details
 
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) to view details of an individual TKGI cluster.
+This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) to view details of an individual TKGI cluster.
 
 1. {{> login-api }}
 

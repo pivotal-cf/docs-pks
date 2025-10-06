@@ -3,7 +3,7 @@ title: Monitor and Manage Tanzu Kubernetes Grid Integrated Edition in the Manage
 
 ---
 
-After you have deployed VMware Tanzu Kubernetes Grid Integrated Edition on vSphere, you can use VMware Tanzu Kubernetes Grid Integrated Edition Management Console to perform the following operations:
+After you have deployed {{  vars.product_full }} on vSphere, you can use {{  vars.product_full }} Management Console to perform the following operations:
 
 - View the [overall status](#general-status) of your deployment.
 - View the [deployment metadata](#metadata) and [status](#component-status) of each of the components of your deployment.

@@ -3,7 +3,7 @@ title: Logging and Monitoring Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-The following topics describe how to monitor VMware Tanzu Kubernetes Grid Integrated Edition
+The following topics describe how to monitor {{  vars.product_full }}
 (TKGI) Linux and Windows environments.
 
 To monitor Linux clusters and workloads, see:

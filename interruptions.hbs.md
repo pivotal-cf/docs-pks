@@ -3,7 +3,7 @@ title: Service Interruptions
 
 ---
 
-This topic describes events in the lifecycle of a Kubernetes cluster deployed by VMware Tanzu Kubernetes Grid Integrated Edition that can cause temporary service interruptions.
+This topic describes events in the lifecycle of a Kubernetes cluster deployed by {{  vars.product_full }} that can cause temporary service interruptions.
 
 ## <a id='service-update'></a>Stemcell or Service Update
 

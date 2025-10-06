@@ -46,7 +46,7 @@ follow the instructions in _In-Cluster Monitoring_ for your IaaS:
 
     * **Sink Resources**: [Sink Resources](#sinks)
     * **Wavefront**:
-        * [VMware Tanzu Kubernetes Grid Integrated Edition Integration](https://docs.wavefront.com/tkgi.html)
+        * [{{  vars.product_full }} Integration](https://docs.wavefront.com/tkgi.html)
         * [Creating and Managing Sink Resources](create-sinks.html)
     * **VMware vRealize Operations Management Pack for Container Monitoring**:
         * [cAdvisor](https://github.com/google/cadvisor)
@@ -86,7 +86,7 @@ TKGI deployment:
   <tr>
     <td>Wavefront</td>
     <td>External integration</td>
-    <td>See <a href="https://docs.wavefront.com/tkgi.html">VMware Tanzu Kubernetes Grid Integrated Edition Integration</a> in the Wavefront documentation.<br /><br />
+    <td>See <a href="https://docs.wavefront.com/tkgi.html">{{  vars.product_full }} Integration</a> in the Wavefront documentation.<br /><br />
     Or send metrics to Wavefront with a <a href="create-sinks.html">metric sink</a>.</td>
   </tr>
   <tr>

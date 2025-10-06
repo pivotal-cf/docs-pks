@@ -3,7 +3,7 @@ title: Upgrading Clusters
 
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI)
+This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI)
 to upgrade TKGI-provisioned Kubernetes clusters.
 
 For information about how to upgrade TKGI-provisioned clusters

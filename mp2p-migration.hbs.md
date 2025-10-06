@@ -121,7 +121,7 @@ To prepare {{ vars.platform_name }} and BOSH for MP2P Migration:
 * If you are using {{ vars.platform_name }} v2.10.45 or later:
 
     1. Download [bosh_migration_mode.sh](https://github.com/pivotal-cf/docs-pks/blob/{{{ vars.product_version_raw }}}/cli/bosh_migration_mode.sh),
-    the BOSH Migration Mode script, from the VMware Tanzu Kubernetes Grid Integrated Edition documentation GitHub repository.
+    the BOSH Migration Mode script, from the {{  vars.product_full }} documentation GitHub repository.
 
     1. Select a virtual machine that is able to reach {{ vars.platform_name }},
     and can run the [{{ vars.platform_name }} CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-cli.html), [BOSH CLI](https://bosh.io/docs/cli-v2-install), and [yq CLI](https://github.com/mikefarah/yq).

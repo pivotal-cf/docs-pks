@@ -3,7 +3,7 @@ title: Troubleshooting Tanzu Kubernetes Grid Integrated Edition Management Conso
 
 ---
 
-The following sections describe how to troubleshoot failures to deploy of the VMware Tanzu Kubernetes Grid Integrated Edition Management Console and of Tanzu Kubernetes Grid Integrated Edition instances from the management console.
+The following sections describe how to troubleshoot failures to deploy of the {{  vars.product_full }} Management Console and of Tanzu Kubernetes Grid Integrated Edition instances from the management console.
 
 For information about how to deploy the management console and install Tanzu Kubernetes Grid Integrated Edition, see [Install on vSphere with the Management Console](console-install-vsphere.html).
 
