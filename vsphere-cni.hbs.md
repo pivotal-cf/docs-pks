@@ -1,10 +1,10 @@
 ---
-title: Install Tanzu Kubernetes Grid Integrated Edition with Antrea on vSphere Using Ops Manager
+title: Install Tanzu Kubernetes Grid Integrated Edition with Antrea on vSphere Using {{ vars.platform_name }}
 owner: TKGI
 iaas: vSphere
 ---
 
-The following topics describe how to use VMware Tanzu Operations Manager (Ops Manager) to manually install VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with Antrea networking.  
+The following topics describe how to use {{ vars.platform_name }} to manually install VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with Antrea networking.
 
 <p class="note"><strong>Note</strong>: The recommended method for installing Tanzu Kubernetes Grid Integrated Edition on vSphere is to use the Tanzu Kubernetes Grid Integrated Edition Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 
@@ -21,7 +21,7 @@ To install Tanzu Kubernetes Grid Integrated Edition on vSphere with Antrea netwo
     <a href="./vsphere-prepare-env.html">Creating Dedicated Users and Roles for vSphere (Optional)</a>
   </li>
   <li>
-    <a href="./vsphere-om-install-config.html">Installing and Configuring Ops Manager on vSphere</a>
+    <a href="./vsphere-om-install-config.html">Installing and Configuring {{ vars.platform_name }} on vSphere</a>
   </li>
   <li>
     <a href="./installing-vsphere.html">Installing Tanzu Kubernetes Grid Integrated Edition on vSphere</a>

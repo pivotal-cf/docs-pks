@@ -119,7 +119,7 @@ To create load balancer rules for your load balancer:
 To create an inbound security rule for your load balancer:
 
 1. From the Azure Dashboard, open the **Network Security Groups** service.
-1. Click the name of the Security Group attached to the subnet where the TKGI API is deployed.  
+1. Click the name of the Security Group attached to the subnet where the TKGI API is deployed.
 1. To open the **Inbound security rules** page, select **Inbound security rules** in the **Settings** menu for your security group.
 1. To add a new inbound security rule, click **Add** and complete the **Add inbound security rule** form as follows:
   1. Click **Advanced**.
@@ -134,7 +134,7 @@ To create an inbound security rule for your load balancer:
 
 To assign a load balancer to the TKGI API VM and add the TKGI API VM to the backend pool:
 
-1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Open {{ vars.platform_name }} to the **Installation Dashboard** pane.
 1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
 1. Open the **Resource Config** pane.
 1. Select **TKGI API**.
@@ -150,9 +150,9 @@ in the Azure documentation.
 
 ##<a id='verify'></a> Verify TKGI API Hostname Resolution
 
-To verify that your TKGI API hostname resolves correctly:  
+To verify that your TKGI API hostname resolves correctly:
 
-1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Open {{ vars.platform_name }} to the **Installation Dashboard** pane.
 1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
 1. Select **TKGI API**.
 1. Record the **API Hostname (FQDN)**.

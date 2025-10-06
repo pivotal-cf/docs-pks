@@ -2,15 +2,15 @@ In the procedure below, you use credentials for vCenter master VMs. You must hav
 
 To configure your Kubernetes cloud provider settings, follow the procedure below:
 
-1. Click **Kubernetes Cloud Provider**.  
-1. Under **Choose your IaaS**, select **vSphere**.  
+1. Click **Kubernetes Cloud Provider**.
+1. Under **Choose your IaaS**, select **vSphere**.
     <img src="images/cloud-vsphere.png" alt="vSphere pane configuration">
-1. Ensure the values in the following procedure match those in the **vCenter Config** section of the Ops Manager tile:  
-    1. Enter your **vCenter Master Credentials**. Enter the vCenter Server user name using the format `user@domainname`, for example: "_user@example.com_". 
-    For more information about the master node service account, see [Preparing vSphere Before Deploying Tanzu Kubernetes Grid Integrated Edition](vsphere-prepare-env.html).  
+1. Ensure the values in the following procedure match those in the **vCenter Config** section of the {{ vars.platform_name }} tile:
+    1. Enter your **vCenter Master Credentials**. Enter the vCenter Server user name using the format `user@domainname`, for example: "_user@example.com_".
+    For more information about the master node service account, see [Preparing vSphere Before Deploying Tanzu Kubernetes Grid Integrated Edition](vsphere-prepare-env.html).
         <p class="note warning"><strong>Warning</strong>: The vSphere Container Storage Plug-in will not function if you do not specify the domain name for active directory users.</p>
-    1. Enter your **vCenter Host**. For example, `vcenter-example.com`.  
-      <p class="note"><strong>Note</strong>: The FQDN for the vCenter Server cannot contain uppercase letters.</p>  
+    1. Enter your **vCenter Host**. For example, `vcenter-example.com`.
+      <p class="note"><strong>Note</strong>: The FQDN for the vCenter Server cannot contain uppercase letters.</p>
     1. Enter your **Datacenter Name** list. For example, `example-dc, folder-name/dc-name`.
     1. Enter your **Datastore Name**. For example, `example-ds`.
     Populate **Datastore Name** with the Persistent Datastore name configured in your **BOSH Director** tile under **vCenter Config** > **Persistent Datastore Names**.
@@ -21,4 +21,4 @@ To configure your Kubernetes cloud provider settings, follow the procedure below
         - For multi-AZ and multi-cluster environments, your <strong>Datastore Name</strong> must be a shared Persistent datastore available to each vSphere cluster. Do not enter a datastore that is local to a single cluster. For more information, see <a href="./vsphere-persistent-storage.html">PersistentVolume Storage Options on vSphere</a>.
 
     1. Enter the **Stored VM Folder** so that the persistent stores know where to find the VMs. To retrieve the name of the folder, navigate to your BOSH Director tile, click **vCenter Config**, and locate the value for **VM Folder**. The default folder name is `pks_vms`.
-1. Click **Save**.  
+1. Click **Save**.

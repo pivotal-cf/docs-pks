@@ -3,21 +3,21 @@ title: Verifying Deployment Health
 owner: TKGI
 ---
 
-This topic describes how to check the health of your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deployment and the nodes, pods, and clusters that it hosts.  
+This topic describes how to check the health of your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deployment and the nodes, pods, and clusters that it hosts.
 
 ## <a id="nodes-pods"></a>Verify Kubernetes Node and Pod Health
 
 Verify the health of your Kubernetes nodes and pods by following the steps below:
 
-1. From the Ops Manager VM, run the following command:
+1. From the {{ vars.platform_name }} VM, run the following command:
 
     ```
     bosh -e ENVIRONMENT login
     ```
     Where `ENVIRONMENT` is the alias you set for your BOSH Director. For more information, see
-[Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).  
+[Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
 <br>
-    For example:  
+    For example:
     ```console
     $ bosh -e tkgi login
     ```
@@ -38,15 +38,15 @@ Verify the health of your Kubernetes nodes and pods by following the steps below
 
 Verify the health of your Kubernetes clusters by following the steps below:
 
-1. From the Ops Manager VM, run the following command:
+1. From the {{ vars.platform_name }} VM, run the following command:
 
     ```
     bosh -e ENVIRONMENT login
     ```
     Where `ENVIRONMENT` is the alias you set for your BOSH Director. For more information, see
-[Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).  
+[Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
 <br>
-    For example:  
+    For example:
     ```console
     $ bosh -e tkgi login
     ```
@@ -60,45 +60,45 @@ Verify the health of your Kubernetes clusters by following the steps below:
     For example:
 
     ```
-    $ bosh deployments  
-    Using environment '30.0.0.10' as client 'ops_manager'  
-    Name                                                   Release(s)                               Stemcell(s)                                      Team(s)  
-    harbor-container-registry-b4023f6857207b237399         bosh-dns/1.10.0                          bosh-vsphere-esxi-ubuntu-jammy-go_agent/170.15  -  
-                                                           harbor-container-registry/1.7.3-build.2  
-    pivotal-container-service-7e64d53fc570503b5690         backup-and-restore-sdk/1.9.0             bosh-vsphere-esxi-ubuntu-jammy-go_agent/170.15  -  
-                                                           bosh-dns/1.10.0  
-                                                           bpm/0.13.0  
-                                                           cf-mysql/36.14.0  
-                                                           cfcr-etcd/1.8.0  
-                                                           harbor-container-registry/1.7.3-build.2  
-                                                           kubo/0.25.9  
-                                                           kubo-service-adapter/1.3.3-build.1  
-                                                           nsx-cf-cni/2.3.1.10693410  
-                                                           on-demand-service-broker/0.24.0  
-                                                           pks-api/1.3.3-build.1  
-                                                           pks-helpers/50.0.0  
-                                                           pks-nsx-t/1.20.0  
-                                                           pks-telemetry/2.0.0-build.113  
-                                                           pks-vrli/0.7.0  
-                                                           sink-resources-release/0.1.15  
-                                                           syslog/11.4.0  
-                                                           uaa/64.0  
-                                                           wavefront-proxy/0.9.0  
-    service-instance_8de000ff-a87a-4930-81ba-106d42c2471e  bosh-dns/1.10.0                          bosh-vsphere-esxi-ubuntu-jammy-go_agent/170.15  pivotal-container-service-7e64d53fc570503b5690  
-                                                           bpm/0.13.0  
-                                                           cfcr-etcd/1.8.0  
-                                                           harbor-container-registry/1.7.3-build.2  
-                                                           kubo/0.25.9  
-                                                           nsx-cf-cni/2.3.1.10693410  
-                                                           pks-helpers/50.0.0  
-                                                           pks-nsx-t/1.20.0  
-                                                           pks-telemetry/2.0.0-build.113  
-                                                           pks-vrli/0.7.0  
-                                                           sink-resources-release/0.1.15  
-                                                           syslog/11.4.0  
-                                                           wavefront-proxy/0.9.0  
+    $ bosh deployments
+    Using environment '30.0.0.10' as client 'ops_manager'
+    Name                                                   Release(s)                               Stemcell(s)                                      Team(s)
+    harbor-container-registry-b4023f6857207b237399         bosh-dns/1.10.0                          bosh-vsphere-esxi-ubuntu-jammy-go_agent/170.15  -
+                                                           harbor-container-registry/1.7.3-build.2
+    pivotal-container-service-7e64d53fc570503b5690         backup-and-restore-sdk/1.9.0             bosh-vsphere-esxi-ubuntu-jammy-go_agent/170.15  -
+                                                           bosh-dns/1.10.0
+                                                           bpm/0.13.0
+                                                           cf-mysql/36.14.0
+                                                           cfcr-etcd/1.8.0
+                                                           harbor-container-registry/1.7.3-build.2
+                                                           kubo/0.25.9
+                                                           kubo-service-adapter/1.3.3-build.1
+                                                           nsx-cf-cni/2.3.1.10693410
+                                                           on-demand-service-broker/0.24.0
+                                                           pks-api/1.3.3-build.1
+                                                           pks-helpers/50.0.0
+                                                           pks-nsx-t/1.20.0
+                                                           pks-telemetry/2.0.0-build.113
+                                                           pks-vrli/0.7.0
+                                                           sink-resources-release/0.1.15
+                                                           syslog/11.4.0
+                                                           uaa/64.0
+                                                           wavefront-proxy/0.9.0
+    service-instance_8de000ff-a87a-4930-81ba-106d42c2471e  bosh-dns/1.10.0                          bosh-vsphere-esxi-ubuntu-jammy-go_agent/170.15  pivotal-container-service-7e64d53fc570503b5690
+                                                           bpm/0.13.0
+                                                           cfcr-etcd/1.8.0
+                                                           harbor-container-registry/1.7.3-build.2
+                                                           kubo/0.25.9
+                                                           nsx-cf-cni/2.3.1.10693410
+                                                           pks-helpers/50.0.0
+                                                           pks-nsx-t/1.20.0
+                                                           pks-telemetry/2.0.0-build.113
+                                                           pks-vrli/0.7.0
+                                                           sink-resources-release/0.1.15
+                                                           syslog/11.4.0
+                                                           wavefront-proxy/0.9.0
 
-    3 deployments  
+    3 deployments
     ```
 
     In the example above, `service-instance_8de000ff-a87a-4930-81ba-106d42c2471e` is the Kubernetes cluster deployment name.
@@ -111,24 +111,24 @@ Verify the health of your Kubernetes clusters by following the steps below:
     bosh -d K8S-DEPLOYMENT vms
     ```
     Where `K8S-DEPLOYMENT` is the name of your Kubernetes cluster deployment. Kubernetes cluster deployment names
-begin with `service-instance` and include a unique BOSH-generated identifier.  
+begin with `service-instance` and include a unique BOSH-generated identifier.
 <br>
-    This command returns the name of each VM comprising the Kubernetes cluster, including each control plane and worker node.  
+    This command returns the name of each VM comprising the Kubernetes cluster, including each control plane and worker node.
 <br>
-    For example:  
-    
-    ```console
-    $ bosh -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e vms  
-    Using environment '30.0.0.10' as client 'ops_manager'  
-    Task 677. Done  
-    Deployment 'service-instance_8de000ff-a87a-4930-81ba-106d42c2471e'  
-    Instance                                     Process State  AZ      IPs       VM CID                                   VM Type      Active  
-    master/b6d3c263-1682-4c79-a9ab-35939127dedb  running        AZ-K8S  40.0.2.2  vm-60dbcf68-5538-4c4e-8c00-61edc003bb54  medium.disk  true  
-    worker/d450548a-2b0c-4494-8144-cf9b7ef9c825  running        AZ-K8S  40.0.2.4  vm-1bfdde6d-ce1d-4cdf-90d9-32bba260358f  medium.disk  true  
-    worker/d7f882f0-33dd-43d3-ab5d-058bcc505088  running        AZ-K8S  40.0.2.3  vm-822cb573-411f-4c44-a32b-34e79520a7a6  medium.disk  true  
-    worker/e5e25ffe-f448-4d19-990b-89546118c502  running        AZ-K8S  40.0.2.5  vm-c6748604-8440-4b27-9cf4-10a70a02da24  medium.disk  true  
+    For example:
 
-    4 vms  
+    ```console
+    $ bosh -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e vms
+    Using environment '30.0.0.10' as client 'ops_manager'
+    Task 677. Done
+    Deployment 'service-instance_8de000ff-a87a-4930-81ba-106d42c2471e'
+    Instance                                     Process State  AZ      IPs       VM CID                                   VM Type      Active
+    master/b6d3c263-1682-4c79-a9ab-35939127dedb  running        AZ-K8S  40.0.2.2  vm-60dbcf68-5538-4c4e-8c00-61edc003bb54  medium.disk  true
+    worker/d450548a-2b0c-4494-8144-cf9b7ef9c825  running        AZ-K8S  40.0.2.4  vm-1bfdde6d-ce1d-4cdf-90d9-32bba260358f  medium.disk  true
+    worker/d7f882f0-33dd-43d3-ab5d-058bcc505088  running        AZ-K8S  40.0.2.3  vm-822cb573-411f-4c44-a32b-34e79520a7a6  medium.disk  true
+    worker/e5e25ffe-f448-4d19-990b-89546118c502  running        AZ-K8S  40.0.2.5  vm-c6748604-8440-4b27-9cf4-10a70a02da24  medium.disk  true
+
+    4 vms
 
     Succeeded
     ```
@@ -140,88 +140,88 @@ begin with `service-instance` and include a unique BOSH-generated identifier.
     ```
     Where `K8S-DEPLOYMENT` is the name of your Kubernetes cluster deployment. Kubernetes cluster deployment names
     begin with `service-instance` and include a unique BOSH-generated identifier. This command returns status information
-    for the processes on each Kubernetes cluster VM, including each control plane and worker node.  
+    for the processes on each Kubernetes cluster VM, including each control plane and worker node.
 <br>
     For example:
     ```
-    $ bosh -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e instances --ps  
-    Using environment '30.0.0.10' as client 'ops_manager'  
+    $ bosh -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e instances --ps
+    Using environment '30.0.0.10' as client 'ops_manager'
 
-    Task 678. Done  
+    Task 678. Done
 
-    Deployment 'service-instance_8de000ff-a87a-4930-81ba-106d42c2471e'  
+    Deployment 'service-instance_8de000ff-a87a-4930-81ba-106d42c2471e'
 
-    Instance                                           Process                          Process State  AZ      IPs  
-    apply-addons/ef0d09ae-d3ed-4832-8d3f-431d99730c26  -                                -              AZ-K8S  -  
-    master/b6d3c263-1682-4c79-a9ab-35939127dedb        -                                running        AZ-K8S  40.0.2.2  
-    ~                                                  blackbox                         running        -       -  
-    ~                                                  bosh-dns                         running        -       -  
-    ~                                                  bosh-dns-healthcheck             running        -       -  
-    ~                                                  bosh-dns-resolvconf              running        -       -  
-    ~                                                  etcd                             running        -       -  
-    ~                                                  kube-apiserver                   running        -       -  
-    ~                                                  kube-controller-manager          running        -       -  
-    ~                                                  kube-scheduler                   running        -       -  
-    ~                                                  ncp                              running        -       -  
-    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -  
-    worker/d450548a-2b0c-4494-8144-cf9b7ef9c825        -                                running        AZ-K8S  40.0.2.4  
-    ~                                                  blackbox                         running        -       -  
-    ~                                                  bosh-dns                         running        -       -  
-    ~                                                  bosh-dns-healthcheck             running        -       -  
-    ~                                                  bosh-dns-resolvconf              running        -       -  
-    ~                                                  containerd                       running        -       -  
-    ~                                                  kube-proxy                       running        -       -  
-    ~                                                  kubelet                          running        -       -  
-    ~                                                  nsx-kube-proxy                   running        -       -  
-    ~                                                  nsx-node-agent                   running        -       -  
-    ~                                                  ovs-vswitchd                     running        -       -  
-    ~                                                  ovsdb-server                     running        -       -  
-    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -  
-    worker/d7f882f0-33dd-43d3-ab5d-058bcc505088        -                                running        AZ-K8S  40.0.2.3  
-    ~                                                  blackbox                         running        -       -  
-    ~                                                  bosh-dns                         running        -       -  
-    ~                                                  bosh-dns-healthcheck             running        -       -  
-    ~                                                  bosh-dns-resolvconf              running        -       -  
-    ~                                                  containerd                       running        -       -  
-    ~                                                  kube-proxy                       running        -       -  
-    ~                                                  kubelet                          running        -       -  
-    ~                                                  nsx-kube-proxy                   running        -       -  
-    ~                                                  nsx-node-agent                   running        -       -  
-    ~                                                  ovs-vswitchd                     running        -       -  
-    ~                                                  ovsdb-server                     running        -       -  
-    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -  
-    worker/e5e25ffe-f448-4d19-990b-89546118c502        -                                running        AZ-K8S  40.0.2.5  
-    ~                                                  blackbox                         running        -       -  
-    ~                                                  bosh-dns                         running        -       -  
-    ~                                                  bosh-dns-healthcheck             running        -       -  
-    ~                                                  bosh-dns-resolvconf              running        -       -  
-    ~                                                  containerd                       running        -       -  
-    ~                                                  kube-proxy                       running        -       -  
-    ~                                                  kubelet                          running        -       -  
-    ~                                                  nsx-kube-proxy                   running        -       -  
-    ~                                                  nsx-node-agent                   running        -       -   
-    ~                                                  ovs-vswitchd                     running        -       -  
-    ~                                                  ovsdb-server                     running        -       -  
-    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -  
+    Instance                                           Process                          Process State  AZ      IPs
+    apply-addons/ef0d09ae-d3ed-4832-8d3f-431d99730c26  -                                -              AZ-K8S  -
+    master/b6d3c263-1682-4c79-a9ab-35939127dedb        -                                running        AZ-K8S  40.0.2.2
+    ~                                                  blackbox                         running        -       -
+    ~                                                  bosh-dns                         running        -       -
+    ~                                                  bosh-dns-healthcheck             running        -       -
+    ~                                                  bosh-dns-resolvconf              running        -       -
+    ~                                                  etcd                             running        -       -
+    ~                                                  kube-apiserver                   running        -       -
+    ~                                                  kube-controller-manager          running        -       -
+    ~                                                  kube-scheduler                   running        -       -
+    ~                                                  ncp                              running        -       -
+    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -
+    worker/d450548a-2b0c-4494-8144-cf9b7ef9c825        -                                running        AZ-K8S  40.0.2.4
+    ~                                                  blackbox                         running        -       -
+    ~                                                  bosh-dns                         running        -       -
+    ~                                                  bosh-dns-healthcheck             running        -       -
+    ~                                                  bosh-dns-resolvconf              running        -       -
+    ~                                                  containerd                       running        -       -
+    ~                                                  kube-proxy                       running        -       -
+    ~                                                  kubelet                          running        -       -
+    ~                                                  nsx-kube-proxy                   running        -       -
+    ~                                                  nsx-node-agent                   running        -       -
+    ~                                                  ovs-vswitchd                     running        -       -
+    ~                                                  ovsdb-server                     running        -       -
+    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -
+    worker/d7f882f0-33dd-43d3-ab5d-058bcc505088        -                                running        AZ-K8S  40.0.2.3
+    ~                                                  blackbox                         running        -       -
+    ~                                                  bosh-dns                         running        -       -
+    ~                                                  bosh-dns-healthcheck             running        -       -
+    ~                                                  bosh-dns-resolvconf              running        -       -
+    ~                                                  containerd                       running        -       -
+    ~                                                  kube-proxy                       running        -       -
+    ~                                                  kubelet                          running        -       -
+    ~                                                  nsx-kube-proxy                   running        -       -
+    ~                                                  nsx-node-agent                   running        -       -
+    ~                                                  ovs-vswitchd                     running        -       -
+    ~                                                  ovsdb-server                     running        -       -
+    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -
+    worker/e5e25ffe-f448-4d19-990b-89546118c502        -                                running        AZ-K8S  40.0.2.5
+    ~                                                  blackbox                         running        -       -
+    ~                                                  bosh-dns                         running        -       -
+    ~                                                  bosh-dns-healthcheck             running        -       -
+    ~                                                  bosh-dns-resolvconf              running        -       -
+    ~                                                  containerd                       running        -       -
+    ~                                                  kube-proxy                       running        -       -
+    ~                                                  kubelet                          running        -       -
+    ~                                                  nsx-kube-proxy                   running        -       -
+    ~                                                  nsx-node-agent                   running        -       -
+    ~                                                  ovs-vswitchd                     running        -       -
+    ~                                                  ovsdb-server                     running        -       -
+    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -
 
-    51 instances   
+    51 instances
     ```
 
 ## <a id="upgrade-code"></a>Retrieve Cluster Upgrade Task ID
 
-To retrieve the BOSH task ID for a recent cluster upgrade:  
+To retrieve the BOSH task ID for a recent cluster upgrade:
 
-1. (Optional) To retrieve a list of clusters, run the `tkgi clusters` command.  
+1. (Optional) To retrieve a list of clusters, run the `tkgi clusters` command.
     For example:
     ```
-    $ tkgi clusters  
-    Upgrade is available to TKGI Version: 1.9.0-build.1  
-    TKGI Version   Name      k8s Version  Plan Name  UUID                                  Status       Action  
-    1.9.0-build.5  Sample5   1.18.8       small      04b9e9c3-ed99-4a24-b30d-b5c74b23d3b0  succeeded    UPGRADE  
-    1.9.0-build.5  Sample6   1.18.8       small      0bb39685-73b9-458c-a52c-e79295a153b4  in progress  UPGRADE  
-    1.8.0-build.2  Sample2   1.17.5       small      26e80c96-e65c-47e7-be78-3c43614f0712  succeeded    CREATE  
-    1.8.0-build.2  Sample3   1.17.5       small      39667c39-b498-4065-b6fe-7119d579554b  succeeded    CREATE  
-    1.8.0-build.2  Sample4   1.17.5       small      3ce19c9d-3e4c-48f3-8a4e-cd6d6a124617  succeeded    CREATE  
+    $ tkgi clusters
+    Upgrade is available to TKGI Version: 1.9.0-build.1
+    TKGI Version   Name      k8s Version  Plan Name  UUID                                  Status       Action
+    1.9.0-build.5  Sample5   1.18.8       small      04b9e9c3-ed99-4a24-b30d-b5c74b23d3b0  succeeded    UPGRADE
+    1.9.0-build.5  Sample6   1.18.8       small      0bb39685-73b9-458c-a52c-e79295a153b4  in progress  UPGRADE
+    1.8.0-build.2  Sample2   1.17.5       small      26e80c96-e65c-47e7-be78-3c43614f0712  succeeded    CREATE
+    1.8.0-build.2  Sample3   1.17.5       small      39667c39-b498-4065-b6fe-7119d579554b  succeeded    CREATE
+    1.8.0-build.2  Sample4   1.17.5       small      3ce19c9d-3e4c-48f3-8a4e-cd6d6a124617  succeeded    CREATE
     ```
 
 1. Run the `tkgi tasks` command.
@@ -229,57 +229,57 @@ To retrieve the BOSH task ID for a recent cluster upgrade:
     > **Note** The `tkgi tasks` command lists upgrade tasks only.
 
 1. In the `tkgi tasks` output, find the cluster's `UPGRADE` task.
-The BOSH task ID is listed in the `ID` column.  
+The BOSH task ID is listed in the `ID` column.
 <br>
-    For example, the upgrade task ID here for the cluster `Sample5` is `4925355e-44ed-4aea-abae-9f8e8d58c4d5`:  
+    For example, the upgrade task ID here for the cluster `Sample5` is `4925355e-44ed-4aea-abae-9f8e8d58c4d5`:
     ```
-    $ tkgi tasks  
-    ID                                    Type     Status       StartTime                       EndTime                         Clusters  
-    4925355e-44ed-4aea-abae-9f8e8d58c4d5  UPGRADE  done         Sun, 28 Jun 52048 05:00:00 PST  Tue, 30 Jun 52048 23:56:40 PST  Sample5  
-    0ba8cb6b-e136-466f-99a3-8071bc4d7741  UPGRADE  in progress  Tue, 30 Jun 52048 23:40:00 PST  Tue, 30 Jun 52048 22:33:20 PST  Sample6  
-    ``` 
+    $ tkgi tasks
+    ID                                    Type     Status       StartTime                       EndTime                         Clusters
+    4925355e-44ed-4aea-abae-9f8e8d58c4d5  UPGRADE  done         Sun, 28 Jun 52048 05:00:00 PST  Tue, 30 Jun 52048 23:56:40 PST  Sample5
+    0ba8cb6b-e136-466f-99a3-8071bc4d7741  UPGRADE  in progress  Tue, 30 Jun 52048 23:40:00 PST  Tue, 30 Jun 52048 22:33:20 PST  Sample6
+    ```
     * Use the `-l` flag to limit the number of tasks returned by the `tkgi tasks` command.
-    For more information, see [`tkgi tasks`](./cli/index.html#tasks) in the _TKGI CLI_ topic.  
+    For more information, see [`tkgi tasks`](./cli/index.html#tasks) in the _TKGI CLI_ topic.
 
 ## <a id="ncp"></a>Verify NCP Health (NSX Only)
 
 NSX Container Plugin (NCP) runs as a BOSH host process.
 Each Kubernetes control plane node VM has one running NCP process. If your cluster has
-multiple control plane nodes, one NCP process is active while the others are on standby.  
+multiple control plane nodes, one NCP process is active while the others are on standby.
 
-To verify the `ncp` process is running, do the following:  
+To verify the `ncp` process is running, do the following:
 
-1. Run `bosh instances` in your Tanzu Kubernetes Grid Integrated Edition environment:  
+1. Run `bosh instances` in your Tanzu Kubernetes Grid Integrated Edition environment:
 
     ```
     bosh -e ENVIRONMENT -d K8S-DEPLOYMENT instances --ps
     ```
-    Where:  
+    Where:
 
-    * `ENVIRONMENT` is the alias you set for your BOSH Director.  
+    * `ENVIRONMENT` is the alias you set for your BOSH Director.
     * `K8S-DEPLOYMENT` is the name of your Kubernetes cluster deployment. Kubernetes cluster deployment names
-    begin with `service-instance` and include a unique BOSH-generated identifier.  
+    begin with `service-instance` and include a unique BOSH-generated identifier.
 
     For example:
     ```
-    $ bosh -e tkgi -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e instances --ps  
-    Using environment '30.0.0.10' as client 'ops_manager'  
-    Task 678. Done  
-    Deployment 'service-instance_8de000ff-a87a-4930-81ba-106d42c2471e'  
-    Instance                                           Process                          Process State  AZ      IPs  
-    apply-addons/ef0d09ae-d3ed-4832-8d3f-431d99730c26  -                                -              AZ-K8S  -  
-    master/b6d3c263-1682-4c79-a9ab-35939127dedb        -                                running        AZ-K8S  40.0.2.2  
-    ~                                                  blackbox                         running        -       -  
-    ~                                                  bosh-dns                         running        -       -  
-    ~                                                  bosh-dns-healthcheck             running        -       -  
-    ~                                                  bosh-dns-resolvconf              running        -       -  
-    ~                                                  etcd                             running        -       -  
-    ~                                                  kube-apiserver                   running        -       -  
-    ~                                                  kube-controller-manager          running        -       -  
-    ~                                                  kube-scheduler                   running        -       -  
-    ~                                                  ncp                              running        -       -  
-    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -  
-    ``` 
+    $ bosh -e tkgi -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e instances --ps
+    Using environment '30.0.0.10' as client 'ops_manager'
+    Task 678. Done
+    Deployment 'service-instance_8de000ff-a87a-4930-81ba-106d42c2471e'
+    Instance                                           Process                          Process State  AZ      IPs
+    apply-addons/ef0d09ae-d3ed-4832-8d3f-431d99730c26  -                                -              AZ-K8S  -
+    master/b6d3c263-1682-4c79-a9ab-35939127dedb        -                                running        AZ-K8S  40.0.2.2
+    ~                                                  blackbox                         running        -       -
+    ~                                                  bosh-dns                         running        -       -
+    ~                                                  bosh-dns-healthcheck             running        -       -
+    ~                                                  bosh-dns-resolvconf              running        -       -
+    ~                                                  etcd                             running        -       -
+    ~                                                  kube-apiserver                   running        -       -
+    ~                                                  kube-controller-manager          running        -       -
+    ~                                                  kube-scheduler                   running        -       -
+    ~                                                  ncp                              running        -       -
+    ~                                                  pks-helpers-bosh-dns-resolvconf  running        -       -
+    ```
 
 **Alternatively:**
 
@@ -288,14 +288,14 @@ To verify the `ncp` process is running, do the following:
     ```
     bosh -e ENVIRONMENT -d K8S-DEPLOYMENT ssh master/VM-ID
     ```
-    Where:  
+    Where:
 
-    * `ENVIRONMENT` is the alias you set for your BOSH Director.  
+    * `ENVIRONMENT` is the alias you set for your BOSH Director.
     * `K8S-DEPLOYMENT` is the name of your Kubernetes cluster deployment. Kubernetes cluster deployment names
-    begin with `service-instance` and include a unique BOSH-generated identifier.  
-    * `VM-ID` is your Kubernetes control plane node VM ID. This is a unique BOSH-generated identifier.  
+    begin with `service-instance` and include a unique BOSH-generated identifier.
+    * `VM-ID` is your Kubernetes control plane node VM ID. This is a unique BOSH-generated identifier.
 
-    For example:  
+    For example:
     ```console
     $ bosh -e tkgi -d service-instance_8de000ff-a87a-4930-81ba-106d42c2471e ssh master/b6d3c263-1682-4c79-a9ab-35939127dedb
     ```

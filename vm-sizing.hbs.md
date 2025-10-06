@@ -3,7 +3,7 @@ title: VM Sizing for Tanzu Kubernetes Grid Integrated Edition Clusters
 owner: TKGI
 ---
 
-This topic describes the {{{ vars.recommended_by }}}-recommended procedure for sizing VMs for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) cluster components.  
+This topic describes the {{{ vars.recommended_by }}}-recommended procedure for sizing VMs for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) cluster components.
 
 ##<a id="overview"></a>Overview
 
@@ -25,12 +25,12 @@ The sizing of control plane and worker node VMs is highly dependent on the chara
 The control plane node VM size is linked to the number of worker nodes.
 The VM sizing shown in the following table is per control plane node:
 
-<p class="note"><strong>Note</strong>: If there are multiple control plane nodes, 
-  all control plane node VMs are the same size. To configure the number of control plane nodes, 
+<p class="note"><strong>Note</strong>: If there are multiple control plane nodes,
+  all control plane node VMs are the same size. To configure the number of control plane nodes,
   see the Plans section of <em>Installing Tanzu Kubernetes Grid Integrated Edition</em> for your IaaS.
-</p> 
+</p>
 
-To customize the size of the Kubernetes control plane node VM, 
+To customize the size of the Kubernetes control plane node VM,
 see [Customize Control Plane and Worker Node VM Size and Type](#node-sizing-custom).
 
 <table border="1" class="nice">
@@ -51,15 +51,15 @@ see [Customize Control Plane and Worker Node VM Size and Type](#node-sizing-cust
   </tbody>
 </table>
 
-Do not overload your 
-control plane node VMs by exceeding the recommended maximum number of worker node VMs 
-or by downsizing from the recommended VM sizings listed above. 
-These recommendations support both a typical workload managed by a VM and 
-the higher than usual workload managed by the VM while other VM's in the cluster are upgrading.  
+Do not overload your
+control plane node VMs by exceeding the recommended maximum number of worker node VMs
+or by downsizing from the recommended VM sizings listed above.
+These recommendations support both a typical workload managed by a VM and
+the higher than usual workload managed by the VM while other VM's in the cluster are upgrading.
 
-<p class="note warning"><strong>Warning</strong>: 
-  Upgrading an overloaded Kubernetes cluster control plane node VM can result in downtime. 
-</p> 
+<p class="note warning"><strong>Warning</strong>:
+  Upgrading an overloaded Kubernetes cluster control plane node VM can result in downtime.
+</p>
 
 ##<a id="worker-sizing"></a> Worker Node VM Number and Size
 
@@ -96,23 +96,23 @@ An example app has the following minimum requirements:
 
 To determine how many worker node VMs the app requires, do the following:
 
-1. Calculate the number of workers using `p / 100`:  
+1. Calculate the number of workers using `p / 100`:
     ```
     1000/100 = 10 workers
     ```
-1. Calculate the minimum RAM per worker using `m * 100`:  
+1. Calculate the minimum RAM per worker using `m * 100`:
     ```
     1 * 100 = 100&nbsp;GB
     ```
-1. Calculate the minimum number of CPUs per worker using `c * 100`:  
+1. Calculate the minimum number of CPUs per worker using `c * 100`:
     ```
     0.10 * 100 = 10 CPUs
     ```
-1. For upgrades, increase the number of workers by one:  
+1. For upgrades, increase the number of workers by one:
     ```
     10 workers + 1 worker = 11 workers
     ```
-1. For failure tolerance, increase the number of workers by two:  
+1. For failure tolerance, increase the number of workers by two:
     ```
     11 workers + 2 workers = 13 workers
     ```
@@ -127,12 +127,12 @@ basis. For more information, see the Plans section of the Tanzu Kubernetes Grid 
 for your IaaS. For example, [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](./installing-nsx-t.html#plans).
 
 While the list of available node VM types and sizes is extensive, the list may
-not provide the exact type and size of VM that you want. You can use the Ops Manager
+not provide the exact type and size of VM that you want. You can use the {{ vars.platform_name }}
 API to customize the size and types of the control plane and worker node VMs. For more information, see
 [How to Create or Remove Custom VM_TYPE Template using the Operations Manager API](https://knowledge.broadcom.com/external/article/297413/) in the Knowledge Base.
 
-<p class="note warning"><strong>Warning</strong>: Do not reduce the size of your 
-Kubernetes control plane node VMs below the recommended sizes 
+<p class="note warning"><strong>Warning</strong>: Do not reduce the size of your
+Kubernetes control plane node VMs below the recommended sizes
 listed in <a href="#master-sizing">Control Plane Node VM Size</a>, above.
-  Upgrading an overloaded Kubernetes cluster control plane node VM can result in downtime. 
-</p> 
+  Upgrading an overloaded Kubernetes cluster control plane node VM can result in downtime.
+</p>

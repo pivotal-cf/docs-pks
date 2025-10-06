@@ -14,25 +14,25 @@ Using a load balancer can prevent individual network components from being overl
 <p class='note'><strong>Note</strong>: The procedures in this topic create a dedicated load balancer for each workload. If your cluster has many apps, a load balancer dedicated to each workload can be an inefficient use of resources. An ingress controller pattern is better suited for clusters with many workloads.
 </p>
 
-To create a dedicated load balancer for a workload:  
+To create a dedicated load balancer for a workload:
 
-1. Review the [Prerequisites](#prerequisites).  
-1. Deploy a workload:  
-    * [Deploy Workloads on vSphere with NSX](#external-lb-nsxt).  
-    * [Deploy Workloads on AWS or Azure, Using a Public-Cloud External Load Balancer](#external-lb).  
-    * [Deploy AWS Workloads Using an Internal Load Balancer](#internal-lb).  
-1. Expose the workload. 
+1. Review the [Prerequisites](#prerequisites).
+1. Deploy a workload:
+    * [Deploy Workloads on vSphere with NSX](#external-lb-nsxt).
+    * [Deploy Workloads on AWS or Azure, Using a Public-Cloud External Load Balancer](#external-lb).
+    * [Deploy AWS Workloads Using an Internal Load Balancer](#internal-lb).
+1. Expose the workload.
 Refer to the following TKGI documentation topics for additional information
-about deploying and exposing workloads:  
+about deploying and exposing workloads:
 
     * For the different types of load balancers used in a deployment, see [Load Balancers in TKGI](about-lb.html).
     * For ingress routing on AWS, Azure, or vSphere without NSX, see [Configuring Ingress Routing](configure-ingress.html).
-    * For ingress routing on vSphere with NSX, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).  
+    * For ingress routing on vSphere with NSX, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).
 
-<p class='note'><strong>Note</strong>: 
+<p class='note'><strong>Note</strong>:
 This topic references standard Kubernetes primitives. If you are unfamiliar with Kubernetes
-primitives, review the Kubernetes 
-<a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/">Workloads</a> and 
+primitives, review the Kubernetes
+<a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/">Workloads</a> and
 <a href="https://kubernetes.io/docs/concepts/services-networking/service/">Services, Load Balancing, and Networking</a>
 documentation before following the procedures below.
 </p>
@@ -41,11 +41,11 @@ documentation before following the procedures below.
 
 ## <a id='prerequisites'></a> Prerequisites
 
-The prerequisites for using a load balancer with TKGI vary depending on your environment:  
+The prerequisites for using a load balancer with TKGI vary depending on your environment:
 
-* [vSphere without NSX Prerequisites](#nonsxt)  
-* [AWS, Azure, and vSphere with NSX Prerequisites](#aws-az-nsx)  
-* [AWS Prerequisites](#aws)  
+* [vSphere without NSX Prerequisites](#nonsxt)
+* [AWS, Azure, and vSphere with NSX Prerequisites](#aws-az-nsx)
+* [AWS Prerequisites](#aws)
 
 
 ### <a id='nonsxt'></a>vSphere without NSX Prerequisites
@@ -89,20 +89,20 @@ After completing these steps, follow the steps below in [Deploy AWS Workloads Us
 
 ## <a id='external-lb-nsxt'></a>Deploy Workloads on vSphere with NSX
 
-If you use vSphere with NSX, follow the steps below to deploy and expose basic workloads using the NSX load balancer:  
+If you use vSphere with NSX, follow the steps below to deploy and expose basic workloads using the NSX load balancer:
 
-* [Configure Your Workload](#external-lb-configure-nsx)  
-* [Deploy and Expose Your Workload](#external-lb-deploy)  
-* [Access Your Workload](#external-lb-access)  
+* [Configure Your Workload](#external-lb-configure-nsx)
+* [Deploy and Expose Your Workload](#external-lb-deploy)
+* [Access Your Workload](#external-lb-access)
 
 
 ### <a id='external-lb-configure'></a><a id='external-lb-configure-nsx'></a>Configure Your Workload
 
-To expose a static port on your workload, perform the following steps:  
+To expose a static port on your workload, perform the following steps:
 
 1. Open the Kubernetes service configuration file for your workload in a text editor.
 
-1. To expose the workload through a load balancer, confirm that the Service object is configured to be `type: LoadBalancer`.  
+1. To expose the workload through a load balancer, confirm that the Service object is configured to be `type: LoadBalancer`.
 
 1. To deactivate load balancer SNAT mode, add the following `annotations` tag to the services `metadata` section of the manifest:
 
@@ -140,20 +140,20 @@ To expose a static port on your workload, perform the following steps:
 
 ## <a id='external-lb'></a>Deploy Workloads on AWS or Azure, Using a Public-Cloud External Load Balancer
 
-If you use AWS or Azure, follow the steps below to deploy and expose basic workloads using a load balancer configured by your cloud provider:  
+If you use AWS or Azure, follow the steps below to deploy and expose basic workloads using a load balancer configured by your cloud provider:
 
 
-* [Configure Your Workload](#external-lb-configure-public-cloud)  
-* [Deploy and Expose Your Workload](#external-lb-deploy)  
-* [Access Your Workload](#external-lb-access)  
+* [Configure Your Workload](#external-lb-configure-public-cloud)
+* [Deploy and Expose Your Workload](#external-lb-deploy)
+* [Access Your Workload](#external-lb-access)
 
 ### <a id='external-lb-configure-public-cloud'></a>Configure Your Workload
 
-To expose a static port on your workload, perform the following steps:  
+To expose a static port on your workload, perform the following steps:
 
 1. Open the Kubernetes service configuration file for your workload in a text editor.
 
-1. To expose the workload through a load balancer, confirm that the Service object is configured to be `type: LoadBalancer`.  
+1. To expose the workload through a load balancer, confirm that the Service object is configured to be `type: LoadBalancer`.
 
     For example:
 
@@ -181,13 +181,13 @@ To expose a static port on your workload, perform the following steps:
 
 If you use AWS, follow the steps below to deploy, expose, and access basic workloads using an internal load balancer configured by your cloud provider.
 
-* [Configure Your Workload](#internal-lb-configure)  
-* [Deploy and Expose Your Workload](#internal-lb-deploy)  
-* [Access Your Workload](#internal-lb-access)  
+* [Configure Your Workload](#internal-lb-configure)
+* [Deploy and Expose Your Workload](#internal-lb-deploy)
+* [Access Your Workload](#internal-lb-access)
 
 ### <a id='internal-lb-configure'></a>Configure Your Workload
 
-To expose a static port on your workload, perform the following steps:  
+To expose a static port on your workload, perform the following steps:
 
 1. Open the Kubernetes service configuration file for your workload in a text editor.
 
@@ -228,14 +228,14 @@ To expose a static port on your workload, perform the following steps:
 
 <p class='note'><strong>Note</strong>: For an example of a fully configured Kubernetes service, see the <a href="https://github.com/cloudfoundry-incubator/kubo-ci/blob/master/specs/nginx-lb.yml"><code>type: LoadBalancer</code> configuration</a> for the nginx app example in the kubo-ci repository in GitHub.</p>
 
-For more information about configuring the `LoadBalancer` Service type see 
+For more information about configuring the `LoadBalancer` Service type see
 [Type LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) in the _Service_ section of the Kubernetes documentation.
 
 ### <a id='internal-lb-deploy'></a>Deploy and Expose Your Workload
 
-To deploy and expose your workload:  
+To deploy and expose your workload:
 
-1. To deploy the service configuration for your workload:  
+1. To deploy the service configuration for your workload:
 
     ```
     kubectl apply -f SERVICE-CONFIG
@@ -256,7 +256,7 @@ configurations or objects necessary for your applications to run.
 
 ### <a id='internal-lb-access'></a>Access Your Workload
 
-To access a workload:  
+To access a workload:
 
 1. To determine the load balancer IP address and port number of your exposed workload, run the following command:
 
@@ -278,25 +278,25 @@ To access a workload:
     curl http://EXTERNAL-IP:PORT
     ```
 
-    Where:  
+    Where:
 
-    * `EXTERNAL-IP` is the IP address of the load balancer.  
-    * `PORT` is the port number.  
+    * `EXTERNAL-IP` is the IP address of the load balancer.
+    * `PORT` is the port number.
 
     <p class='note'><strong>Note</strong>: Run this command on a server with network connectivity and visibility to the IP address of the worker node.</p>
 
 
 ## <a id='external-lb-generic'></a>Deploy Workloads for a Generic External Load Balancer
 
-In this approach, you will expose access to your workloads with a generic external load balancer, such as F5.  
+In this approach, you will expose access to your workloads with a generic external load balancer, such as F5.
 
-Using a generic external load balancer requires a static port in your Kubernetes cluster. To do this we must expose your workloads with a `NodePort`.  
+Using a generic external load balancer requires a static port in your Kubernetes cluster. To do this we must expose your workloads with a `NodePort`.
 
-Follow the steps below to deploy and access basic workloads using a generic external load balancer:  
+Follow the steps below to deploy and access basic workloads using a generic external load balancer:
 
-* [Configure Your Workload](#external-lb-generic-configure)  
-* [Deploy and Expose Your Workload](#external-lb-generic-deploy)  
-* [Access Your Workload](#external-lb-generic-access)  
+* [Configure Your Workload](#external-lb-generic-configure)
+* [Deploy and Expose Your Workload](#external-lb-generic-deploy)
+* [Access Your Workload](#external-lb-generic-access)
 
 ### <a id='external-lb-generic-configure'></a>Configure Your Workload
 
@@ -336,9 +336,9 @@ For more information about configuring the `NodeP{ort` Service type see
 
 ### <a id='external-lb-generic-deploy'></a>Deploy and Expose Your Workload
 
-To deploy and expose your workload:  
+To deploy and expose your workload:
 
-1. To deploy the service configuration for your workload:  
+1. To deploy the service configuration for your workload:
 
     ```
     kubectl apply -f SERVICE-CONFIG
@@ -358,7 +358,7 @@ configurations or objects necessary for your applications to run.
 
 ### <a id='external-lb-generic-access'></a>Access Your Workload
 
-To access a workload:  
+To access a workload:
 
 1. Retrieve the IP address for a worker node with a running app pod.
   <p class='note'><strong>Note</strong>: If you deployed more than four worker
@@ -372,7 +372,7 @@ To access a workload:
     ```
     kubectl get nodes -L spec.ip
     ```
-    * On the Ops Manager command line, run the following command to find the IP address:
+    * On the {{ vars.platform_name }} command line, run the following command to find the IP address:
 
     ```
     bosh vms
@@ -401,11 +401,11 @@ To access a workload:
 ## <a id='without-lb'></a>Deploy Workloads without a Load Balancer
 
 If you do not use an external load balancer, you can configure your service to expose a static port on each worker node.
-The following steps configure your service to be reachable from outside the cluster at `http://NODE-IP:NODE-PORT`:  
+The following steps configure your service to be reachable from outside the cluster at `http://NODE-IP:NODE-PORT`:
 
-* [Configure Your Workload](#without-lb-configure)  
-* [Deploy and Expose Your Workload](#without-lb-deploy)  
-* [Access Your Workload](#without-lb-access)  
+* [Configure Your Workload](#without-lb-configure)
+* [Deploy and Expose Your Workload](#without-lb-deploy)
+* [Access Your Workload](#without-lb-access)
 
 
 ### <a id='without-lb-configure'></a>Configure Your Workload
@@ -446,9 +446,9 @@ For more information about configuring the `NodeP{ort` Service type see
 
 ### <a id='without-lb-deploy'></a>Deploy and Expose Your Workload
 
-To deploy and expose your workload:  
+To deploy and expose your workload:
 
-1. To deploy the service configuration for your workload:  
+1. To deploy the service configuration for your workload:
 
     ```
     kubectl apply -f SERVICE-CONFIG
@@ -469,7 +469,7 @@ and any other configurations or objects necessary for your applications to run.
 
 ### <a id='without-lb-access'></a>Access Your Workload
 
-To access a workload:  
+To access a workload:
 
 1. Retrieve the IP address for a worker node with a running app pod.
   <p class='note'><strong>Note</strong>: If you deployed more than four worker
@@ -479,11 +479,11 @@ To access a workload:
     You can retrieve the IP address for a worker node with a running app pod in
     one of the following ways:
     * On the command line, run the following command:
-    
+
     ```
     kubectl get nodes -L spec.ip
     ```
-    * On the Ops Manager command line, run the following command to find the IP address:
+    * On the {{ vars.platform_name }} command line, run the following command to find the IP address:
 
     ```
     bosh vms
@@ -509,9 +509,9 @@ To access a workload:
     curl http://NODE-IP:NODE-PORT
     ```
 
-    Where:  
+    Where:
 
-    * `NODE-IP` is the IP address of the worker node.  
-    * `NODE-PORT` is the node port number.  
+    * `NODE-IP` is the IP address of the worker node.
+    * `NODE-PORT` is the node port number.
 
     <p class='note'><strong>Note</strong>: Run this command on a server with network connectivity and visibility to the IP address of the worker node.</p>

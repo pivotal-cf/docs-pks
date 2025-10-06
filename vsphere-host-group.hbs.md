@@ -44,9 +44,9 @@ To implement host groups with Tanzu Kubernetes Grid Integrated Edition, the firs
 1. Click **Add** and configure the host group as follows:
   - Name: Enter a name for the host group.
   - Type: Select **Host Group** from the drop down.
-  - Click **Add** and select the ESXi hosts to include in the host group. 
+  - Click **Add** and select the ESXi hosts to include in the host group.
   - Click **OK**.
-1. Once done, verify that the host group is configured.  
+1. Once done, verify that the host group is configured.
 
     <img src="images/vsphere/vSphere-host-group.png" alt="New Host Group added to the VM/Host Groups section of the vSAN_Cluster tab.">
 
@@ -54,7 +54,7 @@ To implement host groups with Tanzu Kubernetes Grid Integrated Edition, the firs
 
 Once the host group is defined in vSphere, the next step is to declare this host group when defining the BOSH Availability Zone (AZ) for use with Tanzu Kubernetes Grid Integrated Edition.
 
-1. Log in to Ops Manager.
+1. Log in to {{ vars.platform_name }}.
 1. Select the BOSH Director tile.
 1. Select the **Create Availability Zones** tab.
 1. Select the desired AZ, or create a new one.
@@ -63,5 +63,5 @@ Once the host group is defined in vSphere, the next step is to declare this host
     set the **VM-Host Affinity Rule** dropdown to `SHOULD`. This setting maintains high availability
     by letting TKGI restart VMs in another host group if their AZ fails.
     TKGI ignores this setting if the vSAN cluster has no host group configured.
-1. Click **Save**.  
+1. Click **Save**.
   <img src="images/nsxt/bosh/config-bosh-29-host-group.png" alt="TKGI tile Create Availability Zones PKS-AZ1-HostGroup1 configuration.">

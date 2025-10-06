@@ -3,11 +3,11 @@ title: TKGI API Authentication
 owner: TKGI
 ---
 
-This topic describes how the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) works with User Account and Authentication (UAA) to manage TKGI deployment authentication and authorization.  
+This topic describes how the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) works with User Account and Authentication (UAA) to manage TKGI deployment authentication and authorization.
 
 ##<a id='authenticating'></a> Authentication of TKGI API Requests
 
-Before users can log in and use the TKGI CLI, you must configure TKGI API access with UAA. For more information, 
+Before users can log in and use the TKGI CLI, you must configure TKGI API access with UAA. For more information,
 see [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html) and [Logging in to Tanzu Kubernetes Grid Integrated Edition](login.html).
 
 You use the UAA Command Line Interface (UAAC) to target the UAA server and request an access token for the UAA admin user.
@@ -42,10 +42,10 @@ For example, if your TKGI API domain is `api.tkgi.example.com`, you can reach yo
   </tr>
 </table>
 
-Refer to **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition tile** > **TKGI API** > **API Hostname (FQDN)** for your TKGI API domain.
+Refer to **{{ vars.platform_name }}** > **Tanzu Kubernetes Grid Integrated Edition tile** > **TKGI API** > **API Hostname (FQDN)** for your TKGI API domain.
 
 Load balancer implementations differ by deployment environment.
-For Tanzu Kubernetes Grid Integrated Edition deployments on AWS or vSphere without NSX, you configure a load balancer to access 
+For Tanzu Kubernetes Grid Integrated Edition deployments on AWS or vSphere without NSX, you configure a load balancer to access
 the TKGI API when you install the Tanzu Kubernetes Grid Integrated Edition tile.
 For example, see [Configuring TKGI API Load Balancer](./vsphere-configure-api.html).
 

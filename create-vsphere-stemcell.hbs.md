@@ -4,15 +4,15 @@ owner: Windows
 ---
 
 This topic describes how to use the tool Stembuild to create a Windows stemcell for BOSH,
-for use by Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.  
+for use by Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
 
 
 ## <a id='stembuild-overview'></a> Overview of Stembuild
 
 A [BOSH stemcell](https://bosh.io/stemcells) is a versioned operating system image.
 
-You must create a BOSH stemcell for Windows before you can deploy Windows workers in Kubernetes clusters 
-using Tanzu Kubernetes Grid Integrated Edition on vSphere.  
+You must create a BOSH stemcell for Windows before you can deploy Windows workers in Kubernetes clusters
+using Tanzu Kubernetes Grid Integrated Edition on vSphere.
 
 Stembuild is a binary that you use to build BOSH stemcells for Windows Server 2019.
 
@@ -24,12 +24,12 @@ These commands are used to create a stemcell in [Construct and Package the BOSH 
 
 ## <a id='windows-stemcells'></a> Overview of Windows Stemcell Creation
 
-To create a Windows stemcell for vSphere, you create a base Windows VM from a volume-licensed ISO and 
-subsequently maintain that base template with all Windows-recommended security updates, 
+To create a Windows stemcell for vSphere, you create a base Windows VM from a volume-licensed ISO and
+subsequently maintain that base template with all Windows-recommended security updates,
 but without the BOSH dependencies.
 
-The Windows VM with security updates serves as the base for all future stemcells produced from clones of that base VM. 
-This enables you to build new stemcells without having to run Windows updates from scratch each time. 
+The Windows VM with security updates serves as the base for all future stemcells produced from clones of that base VM.
+This enables you to build new stemcells without having to run Windows updates from scratch each time.
 You can also use a "snapshot" feature to maintain an updated Windows image that does not contain the BOSH dependencies.
 
 VMware recommends installing any available critical updates and
@@ -47,7 +47,7 @@ To construct, package and upload a BOSH Stemcell for Windows to TKGI, complete t
 1. [Prerequisites](#prerequisites)
 1. [Create and Configure a Base VM for the BOSH Stemcell](#create-configure-base-vm)
 1. [Construct and Package the BOSH Stemcell](#construct-package-stemcell)
-1. [Update Ops Manager With the Updated Stemcell](#update-stemcell)
+1. [Update {{ vars.platform_name }} With the Updated Stemcell](#update-stemcell)
 
 
 ## <a id='prerequisites'></a> Prerequisites
@@ -67,12 +67,12 @@ Before you create a BOSH Windows stemcell for Tanzu Kubernetes Grid Integrated E
   or the [Microsoft Volume Licensing Service Center](https://www.microsoft.com/Licensing/servicecenter/default.aspx) website.
     <p class="note"><strong>Note:</strong> A clean ISO file has no custom scripts or tooling. For example, the ISO must have no logging or antivirus tools installed.</p>
 
-* Download the following from [Stemcells (Windows)](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Windows)) on {{{ vars.product_network }}}:  
+* Download the following from [Stemcells (Windows)](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Windows)) on {{{ vars.product_network }}}:
     * A Windows stemcell
     * A `stembuild` command line interface (CLI) from a 2019.x release
 
-    Refer to [Product Snapshot](release-notes.html#product-snapshot) in _Release Notes_ 
-    for the compatible version of each to download.  
+    Refer to [Product Snapshot](release-notes.html#product-snapshot) in _Release Notes_
+    for the compatible version of each to download.
 
 * Microsoft [Local Group Policy Object Utility (LGPO)](https://www.microsoft.com/en-us/download/details.aspx?id=55319) downloaded to the same folder as your `stembuild` CLI.
 
@@ -94,9 +94,9 @@ Permissions marked with an `*` are generated upon creating a new user in vCenter
 
 Before using Stembuild to create a stemcell, you need to create a Windows Server 2019 VM and update the VM with the latest Windows updates.
 
-<p class="note warning"><strong>Warning:</strong> {{{ vars.recommended_by }}} recommends that you build your stemcell with `kubernetes-csi-proxy` v1.1.3 or later to avoid the Kubernetes CVE: CVE-2023-3893. 
-For more information, see 
-[CVE-2023-3893: Insufficient input sanitization on kubernetes-csi-proxy leads to privilege escalation #119594](https://github.com/kubernetes/kubernetes/issues/119594) 
+<p class="note warning"><strong>Warning:</strong> {{{ vars.recommended_by }}} recommends that you build your stemcell with `kubernetes-csi-proxy` v1.1.3 or later to avoid the Kubernetes CVE: CVE-2023-3893.
+For more information, see
+[CVE-2023-3893: Insufficient input sanitization on kubernetes-csi-proxy leads to privilege escalation #119594](https://github.com/kubernetes/kubernetes/issues/119594)
 in the Kubernetes GitHub repository.</p>
 
 To create and update a base Windows VM, follow these procedures in the TAS for VMs [Windows] documentation, in order:
@@ -108,32 +108,32 @@ To create and update a base Windows VM, follow these procedures in the TAS for V
 
 ### <a id='expose-guest-net'></a> Expose Ethernet Adapter Information on Worker Node VMs
 
-By default, VMware Tools prevents worker node VM Ethernet adapter information from being exposed on Windows clusters. 
-You must ensure this Ethernet adapter information is exposed on your Windows base OS image to avoid the [oVM.Guest.Net Error on Windows Clusters](troubleshoot-issues.html#windows-guest-net) issue on your Windows clusters.  
+By default, VMware Tools prevents worker node VM Ethernet adapter information from being exposed on Windows clusters.
+You must ensure this Ethernet adapter information is exposed on your Windows base OS image to avoid the [oVM.Guest.Net Error on Windows Clusters](troubleshoot-issues.html#windows-guest-net) issue on your Windows clusters.
 
-To ensure Ethernet adapter information is exposed on worker node VMs:  
+To ensure Ethernet adapter information is exposed on worker node VMs:
 
-1. Verify that Ethernet adapter information on worker node VMs is already exposed:  
+1. Verify that Ethernet adapter information on worker node VMs is already exposed:
 
-    1. Open a command line window in your Windows base OS environment.  
-    1. Run `ipconfig`.  
-    1. Review the return for any `vEthernet` Ethernet adapters.  
-    1. If a `vEthernet` Ethernet adapter is present, 
-       Ethernet adapter information on worker node VMs is not exposed in this environment.  
+    1. Open a command line window in your Windows base OS environment.
+    1. Run `ipconfig`.
+    1. Review the return for any `vEthernet` Ethernet adapters.
+    1. If a `vEthernet` Ethernet adapter is present,
+       Ethernet adapter information on worker node VMs is not exposed in this environment.
 
-1. If Ethernet adapter information is not exposed on worker node VMs:  
+1. If Ethernet adapter information is not exposed on worker node VMs:
 
-    1. Copy the tools configuration from `C:\ProgramData\VMware\VMware Tools\tools.conf.example` to `C:\ProgramData\VMware\VMware Tools\tools.conf`.  
-    1. Edit the new copy of `tools.conf`.  
-    1. Add the following to the configuration:  
-    
+    1. Copy the tools configuration from `C:\ProgramData\VMware\VMware Tools\tools.conf.example` to `C:\ProgramData\VMware\VMware Tools\tools.conf`.
+    1. Edit the new copy of `tools.conf`.
+    1. Add the following to the configuration:
+
         ```
         exclude-nics=""
         ```
-    1. Save your changes. 
+    1. Save your changes.
 
 
-## <a id='construct-package-stemcell'></a> Construct and Package the BOSH Stemcell 
+## <a id='construct-package-stemcell'></a> Construct and Package the BOSH Stemcell
 
 To create, configure, and package a BOSH Stemcell, follow these procedures, in order:
 
@@ -144,14 +144,14 @@ To create, configure, and package a BOSH Stemcell, follow these procedures, in o
 
 ### <a id='remove-hidden-devised'></a> Remove Hidden Devices
 
-To ensure your BOSH Windows stemcell can work properly, confirm the stemcell does not have any hidden devices:  
+To ensure your BOSH Windows stemcell can work properly, confirm the stemcell does not have any hidden devices:
 
-1. Open the vSphere Management console.  
-1. Confirm a network adapter is not assigned to the target VM.  
+1. Open the vSphere Management console.
+1. Confirm a network adapter is not assigned to the target VM.
 1. Power on the target VM.
 1. Log into the target VM.
 1. Start PowerShell.
-1. Confirm the VM has hidden devices:  
+1. Confirm the VM has hidden devices:
 
     ```
     Get-PnpDevice -Class net | ? Status -eq Unknown
@@ -170,22 +170,22 @@ To ensure your BOSH Windows stemcell can work properly, confirm the stemcell doe
 
 1. Power off the target VM.
 
-<p class="note"><strong>Note:</strong> The <code>ovs-windows</code> job requires a VM 
-  with a net-adapter named <code>Ethernet0</code>. 
-  Remove hidden devices from the target VM to ensure the <code>Ethernet0</code> net-adapter name 
+<p class="note"><strong>Note:</strong> The <code>ovs-windows</code> job requires a VM
+  with a net-adapter named <code>Ethernet0</code>.
+  Remove hidden devices from the target VM to ensure the <code>Ethernet0</code> net-adapter name
   is not taken before the <code>ovs-windows</code> job starts.
 </p>
 
 
-## <a id='update-stemcell'></a> Update Ops Manager With the Updated Stemcell
+## <a id='update-stemcell'></a> Update {{ vars.platform_name }} With the Updated Stemcell
 
-To update Ops Manager with the new BOSH Windows stemcell:
+To update {{ vars.platform_name }} with the new BOSH Windows stemcell:
 
-1. Open Ops Manager.  
+1. Open {{ vars.platform_name }}.
 
 1. Navigate to the **Stemcell Library**.
 
-1. Replace the existing stemcell in the Ops Manager stemcell library with your new updated stemcell.  
+1. Replace the existing stemcell in the {{ vars.platform_name }} stemcell library with your new updated stemcell.
 
 1. Deploy the TKGI tile.
 
@@ -196,17 +196,17 @@ Microsoft typically releases Windows updates with security patches on the second
 
 After each Microsoft Windows security update, update your BOSH stemcell by following these procedures, in order:
 
-1. [Configure the Base VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#install-windows-updates) 
+1. [Configure the Base VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#install-windows-updates)
 in the TAS for VMs [Windows] documentation.
 
 1. [Construct and Package the BOSH Stemcell](#construct-package-stemcell), above.
 
-1. [Update Ops Manager With the Updated Stemcell](#update-stemcell), above.
+1. [Update {{ vars.platform_name }} With the Updated Stemcell](#update-stemcell), above.
 
 
 
 ## <a id='known-issues'></a> Known Issues
 
-For known issues with stemcell creation, see 
-[Known Issues](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#known-issues) 
-in the TAS for VMs [Windows] documentation.  
+For known issues with stemcell creation, see
+[Known Issues](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#known-issues)
+in the TAS for VMs [Windows] documentation.

@@ -3,37 +3,37 @@ title: Installing and Configuring BOSH Backup and Restore
 owner: TKGI
 ---
 
-This topic describes how to install BOSH Backup and Restore (BBR).  
+This topic describes how to install BOSH Backup and Restore (BBR).
 
 ##<a id="overview"></a> Overview
 
-To install BBR, first validate that your jump box VM is a valid BOSH backup host, 
-then copy the `bbr` executable to the jump box and configure BBR.  
+To install BBR, first validate that your jump box VM is a valid BOSH backup host,
+then copy the `bbr` executable to the jump box and configure BBR.
 
 For more information, see [Install and Configure BOSH Backup and Restore](#install-bbr-overview) below.
 
 After installing BBR, you can run `bbr` commands to back up and restore your Tanzu Kubernetes Grid Integrated Edition
 deployment.
 
-For more information about using BOSH Backup and Restore, see:  
+For more information about using BOSH Backup and Restore, see:
 
-* To back up and restore Kubernetes clusters provisioned by TKGI, see [Backing Up and Restoring TKGI Clusters](backup-and-restore-clusters.html).  
-* To back up and restore TKGI Management Plane Components, see [Backing Up and Restoring TKGI Managmenent Plane](backup-and-restore-tkgi.html).  
+* To back up and restore Kubernetes clusters provisioned by TKGI, see [Backing Up and Restoring TKGI Clusters](backup-and-restore-clusters.html).
+* To back up and restore TKGI Management Plane Components, see [Backing Up and Restoring TKGI Managmenent Plane](backup-and-restore-tkgi.html).
 
 ##<a id="prerequisites"></a> Prerequisites
 
-Using BBR requires the following:  
+Using BBR requires the following:
 
-* A jump box.  
+* A jump box.
 <br>
-    A jump box is a separate, hardened server on your network that provides a controlled means of accessing the other VMs on your network. 
-    See the [jumpbox-deployment](https://github.com/cloudfoundry/jumpbox-deployment) GitHub repository for an example jump box deployment.  
+    A jump box is a separate, hardened server on your network that provides a controlled means of accessing the other VMs on your network.
+    See the [jumpbox-deployment](https://github.com/cloudfoundry/jumpbox-deployment) GitHub repository for an example jump box deployment.
 <br>
-     You must have a jump box before you can install BBR to the jump box.  
+     You must have a jump box before you can install BBR to the jump box.
 <br>
-* The OpenBSD version of netcat must be installed on the jump box host.  
+* The OpenBSD version of netcat must be installed on the jump box host.
 
-* A `bbr` executable file. You must have the correct BBR executable version for your TKGI installation. 
+* A `bbr` executable file. You must have the correct BBR executable version for your TKGI installation.
 
     * To determine the correct version of BBR for your deployment, see the [Tanzu Kubernetes Grid Integrated Edition Release Notes](release-notes.html).
     * To download a BBR installation file, see [BOSH Backup and Restore](https://support.broadcom.com/group/ecx/productdownloads?subfamily=BOSH%20Backup%20and%20Restore) on the Broadcom Support.
@@ -44,28 +44,28 @@ Using BBR requires the following:
 
 To install and configure BBR:
 
-1. [Configure Your Jump Box for BBR](#bbr-jumpbox)  
+1. [Configure Your Jump Box for BBR](#bbr-jumpbox)
 1. [Install BBR on Your Jump Box](#bbr-install)
 1. [Verify Your BBR Installation](#bbr-install)
 1. [Configure BBR Logging](#bbr-logging)
 
 ###<a id="bbr-jumpbox"></a> Configure Your Jump Box for BBR
 
-Your jump box must meet or exceed minimum BBR requirements. 
-You can use the VMware Tanzu Operations Manager (Ops Manager) VM as your jump box if it can be configured to meet all of the requirements below.  
+Your jump box must meet or exceed minimum BBR requirements.
+You can use the {{ vars.platform_name }} VM as your jump box if it can be configured to meet all of the requirements below.
 
-To configure your jump box to meet BBR requirements:  
+To configure your jump box to meet BBR requirements:
 
-1. Size the jump box to have sufficient storage space for your backups.  
-1. Ensure the jump box can communicate with the network containing your Tanzu Kubernetes Grid Integrated Edition deployment.  
+1. Size the jump box to have sufficient storage space for your backups.
+1. Ensure the jump box can communicate with the network containing your Tanzu Kubernetes Grid Integrated Edition deployment.
 <br>
     BBR uses SSH to orchestrate the back up of your Tanzu Kubernetes Grid Integrated Edition instances using port 22 by default.
 
-1. Configure the jump box to be in the same network as the deployed VMs.  
+1. Configure the jump box to be in the same network as the deployed VMs.
 <br>
-    BBR connects to the deployed VMs at their private IP addresses.  
+    BBR connects to the deployed VMs at their private IP addresses.
 
-1. Ensure there is minimal network latency between the jump box and the source VMs BBR backs up.  
+1. Ensure there is minimal network latency between the jump box and the source VMs BBR backs up.
 
 ###<a id='bbr-install'></a> Install BBR on Your Jump Box
 
@@ -83,11 +83,11 @@ To install the `bbr` executable to your jump box:
     scp LOCAL-PATH-TO-BBR/bbr JUMP-BOX-USER@JUMP-BOX-ADDRESS:
     ```
 
-    Where:  
+    Where:
 
-    * `LOCAL-PATH-TO-BBR` is the path to the `bbr` binary you downloaded from Broadcom Support.  
-    * `JUMP-BOX-USER` is the SSH user name for connecting to the jump box.  
-    * `JUMP-BOX-ADDRESS` is the IP address, or hostname, of the jump box.  
+    * `LOCAL-PATH-TO-BBR` is the path to the `bbr` binary you downloaded from Broadcom Support.
+    * `JUMP-BOX-USER` is the SSH user name for connecting to the jump box.
+    * `JUMP-BOX-ADDRESS` is the IP address, or hostname, of the jump box.
 
 ###<a id='bbr-install'></a> Verify Your BBR Installation
 
@@ -96,10 +96,10 @@ To verify that BBR is installed:
 1. Run the following command:
 
     ```
-    bbr version  
+    bbr version
     ```
 
-    Verify the returned BBR version.  
+    Verify the returned BBR version.
 
 
 ###<a id='bbr-logging'></a>Configure BBR Logging
@@ -108,19 +108,19 @@ BBR writes back up and restore logs to the current directory in a file named `bb
 
 By default BBR writes errors associated with stack traces to the log file.
 
-BBR also reports default information about the back up and restore run:  
+BBR also reports default information about the back up and restore run:
 
-* The back up and restore scripts that it finds.  
+* The back up and restore scripts that it finds.
 * The time when the process starts and finishes.
-* The time when stages, such as `pre-backup scripts` or `backup scripts`, start and finish.   
-* The errors that occur.  
+* The time when stages, such as `pre-backup scripts` or `backup scripts`, start and finish.
+* The errors that occur.
 
-To troubleshoot a failed BBR run, enable verbose logging. 
-When executed in verbose mode, BBR reports the following additional information:  
+To troubleshoot a failed BBR run, enable verbose logging.
+When executed in verbose mode, BBR reports the following additional information:
 
-* Logs about the API requests made to the BOSH server.  
-* All commands executed on remote instances.  
-* All commands executed on local environment.  
-* Standard in and standard out streams for the back up and restore scripts when they are executed.  
+* Logs about the API requests made to the BOSH server.
+* All commands executed on remote instances.
+* All commands executed on local environment.
+* Standard in and standard out streams for the back up and restore scripts when they are executed.
 
-To enable verbose logging, use the optional `--debug` flag.  
+To enable verbose logging, use the optional `--debug` flag.

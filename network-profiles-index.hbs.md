@@ -3,14 +3,14 @@ title: Network Profiles (VMware NSX Only)
 owner: TKGI
 ---
 
-The following topics describe how to define and use network profiles for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters deployed on NSX with vSphere:  
+The following topics describe how to define and use network profiles for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters deployed on NSX with vSphere:
 
 <ul>
   <li>
     <a href="./console-network-profile.html">Working with Network Profiles in the Management Console</a>
   </li>
   <li>
-    <a href="./network-profiles-opsmgr.html">Working with Network Profiles in Ops Manager</a>
+    <a href="./network-profiles-opsmgr.html">Working with Network Profiles in {{ vars.platform_name }}</a>
   </li>
   <li><strong>Network Profile Use Cases</strong>
     <ul>

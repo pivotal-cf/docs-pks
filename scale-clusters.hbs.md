@@ -4,24 +4,24 @@ owner: TKGI
 pkscommand: update
 ---
 
-This topic describes how to scale an existing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned cluster. 
-You can scale TKGI-provisioned clusters horizontally by adding worker nodes or vertically by changing the size of the node VMs.  
+This topic describes how to scale an existing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned cluster.
+You can scale TKGI-provisioned clusters horizontally by adding worker nodes or vertically by changing the size of the node VMs.
 
-To change the default number of worker nodes created in new clusters, 
-  change your plan's **Worker Node Instances** setting. 
-  For more information, see [Plans](installing-azure.html#plans) 
-  in the _Installing TKGI_ topic for your IaaS.  
+To change the default number of worker nodes created in new clusters,
+  change your plan's **Worker Node Instances** setting.
+  For more information, see [Plans](installing-azure.html#plans)
+  in the _Installing TKGI_ topic for your IaaS.
 
-<p class="note warning"><strong>WARNING</strong>: Do not change the number of control plane/etcd nodes 
-for any plan that was used to create currently-running clusters. 
-Tanzu Kubernetes Grid Integrated Edition does not support changing the number of control plane/etcd nodes for plans 
+<p class="note warning"><strong>WARNING</strong>: Do not change the number of control plane/etcd nodes
+for any plan that was used to create currently-running clusters.
+Tanzu Kubernetes Grid Integrated Edition does not support changing the number of control plane/etcd nodes for plans
 with existing clusters.
 </p>
 
 
 ## <a id="scale-horizontal"></a>Scale Horizontally by Changing the Number of Worker Nodes Using the TKGI CLI
 
-You can use the TKGI CLI to scale an existing cluster by increasing or decreasing the number of worker nodes in the cluster.  
+You can use the TKGI CLI to scale an existing cluster by increasing or decreasing the number of worker nodes in the cluster.
 
 To increase or decrease the number of worker nodes on a cluster:
 
@@ -40,19 +40,19 @@ To increase or decrease the number of worker nodes on a cluster:
     ```
     tkgi update-cluster CLUSTER-NAME --num-nodes NUMBER-OF-WORKER-NODES
     ```
-    Where:  
+    Where:
 
-    * `CLUSTER-NAME` is the name of your cluster.  
-    * `NUMBER-OF-WORKER-NODES` is the number of worker nodes that you want to set for the cluster.  
+    * `CLUSTER-NAME` is the name of your cluster.
+    * `NUMBER-OF-WORKER-NODES` is the number of worker nodes that you want to set for the cluster.
         * To scale down your existing cluster, enter a number lower than the current number of
-        worker nodes.  
+        worker nodes.
         * To scale up your existing cluster, enter a number higher than the current number of worker
         nodes. The maximum number of worker nodes you can set is configured in the **Plan** pane of
-        the Tanzu Kubernetes Grid Integrated Edition tile in Ops Manager.  
+        the Tanzu Kubernetes Grid Integrated Edition tile in {{ vars.platform_name }}.
         <p class="note"><strong>Note</strong>: VMware recommends that you avoid using the
         <code>tkgi resize</code> command to perform resizing operations.</p>
 
-    For example:  
+    For example:
     ```console
     $ tkgi update-cluster my-cluster --num-nodes 5
     ```
@@ -66,18 +66,18 @@ When you do this, BOSH recreates the VMs sequentially, one cluster at a time, an
 another within the cluster. For more information, see
 [VM Sizing for TKGI Clusters](vm-sizing.html).
 
-To change the size of a Kubernetes cluster node VM, complete the following steps:  
+To change the size of a Kubernetes cluster node VM, complete the following steps:
 
-1. Log in to Ops Manager.  
-1. Select the TKGI tile.  
-1. Select the plan that is in use by the cluster(s) you want to resize.  
-1. To change the VM size:  
-  - For Control Plane nodes, select the desired VM size from the **Master/ETCD VM Type** menu.  
-  - For Worker nodes, select the desired VM size from the **Worker VM Type** menu.  
+1. Log in to {{ vars.platform_name }}.
+1. Select the TKGI tile.
+1. Select the plan that is in use by the cluster(s) you want to resize.
+1. To change the VM size:
+  - For Control Plane nodes, select the desired VM size from the **Master/ETCD VM Type** menu.
+  - For Worker nodes, select the desired VM size from the **Worker VM Type** menu.
 <p class="note"><strong>Note:</strong> See <a href="vm-sizing.html#node-sizing-custom">Customize Control Plane and Worker Node VM Size and Type</a> for information on creating a custom VM size for use with a TKGI cluster.</p>
-1. Click **Save** to preserve tile changes.  
-1. At the **Installation Dashboard**, click **Review Pending Changes**.  
-    <img src="images/pending-changes.png"  alt="The Ops Manager Review Pending Changes page, showing only the TKGI product with an Errands button.">
-1. For the TKGI tile, expand the **ERRANDS** list.  
-1. Select the **Update all clusters errand** if it is not already selected. You must ensure that **Update all clusters errand** is selected so that the cluster deployment manifest is regenerated after the plan is updated.  
-1. Click **Apply Changes**.  
+1. Click **Save** to preserve tile changes.
+1. At the **Installation Dashboard**, click **Review Pending Changes**.
+    <img src="images/pending-changes.png"  alt="The {{ vars.platform_name }} Review Pending Changes page, showing only the TKGI product with an Errands button.">
+1. For the TKGI tile, expand the **ERRANDS** list.
+1. Select the **Update all clusters errand** if it is not already selected. You must ensure that **Update all clusters errand** is selected so that the cluster deployment manifest is regenerated after the plan is updated.
+1. Click **Apply Changes**.

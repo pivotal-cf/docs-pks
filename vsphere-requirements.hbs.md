@@ -7,7 +7,7 @@ topictype: vsphere
 This topic describes the prerequisites and resource requirements for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
 
 For prerequisites and resource requirements for installing TKGI on vSphere with NSX integration,
-see [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and 
+see [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and
 [Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](./vsphere-nsxt-rpd-mpd.html).
 
 ##<a id='prerequisites'></a> Prerequisites
@@ -16,7 +16,7 @@ Before installing Tanzu Kubernetes Grid Integrated Edition:
 
 1. Review the sections below and the instructions in [Creating Dedicated Users and Roles for vSphere (Optional)](vsphere-prepare-env.html).
 
-1. Install and configure Ops Manager. To install Ops Manager, follow the instructions in [Installing and Configuring Ops Manager on vSphere](vsphere-om-install-config.html).
+1. Install and configure {{ vars.platform_name }}. To install {{ vars.platform_name }}, follow the instructions in [Installing and Configuring {{ vars.platform_name }} on vSphere](vsphere-om-install-config.html).
 
 ##<a id='vsphere'></a> vSphere Version Requirements
 
@@ -25,7 +25,7 @@ Before installing Tanzu Kubernetes Grid Integrated Edition:
 
 ##<a id='resources'></a> Resource Requirements
 
-Installing Ops Manager and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
+Installing {{ vars.platform_name }} and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
 
 <table>
   <tr>
@@ -41,7 +41,7 @@ Installing Ops Manager and Tanzu Kubernetes Grid Integrated Edition requires the
     <td>16</td>
   </tr>
   <tr>
-    <td>Ops Manager</td>
+    <td>{{ vars.platform_name }}</td>
     <td>1</td>
     <td>8</td>
     <td>160</td>
@@ -60,7 +60,7 @@ Installing Ops Manager and Tanzu Kubernetes Grid Integrated Edition requires the
   </tr>
 </table>
 
-<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated Ops Manager instance, rather than on a shared Ops Manager that also hosts other runtimes such as Tanzu Application Service.</p>
+<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated {{ vars.platform_name }} instance, rather than on a shared {{ vars.platform_name }} that also hosts other runtimes such as Tanzu Application Service.</p>
 
 {{> _increase_persistent_disk }}
 

@@ -3,11 +3,11 @@ title: VMware Tanzu Kubernetes Grid Integrated Edition
 owner: TKGI
 ---
 
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and Ops Manager.
+VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and {{ vars.platform_name }}.
 
 ## <a id='overview'></a>Overview
 
-Tanzu Kubernetes Grid Integrated Edition deploys Kubernetes to [BOSH](https://bosh.io) and [Ops Manager](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/index.html),
+Tanzu Kubernetes Grid Integrated Edition deploys Kubernetes to [BOSH](https://bosh.io) and [{{ vars.platform_name }}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/index.html),
 and uses the [On-Demand Broker](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/on-demand-services-sdk-for-tanzu/0-42.html) to dynamically
 instantiate, deploy, and manage highly-available Kubernetes clusters on-premises or on a public cloud.
 
@@ -15,11 +15,11 @@ After operators install TKGI,
 developers can use the TKGI Command Line Interface (TKGI CLI) to provision Kubernetes clusters,
 and run container-based workloads on the clusters with the Kubernetes CLI, [kubectl](installing-kubectl-cli.html).
 
-Operators install TKGI as a tile on the Ops Manager Installation Dashboard,
+Operators install TKGI as a tile on the {{ vars.platform_name }} Installation Dashboard,
 or from the TKGI Management Console on vSphere.
 
 You can run TKGI standalone or alongside {{{ vars.app_runtime_full }}}
-on Ops Manager.
+on {{ vars.platform_name }}.
 
 ##<a id='tkgi-kubernetes'></a> What Tanzu Kubernetes Grid Integrated Edition Adds to Kubernetes
 

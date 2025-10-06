@@ -3,9 +3,9 @@ title: Configuring Ingress Routing
 owner: TKGI
 ---
 
-This topic describes how to configure an ingress controller on VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to configure an ingress controller on VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
-For information about configuring an ingress controller using NSX, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).  
+For information about configuring an ingress controller using NSX, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).
 
 
 ## <a id='overview'></a>Overview
@@ -41,37 +41,37 @@ For a list of ingress controllers that Kubernetes supports, see [Ingress Control
 
 To deploy an open source ingress controller to a TKGI cluster, do the following:
 
-1. To set the kubectl context for the cluster where you want to deploy the ingress controller, run the following command:  
+1. To set the kubectl context for the cluster where you want to deploy the ingress controller, run the following command:
 
     ```
     tkgi get-credentials CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of your TKGI-deployed Kubernetes cluster.  
+    Where `CLUSTER-NAME` is the name of your TKGI-deployed Kubernetes cluster.
 <br>
-    For example:  
+    For example:
 
     ```console
-    $ tkgi get-credentials tkgi-example-cluster  
+    $ tkgi get-credentials tkgi-example-cluster
 
-    Fetching credentials for cluster tkgi-example-cluster.  
-    Context set for cluster tkgi-example-cluster.  
+    Fetching credentials for cluster tkgi-example-cluster.
+    Context set for cluster tkgi-example-cluster.
 
-    You can now switch between clusters by using:  
-    $kubectl config use-context <cluster-name>  
+    You can now switch between clusters by using:
+    $kubectl config use-context <cluster-name>
     ```
-    
+
     {{> saml-sso-login }}
 
 
-1. To verify a DNS service is enabled for your Kubernetes cluster, run the following command:  
+1. To verify a DNS service is enabled for your Kubernetes cluster, run the following command:
 
     ```
     kubectl cluster-info
     ```
 
-    If a DNS service is enabled, the DNS service's URL is included in the `kubectl cluster-info` output.  
+    If a DNS service is enabled, the DNS service's URL is included in the `kubectl cluster-info` output.
 <br>
-    For example:  
+    For example:
     ```console
     $ kubectl cluster-info
     Kubernetes master is running at https://104.197.5.247
@@ -79,17 +79,17 @@ To deploy an open source ingress controller to a TKGI cluster, do the following:
     kibana-logging is running at https://104.197.5.247/api/v1/namespaces/kube-system/services/kibana-logging/proxy
     CoreDNS is running at https://104.197.5.247/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
     grafana is running at https://104.197.5.247/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy
-    ```  
+    ```
 
     The current default Kubernetes cluster DNS service is `CoreDNS`.
-    The example output above includes the URL for this DNS service, indicating it is running.  
+    The example output above includes the URL for this DNS service, indicating it is running.
 <br>
-    If a DNS service is not running for your cluster, enable the `CoreDNS` service:  
-    1. Navigate to Ops Manager and click the **BOSH Director** tile.  
-    1. Click the **Director Config** pane.  
-    1. Select the **Enable Post Deploy Scripts** check box.  
-    1. Click **Review Pending Changes**, and then **Apply Changes**.  
-    1. Delete the cluster, and then re-create the cluster.  
+    If a DNS service is not running for your cluster, enable the `CoreDNS` service:
+    1. Navigate to {{ vars.platform_name }} and click the **BOSH Director** tile.
+    1. Click the **Director Config** pane.
+    1. Select the **Enable Post Deploy Scripts** check box.
+    1. Click **Review Pending Changes**, and then **Apply Changes**.
+    1. Delete the cluster, and then re-create the cluster.
 
 1. Follow the installation instructions for the Kubernetes ingress controller
 you choose to deploy. For example, see the installation guide in the [Istio](https://istio.io/docs/setup/kubernetes/install/) documentation.
@@ -109,15 +109,15 @@ controller. For example, if you deployed Istio, run the following command:
     ```
     kubectl  --namespace=istio-system get services
     ```
-    In the output of this command, locate the exposed HTTP port.  
+    In the output of this command, locate the exposed HTTP port.
 <br>
-    For example:  
+    For example:
     ```console
     $ kubectl --namespace=istio-system get services
     NAME           TYPE            CLUSTER-IP       EXTERNAL-IP     PORT(S)
     istio-ingress  LoadBalancer    10.100.200.200   <pending>       80:30822/TCP,443:31441/TCP
-    ```  
-    In the example above, the exposed HTTP port is 30822.  
+    ```
+    In the example above, the exposed HTTP port is 30822.
 
 1. List the IP addresses for the Kubernetes worker node VMs by running the following command:
 
@@ -146,8 +146,8 @@ To configure TLS, do the following:
       -days 365 \
       -subj "/CN=*.TKGI.EXAMPLE.COM"
     ```
-    Where:  
-    
+    Where:
+
     * `KEY-PATH.pem` is the file path for the key you are generating.
     * `CERT-PATH.pem` is the file path for the certificate you are generating.
     * `*.TKGI.EXAMPLE.COM` is the wildcard domain you configured in [Configure DNS](#dns).
@@ -159,8 +159,8 @@ running the following command:
     kubectl -n INGRESS-NAMESPACE create secret tls INGRESS-CERT \
     --key KEY-PATH.pem --cert CERT-PATH.pem
     ```
-    Where:  
-    
+    Where:
+
     * `INGRESS-CERT` is a name you provide for the Kubernetes secret that contains
     your TLS certificate and key pair.
     * `KEY-PATH.pem` is the file path for your TLS key.
@@ -210,11 +210,11 @@ property to match the wildcard domain you configured in [Configure DNS](#dns) ab
           rules:
           - host: INGRESS.TKGI.EXAMPLE.COM
         ```
-        Where:  
-        
+        Where:
+
         * `INGRESS-CERT` is the name of the Kubernetes secret that contains your TLS
-        certificate and key pair.  
-        * `INGRESS.TKGI.EXAMPLE.COM` is the domain you defined for your app in the app manifest.  
+        certificate and key pair.
+        * `INGRESS.TKGI.EXAMPLE.COM` is the domain you defined for your app in the app manifest.
 
     1. Redeploy the ingress controller manifest to update the ingress service by
     running the following command:
@@ -222,6 +222,6 @@ property to match the wildcard domain you configured in [Configure DNS](#dns) ab
         ```
         kubectl replace -f INGRESS-CONTROLLER.yml
         ```
-        Where `INGRESS-CONTROLLER.yml` is the file path for your ingress controller app manifest.   
+        Where `INGRESS-CONTROLLER.yml` is the file path for your ingress controller app manifest.
 <br>
     1. Navigate to the FQDN you defined in your app manifest and confirm that you can access your app workload.

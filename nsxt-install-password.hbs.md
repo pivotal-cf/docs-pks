@@ -3,7 +3,7 @@ title: Configure VMware NSX Passwords
 owner: TKGI-NSXT
 ---
 
-This topic describes how to configure NSX passwords after you have installed NSX for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to configure NSX passwords after you have installed NSX for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 
@@ -54,9 +54,9 @@ To update the NSX Manager password, perform the following actions on **one** of 
 
 #### SSH into the NSX Manager Node
 
-To manage user password expiration, you use the CLI on one of the NSX Manager nodes. 
+To manage user password expiration, you use the CLI on one of the NSX Manager nodes.
 
-To access a NSX Manager node, from Unix hosts use the command `ssh USERNAME@IP_ADDRESS_OF_NSX_MANAGER`. 
+To access a NSX Manager node, from Unix hosts use the command `ssh USERNAME@IP_ADDRESS_OF_NSX_MANAGER`.
 
 For example:
 
@@ -84,9 +84,9 @@ Password expires 90 days after last change
 
 To update the user password, use the following command:
 
-[set user USERNAME password NEW-PASSWORD old-password OLD-PASSWORD](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#set%20user%20%3Cusername%3E%20[password%20%3Cpassword%3E%20[old-password%20%3Cold-password%3E]])  
+[set user USERNAME password NEW-PASSWORD old-password OLD-PASSWORD](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#set%20user%20%3Cusername%3E%20[password%20%3Cpassword%3E%20[old-password%20%3Cold-password%3E]])
 
-For example: 
+For example:
 
 ```
 set user admin password my-new-pwd old-password my-old-pwd
@@ -96,9 +96,9 @@ set user admin password my-new-pwd old-password my-old-pwd
 
 To set the password expiration interval, use the following command:
 
-[set user USERNAME password-expiration PASSWORD-EXPIRATION](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#set%20user%20%3Cusername%3E%20password-expiration%20%3Cpassword-expiration%3E)  
+[set user USERNAME password-expiration PASSWORD-EXPIRATION](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#set%20user%20%3Cusername%3E%20password-expiration%20%3Cpassword-expiration%3E)
 
-For example, the following command sets the password expiration interval to 120 days: 
+For example, the following command sets the password expiration interval to 120 days:
 
 ```
 set user admin password-expiration 120
@@ -108,9 +108,9 @@ set user admin password-expiration 120
 
 To remove password expiration, use the following command:
 
-[clear user USERNAME password-expiration](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#clear%20user%20%3Cusername%3E%20password-expiration)  
+[clear user USERNAME password-expiration](https://vdc-download.vmware.com/vmwb-repository/dcr-public/0aa6ceb3-9f71-44f5-bef6-d4acab570b55/382a3731-d45e-43c1-ba0b-f98b64899e9c/nsxt_24_cli.html#clear%20user%20%3Cusername%3E%20password-expiration)
 
-For example: 
+For example:
 
 ```
 clear user admin password-expiration
@@ -158,7 +158,7 @@ Password expires 90 days after last change
 
 #### Update the User Password for the Edge Node
 
-For example: 
+For example:
 
 ```
 nsx-edge> set user admin password my-new-pwd old-password my-old-pwd
@@ -166,7 +166,7 @@ nsx-edge> set user admin password my-new-pwd old-password my-old-pwd
 
 #### Set the Password Expiration Interval
 
-For example, the following command sets the password expiration interval to 120 days: 
+For example, the following command sets the password expiration interval to 120 days:
 
 ```
 nsx-edge> set user admin password-expiration 120
@@ -174,7 +174,7 @@ nsx-edge> set user admin password-expiration 120
 
 #### Remove the Password Expiration Interval
 
-For example: 
+For example:
 
 ```
 NSX CLI (Edge 3.0.0.0.0.15946012). Press ? for command list or enter: help
@@ -188,4 +188,4 @@ Password expiration not configured for this user
 
 ##<a id='next'></a> Next Step
 
-Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Using Ops Manager](./vsphere-nsxt-index.html).
+Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).

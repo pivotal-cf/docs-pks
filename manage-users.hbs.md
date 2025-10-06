@@ -3,16 +3,16 @@ title: Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA
 owner: TKGI
 ---
 
-This topic describes how to manage users in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) 
-with User Account and Authentication (UAA).  
+This topic describes how to manage users in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+with User Account and Authentication (UAA).
 
 ## <a id='overview'></a> Overview
 
-UAA is the identity management service for Tanzu Kubernetes Grid Integrated Edition. 
+UAA is the identity management service for Tanzu Kubernetes Grid Integrated Edition.
 Tanzu Kubernetes Grid Integrated Edition includes a UAA server, which is hosted on the TKGI API VM.
 
 To interact with the UAA server, you can use the UAA Command Line Interface (UAAC).
-You can either run UAAC commands from the Ops Manager VM or install UAAC on your local workstation.
+You can either run UAAC commands from the {{ vars.platform_name }} VM or install UAAC on your local workstation.
 
 ### <a id='tkgi-uaa-scope'></a> UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users
 
@@ -27,7 +27,7 @@ For more information about UAA scopes in Tanzu Kubernetes Grid Integrated Editio
 Before managing users for Tanzu Kubernetes Grid Integrated Edition, you must connect to the TKGI API VM.
 To connect to the TKGI API VM, you need one of the following:
 
-* SSH access to the Ops Manager VM
+* SSH access to the {{ vars.platform_name }} VM
 * A machine that can connect to your TKGI API VM
 
 For instructions on how to connect to the TKGI control plane,
@@ -50,27 +50,27 @@ To create a new UAA user with Tanzu Kubernetes Grid Integrated Edition access, d
     uaac user add USERNAME --emails USER-EMAIL -p USER-PASSWORD
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     $ uaac user add cody --emails cody@example.com -p password
     ```
-    
+
     <p class="note"><strong>Note:</strong> If your operator has configured Tanzu Kubernetes Grid Integrated Edition to use a SAML identity provider,
     you must add <code>--origin SAML-ORIGIN</code> to the above command.<code>SAML-ORIGIN</code> is the domain name for your SAML identity provider. To find <code>SAML-ORIGIN</code>, click the TKGI tile, select <strong>Settings</strong> > <strong>UAA</strong> > <strong>SAML</strong>, and locate the <code>Provider Name</code>. For information about configuring SAML,
-    see <a href="configuring-saml.html">Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider</a>.</p> 
+    see <a href="configuring-saml.html">Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider</a>.</p>
 
 1. Assign a TKGI cluster scope to the new user by running the following command:
 
     ```
     uaac member add UAA-SCOPE USERNAME
     ```
-    Where:  
+    Where:
 
-    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope).  
-    * `USERNAME` is the user that you created in the previous step.  
+    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope).
+    * `USERNAME` is the user that you created in the previous step.
 
-    For example:  
+    For example:
     ```console
     $ uaac member add pks.clusters.admin cody
     ```
@@ -105,16 +105,16 @@ To grant Tanzu Kubernetes Grid Integrated Edition access to an external LDAP gro
     ```
     uaac group map --name UAA-SCOPE GROUP-DISTINGUISHED-NAME
     ```
-    Where:  
+    Where:
 
-    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope).  
-    * `GROUP-DISTINGUISHED-NAME` is the LDAP Distinguished Name (DN) for the group.  
-    
-    For example:  
+    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope).
+    * `GROUP-DISTINGUISHED-NAME` is the LDAP Distinguished Name (DN) for the group.
+
+    For example:
     ```console
     $ uaac group map --name pks.clusters.manage cn=operators,ou=groups,dc=example,dc=com
     ```
-    
+
     For more information about LDAP DNs, see the [LDAP DNs and RDNs](https://ldap.com/ldap-dns-and-rdns/) in the LDAP documentation.
 
 ###<a id='saml'></a> Grant Tanzu Kubernetes Grid Integrated Edition Access to an External SAML Group
@@ -128,11 +128,11 @@ To grant Tanzu Kubernetes Grid Integrated Edition access to an external SAML gro
     ```
     uaac group map --name UAA-SCOPE SAML-GROUP --origin SAML-ORIGIN
     ```
-    Where:  
+    Where:
 
-    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope).  
-    * `SAML-GROUP` is name of your SAML identity provider group.  
-    * `SAML-ORIGIN` is the domain name for your SAML identity provider. To find `SAML-ORIGIN`, click the TKGI tile, select **Settings** > **UAA** > **SAML**, and locate the `Provider Name`.  
+    * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope).
+    * `SAML-GROUP` is name of your SAML identity provider group.
+    * `SAML-ORIGIN` is the domain name for your SAML identity provider. To find `SAML-ORIGIN`, click the TKGI tile, select **Settings** > **UAA** > **SAML**, and locate the `Provider Name`.
 
     For example:
     ```console
@@ -152,12 +152,12 @@ To grant Tanzu Kubernetes Grid Integrated Edition access to a client for a scrip
     --authorized_grant_types client_credentials \
     --authorities UAA-SCOPES
     ```
-    Where:  
+    Where:
 
-    * `CLIENT-NAME` and `CLIENT-SECRET` are the client credentials.  
-    * `UAA-SCOPES` is one or more of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope), separated by a comma.  
-    
-    For example:  
+    * `CLIENT-NAME` and `CLIENT-SECRET` are the client credentials.
+    * `UAA-SCOPES` is one or more of the UAA scopes described in [UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users](#tkgi-uaa-scope), separated by a comma.
+
+    For example:
     ```console
     $ uaac client add automated-client \
     -s randomly-generated-secret

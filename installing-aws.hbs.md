@@ -8,16 +8,16 @@ thistopic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
-on Amazon Web Services (AWS) as a VMware Tanzu Operations Manager (Ops Manager) tile.
+on Amazon Web Services (AWS) as a {{ vars.platform_name }} tile.
 
 
 ## <a id='prerequisites'></a>Prerequisites
 
-Before performing the procedures in this topic, you must have deployed and configured Ops Manager.
+Before performing the procedures in this topic, you must have deployed and configured {{ vars.platform_name }}.
 For more information, see [AWS Prerequisites and Resource Requirements](aws-requirements.html).
 
 This topic assumes that you have prepared the AWS environment for this VMware Tanzu Kubernetes Grid Integrated Edition deployment.
-For more information, see [Installing and Configuring Ops Manager on AWS](aws-om-install-config.html).
+For more information, see [Installing and Configuring {{ vars.platform_name }} on AWS](aws-om-install-config.html).
 
 {{> prerequisites }}
 
@@ -49,7 +49,7 @@ To configure TKGI:
 
 1. Click the orange **Tanzu Kubernetes Grid Integrated Edition** tile to start the configuration process.
 
-    ![TKGI tile on the Ops Manager installation dashboard](images/tkgi-tile-orange.png)
+    ![TKGI tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
     <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile,
     do not use spaces in any field entries. This includes spaces between characters as well as
     leading and trailing spaces. If you use a space in any field entry, the deployment of Tanzu Kubernetes Grid Integrated Edition fails.</p>

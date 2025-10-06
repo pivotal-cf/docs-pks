@@ -9,11 +9,11 @@ This topic describes the back up and restore process for VMware Tanzu Kubernetes
 
 TKGI back up and restore comprises various layers and tools. The table summarizes these layers and tools from the top-down, that is, workload to infrastructure. Refer to the individual sections for details on performing back up and restore for each layer, and additional details on test scenarios.
 
-Layer 							| Tools   		    | Comments 
+Layer 							| Tools   		    | Comments
 --------------------------------|-------------------|-----------------------------|
-| [Backup and Restore Kubernetes Workloads](./backup-and-restore-work.html) | Velero | Load balancer and ingress services depend on NSX backup. 
+| [Backup and Restore Kubernetes Workloads](./backup-and-restore-work.html) | Velero | Load balancer and ingress services depend on NSX backup.
 | [Backup and Restore Kubernetes Clusters](./backup-and-restore-clusters.html) | BOSH Backup and Restore (BBR) | Use BBR to back up and restore Kubernetes clusters provisioned by TKGI, including the control plane nodes, etcd database, and worker nodes.
-| [Backup and Restore TKGI Components](./backup-and-restore-tkgi.html) | Ops Manager, BBR | Use VMware Tanzu Operations Manager (Ops Manager) to back up and restore the BOSH Director and TKGI tile configurations. Use BBR to backup and restore the TKGI Management Plane virtual machines, including BOSH Director, TKGI Control Plane, and TKGI DB.
+| [Backup and Restore TKGI Components](./backup-and-restore-tkgi.html) | {{ vars.platform_name }}, BBR | Use {{ vars.platform_name }} to back up and restore the BOSH Director and TKGI tile configurations. Use BBR to backup and restore the TKGI Management Plane virtual machines, including BOSH Director, TKGI Control Plane, and TKGI DB.
 | [Backup and Restore TKGI Infrastructure](./backup-and-restore-infra.html) | NSX Manager, vCenter Server | Use the NSX Manager UI or CLI to backup and restore the NSX Manager DB. Use vCenter Server to backup and restore vCenter objects.
 
 ##<a id="considerations"></a> Considerations
@@ -22,11 +22,11 @@ When planning your backup and restore strategy and implementation for TKGI, keep
 
 ### Develop a Back Up and Restore Plan, and Test It Often
 
-This documentation provides guidelines for implementing a robust back up and restore practice for TKGI. You must develop a plan of your own on how you intend to implement these tools and guidelines for your TKGI foundation. In addition, you must test the back up and restore of each layer of your TKGI foundation to ensure that the components and workloads are properly backed up and restored. 
+This documentation provides guidelines for implementing a robust back up and restore practice for TKGI. You must develop a plan of your own on how you intend to implement these tools and guidelines for your TKGI foundation. In addition, you must test the back up and restore of each layer of your TKGI foundation to ensure that the components and workloads are properly backed up and restored.
 
-### Back Up Frequently and Regularly 
+### Back Up Frequently and Regularly
 
-You can only restore what is backed up. Back up key resources, such as stateful applications, cluster configurations, NSX objects on a frequent and regular schedule, such as once every 24 hours. 
+You can only restore what is backed up. Back up key resources, such as stateful applications, cluster configurations, NSX objects on a frequent and regular schedule, such as once every 24 hours.
 
 ### Back Up Critical Components
 
@@ -34,9 +34,9 @@ Make sure you promptly back up critical components, including:
 
 - When you deploy an application, take a backup of the application using Velero.
 - When you provision a Kubernetes cluster using TKGI, take a backup of the cluster using BBR and networking objects using NSX.
-- When you deploy, upgrade, or update TKGI components, take a backup of Ops Manager and the TKGI Management Plane using BBR.
+- When you deploy, upgrade, or update TKGI components, take a backup of {{ vars.platform_name }} and the TKGI Management Plane using BBR.
 - When you create one or more of the following NSX objects, take a backup using NSX.
-  - Load balancer 
+  - Load balancer
   - Namespace
   - Logical switch (created when a TKGI cluster is provisioned)
   - Ingress
@@ -48,7 +48,7 @@ For optimal performance and assurance, only back up one Kubernetes namespace at 
 
 ### Restore What Breaks
 
-The general approach is to restore what breaks. For example, if NSX crashes, you only need to restore NSX. If Ops Manager breaks, restore Ops Manager.
+The general approach is to restore what breaks. For example, if NSX crashes, you only need to restore NSX. If {{ vars.platform_name }} breaks, restore {{ vars.platform_name }}.
 
 The exception is a Kubernetes cluster. If the cluster breaks, you need to restore the cluster using BBR and the applications using Velero. On the NSX side, you need to create a new namespace for the restored cluster. Once the cluster is restored, use `kubectl` to delete the old namespace. This will force the creation of the NSX objects in the namespace. Refer to the scenarios for the TKGI cluster back up and restore for more details.
 

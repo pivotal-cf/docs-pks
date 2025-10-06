@@ -3,87 +3,87 @@ title: Migrating from NSX Management Plane API to Policy API with the Management
 owner: TKGI
 ---
 
-This topic describes how to migrate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from NSX Management Plane API to NSX Policy API (MP2P) with the TKGI Management Console.  
+This topic describes how to migrate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from NSX Management Plane API to NSX Policy API (MP2P) with the TKGI Management Console.
 
-To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI tile in Ops Manager, see [Migrating from NSX Management Plane API to Policy API Using Ops Manager](mp2p-migration.html).  
+To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI tile in {{ vars.platform_name }}, see [Migrating from NSX Management Plane API to Policy API Using {{ vars.platform_name }}](mp2p-migration.html).
 
-For an overview of NSX Management Plane API to NSX Policy API Migration, 
-see [Migrating from NSX Management Plane API to Policy API - Overview](mp2p-migration-concepts.html). 
+For an overview of NSX Management Plane API to NSX Policy API Migration,
+see [Migrating from NSX Management Plane API to Policy API - Overview](mp2p-migration-concepts.html).
 
 The TKGI Management Console can manage TKGI in an NSX environment that has been only partially migrated from Management Plane API to Policy API, for example when multiple products that use NSX, including TKGI, migrate their APIs at different times.
 
 
 ## <a id="overview"></a> Overview
 
-The NSX Management Plane API to NSX Policy API (MP2P) Migration feature switches environments using the NSX Management Plane API TKGI to the NSX Policy API.  
+The NSX Management Plane API to NSX Policy API (MP2P) Migration feature switches environments using the NSX Management Plane API TKGI to the NSX Policy API.
 
 MP2P migration procedures for TKGI follow the Prepare -> Migrate -> Clean Up workflow described in [MP2P Workflow](#mp2p-migration-concepts.html#workflow).
 
 To complete an MP2P Migration in your TKGI environment:
 
-1. Before migrating your TKGI environment to NSX Policy API, review the warnings and considerations in 
-[Migrating from NSX Management Plane API to Policy API - Overview](mp2p-migration-concepts.html).  
-1. Confirm your environment meets the [Prerequisites](#prerequisites).  
-1. [Prepare for MP2P Migration](#migration-prep).  
-1. [Migrate TKGI Clusters from the NSX Management Plane API to NSX Policy API](#migration-steps).  
-1. [Post-Migration Cleanup](#migration-cleanup).  
+1. Before migrating your TKGI environment to NSX Policy API, review the warnings and considerations in
+[Migrating from NSX Management Plane API to Policy API - Overview](mp2p-migration-concepts.html).
+1. Confirm your environment meets the [Prerequisites](#prerequisites).
+1. [Prepare for MP2P Migration](#migration-prep).
+1. [Migrate TKGI Clusters from the NSX Management Plane API to NSX Policy API](#migration-steps).
+1. [Post-Migration Cleanup](#migration-cleanup).
 
 
-<p class="note warning"><strong>Warning:</strong> 
+<p class="note warning"><strong>Warning:</strong>
 Limit upgrading NSX and TKGI to only resolving critical issues while your environment is in MP2P Migration mixed-mode.
 </p>
 
 ### <a id="prerequisites"></a> Prerequisites
 
-Before migrating TKGI from NSX Management Plane API to NSX Policy API, 
-verify your TKGI environment meets the following requirements:  
+Before migrating TKGI from NSX Management Plane API to NSX Policy API,
+verify your TKGI environment meets the following requirements:
 
 * TKGI Management Console v1.21
-* TKGI Version Requirements:  
+* TKGI Version Requirements:
     * TKGI Tile and CLI: v1.21.0 or later
     * TKGI clusters: v1.21.0 or later
 
-* Environment Version Requirements:  
-    * NSX:  
-        * NSX v4.0.1.1 or later.  
-        * NSX environment is a dedicated, single TKGI foundation environment. 
-        For example, an environment with one TKGI foundation and without VMware Tanzu Application Service or other installations in production.  
+* Environment Version Requirements:
+    * NSX:
+        * NSX v4.0.1.1 or later.
+        * NSX environment is a dedicated, single TKGI foundation environment.
+        For example, an environment with one TKGI foundation and without VMware Tanzu Application Service or other installations in production.
 
-* Cluster Requirements:  
+* Cluster Requirements:
 
-    * TKGI MP2P Migration does not support clusters configured with:  
+    * TKGI MP2P Migration does not support clusters configured with:
 
-        * NSGroups, including [Bootstrap Security Group](network-profiles-ns-groups.html) 
-        and [BOSH VM Extensions](bosh-vm-extensions.html) NSGroup configurations.  
-        * The `ncp.nsx_v3.k8s_np_use_ip_sets` Network Profile parameter set to `false`. 
-        Before migrating a cluster, you must restore the parameter to `true`, the default value  for NSX Management Plane API. 
-        For more information, see [Migrate a TKGI Cluster to NSX Policy API](#migration-steps-cluster) below.  
-        * NSX Policy API Mode resources, such as the `default-balanced-client-ssl-profile`, `default-high-compatibility-client-ssl-profile` or `default-high-security-client-ssl-profile` default ssl profiles. 
-        MP2P Migration supports only clusters that reference only NSX Management Plane API resources.  
-        
-* Other Requirements:  
+        * NSGroups, including [Bootstrap Security Group](network-profiles-ns-groups.html)
+        and [BOSH VM Extensions](bosh-vm-extensions.html) NSGroup configurations.
+        * The `ncp.nsx_v3.k8s_np_use_ip_sets` Network Profile parameter set to `false`.
+        Before migrating a cluster, you must restore the parameter to `true`, the default value  for NSX Management Plane API.
+        For more information, see [Migrate a TKGI Cluster to NSX Policy API](#migration-steps-cluster) below.
+        * NSX Policy API Mode resources, such as the `default-balanced-client-ssl-profile`, `default-high-compatibility-client-ssl-profile` or `default-high-security-client-ssl-profile` default ssl profiles.
+        MP2P Migration supports only clusters that reference only NSX Management Plane API resources.
 
-    * Administrator access to NSX, Ops Manager, BOSH, TKGI, TKGI Management Console.  
-    * For more information about TKGI MP2P Migration limitations, see 
+* Other Requirements:
+
+    * Administrator access to NSX, {{ vars.platform_name }}, BOSH, TKGI, TKGI Management Console.
+    * For more information about TKGI MP2P Migration limitations, see
     [TKGI MP2P Migration Configurations](mp2p-migration-concepts.html#features-configs) and
-    [TKGI MP2P Migration Operational Limitations](mp2p-migration-concepts.html#concerns-limitations) 
-    in _Migrating from NSX Management Plane API to Policy API - Overview_.  
+    [TKGI MP2P Migration Operational Limitations](mp2p-migration-concepts.html#concerns-limitations)
+    in _Migrating from NSX Management Plane API to Policy API - Overview_.
 
 ## <a id="migration-prep"></a> Prepare for MP2P Migration
 
-To prepare your TKGI environment for MP2P Migration with the Management Console:  
+To prepare your TKGI environment for MP2P Migration with the Management Console:
 
-* [Enable Migration](#migration-prep-enable)  
-* [Migrate DFW Top Firewall Rules](#migration-prep-top-firewall)  
+* [Enable Migration](#migration-prep-enable)
+* [Migrate DFW Top Firewall Rules](#migration-prep-top-firewall)
 * [Activate NSX Policy API in TKGI](#migration-prep-create-api-objects)
 * [Configure the Environment for NSX Policy API](#migration-steps-configure-opsman)
 
 ### <a id="migration-prep-enable"></a> Enable Migration
 
-You must enable support for MP2P Migration in NSX before promoting clusters to NSX Policy API.  
-Additionally, Ops Manager and BOSH must be configured to support a mixed environment of NSX Management Plane API and NSX Policy API clusters before promoting clusters.
+You must enable support for MP2P Migration in NSX before promoting clusters to NSX Policy API.
+Additionally, {{ vars.platform_name }} and BOSH must be configured to support a mixed environment of NSX Management Plane API and NSX Policy API clusters before promoting clusters.
 
-<p class="note"><strong>Note</strong>: After activating NSX Policy API, 
+<p class="note"><strong>Note</strong>: After activating NSX Policy API,
     existing NSX backups created while using NSX Management Plane API cannot be used to restore your environment or your clusters.
 </p>
 
@@ -93,13 +93,13 @@ To prepare TKGI for MP2P Migration:
 
 To prepare NSX for MP2P Migration:
 
-* If your NSX Manager cluster is configured with VIP, configure the Source IP Persistence Profile for LB or 
-use a Source IP LB algorithm during TKGI foundation migration. 
-Make all migration requests on a single NSX Manager.  
+* If your NSX Manager cluster is configured with VIP, configure the Source IP Persistence Profile for LB or
+use a Source IP LB algorithm during TKGI foundation migration.
+Make all migration requests on a single NSX Manager.
 
-To prepare Ops Manager and BOSH for MP2P Migration:
+To prepare {{ vars.platform_name }} and BOSH for MP2P Migration:
 
-1. Log in to the TKGI Management Console. 
+1. Log in to the TKGI Management Console.
 1. In the **TKGI Configuration** > **Networking** pane, under **BOSH NSX-T Policy API Migration Mode Configuration**, enable the **Enable BOSH NSX-T Policy API Migration Mode** toggle.
 1. Click **Generate Configuration**. In the configuration YAML editor, you should see `enabled_bosh_poicy_api_migration_mode`: true.
 1. Click **Apply Configuration** and confirm by clicking **Continue**.
@@ -107,34 +107,34 @@ To prepare Ops Manager and BOSH for MP2P Migration:
 
 ### <a id="migration-prep-top-firewall"></a> Migrate DFW Top Firewall Rules
 
-If your clusters are customized with DFW rules or use Network Profiles configured with DFW section markers, migrate the DFW rules:  
+If your clusters are customized with DFW rules or use Network Profiles configured with DFW section markers, migrate the DFW rules:
 
 * Re-create your existing top section DFW rules from above your NSX Manager `top_firewall_section_marker`
-    in the NSX Policy Environment section.  Include the `top_firewall_section_marker` in the new copy. 
+    in the NSX Policy Environment section.  Include the `top_firewall_section_marker` in the new copy.
 
-    <p class="note warning"><strong>Warning</strong>: 
+    <p class="note warning"><strong>Warning</strong>:
     If you do not configure your DFW Rules correctly, your workloads will lose network connectivity.
-    Both the original copy of the <code>top_firewall_section_marker</code> section and the re-created copy in the NSX Policy Environment section 
-    must be in your DFW rules after you complete this step.  
+    Both the original copy of the <code>top_firewall_section_marker</code> section and the re-created copy in the NSX Policy Environment section
+    must be in your DFW rules after you complete this step.
     </p>
-    
-For more information on configuring DFW rules, see [DFW Migration](mp2p-migration-concepts.html#dfw) in _Migrating from NSX Management Plane API to Policy API - Overview_.  
+
+For more information on configuring DFW rules, see [DFW Migration](mp2p-migration-concepts.html#dfw) in _Migrating from NSX Management Plane API to Policy API - Overview_.
 
 ### <a id="migration-prep-create-api-objects"></a> Activate NSX Policy API in TKGI
 
-To migrate NSX Management Plane API shared network resources to NSX Policy API objects:  
+To migrate NSX Management Plane API shared network resources to NSX Policy API objects:
 
-1. Create a simple test cluster.  
-1. Migrate the cluster to the NSX Policy API:  
+1. Create a simple test cluster.
+1. Migrate the cluster to the NSX Policy API:
 
     ```
     tkgi promote-cluster-to-policy CLUSTER-NAME
     ```
-    
-    Where `CLUSTER-NAME` is the name of the promoted cluster.  
-    
-    
-1. Verify successful cluster migration to the NSX Policy API:  
+
+    Where `CLUSTER-NAME` is the name of the promoted cluster.
+
+
+1. Verify successful cluster migration to the NSX Policy API:
 
     ```
     tkgi cluster CLUSTER-NAME
@@ -205,58 +205,58 @@ If your clusters are customized with DFW rules or use Network Profiles configure
 1. Re-create your existing bottom section DFW rules from below your NSX Manager `bottom_firewall_section_marker`
  in the NSX Policy Application section BELOW all migrated NCP rules. Include the `bottom_firewall_section_marker`.
 
-1. Remove all of the original NSX Management Plane customer-defined DFW rules. 
-When done, confirm there is only one copy of the top firewall rules, the one in the NSX Policy Environment section, 
-and only one copy of the bottom firewall rules, the one in the NSX Policy Application section.  
- 
-    <p class="note warning"><strong>Warning</strong>: 
+1. Remove all of the original NSX Management Plane customer-defined DFW rules.
+When done, confirm there is only one copy of the top firewall rules, the one in the NSX Policy Environment section,
+and only one copy of the bottom firewall rules, the one in the NSX Policy Application section.
+
+    <p class="note warning"><strong>Warning</strong>:
     If you do not configure your DFW Rules correctly, your workloads will lose network connectivity.
-    You must remove all NSX Management Plane user-defined DFW rules 
+    You must remove all NSX Management Plane user-defined DFW rules
     before starting post-migration cleanup.
     </p>
-    
+
 For more information on configuring DFW rules, see [DFW Migration](mp2p-migration-concepts.html#dfw) in _Migrating from NSX Management Plane API to Policy API - Overview_.
 
-## <a id="migration-cleanup"></a> Post-Migration Cleanup  
+## <a id="migration-cleanup"></a> Post-Migration Cleanup
 
-After all TKGI clusters have been promoted to NSX Policy API, 
-remaining NSX resources must be promoted 
-and the TKGI configurations for NSX Management Plane API objects removed.  
+After all TKGI clusters have been promoted to NSX Policy API,
+remaining NSX resources must be promoted
+and the TKGI configurations for NSX Management Plane API objects removed.
 
-To clean up after promoting all clusters:  
+To clean up after promoting all clusters:
 
-1. Remove NSX Management Plane API-related configurations:  
+1. Remove NSX Management Plane API-related configurations:
 
-    1. Remove the original NSX Management Plane API-configured Network Profiles.  
+    1. Remove the original NSX Management Plane API-configured Network Profiles.
 
-1.  Use the NSX Promoter to promote the remaining NSX resources:  
-    
-    1. Log in to the NSX Web UI using an account with admin privileges.  
-    1. Navigate to **NSX** > **System** > **General Settings**.  
-    1. Select **Start Objects Promotion**.  
-    
-        The following are reconfigured by the NSX Promoter:  
+1.  Use the NSX Promoter to promote the remaining NSX resources:
 
-        * NSX resources in TKGI tile **Resource Config**.  
-        * NSX resources in cluster `vm_extension` configurations.  
-        * Custom infra-level resources out of TKGI scope. 
-        For example, NAT, IP allocations, subnet allocations, and the load balancers that you have created.  
+    1. Log in to the NSX Web UI using an account with admin privileges.
+    1. Navigate to **NSX** > **System** > **General Settings**.
+    1. Select **Start Objects Promotion**.
 
-        For information about the NSX Promoter, see [Promote Manager Objects to Policy Objects](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/3-2/administration-guide/operations-and-management/promote-manager-objects-to-policy-objects.html).  
+        The following are reconfigured by the NSX Promoter:
 
-1. (Optional) To deactivate the NSX Migration Coordinator Service on all NSX managers:  
+        * NSX resources in TKGI tile **Resource Config**.
+        * NSX resources in cluster `vm_extension` configurations.
+        * Custom infra-level resources out of TKGI scope.
+        For example, NAT, IP allocations, subnet allocations, and the load balancers that you have created.
 
-    1. SSH to the NSX Manager with administrative privileges.  
- 
-    1. At the `nsxmanager>` prompt, run the following:  
-    
+        For information about the NSX Promoter, see [Promote Manager Objects to Policy Objects](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/3-2/administration-guide/operations-and-management/promote-manager-objects-to-policy-objects.html).
+
+1. (Optional) To deactivate the NSX Migration Coordinator Service on all NSX managers:
+
+    1. SSH to the NSX Manager with administrative privileges.
+
+    1. At the `nsxmanager>` prompt, run the following:
+
         ```
         nsxmanager> stop service migration-coordinator
         ```
 
-1. If your NSX Manager cluster was configured with VIP before you started MP2P Migration, restore your VIP configuration.  
+1. If your NSX Manager cluster was configured with VIP before you started MP2P Migration, restore your VIP configuration.
 
-1. Switch BOSH to Policy API mode:   
+1. Switch BOSH to Policy API mode:
 
     1. Log in to the TKGI Management Console.
     1. In the **TKGI Configuration** > **Networking** pane, under **BOSH NSX-T Policy API Migration Mode Configuration**, disable the **Enable BOSH NSX-T Policy API Migration Mode** toggle.

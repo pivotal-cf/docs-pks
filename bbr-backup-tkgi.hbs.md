@@ -3,7 +3,7 @@ title: Backing Up TKGI Management Plane Components
 owner: TKGI
 ---
 
-This topic describes how to use BOSH Backup and Restore (BBR) to back up VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Managment Plane components.  
+This topic describes how to use BOSH Backup and Restore (BBR) to back up VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Managment Plane components.
 
 ##<a id="overview"></a> Overview
 
@@ -22,7 +22,7 @@ To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup
 
 {{{ vars.recommended_by }}} recommends:
 
-* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of Ops Manager and Tanzu Kubernetes Grid Integrated Edition to restore from.
+* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of {{ vars.platform_name }} and Tanzu Kubernetes Grid Integrated Edition to restore from.
 
 * Back up frequently, especially before upgrading your Tanzu Kubernetes Grid Integrated Edition deployment.
 
@@ -52,22 +52,22 @@ For general information about the jump box, see [Installing BOSH Backup and Rest
 
 To connect to your jump box with SSH, do one of the following:
 
-* To use the Ops Manager VM as your jump box:
-    1. Log in to the Ops Manager VM. For more information, see
-    [Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) 
-    in _Advanced Troubleshooting with the BOSH CLI_.  
+* To use the {{ vars.platform_name }} VM as your jump box:
+    1. Log in to the {{ vars.platform_name }} VM. For more information, see
+    [Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
+    in _Advanced Troubleshooting with the BOSH CLI_.
 
 * To connect to your jump box using the command line:
-    1. Run the following command:  
+    1. Run the following command:
 
         ```
         ssh -i PATH-TO-KEY JUMP-BOX-USERNAME@JUMP-BOX-ADDRESS
         ```
-        Where:  
+        Where:
 
-        * `PATH-TO-KEY` is the local path to your private key for the jump box host.  
-        * `JUMP-BOX-USERNAME` is your jump box user name.  
-        * `JUMP-BOX-ADDRESS` is the address of the jump box.  
+        * `PATH-TO-KEY` is the local path to your private key for the jump box host.
+        * `JUMP-BOX-USERNAME` is your jump box user name.
+        * `JUMP-BOX-ADDRESS` is the address of the jump box.
 
     <p class="note"><strong>Note:</strong> If you connect to your jump box with SSH, you must run the BBR commands
     in the following sections from within your jump box.</p>
@@ -84,18 +84,18 @@ When `BOSH_ALL_PROXY` is set, BBR always uses its value to forward requests to t
 
 To connect with `BOSH_ALL_PROXY`, do one of the following:
 
-* To establish a tunnel separate from the BOSH CLI:  
-    1. Establish the tunnel and make it available on a local port by running the following command:  
+* To establish a tunnel separate from the BOSH CLI:
+    1. Establish the tunnel and make it available on a local port by running the following command:
 
         ```
         ssh -4 -D SOCKS-PORT -fNC JUMP-BOX-USERNAME@JUMP-BOX-ADDRESS -i JUMP-BOX-KEY-FILE -o ServerAliveInterval=60
         ```
-        Where:  
+        Where:
 
-        * `SOCKS-PORT` is the local SOCKS port.  
-        * `JUMP-BOX-USERNAME` is your jump box user name.  
-        * `JUMP-BOX-ADDRESS` is the address of the jump box.  
-        * `JUMP-BOX-KEY-FILE` is the local SSH private key for accessing the jump box.  
+        * `SOCKS-PORT` is the local SOCKS port.
+        * `JUMP-BOX-USERNAME` is your jump box user name.
+        * `JUMP-BOX-ADDRESS` is the address of the jump box.
+        * `JUMP-BOX-KEY-FILE` is the local SSH private key for accessing the jump box.
 
         For example:
         ```console
@@ -106,22 +106,22 @@ To connect with `BOSH_ALL_PROXY`, do one of the following:
         ```
         export BOSH_ALL_PROXY=socks5://localhost:SOCKS-PORT
         ```
-        Where is `SOCKS-PORT` is your local SOCKS port.  
+        Where is `SOCKS-PORT` is your local SOCKS port.
 
-* To establish a tunnel using the BOSH CLI:  
+* To establish a tunnel using the BOSH CLI:
     1. Provide the BOSH CLI with the necessary SSH credentials to create the
-    tunnel by running the following command:  
+    tunnel by running the following command:
 
         ```
         export BOSH_ALL_PROXY=ssh+socks5://JUMP-BOX-USERNAME@JUMP-BOX-ADDRESS:SOCKS-PORT?private_key=JUMP-BOX-KEY-FILE
         ```
 
-        Where:  
+        Where:
 
-        * `JUMP-BOX-USERNAME` is your jump box user name.  
-        * `JUMP-BOX-ADDRESS` is the address of the jump box.  
-        * `SOCKS-PORT` is your local SOCKS port.  
-        * `JUMP-BOX-KEY-FILE` is the local SSH private key for accessing the jump box.  
+        * `JUMP-BOX-USERNAME` is your jump box user name.
+        * `JUMP-BOX-ADDRESS` is the address of the jump box.
+        * `SOCKS-PORT` is your local SOCKS port.
+        * `JUMP-BOX-KEY-FILE` is the local SSH private key for accessing the jump box.
 
         For example:
         ```console
@@ -141,17 +141,17 @@ through the proxy which means moving backup artifacts can be significantly slowe
   see  <a href="https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/tag/v1.5.1">bosh-backup-and-restore v1.5.1</a> on GitHub.
 </div>
 
-### <a id='export-opsman-settings'></a> Back Up Ops Manager Installation Settings
+### <a id='export-opsman-settings'></a> Back Up {{ vars.platform_name }} Installation Settings
 
-To ensure your BBR backup is reliable, frequently export your Ops Manager installation settings as a backup.
+To ensure your BBR backup is reliable, frequently export your {{ vars.platform_name }} installation settings as a backup.
 
-There are two ways to export Ops Manager installation settings:
+There are two ways to export {{ vars.platform_name }} installation settings:
 
-* [Export settings using the Ops Manager UI](#export-via-ui)
-* [Export settings using the Ops Manager API](#export-via-api)
+* [Export settings using the {{ vars.platform_name }} UI](#export-via-ui)
+* [Export settings using the {{ vars.platform_name }} API](#export-via-api)
 
 <p class="note"><strong>Note</strong>: If you want to automate the back up process,
-you can use the Ops Manager API to export your installation settings.</p>
+you can use the {{ vars.platform_name }} API to export your installation settings.</p>
 
 When exporting your installation settings, keep in mind the following:
 
@@ -159,36 +159,36 @@ When exporting your installation settings, keep in mind the following:
 [Restore the BOSH Director](bbr-restore.html#redeploy-restore-director)
 section of the *Restoring Tanzu Kubernetes Grid Integrated Edition* topic.
 
-* You can only export Ops Manager installation settings after you have deployed at least once.
+* You can only export {{ vars.platform_name }} installation settings after you have deployed at least once.
 
-* Your Ops Manager settings export is only a backup of Ops Manager configuration settings.
+* Your {{ vars.platform_name }} settings export is only a backup of {{ vars.platform_name }} configuration settings.
 The export is not a backup of your VMs or any external MySQL databases.
 
-* Your Ops Manager settings export is encrypted. Make sure you keep track of your Decryption Passphrase
-because this is needed to restore the Ops Manager settings.
+* Your {{ vars.platform_name }} settings export is encrypted. Make sure you keep track of your Decryption Passphrase
+because this is needed to restore the {{ vars.platform_name }} settings.
 
-#### <a id='export-via-ui'></a> Export Settings Using the Ops Manager UI
+#### <a id='export-via-ui'></a> Export Settings Using the {{ vars.platform_name }} UI
 
-To export your Ops Manager installation settings using the Ops Manager UI, perform the following steps:
+To export your {{ vars.platform_name }} installation settings using the {{ vars.platform_name }} UI, perform the following steps:
 
-1. From the **Installation Dashboard** in the Ops Manager interface, click your user name at the top right navigation.
+1. From the **Installation Dashboard** in the {{ vars.platform_name }} interface, click your user name at the top right navigation.
 1. Select **Settings**.
 1. Select **Export Installation Settings**.
 1. Click **Export Installation Settings**.
 
-#### <a id='export-via-api'></a> Export Settings Using the Ops Manager API
-To export your Ops Manager installation settings using the Ops Manager API, perform the following steps:
+#### <a id='export-via-api'></a> Export Settings Using the {{ vars.platform_name }} API
+To export your {{ vars.platform_name }} installation settings using the {{ vars.platform_name }} API, perform the following steps:
 
-1. To export your installation settings using the Ops Manager API, run the following command:
+1. To export your installation settings using the {{ vars.platform_name }} API, run the following command:
 
     ```
     curl https://OPS-MAN-FQDN/api/v0/installation_asset_collection \
     -H "Authorization: Bearer UAA-ACCESS-TOKEN" > installation.zip
     ```
-    Where:  
+    Where:
 
-    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.  
-    * `UAA-ACCESS-TOKEN` is your UAA access token. For more information, see Access the API.  
+    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your {{ vars.platform_name }} deployment.
+    * `UAA-ACCESS-TOKEN` is your UAA access token. For more information, see Access the API.
 
 ### <a id='back-up-director'></a> Back Up the Tanzu Kubernetes Grid Integrated Edition BOSH Director
 
@@ -202,15 +202,15 @@ To back up BOSH Director you will validate your current configuration, then exec
     bbr director  --host BOSH-DIRECTOR-IP  --username bbr \
     --private-key-path PRIVATE-KEY-FILE  pre-backup-check
     ```
-    Where:  
+    Where:
 
     * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, `BOSH-DIRECTOR-IP` is a URL, such as
     `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` which you can retrieve as show in
-    [Retrieve the BOSH Director Address](#bosh-address).  
+    [Retrieve the BOSH Director Address](#bosh-address).
     * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in
-    [Download the BBR SSH Credentials](#bbr-ssh-creds).  
+    [Download the BBR SSH Credentials](#bbr-ssh-creds).
 
-    For example:  
+    For example:
     ```console
     $ bbr director --host 10.0.0.5 --username bbr \
     --private-key-path private-key.pem pre-backup-check
@@ -218,27 +218,27 @@ To back up BOSH Director you will validate your current configuration, then exec
 
 1. If the pre-backup check command fails, perform the following actions:
     1. Run the command again, adding the `--debug` flag to enable debug logs. For more information,
-    see [BBR Logging](bbr-logging.html).  
-    1. Make any correction suggested in the output and run the pre-backup check again.  
+    see [BBR Logging](bbr-logging.html).
+    1. Make any correction suggested in the output and run the pre-backup check again.
 
 #### <a id='back-up-director-back-up'></a> Back Up the Tanzu Kubernetes Grid Integrated Edition BOSH Director
 
 1. If the pre-backup check succeeds, run the BBR back up command from your jump box to back up the
-TKGI BOSH Director:  
+TKGI BOSH Director:
 
     ```
     bbr director --host BOSH-DIRECTOR-IP --username bbr \
     --private-key-path PRIVATE-KEY-FILE  backup
     ```
-    Where:  
+    Where:
 
     * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, `BOSH-DIRECTOR-IP`
     is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP.
-    See [Retrieve the BOSH Director Address](#bosh-address) for more information.  
+    See [Retrieve the BOSH Director Address](#bosh-address) for more information.
     * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in
-    [Download the BBR SSH Credentials](#bbr-ssh-creds).  
+    [Download the BBR SSH Credentials](#bbr-ssh-creds).
 
-    For example:  
+    For example:
     ```console
     $ bbr director  --host 10.0.0.5 --username bbr \
     --private-key-path private-key.pem  backup
@@ -253,8 +253,8 @@ TKGI BOSH Director:
 
 1. If the back up command fails, perform the following actions:
     * Run the command again, adding the `--debug` flag to enable debug logs. For more information,
-    see [BBR Logging](bbr-logging.html).  
-    * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).  
+    see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
 
 ### <a id='back-up-control-plane'></a> Back Up the Tanzu Kubernetes Grid Integrated Edition Control Plane
 
@@ -263,34 +263,34 @@ To back up your Tanzu Kubernetes Grid Integrated Edition Control Plane you will 
 #### <a id='locate-deploy-name'></a> Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name
 Locate and record your Tanzu Kubernetes Grid Integrated Edition BOSH deployment name as follows:
 
-1. Open an SSH connection to either your jump box, as described in the previous section, or the Ops Manager VM.
-For instructions on how to SSH into the Ops Manager VM, see
-[Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
-in _Advanced Troubleshooting with the BOSH CLI_.  
-1. On the command line, run the following command to retrieve your Tanzu Kubernetes Grid Integrated Edition BOSH deployment name.  
+1. Open an SSH connection to either your jump box, as described in the previous section, or the {{ vars.platform_name }} VM.
+For instructions on how to SSH into the {{ vars.platform_name }} VM, see
+[Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
+in _Advanced Troubleshooting with the BOSH CLI_.
+1. On the command line, run the following command to retrieve your Tanzu Kubernetes Grid Integrated Edition BOSH deployment name.
 
     ```
     BOSH-CLI-CREDENTIALS deployments | grep pivotal-container-service
     ```
 
-    Where `BOSH-CLI-CREDENTIALS` is the full value that you copied from the BOSH Director tile in 
-    [Retrieve the BOSH Command Line Credentials](#bosh-cli-creds).  
+    Where `BOSH-CLI-CREDENTIALS` is the full value that you copied from the BOSH Director tile in
+    [Retrieve the BOSH Command Line Credentials](#bosh-cli-creds).
 <br>
-    For example:  
+    For example:
     ```console
-    $ BOSH_CLIENT=ops_manager BOSH_CLIENT_SECRET=p455w0rd BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate BOSH_ENVIRONMENT=10.0.0.5 bosh deployments | grep pivotal-container-service  
-    pivotal-container-service-51f08f6402aaa960f041           backup-and-restore-sdk/1.9.0    bosh-google-kvm-ubuntu-jammy-go_agent/1.75  
-    service-instance_4ffeb5b5-5182-4faa-9d92-696d97cc9ae1    bosh-dns/1.10.0                 bosh-google-kvm-ubuntu-jammy-go_agent/1.75  
-    pivotal-container-service-51f08f6402aaa960f041  
+    $ BOSH_CLIENT=ops_manager BOSH_CLIENT_SECRET=p455w0rd BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate BOSH_ENVIRONMENT=10.0.0.5 bosh deployments | grep pivotal-container-service
+    pivotal-container-service-51f08f6402aaa960f041           backup-and-restore-sdk/1.9.0    bosh-google-kvm-ubuntu-jammy-go_agent/1.75
+    service-instance_4ffeb5b5-5182-4faa-9d92-696d97cc9ae1    bosh-dns/1.10.0                 bosh-google-kvm-ubuntu-jammy-go_agent/1.75
+    pivotal-container-service-51f08f6402aaa960f041
     ```
 
 1. Review the returned output. The Tanzu Kubernetes Grid Integrated Edition BOSH deployment name begins with
   `pivotal-container-service` and includes a unique identifier.
-   In the example output above, the BOSH deployment name is `pivotal-container-service-51f08f6402aaa960f041`.  
+   In the example output above, the BOSH deployment name is `pivotal-container-service-51f08f6402aaa960f041`.
 
 #### <a id='back-up-control-plane-check'></a> Validate the Tanzu Kubernetes Grid Integrated Edition Control Plane
 
-1. To confirm that your TKGI control plane is reachable and has a deployment that can be backed up, run the BBR pre-backup check command:  
+1. To confirm that your TKGI control plane is reachable and has a deployment that can be backed up, run the BBR pre-backup check command:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET bbr deployment \
@@ -298,20 +298,20 @@ in _Advanced Troubleshooting with the BOSH CLI_.
     --ca-cert PATH-TO-BOSH-SERVER-CERT \
     pre-backup-check
     ```
-    Where:  
+    Where:
 
     * `BOSH-CLIENT-SECRET` is your BOSH client secret. If you do not know your BOSH Client Secret, open your BOSH Director tile,
-    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT_SECRET`.  
+    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT_SECRET`.
     * `BOSH-TARGET` is your BOSH Environment setting. If you do not know your BOSH Environment setting, open your BOSH Director tile,
     navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_ENVIRONMENT`. You must be able to
-    reach the target address from the workstation where you run `bbr` commands.  
+    reach the target address from the workstation where you run `bbr` commands.
     * `BOSH-CLIENT` is your BOSH Client Name. If you do not know your BOSH Client Name, open your BOSH Director tile,
-    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.  
+    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.
     * `DEPLOYMENT-NAME` is the Tanzu Kubernetes Grid Integrated Edition BOSH deployment name that you located in
-    the [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name](#locate-deploy-name) section above.  
-    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.  
+    the [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name](#locate-deploy-name) section above.
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.
 
-    For example:  
+    For example:
     ```console
     $ BOSH_CLIENT_SECRET=p455w0rd bbr deployment \
     --target bosh.example.com --username admin --deployment cf-acceptance-0 \
@@ -319,18 +319,18 @@ in _Advanced Troubleshooting with the BOSH CLI_.
     pre-backup-check
     ```
 
-1. If the pre-backup check command fails, perform the following actions:  
+1. If the pre-backup check command fails, perform the following actions:
     1. Run the command again, adding the `--debug` flag to enable debug logs. For more information,
-    see [BBR Logging](bbr-logging.html).  
+    see [BBR Logging](bbr-logging.html).
     1. Make any correction suggested in the output and run the pre-backup check again. For example,
     the deployment that you selected might not have the correct back up scripts, or the connection
-    to the BOSH Director failed.  
+    to the BOSH Director failed.
 
 #### <a id='back-up-control-plane-backup'></a> Back Up the Tanzu Kubernetes Grid Integrated Edition Control Plane
 
 If the pre-backup check succeeds, run the BBR back up command.
 
-1. To back up the TKGI control plane, run the following BBR back up command from your jump box:  
+1. To back up the TKGI control plane, run the following BBR back up command from your jump box:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET nohup bbr deployment \
@@ -338,23 +338,23 @@ If the pre-backup check succeeds, run the BBR back up command.
     --ca-cert PATH-TO-BOSH-SERVER-CERT \
     backup --with-manifest [--artifact-path]
     ```
-    Where:  
+    Where:
 
     * `BOSH-CLIENT-SECRET` is your BOSH client secret. If you do not know your BOSH Client Secret, open your BOSH Director tile,
-    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT_SECRET`.  
+    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT_SECRET`.
     * `BOSH-TARGET` is your BOSH Environment setting. If you do not know your BOSH Environment setting, open your BOSH Director tile,
     navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_ENVIRONMENT`. You must be able to
-    reach the target address from the workstation where you run <code>bbr</code> commands.  
+    reach the target address from the workstation where you run <code>bbr</code> commands.
     * `BOSH-CLIENT` is your BOSH Client Name. If you do not know your BOSH Client Name, open your BOSH Director tile,
-    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.  
+    navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.
     * `DEPLOYMENT-NAME` is the Tanzu Kubernetes Grid Integrated Edition BOSH deployment name that you located in
-    the [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name](#locate-deploy-name) section above.  
-    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.  
+    the [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name](#locate-deploy-name) section above.
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.
     * `--with-manifest` is necessary in order to redeploy your TKGI Control Plane in the case of its loss.
-    `--with-manifest` is an optional `backup` parameter to include the manifest in the backup artifact.  
-    * `--artifact-path` is an optional `backup` parameter to specify the output path for the backup artifact.  
+    `--with-manifest` is an optional `backup` parameter to include the manifest in the backup artifact.
+    * `--artifact-path` is an optional `backup` parameter to specify the output path for the backup artifact.
 
-    For example:  
+    For example:
     ```console
     $ BOSH_CLIENT_SECRET=p455w0rd nohup bbr deployment \
     --target bosh.example.com  --username admin --deployment cf-acceptance-0 \
@@ -363,14 +363,14 @@ If the pre-backup check succeeds, run the BBR back up command.
     ```
 
     <p class="note"><strong>Note</strong>: The <code>--with-manifest</code> flag is necessary in order to redeploy your TKGI Control Plane in the case of its loss.
-    Secure the backup artifact created by this process because it contains secret credentials.</p>    
-    
-1. Wait for the BBR back up command to complete:  
+    Secure the backup artifact created by this process because it contains secret credentials.</p>
+
+1. Wait for the BBR back up command to complete:
     * If the command completes successfully, follow the steps in [Manage Your Backup Artifact](#good-practices) below.
     * If the back up command fails, perform the following actions:
         1. Run the command again, adding the `--debug` flag to enable debug logs. For more information,
-        see [BBR Logging](bbr-logging.html).  
-        1. Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).  
+        see [BBR Logging](bbr-logging.html).
+        1. Follow the steps in [Recover from a Failing Command](#recover-from-failing-command).
 
     <p class="note"><strong>Note</strong>: The BBR back up command can take a long time to complete.
     You can run it independently of the SSH session so that the process can continue running even
@@ -384,9 +384,9 @@ your developers need to push an app immediately, you might need to cancel the ba
 
 To cancel a back up, perform the following steps:
 
-1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.  
+1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
 1. Because stopping a back up can leave the system in an unusable state and prevent additional
-back ups, follow the procedures in [Clean up After a Failed Back Up](#manual-clean) below.  
+back ups, follow the procedures in [Clean up After a Failed Back Up](#manual-clean) below.
 
 ## <a id="after-backup"></a> After Backing Up Tanzu Kubernetes Grid Integrated Edition
 
@@ -408,21 +408,21 @@ BBR backup artifact directories are named using the following formats:
 
 Keep your backup artifacts safe by following these steps:
 
-1. Move the backup artifacts off the jump box to your storage space.  
+1. Move the backup artifacts off the jump box to your storage space.
 
-1. Compress and encrypt the backup artifacts when storing them.  
+1. Compress and encrypt the backup artifacts when storing them.
 
 1. Make redundant copies of your backup and store them in multiple locations. This minimizes the
-risk of losing your backups in the event of a disaster.  
+risk of losing your backups in the event of a disaster.
 
-1. Each time you redeploy Tanzu Kubernetes Grid Integrated Edition, test your backup artifact by following the procedures in:  
-    * [Restore the Tanzu Kubernetes Grid Integrated Edition BOSH Director](bbr-restore.html#redeploy-restore-director)  
-    * [Restore the Tanzu Kubernetes Grid Integrated Edition Control Plane](bbr-restore.html#redeploy-restore-control-plane)  
-    * [Restore Tanzu Kubernetes Grid Integrated Edition Clusters](bbr-restore.html#redeploy-restore-clusters)  
+1. Each time you redeploy Tanzu Kubernetes Grid Integrated Edition, test your backup artifact by following the procedures in:
+    * [Restore the Tanzu Kubernetes Grid Integrated Edition BOSH Director](bbr-restore.html#redeploy-restore-director)
+    * [Restore the Tanzu Kubernetes Grid Integrated Edition Control Plane](bbr-restore.html#redeploy-restore-control-plane)
+    * [Restore Tanzu Kubernetes Grid Integrated Edition Clusters](bbr-restore.html#redeploy-restore-clusters)
 
 ### <a id="recover-from-failing-command"></a> Recover from a Failing Command
 
-If the back up fails, follow these steps:  
+If the back up fails, follow these steps:
 
 1. Ensure that you set all the parameters in the back up command.
 1. Ensure the credentials previously obtained are valid.
@@ -443,31 +443,31 @@ failed BBR back up run. A failed back up run might leave the BBR backup director
 causing any subsequent attempts to back up to fail. In addition, BBR might not have run the post-backup scripts,
 leaving the instance in a locked state.</p>
 
-* If the TKGI BOSH Director back up failed:  
-    1. Run the following BBR cleanup script command to clean up:  
+* If the TKGI BOSH Director back up failed:
+    1. Run the following BBR cleanup script command to clean up:
 
         ```
         bbr director --host BOSH-DIRECTOR-IP \
         --username bbr  --private-key-path PRIVATE-KEY-FILE \
         backup-cleanup
         ```
-        Where:  
+        Where:
 
         * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public,
         `BOSH-DIRECTOR-IP` is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal
-        IP `BOSH-DIRECTOR-IP` which you can retrieve as show in [Retrieve the BOSH Director Address](#bosh-address) above.  
+        IP `BOSH-DIRECTOR-IP` which you can retrieve as show in [Retrieve the BOSH Director Address](#bosh-address) above.
         * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in
         [Download the BBR SSH Credentials](#bbr-ssh-creds) above. Replace the placeholder text using the
-        information in the following table.  
+        information in the following table.
 
-        For example:  
+        For example:
         ```console
         $ bbr director  --host 10.0.0.5  --username bbr \
         --private-key-path private-key.pem \
         backup-cleanup
         ```
 
-* If the TKGI control plane or TKGI clusters back ups fail:  
+* If the TKGI control plane or TKGI clusters back ups fail:
     1. Run the following BBR cleanup script command to clean up:
 
         ```
@@ -479,23 +479,23 @@ leaving the instance in a locked state.</p>
         --ca-cert PATH-TO-BOSH-CA-CERT \
         backup-cleanup
         ```
-        Where:  
+        Where:
 
         * `BOSH-CLIENT-SECRET` is your BOSH client secret. If you do not know your BOSH Client Secret,
         open your BOSH Director tile, navigate to **Credentials > Bosh Commandline Credentials** and
-        record the value for `BOSH_CLIENT_SECRET`.  
+        record the value for `BOSH_CLIENT_SECRET`.
         * `BOSH-TARGET` is your BOSH Environment setting. If you do not know your BOSH Environment setting,
         open your BOSH Director tile,     navigate to **Credentials > Bosh Commandline Credentials** and
         record the value for `BOSH_ENVIRONMENT`. You must be able to reach the target address from the
-        workstation where you run `bbr` commands.  
+        workstation where you run `bbr` commands.
         * `BOSH-CLIENT` is your BOSH Client Name. If you do not know your BOSH Client Name, open your BOSH Director tile,
-        navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.  
+        navigate to **Credentials > Bosh Commandline Credentials** and record the value for `BOSH_CLIENT`.
         * `DEPLOYMENT-NAME` is the Tanzu Kubernetes Grid Integrated Edition BOSH deployment name that you located in
-        the [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Names](#locate-deploy-name) section above.  
+        the [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Names](#locate-deploy-name) section above.
         * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in
-        [Download the Root CA Certificate](#root-ca-cert) above.  
+        [Download the Root CA Certificate](#root-ca-cert) above.
 
-        For example:  
+        For example:
         ```console
         $ BOSH_CLIENT_SECRET=p455w0rd bbr deployment \
         --target bosh.example.com --username admin --deployment cf-acceptance-0 \

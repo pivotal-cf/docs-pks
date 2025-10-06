@@ -9,15 +9,15 @@ This topic describes how to create a Kubernetes cluster using the VMware Tanzu K
 
 ## <a id='overview'></a>Overview
 
-Use the TKGI CLI to create Kubernetes clusters in your Tanzu Kubernetes Grid Integrated Edition environment.  
+Use the TKGI CLI to create Kubernetes clusters in your Tanzu Kubernetes Grid Integrated Edition environment.
 
-To create an Tanzu Kubernetes Grid Integrated Edition Kubernetes cluster, do the following:  
+To create an Tanzu Kubernetes Grid Integrated Edition Kubernetes cluster, do the following:
 
 * [Configure Cluster Access](#cluster-access)
 * [Create a Kubernetes Cluster](#create)
 * [Identify Kubernetes Cluster Control Plane VMs](#master-id)
 
-The `tkgi create-cluster` command creates a Kubernetes cluster with TKGI compatibility matching 
+The `tkgi create-cluster` command creates a Kubernetes cluster with TKGI compatibility matching
 the TKGI version of the current TKGI control plane.
 
 
@@ -37,8 +37,8 @@ For more information, see [Load Balancers in Tanzu Kubernetes Grid Integrated Ed
 When you create a Kubernetes cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
 This load balancer allows you to run TKGI CLI commands on the cluster from your local workstation. For more information, see [Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments without NSX](about-lb.html#without-nsx-t).
 
-You can configure any load balancer of your choice. 
-If you use AWS, Azure, or vSphere without NSX, you can create a load balancer using your cloud provider console. 
+You can configure any load balancer of your choice.
+If you use AWS, Azure, or vSphere without NSX, you can create a load balancer using your cloud provider console.
 
 For more information about configuring a Tanzu Kubernetes Grid Integrated Edition cluster load balancer, see the following:
 
@@ -67,10 +67,10 @@ For more information, see the [Grant Tanzu Kubernetes Grid Integrated Edition Ac
 
 
 1. (Optional) To configure any of the following for a cluster, create a configuration file:
-    * **Custom CAs**: For more information, see [Using a Custom CA for Kubernetes Clusters](custom-ca.html).  
-    * **VM Extensions**: For more information, see [Using BOSH VM&nbsp;Extensions](bosh-vm-extensions.html).  
-    * **Proxy settings**: For more information, see [Configure Cluster Proxies](proxies-cluster.html).  
-    * **group Managed Service Account (gMSA) settings**: For more information, see [Authenticate Windows Clusters with Active Directory](gmsa.html).  
+    * **Custom CAs**: For more information, see [Using a Custom CA for Kubernetes Clusters](custom-ca.html).
+    * **VM Extensions**: For more information, see [Using BOSH VM&nbsp;Extensions](bosh-vm-extensions.html).
+    * **Proxy settings**: For more information, see [Configure Cluster Proxies](proxies-cluster.html).
+    * **group Managed Service Account (gMSA) settings**: For more information, see [Authenticate Windows Clusters with Active Directory](gmsa.html).
 
 1. To create a cluster, run the following command:
 
@@ -84,37 +84,37 @@ For more information, see the [Grant Tanzu Kubernetes Grid Integrated Edition Ac
     [--config-file CONFIG-FILE-NAME] \
     [--tags TAGS]
     ```
-    Where:  
+    Where:
 
-    * `CLUSTER-NAME` is your unique name for your cluster.  
-    <p class="note"><strong>Note</strong>: The <code>CLUSTER-NAME</code> must not contain special characters such as <code>&</code>. 
-    The TKGI CLI does not validate the presence of special characters in the <code>CLUSTER-NAME</code> string, 
+    * `CLUSTER-NAME` is your unique name for your cluster.
+    <p class="note"><strong>Note</strong>: The <code>CLUSTER-NAME</code> must not contain special characters such as <code>&</code>.
+    The TKGI CLI does not validate the presence of special characters in the <code>CLUSTER-NAME</code> string,
     but cluster creation fails if one or more special characters are present.<br><br>
-    Use only lowercase characters when naming your cluster 
+    Use only lowercase characters when naming your cluster
     if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
     </p>
     * `HOSTNAME` is your external hostname for your cluster. You can use any fully qualified
     domain name (FQDN) or IP address you own. For example, `my-cluster.example.com` or `10.0.0.1`.
     If you created an external load balancer, use its DNS hostname. If you are using NSX, you can pre-provision the IP address to use for the Kubernetes API server load balancer using an available IP address from the floating IP pool and define a network profile to perform DNS lookup, or specify the IP address to use for load balancer on the command line.
-    See [Defining Network Profile for DNS Lookup of Pre-Provisioned IP Addresses](./network-profiles-dns.html) for details.  
-    * `PLAN-NAME` is the plan for your cluster. Run `tkgi plans` to list your available plans.  
-    * (Optional) `WORKER-NODES` is the number of worker nodes for the cluster.  
-    * (Optional) (NSX only) `NETWORK-PROFILE-NAME` is the network profile to use for the cluster. 
-    See [Using Network Profiles (NSX Only)](network-profiles.html) for more information.  
+    See [Defining Network Profile for DNS Lookup of Pre-Provisioned IP Addresses](./network-profiles-dns.html) for details.
+    * `PLAN-NAME` is the plan for your cluster. Run `tkgi plans` to list your available plans.
+    * (Optional) `WORKER-NODES` is the number of worker nodes for the cluster.
+    * (Optional) (NSX only) `NETWORK-PROFILE-NAME` is the network profile to use for the cluster.
+    See [Using Network Profiles (NSX Only)](network-profiles.html) for more information.
     * (Optional) `KUBERNETES-PROFILE-NAME` is the Kubernetes profile to use for the cluster.
-    See [Using Kubernetes Profiles](k8s-profiles.html) for more information.  
-    * (Optional) `CONFIG-FILE-NAME` is the configuration file to use for the cluster.  
+    See [Using Kubernetes Profiles](k8s-profiles.html) for more information.
+    * (Optional) `CONFIG-FILE-NAME` is the configuration file to use for the cluster.
     * (Optional) (Azure and vSphere only) `TAGS` are the labels and metadata values to apply to the VMs created in the cluster.
-    Specify the tags as `key:value` pairs. For more information about tagging see [Tagging Clusters](tag-clusters.html).  
+    Specify the tags as `key:value` pairs. For more information about tagging see [Tagging Clusters](tag-clusters.html).
 
     For example:
     ```console
-    $ tkgi create-cluster my-cluster \  
-    --external-hostname my-cluster.example.com \  
+    $ tkgi create-cluster my-cluster \
+    --external-hostname my-cluster.example.com \
     --plan large --num-nodes 3
     ```
 
-    <p class="note"><strong>Note</strong>: It can take up to 30 minutes to create a cluster.</p>  
+    <p class="note"><strong>Note</strong>: It can take up to 30 minutes to create a cluster.</p>
     For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use PersistentVolumes (PVs). For example, if you deploy across three AZs, you must have six worker nodes. For more information about PVs, see [PersistentVolumes](maintain-uptime.html#persistent-volumes) in *Maintaining Workload Uptime*. Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
 <br><br>
     The maximum value you can specify is configured in the **Plans** pane of the Tanzu Kubernetes Grid Integrated Edition tile. If you do not specify a number of worker nodes, the cluster is deployed with the default number, which is also configured in the **Plans** pane. For more information, see the *Installing Tanzu Kubernetes Grid Integrated Edition* topic for your IaaS, such as [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#plans).
@@ -124,22 +124,22 @@ For more information, see the [Grant Tanzu Kubernetes Grid Integrated Edition Ac
     ```
     tkgi cluster CLUSTER-NAME
     ```
-    Where`CLUSTER-NAME` is the unique name for your cluster.  
+    Where`CLUSTER-NAME` is the unique name for your cluster.
 <br>
     For example:
     ```console
-    $ tkgi cluster my-cluster  
-    Name:                     my-cluster  
-    Plan Name:                large  
-    UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789  
-    Last Action:              CREATE  
-    Last Action State:        succeeded  
-    Last Action Description:  Instance provisioning completed  
-    Kubernetes Master Host:   my-cluster.example.com  
-    Kubernetes Master Port:   8443  
-    Worker Instances:         3  
+    $ tkgi cluster my-cluster
+    Name:                     my-cluster
+    Plan Name:                large
+    UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789
+    Last Action:              CREATE
+    Last Action State:        succeeded
+    Last Action Description:  Instance provisioning completed
+    Kubernetes Master Host:   my-cluster.example.com
+    Kubernetes Master Port:   8443
+    Worker Instances:         3
     Kubernetes Master IP(s):  192.168.20.7
-    Network Profile Name:  
+    Network Profile Name:
     Kubernetes Profile Name:
     Compute Profile Name:
     NSX Policy:               true
@@ -167,19 +167,19 @@ For more information, see the [Grant Tanzu Kubernetes Grid Integrated Edition Ac
     ```
     tkgi get-credentials CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the unique name for your cluster.  
+    Where `CLUSTER-NAME` is the unique name for your cluster.
 <br>
-    For example: 
+    For example:
     ```console
-    $ tkgi get-credentials tkgi-example-cluster  
-  
-    Fetching credentials for cluster tkgi-example-cluster.  
-    Context set for cluster tkgi-example-cluster.  
-  
-    You can now switch between clusters by using:  
-    $kubectl config use-context <cluster-name>  
+    $ tkgi get-credentials tkgi-example-cluster
+
+    Fetching credentials for cluster tkgi-example-cluster.
+    Context set for cluster tkgi-example-cluster.
+
+    You can now switch between clusters by using:
+    $kubectl config use-context <cluster-name>
     ```
-    The `tkgi get-credentials` command creates a local `kubeconfig` that allows you to manage the cluster. 
+    The `tkgi get-credentials` command creates a local `kubeconfig` that allows you to manage the cluster.
 For more information about the `tkgi get-credentials` command, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html).
     {{> saml-sso-login }}
 
@@ -190,7 +190,7 @@ For more information about the `tkgi get-credentials` command, see [Retrieving C
     kubectl cluster-info
     ```
 
-    See [Managing Tanzu Kubernetes Grid Integrated Edition](managing.html) for information about checking cluster health and viewing cluster logs.  
+    See [Managing Tanzu Kubernetes Grid Integrated Edition](managing.html) for information about checking cluster health and viewing cluster logs.
 
 1. To review the status, container runtime or other information about the nodes in your cluster, run the following command:
 
@@ -216,7 +216,7 @@ To locate the IP addresses and VM IDs for the control plane VMs of an existing c
     ```
     tkgi cluster CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the unique name for your cluster.  
+    Where `CLUSTER-NAME` is the unique name for your cluster.
 <br>
     From the output of this command, record the following items:
     * **UUID**: This value is your cluster ID.
@@ -224,9 +224,9 @@ To locate the IP addresses and VM IDs for the control plane VMs of an existing c
 
 1. Gather credential and IP address information for your BOSH Director.
 1. To log in to the BOSH Director, perform the following:
-    1. SSH into the Ops Manager VM.
-    1. Log in to the BOSH Director by using the BOSH CLI from the Ops Manager VM.
-    
+    1. SSH into the {{ vars.platform_name }} VM.
+    1. Log in to the BOSH Director by using the BOSH CLI from the {{ vars.platform_name }} VM.
+
     For information on how to complete these steps, see [Advanced Troubleshooting with the BOSH CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html)
     .
 1. To identify the name of your cluster deployment, run the following command:
@@ -240,24 +240,24 @@ To locate the IP addresses and VM IDs for the control plane VMs of an existing c
     ```
     bosh -e tkgi -d CLUSTER-SI-ID vms
     ```
-    Where `CLUSTER-SI-ID` is your cluster service instance ID which begins with `service-instance` and includes the `UUID` you previously located.  
+    Where `CLUSTER-SI-ID` is your cluster service instance ID which begins with `service-instance` and includes the `UUID` you previously located.
 <br>
     For example:
     ```console
     $ bosh -e tkgi -d service-instance-aa1234567bc8de9f0a1c vms
     ```
     Your control plane VM IDs are displayed in the **VM CID** column.
-1. Use the control plane VM IDs and other information you gathered in this procedure to configure your load balancer backend. 
+1. Use the control plane VM IDs and other information you gathered in this procedure to configure your load balancer backend.
 
 
 ## <a id='next'></a>Next Steps
 
-If you did not tag your new cluster during creation, tag your cluster's VMs now. 
+If you did not tag your new cluster during creation, tag your cluster's VMs now.
 If your Tanzu Kubernetes Grid Integrated Edition deployment is on:
 
-* **AWS**: Tag your subnets with your new cluster's unique identifier before adding the subnets to the 
-Tanzu Kubernetes Grid Integrated Edition workload load balancer. 
-After you complete the [Create a Kubernetes Cluster](#create) procedure above, 
+* **AWS**: Tag your subnets with your new cluster's unique identifier before adding the subnets to the
+Tanzu Kubernetes Grid Integrated Edition workload load balancer.
+After you complete the [Create a Kubernetes Cluster](#create) procedure above,
 follow the instructions in [AWS Prerequisites](./deploy-workloads.html#aws) in _Deploying and Exposing Basic Linux Workloads_.
-* **Azure**, **vSphere**, or **vSphere with NSX**: You can use the TKGI CLI to tag clusters by following the steps in 
-[Tagging Clusters](tag-clusters.html).   
+* **Azure**, **vSphere**, or **vSphere with NSX**: You can use the TKGI CLI to tag clusters by following the steps in
+[Tagging Clusters](tag-clusters.html).

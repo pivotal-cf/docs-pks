@@ -3,7 +3,7 @@ title: Configuring an AWS Load Balancer for the TKGI API
 owner: TKGI
 ---
 
-This topic describes how to create a load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) using Amazon Web Services (AWS). Refer to the procedures in this topic to create a load balancer by using AWS.  
+This topic describes how to create a load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) using Amazon Web Services (AWS). Refer to the procedures in this topic to create a load balancer by using AWS.
 
 To configure a load balancer for a different environment, see [Configuring an Azure Load Balancer for the TKGI API](#azure-api-load-balancer.html).
 
@@ -34,7 +34,7 @@ Perform the following steps:
 1. Under **Classic Load Balancer**, click **Create**.
 1. On the **Define Load Balancer** page, complete the **Basic Configuration** section as follows:
 1. **Load Balancer name**: Name the load balancer. {{{ vars.recommended_by }}} recommends naming your load balancer `tkgi-api`.
-  1. **Create LB inside**: Select the VPC where you installed Ops Manager.
+  1. **Create LB inside**: Select the VPC where you installed {{ vars.platform_name }}.
   1. **Create an internal load balancer**: Do not activate this check box. The Tanzu Kubernetes Grid Integrated Edition API load balancer must be internet-facing.
 1. Complete the **Listeners Configuration** section as follows:
   1. Configure the listener for UAA as follows:
@@ -70,12 +70,12 @@ Perform the following steps to create and assign security groups:
     - Protocol: All
     - Port range: All
     - Destination: Anywhere-IPv4
-    
+
 ### <a id='configure-health-check'></a>Configure Health Check
-    
+
 Perform the following steps to configure the health check:
-    
-1. On the **Health Check** page: 
+
+1. On the **Health Check** page:
   1. Select `TCP` in the **Ping Protocol** field.
   1. Enter `9021` in the **Ping Port** field.
 
@@ -83,7 +83,7 @@ Perform the following steps to configure the health check:
 
 Perform the following steps to add EC2 Instances for the Load Balancer:
 
-1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Open {{ vars.platform_name }} to the **Installation Dashboard** pane.
 1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
 1. Open the **Resource Config** pane.
 1. Select **TKGI API**.
@@ -98,7 +98,7 @@ Perform the following steps to add tags to your resources to help organize and i
 
 1. On the **Create Load Balancer** page in the AWS Console, enter the key-value pair to tag the load balancer.
 
-    <p class="note warning"><strong>NOTE</strong>: The key-value pair is case-sensitive.</p>  
+    <p class="note warning"><strong>NOTE</strong>: The key-value pair is case-sensitive.</p>
 
 1. Click **Create load balancer**.
 

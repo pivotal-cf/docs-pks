@@ -21,7 +21,7 @@ To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup
 
 {{{ vars.recommended_by }}} recommends:
 
-* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of Ops Manager and Tanzu Kubernetes Grid Integrated Edition to restore from.
+* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of {{ vars.platform_name }} and Tanzu Kubernetes Grid Integrated Edition to restore from.
 
 * Back up your Kubernetes clusters frequently, especially before upgrading your Tanzu Kubernetes Grid Integrated Edition deployment.
 
@@ -51,8 +51,8 @@ For general information about the jump box, see [Installing BOSH Backup and Rest
 
 To connect to your jump box with SSH, do one of the following:
 
-+ **If you are using the Ops Manager VM as your jump box, log in to the Ops Manager VM.** See
-    [Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
++ **If you are using the {{ vars.platform_name }} VM as your jump box, log in to the {{ vars.platform_name }} VM.** See
+    [Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
     <br><br>
 + **If you want to connect to your jump box using the command line, run the following
  command:**
@@ -60,7 +60,7 @@ To connect to your jump box with SSH, do one of the following:
     ```
     ssh -i PATH-TO-KEY JUMP-BOX-USERNAME@JUMP-BOX-ADDRESS
     ```
-    Where:  
+    Where:
 
     * `PATH-TO-KEY` is the local path to your private key for the jump box host.
     * `JUMP-BOX-USERNAME` is your jump box user name.
@@ -114,7 +114,7 @@ To connect with `BOSH_ALL_PROXY`, do one of the following:
         export BOSH_ALL_PROXY=ssh+socks5://JUMP-BOX-USERNAME@JUMP-BOX-ADDRESS:SOCKS-PORT?private_key=JUMP-BOX-KEY-FILE
         ```
 
-        Where:  
+        Where:
 
         * `JUMP-BOX-USERNAME` is your jump box user name.
         * `JUMP-BOX-ADDRESS` is the address of the jump box.
@@ -157,7 +157,7 @@ To verify that you can reach your TKGI cluster deployments and that the deployme
     pre-backup-check
     ```
 
-    Where:  
+    Where:
 
     * `TKGI-UAA-CLIENT-SECRET` is the value you recorded for `uaa_client_secret` in
     [Download the UAA Client Credentials](#cluster-creds) above.
@@ -233,7 +233,7 @@ The command above uses <code>nohup</code>, but you could also run the command in
     backup [--with-manifest] [--artifact-path]
     ```
 
-    Where:  
+    Where:
 
     * `TKGI-UAA-CLIENT-SECRET` is the value you recorded for `uaa_client_secret` in
     [Download the UAA Client Credentials](#cluster-creds) above.
@@ -285,7 +285,7 @@ non-backed up clusters. To troubleshoot a failing back up, do one or more of the
     backup [--with-manifest] [--artifact-path]
     ```
 
-    Where:  
+    Where:
 
     * `TKGI-UAA-CLIENT-SECRET` is the value you recorded for `uaa_client_secret` in
     [Download the UAA Client Credentials](#cluster-creds) above.
@@ -396,7 +396,7 @@ leaving the instance in a locked state.</p>
     backup-cleanup
     ```
 
-    Where:  
+    Where:
 
     * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public,
     `BOSH-DIRECTOR-IP` is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal
@@ -425,7 +425,7 @@ leaving the instance in a locked state.</p>
     backup-cleanup
     ```
 
-    Where:  
+    Where:
 
     * `BOSH-CLIENT-SECRET` is your BOSH client secret. If you do not know your BOSH Client Secret,
     open your BOSH Director tile, navigate to **Credentials > Bosh Commandline Credentials** and

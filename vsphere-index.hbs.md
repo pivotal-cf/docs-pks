@@ -11,14 +11,14 @@ This topic describes options for installing VMware Tanzu Kubernetes Grid Integra
 You can install TKGI on vSphere in four ways:
 
 - [Install TKGI on vSphere with the Management Console](console-install-vsphere.html)
-- [Install TKGI on vSphere with NSX Using Ops Manager](vsphere-nsxt-index.html)
-- [Install TKGI on vSphere with Antrea Using Ops Manager](vsphere-cni.html)
+- [Install TKGI on vSphere with NSX Using {{ vars.platform_name }}](vsphere-nsxt-index.html)
+- [Install TKGI on vSphere with Antrea Using {{ vars.platform_name }}](vsphere-cni.html)
 - [Install TKGI on VMware Cloud Foundation](vsphere-vcf.html)
 
-Which way you chose to install TKGI depends on whether you use the TKGI Management Console, 
-and which container networking overlay you use.  
+Which way you chose to install TKGI depends on whether you use the TKGI Management Console,
+and which container networking overlay you use.
 
 Where possible, {{{ vars.recommended_by }}} recommends using the TKGI Management Console
-to install TKGI on vSphere. 
-For more information, see [Decide When to Use TKGI Management Console](console-install-vsphere.html#decide-when-to-use-console) 
-in _Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Management Console_.  
+to install TKGI on vSphere.
+For more information, see [Decide When to Use TKGI Management Console](console-install-vsphere.html#decide-when-to-use-console)
+in _Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Management Console_.

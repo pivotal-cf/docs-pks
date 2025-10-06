@@ -13,7 +13,7 @@ When you upgrade TKGI on vSphere, you might also upgrade
 vSphere and, if you are using it, NSX.
 
 TKGI, NSX, and vSphere upgrades depend on each other.
-Some combinations also require upgrading VMware Tanzu Operations Manager (Ops Manager) or
+Some combinations also require upgrading {{ vars.platform_name }} or
 TKGI-provisioned Kubernetes clusters.
 
 For any combination of upgrades that you perform, you must follow the upgrade
@@ -50,7 +50,7 @@ For more information, see below:
         <td>TKGI</td>
         <td>
             <ol>
-              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade {{ vars.platform_name }} if necessary.</li>
               <li>Upgrade TKGI.</li>
               <li>(Recommended) Upgrade Kubernetes clusters.</li>
             </ol>
@@ -62,7 +62,7 @@ For more information, see below:
         <td>
             <ol>
               <li>Upgrade NSX.</li>
-              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade {{ vars.platform_name }} if necessary.</li>
               <li>Upgrade TKGI.</li>
               <li>Upgrade Kubernetes clusters.</li>
             </ol>
@@ -74,7 +74,7 @@ For more information, see below:
         <td>
             <ol>
               <li>Upgrade NSX.</li>
-              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade {{ vars.platform_name }} if necessary.</li>
               <li>Upgrade TKGI.</li>
               <li>Upgrade Kubernetes clusters.</li>
               <li>Upgrade vSphere.</li>
@@ -101,9 +101,9 @@ from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} and do no
 
 The upgrade scenario includes the following steps:
 
-1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
-These are the recommended Ops Manager versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
-To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+1. Upgrade {{ vars.platform_name }} to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended {{ vars.platform_name }} versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify {{ vars.platform_name }} compatibility with other {{{ vars.product_version }}} versions, see
 [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
 1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
 1. If you are upgrading a cluster that uses a public cloud CSI driver,
@@ -132,7 +132,7 @@ upgrade scenario:
         <td>See <a href="upgrade-nsxt.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)</a>.</td>
     </tr>
     <tr>
-        <td>Ops Manager</td>
+        <td>{{ vars.platform_name }}</td>
         <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
         <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
         <td><em>n/a</em></td>
@@ -152,10 +152,10 @@ In this upgrade scenario, you upgrade Tanzu Kubernetes Grid Integrated Edition f
 The upgrade scenario includes the following steps:
 
 1. Upgrade NSX from v3.2.3 or later to v4.0.1 or later.
-1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
-These are the recommended Ops Manager versions
+1. Upgrade {{ vars.platform_name }} to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended {{ vars.platform_name }} versions
 for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
-To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+To verify {{ vars.platform_name }} compatibility with other {{{ vars.product_version }}} versions, see
 [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
 1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
 1. If you are upgrading a cluster that uses a public cloud CSI driver,
@@ -184,7 +184,7 @@ upgrade scenario:
         <td>See <a href="upgrade-nsxt.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)</a>.</td>
     </tr>
     <tr>
-        <td>Ops Manager</td>
+        <td>{{ vars.platform_name }}</td>
         <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
         <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
         <td><em>n/a</em></td>
@@ -219,10 +219,10 @@ In this upgrade scenario, you upgrade:
 The upgrade scenario includes the following steps:
 
 1. Upgrade NSX from v3.2.3 or later, to v4.0.1. or later.
-1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
-These are the recommended Ops Manager versions
+1. Upgrade {{ vars.platform_name }} to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended {{ vars.platform_name }} versions
 for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
-To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+To verify {{ vars.platform_name }} compatibility with other {{{ vars.product_version }}} versions, see
 [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
 1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
 1. If you are upgrading a cluster that uses a public cloud CSI driver,
@@ -252,7 +252,7 @@ upgrade scenario:
         <td>See <a href="upgrade-nsxt.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)</a>.</td>
     </tr>
     <tr>
-        <td>Ops Manager</td>
+        <td>{{ vars.platform_name }}</td>
         <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
         <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
         <td><em>n/a</em></td>
@@ -309,7 +309,7 @@ For more information, see below:
         <td>TKGI</td>
         <td>
             <ol>
-              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade {{ vars.platform_name }} if necessary.</li>
               <li>Upgrade TKGI.</li>
               <li>(Recommended) Upgrade Kubernetes clusters.</li>
             </ol>
@@ -320,7 +320,7 @@ For more information, see below:
         <td>TKGI and vSphere</td>
         <td>
             <ol>
-              <li>Upgrade Ops Manager if necessary.</li>
+              <li>Upgrade {{ vars.platform_name }} if necessary.</li>
               <li>Upgrade TKGI.</li>
               <li>Upgrade Kubernetes clusters.</li>
               <li>Upgrade vSphere.</li>
@@ -340,9 +340,9 @@ from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} and do no
 
 The upgrade scenario includes the following steps:
 
-1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
-These are the recommended Ops Manager versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
-To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+1. Upgrade {{ vars.platform_name }} to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended {{ vars.platform_name }} versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify {{ vars.platform_name }} compatibility with other {{{ vars.product_version }}} versions, see
 [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
 1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
 1. If you are upgrading a cluster that uses a public cloud CSI driver,
@@ -371,7 +371,7 @@ upgrade scenario:
         <td>See <a href="upgrade.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)</a>.</td>
     </tr>
     <tr>
-        <td>Ops Manager</td>
+        <td>{{ vars.platform_name }}</td>
         <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
         <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
         <td><em>n/a</em></td>
@@ -392,9 +392,9 @@ In this upgrade scenario, you upgrade Tanzu Kubernetes Grid Integrated Edition f
 
 The upgrade scenario includes the following steps:
 
-1. Upgrade Ops Manager to {{{ vars.ops_man_version_v3 }}} or later.
-These are the recommended Ops Manager versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
-To verify Ops Manager compatibility with other {{{ vars.product_version }}} versions, see
+1. Upgrade {{ vars.platform_name }} to {{{ vars.ops_man_version_v3 }}} or later.
+These are the recommended {{ vars.platform_name }} versions for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.0.
+To verify {{ vars.platform_name }} compatibility with other {{{ vars.product_version }}} versions, see
 [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
 1. Upgrade Tanzu Kubernetes Grid Integrated Edition from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
 1. Upgrade all Kubernetes clusters to
@@ -421,7 +421,7 @@ upgrade scenario:
         <td>See <a href="upgrade.html">Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)</a>.</td>
     </tr>
     <tr>
-        <td>Ops Manager</td>
+        <td>{{ vars.platform_name }}</td>
         <td><strong>{{{ vars.ops_man_version_prev }}}</strong> or <strong>{{{ vars.ops_man_version_prev_v3 }}}</strong></td>
         <td><strong>{{{ vars.ops_man_version_v3 }}}</strong></td>
         <td><em>n/a</em></td>

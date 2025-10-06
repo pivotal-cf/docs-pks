@@ -101,7 +101,7 @@ pause image in a private registry. For information about setting up a Windows pa
 
 
 ### <a id='upload-stemcell'></a> Upload the Windows Server Stemcell
-1. When prompted by Ops Manager to upload a stemcell, follow the instructions and provide your previously created
+1. When prompted by {{ vars.platform_name }} to upload a stemcell, follow the instructions and provide your previously created
 vSphere stemcell for Windows Server version 2019.
 
 

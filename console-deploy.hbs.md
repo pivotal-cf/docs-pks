@@ -10,20 +10,20 @@ You can deploy a new VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) inst
 
 If you deploy  TKGI with plans that use Windows worker nodes, further configuration is required. See <a href="console-windows-workers.html">Enable Plans with Windows Worker Nodes</a> for information about how to install a Windows Server stemcell and other necessary configuration actions that you must perform after you deploy Tanzu Kubernetes Grid Integrated Edition.
 
-## <a id='ops-man'></a>Additional Ops Manager Configurations
+## <a id='ops-man'></a>Additional {{ vars.platform_name }} Configurations
 
-The Management Console takes values entered into the configuration wizard and sets them in Ops Manager, an older component that underlies  TKGI and has its own UI.  Because of this:
+The Management Console takes values entered into the configuration wizard and sets them in {{ vars.platform_name }}, an older component that underlies  TKGI and has its own UI.  Because of this:
 
-- The configuration wizard often makes using the Ops Manager UI unnecessary
-- Values set in the configuration wizard override values set in Ops Manager
+- The configuration wizard often makes using the {{ vars.platform_name }} UI unnecessary
+- Values set in the configuration wizard override values set in {{ vars.platform_name }}
 
-But there are configuration fields in Ops Manager that are not exposed by the configuration wizard,
+But there are configuration fields in {{ vars.platform_name }} that are not exposed by the configuration wizard,
 and which you can apply to your TKGI deployment.
-You can use the Ops Manager UI to configure the following,
+You can use the {{ vars.platform_name }} UI to configure the following,
 and the management console will not override their values:
 
-* **BOSH Director** tile fields, described in [Configuring BOSH Director on vSphere](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html) in the _Ops Manager Documentation_:
-  * **Director Config** pane: 
+* **BOSH Director** tile fields, described in [Configuring BOSH Director on vSphere](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html) in the _{{ vars.platform_name }} Documentation_:
+  * **Director Config** pane:
       * **Custom SSH Banner**
       * **Identification Tags**
       * **Health Monitor**
@@ -46,7 +46,7 @@ and the management console will not override their values:
       * **NSX Validation errand**
       * **Run smoke tests**
       * **Delete all clusters errand**
- 
+
 * **Harbor** tile fields, described in [Installing and Configuring VMware Harbor Registry](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/installing.html) in the _VMware Harbor Registry_ documentation:
   * **General** pane:
       * **Static IP Address**

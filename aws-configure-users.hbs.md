@@ -4,42 +4,42 @@ owner: TKGI
 iaas: AWS
 ---
 
-This topic describes how to create VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) admin users with User Account and Authentication (UAA).  
+This topic describes how to create VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) admin users with User Account and Authentication (UAA).
 
 
 ## <a id='overview'></a> Overview
 
-UAA is the identity management service for TKGI. 
-You must use UAA to create an admin user during your initial set up of TKGI.  
+UAA is the identity management service for TKGI.
+You must use UAA to create an admin user during your initial set up of TKGI.
 
-TKGI includes a UAA server, hosted on the TKGI API VM. 
-Use the UAA Command Line Interface (UAAC) from the VMware Tanzu Operations Manager (Ops Manager) VM to interact with the TKGI UAA server. 
-You can also install UAAC on a workstation and run UAAC commands from there.  
+TKGI includes a UAA server, hosted on the TKGI API VM.
+Use the UAA Command Line Interface (UAAC) from the {{ vars.platform_name }} VM to interact with the TKGI UAA server.
+You can also install UAAC on a workstation and run UAAC commands from there.
 
 ## <a id='prerequisites'></a> Prerequisites
 
 Before setting up admin users for Tanzu Kubernetes Grid Integrated Edition, you must have one of the following:
 
-* SSH access to the Ops Manager VM
+* SSH access to the {{ vars.platform_name }} VM
 
 * A machine that can connect to your TKGI API VM
 
 ## <a id='connect'></a>Step 1: Connect to the TKGI API VM
 
-You can connect to the TKGI API VM from the Ops Manager VM or from a different machine such as your local workstation.
+You can connect to the TKGI API VM from the {{ vars.platform_name }} VM or from a different machine such as your local workstation.
 
-### <a name='ssh-aws'></a>Option 1: Connect through the Ops Manager VM
+### <a name='ssh-aws'></a>Option 1: Connect through the {{ vars.platform_name }} VM
 
-You can connect to the TKGI API VM by logging in to the Ops Manager VM through SSH.
-To SSH into the Ops Manager VM on AWS, do the following:
+You can connect to the TKGI API VM by logging in to the {{ vars.platform_name }} VM through SSH.
+To SSH into the {{ vars.platform_name }} VM on AWS, do the following:
 
 1. Retrieve the key pair you used when you
-created the Ops Manager VM. To see the name of the key pair:
-  
-  1. In the AWS console, click the Ops Manager VM
+created the {{ vars.platform_name }} VM. To see the name of the key pair:
+
+  1. In the AWS console, click the {{ vars.platform_name }} VM
   1. Locate the `key pair name` in the properties.
 
-1. On the AWS **EC2 instances** page, locate the Ops Manager FQDN.
+1. On the AWS **EC2 instances** page, locate the {{ vars.platform_name }} FQDN.
 
 1. Change the permissions on the `.pem` file to be more restrictive by running the `chmod 600` command. For example:
 
@@ -47,12 +47,12 @@ created the Ops Manager VM. To see the name of the key pair:
     $ chmod 600 ops_mgr.pem
     ```
 
-1. SSH into the Ops Manager VM by running the following command:
+1. SSH into the {{ vars.platform_name }} VM by running the following command:
 
     ```
     ssh -i ops_mgr.pem ubuntu@OPS-MANAGER-FQDN
     ```
-    Where `OPS-MANAGER-FQDN` is the FQDN of Ops Manager. For example:
+    Where `OPS-MANAGER-FQDN` is the FQDN of {{ vars.platform_name }}. For example:
 
     ```console
     $ ssh -i ops_mgr.pem ubuntu@my-opsmanager-fqdn.example.com
@@ -60,19 +60,19 @@ created the Ops Manager VM. To see the name of the key pair:
 
 1. Proceed to the [Log In as a UAA Admin](#uaa-admin-login) section to manage users with UAAC.
 
-### <a name='local-workstation'></a>Option 2: Connect through a Non-Ops Manager Machine
+### <a name='local-workstation'></a>Option 2: Connect through a Non-{{ vars.platform_name }} Machine
 
 To connect to the TKGI API VM and run UAA commands, do the following:
 
 1. Install UAAC on your machine. For example:
-  
+
     ```
     gem install cf-uaac
     ```
-1. Download a copy of your Ops Manager root CA certificate to the machine. To download the certificate, do the following:
+1. Download a copy of your {{ vars.platform_name }} root CA certificate to the machine. To download the certificate, do the following:
 
-  1. In a web browser, navigate to the FQDN of Ops Manager and log in.
-  1. In Ops Manager, navigate to **Settings** in the drop-down menu under your user name.
+  1. In a web browser, navigate to the FQDN of {{ vars.platform_name }} and log in.
+  1. In {{ vars.platform_name }}, navigate to **Settings** in the drop-down menu under your user name.
   1. Click **Advanced Options**.
   1. On the **Advanced Options** configuration page, click **Download Root CA Cert**.
   1. Move the certificate to a secure location on your machine and record the path.
@@ -94,8 +94,8 @@ For information about UAA scopes in Tanzu Kubernetes Grid Integrated Edition, se
 To create Tanzu Kubernetes Grid Integrated Edition users with the `pks.clusters.manage` or `pks.clusters.admin` UAA scope,
 perform one or more of the following procedures based on the needs of your deployment:
 
-* To assign TKGI cluster scopes to an individual user, see 
-[Grant Tanzu Kubernetes Grid Integrated Edition Access to an Individual User](manage-users.html#uaa-user). 
+* To assign TKGI cluster scopes to an individual user, see
+[Grant Tanzu Kubernetes Grid Integrated Edition Access to an Individual User](manage-users.html#uaa-user).
  Follow this procedure if you selected **Internal UAA** when you configured **UAA** in the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#uaa).
 * To assign TKGI cluster scopes to an LDAP group, see [Grant Tanzu Kubernetes Grid Integrated Edition Access to an External LDAP Group](manage-users.html#external-group). Follow this procedure if you selected **LDAP Server** when you configured **UAA** in the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Installing Tanzu Kubernetes Grid Integrated Edition TKGI on AWS](installing-aws.html#uaa).
 * To assign TKGI cluster scopes to a SAML group, see [Grant Tanzu Kubernetes Grid Integrated Edition Access to an External SAML Group](manage-users.html#saml). Follow this procedure if you selected **SAML Identity Provider** when you configured **UAA** in the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Installing Tanzu Kubernetes Grid Integrated Edition TKGI on AWS](installing-aws.html#uaa).
@@ -103,6 +103,6 @@ perform one or more of the following procedures based on the needs of your deplo
 
 ##<a id="next-steps"></a> Next Step
 
-After you create admin users in Tanzu Kubernetes Grid Integrated Edition, the admin users can create and manage 
-Kubernetes clusters in Tanzu Kubernetes Grid Integrated Edition. 
+After you create admin users in Tanzu Kubernetes Grid Integrated Edition, the admin users can create and manage
+Kubernetes clusters in Tanzu Kubernetes Grid Integrated Edition.
 For more information, see [Managing Kubernetes Clusters and Workloads](managing-clusters.html).
