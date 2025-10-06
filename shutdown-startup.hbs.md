@@ -217,11 +217,11 @@ Using your IaaS dashboard, locate and gracefully shut down the BOSH Director VM.
 
 [View a larger version of this image.](images/nsxt/shutdown/shutdown-bosh.png)
 
-###<a id="shutdown-om"></a>Step 8: Shut Down Ops Manager
+###<a id="shutdown-om"></a>Step 8: Shut Down {{{ vars.platform_name }}}
 
-Using your IaaS dashboard, locate and gracefully shut down the Ops Manager VM.
+Using your IaaS dashboard, locate and gracefully shut down the {{{ vars.platform_name }}} VM.
 
-<img src="images/nsxt/shutdown/shutdown-om.png" alt="Shut Down Ops Manager VM">
+<img src="images/nsxt/shutdown/shutdown-om.png" alt="Shut Down {{{ vars.platform_name }}} VM">
 
 [View a larger version of this image.](images/nsxt/shutdown/shutdown-om.png)
 
@@ -298,12 +298,12 @@ To start the NSX components, perform the following steps:
    1. NSX Controllers
    1. NSX Edge Nodes
 
-###<a id="start-om"></a> Step 4: Start Ops Manager
+###<a id="start-om"></a> Step 4: Start {{{ vars.platform_name }}}
 
-1. Using your IaaS dashboard, power on the Ops Manager VM.
-1. Using a browser, go to the Ops Manager URL.
-1. Enter the Ops Manager passphrase.
-1. Log in to the Ops Manager UI.
+1. Using your IaaS dashboard, power on the {{{ vars.platform_name }}} VM.
+1. Using a browser, go to the {{{ vars.platform_name }}} URL.
+1. Enter the {{{ vars.platform_name }}} passphrase.
+1. Log in to the {{{ vars.platform_name }}} UI.
 
 ###<a id="start-bosh"></a> Step 5: Start the BOSH Director
 
@@ -315,8 +315,8 @@ It might take approximately 90 minutes for BOSH to start properly.
 
 To speed up the BOSH startup process:
 
-1. Obtain the BOSH Director VM Credentials from Ops Manager. For information about doing this, see
-[Retrieving Credentials from Your Deployment](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-credentials.html) in the Ops Manager documentation.
+1. Obtain the BOSH Director VM Credentials from {{{ vars.platform_name }}}. For information about doing this, see
+[Retrieving Credentials from Your Deployment](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-credentials.html) in the {{{ vars.platform_name }}} documentation.
 1. SSH to the BOSH Director VM.
 1. On the BOSH Director VM, run the following commands:
 

@@ -37,7 +37,7 @@ To download a BBR installation file, see [BOSH Backup and Restore](https://suppo
 Configure your jump box to meet the following requirements:
 
 * Your jump box must be able to communicate with the network that contains your Tanzu Kubernetes Grid Integrated Edition deployment. You
-can use the VMware Tanzu Operations Manager (Ops Manager) VM as your jump box.
+can use the {{{ vars.platform_name }}} VM as your jump box.
 * Your jump box must have sufficient space for the backup.
 * Your jump box must be in the same network as the deployed VMs because BBR connects to the VMs at their private IP addresses. BBR does not support SSH gateways.
 * There is minimal network latency between the jump box host and the source VMs you are configuring BBR to back up.  

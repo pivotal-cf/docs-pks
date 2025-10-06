@@ -64,7 +64,7 @@ The TKGI API VM requires more resources.
 
 **Solution**
 
-1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the {{{ vars.platform_name }}} Installation Dashboard.
 
 1. Select the **Tanzu Kubernetes Grid Integrated Edition** tile.
 
@@ -341,20 +341,20 @@ For example, pods cannot resolve DNS names, and error messages report the servic
 Kubernetes features and functions are provided by Tanzu Kubernetes Grid Integrated Edition add-ons.
 DNS resolution, for example, is provided by the `CoreDNS` service.
 
-To activate these add-ons, Ops Manager must run scripts after deploying Tanzu Kubernetes Grid Integrated Edition. You must configure Ops Manager to automatically run these post-deploy scripts.
+To activate these add-ons, {{{ vars.platform_name }}} must run scripts after deploying Tanzu Kubernetes Grid Integrated Edition. You must configure {{{ vars.platform_name }}} to automatically run these post-deploy scripts.
 
 **Solution**
 
-Perform the following steps to configure Ops Manager to run post-deploy scripts to deploy the missing add-ons to your cluster.
+Perform the following steps to configure {{{ vars.platform_name }}} to run post-deploy scripts to deploy the missing add-ons to your cluster.
 
-1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the {{{ vars.platform_name }}} Installation Dashboard.
 
 1. Click the **BOSH Director** tile.
 
 1. Select **Director Config**.
 
 1. Select **Enable Post Deploy Scripts**.
-  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your Ops Manager installation.</p>
+  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your {{{ vars.platform_name }}} installation.</p>
 
 1. Click **Save**.
 
@@ -365,7 +365,7 @@ information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.c
 
 1. Click **Apply Changes**.
 
-1. After Ops Manager finishes applying changes, enter `tkgi delete-cluster` on the command line to delete the cluster. For more information, see [Deleting Clusters](delete-cluster.html).
+1. After {{{ vars.platform_name }}} finishes applying changes, enter `tkgi delete-cluster` on the command line to delete the cluster. For more information, see [Deleting Clusters](delete-cluster.html).
 
 1. On the command line, enter `tkgi create-cluster` to recreate the cluster. For more information, see [Creating Clusters](create-cluster.html).
 
@@ -433,7 +433,7 @@ To resolve this issue, do one of the following:
     For more information about workload capacity and uptime requirements in Tanzu Kubernetes Grid Integrated Edition, see [Prepare to Upgrade](upgrade.html#prepare) in _Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)_.
 
 + Configure the default node drain behavior by doing the following:
-    1. Navigate to **Ops Manager Installation** > **Tanzu Kubernetes Grid Integrated Edition** > **Plans**.
+    1. Navigate to **{{{ vars.platform_name }}} Installation** > **Tanzu Kubernetes Grid Integrated Edition** > **Plans**.
     1. Set the default node drain behavior by configuring the following fields:
       <table class="nice">
           <tr>
@@ -476,7 +476,7 @@ To resolve this issue, do one of the following:
         Before enabling this configuration, set <strong>Node Drain Timeout</strong> to greater than <code>0</code>.</p>
         <p class="note warning"><strong>Warning:</strong> If you deselect <strong>Force node to drain even if it has running DaemonSet-managed pods</strong> with <strong>Enable Metric Sink Resources</strong>,
         <strong>Enable Log Sink Resources</strong>, or <strong>Enable Node Exporter</strong> selected, the upgrade will fail as all options deploy a DaemonSet in the <code>pks-system</code> namespace.</p>
-    3. Navigate to **Ops Manager Installation Dashboard** > **Review Pending Changes**, select **Upgrade all clusters errand**, and **Apply Changes**.
+    3. Navigate to **{{{ vars.platform_name }}} Installation Dashboard** > **Review Pending Changes**, select **Upgrade all clusters errand**, and **Apply Changes**.
     The new behavior takes effect during the next upgrade, not immediately after applying your changes.
 
     <p class='note'><strong>Note:</strong> You can also use the TKGI CLI to configure node drain behavior.
@@ -615,20 +615,20 @@ In stdout or log files, you see an error message referencing `post-start scripts
 
 **Explanation**
 
-After deploying Tanzu Kubernetes Grid Integrated Edition, Ops Manager runs scripts to start a number of jobs. You must configure Ops Manager to automatically run these post-deploy scripts.
+After deploying Tanzu Kubernetes Grid Integrated Edition, {{{ vars.platform_name }}} runs scripts to start a number of jobs. You must configure {{{ vars.platform_name }}} to automatically run these post-deploy scripts.
 
 **Solution**
 
-Perform the following steps to configure Ops Manager to run post-deploy scripts.
+Perform the following steps to configure {{{ vars.platform_name }}} to run post-deploy scripts.
 
-1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the {{{ vars.platform_name }}} Installation Dashboard.
 
 1. Click the **BOSH Director** tile.
 
 1. Select **Director Config**.
 
 1. Select **Enable Post Deploy Scripts**.
-  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your Ops Manager installation.</p>
+  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your {{{ vars.platform_name }}} installation.</p>
 
 1. Click **Save**.
 
@@ -671,9 +671,9 @@ Plan not found error when an active plan is deactivated.
 
 **Explanation**
 
-You might receive the error "plan UUID not found" if, after creating a cluster using a plan (such as Plan 1), you then deactivate the plan (Plan 1) from the TKGI Tile in Ops Manager and then **Save** and **Apply Changes** with the **Upgrade all clusters errand** selected.
+You might receive the error "plan UUID not found" if, after creating a cluster using a plan (such as Plan 1), you then deactivate the plan (Plan 1) from the TKGI Tile in {{{ vars.platform_name }}} and then **Save** and **Apply Changes** with the **Upgrade all clusters errand** selected.
 
-Ops Manager does not have capability to check clusters that are using a particular plan. Only when user saves the plan, the deployment process will check whether a plan can be deactivated. The error message "plan is displayed in the Ops Manager logs.
+{{{ vars.platform_name }}} does not have capability to check clusters that are using a particular plan. Only when user saves the plan, the deployment process will check whether a plan can be deactivated. The error message "plan is displayed in the {{{ vars.platform_name }}} logs.
 
 **Solution**
 

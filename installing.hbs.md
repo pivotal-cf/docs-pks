@@ -9,13 +9,13 @@ This topics below describe how to install and configure VMware Tanzu Kubernetes 
 
 ## <a id='overview'></a>Overview
 
-You can install TKGI manually as a VMware Tanzu Operations Manager (Ops Manager) tile or use the Tanzu Kubernetes Grid Integrated Edition Management Console which provides a graphical user interface to assist with 
+You can install TKGI manually as a {{{ vars.platform_name }}} tile or use the Tanzu Kubernetes Grid Integrated Edition Management Console which provides a graphical user interface to assist with 
 configuring and deploying TKGI to vSphere.  
  
 To install and configure TKGI:  
 
 * [Tanzu Kubernetes Grid Integrated Edition Management Console (vSphere Only)](#install-mc)  
-* [Tanzu Kubernetes Grid Integrated Edition on Ops Manager](#install-manual)  
+* [Tanzu Kubernetes Grid Integrated Edition on {{{ vars.platform_name }}}](#install-manual)  
 
 
 ## <a id='install-mc'></a>TKGI Management Console (vSphere Only)
@@ -27,9 +27,9 @@ See the following documentation for the TKGI Management Console, which is the re
 For more information, see [When Should I Use Tanzu Kubernetes Grid Integrated Edition Management Console?](./vsphere-index.html#when-to-use-console).
 
 
-## <a id='install-manual'></a>TKGI on Ops Manager
+## <a id='install-manual'></a>TKGI on {{{ vars.platform_name }}}
 
-To manually install TKGI on Ops Manager:
+To manually install TKGI on {{{ vars.platform_name }}}:
 
 <ul>
   <li>

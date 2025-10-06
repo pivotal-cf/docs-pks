@@ -103,7 +103,7 @@ Create Tier-1 Logical Switch and Router for TKGI Management Plane VMs. Complete 
 
 You need to create the following NAT rules on the Tier-0 router for the TKGI Management Plane VMs.
 
-- DNAT: `10.173.62.220` (for example) to access Ops Manager
+- DNAT: `10.173.62.220` (for example) to access {{{ vars.platform_name }}}
 - DNAT: `10.173.62.221` (for example) to access Harbor
 - SNAT: `10.173.62.222` (for example) for all TKGI management plane VM traffic destined to the outside world
 
@@ -114,7 +114,7 @@ You need to create the following NAT rules on the Tier-0 router for the TKGI Man
 
 1. Click **Add**.
 
-1. Configure the Ops Manager DNAT rule as follows:  
+1. Configure the {{{ vars.platform_name }}} DNAT rule as follows:  
   - **Priority**: `1000`  
   - **Action**: `DNAT`  
   - **Protocol**: `Any Protocol`  

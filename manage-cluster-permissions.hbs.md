@@ -40,7 +40,7 @@ Before setting up cluster access for users in Tanzu Kubernetes Grid Integrated E
 see [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).
 * Fully qualified domain name (FQDN) of your TKGI deployment.
 * OpenID Connect (OIDC) provider for your Kubernetes clusters, configured using one or both of the following:
-    * Global OIDC provider configuration for all clusters in **Ops Manager Installation Dashboard** > **Tanzu Kubernetes Grid Integrated Edition** >
+    * Global OIDC provider configuration for all clusters in **{{{ vars.platform_name }}} Installation Dashboard** > **Tanzu Kubernetes Grid Integrated Edition** >
     **Settings** > **UAA** > **Configure created clusters to use UAA as the OIDC provider**.
     For instructions, see [UAA](installing-vsphere.html#uaa) in the _Installing_ topic for your IaaS.
     * Custom OIDC provider configuration for individual clusters through a Kubernetes profile.
@@ -141,7 +141,7 @@ Use the following example as a template:
     This is omitted when creating a `ClusterRole`.  
     * `USERNAME` is the Kubernetes end user user name. This is the user name created for your organization's LDAP or SAML identity provider.  
 
-    <p class="note"><strong>Note:</strong> If you configured an OIDC user name prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong>Tanzu Kubernetes Grid Integrated Edition</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
+    <p class="note"><strong>Note:</strong> If you configured an OIDC user name prefix in <strong>{{{ vars.platform_name }}} Installation Dashboard</strong> > <strong>Tanzu Kubernetes Grid Integrated Edition</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
     you must prepend <code>USERNAME</code> with the prefix you configured.
     For more information, see <a href="./installing-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Adding an OIDC Provider</a>.</p>  
     * `ROLE-TYPE` is the type of role you created in the previous step.
@@ -241,7 +241,7 @@ Cluster admins can grant access to an identity provider group by creating a `Clu
 `RoleBinding` for that  group. You can grant access to an identity provider group
 only if you use a LDAP or SAML identity provider for UAA.
 You can configure a LDAP or SAML identity provider in
-<strong>Ops Manager Installation Dashboard</strong> >
+<strong>{{{ vars.platform_name }}} Installation Dashboard</strong> >
 <strong> Tanzu Kubernetes Grid Integrated Edition </strong> > <strong> Settings </strong> > <strong>UAA</strong>.
 
 <p class='note'><strong>Note:</strong> If you are using a LDAP group,
@@ -249,7 +249,7 @@ You can configure a LDAP or SAML identity provider in
   giving access is in the allowlist in the
   Tanzu Kubernetes Grid Integrated Edition tile.
   To do this, review <strong>External Groups Whitelist</strong> in
-  <strong>Ops Manager Installation Dashboard</strong> > <strong>
+  <strong>{{{ vars.platform_name }}} Installation Dashboard</strong> > <strong>
   Tanzu Kubernetes Grid Integrated Edition </strong> > <strong> Settings </strong> > <strong>UAA</strong>.</p>
 
 To grant cluster access to an identity provider group,
@@ -291,7 +291,7 @@ with the following:
     * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.
     * `NAME-OF-GROUP` is the identity provider group name. This name is case sensitive.
 
-        <p class="note"><strong>Note:</strong> If you configured an OIDC groups prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong>Tanzu Kubernetes Grid Integrated Edition</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
+        <p class="note"><strong>Note:</strong> If you configured an OIDC groups prefix in <strong>{{{ vars.platform_name }}} Installation Dashboard</strong> > <strong>Tanzu Kubernetes Grid Integrated Edition</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
         you must prepend <code>NAME-OF-GROUP</code> with the prefix you configured.
         For more information, see <a href="./installing-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Adding an OIDC Provider</a>.</p>
     * `ROLE-TYPE` is the type of role you created in the previous step.

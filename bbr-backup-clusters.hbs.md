@@ -21,7 +21,7 @@ To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup
 
 {{{ vars.recommended_by }}} recommends:
 
-* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of Ops Manager and Tanzu Kubernetes Grid Integrated Edition to restore from.
+* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of {{{ vars.platform_name }}} and Tanzu Kubernetes Grid Integrated Edition to restore from.
 
 * Back up your Kubernetes clusters frequently, especially before upgrading your Tanzu Kubernetes Grid Integrated Edition deployment.
 
@@ -51,8 +51,8 @@ For general information about the jump box, see [Installing BOSH Backup and Rest
 
 To connect to your jump box with SSH, do one of the following:
 
-+ **If you are using the Ops Manager VM as your jump box, log in to the Ops Manager VM.** See
-    [Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
++ **If you are using the {{{ vars.platform_name }}} VM as your jump box, log in to the {{{ vars.platform_name }}} VM.** See
+    [Log in to the {{{ vars.platform_name }}} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
     <br><br>
 + **If you want to connect to your jump box using the command line, run the following
  command:**

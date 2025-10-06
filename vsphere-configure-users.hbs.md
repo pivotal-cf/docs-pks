@@ -14,30 +14,30 @@ UAA is the identity management service for Tanzu Kubernetes Grid Integrated Edit
 Tanzu Kubernetes Grid Integrated Edition includes a UAA server, which is hosted on the TKGI API VM.
 
 To interact with the UAA server, you can use the UAA Command Line Interface (UAAC).
-You can either run UAAC commands from the Ops Manager VM or install UAAC on your local workstation.
+You can either run UAAC commands from the {{{ vars.platform_name }}} VM or install UAAC on your local workstation.
 
 ## <a id='prerequisites'></a> Prerequisites
 
 Before setting up admin users for Tanzu Kubernetes Grid Integrated Edition, you must have one of the following:
 
-* SSH access to the Ops Manager VM
+* SSH access to the {{{ vars.platform_name }}} VM
 
 * A machine that can connect to your TKGI API VM
 
 ## <a id='connect'></a>Step 1: Connect to the TKGI API VM
 
-You can connect to the TKGI API VM from the Ops Manager VM or from a different machine such as your local workstation.
+You can connect to the TKGI API VM from the {{{ vars.platform_name }}} VM or from a different machine such as your local workstation.
 
-### <a name='ssh-vsphere'></a>Option 1: Connect through the Ops Manager VM
+### <a name='ssh-vsphere'></a>Option 1: Connect through the {{{ vars.platform_name }}} VM
 
-You can connect to TKGI API VM by logging in to the Ops Manager VM through SSH.  
+You can connect to TKGI API VM by logging in to the {{{ vars.platform_name }}} VM through SSH.  
 
-To SSH into the Ops Manager VM on vSphere, do the following:
+To SSH into the {{{ vars.platform_name }}} VM on vSphere, do the following:
 
-1. Locate the credentials that were used to import the Ops Manager `.ova` or `.ovf` file into your virtualization system. 
-You configured these credentials when you installed Ops Manager and used them to complete the 
+1. Locate the credentials that were used to import the {{{ vars.platform_name }}} `.ova` or `.ovf` file into your virtualization system. 
+You configured these credentials when you installed {{{ vars.platform_name }}} and used them to complete the 
 [Prepare vSphere](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-deploy.html#prepare-vsphere) 
-steps in _Deploying Ops Manager on vSphere_.
+steps in _Deploying {{{ vars.platform_name }}} on vSphere_.
 
 1. Change the permissions for your private SSH key by running the following command:
           
@@ -45,12 +45,12 @@ steps in _Deploying Ops Manager on vSphere_.
     chmod 600 PRIVATE-KEY
     ```
     Where `PRIVATE-KEY` is the name of your private SSH key.<br><br>
-1. SSH into the Ops Manager VM by running the following command:
+1. SSH into the {{{ vars.platform_name }}} VM by running the following command:
 
     ```
     ssh -i PRIVATE-KEY ubuntu@OPS-MANAGER-FQDN
     ```
-    Where `OPS-MANAGER-FQDN` is the fully qualified domain name (FQDN) of Ops Manager.
+    Where `OPS-MANAGER-FQDN` is the fully qualified domain name (FQDN) of {{{ vars.platform_name }}}.
           
     For example:  
 
@@ -60,7 +60,7 @@ steps in _Deploying Ops Manager on vSphere_.
     
 1. Proceed to the [Log In as a UAA Admin](#uaa-admin-login) section to create admin users with UAAC. 
       
-### <a name='local-workstation'></a>Option 2: Connect through a Non-Ops Manager Machine
+### <a name='local-workstation'></a>Option 2: Connect through a Non-{{{ vars.platform_name }}} Machine
 
 To connect to the TKGI API VM and run UAA commands, do the following:
 
@@ -69,10 +69,10 @@ To connect to the TKGI API VM and run UAA commands, do the following:
     ```
     gem install cf-uaac
     ```
-1. Download a copy of your Ops Manager root CA certificate to the machine. To download the certificate, do the following:
+1. Download a copy of your {{{ vars.platform_name }}} root CA certificate to the machine. To download the certificate, do the following:
 
-  1. In a web browser, navigate to the FQDN of Ops Manager and log in.
-  1. In Ops Manager, navigate to **Settings** in the drop-down menu under your user name.
+  1. In a web browser, navigate to the FQDN of {{{ vars.platform_name }}} and log in.
+  1. In {{{ vars.platform_name }}}, navigate to **Settings** in the drop-down menu under your user name.
   1. Click **Advanced Options**.
   1. On the **Advanced Options** configuration page, click **Download Root CA Cert**.
   1. Move the certificate to a secure location on your machine and record the path.

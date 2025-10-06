@@ -394,7 +394,7 @@ To configure availability zones:
 1. In the **Name** field, enter a name for the availability zone.
 1. Optionally select **This is the management availability zone**.  
 
-    The management availability zone is the availability zone in which to deploy the TKGI Management Plane. The management plane consists of the TKGI API VM, Ops Manager, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, Tanzu Kubernetes Grid Integrated Edition Management Console selects the first one.  
+    The management availability zone is the availability zone in which to deploy the TKGI Management Plane. The management plane consists of the TKGI API VM, {{{ vars.platform_name }}}, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, Tanzu Kubernetes Grid Integrated Edition Management Console selects the first one.  
 1. In the **Compute Resource** tree, select clusters, host groups, or resource pools for this availability zone to use.  
 1. Click **Save Availability Zone**.  
 
@@ -514,7 +514,7 @@ Consider the following when configuring plans for Windows worker nodes:
 * You can create a maximum of 3 plans that implement Windows worker nodes in a given Tanzu Kubernetes Grid Integrated Edition deployment.
 * If you use Windows worker nodes, certain options are not available, and the default values of other options change. See the option descriptions below for more information.
 * If you use Windows worker nodes, by default one Linux worker node is deployed per Windows cluster. The Linux node provides cluster services to the Windows worker nodes. You can optionally make the cluster services Linux node highly available, in which case two Linux nodes are deployed.
-* If you use Windows worker nodes, after you deploy Tanzu Kubernetes Grid Integrated Edition, you must use Operations Manager to manually install a Windows Server Stemcell in BOSH. For information about how to install a Windows Server Stemcell and other steps to perform after you deploy Tanzu Kubernetes Grid Integrated Edition with Windows worker nodes, see [Enable Plans with Windows Worker Nodes](console-windows-workers.html).  
+* If you use Windows worker nodes, after you deploy Tanzu Kubernetes Grid Integrated Edition, you must use {{{ vars.platform_name }}} to manually install a Windows Server Stemcell in BOSH. For information about how to install a Windows Server Stemcell and other steps to perform after you deploy Tanzu Kubernetes Grid Integrated Edition with Windows worker nodes, see [Enable Plans with Windows Worker Nodes](console-windows-workers.html).  
 
 
 
@@ -755,19 +755,19 @@ To deploy TKGI:
 
 1. (Optional) Click **Export YAML** to save a copy of the YAML file for future use.<br>This is recommended. The manifest is exported as the file `PksConfiguration.yaml`.
 
-1. (Optional) Specify an FQDN address for the Ops Manager VM by editing the YAML directly in the YAML editor.  
-    <p class='note warning'><strong>WARNING:</strong> You cannot change the Ops Manager FQDN of Tanzu Kubernetes Grid Integrated Edition once it has already deployed.</p>
-    To specify an FQDN address for the Ops Manager VM, update the YAML as follows:  
+1. (Optional) Specify an FQDN address for the {{{ vars.platform_name }}} VM by editing the YAML directly in the YAML editor.  
+    <p class='note warning'><strong>WARNING:</strong> You cannot change the {{{ vars.platform_name }}} FQDN of Tanzu Kubernetes Grid Integrated Edition once it has already deployed.</p>
+    To specify an FQDN address for the {{{ vars.platform_name }}} VM, update the YAML as follows:  
     
 	1. Locate the `opsman_fqdn:` entry in the YAML file.  
-	1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN: `opsman_fqdn: "myopsman.example.com"`.  
+	1. Update the `opsman_fqdn:` entry with the {{{ vars.platform_name }}} VM FQDN: `opsman_fqdn: "myopsman.example.com"`.  
 	1. Make sure that the FQDN is mapped to the following IP address:  
         * For vSphere with NSX deployments map it to the first address in the floating IP range.  
     	* For vSphere without NSX deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.  
     If you start the deployment and you have not mapped the FQDN to an IP address, the deployment fails with an error. If this happens, configure the mapping as above, return to the YAML editor, and start the deployment again.
-1. (Optional) To use a custom certificate for Ops Manager, edit the YAML directly in the YAML editor.
+1. (Optional) To use a custom certificate for {{{ vars.platform_name }}}, edit the YAML directly in the YAML editor.
 
-	1. Generate a private key and root certificate for Ops Manager, by using `openssl`. For example:
+	1. Generate a private key and root certificate for {{{ vars.platform_name }}}, by using `openssl`. For example:
 	   
 	     ```
 	     openssl genrsa -out opsman.key 2048

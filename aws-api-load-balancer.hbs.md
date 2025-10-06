@@ -34,7 +34,7 @@ Perform the following steps:
 1. Under **Classic Load Balancer**, click **Create**.
 1. On the **Define Load Balancer** page, complete the **Basic Configuration** section as follows:
 1. **Load Balancer name**: Name the load balancer. {{{ vars.recommended_by }}} recommends naming your load balancer `tkgi-api`.
-  1. **Create LB inside**: Select the VPC where you installed Ops Manager.
+  1. **Create LB inside**: Select the VPC where you installed {{{ vars.platform_name }}}.
   1. **Create an internal load balancer**: Do not activate this check box. The Tanzu Kubernetes Grid Integrated Edition API load balancer must be internet-facing.
 1. Complete the **Listeners Configuration** section as follows:
   1. Configure the listener for UAA as follows:
@@ -83,7 +83,7 @@ Perform the following steps to configure the health check:
 
 Perform the following steps to add EC2 Instances for the Load Balancer:
 
-1. Open Ops Manager to the **Installation Dashboard** pane.
+1. Open {{{ vars.platform_name }}} to the **Installation Dashboard** pane.
 1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
 1. Open the **Resource Config** pane.
 1. Select **TKGI API**.

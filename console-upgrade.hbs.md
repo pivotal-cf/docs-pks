@@ -27,7 +27,7 @@ You can only use the management console to upgrade an Tanzu Kubernetes Grid Inte
       1. Select **Set Value**.  
   1. Save your changes and power the TKGI Management Console VM back on.  
   
-<p class="note"><strong> Note:</strong> To upgrade to multiple datacenters, you must use Ops Manager. You cannot upgrade to multiple datacenters using the Management Console.</p>
+<p class="note"><strong> Note:</strong> To upgrade to multiple datacenters, you must use {{{ vars.platform_name }}}. You cannot upgrade to multiple datacenters using the Management Console.</p>
 
 ## <a id='deploy-ova'></a>Step 1: Deploy the New OVA Template
 
@@ -66,12 +66,12 @@ To get help in the wizard at any time, click the **?** icon at the top of the pa
 
     Sections might appear in red because they are in an error state, or because they relate to new configuration parameters that were not present in the previous version. For information about how to configure each section, see [Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard](console-deploy-wizard.html). For information about new parameters that have been added, see the release notes for the version to which you are upgrading.
 1. When all of the sections of the configuration wizard are green, click **Generate Configuration** to see the generated YAML file.
-1. (Optional) Specify an FQDN address for the Ops Manager VM by editing the YAML directly in the YAML editor.
-    <p class='note warning'><strong>WARNING:</strong> You cannot change the Ops Manager FQDN of Tanzu Kubernetes Grid Integrated Edition once it has already deployed.
+1. (Optional) Specify an FQDN address for the {{{ vars.platform_name }}} VM by editing the YAML directly in the YAML editor.
+    <p class='note warning'><strong>WARNING:</strong> You cannot change the {{{ vars.platform_name }}} FQDN of Tanzu Kubernetes Grid Integrated Edition once it has already deployed.
     </p>
-    To specify an FQDN address for the Ops Manager VM, update the YAML as follows:  
+    To specify an FQDN address for the {{{ vars.platform_name }}} VM, update the YAML as follows:  
     1. Locate the `opsman_fqdn:` entry in the YAML file.  
-    1. Update the `opsman_fqdn:` entry with the Ops Manager VM FQDN: `opsman_fqdn: "myopsman.example.com"`.  
+    1. Update the `opsman_fqdn:` entry with the {{{ vars.platform_name }}} VM FQDN: `opsman_fqdn: "myopsman.example.com"`.  
     1. Make sure that the FQDN is mapped to the following IP address:  
         * For NSX deployments map it to the first address in the floating IP range.  
         * For vSphere without NSX deployments, map it to the first address in the deployment network, excluding the gateway, deployment DNS, and reserved IP range.  

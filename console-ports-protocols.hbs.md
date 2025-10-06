@@ -16,7 +16,7 @@ If you are unable to implement your security policy using these methods, refer t
 
 <p class="note"><strong>Notes</strong>: The Source Component is IP address of the Tanzu Kubernetes Grid Integrated Edition Management Console VM.
 <br>
-<br>In a standard Tanzu Kubernetes Grid Integrated Edition deployment, it is assumed that Ops Manager and BOSH are already deployed before you deploy Tanzu Kubernetes Grid Integrated Edition. This is not the case with Tanzu Kubernetes Grid Integrated Edition deployments from the management console, in which you do not know the IP addresses in the deployment network that will be assigned to TKGI API VM, BOSH VM, and Ops Manager VM. As a consequence, it is recommended to create a firewall rule that allows access by the management console VM to the entire deployment subnet.</p>
+<br>In a standard Tanzu Kubernetes Grid Integrated Edition deployment, it is assumed that {{{ vars.platform_name }}} and BOSH are already deployed before you deploy Tanzu Kubernetes Grid Integrated Edition. This is not the case with Tanzu Kubernetes Grid Integrated Edition deployments from the management console, in which you do not know the IP addresses in the deployment network that will be assigned to TKGI API VM, BOSH VM, and {{{ vars.platform_name }}} VM. As a consequence, it is recommended to create a firewall rule that allows access by the management console VM to the entire deployment subnet.</p>
 
 | Source Component | Destination Component | Destination Protocol | Destination Port | Service |
 | --- | --- | --- | --- | --- |
@@ -24,9 +24,9 @@ If you are unable to implement your security policy using these methods, refer t
 | Management Console VM | All System Components | TCP | 80 | http |
 | Management Console VM | All System Components | TCP | 443 | https |
 | Management Console VM | Cloud Foundry BOSH Director | TCP | 25555 | bosh director rest api |
-| Management Console VM | DNS validation for Ops Manager | TCP | 53 | netcat |
+| Management Console VM | DNS validation for {{{ vars.platform_name }}} | TCP | 53 | netcat |
 | Management Console VM | Kubernetes Cluster API Server - LB VIP | TCP | 8443 | httpsca |
-| Management Console VM | Pivotal Cloud Foundry Operations Manager | TCP | 22 | SSH |
-| Management Console VM | Pivotal Cloud Foundry Operations Manager | TCP | 443 | https |
+| Management Console VM | {{{ vars.platform_name }}} | TCP | 22 | SSH |
+| Management Console VM | {{{ vars.platform_name }}} | TCP | 443 | https |
 | Management Console VM | TKGI Controller | TCP | 9021 | tkgi api server |
 | Management Console VM | vCenter Server | TCP | 443 | https |

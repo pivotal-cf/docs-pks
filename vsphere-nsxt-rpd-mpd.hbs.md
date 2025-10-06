@@ -44,7 +44,7 @@ For more information, see [Installing and Configuring NSX-T Data Center v3.0 for
 
 The Tanzu Kubernetes Grid Integrated Edition Management Plane comprises the following components:
 
-- Ops Manager
+- {{{ vars.platform_name }}}
 - BOSH Director 
 - TKGI Control Plane
 - VMware Harbor Registry
@@ -229,7 +229,7 @@ The following table lists the resource requirements for NSX infrastructure and T
     <td>167</td>
   </tr>
   <tr>
-    <td>Ops Manager</td>
+    <td>{{{ vars.platform_name }}}</td>
     <td>1</td>
     <td>8</td>
     <td>160</td>

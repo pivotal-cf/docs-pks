@@ -16,7 +16,7 @@ Before installing Tanzu Kubernetes Grid Integrated Edition:
 
 1. Review the sections below and the instructions in +AFs-Creating Dedicated Users and Roles for vSphere (Optional)+AF0-(vsphere-prepare-env.html).
 
-1. Install and configure Ops Manager. To install Ops Manager, follow the instructions in +AFs-Installing and Configuring Ops Manager on vSphere+AF0-(vsphere-om-install-config.html).
+1. Install and configure +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-. To install +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-, follow the instructions in +AFs-Installing and Configuring +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- on vSphere+AF0-(vsphere-om-install-config.html).
 
 +ACMAIwA8-a id+AD0-'vsphere'+AD4APA-/a+AD4- vSphere Version Requirements
 
@@ -25,7 +25,7 @@ Before installing Tanzu Kubernetes Grid Integrated Edition:
 
 +ACMAIwA8-a id+AD0-'resources'+AD4APA-/a+AD4- Resource Requirements
 
-Installing Ops Manager and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
+Installing +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
 
 +ADw-table+AD4-
   +ADw-tr+AD4-
@@ -41,7 +41,7 @@ Installing Ops Manager and Tanzu Kubernetes Grid Integrated Edition requires the
     +ADw-td+AD4-16+ADw-/td+AD4-
   +ADw-/tr+AD4-
   +ADw-tr+AD4-
-    +ADw-td+AD4-Ops Manager+ADw-/td+AD4-
+    +ADw-td+AD4AewB7AHs- vars.platform+AF8-name +AH0AfQB9ADw-/td+AD4-
     +ADw-td+AD4-1+ADw-/td+AD4-
     +ADw-td+AD4-8+ADw-/td+AD4-
     +ADw-td+AD4-160+ADw-/td+AD4-
@@ -60,7 +60,7 @@ Installing Ops Manager and Tanzu Kubernetes Grid Integrated Edition requires the
   +ADw-/tr+AD4-
 +ADw-/table+AD4-
 
-+ADw-p class+AD0AIg-note+ACIAPgA8-strong+AD4-NOTE:+ADw-/strong+AD4- VMware recommends deploying TKGI on its own dedicated Ops Manager instance, rather than on a shared Ops Manager that also hosts other runtimes such as +AHsAewB7- vars.app+AF8-runtime +AH0AfQB9-.+ADw-/p+AD4-
++ADw-p class+AD0AIg-note+ACIAPgA8-strong+AD4-NOTE:+ADw-/strong+AD4- VMware recommends deploying TKGI on its own dedicated +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- instance, rather than on a shared +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- that also hosts other runtimes such as +AHsAewB7- vars.app+AF8-runtime +AH0AfQB9-.+ADw-/p+AD4-
 
 +AHsAewA+- +AF8-increase+AF8-persistent+AF8-disk +AH0AfQ-
 

@@ -10,7 +10,7 @@ The following topics describe how to define and use network profiles for VMware 
     <a href="./console-network-profile.html">Working with Network Profiles in the Management Console</a>
   </li>
   <li>
-    <a href="./network-profiles-opsmgr.html">Working with Network Profiles in Ops Manager</a>
+    <a href="./network-profiles-opsmgr.html">Working with Network Profiles in {{{ vars.platform_name }}}</a>
   </li>
   <li><strong>Network Profile Use Cases</strong>
     <ul>

@@ -8,7 +8,7 @@ This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Ed
 * **Secure private registries** that use `HTTPS` protocol and require an SSL Certificate Authority (CA) certificate for access.
 * **Insecure private registries** that use `HTTP` protocol.
 
-The ability to configure clusters to use private registries is enabled by default, but a platform admin can disable this ability from the TKGI Ops Manager tile > **TKGI API** pane > **Configure clusters to use private registries** option.
+The ability to configure clusters to use private registries is enabled by default, but a platform admin can disable this ability from the TKGI {{{ vars.platform_name }}} tile > **TKGI API** pane > **Configure clusters to use private registries** option.
 
 For secure private registries, the procedures below configure an individual TKGI Kubernetes cluster with access certificates.
 To configure all of your TKGI clusters to share the same certificates for accessing secure Harbor registries, see [Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html#provide-harbor-cert) in the Harbor documentation.

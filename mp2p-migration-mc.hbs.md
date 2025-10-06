@@ -5,7 +5,7 @@ owner: TKGI
 
 This topic describes how to migrate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from NSX Management Plane API to NSX Policy API (MP2P) with the TKGI Management Console.  
 
-To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI tile in Ops Manager, see [Migrating from NSX Management Plane API to Policy API Using Ops Manager](mp2p-migration.html).  
+To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI tile in {{{ vars.platform_name }}}, see [Migrating from NSX Management Plane API to Policy API Using {{{ vars.platform_name }}}](mp2p-migration.html).  
 
 For an overview of NSX Management Plane API to NSX Policy API Migration, 
 see [Migrating from NSX Management Plane API to Policy API - Overview](mp2p-migration-concepts.html). 
@@ -63,7 +63,7 @@ verify your TKGI environment meets the following requirements:
         
 * Other Requirements:  
 
-    * Administrator access to NSX, Ops Manager, BOSH, TKGI, TKGI Management Console.  
+    * Administrator access to NSX, {{{ vars.platform_name }}}, BOSH, TKGI, TKGI Management Console.  
     * For more information about TKGI MP2P Migration limitations, see 
     [TKGI MP2P Migration Configurations](mp2p-migration-concepts.html#features-configs) and
     [TKGI MP2P Migration Operational Limitations](mp2p-migration-concepts.html#concerns-limitations) 
@@ -81,7 +81,7 @@ To prepare your TKGI environment for MP2P Migration with the Management Console:
 ### <a id="migration-prep-enable"></a> Enable Migration
 
 You must enable support for MP2P Migration in NSX before promoting clusters to NSX Policy API.  
-Additionally, Ops Manager and BOSH must be configured to support a mixed environment of NSX Management Plane API and NSX Policy API clusters before promoting clusters.
+Additionally, {{{ vars.platform_name }}} and BOSH must be configured to support a mixed environment of NSX Management Plane API and NSX Policy API clusters before promoting clusters.
 
 <p class="note"><strong>Note</strong>: After activating NSX Policy API, 
     existing NSX backups created while using NSX Management Plane API cannot be used to restore your environment or your clusters.
@@ -97,7 +97,7 @@ To prepare NSX for MP2P Migration:
 use a Source IP LB algorithm during TKGI foundation migration. 
 Make all migration requests on a single NSX Manager.  
 
-To prepare Ops Manager and BOSH for MP2P Migration:
+To prepare {{{ vars.platform_name }}} and BOSH for MP2P Migration:
 
 1. Log in to the TKGI Management Console. 
 1. In the **TKGI Configuration** > **Networking** pane, under **BOSH NSX-T Policy API Migration Mode Configuration**, enable the **Enable BOSH NSX-T Policy API Migration Mode** toggle.

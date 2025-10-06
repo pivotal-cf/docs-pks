@@ -65,7 +65,7 @@ You must not change this name after deployment because all external users use
 it to link to the provider.
 
 1. For **Display Name**, enter a display name for your provider. This display
-name appears as a link on your VMware Tanzu Operations Manager (Ops Manager) login page, which you can access
+name appears as a link on your {{{ vars.platform_name }}} login page, which you can access
 at `https://TKGI-API:8443/login`.
 
     ![SAML provider display name](images/saml-display-name.png)
@@ -133,7 +133,7 @@ for signed requests and assertions. The default value is `SHA256`.
 ## <a id='complete'></a>Complete Your Tile Configuration
 
 * If you do not need to configure any other settings in the
-Tanzu Kubernetes Grid Integrated Edition tile, return to the Ops Manager Installation Dashboard and
+Tanzu Kubernetes Grid Integrated Edition tile, return to the {{{ vars.platform_name }}} Installation Dashboard and
 click **Review Pending Changes** > **Apply Changes**.
 * If you need to configure any other settings in the Tanzu Kubernetes Grid Integrated Edition
 tile, return to the _Installing Tanzu Kubernetes Grid Integrated Edition_ topic for your IaaS and

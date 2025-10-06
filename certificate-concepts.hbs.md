@@ -43,7 +43,7 @@ For more information, see
 [Check Certificate Expiration Dates](#check-expiration) and [Rotating Certificates](#rotate) below.  
 
 For more information about certificates, see [Certificate Types](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-pcf-infrastructure/certificate-types.html) 
-in the Ops Manager documentation.  
+in the {{{ vars.platform_name }}} documentation.  
 
 
 ## <a id="check-expiration"></a>Check Certificate Expiration Dates
@@ -52,8 +52,8 @@ Before rotating TKGI certificates, determine which certificates are approaching 
 
 To review certificate expiration dates:  
 
-* Review certificate expiration dates using Ops Manager. 
-    To see certificate expiration dates, open the Ops Manager and select the **Certificates** tab.  
+* Review certificate expiration dates using {{{ vars.platform_name }}}. 
+    To see certificate expiration dates, open the {{{ vars.platform_name }}} and select the **Certificates** tab.  
 * Use CredHub to export the certificate expiration dates for the TKGI deployment or one or more clusters. 
 For more information, see 
 [How to get the expiry dates of all CA's & certificates in the PKS deployment and clusters](https://knowledge.broadcom.com/external/article/298609/) 
@@ -137,16 +137,16 @@ The following summarizes the rotation requirements for the certificates used in 
                 <br><code>dns_api_server_tls</code>
             </td>
             <td>One year</td>
-            <td><ul><li>If <strong>Enable automatic rotation of the BOSH DNS CA certificate</strong> in the Ops Manager > BOSH Director tile is enabled as described in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-pcf-infrastructure-automatic-rotation-bosh-dns.html">Automatic Rotation of BOSH DNS certificates</a> in the Ops Manager documentation, you do not have to rotate the BOSH DNS CA (<code>/opsmgr/bosh_dns/tls_ca</code>) and its leaf certificates.</li>
+            <td><ul><li>If <strong>Enable automatic rotation of the BOSH DNS CA certificate</strong> in the {{{ vars.platform_name }}} > BOSH Director tile is enabled as described in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-pcf-infrastructure-automatic-rotation-bosh-dns.html">Automatic Rotation of BOSH DNS certificates</a> in the {{{ vars.platform_name }}} documentation, you do not have to rotate the BOSH DNS CA (<code>/opsmgr/bosh_dns/tls_ca</code>) and its leaf certificates.</li>
             <li>If automatic rotation is not enabled and only the leaf certificates are expiring, see <a href="https://knowledge.broadcom.com/external/article?legacyId=88187">Rotate bosh-dns leaf certificates using maestro</a> in the Broadcom Support Knowledge Base.</li>
-            <li>If the BOSH DNS CA is expiring, follow the procedure <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-pcf-infrastructure-advanced-certificate-rotation.html#single-rotation">Rotate a single CA and its leaf certificates</a> under "Advanced certificate rotation with CredHub Maestro" in the Ops Manager documentation.</li></ul>
+            <li>If the BOSH DNS CA is expiring, follow the procedure <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-pcf-infrastructure-advanced-certificate-rotation.html#single-rotation">Rotate a single CA and its leaf certificates</a> under "Advanced certificate rotation with CredHub Maestro" in the {{{ vars.platform_name }}} documentation.</li></ul>
             </td>
         </tr>
     </table>
     
     <br>
     To extend the default expiration period, see [Overriding Duration for Certificates](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/security-pcf-infrastructure-configure-certificate-duration-overrides.html) 
-    in the Ops Manager documentation.  
+    in the {{{ vars.platform_name }}} documentation.  
 
 * **TKGI Kubernetes Cluster Certificates**
 

@@ -12,7 +12,7 @@ Apply one or more tags to your clusters to simplify organizing, managing, search
 You can use the TKGI CLI to tag clusters by following the steps in
 [Tag Your Clusters as They Are Created](#tagging-cli) below.
 
-<p class="note"><strong>Note</strong>: Tanzu Kubernetes Grid Integrated Edition Cluster tagging requires Ops Manager v2.8.0 or later.
+<p class="note"><strong>Note</strong>: Tanzu Kubernetes Grid Integrated Edition Cluster tagging requires {{{ vars.platform_name }}} v2.8.0 or later.
 </p>
 
 ## <a id='tagging-cli'></a>Tag Your Clusters as They Are Created 

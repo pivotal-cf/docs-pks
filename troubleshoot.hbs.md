@@ -1,6 +1,6 @@
 ---
 title: Diagnosing and Troubleshooting Tanzu Kubernetes Grid Integrated Edition
-owner: Ops Manager
+
 ---
 
 The following topics provide assistance when diagnosing and troubleshooting issues when installing or using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):  

@@ -14,7 +14,7 @@ A growing TKGI environment may outgrow its host vSphere datastore.
 To avoid this, you can move TKGI to a new datastore by migrating its components in the following order:
 
 1. Datastore for container volumes
-2. Ops Manager and the BOSH Director
+2. {{{ vars.platform_name }}} and the BOSH Director
 3. TKGI Tile
 4. TKGI-managed clusters
 
@@ -37,9 +37,9 @@ For limitations and considerations, see:
     * [Migrating Container Volumes in vSphere](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vsphere-storage-7-0/getting-started-with-cloud-native-storage-in-vsphere/cloud-native-storage-for-vsphere-administrators/migrating-container-volumes-in-vsphere.html) in the vSphere 8.0 documentation
     * [Guidelines/Limitations for Cloud Native Storage (CNS) Relocate on vSphere and known issues](https://kb.vmware.com/s/article/90607) in the Broadcom Support KB
 
-## <a id="foundation"></a> Step 2: Change the Datastore for Ops Manager and the BOSH Director
+## <a id="foundation"></a> Step 2: Change the Datastore for {{{ vars.platform_name }}} and the BOSH Director
 
-1. Log in to the Tanzu Operations Manager Installation Dashboard.
+1. Log in to the {{{ vars.platform_name }}} Installation Dashboard.
 
 2. Click into the **BOSH Director** tile.
 
@@ -63,7 +63,7 @@ For limitations and considerations, see:
 
 ## <a id="tile"></a> Step 3: Change the Datastore for the TKGI Tile
 
-1. Log in to the Tanzu Operations Manager Installation Dashboard.
+1. Log in to the {{{ vars.platform_name }}} Installation Dashboard.
 
 2. In the **BOSH Director** tile, click **Director Config**.
 

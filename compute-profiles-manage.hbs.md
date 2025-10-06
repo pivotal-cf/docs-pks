@@ -347,7 +347,7 @@ the `cloud_properties` schema, see [AZs](https://bosh.io/docs/vsphere-cpi/#azs) 
   <tr>
     <td><code>name</code></td>
     <td>String</td>
-    <td>Name of your vSphere data center as it appears in Ops Manager and your cloud provider console. For example, <code>vSAN_Datacenter</code>.</td>
+    <td>Name of your vSphere data center as it appears in {{{ vars.platform_name }}} and your cloud provider console. For example, <code>vSAN_Datacenter</code>.</td>
   </tr>
   <tr>
     <td><code>clusters</code></td>
@@ -382,15 +382,15 @@ the `cloud_properties` schema, see [AZs](https://bosh.io/docs/vsphere-cpi/#azs) 
 Use the following procedure to retrieve the BOSH CPI ID for your
 TKGI deployment.
 
-1. Locate the credentials that were used to import the Ops Manager .ova or .ovf file into your virtualization system. You configured these credentials when you installed Ops Manager.
-    <p class="note"><strong>Note</strong>: If you lose your credentials, you must shut down the Ops Manager VM in the vSphere UI and reset the password. See <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-security-8-0/securing-vcenter-server-systems/vcenter-server-password-requirements-and-lockout-behavior.html">vCenter Password Requirements and Lockout Behavior</a> in the vSphere documentation for more information.</p>
+1. Locate the credentials that were used to import the {{{ vars.platform_name }}} .ova or .ovf file into your virtualization system. You configured these credentials when you installed {{{ vars.platform_name }}}.
+    <p class="note"><strong>Note</strong>: If you lose your credentials, you must shut down the {{{ vars.platform_name }}} VM in the vSphere UI and reset the password. See <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-security-8-0/securing-vcenter-server-systems/vcenter-server-password-requirements-and-lockout-behavior.html">vCenter Password Requirements and Lockout Behavior</a> in the vSphere documentation for more information.</p>
 
-1. From a command line, run the following command to SSH into the Ops Manager VM:
+1. From a command line, run the following command to SSH into the {{{ vars.platform_name }}} VM:
 
     ```
     ssh ubuntu@OPS-MANAGER-FQDN
     ```
-    Where `OPS-MANAGER-FQDN` is the fully qualified domain name (FQDN) of Ops Manager.
+    Where `OPS-MANAGER-FQDN` is the fully qualified domain name (FQDN) of {{{ vars.platform_name }}}.
 
 1. When prompted, enter the password that you configured during the .ova deployment
 into vCenter.  

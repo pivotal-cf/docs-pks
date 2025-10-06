@@ -8,11 +8,11 @@ thistopic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
-on vSphere with Antrea networking as a VMware Tanzu Operations Manager (Ops Manager) tile.
+on vSphere with Antrea networking as a {{{ vars.platform_name }}} tile.
 
 ##<a id='prerequisites'></a>Prerequisites
 
-Before performing the procedures in this topic, you must have deployed and configured Ops Manager.
+Before performing the procedures in this topic, you must have deployed and configured {{{ vars.platform_name }}}.
 For more information, see [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html).
 
 {{> prerequisites }}
@@ -35,7 +35,7 @@ To configure TKGI:
 
 1. Click the orange **Tanzu Kubernetes Grid Integrated Edition** tile to start the configuration process.
 
-    ![TKGI tile on the Ops Manager installation dashboard](images/tkgi-tile-orange.png)
+    ![TKGI tile on the {{{ vars.platform_name }}} installation dashboard](images/tkgi-tile-orange.png)
 
     <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile, do not use spaces in any field entries. This includes spaces between characters as well as
     leading and trailing spaces. If you use a space in any field entry, the deployment of Tanzu Kubernetes Grid Integrated Edition fails.</p>
@@ -63,7 +63,7 @@ used by the {{{ vars.product_short }}} control plane:
 1. Under **Place singleton jobs in**, select the AZ where you want to deploy the
 {{{ vars.control_plane }}} and {{{ vars.control_plane_db }}}.
 
-    ![Assign AZs and Networks pane in Ops Manager](images/azs-networks.png)
+    ![Assign AZs and Networks pane in {{{ vars.platform_name }}}](images/azs-networks.png)
 1. Under **Balance other jobs in**, select the AZ for balancing other {{{ vars.product_short }}} control plane jobs.
     <p class="note"><strong>Note</strong>: You must specify the <strong>Balance other jobs in</strong> AZ, but the selection has no effect in the current version of {{{ vars.product_short }}}.
     </p>

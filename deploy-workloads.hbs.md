@@ -372,7 +372,7 @@ To access a workload:
     ```
     kubectl get nodes -L spec.ip
     ```
-    * On the Ops Manager command line, run the following command to find the IP address:
+    * On the {{{ vars.platform_name }}} command line, run the following command to find the IP address:
 
     ```
     bosh vms
@@ -483,7 +483,7 @@ To access a workload:
     ```
     kubectl get nodes -L spec.ip
     ```
-    * On the Ops Manager command line, run the following command to find the IP address:
+    * On the {{{ vars.platform_name }}} command line, run the following command to find the IP address:
 
     ```
     bosh vms

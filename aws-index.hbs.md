@@ -1,6 +1,6 @@
 ---
 title: Installing Tanzu Kubernetes Grid Integrated Edition on Amazon Web Services (AWS)
-owner: Ops Manager
+
 iaas: AWS
 ---
 
@@ -15,7 +15,7 @@ To install Tanzu Kubernetes Grid Integrated Edition on AWS, follow the instructi
     <a href="aws-requirements.html">AWS Prerequisites and Resource Requirements</a>
   </li>
   <li>
-    <a href="aws-om-install-config.html">Installing and Configuring Ops Manager on AWS</a>
+    <a href="aws-om-install-config.html">Installing and Configuring {{{ vars.platform_name }}} on AWS</a>
   </li>
   <li>
     <a href="installing-aws.html">Installing Tanzu Kubernetes Grid Integrated Edition on AWS</a>

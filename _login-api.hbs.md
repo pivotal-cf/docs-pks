@@ -4,7 +4,7 @@
     ```
     Where:  
 
-    * `TKGI-API` is the domain name for the TKGI API that you entered in **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**.
+    * `TKGI-API` is the domain name for the TKGI API that you entered in **{{{ vars.platform_name }}}** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**.
     For example, `api.tkgi.example.com`.
     * `USERNAME` is your user name.
 <br><br>

@@ -188,7 +188,7 @@ see [Agent configuration](https://docs.influxdata.com/telegraf/v1.15/administrat
 in the Telegraf documentation.
 1. Click **Save**.
 
-1. To deploy the Tanzu Kubernetes Grid Integrated Edition tile, return to the Ops Manager
+1. To deploy the Tanzu Kubernetes Grid Integrated Edition tile, return to the {{{ vars.platform_name }}}
 Installation Dashboard and click **Review Pending Changes** >
 **Apply Changes**.
 

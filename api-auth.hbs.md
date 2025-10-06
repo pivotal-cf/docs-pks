@@ -42,7 +42,7 @@ For example, if your TKGI API domain is `api.tkgi.example.com`, you can reach yo
   </tr>
 </table>
 
-Refer to **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition tile** > **TKGI API** > **API Hostname (FQDN)** for your TKGI API domain.
+Refer to **{{{ vars.platform_name }}}** > **Tanzu Kubernetes Grid Integrated Edition tile** > **TKGI API** > **API Hostname (FQDN)** for your TKGI API domain.
 
 Load balancer implementations differ by deployment environment.
 For Tanzu Kubernetes Grid Integrated Edition deployments on AWS or vSphere without NSX, you configure a load balancer to access 

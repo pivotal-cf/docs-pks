@@ -14,7 +14,7 @@ configuring and deploying TKGI to vSphere.
 
 The TKGI Management Console automates installation of the following: 
 
-- Deploys Ops Manager
+- Deploys {{{ vars.platform_name }}}
 - Deploys BOSH Director
 - Deploys Tanzu Kubernetes Grid Integrated Edition
 - Deploys Harbor Registry
@@ -39,16 +39,16 @@ Whether to use the management console depends on your situation.
 
 Use the TKGI Management Console to simplify deploying Tanzu Kubernetes Grid Integrated Edition to less complex vSphere environments. 
 
-Users on vSphere who do not have a custom Ops Manager installation might prefer to install TKGI 
+Users on vSphere who do not have a custom {{{ vars.platform_name }}} installation might prefer to install TKGI 
 using the curated workflow provided by the TKGI Management Console.
 
 #### <a id='when-not-to-use-console'></a>When Should I Not Use Tanzu Kubernetes Grid Integrated Edition Management Console?
 
-Users who already have Ops Manager installed for other uses, for example to run 
+Users who already have {{{ vars.platform_name }}} installed for other uses, for example to run 
 [{{{ vars.app_runtime_full }}}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/concepts-overview.html),
-might prefer to install TKGI using Ops Manager. 
+might prefer to install TKGI using {{{ vars.platform_name }}}. 
 Also, if you require more flexibility in configuring your TKGI deployment, especially in complex VMware NSX deployments, 
-it might be more appropriate to install TKGI using Ops Manager. 
+it might be more appropriate to install TKGI using {{{ vars.platform_name }}}. 
 
 
 Do not use the TKGI Management Console if any the following conditions apply to your environment, they are not supported:  

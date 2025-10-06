@@ -47,7 +47,7 @@ To construct, package and upload a BOSH Stemcell for Windows to TKGI, complete t
 1. [Prerequisites](#prerequisites)
 1. [Create and Configure a Base VM for the BOSH Stemcell](#create-configure-base-vm)
 1. [Construct and Package the BOSH Stemcell](#construct-package-stemcell)
-1. [Update Ops Manager With the Updated Stemcell](#update-stemcell)
+1. [Update {{{ vars.platform_name }}} With the Updated Stemcell](#update-stemcell)
 
 
 ## <a id='prerequisites'></a> Prerequisites
@@ -177,15 +177,15 @@ To ensure your BOSH Windows stemcell can work properly, confirm the stemcell doe
 </p>
 
 
-## <a id='update-stemcell'></a> Update Ops Manager With the Updated Stemcell
+## <a id='update-stemcell'></a> Update {{{ vars.platform_name }}} With the Updated Stemcell
 
-To update Ops Manager with the new BOSH Windows stemcell:
+To update {{{ vars.platform_name }}} with the new BOSH Windows stemcell:
 
-1. Open Ops Manager.  
+1. Open {{{ vars.platform_name }}}.  
 
 1. Navigate to the **Stemcell Library**.
 
-1. Replace the existing stemcell in the Ops Manager stemcell library with your new updated stemcell.  
+1. Replace the existing stemcell in the {{{ vars.platform_name }}} stemcell library with your new updated stemcell.  
 
 1. Deploy the TKGI tile.
 
@@ -201,7 +201,7 @@ in the TAS for VMs [Windows] documentation.
 
 1. [Construct and Package the BOSH Stemcell](#construct-package-stemcell), above.
 
-1. [Update Ops Manager With the Updated Stemcell](#update-stemcell), above.
+1. [Update {{{ vars.platform_name }}} With the Updated Stemcell](#update-stemcell), above.
 
 
 

@@ -188,4 +188,4 @@ Password expiration not configured for this user
 
 ##<a id='next'></a> Next Step
 
-Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Using Ops Manager](./vsphere-nsxt-index.html).
+Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Using {{{ vars.platform_name }}}](./vsphere-nsxt-index.html).

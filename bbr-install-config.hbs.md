@@ -52,7 +52,7 @@ To install and configure BBR:
 ###<a id="bbr-jumpbox"></a> Configure Your Jump Box for BBR
 
 Your jump box must meet or exceed minimum BBR requirements. 
-You can use the VMware Tanzu Operations Manager (Ops Manager) VM as your jump box if it can be configured to meet all of the requirements below.  
+You can use the {{{ vars.platform_name }}} VM as your jump box if it can be configured to meet all of the requirements below.  
 
 To configure your jump box to meet BBR requirements:  
 

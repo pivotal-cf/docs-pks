@@ -29,7 +29,7 @@ Familiarize yourself with the following VMware documentation:
 
 Familiarize yourself with the following related documentation:  
 
-+ACo- +AFs-Ops Manager documentation+AF0-(https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-deploy.html)  
++ACo- +AFsAewB7AHs- vars.platform+AF8-name +AH0AfQB9- documentation+AF0-(https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-deploy.html)  
 +ACo- +AFs-BOSH documentation+AF0-(https://bosh.io/docs/bosh-components/)  
 +ACo- +AFs-Kubernetes documentation+AF0-(https://kubernetes.io/docs/home/)  
 +ACo- +AFs-containerd documentation+AF0-(https://containerd.io/docs/)  
@@ -67,7 +67,7 @@ Plan for the following network CIDRs in the IPv4 address space according to the 
 
 +ACo- +ACoAKg-VTEP CIDRs+ACoAKg-: One or more of these networks host your GENEVE Tunnel Endpoints on your NSX Transport Nodes. Size the networks to support all of your expected Host and Edge Transport Nodes. For example, a CIDR of +AGA-192.168.1.0/24+AGA- provides 254 usable IPs.
 
-+ACo- +ACoAKg-TKGI MANAGEMENT CIDR+ACoAKg-: This small network is used to access Tanzu Kubernetes Grid Integrated Edition management components such as Ops Manager, BOSH Director, and Tanzu Kubernetes Grid Integrated Edition VMs as well as the Harbor Registry VM if deployed. For example, a CIDR of +AGA-10.172.1.0/28+AGA- provides 14 usable IPs. For the +AFs-No-NAT deployment topologies+AF0-(nsxt-topologies.html+ACM-topology-no-nat-virtual-switch), this is a corporate routable subnet /28. For the +AFs-NAT deployment topology+AF0-(nsxt-topologies.html+ACM-topology-nat), this is a non-routable subnet /28, and DNAT needs to be configured in NSX to access the Tanzu Kubernetes Grid Integrated Edition management components.
++ACo- +ACoAKg-TKGI MANAGEMENT CIDR+ACoAKg-: This small network is used to access Tanzu Kubernetes Grid Integrated Edition management components such as +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-, BOSH Director, and Tanzu Kubernetes Grid Integrated Edition VMs as well as the Harbor Registry VM if deployed. For example, a CIDR of +AGA-10.172.1.0/28+AGA- provides 14 usable IPs. For the +AFs-No-NAT deployment topologies+AF0-(nsxt-topologies.html+ACM-topology-no-nat-virtual-switch), this is a corporate routable subnet /28. For the +AFs-NAT deployment topology+AF0-(nsxt-topologies.html+ACM-topology-nat), this is a non-routable subnet /28, and DNAT needs to be configured in NSX to access the Tanzu Kubernetes Grid Integrated Edition management components.
 
 +ACo- +ACoAKg-TKGI LB CIDR+ACoAKg-: This network provides your load balancing address space for each Kubernetes cluster created by Tanzu Kubernetes Grid Integrated Edition. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services. For example, +AGA-10.172.2.0/24+AGA- provides 256 usable IPs. This network is used when creating the +AGA-ip-pool-vips+AGA- described in +AFs-Creating VMware NSX Objects for Tanzu Kubernetes Grid Integrated Edition+AF0-(nsxt-create-objects.html), or when the services are deployed. You enter this network in the
 +ACoAKg-Floating IP Pool ID+ACoAKg- field in the +ACoAKg-Networking+ACoAKg- pane of the Tanzu Kubernetes Grid Integrated Edition tile.
@@ -143,7 +143,7 @@ When deploying TKGI, do not use a reserved IP address or CIDR block.
     +ADw-td+AD4-No.+ADw-/td+AD4-
     +ADw-td+AD4-
       containerd is installed on each Tanzu Kubernetes Grid Integrated Edition worker node and is assigned the +ADw-code+AD4-172.17.0.0/16+ADw-/code+AD4- network interface.
-      +ADw-br+AD4APA-br+AD4-Do not use this CIDR range for any TKGI component, including Ops Manager, BOSH Director, the TKGI API VM, the TKGI DB VM, and the Harbor Registry VM. 
+      +ADw-br+AD4APA-br+AD4-Do not use this CIDR range for any TKGI component, including +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-, BOSH Director, the TKGI API VM, the TKGI DB VM, and the Harbor Registry VM. 
       Note: This range is also reserved for the Management Console VM, but is unused. 
     +ADw-/td+AD4-
   +ADw-/tr+AD4-

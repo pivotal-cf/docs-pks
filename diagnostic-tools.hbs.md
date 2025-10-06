@@ -1,6 +1,6 @@
 ---
 title: Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition
-owner: Ops Manager
+
 ---
 
 This topic describes how to access information about your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deployment
@@ -28,7 +28,7 @@ To set a BOSH alias for your TKGI environment
 and log in to the BOSH Director VM, follow the steps below:
 
 1. Gather your credential and IP address information for the BOSH Director and SSH
-into the Ops Manager VM. For instructions, see [Advanced Troubleshooting with the BOSH
+into the {{{ vars.platform_name }}} VM. For instructions, see [Advanced Troubleshooting with the BOSH
 CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html).
 1. To create a BOSH alias for your TKGI environment, run the following command:  
 
@@ -58,9 +58,9 @@ CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-
     ```console
     $ bosh -e tkgi login
     ```
-    Alternatively, you can set the BOSH environment variables on the Ops Manager VM to authenticate with the BOSH Director VM.
+    Alternatively, you can set the BOSH environment variables on the {{{ vars.platform_name }}} VM to authenticate with the BOSH Director VM.
     For more information, see [Authenticate with the BOSH Director VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#log-in) in
-    _Advanced Troubleshooting with the BOSH CLI_ in the Ops Manager documentation.
+    _Advanced Troubleshooting with the BOSH CLI_ in the {{{ vars.platform_name }}} documentation.
 
 
 ## <a id='tkgi-api'></a>SSH into the TKGI API VM

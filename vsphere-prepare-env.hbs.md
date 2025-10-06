@@ -1,6 +1,6 @@
 ---
 title: Creating Dedicated Users and Roles for vSphere (Optional)
-owner: Ops Manager
+
 ---
 
 This topic describes how to create dedicated users and roles for your vSphere environment before deploying VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
@@ -15,19 +15,19 @@ required user accounts and configuring DNS for the TKGI API endpoint.
 You can create the following service accounts in vSphere:
 
 * **Master Node User Account** for the Kubernetes control plane node VMs.
-* **BOSH/Ops Manager User Account** for BOSH Director operations.
+* **BOSH/{{{ vars.platform_name }}} User Account** for BOSH Director operations.
 
 <p class="note warning"><strong> WARNING:</strong> The TKGI <b>Master Node User Account</b> and
-BOSH/Ops Manager service accounts must be two separate accounts.</p>
+BOSH/{{{ vars.platform_name }}} service accounts must be two separate accounts.</p>
 
-After creating the Master Node and BOSH/Ops Manager service accounts you must grant
+After creating the Master Node and BOSH/{{{ vars.platform_name }}} service accounts you must grant
 the accounts privileges in vSphere:  
 
 * **Master Node User Account**: Kubernetes control plane node VMs require storage permissions to create load balancers
 and attach persistent disks to pods. Creating a custom role for this service account allows vSphere to apply
 the same privileges to all Kubernetes control plane node VMs in your Tanzu Kubernetes Grid Integrated Edition installation.
 
-* **BOSH/Ops Manager User Account**: BOSH Director requires permissions to create VMs.
+* **BOSH/{{{ vars.platform_name }}} User Account**: BOSH Director requires permissions to create VMs.
 You can apply privileges directly to this service account without creating a role.
 You can also apply the default
 [VMware Administrator System Role](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/vcenter-server-system-roles.html)
@@ -43,8 +43,8 @@ To prepare your vSphere environment, do the following:
 
 1. [Create the Master Node Service Account](#create-master)
 1. [Grant Storage Permissions](#addl-permissions)
-1. [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man)
-1. [Grant Permissions to the BOSH/Ops Manager Service Account](#grant-bosh-ops-man)
+1. [Create the BOSH/{{{ vars.platform_name }}} Service Account](#create-bosh-ops-man)
+1. [Grant Permissions to the BOSH/{{{ vars.platform_name }}} Service Account](#grant-bosh-ops-man)
 1. [Configure DNS for the TKGI API](#dns)  
 
 ## <a id='prerequisites'></a>Prerequisites
@@ -164,7 +164,7 @@ and **Datastore Storage Folder** levels:
       <tr><td></td><td><code>System.View</code></td></tr>
     </table>
     
-1. Continue to [Create the BOSH/Ops Manager User Account](#create-bosh-ops-man).
+1. Continue to [Create the BOSH/{{{ vars.platform_name }}} User Account](#create-bosh-ops-man).
 
 ### <a id="dynamic-policy"></a>Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)
 
@@ -245,7 +245,7 @@ This role includes the following privileges at the
       <tr><td></td><td><code>System.View</code></td></tr>
   </table>
 
-1. Continue to [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man).
+1. Continue to [Create the BOSH/{{{ vars.platform_name }}} Service Account](#create-bosh-ops-man).
 
 ###<a id="dynamic-no-policy"></a>Dynamic Volume Provisioning (without Storage Policy-Based Volume Placement)
 
@@ -302,22 +302,22 @@ This role includes the following privileges at the **vCenter, Datacenter, Datast
       <tr><td></td><td><code>System.View</code></td></tr>
     </table>
 
-## <a id='create-bosh-ops-man'></a>Create the BOSH/Ops Manager User Account
-1. From the vCenter console, create the BOSH/Ops Manager User Account.
+## <a id='create-bosh-ops-man'></a>Create the BOSH/{{{ vars.platform_name }}} User Account
+1. From the vCenter console, create the BOSH/{{{ vars.platform_name }}} User Account.
 1. If you are deploying both {{{ vars.app_runtime }}} and TKGI
-within the same vSphere environment, create an additional BOSH/Ops Manager Service Account so that
+within the same vSphere environment, create an additional BOSH/{{{ vars.platform_name }}} Service Account so that
 you have one account for TAS and a separate account for TKGI.
 
-## <a id='grant-bosh-ops-man'></a>Grant Permissions to the BOSH/Ops Manager User Account
-There are two options for granting permissions to the BOSH/Ops Manager Service Accounts:
+## <a id='grant-bosh-ops-man'></a>Grant Permissions to the BOSH/{{{ vars.platform_name }}} User Account
+There are two options for granting permissions to the BOSH/{{{ vars.platform_name }}} Service Accounts:
 
-* Grant minimal permissions. Grant each BOSH/Ops Manager User Account the minimum required permissions as described in
+* Grant minimal permissions. Grant each BOSH/{{{ vars.platform_name }}} User Account the minimum required permissions as described in
 [vSphere Service Account Requirements](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-vsphere-service-account.html).  
-* Grant Administrator Role permissions. Apply the default VMware Administrator Role to each BOSH/Ops Manager Service Account as described in
+* Grant Administrator Role permissions. Apply the default VMware Administrator Role to each BOSH/{{{ vars.platform_name }}} Service Account as described in
 [vCenter Server System Roles](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/vcenter-server-system-roles.html)
 .  
 
-    <p class="note warning"><strong>Warning</strong>: Applying the VMware Administrator Role to the BOSH/Ops Manager Service Account grants the account more privileges than are required.
+    <p class="note warning"><strong>Warning</strong>: Applying the VMware Administrator Role to the BOSH/{{{ vars.platform_name }}} Service Account grants the account more privileges than are required.
     For optimal security always use the least privileged account.</p>
 
 ## <a id='dns'></a>Configure DNS for the TKGI API
@@ -330,5 +330,5 @@ After you deploy Tanzu Kubernetes Grid Integrated Edition, you map the IP addres
 
 ## <a id="next-steps"></a>Next Installation Step
 
-To install and configure Ops Manager,
-follow the instructions in [Installing and Configuring Ops Manager on vSphere](vsphere-om-install-config.html).
+To install and configure {{{ vars.platform_name }}},
+follow the instructions in [Installing and Configuring {{{ vars.platform_name }}} on vSphere](vsphere-om-install-config.html).

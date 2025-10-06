@@ -10,6 +10,6 @@ The following topics describe how to upgrade VMware Tanzu Kubernetes Grid Integr
     <a href="./console-upgrade.html">Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console</a>
   </li>
   <li>
-    <a href="./upgrading-opsman.html">Upgrading Tanzu Kubernetes Grid Integrated Edition with Ops Manager</a>
+    <a href="./upgrading-opsman.html">Upgrading Tanzu Kubernetes Grid Integrated Edition with {{{ vars.platform_name }}}</a>
   </li> 
 </ul>

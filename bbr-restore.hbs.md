@@ -9,7 +9,7 @@ the BOSH Director, VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) contro
 ##<a id="overview"></a> Overview
 
 In the event of a disaster, you might lose your environment's VMs, disks, and your IaaS network and load balancer resources as well.
-You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition Ops Manager Installation settings,
+You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition {{{ vars.platform_name }}} Installation settings,
 using your BBR backup artifacts.
 
 Before restoring using BBR:  
@@ -79,15 +79,15 @@ To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane
 
 ## <a id="redeploy-restore-director"></a> Restore the BOSH Director
 
-In the event of losing your BOSH Director or Ops Manager environment, you must first recreate the BOSH Director VM 
+In the event of losing your BOSH Director or {{{ vars.platform_name }}} environment, you must first recreate the BOSH Director VM 
 before restoring the BOSH Director.
 
 You can restore your BOSH Director configuration by using Tanzu Kubernetes Grid Integrated Edition 
-Ops Manager to restore the installation settings artifacts saved when following the [Export Installation Settings](bbr-backup.html#export-opsman-settings) back up procedure steps.
+{{{ vars.platform_name }}} to restore the installation settings artifacts saved when following the [Export Installation Settings](bbr-backup.html#export-opsman-settings) back up procedure steps.
 
-To redeploy and restore your Ops Manager and BOSH Director follow the procedures below.
+To redeploy and restore your {{{ vars.platform_name }}} and BOSH Director follow the procedures below.
 
-### <a id='deploy-opsmanager'></a> Deploy Ops Manager
+### <a id='deploy-opsmanager'></a> Deploy {{{ vars.platform_name }}}
 
 In the event of a disaster, you might lose your IaaS resources. You must recreate your IaaS resources before restoring using your BBR artifacts.  
 
@@ -95,35 +95,35 @@ In the event of a disaster, you might lose your IaaS resources. You must recreat
 environment for Tanzu Kubernetes Grid Integrated Edition by following the installation instructions 
 specific to your IaaS in [Installing Tanzu Kubernetes Grid Integrated Edition](installing.html).
 
-1. After recreating IaaS resources, you must add those resources to Ops Manager 
-by performing the procedures in the [(Optional) Configure Ops Manager for New Resources](#config-new-resources) section.
+1. After recreating IaaS resources, you must add those resources to {{{ vars.platform_name }}} 
+by performing the procedures in the [(Optional) Configure {{{ vars.platform_name }}} for New Resources](#config-new-resources) section.
 
 ### <a id='import-settings'></a>Import Installation Settings
 
 <p class="note warning">
 <strong>WARNING:</strong> After importing installation settings, do not click <strong>Apply Changes</strong> 
-in Ops Manager before instructed to in the steps <a href="#deploy-bosh-director">Deploy the BOSH Director</a> or
+in {{{ vars.platform_name }}} before instructed to in the steps <a href="#deploy-bosh-director">Deploy the BOSH Director</a> or
 <a href="#redeploy-restore-control-plane">Redeploy the Tanzu Kubernetes Grid Integrated Edition 
 Control Plane</a>.
 </p>
 
 You can import installation settings in two ways:
 
-* Use the Ops Manager UI:
-    1. Access your new Ops Manager by navigating to `YOUR-OPS-MAN-FQDN` in a browser.
-    1. On the **Welcome to Ops Manager** page, click **Import Existing Installation**.
+* Use the {{{ vars.platform_name }}} UI:
+    1. Access your new {{{ vars.platform_name }}} by navigating to `YOUR-OPS-MAN-FQDN` in a browser.
+    1. On the **Welcome to {{{ vars.platform_name }}}** page, click **Import Existing Installation**.
     1. In the import panel, perform the following tasks:
-        * Enter the **Decryption Passphrase** in use when you exported the installation settings from Ops Manager.
+        * Enter the **Decryption Passphrase** in use when you exported the installation settings from {{{ vars.platform_name }}}.
         * Click **Choose File** and browse to the installation zip file that you exported in [Back Up Installation Settings](bbr-backup.html#export-opsman-settings).
     1. Click **Import**.
         <p class="note">
         <strong>Note:</strong> Some browsers do not provide the import process progress status, and might appear to hang.
-        The import process takes at least 10 minutes, and requires additional time for each restored Ops Manager tile.
+        The import process takes at least 10 minutes, and requires additional time for each restored {{{ vars.platform_name }}} tile.
         </p>
     1. **Successfully imported installation** is displayed upon successful completion of importing all installation settings.
 
-* Use the Ops Manager API:
-    1. To use the Ops Manager API to import installation settings, run the following command:
+* Use the {{{ vars.platform_name }}} API:
+    1. To use the {{{ vars.platform_name }}} API to import installation settings, run the following command:
 
         ```
         curl "https://OPS-MAN-FQDN/api/v0/installation_asset_collection" \
@@ -134,35 +134,35 @@ You can import installation settings in two ways:
         ```
         Where:  
 
-        * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.  
+        * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your {{{ vars.platform_name }}} deployment.  
         * `UAA-ACCESS-TOKEN` is the UAA access token. For more information about how to retrieve this token, 
-        see [Using the Ops Manager API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).  
+        see [Using the {{{ vars.platform_name }}} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).  
         * `DECRYPTION-PASSPHRASE` is the decryption passphrase in use when you exported the installation 
-        settings from Ops Manager.  
+        settings from {{{ vars.platform_name }}}.  
 
 
-### <a id="config-new-resources"></a> (Optional) Configure Ops Manager for New Resources
+### <a id="config-new-resources"></a> (Optional) Configure {{{ vars.platform_name }}} for New Resources
 
 If you recreated IaaS resources such as networks and load balancers by following the steps in the 
-[Deploy Ops Manager](#deploy-opsmanager) section above, perform the following steps to update Ops Manager with your new resources:
+[Deploy {{{ vars.platform_name }}}](#deploy-opsmanager) section above, perform the following steps to update {{{ vars.platform_name }}} with your new resources:
 
-1. Activate Ops Manager advanced mode. For more information, see 
-[How to Enable Advanced Mode in the Ops Manager](https://knowledge.broadcom.com/external/article/293516/) 
+1. Activate {{{ vars.platform_name }}} advanced mode. For more information, see 
+[How to Enable Advanced Mode in the {{{ vars.platform_name }}}](https://knowledge.broadcom.com/external/article/293516/) 
 in the Knowledge Base.
   <p class="note">
-  <strong>Note:</strong> Ops Manager advanced mode allows you to make changes that are normally deactivated. 
+  <strong>Note:</strong> {{{ vars.platform_name }}} advanced mode allows you to make changes that are normally deactivated. 
   You might see warning messages when you save changes.
   </p>
 
-1. Navigate to the Ops Manager Installation Dashboard and click the BOSH Director tile.
+1. Navigate to the {{{ vars.platform_name }}} Installation Dashboard and click the BOSH Director tile.
 
 1. Click **Create Networks** and update the network names to reflect the network names for the new environment.
 
 1. If your BOSH Director had an external hostname, you must change it in **Director Config > Director Hostname** 
 to ensure it does not conflict with the hostname of the backed up Director.
 
-1. Ensure that there are no outstanding warning messages in the BOSH Director tile, then deactivate Ops Manager advanced mode. 
-For more information, see [How to Enable Advanced Mode in the Ops Manager](https://knowledge.broadcom.com/external/article/293516/) 
+1. Ensure that there are no outstanding warning messages in the BOSH Director tile, then deactivate {{{ vars.platform_name }}} advanced mode. 
+For more information, see [How to Enable Advanced Mode in the {{{ vars.platform_name }}}](https://knowledge.broadcom.com/external/article/293516/) 
 in the Knowledge Base.
 
 <p class="note">
@@ -172,31 +172,31 @@ restore data, as long as adequate storage space to restore the data exists.
 
 ### <a id="bosh-state"></a> Remove BOSH State File
 
-1. SSH into your Ops Manager VM. For more information, see the 
-[Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) 
+1. SSH into your {{{ vars.platform_name }}} VM. For more information, see the 
+[Log in to the {{{ vars.platform_name }}} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) 
 section of the _Advanced Troubleshooting with the BOSH CLI_ topic.
 
-1. To delete the `/var/tempest/workspaces/default/deployments/bosh-state.json` file, run the following on the Ops Manager VM:
+1. To delete the `/var/tempest/workspaces/default/deployments/bosh-state.json` file, run the following on the {{{ vars.platform_name }}} VM:
 
     ```bash
     sudo rm /var/tempest/workspaces/default/deployments/bosh-state.json
     ```
 
-1. In a browser, navigate to your Ops Manager's fully-qualified domain name.
-1. Log in to Ops Manager.
+1. In a browser, navigate to your {{{ vars.platform_name }}}'s fully-qualified domain name.
+1. Log in to {{{ vars.platform_name }}}.
 
 ### <a id="deploy-bosh-director"></a> Deploy the BOSH Director
 
 You can deploy the BOSH Director by itself in two ways:
 
-* Use the Ops Manager UI:
-    1. Open the Ops Manager Installation Dashboard.  
+* Use the {{{ vars.platform_name }}} UI:
+    1. Open the {{{ vars.platform_name }}} Installation Dashboard.  
     1. Click  **Review Pending Changes**.  
     1. On the Review Pending Changes page, click the **BOSH Director** check box.  
     1. Click **Apply Changes**.    
 
-* Use the Ops Manager API:
-    1. Use the Ops Manager API to deploy the BOSH Director.
+* Use the {{{ vars.platform_name }}} API:
+    1. Use the {{{ vars.platform_name }}} API to deploy the BOSH Director.
 
 ### <a id='restore-director'></a> Restore the BOSH Director
 
@@ -290,7 +290,7 @@ To redeploy the Tanzu Kubernetes Grid Integrated Edition tile, do the following:
 Do either the following procedures to determine the stemcell that TKGI uses:
 
 * Review the Stemcell Library:
-    1. Open Ops Manager.
+    1. Open {{{ vars.platform_name }}}.
     1. Click **Stemcell Library**.
     1. Record the TKGI stemcell release number from the **Staged** column.
 
@@ -317,7 +317,7 @@ Do either the following procedures to determine the stemcell that TKGI uses:
     stemcells, where one stemcell is Linux and the other stemcell is Windows.
 </p>
 
-For more information about stemcells in Ops Manager, see [Importing and Managing Stemcells](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/opsguide-managing-stemcells.html).  
+For more information about stemcells in {{{ vars.platform_name }}}, see [Importing and Managing Stemcells](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/opsguide-managing-stemcells.html).  
 
 ### <a id='upload-stemcell'></a> Upload Stemcells
 
@@ -348,7 +348,7 @@ for each required stemcell that is different from the already uploaded TKGI stem
 
 To redeploy your Tanzu Kubernetes Grid Integrated Edition tile's control plane:  
 
-1. From the Ops Manager Installation Dashboard, navigate to **VMware Tanzu Kubernetes Grid Integrated Edition** > **Resource Config**. 
+1. From the {{{ vars.platform_name }}} Installation Dashboard, navigate to **VMware Tanzu Kubernetes Grid Integrated Edition** > **Resource Config**. 
 
 1. Ensure the **Upgrade all clusters** errand is **Off**.  
 
@@ -358,7 +358,7 @@ when the backup you are restoring was created.
 
 1. Ensure that all errands needed by your system are set to run.
 
-1. Return to the Ops Manager Installation Dashboard.
+1. Return to the {{{ vars.platform_name }}} Installation Dashboard.
 
 1. Click **Review Pending Changes**.
 
@@ -441,7 +441,7 @@ see [Redeploy a Single Cluster](#redeploy-single-cluster).
 
 To redeploy all clusters:
 
-1. In Ops Manager, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. In {{{ vars.platform_name }}}, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
 1. Click **Errands**.
 1. Ensure the **Upgrade all clusters** errand is **On**.
 This errand redeploys all your TKGI-provisioned clusters.

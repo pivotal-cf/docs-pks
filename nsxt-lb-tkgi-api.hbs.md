@@ -58,7 +58,7 @@ If you deploy your Tanzu Kubernetes Grid Integrated Edition using [No-NAT with V
   - Click **Next**
 1. OPTION 1: Configure Pool Members for the Static Server Pool:
   - Membership Type: **Static**
-  - Leave members empty. This will be added automatically later when you apply changes in Ops Manager.
+  - Leave members empty. This will be added automatically later when you apply changes in {{{ vars.platform_name }}}.
   - Click **Next**
 1. OPTION 2: Configure Pool Members for the Dynamic Server Pool:
   - Membership Type: **Dynamic**
@@ -249,7 +249,7 @@ Skip this if you deployed as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsx
 
 Now that the load balancer for the TKGI API control plane is configured, update the TKGI tile to point to the load balancer.
 
-1. Log in to Ops Manager.  
+1. Log in to {{{ vars.platform_name }}}.  
 1. Go to **Tanzu Kubernetes Grid Integrated Edition Tile Resource Config**.  
 1. Click **TKGI API**. You will see a drop down for **TKGI API config**.  
 1. Change the **TKGI API Instances Number** to `2` or `3`. We recommend `3` for quorum.  
@@ -272,7 +272,7 @@ Now that the load balancer for the TKGI API control plane is configured, update 
     }
     ```
 1. Click **Save**.  
-1. Click **apply-changes** and wait for Ops Manager to finish saving the settings.  
+1. Click **apply-changes** and wait for {{{ vars.platform_name }}} to finish saving the settings.  
   - For static server pools, this operation will add the VM as server pool member.  
   - For dynamic server pools, this operation will add the VM to the corresponding NSGroup.  
 

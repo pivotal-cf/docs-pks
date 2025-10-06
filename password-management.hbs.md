@@ -9,16 +9,16 @@ or TKGI service account password.
 ## <a id='vcenter-pw-change'></a> Manage Your Service Account Passwords
 When you installed Tanzu Kubernetes Grid Integrated Edition you created two service accounts:  
 
-* **BOSH/Ops Manager Service Account**: This service account is configured in the BOSH Director tile.  
+* **BOSH/{{{ vars.platform_name }}} Service Account**: This service account is configured in the BOSH Director tile.  
 * **Master Node Service Account**: This service account is configured in the Tanzu Kubernetes Grid Integrated Edition tile.  
 
 You must update a tile's copy of a service account password after changing the password on your network.
 
 ### <a id='configure-passwords'></a> Step 1: Update Your Service Account Passwords
 
-To update BOSH Director with a new **BOSH/Ops Manager Service Account** password, perform the following steps:  
+To update BOSH Director with a new **BOSH/{{{ vars.platform_name }}} Service Account** password, perform the following steps:  
 
-1. Access the **Installation Dashboard** in Ops Manager.  
+1. Access the **Installation Dashboard** in {{{ vars.platform_name }}}.  
 1. Select the BOSH Director tile.  
 1. Select your IaaS' **Config** tab.  
 1. Click **Change**, the link beneath the IaaS **Password** field, to modify the password.  
@@ -28,7 +28,7 @@ To update BOSH Director with a new **BOSH/Ops Manager Service Account** password
 
 To update Tanzu Kubernetes Grid Integrated Edition with a new **Master Node Service Account** password, perform the following steps:  
 
-1. Access the **Installation Dashboard** in Ops Manager.  
+1. Access the **Installation Dashboard** in {{{ vars.platform_name }}}.  
 1. Select the Tanzu Kubernetes Grid Integrated Edition tile.  
 1. Select the **Kubernetes Cloud Provider** tab.  
 1. Click **Change**, the link beneath your IaaS' **Master Credentials** field, to modify the password.  
@@ -38,11 +38,11 @@ To update Tanzu Kubernetes Grid Integrated Edition with a new **Master Node Serv
 
 ### <a id='deploy-tkgi'></a> Step 2: Deploy Your New Service Account Passwords
 
-After updating an Ops Manager tile's service account password you must also deploy the new password. 
+After updating an {{{ vars.platform_name }}} tile's service account password you must also deploy the new password. 
 
 To deploy a new password to BOSH Director and Tanzu Kubernetes Grid Integrated Edition, perform the following steps:  
 
-1. Access the **Installation Dashboard** in Ops Manager.
+1. Access the **Installation Dashboard** in {{{ vars.platform_name }}}.
 1. Click **Review Pending Changes**.
 1. In the **Errands** section for Tanzu Kubernetes Grid Integrated Edition, select **Update all clusters errand**. 
 1. Click **Apply Changes** to update the Tanzu Kubernetes Grid Integrated Edition installation with the new passwords.
@@ -59,14 +59,14 @@ After changing the password on your network, you must also update the BOSH Direc
 
 To update the BOSH Director with the new NSX Manager password, perform the following steps:  
 
-1. Access the **Installation Dashboard** in Ops Manager.
+1. Access the **Installation Dashboard** in {{{ vars.platform_name }}}.
 1. Select the BOSH Director tile.
 1. Select the **vCenter Config** tab.
 1. Click **Change**, the link beneath the **NSX Username** field, to modify the password.  
 <img src="images/vsphere/pw-change-bosh-nsx.png" alt="NSX Manager Password Update in BOSH">
 1. Enter the new password.
 1. Click **Save** to save the changes to the BOSH Director tile. 
-1. On the Ops Manager **Installation Dashboard**, select **Review Pending Changes**.
+1. On the {{{ vars.platform_name }}} **Installation Dashboard**, select **Review Pending Changes**.
 1. Click **Apply Changes**.
 
 

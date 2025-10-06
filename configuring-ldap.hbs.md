@@ -132,7 +132,7 @@ to support searching all subtrees in your groups.
 ## <a id='complete'></a>Complete Your Tile Configuration
 
 * If you do not need to configure any other settings in the
-Tanzu Kubernetes Grid Integrated Edition tile, return to the Ops Manager Installation Dashboard and
+Tanzu Kubernetes Grid Integrated Edition tile, return to the {{{ vars.platform_name }}} Installation Dashboard and
 click **Review Pending Changes** > **Apply Changes**.
 * If you need to configure any other settings in the Tanzu Kubernetes Grid Integrated Edition
 tile, return to the _Installing Tanzu Kubernetes Grid Integrated Edition_ topic for your IaaS and

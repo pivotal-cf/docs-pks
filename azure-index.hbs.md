@@ -1,6 +1,6 @@
 ---
 title: Installing Tanzu Kubernetes Grid Integrated Edition on Microsoft Azure
-owner: Ops Manager
+
 iaas: Azure
 ---
 
@@ -15,7 +15,7 @@ To install Tanzu Kubernetes Grid Integrated Edition on Azure, follow the instruc
     <a href="./azure-requirements.html">Azure Prerequisites and Resource Requirements</a>
   </li>
   <li>
-    <a href="./azure-om-install-config.html">Installing and Configuring Ops Manager on Azure</a>
+    <a href="./azure-om-install-config.html">Installing and Configuring {{{ vars.platform_name }}} on Azure</a>
   </li>
   <li>
     <a href="./azure-managed-identities.html">Creating Managed Identities in Azure for Tanzu Kubernetes Grid Integrated Edition</a>

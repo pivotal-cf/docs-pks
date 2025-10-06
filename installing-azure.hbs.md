@@ -8,11 +8,11 @@ thistopic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
-on Azure as a VMware Tanzu Operations Manager (Ops Manager) tile.
+on Azure as a {{{ vars.platform_name }}} tile.
 
 ##<a id='prerequisites'></a>Prerequisites
 
-Before performing the procedures in this topic, you must have deployed and configured Ops Manager.
+Before performing the procedures in this topic, you must have deployed and configured {{{ vars.platform_name }}}.
 For more information, see [Azure Prerequisites and Resource Requirements](azure-requirements.html).
 
 {{> prerequisites }}
@@ -44,7 +44,7 @@ To configure TKGI:
 
 1. Click the orange **Tanzu Kubernetes Grid Integrated Edition** tile to start the configuration process.
 
-    ![TKGI tile on the Ops Manager installation dashboard](images/tkgi-tile-orange.png)
+    ![TKGI tile on the {{{ vars.platform_name }}} installation dashboard](images/tkgi-tile-orange.png)
     <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile, do not use spaces in any field entries. This includes spaces between characters as well as
     leading and trailing spaces. If you use a space in any field entry, the deployment of Tanzu Kubernetes Grid Integrated Edition fails.</p>
 
@@ -97,7 +97,7 @@ To configure your Kubernetes cloud provider settings, follow the procedures belo
 
     1. If you do not already know the valid location value for your resource group, determine it:
         1. You set the location name in [Step 1: Create Network Resources](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-deploy-manual.html#network)
-        in _Deploying Ops Manager on Azure Manually_.
+        in _Deploying {{{ vars.platform_name }}} on Azure Manually_.
         1. The location name property is a lower-case string without spaces.
         For example, if your resource group location is `Central US`,
         the location name property value is `centralus`.

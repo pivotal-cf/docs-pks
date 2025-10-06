@@ -21,9 +21,9 @@ Use the BOSH CLI to download logs from the BOSH-deployed VMs in your environment
 To download logs from a BOSH-deployed VM:
 
 1. Gather credential and IP address information for your BOSH Director,
-SSH into the Ops Manager VM,
+SSH into the {{{ vars.platform_name }}} VM,
 and use the BOSH CLI to log in to the BOSH Director
-from the Ops Manager VM. For more information,
+from the {{{ vars.platform_name }}} VM. For more information,
 see [Advanced Troubleshooting with the BOSH CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html).
 1. After logging in to the BOSH Director,
 list the names of your BOSH deployments by running:  

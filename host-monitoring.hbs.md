@@ -39,7 +39,7 @@ more of the following components and integrations:
 
 Syslog, Telegraf, and VMware vRealize Log Insight integrations are enabled in the 
 **Tanzu Kubernetes Grid Integrated Edition** tile > **Host Monitoring** section. 
-Healthwatch is deployed to VMware Tanzu Operations Manager (Ops Manager) as the Healthwatch Exporter for TKGI tile.   
+Healthwatch is deployed to {{{ vars.platform_name }}} as the Healthwatch Exporter for TKGI tile.   
 
 These components and
 integrations are visible only to TKGI admins.
@@ -175,7 +175,7 @@ to monitor the health of the TKGI Control Plane
 and your Linux and Windows cluster control plane nodes.
 
 Healthwatch enables you to monitor the functionality of your TKGI environment
-and can be configured to expose metrics to a service or database external to your Ops Manager foundation.
+and can be configured to expose metrics to a service or database external to your {{{ vars.platform_name }}} foundation.
 For more information, see [Overview of the Healthwatch Exporter for TKGI Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
 
 To configure cluster discovery in Healthwatch, see

@@ -48,7 +48,7 @@ By default, when PSPs are enabled for a plan, the cluster administrator is bound
 
 Enabling PSPs is done during configuration of Tanzu Kubernetes Grid Integrated Edition in the Plan section of the tile configuration. Refer to the TKGI tile configuration documentation for your IaaS for details.
 <p class="note"><strong>Note:</strong> 
-To use PodSecurityPolicy features, you must use Ops Manager v2.10.17 or later.
+To use PodSecurityPolicy features, you must use {{{ vars.platform_name }}} v2.10.17 or later.
 </p>
 
   <img src="images/psp-enable.png" alt="Enabling Pod Security Policy" width="225">

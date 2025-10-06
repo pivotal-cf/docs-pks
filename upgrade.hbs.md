@@ -27,7 +27,7 @@ to plan and prepare your upgrade.
 
 After you complete the preparation steps,
 continue to the procedures in [Perform the Upgrade](#upgrade) below.
-These steps guide you through the process of upgrading VMware Tanzu Operations Manager (Ops Manager) and the Tanzu Kubernetes Grid Integrated Edition tile,
+These steps guide you through the process of upgrading {{{ vars.platform_name }}} and the Tanzu Kubernetes Grid Integrated Edition tile,
 importing a new stemcell, and applying the changes to your deployment.
 
 After you complete the upgrade, follow the procedures
@@ -39,7 +39,7 @@ to verify that your upgraded Tanzu Kubernetes Grid Integrated Edition deployment
 * If you have not already, complete all of the steps in
 [Upgrade Preparation Checklist for {{{ vars.product_short }}}](checklist.html).
 * To upgrade with multiple datacenters, see below.
-  * You must use Ops Manager. You cannot upgrade on multiple datacenters using the Management Console.
+  * You must use {{{ vars.platform_name }}}. You cannot upgrade on multiple datacenters using the Management Console.
 
 ### <a id="prepare-multi-dc"></a>Prepare to Upgrade with Multiple Datacenters
 
@@ -50,7 +50,7 @@ to verify that your upgraded Tanzu Kubernetes Grid Integrated Edition deployment
 
 This section describes the steps required to upgrade to Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}:
 
-1. [Upgrade Ops Manager](#upgrade-opsman)
+1. [Upgrade {{{ vars.platform_name }}}](#upgrade-opsman)
 1. [Download and Import Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}](#upgrade-tile)
 1. [Download and Import Stemcells](#stemcell)
 1. [Modify Plan CNI Configuration](#modify-cni)
@@ -59,24 +59,24 @@ This section describes the steps required to upgrade to Tanzu Kubernetes Grid In
 1. [Apply Changes to the Tanzu Kubernetes Grid Integrated Edition Tile](#apply-changes)
 
 
-### <a id="upgrade-opsman"></a>Upgrade Ops Manager
+### <a id="upgrade-opsman"></a>Upgrade {{{ vars.platform_name }}}
 
-Each version of Tanzu Kubernetes Grid Integrated Edition is compatible with multiple versions of Ops Manager.
+Each version of Tanzu Kubernetes Grid Integrated Edition is compatible with multiple versions of {{{ vars.platform_name }}}.
 
 <p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
-see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated Ops Manager and
+see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{{ vars.platform_name }}} and
 Ubuntu Jammy Stemcell for VMware Tanzu Downloading</a> in <em>Configuring the Upgrade Pipeline</em>.
 </p>
 
-To determine Ops Manager compatibility and, if necessary, upgrade Ops Manager:
+To determine {{{ vars.platform_name }}} compatibility and, if necessary, upgrade {{{ vars.platform_name }}}:
 
 1. See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN)
-to determine if your Ops Manager version is compatible with Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
-1. If your Ops Manager version is not compatible with Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}},
+to determine if your {{{ vars.platform_name }}} version is compatible with Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+1. If your {{{ vars.platform_name }}} version is not compatible with Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}},
 follow the steps below.
-1. Upgrade Ops Manager. For instructions, see
-[Import Installation to Ops Manager v3.0 VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-upgrading-pcf.html#upgrade)
-in _Upgrading Ops Manager_ in the Ops Manager documentation.
+1. Upgrade {{{ vars.platform_name }}}. For instructions, see
+[Import Installation to {{{ vars.platform_name }}} v3.0 VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-upgrading-pcf.html#upgrade)
+in _Upgrading {{{ vars.platform_name }}}_ in the {{{ vars.platform_name }}} documentation.
 {{{{raw}}}} <!--  when editing this edit the other duplicate BELOW in this topic < %= partial 'add-clusters-workloads' % >  # --> {{{{/raw}}}}
 1. Verify that the Tanzu Kubernetes Grid Integrated Edition control plane remains functional by performing the following steps:
     1. Add more workloads and create an additional cluster. For more information, see
@@ -97,7 +97,7 @@ To download and import a Tanzu Kubernetes Grid Integrated Edition version:
 1. Download the desired version of the product
 from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile).
 
-1. Navigate to the Ops Manager Installation Dashboard and click **Import a Product**
+1. Navigate to the {{{ vars.platform_name }}} Installation Dashboard and click **Import a Product**
 to upload the product file.
 
 1. Under the **Import a Product** button, click **+** next to **Tanzu Kubernetes Grid Integrated Edition**.
@@ -111,11 +111,11 @@ For information about Windows stemcells, see
 [Configuring Windows Worker-Based Clusters](windows-workers.html).
 
 <p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
-see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated Ops Manager
+see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{{ vars.platform_name }}}
 and Ubuntu Jammy Stemcell Downloading</a> in <em>Configuring the Upgrade Pipeline</em>.
 </p>
 
-If Ops Manager does not have the Ubuntu Jammy Stemcell for VMware Tanzu required for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}},
+If {{{ vars.platform_name }}} does not have the Ubuntu Jammy Stemcell for VMware Tanzu required for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}},
 the Tanzu Kubernetes Grid Integrated Edition tile displays the message **Missing stemcell**.
 To download and import a new Ubuntu Jammy Stemcell for VMware Tanzu, follow the steps below:
 
@@ -128,13 +128,13 @@ To download and import a new Ubuntu Jammy Stemcell for VMware Tanzu, follow the 
 1. Navigate to the [Stemcells (Ubuntu Jammy)](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Ubuntu%20Jammy)) page on {{{ vars.product_network }}}
 and download the required stemcell version for your IaaS.
 
-1. Return to the **Installation Dashboard** in Ops Manager and click **Stemcell Library**.
+1. Return to the **Installation Dashboard** in {{{ vars.platform_name }}} and click **Stemcell Library**.
 
 1. On the **Stemcell Library** page, click **Import Stemcell** and select the stemcell file you downloaded from {{{ vars.product_network }}}.
 
 1. Select the Tanzu Kubernetes Grid Integrated Edition tile and click **Apply Stemcell to Products**.
 
-1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for Tanzu Kubernetes Grid Integrated Edition.
+1. Verify that {{{ vars.platform_name }}} successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for Tanzu Kubernetes Grid Integrated Edition.
 
 1. Return to the **Installation Dashboard**.
 
@@ -200,10 +200,10 @@ with existing clusters.
 
 To complete the upgrade of the Tanzu Kubernetes Grid Integrated Edition tile:
 
-1. Return to the **Installation Dashboard** in Ops Manager.
+1. Return to the **Installation Dashboard** in {{{ vars.platform_name }}}.
 
 1. Click **Review Pending Changes**.
-     For more information about this Ops Manager page, see
+     For more information about this {{{ vars.platform_name }}} page, see
     [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
 
 1. Click **Apply Changes**.

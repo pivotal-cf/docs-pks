@@ -245,7 +245,7 @@ For example:
 Verify your current TKGI proxy configuration by performing the following steps:
 
 1. Check whether an existing proxy is enabled:
-    1. Log in to Ops Manager.
+    1. Log in to {{{ vars.platform_name }}}.
     1. Click the **VMware Tanzu Kubernetes Grid Integrated Edition** tile.
     1. Click **Networking**.
     1. If **HTTP/HTTPS Proxy** is **Disabled**, no action is required. Continue to the next section.

@@ -25,7 +25,7 @@ to monitor the health of the TKGI Control Plane
 and your Linux and Windows cluster control plane nodes.
 
 Healthwatch enables you to monitor the functionality of your TKGI environment
-and can be configured to expose metrics to a service or database external to your Ops Manager
+and can be configured to expose metrics to a service or database external to your {{{ vars.platform_name }}}
 foundation.
 For more information, see [Overview of the Healthwatch Exporter for TKGI Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
 
@@ -58,7 +58,7 @@ Wavefront runs as an external service that you set up to monitor Windows worker-
     * `API-TOKEN` is the Wavefront API token for your Wavefront subscription.  
 
 1. Do one of the following:
-  - Configure Wavefront Integration in Ops Manager using the [VMware Tanzu Kubernetes Grid Integrated Edition Integration](https://docs.wavefront.com/tkgi.html) procedure in the Wavefront documentation.
+  - Configure Wavefront Integration in {{{ vars.platform_name }}} using the [VMware Tanzu Kubernetes Grid Integrated Edition Integration](https://docs.wavefront.com/tkgi.html) procedure in the Wavefront documentation.
   - Set up a metric sink to send metrics to Wavefront following the instructions in [Creating and Managing Sink Resources](./create-sinks.html).
 
 

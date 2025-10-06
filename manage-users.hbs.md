@@ -12,7 +12,7 @@ UAA is the identity management service for Tanzu Kubernetes Grid Integrated Edit
 Tanzu Kubernetes Grid Integrated Edition includes a UAA server, which is hosted on the TKGI API VM.
 
 To interact with the UAA server, you can use the UAA Command Line Interface (UAAC).
-You can either run UAAC commands from the Ops Manager VM or install UAAC on your local workstation.
+You can either run UAAC commands from the {{{ vars.platform_name }}} VM or install UAAC on your local workstation.
 
 ### <a id='tkgi-uaa-scope'></a> UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users
 
@@ -27,7 +27,7 @@ For more information about UAA scopes in Tanzu Kubernetes Grid Integrated Editio
 Before managing users for Tanzu Kubernetes Grid Integrated Edition, you must connect to the TKGI API VM.
 To connect to the TKGI API VM, you need one of the following:
 
-* SSH access to the Ops Manager VM
+* SSH access to the {{{ vars.platform_name }}} VM
 * A machine that can connect to your TKGI API VM
 
 For instructions on how to connect to the TKGI control plane,
