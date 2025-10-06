@@ -1,19 +1,19 @@
 ---
 title: VMware CEIP
-owner: TKGI
+
 ---
 
-This topic describes the VMware Customer Experience Improvement Program (CEIP) used in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes the VMware Customer Experience Improvement Program (CEIP) used in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 ## <a id="overview"></a>Overview
 
-The CEIP program allows VMware to collect data from customer installations to improve 
+The CEIP program allows VMware to collect data from customer installations to improve
 the Tanzu Kubernetes Grid Integrated Edition experience.
-Collecting data at scale allows VMware to identify patterns and warning signals in 
+Collecting data at scale allows VMware to identify patterns and warning signals in
 Tanzu Kubernetes Grid Integrated Edition installations.
 
-Customers who participate in the CEIP receive proactive support benefits that include a weekly report based on telemetry data. 
-Contact your Customer Success Manager to subscribe to this report. You can view a sample report at [TKGI 
+Customers who participate in the CEIP receive proactive support benefits that include a weekly report based on telemetry data.
+Contact your Customer Success Manager to subscribe to this report. You can view a sample report at [TKGI
 Platform Operations Report](https://via.vmw.com/TKGI).
 
 <p class="note"><strong>Note:</strong> Tanzu Kubernetes Grid Integrated Edition does not collect any personally identifiable information (PII) at either participation level.
@@ -49,11 +49,11 @@ The CEIP program use the following components to collect data:
 
 The following diagram shows how CEIP data flows through the system components:
 
-![CEIP System Data Flow](images/telemetry-data-flow.png)  
-[View a larger version of this image.](images/telemetry-data-flow.png)  
+![CEIP System Data Flow](images/telemetry-data-flow.png)
+[View a larger version of this image.](images/telemetry-data-flow.png)
 {{{{raw}}}} <!--    <a href="images/telemetry-data-flow.png" target="_blank"><img src="images/telemetry-data-flow.png" alt="Telemetry System Data Flow"></a>     # --> {{{{/raw}}}}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/presentation/d/1GKYWnT5efjMwyPx23NCoD2VIS-NVzfHDy_6WDyrwgtU/edit#slide=id.g8599dc7597_0_0  --> {{{{/raw}}}}
-  
+
 
 ## <a id="data-dictionary"></a>Data Dictionary
 

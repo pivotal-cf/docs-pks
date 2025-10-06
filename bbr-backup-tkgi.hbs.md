@@ -1,6 +1,6 @@
 ---
 title: Backing Up TKGI Management Plane Components
-owner: TKGI
+
 ---
 
 This topic describes how to use BOSH Backup and Restore (BBR) to back up VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Managment Plane components.

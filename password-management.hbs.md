@@ -1,6 +1,6 @@
 ---
 title: Adding Infrastructure Password Changes to the Tanzu Kubernetes Grid Integrated Edition Tile
-owner: TKGI
+
 ---
 
 This topic describes how to manage VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) after changing a BOSH Director

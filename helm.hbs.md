@@ -1,18 +1,18 @@
 ---
 title: Using Helm with Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 This topic describes how to install the Helm package manager
-and use Helm with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and TKGI-provisioned Kubernetes clusters.  
+and use Helm with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and TKGI-provisioned Kubernetes clusters.
 
 
 ## <a id='overview'></a> Overview
 
 Helm is a package manager you can use to deploy TKGI components, such as Wavefront,
-and your TKGI Kubernetes apps.  
+and your TKGI Kubernetes apps.
 
-You can use Helm to install software to Kubernetes clusters deployed by TKGI.  
+You can use Helm to install software to Kubernetes clusters deployed by TKGI.
 
 Helm includes the following components:
 
@@ -34,21 +34,21 @@ Helm includes the following components:
   </tr>
 </table>
 <br>
-To install Helm, see [Install and Configure Helm](#install-helm).  
+To install Helm, see [Install and Configure Helm](#install-helm).
 
-To use Helm to deploy components or your apps to TKGI clusters, 
-see [Deploy Apps and Components Using Helm](#deploy-using-helm).  
+To use Helm to deploy components or your apps to TKGI clusters,
+see [Deploy Apps and Components Using Helm](#deploy-using-helm).
 
 
 ## <a id='install-helm'></a> Install and Configure Helm
 
 You can use either [Helm 3](https://helm.sh/)
-or its predecessor [Helm 2](https://v2.helm.sh/) as your TKGI Helm package manager. 
-Helm 3 is more easily installed than Helm 2 and requires less configuration.  
+or its predecessor [Helm 2](https://v2.helm.sh/) as your TKGI Helm package manager.
+Helm 3 is more easily installed than Helm 2 and requires less configuration.
 
-To install and configure Helm 3 for TKGI, see 
-[Install and Configure Helm 3](#helm-3) below. 
-To install Helm 2, see [Install and Configure Helm 2](#helm-2) below.  
+To install and configure Helm 3 for TKGI, see
+[Install and Configure Helm 3](#helm-3) below.
+To install Helm 2, see [Install and Configure Helm 2](#helm-2) below.
 
 ### <a id='helm-3'></a> Install and Configure Helm 3
 
@@ -60,7 +60,7 @@ https://docs.bitnami.com/kubernetes/get-started-charts-pks/#step-1-install-and-c
 To use Helm 2 with TKGI, you must first configure the Tiller component to give it access to the Kubernetes API.
 Tiller runs inside the Kubernetes cluster.
 
-To grant API access to Tiller and install Helm 2: 
+To grant API access to Tiller and install Helm 2:
 
 1. Create a role-based access control (RBAC) configuration file named `rbac-config.yaml` that contains the following:
 
@@ -84,9 +84,9 @@ To grant API access to Tiller and install Helm 2:
         name: tiller
         namespace: kube-system
     ```
-    
+
 1. Create the service account and role by running the following command:
-  
+
     ```
     kubectl create -f rbac-config.yaml
     ```
@@ -94,16 +94,16 @@ To grant API access to Tiller and install Helm 2:
 1. Download and install the latest v2 patch release of the [Helm CLI](https://github.com/kubernetes/helm/releases).
 
 1. Deploy Helm 2 using the service account by running the following command:
-    
+
     ```
     helm init --service-account tiller
     ```
 
-1. Verify that the permissions are configured by running the following command: 
-      
+1. Verify that the permissions are configured by running the following command:
+
     ```
     helm ls
-    ``` 
+    ```
     Confirm there is not any output from the above command.
 
 To apply more granular permissions to the Tiller service account, see the [Helm RBAC](https://github.com/kubernetes/helm/blob/master/docs/rbac.md) documentation.
@@ -117,12 +117,12 @@ You can use Helm to deploy third-party components or your own apps to TKGI clust
 
 ### <a id='helm-artifacthub'></a> Deploy Apps Listed in Artifact HUB
 
-To deploy a third-party component on Artifact HUB to a TKGI cluster:  
+To deploy a third-party component on Artifact HUB to a TKGI cluster:
 
-1. Download the component's Helm chart from the official repositories in the 
-[Artifact HUB](https://artifacthub.io/packages/search?page=1&official=true). 
+1. Download the component's Helm chart from the official repositories in the
+[Artifact HUB](https://artifacthub.io/packages/search?page=1&official=true).
 
-1. Complete the deployment instructions for the component.   
+1. Complete the deployment instructions for the component.
 
 For specific instructions on deploying Wavefront, which you might need to do for Windows worker-based clusters,
 see the [Wavefront](windows-monitoring.html#wavefront) section of the _Monitoring Windows Worker Clusters and Nodes_ topic.
@@ -133,8 +133,8 @@ To deploy your app to a TKGI cluster using Helm:
 
 1. Package the app as a _Helm chart_, the package format that the `helm install` command uses.
   - For example Helm charts, see [Concourse Helm Chart](https://github.com/concourse/concourse-chart), [DataDog Helm Chart](https://github.com/DataDog/helm-charts), or the charts archived in [Helm Charts](https://github.com/kubernetes/charts) on GitHub.
-  - For information on how to create a Helm chart for your app, see 
-[Charts](https://docs.helm.sh/developing_charts/) in the Helm documentation.  
+  - For information on how to create a Helm chart for your app, see
+[Charts](https://docs.helm.sh/developing_charts/) in the Helm documentation.
 
 1. Run the `helm install` command, passing in the location of your chart.
 For more information, see the [Helm Docs](https://helm.sh/docs/helm/helm_install/).

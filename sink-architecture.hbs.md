@@ -1,6 +1,6 @@
 ---
 title: Sink Architecture in Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition

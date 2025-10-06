@@ -1,6 +1,6 @@
 ---
 title: Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI-NSXT
+ -NSXT
 ---
 
 
@@ -9,10 +9,10 @@ owner: TKGI-NSXT
 
 #<a id='superceded'></a> Superseded Topic: Do Not Use
 
-**This topic has been superseded. Do not use.**  
+**This topic has been superseded. Do not use.**
 
-For instructions on how to configure NSX Data Center Transport Zones, 
-see [Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for TKGI](nsxt-install-tzs.html).  
+For instructions on how to configure NSX Data Center Transport Zones,
+see [Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for TKGI](nsxt-install-tzs.html).
 <br>
 <br>
 <br>
@@ -21,13 +21,13 @@ see [Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for
 
 This topic provides instructions for configuring NSX-T Data Center v3.1 Transport Zones and N-VDS switches on NSX-T Edge Nodes for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
 
-TKGI requires two Transport Zones for TKGI: an Overlay Transport Zone for the ESXi Transport Nodes 
-and a VLAN Transport Zone for Edge Nodes.  
+TKGI requires two Transport Zones for TKGI: an Overlay Transport Zone for the ESXi Transport Nodes
+and a VLAN Transport Zone for Edge Nodes.
 
-TKGI requires that the host switch name associated with the Transport Zones 
+TKGI requires that the host switch name associated with the Transport Zones
 match exactly the **Edge Switch Name** value that you specify when you configure an NSX-T Edge Node for use with TKGI.
 
-You can configure your Transport Zones in three ways. 
+You can configure your Transport Zones in three ways.
 The three configuration options require different levels of customization to complete:
 
 <table>
@@ -57,8 +57,8 @@ The three configuration options require different levels of customization to com
 </table>
 
 
-<p class="note"><strong>Note:</strong> In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI. 
-  For more information, see <a href="#nsxt31-edge-config">TKGI NSX-T Edge Switch and Transport Zone Host Switch Name Requirements</a>.</p> 
+<p class="note"><strong>Note:</strong> In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI.
+  For more information, see <a href="#nsxt31-edge-config">TKGI NSX-T Edge Switch and Transport Zone Host Switch Name Requirements</a>.</p>
 
 ##<a id='option1'></a> Configure Your NSX-T Transport Zones for TKGI
 
@@ -72,14 +72,14 @@ You can configure identical Edge Switch and Transport Zone host switch names usi
 
 ###<a id='option1'></a> Option 1: Use the Default Transport Zones with a Single N-VDS Switch
 
-By default NSX-T v3.x creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. Both default Transport Zones use a single N-VDS host switch that is named  `nsxHostSwitch`. The advantage of using the default Transport Zones is twofold. First, it simplifies the Edge Node configuration process. Second, you need only a single N-VDS for the Edge Nodes. 
+By default NSX-T v3.x creates two transport zones for you: `nsx-overlay-transportzone` and `nsx-vlan-transportzone`. Both default Transport Zones use a single N-VDS host switch that is named  `nsxHostSwitch`. The advantage of using the default Transport Zones is twofold. First, it simplifies the Edge Node configuration process. Second, you need only a single N-VDS for the Edge Nodes.
 
 To use this option:
 
-1. Do not create a Transport Zone. 
+1. Do not create a Transport Zone.
 1. Deploy the Edge Nodes and configure NSX-T.
 1. Specify `nsxHostSwitch` as the **Edge Switch Name**.
-1. Select both default transport zones, `nsx-overlay-transportzone` and `nsx-vlan-transportzone`.  
+1. Select both default transport zones, `nsx-overlay-transportzone` and `nsx-vlan-transportzone`.
 <br>
     For example:
     <table>
@@ -111,21 +111,21 @@ To use this option:
         <td><strong>Uplinks</strong></td>
         <td>uplink-1 / EDGE-VTEP-PG</td>
       </tr>
-    </table>    
+    </table>
 
     <p class="note"><strong>Note:</strong> If you use the default Transport Zones, but do not use the exact name <code>nsxHostSwitch</code> when configuring NSX on the Edge Node, you will receive the  <code>pks-nsx-t-osb-proxy</code> BOSH error when you try to deploy TKGI.</p>
 
 ###<a id='option2'></a> Option 2: Create Custom Transport Zones and Use the NSX-T API to Get the Host Switch Names
 
-If you want to create a custom Transport Zone, you can do so using the NSX-T user interface. 
-In this case, because the host switch name is deprecated from the NSX-T user interface, you have to make an NSX-T API call to get the host switch name so that you can configure the Edge Nodes with the correct switch. 
+If you want to create a custom Transport Zone, you can do so using the NSX-T user interface.
+In this case, because the host switch name is deprecated from the NSX-T user interface, you have to make an NSX-T API call to get the host switch name so that you can configure the Edge Nodes with the correct switch.
 
-When you create a custom Transport Zone using the NSX-T web interface, 
-NSX-T will generate the associated switch name for you.  
+When you create a custom Transport Zone using the NSX-T web interface,
+NSX-T will generate the associated switch name for you.
 
-To create custom Transport Zones using the Host Switch names:  
+To create custom Transport Zones using the Host Switch names:
 
-1. Create a custom Overlay Transport Zone:  
+1. Create a custom Overlay Transport Zone:
     1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
     1. Click **Add**.
     1. Enter a Name, such as `tz-overlay`.
@@ -133,21 +133,21 @@ To create custom Transport Zones using the Host Switch names:
     1. Click **Add**.
     1. Verify that you see the newly created Transport Zone named `tz-overlay` in the list.
 
-1. Create a custom VLAN Transport Zone:  
+1. Create a custom VLAN Transport Zone:
     1. In the NSX-T Management Console, navigate to **System** > **Fabric** > **Transport Zone**.
     1. Click **Add**.
     1. Enter a name, such as `tz-vlan`.
     1. For the **Traffic Type**, select `VLAN`.
     1. Click **Add**.
-    1. Verify that you see the newly created Transport Zone named `tz-vlan` in the list. 
+    1. Verify that you see the newly created Transport Zone named `tz-vlan` in the list.
 1. To retrieve the host switch name:
 
     1. Make a call to the NSX-T API:
 
         ```
-        curl -k -u USER:PASSWORD -X GET "https://${NSX_MANAGER}/api/v1/transport-zones" 
+        curl -k -u USER:PASSWORD -X GET "https://${NSX_MANAGER}/api/v1/transport-zones"
         ```
-    1. Retrieve the host switch name from the `host_switch_name` property in the return.  
+    1. Retrieve the host switch name from the `host_switch_name` property in the return.
 <br>
         For example, `nsxHostSwitch` is the host switch name in the following return:
 
@@ -203,9 +203,9 @@ To create custom Transport Zones using the Host Switch names:
           "sort_by" : "display_name",
           "sort_ascending" : true
         ```
-1. Configure NSX-T for the Edge Nodes: 
+1. Configure NSX-T for the Edge Nodes:
 
-    1. Deploy each Edge Node, configuring NSX-T with the custom Transport Zones and generated switch names as follows:  
+    1. Deploy each Edge Node, configuring NSX-T with the custom Transport Zones and generated switch names as follows:
         * **Switch 1 for Overlay TZ**
             <table>
               <tr>
@@ -237,9 +237,9 @@ To create custom Transport Zones using the Host Switch names:
                 <td>uplink-1 / EDGE-VTEP-PG</td>
               </tr>
             </table>
-    1. Select **Add Switch** at the top of the dialog. Configure the VLAN Transport Zone switch as follows:        
+    1. Select **Add Switch** at the top of the dialog. Configure the VLAN Transport Zone switch as follows:
         * **Switch 2 for VLAN TZ**
-            
+
             <table>
               <tr>
                 <th width="27%">Field</th>
@@ -268,23 +268,23 @@ To create custom Transport Zones using the Host Switch names:
 If you want to customize the NSX-T host switch name, you must do so using the NSX-T API. The required parameters are `host_switch_name`
 and `transport_type` (OVERLAY or VLAN). The optional parameters are `description` and `display_name`.
 
-To create custom Transport Zones and NSX-T Switches:  
+To create custom Transport Zones and NSX-T Switches:
 
-1. Create a custom Overlay Transport Zone and associated custom NSX-T switch: 
+1. Create a custom Overlay Transport Zone and associated custom NSX-T switch:
 
     ```
     curl -k -u USER:PASSWORD -X POST -H 'Content-type: application/json' \
      --data-binary '{ "display_name":"tz-overlay", "host_switch_name":"switch-overlay", "description":"Overlay Transport Zone", "transport_type":"OVERLAY" }' \
      https://${NSX_MANAGER}/api/v1/transport-zones
     ```
-    
-    Where:  
-    
-    * `USER` is the account name to use to authenticate.  
-    * `PASSWORD` is the password to use to authenticate.  
+
+    Where:
+
+    * `USER` is the account name to use to authenticate.
+    * `PASSWORD` is the password to use to authenticate.
 
 1. Retrieve the property values from the returned responses.
-<br>    
+<br>
     For example:
 
     ```
@@ -310,14 +310,14 @@ To create custom Transport Zones and NSX-T Switches:
      --data-binary '{ "display_name":"tz-vlan", "host_switch_name":"switch-vlan", "description":"VLAN Transport Zone", "transport_type":"VLAN" }' \
      https://${NSX_MANAGER}/api/v1/transport-zones
     ```
-    
-    Where:  
-    
-    * `USER` is the account name to use to authenticate.  
-    * `PASSWORD` is the password to use to authenticate.  
+
+    Where:
+
+    * `USER` is the account name to use to authenticate.
+    * `PASSWORD` is the password to use to authenticate.
 
 1. Retrieve the property values from the returned responses.
-<br>    
+<br>
     For example:
 
     ```
@@ -338,17 +338,17 @@ To create custom Transport Zones and NSX-T Switches:
     ```
 1. Use the retrieved values to configure NSX-T as described in the **Configure NSX-T for the Edge Node** step in [Option 2: Create Custom Transport Zones and Use the NSX-T API to Get the Host Switch Names](#option2) above.
 
-##<a id='nsxt31-edge-config'></a> TKGI NSX-T Edge Switch and Transport Zone Host Switch Name Requirements 
+##<a id='nsxt31-edge-config'></a> TKGI NSX-T Edge Switch and Transport Zone Host Switch Name Requirements
 
-In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI.  
+In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI.
 
-For TKGI, the NSX-T **Edge Switch Name** and the Transport Zone host switch name must be identical. 
-When configuring NSX-T, configure the **Edge Switch Name** to be the same as the Transport Zone host switch name.  
+For TKGI, the NSX-T **Edge Switch Name** and the Transport Zone host switch name must be identical.
+When configuring NSX-T, configure the **Edge Switch Name** to be the same as the Transport Zone host switch name.
 
-<p class="note"><strong>Note:</strong> The NSX-T 3.x Edge Node configuration displays the following message 
-  beside the <strong>Edge Switch Name</strong> field: 
-  "<em>The switch name value need not be identical to host switch name associated with the Transport Zone.</em>" 
-  This message does not apply to TKGI.</p>  
+<p class="note"><strong>Note:</strong> The NSX-T 3.x Edge Node configuration displays the following message
+  beside the <strong>Edge Switch Name</strong> field:
+  "<em>The switch name value need not be identical to host switch name associated with the Transport Zone.</em>"
+  This message does not apply to TKGI.</p>
 
 If there is a mismatch between the the host switch name associated with the Transport Zone and the **Edge Switch Name**,
 TKGI installation fails with the following error:

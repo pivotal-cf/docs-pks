@@ -1,6 +1,6 @@
 ---
 title: TKGI CLI Reference
-owner: TKGI
+
 ---
 
 {{{{raw}}}} <!--  NOTE: This page is automatically generated from the PKS CLI source. Do not manually edit this file.  --> {{{{/raw}}}}

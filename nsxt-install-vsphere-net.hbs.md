@@ -1,9 +1,9 @@
 ---
 title: Configure vSphere Networking for ESXi Hosts
-owner: TKGI-NSXT
+ -NSXT
 ---
 
-This topic describes how to configure vSphere Networking for ESXi Hosts for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to configure vSphere Networking for ESXi Hosts for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 
@@ -49,10 +49,10 @@ For each ESXi host in the MANAGEMENT-cluster, create the following vSwitch Port 
 1. Log in to the vCenter Server.
 1. Select the ESXi host in the MANAGEMENT-cluster.
   <img src="images/nsxt/nsxt-30/vswitch-01.png">
-1. Select **Configure** > **Virtual switches**. 
+1. Select **Configure** > **Virtual switches**.
 1. Select **Add Networking** (upper right).
-1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**. 
-  <img src="images/nsxt/nsxt-30/vswitch-02.png">               
+1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**.
+  <img src="images/nsxt/nsxt-30/vswitch-02.png">
 1. Select the existing standard switch named `vSwitch0` and click **Next**.
   <img src="images/nsxt/nsxt-30/vswitch-03.png">
 1. Enter a **Network Label**, such as `EDGE-VTEP-PG`.
@@ -63,7 +63,7 @@ For each ESXi host in the MANAGEMENT-cluster, create the following vSwitch Port 
 1. Verify that you see the newly created port group.
   <img src="images/nsxt/nsxt-30/vswitch-07.png">
 1. Select **Add Networking** (upper right).
-1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**.                
+1. Select the option **Virtual Machine Port Group for a Standard Switch** and click **Next**.
 1. Select the existing standard switch named `vSwitch0` and click **Next**.
 1. Enter a **Network Label**, such as `EDGE-UPLINK-PG`.
 1. For the **VLAN ID**, select `All (4095)` from the drop-down.
@@ -73,11 +73,11 @@ For each ESXi host in the MANAGEMENT-cluster, create the following vSwitch Port 
   <img src="images/nsxt/nsxt-30/vswitch-09.png">
 
 ##<a id='nsxt30-esxi-mtu'></a> Set vSwitch0 with MTU at 9000
- 
+
 For each ESXi host in the MANAGEMENT-cluster, or each ESXi host in the vCenter cluster if you have not created separate Management and Compute clusters, you must enable the virtual switch with jumbo MTU, that is, set vSwitch0 with MTU=9000. If you do not do this, network overlay traffic will jam. The TEP interface for the NSX Edge Nodes must be connected to a port group that supports > 1600 bytes. The default is 1500.
 
 1. Select the Virtual Switch on each ESXi host in the MANAGEMENT-cluster, or each host in the vCenter cluster.
-1. Click Edit. 
+1. Click Edit.
 1. For the MTU (bytes) setting, enter `9000`.
   <img src="images/nsxt/nsxt-30/vswitch-11.png">
 1. Click OK to complete the operation.

@@ -1,6 +1,6 @@
 ---
 title: Backing Up and Restoring the TKGI Management Plane
-owner: TKGI
+
 ---
 
 This topic describes how to back up and restore the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Management Plane.

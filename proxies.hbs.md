@@ -1,6 +1,6 @@
 ---
 title: Using Proxies with Tanzu Kubernetes Grid Integrated Edition on VMware NSX
-owner: TKGI
+
 topic: proxies-nsx-t
 ---
 

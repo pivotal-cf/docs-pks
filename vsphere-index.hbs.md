@@ -1,6 +1,6 @@
 ---
 title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere
-owner: TKGI
+
 iaas: vSphere
 ---
 

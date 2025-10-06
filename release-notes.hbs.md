@@ -1,6 +1,6 @@
 ---
 title: Release Notes
-owner: TKGI
+
 topictype: releasenotes
 ---
 

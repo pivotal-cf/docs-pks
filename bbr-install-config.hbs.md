@@ -1,6 +1,6 @@
 ---
 title: Installing and Configuring BOSH Backup and Restore
-owner: TKGI
+
 ---
 
 This topic describes how to install BOSH Backup and Restore (BBR).

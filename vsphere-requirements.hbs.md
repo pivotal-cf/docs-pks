@@ -1,6 +1,6 @@
 ---
 title: vSphere Prerequisites and Resource Requirements
-owner: TKGI
+
 topictype: vsphere
 ---
 

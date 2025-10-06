@@ -1,6 +1,6 @@
 ---
 title: Tanzu Kubernetes Grid Integrated Edition Security Disclosure and Release Process
-owner: TKGI
+
 ---
 
 This topic describes the processes for disclosing security issues and releasing related fixes for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI), Kubernetes, VMware NSX, and VMware Harbor.

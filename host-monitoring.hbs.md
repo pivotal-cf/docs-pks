@@ -1,6 +1,6 @@
 ---
 title: Monitoring TKGI and TKGI-Provisioned Clusters on Linux
-owner: TKGI
+
 ---
 
 This topic describes the components and integrations you can use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) to capture logs and metrics on Linux.

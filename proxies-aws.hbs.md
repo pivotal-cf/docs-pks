@@ -1,6 +1,6 @@
 ---
 title: Using Proxies with Tanzu Kubernetes Grid Integrated Edition on AWS
-owner: TKGI
+
 topic: proxies-aws
 iaas: #Empty var to prevent build breaking
 ---

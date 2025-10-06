@@ -1,6 +1,6 @@
 ---
 title: Creating Clusters
-owner: TKGI
+
 pkscommand: create
 ---
 

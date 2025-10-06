@@ -1,11 +1,11 @@
 ---
 title: Enable Plans with Windows Worker Nodes
-owner: TKGI
+
 ---
 
 If you used Tanzu Kubernetes Grid Integrated Edition Management Console to deploy Tanzu Kubernetes Grid Integrated Edition on vSphere, and you created Plans that implement Windows worker nodes, you must use Operations Manager to provide BOSH with a vSphere stemcell for Windows Server. See the [release notes](release-notes.html) for the correct version of vSphere stemcell for this release.
 
-Tanzu Kubernetes Grid Integrated Edition Management Console does not provide a mechanism for the automatic upload and installation of the Windows stemcell. Because Operations Manager and BOSH Director for vSphere are deployed when you deploy Tanzu Kubernetes Grid Integrated Edition from Tanzu Kubernetes Grid Integrated Edition Management Console, you can only install the stemcell after you have deployed Tanzu Kubernetes Grid Integrated Edition. 
+Tanzu Kubernetes Grid Integrated Edition Management Console does not provide a mechanism for the automatic upload and installation of the Windows stemcell. Because Operations Manager and BOSH Director for vSphere are deployed when you deploy Tanzu Kubernetes Grid Integrated Edition from Tanzu Kubernetes Grid Integrated Edition Management Console, you can only install the stemcell after you have deployed Tanzu Kubernetes Grid Integrated Edition.
 
 After you deploy Tanzu Kubernetes Grid Integrated Edition from the management console, any plans that use Windows worker nodes are ignored until you install a Windows Stemcell and configure the management console to use it.
 
@@ -18,7 +18,7 @@ After you deploy Tanzu Kubernetes Grid Integrated Edition from the management co
 
 vSphere stemcells for Windows Server version 2019 are not available on the <a href="https://support.broadcom.com/">Broadcom Support</a>. You must create Windows Server stemcells for vSphere by using Stembuild and your own Windows Server ISO.
 
-Create a vSphere stemcell for Windows Server version 2019 by following the instructions in [Creating a Windows Stemcell for vSphere Using Stembuild](create-vsphere-stemcell.html). 
+Create a vSphere stemcell for Windows Server version 2019 by following the instructions in [Creating a Windows Stemcell for vSphere Using Stembuild](create-vsphere-stemcell.html).
 
 ## <a id='install-stemcell-ops-mgr'></a>Step 2: Install the Windows Server Stemcell in Operations Manager
 

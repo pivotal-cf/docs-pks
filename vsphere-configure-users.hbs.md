@@ -1,6 +1,6 @@
 ---
 title: Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on vSphere
-owner: TKGI
+
 iaas: vSphere
 ---
 

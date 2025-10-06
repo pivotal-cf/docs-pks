@@ -1,6 +1,6 @@
 ---
 title: Isolating Tenants
-owner: TKGI
+
 ---
 
 This topic describes how to isolate tenants in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) multi-tenant environments.

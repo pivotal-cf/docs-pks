@@ -1,6 +1,6 @@
 ---
 title: Configuring Windows Worker-Based Kubernetes Clusters
-owner: TKGI
+
 windowsclusters: true
 iaas: #Empty var to prevent build breaking
 topic: #Empty var to prevent build breaking

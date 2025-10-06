@@ -1,6 +1,6 @@
 ---
 title: Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard
-owner: TKGI
+
 thistopic: wizard
 ---
 

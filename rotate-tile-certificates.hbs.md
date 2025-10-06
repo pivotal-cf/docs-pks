@@ -1,6 +1,6 @@
 ---
 title: Rotating Tanzu Kubernetes Grid Integrated Edition Control Plane Certificates
-owner: TKGI
+
 ---
 
 This topic describes how to rotate certificates used only by

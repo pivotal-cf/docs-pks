@@ -1,6 +1,6 @@
 ---
 title: Generating and Registering the VMware NSX Manager Superuser Principal Identity Certificate and Key
-owner: TKGI
+
 authenttype: pkstile
 ---
 

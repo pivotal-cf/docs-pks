@@ -1,17 +1,17 @@
 ---
 title: Configuring and Using PersistentVolumes
-owner: TKGI
+
 ---
 
-This topic describes how to provision static and dynamic PersistentVolumes (PVs) to run stateful apps using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to provision static and dynamic PersistentVolumes (PVs) to run stateful apps using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 For static PV provisioning, the PersistentVolumeClaim (PVC) does not need to reference a StorageClass. For dynamic PV provisioning, you must specify a StorageClass and define the PVC using a reference to that StorageClass.
 
-For more information about storage management in Kubernetes, 
+For more information about storage management in Kubernetes,
 see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
  in the _Kubernetes Concepts_ documentation.
 
-For more information about the supported vSphere topologies for PV storage, 
+For more information about the supported vSphere topologies for PV storage,
 see [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html).
 
 ## <a id='static-pv'></a>Provision a Static PV
@@ -311,7 +311,7 @@ Perform the steps in this section to register one or more StorageClasses and def
 
 1. Download the StorageClass spec for your cloud provider by running the command for your cloud provider:
     * **AWS**: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-aws.yml`
-    * **Azure**: 
+    * **Azure**:
         * For Azure disk storage: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-azure.yml`
         * For Azure file storage: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-azure-file.yml`
     * **vSphere**: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-vsphere.yml`
@@ -332,10 +332,10 @@ Perform the steps in this section to register one or more StorageClasses and def
     ```
     kubectl create -f STORAGE-CLASS-SPEC.yml
     ```
-    Where `STORAGE-CLASS-SPEC` is the name of the file that you downloaded in the previous step.  
-    
-    For example:  
-    
+    Where `STORAGE-CLASS-SPEC` is the name of the file that you downloaded in the previous step.
+
+    For example:
+
     ```console
     $ kubectl create -f storage-class-aws.yml
     ```

@@ -1,6 +1,6 @@
 ---
 title: TKGI API Authentication
-owner: TKGI
+
 ---
 
 This topic describes how the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) works with User Account and Authentication (UAA) to manage TKGI deployment authentication and authorization.

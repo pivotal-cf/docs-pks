@@ -1,6 +1,6 @@
 ---
 title: Connect to Operations Manager
-owner: TKGI
+
 ---
 
 When you use Tanzu Kubernetes Grid Integrated Edition Management Console to deploy Tanzu Kubernetes Grid Integrated Edition on vSphere, it deploys Operations Manager. The **Deployment Metadata** view of the management console displays the credentials that you need to log in to the deployed Operations Manager instance.

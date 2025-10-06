@@ -1,6 +1,6 @@
 ---
 title: Prerequisites for Tanzu Kubernetes Grid Integrated Edition Management Console Deployment
-owner: TKGI
+
 ---
 
 VMware Tanzu Kubernetes Grid Integrated Edition Management Console is provided as an OVA template that requires at a minimum the vSphere resources described in [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
@@ -9,7 +9,7 @@ For more information, see [When Should I Use Tanzu Kubernetes Grid Integrated Ed
 
 ## <a id='network-configurations'></a>Network Configurations
 
-Tanzu Kubernetes Grid Integrated Edition Management Console provides 3 network configuration options for your Tanzu Kubernetes Grid Integrated Edition deployments. Each network configuration option has specific prerequisites. 
+Tanzu Kubernetes Grid Integrated Edition Management Console provides 3 network configuration options for your Tanzu Kubernetes Grid Integrated Edition deployments. Each network configuration option has specific prerequisites.
 
 - **Bring your own topology**: Deploy Tanzu Kubernetes Grid Integrated Edition to an existing VMware NSX network that you have fully configured yourself. See [Prerequisites for a Bring Your Own Topology Deployment to VMware NSX](console-prereqs-nsxt-byot.html).
 - **Automated NAT deployment**: Deploy Tanzu Kubernetes Grid Integrated Edition to an existing VMware NSX network that you have not fully set up, that Tanzu Kubernetes Grid Integrated Edition Management Console helps to configure for you. See [Prerequisites for an Automated NAT Deployment to VMware NSX](console-prereqs-nsxt-automatednat.html).

@@ -1,6 +1,6 @@
 ---
 title: Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on AWS
-owner: TKGI
+
 iaas: AWS
 ---
 

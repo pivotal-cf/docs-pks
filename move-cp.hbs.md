@@ -1,6 +1,6 @@
 ---
 title: Migrating to a New Datastore
-owner: TKGI
+
 iaas: vsphere-nsxt
 ---
 

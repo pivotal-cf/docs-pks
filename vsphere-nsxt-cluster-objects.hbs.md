@@ -1,6 +1,6 @@
 ---
 title: vSphere with VMware NSX Cluster Objects
-owner: TKGI
+
 iaas: vsphere-nsxt
 ---
 

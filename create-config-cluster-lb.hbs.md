@@ -1,11 +1,11 @@
 ---
 title: Load Balancing and Ingress
-owner: TKGI
+
 ---
 
-This topic lists topics that describe how to create and configure load balancers for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.  
+This topic lists topics that describe how to create and configure load balancers for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.
 
-See the following topics to create or configure load balancers:  
+See the following topics to create or configure load balancers:
 
 <ul>
   <li>

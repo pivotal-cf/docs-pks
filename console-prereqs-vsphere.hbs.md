@@ -1,6 +1,6 @@
 ---
 title: Virtual Infrastructure Prerequisites
-owner: TKGI
+
 ---
 
 The vSphere environment to which you deploy the management console OVA requires the following configuration:

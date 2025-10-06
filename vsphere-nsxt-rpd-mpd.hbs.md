@@ -1,6 +1,6 @@
 ---
 title: Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX
-owner: TKGI with NSX
+  with NSX
 ---
 
 This topic describes the hardware requirements for production deployments of VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX.

@@ -1,6 +1,6 @@
 ---
 title: Tanzu Kubernetes Grid Integrated Edition Certificates
-owner: TKGI
+
 ---
 
 This topic summarizes Tanzu Kubernetes Grid Integrated Edition (TKGI) certificates

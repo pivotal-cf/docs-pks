@@ -1,6 +1,6 @@
 ---
 title: Logging in to Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 This topic describes how to log in to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).

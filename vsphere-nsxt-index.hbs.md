@@ -1,6 +1,6 @@
 ---
 title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX Using {{ vars.platform_name }}
-owner: TKGI
+
 iaas: vsphere-nsxt
 ---
 

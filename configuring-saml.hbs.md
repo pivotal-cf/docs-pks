@@ -1,6 +1,6 @@
 ---
 title: Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider
-owner: TKGI
+
 ---
 
 This topic describes how to connect VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)

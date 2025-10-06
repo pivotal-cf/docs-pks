@@ -1,6 +1,6 @@
 ---
 title: Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI-NSXT
+ -NSXT
 ---
 
 This topic describes how to install and configure NSX-T Data Center v3.0 for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.

@@ -1,6 +1,6 @@
 ---
 title: Network Planning for Installing Tanzu Kubernetes Grid Integrated Edition with VMware NSX
-owner: TKGI
+
 ---
 
 This topic describes how to plan your environment before installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on VMware vSphere with NSX integration.

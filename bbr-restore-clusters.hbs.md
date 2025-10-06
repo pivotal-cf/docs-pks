@@ -1,6 +1,6 @@
 ---
 title: Restoring Kubernetes Clusters Provisioned Using the Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 This topic describes how to use BOSH Backup and Restore (BBR) to restore

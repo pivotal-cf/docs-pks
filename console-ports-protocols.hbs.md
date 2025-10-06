@@ -1,6 +1,6 @@
 ---
 title: Firewall Ports and Protocols Requirements for Tanzu Kubernetes Grid Integrated Edition Management Console
-owner: TKGI
+
 ---
 Firewalls and security policies are used to filter traffic and limit access in environments with strict inter-network access control policies.
 

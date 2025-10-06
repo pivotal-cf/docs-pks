@@ -1,6 +1,6 @@
 ---
 title: Restoring TKGI Management Plane Components
-owner: TKGI
+
 ---
 
 This topic describes how to use BOSH Backup and Restore (BBR) to restore

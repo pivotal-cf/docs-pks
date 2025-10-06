@@ -1,10 +1,10 @@
 ---
 title: Configuring a TKGI API Load Balancer
-owner: TKGI
+
 iaas: vSphere
 ---
 
-This topic describes how to configure an external load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition Control Plane (TKGI API).  
+This topic describes how to configure an external load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition Control Plane (TKGI API).
 
 ## <a id='overview'></a> Overview
 

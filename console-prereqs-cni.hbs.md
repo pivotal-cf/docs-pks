@@ -1,6 +1,6 @@
 ---
 title: Prerequisites for vSphere (Antrea Networking)
-owner: TKGI
+
 ---
 
 To deploy Tanzu Kubernetes Grid Integrated Edition on vSphere with Antrea container networking, you can select the option for Tanzu Kubernetes Grid Integrated Edition Management Console to provision an Antrea CNI for you during Tanzu Kubernetes Grid Integrated Edition deployment on vSphere.

@@ -1,10 +1,10 @@
 ---
 title: Installing Velero with File System Backup
-owner: TKGI
+
 ---
 
-This topic describes how to install Velero for backing up and restoring Tanzu Kubernetes Grid Integrated Edition (TKGI)-provisioned Kubernetes workloads. 
-This topic also describes how to install MinIO for Velero.  
+This topic describes how to install Velero for backing up and restoring Tanzu Kubernetes Grid Integrated Edition (TKGI)-provisioned Kubernetes workloads.
+This topic also describes how to install MinIO for Velero.
 
 ##<a id="prereqs"></a> Prerequisites
 
@@ -17,8 +17,8 @@ You will install MinIO on this VM. For more information, see
 [Quick start evaluation install with MinIO](https://velero.io/docs/v1.8/contributions/minio/) in the Velero documentation.
 * You have a TKGI Client VM (Linux) where CLI tools are installed, such as the TKGI CLI, kubectl, and others.
 You will install the Velero CLI on this client VM.
-If you do not have such a VM, you can install the Velero CLI locally 
-but adjust the following installation steps to match your configuration.  
+If you do not have such a VM, you can install the Velero CLI locally
+but adjust the following installation steps to match your configuration.
 * The Kubernetes environment has internet access and can be reached by the client VM.
 If the environment does not have internet access, refer to
 [Install Velero in an Air-Gapped Environment](velero-install.html#velero-cluster-install-airgapped) below.
@@ -104,19 +104,19 @@ To create a MinIO bucket for TKGI workload back up and restore:
 
 
 1. Browse to the MinIO datastore by opening a browser to the MinIO server endpoint URL recorded from the `minio server` output.
-For example: [http://10.199.17.63:9000/minio/login/](http://10.199.17.63:9000/minio/login/).  
+For example: [http://10.199.17.63:9000/minio/login/](http://10.199.17.63:9000/minio/login/).
 
-1. Log in to the MinIO server and provide the AccessKey and SecretKey. These are the username and password as described in [User Management](https://min.io/docs/minio/linux/administration/identity-access-management/minio-user-management.html#overview) in the MinIO documentation.  
-    ![MinIO Log In](./images/backup-restore/minio-login.png)  
-    [View a larger version of this image.](./images/backup-restore/minio-login.png)  
-1. Select **Buckets** and click **Create a Bucket**.  
-    ![MinIO Admin: Buckets](./images/backup-restore/minio-create-bucket.png)  
+1. Log in to the MinIO server and provide the AccessKey and SecretKey. These are the username and password as described in [User Management](https://min.io/docs/minio/linux/administration/identity-access-management/minio-user-management.html#overview) in the MinIO documentation.
+    ![MinIO Log In](./images/backup-restore/minio-login.png)
+    [View a larger version of this image.](./images/backup-restore/minio-login.png)
+1. Select **Buckets** and click **Create a Bucket**.
+    ![MinIO Admin: Buckets](./images/backup-restore/minio-create-bucket.png)
     [View a larger version of this image.](./images/backup-restore/minio-create-bucket.png)
-1. Enter the bucket name, for example: `tkgi-velero`.  
-    ![MinIO Bucket Name](./images/backup-restore/minio-name-bucket.png)  
+1. Enter the bucket name, for example: `tkgi-velero`.
+    ![MinIO Bucket Name](./images/backup-restore/minio-name-bucket.png)
     [View a larger version of this image.](./images/backup-restore/minio-name-bucket.png)
-1. Under **Object Browser**, verify that the bucket was created and has Read/Write access.  
-    ![Verify MinIO Bucket](./images/backup-restore/minio-review-bucket.png)  
+1. Under **Object Browser**, verify that the bucket was created and has Read/Write access.
+    ![Verify MinIO Bucket](./images/backup-restore/minio-review-bucket.png)
     [View a larger version of this image.](./images/backup-restore/minio-review-bucket.png)
 
 ##<a id="velero-deploy"></a> Install the Velero CLI on Your Workstation
@@ -130,7 +130,7 @@ To install the Velero CLI on your workstation:
 
 To download the Velero CLI Binary:
 
-1. Download the supported version of the signed Velero binary for your version of TKGI from the 
+1. Download the supported version of the signed Velero binary for your version of TKGI from the
 TKGI Management Console product downloads page at [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console).
 For more information about the currently supported Velero versions, see the _Product Snapshot_ section of the [Release Notes](release-notes.html).
 
@@ -152,8 +152,8 @@ To install the Velero CLI on the TKGI client or on your local machine:
     ```
     ls -l
     ```
-    For example:  
-    
+    For example:
+
     ```console
     $ ls -l
 
@@ -240,7 +240,7 @@ Update the file with the MinIO server access credentials that you collected abov
     aws_secret_access_key = SECRET-KEY
     ```
 
-    Where:  
+    Where:
 
     * `ACCESS-KEY` is the AccessKey that you collected above.
     * `SECRET-KEY` is the SecretKey that you collected above.
@@ -260,8 +260,8 @@ Update the file with the MinIO server access credentials that you collected abov
     ls
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     $ ls
 
@@ -288,7 +288,7 @@ To install Velero:
     region=minio,s3ForcePathStyle="true",s3Url=http://10.199.17.63:9000,publicUrl=http://10.199.17.63:9000
     ```
 
-    For example:  
+    For example:
 
     ```console
     $ velero install --image projects.packages.broadcom.com/tkg/velero/velero:{{{ vars.velero_version }}}_vmware.1  --provider aws  --plugins projects.packages.broadcom.com/tkg/velero/velero-plugin-for-aws-{{{ vars.velero_version_aws }}}_vmware.1 \
@@ -311,18 +311,18 @@ To install Velero:
     ```
     kubectl logs deployment/velero -n velero
     ```
-    
-1. Verify the `velero` namespace:  
-    
+
+1. Verify the `velero` namespace:
+
    ```
    kubectl get ns
    ```
-    
-   For example:  
-        
+
+   For example:
+
    ```console
    $ kubectl get ns
-   
+
    NAME              STATUS   AGE
    default           Active   13d
    kube-node-lease   Active   13d
@@ -339,8 +339,8 @@ To install Velero:
     kubectl get all -n velero
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     $ kubectl get  all -n velero
 
@@ -354,7 +354,7 @@ To install Velero:
 ###<a id='velero-privileged'></a> Modify the Host Path
 
 To run the three-pod node-agent DaemonSet on a Kubernetes cluster in TKGI,
-you must modify the node-agent DaemonSet spec and modify the `hostpath` property.  
+you must modify the node-agent DaemonSet spec and modify the `hostpath` property.
 
 To modify the node-agent DaemonSet:
 
@@ -364,11 +364,11 @@ To modify the node-agent DaemonSet:
     kubectl get pod -n velero
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     $ kubectl get pod -n velero
-    
+
     NAME                        READY     STATUS             RESTARTS    AGE
     pod/node-agent-p5bdz            0/1       CrashLoopBackOff    4          3m8s
     pod/node-agent-rbmnd            0/1       CrashLoopBackOff    4          3m8s
@@ -398,11 +398,11 @@ To modify the node-agent DaemonSet:
     kubectl get pod -n velero
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     kubectl get pod -n velero
-    
+
     NAME                          READY   STATUS    RESTARTS   AGE
     pod/node-agent-6ljm5          1/1     Running   0          23s
     pod/node-agent-94cfd          1/1     Running   0          23s
@@ -491,8 +491,8 @@ The instructions use Harbor.
     --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-node-agent --default-volumes-to-fs-backup
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     $ velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:{{{ vars.velero_version }}}_vmware.1 --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:{{{ vars.velero_version_aws }}}_vmware.1 --provider aws --bucket tkgi-velero --secret-file ./credentials-minio --use-volume-snapshots=false    --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --use-node-agent --default-volumes-to-fs-backup
     Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.

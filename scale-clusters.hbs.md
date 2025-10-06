@@ -1,6 +1,6 @@
 ---
 title: Scaling Existing Clusters
-owner: TKGI
+
 pkscommand: update
 ---
 

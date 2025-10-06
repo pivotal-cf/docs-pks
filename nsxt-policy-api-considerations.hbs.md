@@ -1,6 +1,6 @@
 ---
 title: Considerations for Using the VMware NSX Policy API with TKGI
-owner: TKGI
+
 topic: nsx-t-policy
 ---
 

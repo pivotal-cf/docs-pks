@@ -1,6 +1,6 @@
 ---
 title: Enabling and Configuring Pod Security Policies
-owner: TKGI
+
 ---
 
 This topic describes how to enable and use Pod Security Policies in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).

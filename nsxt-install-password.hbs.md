@@ -1,6 +1,6 @@
 ---
 title: Configure VMware NSX Passwords
-owner: TKGI-NSXT
+ -NSXT
 ---
 
 This topic describes how to configure NSX passwords after you have installed NSX for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).

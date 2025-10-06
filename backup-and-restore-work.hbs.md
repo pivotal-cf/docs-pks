@@ -1,28 +1,28 @@
 ---
 title: Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero
-owner: TKGI
+
 ---
 
-This topic describes the Velero back up and restore process for Kubernetes workloads deployed to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.  
+This topic describes the Velero back up and restore process for Kubernetes workloads deployed to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.
 
 ## <a id="velero-about"></a>About Tanzu Kubernetes Workload Back Up and Restore
 
-Tanzu Kubernetes workload back up and restore is done using [Velero](https://velero.io/) software. 
+Tanzu Kubernetes workload back up and restore is done using [Velero](https://velero.io/) software.
 
-Velero is an open-source product that provides full back up and recovery of Kubernetes workloads. 
+Velero is an open-source product that provides full back up and recovery of Kubernetes workloads.
 
 Velero supports back up and recovery for all types of Kubernetes workloads deployed to Tanzu clusters.
 
 
 ###<a id="app-types"></a>  Application Types
 
-An application deployed to Kubernetes can be stateless or stateful. 
-Velero can back up and restore both types, but the procedure might differ slightly. 
-The examples in [Scenarios for Backing Up and Restoring TKGI Workloads](./velero-scenarios.html) 
-demonstrate the differences and process for each type. 
+An application deployed to Kubernetes can be stateless or stateful.
+Velero can back up and restore both types, but the procedure might differ slightly.
+The examples in [Scenarios for Backing Up and Restoring TKGI Workloads](./velero-scenarios.html)
+demonstrate the differences and process for each type.
 
-In addition, an application might have a service attached or ingress enabled. 
-See [Services and Ingress](./backup-and-restore-work.html#services-ingress) 
+In addition, an application might have a service attached or ingress enabled.
+See [Services and Ingress](./backup-and-restore-work.html#services-ingress)
 for a summary of the available techniques for ensuring full restoration of functionality.
 
 ###<a id="services-ingress"></a> Services and Ingress
@@ -36,11 +36,11 @@ Velero back up and restore is agnostic of NSX objects. To restore applications w
 
 ###<a id="persistence-prov"></a> Storage Types
 
-Tanzu Kubernetes clusters support two persistence providers: VMware Cloud Provider (vCP) and the Container Storage Interface (CSI). 
+Tanzu Kubernetes clusters support two persistence providers: VMware Cloud Provider (vCP) and the Container Storage Interface (CSI).
 
 vCP is VMware's Kubernetes storage plugin that allows cluster nodes on vSphere to interact with vCenter to support Kubernetes Persistent Volume objects. CSI is open-source software that enables Kubernetes implementations to provide a standard interface for storage systems, without having to create drivers for each  system.
 
-The provider is defined in the storage class. Velero back up and restore is slightly different depending on the type of persistence provider. 
+The provider is defined in the storage class. Velero back up and restore is slightly different depending on the type of persistence provider.
 
 The VMware Cloud Provider (vCP) StorageClass provisioner only works with TKGI:
 
@@ -74,18 +74,18 @@ This section lists the requirements for using Velero for Kubernetes workload bac
 
 ###<a id="velero-cluster-req"></a> Cluster Configuration
 
-To back up and recover TKGI Kubernetes workloads using Velero, 
+To back up and recover TKGI Kubernetes workloads using Velero,
 TKGI installs a Velero and a node-agent Pod on each target Kubernetes cluster.
 
-To configure your target clusters for Velero back up and recovery, 
-complete the steps in [Modify the Host Path](velero-install.html#velero-privileged) 
-in _Installing Velero with File System Backup_.  
+To configure your target clusters for Velero back up and recovery,
+complete the steps in [Modify the Host Path](velero-install.html#velero-privileged)
+in _Installing Velero with File System Backup_.
 
 ###<a id="velero-objstore-req"></a> Object Store
 
-You need to provide an object store for Velero backups. Velero supports a number of object store providers. 
-For more information, see [Providers](https://velero.io/docs/v1.6/supported-providers/) in the Velero documentation. 
-MinIO is an S3-compatible object store that is easy to install and use. 
+You need to provide an object store for Velero backups. Velero supports a number of object store providers.
+For more information, see [Providers](https://velero.io/docs/v1.6/supported-providers/) in the Velero documentation.
+MinIO is an S3-compatible object store that is easy to install and use.
 This documentation uses the MinIO server installed on a Linux VM as the backup destination for the example scenarios.
 
 ###<a id="velero-client-req"></a> Velero CLI
@@ -103,7 +103,7 @@ When you run the Velero CLI to install Velero on the Kubernetes cluster, Velero 
 
 ##<a id="get-started"></a>Get Started Using Velero
 
-To get started with Velero:  
+To get started with Velero:
 
-* Review the scenarios in [Scenarios for Backing Up and Restoring TKGI Workloads](./velero-scenarios.html).  
-* Complete the steps in [Installing Velero with File System Backup](./velero-install.html).  
+* Review the scenarios in [Scenarios for Backing Up and Restoring TKGI Workloads](./velero-scenarios.html).
+* Complete the steps in [Installing Velero with File System Backup](./velero-install.html).

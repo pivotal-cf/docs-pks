@@ -1,12 +1,12 @@
 ---
 title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX
-owner: TKGI
+
 iaas: vsphere-nsxt
 ---
 
-The following topics describe how to install NSX Data Center on vSphere for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+The following topics describe how to install NSX Data Center on vSphere for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
-## Install NSX on vSphere 
+## Install NSX on vSphere
 
 To install NSX on vSphere for Tanzu Kubernetes Grid Integrated Edition, complete the following sections in the order listed:
 
@@ -37,10 +37,10 @@ To install NSX on vSphere for Tanzu Kubernetes Grid Integrated Edition, complete
   </li>
   <li>
     <a href="./nsxt-install-objects-k8s.html">Create NSX Objects for Kubernetes Clusters Provisioned by TKGI</a>
-  </li>    
+  </li>
   <li>
     <a href="./nsxt-install-objects-mgmt.html">Create NSX Objects for TKGI Management Plane Components</a>
-  </li>    
+  </li>
   <li>
     <a href="./nsxt-install-password.html">Configure NSX Passwords</a>
   </li>

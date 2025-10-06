@@ -1,6 +1,6 @@
 ---
 title: Configuring Ingress Routing
-owner: TKGI
+
 ---
 
 This topic describes how to configure an ingress controller on VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).

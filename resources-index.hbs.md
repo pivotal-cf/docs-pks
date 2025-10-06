@@ -1,9 +1,9 @@
 ---
 title: Managing Kubernetes Cluster Options
-owner: TKGI
+
 ---
 
-The following topics describe how an VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) administrator can create and manage options for the Kubernetes clusters that TKGI users provision:  
+The following topics describe how an VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) administrator can create and manage options for the Kubernetes clusters that TKGI users provision:
 
 <ul>
   <li>

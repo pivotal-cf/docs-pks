@@ -1,6 +1,6 @@
 ---
 title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX
-owner: TKGI
+
 iaas: vSphere-NSX
 windowsclusters: #Empty var to prevent build breaking
 topic: #Empty var to prevent build breaking

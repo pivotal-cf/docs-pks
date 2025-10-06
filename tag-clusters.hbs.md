@@ -1,6 +1,6 @@
 ---
 title: Tagging Clusters
-owner: TKGI
+
 ---
 
 This topic describes how to tag new and existing clusters using the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI).

@@ -1,36 +1,36 @@
 ---
 title: Using Compute Profiles (vSphere)
-owner: TKGI
+
 ---
 
-This topic describes how to use compute profiles using the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Command Line Interface (TKGI CLI).  
+This topic describes how to use compute profiles using the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Command Line Interface (TKGI CLI).
 
 
 ## <a id="overview"></a>Overview
 
-A compute profile enables TKGI cluster managers to configure TKGI-provisioned Kubernetes clusters with custom settings:  
+A compute profile enables TKGI cluster managers to configure TKGI-provisioned Kubernetes clusters with custom settings:
 
-* TKGI cluster administrators can create compute profiles with custom cluster resource parameters and settings. Cluster administrators must have `pks.clusters.admin` accounts.  
-* TKGI cluster managers can configure new and existing clusters with a compute profile to override the cluster configuration settings defined by a plan. Cluster managers must have `pks.cluster.manage` accounts.  
+* TKGI cluster administrators can create compute profiles with custom cluster resource parameters and settings. Cluster administrators must have `pks.clusters.admin` accounts.
+* TKGI cluster managers can configure new and existing clusters with a compute profile to override the cluster configuration settings defined by a plan. Cluster managers must have `pks.cluster.manage` accounts.
 
 TKGI supports creating and managing compute profiles
 for Linux- and Windows-based Kubernetes clusters on vSphere with NSX networking and
 for Linux-based Kubernetes clusters on vSphere without NSX networking.
 
-For an overview of how compute profile are created, see [How Compute Profiles are Created](#how-created) below.  
+For an overview of how compute profile are created, see [How Compute Profiles are Created](#how-created) below.
 
-For information about using compute profiles, see:  
+For information about using compute profiles, see:
 
-* [List Compute Profiles](#list-profiles)  
-* [Create a Cluster with a Compute Profile](#create)  
-* [Assign a Compute Profile to an Existing Cluster](#update-profile)  
-* [Resize a Cluster that Has an Existing Compute Profile](#resize)  
+* [List Compute Profiles](#list-profiles)
+* [Create a Cluster with a Compute Profile](#create)
+* [Assign a Compute Profile to an Existing Cluster](#update-profile)
+* [Resize a Cluster that Has an Existing Compute Profile](#resize)
 
 
 ## <a id="how-created"></a> How Compute Profiles are Created
 
-TKGI cluster administrators can create and delete compute profiles. 
-For information on how cluster administrators create and delete compute profiles, see [Creating and Managing Compute Profiles with the CLI (vSphere)](./compute-profiles-manage.html).  
+TKGI cluster administrators can create and delete compute profiles.
+For information on how cluster administrators create and delete compute profiles, see [Creating and Managing Compute Profiles with the CLI (vSphere)](./compute-profiles-manage.html).
 
 
 ## <a id="list-profiles"></a> List Compute Profiles
@@ -41,16 +41,16 @@ To list available compute profiles, run the following command:
 tkgi compute-profiles
 ```
 
-For example:  
+For example:
 
 ```
-$ tkgi compute-profiles  
-  
-Name                              Description  
-custom-nodes-compute-profile      custom-nodes-compute-profile  
-custom-node-pools-compute-profile custom-node-pools-compute-profile  
-Dc-east-single-node-pool          A profile for the east datacenter with a single node pool  
-dc-east-mixed                     A profile for the east datacenter with heterogeneous workers  
+$ tkgi compute-profiles
+
+Name                              Description
+custom-nodes-compute-profile      custom-nodes-compute-profile
+custom-node-pools-compute-profile custom-node-pools-compute-profile
+Dc-east-single-node-pool          A profile for the east datacenter with a single node pool
+dc-east-mixed                     A profile for the east datacenter with heterogeneous workers
 ```
 
 
@@ -58,14 +58,14 @@ dc-east-mixed                     A profile for the east datacenter with heterog
 
 You can assign a compute profile to a TKGI-provisioned Kubernetes cluster at the time of cluster creation.
 
-To create a cluster with a compute profile:  
+To create a cluster with a compute profile:
 
-1. Review the following strict validation rules for the `tkgi create-cluster --compute-profile` command:  
+1. Review the following strict validation rules for the `tkgi create-cluster --compute-profile` command:
 
-    * If an optional compute profile field is unspecified at the time of cluster creation, 
-    the value of that field is set to the value of the corresponding field from the plan.  
-    * `tkgi create-cluster --compute-profile` ignores the `--num-nodes` argument.  
-    * The node pool name passed to `--node-pool-instances` must match the `name` property of a node pool in the compute profile.  
+    * If an optional compute profile field is unspecified at the time of cluster creation,
+    the value of that field is set to the value of the corresponding field from the plan.
+    * `tkgi create-cluster --compute-profile` ignores the `--num-nodes` argument.
+    * The node pool name passed to `--node-pool-instances` must match the `name` property of a node pool in the compute profile.
 
 1. To create the cluster, run the following command:
 
@@ -73,80 +73,80 @@ To create a cluster with a compute profile:
     tkgi create-cluster CLUSTER-NAME --external-hostname HOSTNAME --plan PLAN-NAME --compute-profile COMPUTE-PROFILE-NAME --node-pool-instances "NODE-POOL-NAME:INSTANCES"
     ```
 
-    Where:  
+    Where:
 
-    * `CLUSTER-NAME` is a unique name for your cluster.  
-        <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
+    * `CLUSTER-NAME` is a unique name for your cluster.
+        <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster
         if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
         </p>
-    * `HOSTNAME` is your external hostname used for accessing the Kubernetes API.  
-    * `PLAN-NAME` is the name of the TKGI plan you want to use for your cluster.  
-    * `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to use for your cluster.  
-    * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"` overrides a compute profile's configured node pool worker node instance count:  
-        * `NODE-POOL-NAME` is the name of the node pool to configure. 
-        The node pool name must match the `name` property of a node pool in the compute profile.  
-        * `INSTANCES` is the number of worker node instances to create for the node pool.  
+    * `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
+    * `PLAN-NAME` is the name of the TKGI plan you want to use for your cluster.
+    * `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to use for your cluster.
+    * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"` overrides a compute profile's configured node pool worker node instance count:
+        * `NODE-POOL-NAME` is the name of the node pool to configure.
+        The node pool name must match the `name` property of a node pool in the compute profile.
+        * `INSTANCES` is the number of worker node instances to create for the node pool.
 
-    For example:  
+    For example:
 
     ```
     tkgi create-cluster custom-node-pools -e test.tkgi.shep.api.com --compute-profile custom-node-pools-compute-profile -p "small" --node-pool-instances "tiny-1:3"
 
-    TKGI Version:             1.22.2-build.14  
-    Name:                     test  
-    K8s Version:              1.31.9   
-    Plan Name:                small  
-    UUID:                     <UUID of deployment>1  
-    Last Action:              CREATE  
-    Last Action State:        in progress  
-    Last Action Description:  Creating cluster  
-    Kubernetes Master Host:   test.tkgi.shep.api.com  
-    Kubernetes Master Port:   8443  
-    Worker Nodes:             4  
-    Kubernetes Master IP(s):  In Progress  
-    Network Profile Name:  
-    Kubernetes Profile Name:  
-    Compute Profile Name:     custom-node-pools-compute-profile  
+    TKGI Version:             1.22.2-build.14
+    Name:                     test
+    K8s Version:              1.31.9
+    Plan Name:                small
+    UUID:                     <UUID of deployment>1
+    Last Action:              CREATE
+    Last Action State:        in progress
+    Last Action Description:  Creating cluster
+    Kubernetes Master Host:   test.tkgi.shep.api.com
+    Kubernetes Master Port:   8443
+    Worker Nodes:             4
+    Kubernetes Master IP(s):  In Progress
+    Network Profile Name:
+    Kubernetes Profile Name:
+    Compute Profile Name:     custom-node-pools-compute-profile
     NSX Policy:               true
     Private Registries:       true
-    Tags:  
+    Tags:
     ```
 
 
 ## <a id="update-profile"></a> Assign a Compute Profile to an Existing Cluster
 
-TKGI supports changing the compute profile for an already created cluster.  
+TKGI supports changing the compute profile for an already created cluster.
 
 You can use this procedure to:
 
-* Assign a compute profile to a cluster that does not have one.  
-* Change a cluster's existing profile to a new one.  
+* Assign a compute profile to a cluster that does not have one.
+* Change a cluster's existing profile to a new one.
 
-To assign a compute profile to an existing cluster, complete the following:  
+To assign a compute profile to an existing cluster, complete the following:
 
-1. [Compute Profile Update and Resize Validation](#compute-profile-validation).  
-1. [Assign a Compute Profile](#update-profile-procedure).  
+1. [Compute Profile Update and Resize Validation](#compute-profile-validation).
+1. [Assign a Compute Profile](#update-profile-procedure).
 
 ### <a id="compute-profile-validation"></a> Compute Profile Update and Resize Validation
 
-The following are not supported when modifying an existing compute profile:  
+The following are not supported when modifying an existing compute profile:
 
-* Your modification cannot change a node pool's `name` property.  
-* Your modification cannot simultaneously add a new node pool and delete an existing node pool.  
+* Your modification cannot change a node pool's `name` property.
+* Your modification cannot simultaneously add a new node pool and delete an existing node pool.
 
-Before assigning a compute profile to an existing cluster:  
+Before assigning a compute profile to an existing cluster:
 
-1. Review the following strict validation rules for the `tkgi update-cluster --compute-profile` command:  
+1. Review the following strict validation rules for the `tkgi update-cluster --compute-profile` command:
 
     * You cannot use a compute profile to change the Availability Zones (AZs) of an existing cluster without specifying the `--enforce-compute-profile-update` option.
-    * You cannot use a compute profile to change the number of control plane nodes for an existing cluster.  
-    * If an optional compute profile field is unspecified at the time of cluster update, 
-    the value of that field is set to the value of the corresponding field from the plan.  
-    * `tkgi update-cluster --compute-profile` ignores the `--num-nodes` argument.  
-    * Values passed to `--node-pool-instances` must match a `name` property of the node pools in the compute profile.  
-    * You cannot update a compute profile that was applied to a cluster in TKGI 1.8 or earlier.  
-    
-1. Review the following warnings and limitations:  
+    * You cannot use a compute profile to change the number of control plane nodes for an existing cluster.
+    * If an optional compute profile field is unspecified at the time of cluster update,
+    the value of that field is set to the value of the corresponding field from the plan.
+    * `tkgi update-cluster --compute-profile` ignores the `--num-nodes` argument.
+    * Values passed to `--node-pool-instances` must match a `name` property of the node pools in the compute profile.
+    * You cannot update a compute profile that was applied to a cluster in TKGI 1.8 or earlier.
+
+1. Review the following warnings and limitations:
 
   > **Caution**
 
@@ -160,21 +160,21 @@ Before assigning a compute profile to an existing cluster:
   > - **Node Pools**: If cluster update fails while applying a new compute profile with revised node pool names, do not reapply the previous compute profile: the cluster's worker nodes will be deleted.
   > If you encounter this scenario, fix the new compute profile configuration without modifying the node pool names, and retry your cluster update.
   For more information, see [tkgi update-cluster compute profile failure](https://knowledge.broadcom.com/external/article?legacyId=91596) in the Broadcom Support Knowledge Base.
-    
-1.  Resolve any conditions matching the listed concerns, precautions or warnings.  
+
+1.  Resolve any conditions matching the listed concerns, precautions or warnings.
 
 ### <a id="update-profile-procedure"></a> Assign a Compute Profile
 
 To assign a compute profile to an existing cluster:
 
-1. Select the compute profile to apply to the cluster:  
+1. Select the compute profile to apply to the cluster:
 	* Choose an existing compute profile: See [List Compute Profiles](#list-profiles).
 	* Create a new compute profile: Have a TKGI cluster administrator define and create a new compute profile as described in [Create a Compute Profile](./compute-profiles-manage.html#create) in _Creating and Managing Compute Profiles with the CLI (vSphere)_.
   		* The name of the new compute profile must be unique and different from the previously assigned compute profile.
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
 1. Run the following command to update the cluster with the new compute profile:
 
@@ -182,38 +182,38 @@ in _Release Notes_ for additional requirements.
     tkgi update-cluster CLUSTER-NAME --compute-profile NEW-COMPUTE-PROFILE-NAME --node-pool-instances "NODE-POOL-NAME:INSTANCES"
     ```
 
-    Where:  
+    Where:
 
-    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster.  
-    * `NEW-COMPUTE-PROFILE-NAME` is the name of the new compute profile you want to apply to the cluster.  
-    * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"` overrides a compute profile's configured node pool worker node instance count:  
-        - `NODE-POOL-NAME` is the name of the node pool to configure. 
-        The node pool name must match the `name` property of a node pool in the compute profile.  
-        - `INSTANCES` is the number of worker node instances to create for the node pool.  
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster.
+    * `NEW-COMPUTE-PROFILE-NAME` is the name of the new compute profile you want to apply to the cluster.
+    * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"` overrides a compute profile's configured node pool worker node instance count:
+        - `NODE-POOL-NAME` is the name of the node pool to configure.
+        The node pool name must match the `name` property of a node pool in the compute profile.
+        - `INSTANCES` is the number of worker node instances to create for the node pool.
 
-    For example:  
+    For example:
 
-	```bash 
-	tkgi update-cluster test --compute-profile new-compute-profile  
+	```bash
+	tkgi update-cluster test --compute-profile new-compute-profile
 
-	Update summary for cluster test:  
-	Compute Profile Name: new-compute-profile  
-	Are you sure you want to continue? (y/n): y  
-	Use 'tkgi cluster test' to monitor the state of your cluster  
-    ```  
-    
+	Update summary for cluster test:
+	Compute Profile Name: new-compute-profile
+	Are you sure you want to continue? (y/n): y
+	Use 'tkgi cluster test' to monitor the state of your cluster
+    ```
+
 1. (Optional) If you are changing Availability Zones, or to bypass compute profile validation, include the `--enforce-compute-profile-update` parameter in your `tkgi update-cluster` command line. {{{ vars.recommended_by }}} recommends that you always allow validation when updating clusters in production environments.
 
-    For example:  
+    For example:
 
-	```bash 
+	```bash
 	tkgi update-cluster test --compute-profile bad-compute-profile  --enforce-compute-profile-update
 
-	Update summary for cluster test:  
-	Compute Profile Name: bad-compute-profile  
-	Are you sure you want to continue? (y/n): y  
-	Use 'tkgi cluster test' to monitor the state of your cluster  
-    ``` 
+	Update summary for cluster test:
+	Compute Profile Name: bad-compute-profile
+	Are you sure you want to continue? (y/n): y
+	Use 'tkgi cluster test' to monitor the state of your cluster
+    ```
 
 <p class="note warning"><strong>WARNING</strong>: Updating a cluster with a compute profile is not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
 </p>
@@ -223,13 +223,13 @@ in _Release Notes_ for additional requirements.
 
 TKGI supports using the CLI to resize a cluster already created or assigned with a compute profile, without having to create a new compute profile.
 
-To resize a cluster:  
+To resize a cluster:
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
-1. Run the `tkgi update-cluster` command with the `--node-pool-instances` option:  
+1. Run the `tkgi update-cluster` command with the `--node-pool-instances` option:
 
     * Pass in a comma-separated list that associates node pools defined in the compute profile with new instance counts.
     This changes the number of instances from each node pool.

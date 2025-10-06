@@ -1,6 +1,6 @@
 ---
 title: Deleting Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 This topic describes how to delete the Tanzu Kubernetes Grid Integrated Edition (TKGI) tile from the {{ vars.platform_name }} Installation Dashboard.

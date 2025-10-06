@@ -1,6 +1,6 @@
 ---
 title: General Troubleshooting
-owner: TKGI
+
 ---
 
 This topic assists with diagnosing and troubleshooting issues when installing or using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).

@@ -1,6 +1,6 @@
 ---
 title: Configuring Telegraf in TKGI
-owner: TKGI
+
 ---
 
 This topic describes how to configure Telegraf in

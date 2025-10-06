@@ -1,10 +1,10 @@
 ---
 title: Configure the HTTP/S Layer 7 Ingress Controller
-owner: TKGI
+
 lbtype: layer7controller
 ---
 
-This topic describes how to define network profiles for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.  
+This topic describes how to define network profiles for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.
 
 ## <a id='ncp-ingress-about'></a><a id='overview'></a> Overview
 
@@ -13,12 +13,12 @@ This topic describes how to define network profiles for VMware Tanzu Kubernetes 
 
 ## <a id='ncp-ingress-about'></a> Configure the HTTP/HTTPS Ingress Controller Network Profile
 
-The HTTP/HTTPS layer 7 virtual servers provisioned for each Kubernetes service 
-are controlled by the parameters exposed in a network profile.  
+The HTTP/HTTPS layer 7 virtual servers provisioned for each Kubernetes service
+are controlled by the parameters exposed in a network profile.
 
 #### <a id='ncp-params'></a> NSX HTTP/HTTPS Ingress Controller Network Profile Configuration
 
-The NSX Ingress Controller is configured using the `ncp.ini` network profile configuration file.  
+The NSX Ingress Controller is configured using the `ncp.ini` network profile configuration file.
 
 The HTTP/HTTPS Ingress Controller network profile has the following format:
 
@@ -30,11 +30,11 @@ The HTTP/HTTPS Ingress Controller network profile has the following format:
      "cni_configurations": {
          "type": "nsxt",
          "parameters": {
-           "nsx_lb": NSX-LB,   
+           "nsx_lb": NSX-LB,
            "ingress_ip": "IP-ADDRESS",
            "ingress_persistence_settings": {
              "persistence_type": "PERS-TYPE",
-             "persistence_timeout": TIMEOUT 
+             "persistence_timeout": TIMEOUT
              }
            }
       }
@@ -42,16 +42,16 @@ The HTTP/HTTPS Ingress Controller network profile has the following format:
 }
 ```
 
-Where: 
+Where:
 
 * `DESCRIP` is your description for this network profile configuration.
-* `NSX-LB` is your preference for whether the NSX Load Balancer is used for your Kubernetes clusters. 
+* `NSX-LB` is your preference for whether the NSX Load Balancer is used for your Kubernetes clusters.
 For more information, see [Configure the NSX Ingress Controller](#nsx_ingress_controller) below.
 * `IP-ADDRESS` is IP address to use for ingress controller load balancer.
 For more information, see [Configure the Ingress IP](#ingress_ip) below.
 * `PERS-TYPE` is the persistence type to use for ingress controller load balancer.
 For more information, see [Configure the Ingress Persistence Settings](#ingress_persistence_settings) below.
-* `TIMEOUT` is the persistence timeout to use for ingress controller load balancer.  
+* `TIMEOUT` is the persistence timeout to use for ingress controller load balancer.
 For more information, see [Configure the Ingress Persistence Settings](#ingress_persistence_settings) below.
 
 <a id='ingress-example'></a>For example:
@@ -64,11 +64,11 @@ For more information, see [Configure the Ingress Persistence Settings](#ingress_
      "cni_configurations": {
          "type": "nsxt",
          "parameters": {
-           "nsx_lb": true,  
+           "nsx_lb": true,
            "ingress_ip": "192.168.160.212",
            "ingress_persistence_settings": {
              "persistence_type": "cookie",
-             "persistence_timeout": 1 
+             "persistence_timeout": 1
              }
            }
       }
@@ -77,13 +77,13 @@ For more information, see [Configure the Ingress Persistence Settings](#ingress_
 ```
 
 {{> ic-network-profile }}
- 
+
 
 #### <a id='nsx_ingress_controller'></a> Configure the NSX Ingress Controller
 
-NCP depends on the NSX Load Balancer to fulfill its role as an Ingress Controller. 
-To use a third-party ingress controller, such as the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/), 
-set `nsx_lb` to `false`. 
+NCP depends on the NSX Load Balancer to fulfill its role as an Ingress Controller.
+To use a third-party ingress controller, such as the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/),
+set `nsx_lb` to `false`.
 
 For example:
 
@@ -144,11 +144,11 @@ Example network profile for `ingress_ip`:
 }
 ```
 
-An invalid IP address is rejected with an invalid parameter value error.  
+An invalid IP address is rejected with an invalid parameter value error.
 
 For example:
 
-* The following network profile parameters cannot be parsed because the `"ingress_ip"` 
+* The following network profile parameters cannot be parsed because the `"ingress_ip"`
 configuration specifies an invalid IP address:
 
     ```
@@ -166,7 +166,7 @@ configuration specifies an invalid IP address:
     }
     ```
 
-* The following network profile cannot be parsed because the `"ingress_ip"` 
+* The following network profile cannot be parsed because the `"ingress_ip"`
 configuration is not a string and the JSON input is invalid:
 
     ```
@@ -193,7 +193,7 @@ The `ingress_persistence_settings` parameter is a map that supports two keys:
 * `persistence_type`
 * `persistence_timeout`
 
-These two keys are correlated and must be set/unset at the same time. 
+These two keys are correlated and must be set/unset at the same time.
 If `persistence_type` and `persistence_timeout` are not both specified, the network profile fails validation.
 
   <table>
@@ -224,7 +224,7 @@ For example:
          "cni_configurations": {
              "type": "nsxt",
              "parameters": {
-               "ingress_ip": "192.168.160.212"       
+               "ingress_ip": "192.168.160.212"
                "ingress_persistence_settings": {
                  "persistence_type": "cookie",
                  "persistence_timeout": 1
@@ -245,7 +245,7 @@ For example:
          "cni_configurations": {
              "type": "nsxt",
              "parameters": {
-               "ingress_ip": "192.168.160.212"         
+               "ingress_ip": "192.168.160.212"
                "ingress_persistence_settings": {
                  "persistence_type": "source_ip",
                  "persistence_timeout": 100

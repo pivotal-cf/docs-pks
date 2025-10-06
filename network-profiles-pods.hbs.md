@@ -1,12 +1,12 @@
 ---
 title: Customizing Pod Networks (NSX Only)
-owner: TKGI
+
 ---
 
 This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) administrators
-can define TKGI network profiles for pod networks on vSphere with NSX integration.  
+can define TKGI network profiles for pod networks on vSphere with NSX integration.
 
-TKGI supports network profiles on TKGI on vSphere with NSX only.  
+TKGI supports network profiles on TKGI on vSphere with NSX only.
 
 To create or delete a network profile, you must be a cluster administrator, `pks.clusters.admin`.
 
@@ -22,10 +22,10 @@ By default, this subnet is non-routable. When a Kubernetes cluster is deployed, 
 
 You can use a network profile to override the global **Pods IP Block** that you specify in the Tanzu Kubernetes Grid Integrated Edition tile with a custom IP block. To use a custom pods network, do the following after you deploy TKGI:
 
-1. Define a custom IP block in NSX. 
-For more information, see [Creating NSX Objects for Tanzu Kubernetes Grid Integrated Edition](nsxt-create-objects.html).  
+1. Define a custom IP block in NSX.
+For more information, see [Creating NSX Objects for Tanzu Kubernetes Grid Integrated Edition](nsxt-create-objects.html).
 
-2. Define a network profile that references the custom pods IP block.  
+2. Define a network profile that references the custom pods IP block.
 <br>
     For example, the following network profile defines non-routable pod addresses from two IP blocks:
 
@@ -44,15 +44,15 @@ For more information, see [Creating NSX Objects for Tanzu Kubernetes Grid Integr
 
 <p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the TKGI Tile. Create a new Pod IP Block ID (UUID) that is not referenced in the TKGI Tile and use it to define a network profile.</p>
 
-You can add pod addresses to an existing cluster. You cannot remove any pod addresses. 
-For more information, see [Add Pod IPs](#pods-ips-add) below.  
+You can add pod addresses to an existing cluster. You cannot remove any pod addresses.
+For more information, see [Add Pod IPs](#pods-ips-add) below.
 
 
 ##<a id='pod-prefix'></a> Pod Subnet Prefix
 
 Each time a Kubernetes namespace is created, a subnet from the pods IP block is allocated. The default size of the subnet carved from this block for such purposes is /24. For more information, see the [Pods IP Block](nsxt-prepare-env.html#pods-ip-block) section of _Planning, Preparing, and Configuring NSX for Tanzu Kubernetes Grid Integrated Edition_.
 
-You can define a Network Profile using the `pod_subnet_prefix` parameter to customize the size of the pod subnet reserved for namespaces.  
+You can define a Network Profile using the `pod_subnet_prefix` parameter to customize the size of the pod subnet reserved for namespaces.
 
 For example, the following network profile specifies /27 for the size of the two custom Pod IP Block IDs:
 
@@ -75,7 +75,7 @@ For example, the following network profile specifies /27 for the size of the two
 <p class="note"><strong>Note:</strong> The subnet size for a Pods IP Block must be consistent across all Network Profiles.
 TKGI does not support variable subnet sizes for a given IP Block.</p>
 
-You cannot modify the size of the pod subnet configuration on an existing cluster.  
+You cannot modify the size of the pod subnet configuration on an existing cluster.
 
 
 ##<a id='routable-pods'></a> Routable Pod Networks
@@ -88,7 +88,7 @@ To use routable pods, do the following after you deploy TKGI:
 
 1. Define a routable IP block in NSX. For more information, see [Creating NSX Objects for Tanzu Kubernetes Grid Integrated Edition](nsxt-create-objects.html).
 
-2. Define a network profile that references the routable IP block.  
+2. Define a network profile that references the routable IP block.
 <br>
     For example, the following network profile defines routable pod addresses from two IP blocks:
 
@@ -98,7 +98,7 @@ To use routable pods, do the following after you deploy TKGI:
         "name": "small-routable-pod",
         "parameters": {
           "pod_routable": true,
-        "pod_subnet_prefix": 27,     
+        "pod_subnet_prefix": 27,
           "pod_ip_block_ids": [
             "ebe78a74-a5d5-4dde-ba76-9cf4067eee55",
             "ebe78a74-a5d5-4dde-ba76-9cf4067eee56"
@@ -109,15 +109,15 @@ To use routable pods, do the following after you deploy TKGI:
 
 <p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the TKGI Tile. Create a new Pod IP Block ID (UUID) that is not referenced in TKGI Tile and use it to define a network profile.</p>
 
-You can add pod addresses to an existing cluster. 
-You cannot remove any pod addresses or modify the size of the pod subnet configuration on an existing cluster. 
-For more information, see [Add Pod IPs](#pods-ips-add) below.  
+You can add pod addresses to an existing cluster.
+You cannot remove any pod addresses or modify the size of the pod subnet configuration on an existing cluster.
+For more information, see [Add Pod IPs](#pods-ips-add) below.
 
 
-##<a id='pods-ips-add'></a> Add Pod IPs 
+##<a id='pods-ips-add'></a> Add Pod IPs
 
-If a cluster exhausts the number of IP addresses allocated to pods, 
-you can use the network profile `pod_ip_block_ids` field to add pod IP addresses to existing clusters. 
+If a cluster exhausts the number of IP addresses allocated to pods,
+you can use the network profile `pod_ip_block_ids` field to add pod IP addresses to existing clusters.
 
 > **Important** This section applies to clusters that already use a network profile. To add a new network profile to an existing cluster that does not currently use a network profile, see [Add a New Network Profile to a Cluster that Does Not Have a Network Profile](network-profiles-define.html#new-np-existing-cluster).
 

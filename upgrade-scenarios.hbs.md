@@ -1,6 +1,6 @@
 ---
 title: Upgrade Order for Tanzu Kubernetes Grid Integrated Edition Environments on vSphere
-owner: TKGI
+
 ---
 
 This topic describes upgrade scenarios for

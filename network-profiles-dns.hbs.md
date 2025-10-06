@@ -1,15 +1,15 @@
 ---
 title: Configure DNS for Pre-Provisioned IPs
-owner: TKGI
+
 ---
 
-This topic describes how to define network profile for performing DNS lookup of the pre-provisioned IP addresses for the Kubernetes API load balancer and ingress controller for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.  
+This topic describes how to define network profile for performing DNS lookup of the pre-provisioned IP addresses for the Kubernetes API load balancer and ingress controller for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.
 
 ## <a id='about'></a> About DNS Lookup of Pre-Provisioned IP Addresses
 
 In an Tanzu Kubernetes Grid Integrated Edition environment on NSX, when you provision a Kubernetes cluster using the command `tkgi create-cluster`, NSX creates a layer 4 load balancer that fronts the Kubernetes API server running on the control plane node(s). In addition, NCP creates two layer 7 virtual servers (HTTP and HTTPS) as front-end load balancers for the ingress resources in Kubernetes servers.
 
-The IP addresses that are assigned to the API load balancer and ingress controller are derived from the floating IP pool in NSX. These IP addresses are not known in advance, and you have to wait for the IP addresses to be allocated to know what they are so you can update your DNS records. 
+The IP addresses that are assigned to the API load balancer and ingress controller are derived from the floating IP pool in NSX. These IP addresses are not known in advance, and you have to wait for the IP addresses to be allocated to know what they are so you can update your DNS records.
 
 If you want to pre-provision these IP addresses, you define a network profile to lookup the IP addresses for these components from your DNS server. In this way you can tell TKGI what IP addresses to use for these resources when the cluster is created, and be able to have DNS records for them so FQDNs can be used.
 
@@ -19,13 +19,13 @@ Using the `dns_lookup_mode` parameter, you can define a network profile to speci
 
 The IP addresses used must come from the floating IP pool. The floating IP pool comes from the TKGI tile configuration unless specified in the network profile.
 
-<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range. 
+<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range.
     To avoid conflicts with internal TKGI functions, always use IP addresses from the end of the floating IP pool.
 </p>
 
 The DNS lookup, whether for the Kubernetes control plane node(s) load balancer or the ingress controller, is performed in the Kubernetes control plane VM using the DNS server(s) configured in the TKGI tile or the `nodes_dns` field in the network profile.
 
-You cannot modify the DNS lookup mode configuration on an existing cluster.  
+You cannot modify the DNS lookup mode configuration on an existing cluster.
 
 
 ## <a id='dns-lookup-lb'></a> Example API Load Balancer Lookup
@@ -39,17 +39,17 @@ The following network profile, api.json, triggers a DNS lookup for the Kubernete
     "parameters": {
       "nodes_dns": [
         "8.8.8.8", "192.168.115.1", "192.168.116.1"
-        ],		    
+        ],
       "fip_pool_ids": [
         "FIP-POOL-ID1",
-        "FIP-POOL-ID2" 
+        "FIP-POOL-ID2"
         ],
       "dns_lookup_mode": "API"
     }
 }
 ```
 
-Where `FIP-POOL-ID1` and `FIP-POOL-ID2` are Floating IP Pool IDs.  
+Where `FIP-POOL-ID1` and `FIP-POOL-ID2` are Floating IP Pool IDs.
 
 ## <a id='dns-lookup-ingress'></a> Performing DNS Lookup of the Ingress Controller Using Network Profile
 
@@ -72,17 +72,17 @@ The following example network profile, api_ingress.json, triggers a DNS lookup f
 
 Where:
 
-* `FIP-POOL-ID1` and `FIP-POOL-ID2` are Floating IP Pool IDs.  
-* `INGRESS-SUBDOMAIN` is the ingress subdomain prefix.  
+* `FIP-POOL-ID1` and `FIP-POOL-ID2` are Floating IP Pool IDs.
+* `INGRESS-SUBDOMAIN` is the ingress subdomain prefix.
 
-Because DNS mode is set to `API_INGRESS`, TKGI creates the cluster with <span style="white-space: nowrap;"><i>ingress_prefix.hostname</i></span> 
-as the Kubernetes control plane FQDN. 
-TKGI confirms that the ingress subdomain can be resolved as a subdomain prefix on the host before creating new clusters.  
+Because DNS mode is set to `API_INGRESS`, TKGI creates the cluster with <span style="white-space: nowrap;"><i>ingress_prefix.hostname</i></span>
+as the Kubernetes control plane FQDN.
+TKGI confirms that the ingress subdomain can be resolved as a subdomain prefix on the host before creating new clusters.
 
 
 ## <a id='command-line'></a> Setting the Control Plane Node IP Address on the Command Line
 
-As an alternative to DNS lookup, you can specify a fixed IP address in the command line so that it will be used for the Kubernetes control plane node(s) load balancer. 
+As an alternative to DNS lookup, you can specify a fixed IP address in the command line so that it will be used for the Kubernetes control plane node(s) load balancer.
 
 Previously, to create a cluster, you were required to specify an external hostname for the cluster. For example:
 
@@ -95,9 +95,9 @@ Now you can specify the IP address for the load balancer that fronts the Kuberne
 ```console
 $ tkgi create-cluster my-cluster -e 192.168.160.20 -p small
 ```
- 
+
 The IP address that you use must belong to a valid floating IP pool created in NSX.
 
-<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range. 
+<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range.
     To avoid conflicts with internal TKGI functions, always use IP addresses from the end of the floating IP pool.
 </p>

@@ -1,9 +1,9 @@
 ---
 title: Installing and Configuring VMware NSX Managers
-owner: TKGI-NSXT
+ -NSXT
 ---
 
-This topic describes how to install and configure NSX Managers on vSphere in a clustered arrangement for high-availability for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to install and configure NSX Managers on vSphere in a clustered arrangement for high-availability for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 
@@ -85,7 +85,7 @@ Complete the following steps to add vCenter as the Compute Manager. For addition
 
 Use the NSX Management Console to deploy an additional NSX Manager node as part of the NSX Management layer. For more information, refer to the [NSX-T documentation](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-1-2/installation-guide/installing-nsx-manager-cluster-on-vsphere/install-nsx-manager-and-available-appliances/deploy-nsx-manager-nodes-to-form-a-cluster-using-ui.html).
 
-1. In the NSX Management Console, navigate to **System** > **Appliances**. 
+1. In the NSX Management Console, navigate to **System** > **Appliances**.
 1. Select **Add NSX Appliance**.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-20.png">
 1. Enter a hostname, such as `nsx-manager-2`.
@@ -113,7 +113,7 @@ Use the NSX Management Console to deploy an additional NSX Manager node as part 
 
 Use the NSX Management Console to deploy a third NSX Manager node as part of the NSX Management layer. For more information, refer to the [NSX-T documentation](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-1-2/installation-guide/installing-nsx-manager-cluster-on-vsphere/install-nsx-manager-and-available-appliances/deploy-nsx-manager-nodes-to-form-a-cluster-using-ui.html).
 
-1. In the NSX Management Console, navigate to **System** > **Appliances**. 
+1. In the NSX Management Console, navigate to **System** > **Appliances**.
 1. Select **Add NSX Appliance**.
 1. Enter a hostname, such as `nsx-manager-3`.
 1. Enter the Management IP/netmask, such as `10.173.62.46/24`.
@@ -140,16 +140,16 @@ Using a VIP makes the NSX Management Cluster highly-available. If you need to sc
 
 Complete the following instructions to create a VIP for the NSX Management Cluster. The IP address you use for the VIP must be part of the same subnet as the NSX Management nodes.
 
-1. In the NSX Management Console, navigate to **System** > **Appliances**. 
+1. In the NSX Management Console, navigate to **System** > **Appliances**.
 1. Click the **Set Virtual IP** button.
-1. Enter a Virtual IP address, such as `10.173.62.47`.  
-  <img src="images/nsxt/nsxt-30/nsx-manager-1-29.png">  
-1. Verify that the VIP is added.  
-  <img src="images/nsxt/nsxt-30/nsx-manager-1-30.png">  
-  <img src="images/nsxt/nsxt-30/nsx-manager-1-31.png">  
-1. Access the NSX Management console using the VIP, such as `https://10.173.62.47/login.jsp`.  
-  <img src="images/nsxt/nsxt-30/nsx-manager-1-32.png">  
-  <img src="images/nsxt/nsxt-30/nsx-manager-1-33.png">  
+1. Enter a Virtual IP address, such as `10.173.62.47`.
+  <img src="images/nsxt/nsxt-30/nsx-manager-1-29.png">
+1. Verify that the VIP is added.
+  <img src="images/nsxt/nsxt-30/nsx-manager-1-30.png">
+  <img src="images/nsxt/nsxt-30/nsx-manager-1-31.png">
+1. Access the NSX Management console using the VIP, such as `https://10.173.62.47/login.jsp`.
+  <img src="images/nsxt/nsxt-30/nsx-manager-1-32.png">
+  <img src="images/nsxt/nsxt-30/nsx-manager-1-33.png">
 
 ##<a id='nsxt30-mgmt-license'></a> Add the NSX Manager License
 
@@ -161,7 +161,7 @@ If you do not add the proper NSX license, you will receive an error when you try
 
 ##<a id='nsxt30-mgmt-enable-adv'></a> Enable the NSX Manager Interface (if necessary)
 
-The NSX Management Console provides two user interfaces: **Policy** and **Manager**. TKGI supports both. 
+The NSX Management Console provides two user interfaces: **Policy** and **Manager**. TKGI supports both.
 
 The **Policy** interface is the default. If you are using the **Manager** interface for configuring the networking and security objects, you need to enable the Manager interface.
 
@@ -174,4 +174,4 @@ The **Policy** interface is the default. If you are using the **Manager** interf
   <img src="images/nsxt/nsxt-30/nsx-manager-1-40.png">
   <img src="images/nsxt/nsxt-30/nsx-manager-1-41.png">
 1. Refresh the NSX Manager Console and navigate to an area of the console that is not listed under **System**.
-1. In the upper-right area of the console, verify that the **Manager** option is enabled. 
+1. In the upper-right area of the console, verify that the **Manager** option is enabled.

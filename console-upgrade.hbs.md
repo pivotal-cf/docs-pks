@@ -1,6 +1,6 @@
 ---
 title: Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console
-owner: TKGI
+
 ---
 
 To upgrade an existing installation of Tanzu Kubernetes Grid Integrated Edition Management Console, you download and deploy a new version of the Tanzu Kubernetes Grid Integrated Edition Management Console VM. You then use the management console UI of the new version to migrate the configuration of the old installation to the new one.

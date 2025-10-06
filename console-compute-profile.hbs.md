@@ -1,20 +1,20 @@
 ---
 title: Creating and Managing Compute Profiles in the Management Console
-owner: TKGI
+
 ---
 
-This topic describes how to manage compute profiles in the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) on vSphere.  
+This topic describes how to manage compute profiles in the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) on vSphere.
 
 
 ## <a id='overview'></a>Overview
 
-A compute profile enables cluster administrators, `pks.clusters.admin`, to override the default settings defined by a plan.  
+A compute profile enables cluster administrators, `pks.clusters.admin`, to override the default settings defined by a plan.
 
-You can add, view and remove compute profiles using the TKGI Management Console:  
+You can add, view and remove compute profiles using the TKGI Management Console:
 
-* [Create Cluster with Compute Profile](#compute-profile-cluster-create)  
-* [Define Compute Profile](#compute-profile-define)  
-* [Delete Compute Profile](#compute-profile-delete)  
+* [Create Cluster with Compute Profile](#compute-profile-cluster-create)
+* [Define Compute Profile](#compute-profile-define)
+* [Delete Compute Profile](#compute-profile-delete)
 
 
 
@@ -27,7 +27,7 @@ Using a compute profile, cluster administrators can customize the following:
 
 <p class="note"><strong>Note</strong>: A compute profile overrides only those CPU, memory, disk, and AZ settings that you define in the profile. If you do not define a setting in the profile, its configuration is inherited from the plan.</p>
 
-After you create a compute profile, cluster managers, `pks.clusters.manage`, can apply it to one or more Kubernetes clusters. 
+After you create a compute profile, cluster managers, `pks.clusters.manage`, can apply it to one or more Kubernetes clusters.
 
 <p class="note"><strong>Note</strong>: If you use vSphere without NSX networking, creating Windows clusters with compute profiles is not supported.</p>
 
@@ -36,29 +36,29 @@ For more information, see [Compute Profiles vs. Plans](compute-profiles-manage.h
 
 ## <a id='compute-profile-cluster-create'></a>Create Cluster with Compute Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to create a cluster with an existing compute profile.  
+Use the Tanzu Kubernetes Grid Integrated Edition Management Console to create a cluster with an existing compute profile.
 
-To create a cluster with a compute profile:  
+To create a cluster with a compute profile:
 
 1. Select **TKG Integrated Edition** > **Clusters**, and select **Create Cluster**.
 1. Use the **Compute Profile** drop-down menu to select the compute profile to use.
-1. Click **Show More** to view the profile.  
+1. Click **Show More** to view the profile.
 
-    ![Create cluster with compute profile](images/console/compute-profile-info.png)  
-    [View a larger version of this image](images/console/compute-profile-info.png)  
-1. Click **Modify Worker Nodes** to increase or reduce the number of worker nodes.  
+    ![Create cluster with compute profile](images/console/compute-profile-info.png)
+    [View a larger version of this image](images/console/compute-profile-info.png)
+1. Click **Modify Worker Nodes** to increase or reduce the number of worker nodes.
 
-    ![Modify worker nodes](images/console/compute-profile-create-cluster-with.png)  
-    [View a larger version of this image](images/console/compute-profile-create-cluster-with.png)  
+    ![Modify worker nodes](images/console/compute-profile-create-cluster-with.png)
+    [View a larger version of this image](images/console/compute-profile-create-cluster-with.png)
 
 
 ## <a id='compute-profile-define'></a>Define Compute Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to define a compute profile. 
+Use the Tanzu Kubernetes Grid Integrated Edition Management Console to define a compute profile.
 
 <p class="note"><strong>NOTE:</strong> You must be at the console home page to view the <strong>Compute Profiles</strong> tab.</p>
 
-To define a compute profile:  
+To define a compute profile:
 
 1. Select **Profiles** and select the **Compute** tab.
 1. Click **Create Profile**.
@@ -71,42 +71,42 @@ To define a compute profile:
    1. Click **Add Cluster** to add more clusters to the availability zone.
    1. Click **Add Datacenter** to add more data centers to the availability zone.
    1. Click **Add Availability Zones** to create more availability zones.
-   1. Click **Save Availability Zones**.  
+   1. Click **Save Availability Zones**.
 
-    ![Define compute profile availability zones](images/console/compute-profile-az.png)  
-    [View a larger version of this image](images/console/compute-profile-az.png)  
-    
-1. For **Control plane AZs**, select the availability zone to use for the cluster control plane.  
-1. Configure the new profile as needed, to override the values set in plans for the resources that are allocated to control plane nodes:  
+    ![Define compute profile availability zones](images/console/compute-profile-az.png)
+    [View a larger version of this image](images/console/compute-profile-az.png)
+
+1. For **Control plane AZs**, select the availability zone to use for the cluster control plane.
+1. Configure the new profile as needed, to override the values set in plans for the resources that are allocated to control plane nodes:
     * Number of Control Plane Nodes
     * Control plane CPU
     * Control plane memory
     * Control plane ephemeral disk size
     * Control plane persistent disk size
 
-    ![Define control plane resource usage](images/console/compute-profile-control-plane.png)  
-    [View a larger version of this image](images/console/compute-profile-control-plane.png)  
-    
-1. Select **Node Pool Groups** to optionally override the values set in plans for the resources that are allocated to worker nodes, and to optionally add labels and taints to the nodes.  
+    ![Define control plane resource usage](images/console/compute-profile-control-plane.png)
+    [View a larger version of this image](images/console/compute-profile-control-plane.png)
 
-    ![Define compute profile node group settings](images/console/compute-profile-node-group.png)  
-    [View a larger version of this image](images/console/compute-profile-node-group.png)  
-    
+1. Select **Node Pool Groups** to optionally override the values set in plans for the resources that are allocated to worker nodes, and to optionally add labels and taints to the nodes.
+
+    ![Define compute profile node group settings](images/console/compute-profile-node-group.png)
+    [View a larger version of this image](images/console/compute-profile-node-group.png)
+
 1. Click **Save Profile**.
 
 
 ## <a id='compute-profile-delete'></a>Delete Compute Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to delete compute profile. 
+Use the Tanzu Kubernetes Grid Integrated Edition Management Console to delete compute profile.
 
 <p class="note"><strong>NOTE:</strong> You cannot delete a compute profile that is in use by a cluster.</p>
 
-To delete a compute profile:  
+To delete a compute profile:
 
 1. Select **Profiles** and select the **Compute** tab.
 1. Select the compute profile to remove.
 1. Click **Delete**.
-1. Confirm deletion.  
+1. Confirm deletion.
 
-    ![Delete compute profile](images/console/compute-profile-delete.png)  
-    [View a larger version of this image](images/console/compute-profile-delete.png)  
+    ![Delete compute profile](images/console/compute-profile-delete.png)
+    [View a larger version of this image](images/console/compute-profile-delete.png)

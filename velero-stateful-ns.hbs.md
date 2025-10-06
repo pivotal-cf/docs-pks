@@ -1,15 +1,15 @@
 ---
 title: Back Up and Restore Stateful App Using Namespace
-owner: TKGI
+
 ---
 
-This topic describes how to use Velero to back up and restore a stateful application using the namespace feature with Velero.  
+This topic describes how to use Velero to back up and restore a stateful application using the namespace feature with Velero.
 
 ##<a id="overview"></a> Overview
 
 This example demonstrates Velero back up and restore for a stateful application using namespace.
 
-To test Velero back up and restore for stateful applications, use the [Guestbook application](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) with a persistent volume. 
+To test Velero back up and restore for stateful applications, use the [Guestbook application](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) with a persistent volume.
 
 When restoring the stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster. If the PVC is using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
 
@@ -23,7 +23,7 @@ Download the [Guestbook app YAML files](https://github.com/pivotal-cf/docs-pks/t
 - redis-leader-service.yaml
 - redis-follower-deployment.yaml
 - redis-follower-service.yaml
-- frontend-deployment.yaml 
+- frontend-deployment.yaml
 - frontend-service.yaml
 
 ## <a id='guestbook-deploy'></a> Deploy Guestbook App
@@ -118,7 +118,7 @@ Add many messages so they can be stored in the PV.
 
 This example shows how to back up and restore the Guestbook app using the `--include namespace` tag.
 
-Because this app is stateful, you need to add annotations for the stateful pods with the volume name. 
+Because this app is stateful, you need to add annotations for the stateful pods with the volume name.
 
 Get the volume names:
 

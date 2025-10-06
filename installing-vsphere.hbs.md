@@ -1,6 +1,6 @@
 ---
 title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere (Antrea Networking)
-owner: TKGI
+
 iaas: vSphere
 windowsclusters: #Empty var to prevent build breaking
 topic: #Empty var to prevent build breaking

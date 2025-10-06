@@ -1,6 +1,6 @@
 ---
 title: Deactivating Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters
-owner: TKGI
+
 ---
 
 This topic describes how to deactivate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) cluster admission control plugins.

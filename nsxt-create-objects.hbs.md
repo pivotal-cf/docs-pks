@@ -1,27 +1,27 @@
 ---
 title: Creating VMware NSX Objects for Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
-This topic describes how to create VMware NSX Objects for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to create VMware NSX Objects for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 ##<a id='overview'></a>Overview
 
-Installing VMware Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX requires the creation of NSX IP blocks for Kubernetes node and pod networks, as well as a Floating IP Pool from which you can assign routable IP addresses to cluster resources. 
+Installing VMware Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX requires the creation of NSX IP blocks for Kubernetes node and pod networks, as well as a Floating IP Pool from which you can assign routable IP addresses to cluster resources.
 
-Create separate NSX IP Blocks for the [node networks](./nsxt-prepare-env.html#nodes-ip-block) 
-and the [pod networks](./nsxt-prepare-env.html#pods-ip-block), with subnets of size 256 (/16) for both nodes and pods. 
-For more information, see [Plan IP Blocks](./nsxt-prepare-env.html#plan-ip-blocks) 
-and [Reserved IP Blocks](./nsxt-prepare-env.html#reserved-ip-blocks). 
-For more information about NSX-T IP Blocks, see [Advanced IP Address Management](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/manager-mode/advanced-ip-address-management-ipam.html) 
-in the _VMware NSX-T Data Center_ documentation.  
+Create separate NSX IP Blocks for the [node networks](./nsxt-prepare-env.html#nodes-ip-block)
+and the [pod networks](./nsxt-prepare-env.html#pods-ip-block), with subnets of size 256 (/16) for both nodes and pods.
+For more information, see [Plan IP Blocks](./nsxt-prepare-env.html#plan-ip-blocks)
+and [Reserved IP Blocks](./nsxt-prepare-env.html#reserved-ip-blocks).
+For more information about NSX-T IP Blocks, see [Advanced IP Address Management](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/manager-mode/advanced-ip-address-management-ipam.html)
+in the _VMware NSX-T Data Center_ documentation.
 
  * **NODE-IP-BLOCK** is used by Tanzu Kubernetes Grid Integrated Edition to assign address space to Kubernetes control plane and worker nodes when new clusters are deployed or a cluster increases its scale.
  * **POD-IP-BLOCK** is used by the NSX Container Plug-in (NCP) to assign address space to Kubernetes pods through the Container Networking Interface (CNI).
 
 In addition, create a Floating IP Pool from which to assign routable IP addresses to components. This network provides your load balancing address space for each Kubernetes cluster created by Tanzu Kubernetes Grid Integrated Edition. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services. For example, `10.172.2.0/24` provides 256 usable IPs. This network is used when creating the virtual IP pools, or when the services are deployed. You enter this network in the **Floating IP Pool ID** field in the **Networking** pane of the Tanzu Kubernetes Grid Integrated Edition tile.
 
-Complete the following instructions to create the required NSX network objects. 
+Complete the following instructions to create the required NSX network objects.
 
 ##<a id='create-nodes-ipb'></a> Create the Nodes IP Block
 

@@ -1,6 +1,6 @@
 ---
 title: Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server
-owner: TKGI
+
 ---
 
 This topic describes how to connect VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)

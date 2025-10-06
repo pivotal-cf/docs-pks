@@ -1,6 +1,6 @@
 ---
 title: Install Tanzu Kubernetes Grid Integrated Edition on VMware Cloud Foundation
-owner: TKGI
+
 ---
 
 This topic describes how to install and operate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)

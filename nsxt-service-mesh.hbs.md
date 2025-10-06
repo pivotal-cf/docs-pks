@@ -1,9 +1,9 @@
 ---
 title: Configuring VMware Tanzu Service Mesh by VMware NSX
-owner: TKGI
+
 ---
 
-This topic describes how to integrate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) with VMware Tanzu Service Mesh by VMware NSX.  
+This topic describes how to integrate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) with VMware Tanzu Service Mesh by VMware NSX.
 
 > **Note** Tanzu Service Mesh integration in TKGI has been deprecated and is slated for removal in the next minor release.
 

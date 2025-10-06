@@ -1,6 +1,6 @@
 ---
 title: Downloading Logs from VMs
-owner: TKGI
+
 ---
 
 This topic describes how to use the BOSH Command Line Interface (CLI) to download logs from the BOSH-deployed VMs in your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) environment.

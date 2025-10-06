@@ -1,6 +1,6 @@
 ---
 title: Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 This topic describes the preparation steps to complete before upgrading

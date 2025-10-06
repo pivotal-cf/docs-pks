@@ -1,6 +1,6 @@
 ---
 title: Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA
-owner: TKGI
+
 ---
 
 This topic describes how to manage users in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)

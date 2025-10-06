@@ -1,6 +1,6 @@
 ---
 title: Upgrading Tanzu Kubernetes Grid Integrated Edition with {{ vars.platform_name }}
-owner: TKGI
+
 ---
 
 The following topics describe how to upgrade the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) tile:

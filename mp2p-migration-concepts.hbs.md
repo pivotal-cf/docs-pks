@@ -1,6 +1,6 @@
 ---
 title: Migrating from NSX Management Plane API to Policy API - Overview
-owner: TKGI
+
 ---
 
 This topic provides an overview of migrating VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from the NSX Management Plane API to NSX Policy API (MP2P).

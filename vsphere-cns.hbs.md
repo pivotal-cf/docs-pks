@@ -1,6 +1,6 @@
 ---
 title: Deploying and Managing Cloud Native Storage (CNS) on vSphere
-owner: TKGI
+
 ---
 
 This topic describes how to use and configure the vSphere Container Storage Interface (CSI) Driver

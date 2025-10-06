@@ -1,6 +1,6 @@
 ---
 title: Managing Tanzu Kubernetes Grid Integrated Edition Users
-owner: TKGI
+
 ---
 
 The following topics describe how to use either VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) or {{ vars.platform_name }} to manage users:

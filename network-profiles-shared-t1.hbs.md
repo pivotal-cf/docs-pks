@@ -1,11 +1,11 @@
 ---
 title: Shared and Dedicated Tier-1 Router Topologies
-owner: TKGI
+
 ---
 
-This topic describes how to define a network profile to configure shared and dedicated Tier-1 router topologies for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.  
+This topic describes how to define a network profile to configure shared and dedicated Tier-1 router topologies for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.
 
-This topic also explains how to define a network profile that overrides the Shared Tier-1 topology default, to specify Dedicated Tier-1 topology for TKGI clusters.  
+This topic also explains how to define a network profile that overrides the Shared Tier-1 topology default, to specify Dedicated Tier-1 topology for TKGI clusters.
 
 ## <a id='shared-t1'></a> Shared Tier-1 Topology
 
@@ -14,10 +14,10 @@ By default, Kubernetes clusters in Tanzu Kubernetes Grid Integrated Edition with
 <p class="note"><strong>Note:</strong> The Shared Tier-1 topology requires VMware NSX v2.5.</p>
 
 This topology uses a single, shared Tier-1 switch and router for each Kubernetes cluster.
-The shared Tier-1 model only uses one Tier-1 router and multiple logical switches connected to the shared Tier-1 
+The shared Tier-1 model only uses one Tier-1 router and multiple logical switches connected to the shared Tier-1
 to connect all Kubernetes cluster components, including:
 
-* Kubernetes Nodes Networks 
+* Kubernetes Nodes Networks
 * Kubernetes Namespaces
 * NSX load balancer instances allocated for the Kubernetes cluster
 
@@ -27,13 +27,13 @@ to connect all Kubernetes cluster components, including:
 
 Unlike the [Dedicated Tier-1 Topology](#dedicated-t1),
 the shared Tier-1 model configures any necessary NAT rules (if using NAT mode) on the single Tier-1 router directly.
-The Tier-0 router is not used for any NAT configuration. As a result, 
+The Tier-0 router is not used for any NAT configuration. As a result,
 the Tier-0 router can operate in Active-Active mode if all Kubernetes clusters are deployed using the Shared Tier-1 model.
 
-The Shared Tier-1 model enables higher scale numbers for TKGI as the number of NSX objects allocated per Kubernetes cluster 
+The Shared Tier-1 model enables higher scale numbers for TKGI as the number of NSX objects allocated per Kubernetes cluster
 is drastically reduced, in comparison to dedicated Tier-1.
-The advantage of the shared Tier-1 topology is that you can increase the number of NSX objects that can be 
-supported in a given cluster. 
+The advantage of the shared Tier-1 topology is that you can increase the number of NSX objects that can be
+supported in a given cluster.
 
 ## <a id='dedicated-t1'></a> Dedicated Tier-1 Topology
 

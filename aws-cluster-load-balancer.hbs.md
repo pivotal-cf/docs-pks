@@ -1,6 +1,6 @@
 ---
 title: Creating and Configuring an AWS Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters
-owner: TKGI
+
 ---
 
 This topic describes how to configure an Amazon Web Services (AWS) load balancer for your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) cluster.

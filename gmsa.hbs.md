@@ -1,10 +1,10 @@
 ---
 title: Authenticate Windows Clusters with Active Directory
-owner: TKGI
+
 topic: gmsa-cluster
 ---
 
-This topic describes how to integrate Microsoft Active Directory (AD) 
+This topic describes how to integrate Microsoft Active Directory (AD)
 with your Tanzu Kubernetes Grid Integrated Edition (TKGI) Windows worker-based Kubernetes clusters.
 
 ## <a id='overview'></a>Overview
@@ -14,17 +14,17 @@ To enable this, you integrate a group Managed Service Account (gMSA) in AD with 
 
 <p class="note"><strong>Note:</strong> Once a cluster has been created or updated to use AD authentication, you cannot update it to stop using AD authentication.</p>
 
-For information about gMSAs see 
-[Group Managed Service Accounts Overview](https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) 
-in the Microsoft Windows Server documentation.  
+For information about gMSAs see
+[Group Managed Service Accounts Overview](https://docs.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview)
+in the Microsoft Windows Server documentation.
 
-To manage AD integration with a TKGI-provisioned Windows worker-based Kubernetes cluster:  
+To manage AD integration with a TKGI-provisioned Windows worker-based Kubernetes cluster:
 
 * [Create a New Cluster with AD Authentication](#create)
 * [Add or Change a Cluster's AD Authentication](#change-ad)
 * [Change a Cluster with AD Authentication to use Pod-Based gMSA](#non-joined-nodes)
 * [Integrate Kubernetes with Active Directory](#integrate)
-* [View a Cluster's gMSA Configuration](#list)  
+* [View a Cluster's gMSA Configuration](#list)
 
 
 ## <a id='prereqs'></a>Prerequisites
@@ -39,31 +39,31 @@ To use AD to control access to Windows worker-based Kubernetes clusters, you nee
 
 To create a TKGI cluster configured with AD gMSA authentication:
 
-1. Define the gMSA settings in a configuration file on your local filesystem. 
-For configuration information, see [GMSA Configuration Settings](#settings), below.  
+1. Define the gMSA settings in a configuration file on your local filesystem.
+For configuration information, see [GMSA Configuration Settings](#settings), below.
 
-1. Pass the file location to the `--config-file` flag of `tkgi create-cluster`. 
-For information about creating clusters, see [Creating Clusters](create-cluster.html).  
+1. Pass the file location to the `--config-file` flag of `tkgi create-cluster`.
+For information about creating clusters, see [Creating Clusters](create-cluster.html).
 
 1. Integrate the cluster with the AD gMSA as described in [Integrate Kubernetes with Active Directory](#integrate), below.
 
 
 ## <a id='change-ad'></a>Add or Change a Cluster's AD Authentication
 
-To configure an existing TKGI cluster for Active Directory gMSA authentication, or to change its gMSA configuration:  
+To configure an existing TKGI cluster for Active Directory gMSA authentication, or to change its gMSA configuration:
 
 <p class="note"><strong>Note:</strong> Once a cluster has been created or updated to use AD authentication, you cannot update it to stop using AD authentication.</p>
 
-1. Define the gMSA settings in a configuration file on your local filesystem:  
+1. Define the gMSA settings in a configuration file on your local filesystem:
 
-    * To retain a previous setting, do not include it in the configuration file.  
-    * To unset a previous setting, set it to `{}` (for an object) or `""` (for a string) in the configuration file.  
-    
-    For configuration information, see [GMSA Configuration Settings](#settings), below.  
+    * To retain a previous setting, do not include it in the configuration file.
+    * To unset a previous setting, set it to `{}` (for an object) or `""` (for a string) in the configuration file.
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-22-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+    For configuration information, see [GMSA Configuration Settings](#settings), below.
+
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-22-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
 1. Run the following command to update the cluster with the configuration file:
 
@@ -129,7 +129,7 @@ Troubleshooting tips for `non_domain_joined` gMSA:
 Once you have a cluster configured in Tanzu Kubernetes Grid and AD to access the gMSA, you need to run the following Kubernetes operations to integrate the cluster with the gMSA at the Kubernetes level.
 
 This procedure is described in [Configure GMSA for Windows Pods and containers](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#configure-gmsas-and-windows-nodes-in-active-directory) in the Kubernetes documentation, with one exception.
-The exception is that you used the `--config-file` flag in the `tkgi` CLI to add the Windows nodes into the AD, instead of following the step [Configure GMSAs and Windows nodes in Active Directory](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#configure-gmsas-and-windows-nodes-in-active-directory) in the Kubernetes documentation. For information about GMSA command line configuration, see [GMSA Configuration Settings](#settings) below.  
+The exception is that you used the `--config-file` flag in the `tkgi` CLI to add the Windows nodes into the AD, instead of following the step [Configure GMSAs and Windows nodes in Active Directory](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#configure-gmsas-and-windows-nodes-in-active-directory) in the Kubernetes documentation. For information about GMSA command line configuration, see [GMSA Configuration Settings](#settings) below.
 
 1. Create and install a `GMSACredentialSpec` object by creating and applying a CRD `gmsa.yaml` file as described in [Install the GMSACredentialSpec CRD](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#install-the-gmsacredentialspec-crd).
 
@@ -170,7 +170,7 @@ The exception is that you used the `--config-file` flag in the `tkgi` CLI to add
 1. To prepare for the next step, download the [example script `deploy-gmsa-webhook.sh`](https://github.com/kubernetes-sigs/windows-gmsa/blob/master/admission-webhook/deploy/deploy-gmsa-webhook.sh) and update its `CA_BUNDLE` setting:
     1. `bosh ssh` into the cluster's control plane node. For more information, see [SSH into a Kubernetes Cluster VM](diagnostic-tools.html#cluster).
     1. Fetch the `/var/vcap/jobs/kube-controller-manager/config/cluster-signing-ca.pem` file and name it locally as `ca-master.pem`.
-    1. Edit `CA_BUNDLE` setting in the `deploy-gmsa-webhook.sh` example script linked above to read as follows:  
+    1. Edit `CA_BUNDLE` setting in the `deploy-gmsa-webhook.sh` example script linked above to read as follows:
 
         ```
         CA_BUNDLE="$(cat ca-master.pem|base64 -w 0)"
@@ -178,10 +178,10 @@ The exception is that you used the `--config-file` flag in the `tkgi` CLI to add
 
 1. Run the script to install two webhooks into the cluster that populate and validate gMSA credential spec references at the Pod or container level. For more information, see [Install webhooks to validate GMSA users](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#install-webhooks-to-validate-gmsa-users).
 
-1. Log in to Active Directory and create gMSA credential spec resources using the `domain_service_account` and the domain information in your configuration file. For more information, see [Create GMSA credential spec resources](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#create-gmsa-credential-spec-resources).  
+1. Log in to Active Directory and create gMSA credential spec resources using the `domain_service_account` and the domain information in your configuration file. For more information, see [Create GMSA credential spec resources](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#create-gmsa-credential-spec-resources).
 <br>
     This step includes converting your configuration file from JSON to YAML.
-  
+
 1. [Configure cluster role to enable RBAC on specific GMSA credential specs](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#configure-cluster-role-to-enable-rbac-on-specific-gmsa-credential-specs) for the credential specs created in the previous step.
 
 1. [Assign role to service accounts to use specific GMSA credspecs](https://kubernetes.io/docs/tasks/configure-pod-container/configure-gmsa/#assign-role-to-service-accounts-to-use-specific-gmsa-credspecs) for the role created in the previous step.
@@ -199,19 +199,19 @@ You can see a cluster's current gMSA configuration by viewing its BOSH manifest:
     bosh deployments
     ```
     <p class="note"><strong>Note:</strong> Cluster deployment names start with <code>service-instance_</code>.</p>
-1. For any cluster you want to view, download its manifest:  
+1. For any cluster you want to view, download its manifest:
 
     ```
     bosh -d DEPLOYMENT-NAME manifest > /tmp/YOUR-DEPLOYMENT-MANIFEST.yml
     ```
-    
-    Where:  
 
-    * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.  
-    * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.  
+    Where:
 
-1. Search the manifest for gMSA configuration settings. 
-For configuration information, see [GMSA Configuration Settings](#settings), below.  
+    * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.
+    * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.
+
+1. Search the manifest for gMSA configuration settings.
+For configuration information, see [GMSA Configuration Settings](#settings), below.
 
 
 ## <a id='settings'></a>GMSA Configuration Settings
@@ -233,7 +233,7 @@ gMSA settings in the cluster configuration file are:
   - `domain_security_group`: AD security group that the gMSA account is included under.
   - `domain_service_account`: AD gMSA account.
 
-For example: 
+For example:
 
 ```
 {

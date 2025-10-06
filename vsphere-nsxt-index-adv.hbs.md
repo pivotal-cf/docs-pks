@@ -1,6 +1,6 @@
 ---
 title: Advanced Configurations for Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX
-owner: TKGI
+
 iaas: vsphere-nsxt
 ---
 

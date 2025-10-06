@@ -1,10 +1,10 @@
 ---
 title: Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer CRD
-owner: TKGI-NSX
+ -NSX
 lbtype: layer7
 ---
 
-This topic describes how to scale ingress resources for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to scale ingress resources for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 <p class="note"><strong>Note:</strong> This feature requires NCP v2.5.1 or later.</p>
 
@@ -15,23 +15,23 @@ This topic describes how to scale ingress resources for VMware Tanzu Kubernetes 
 
 ## <a id='nsxLoadBalancerMonitors-actions'></a> Prerequisites
 
-Before scaling your ingress load balancers, understand your load balancer's status: 
-Use the NSXLoadBalancerMonitor CRD to monitor your NSX load balancer service, 
-including traffic, usage, and health score information. 
-The NSXLoadBalancerMonitor CRD provides information for the health of the NSX load balancer service, and 
-the NSX Edge Node running the load balancer.  
+Before scaling your ingress load balancers, understand your load balancer's status:
+Use the NSXLoadBalancerMonitor CRD to monitor your NSX load balancer service,
+including traffic, usage, and health score information.
+The NSXLoadBalancerMonitor CRD provides information for the health of the NSX load balancer service, and
+the NSX Edge Node running the load balancer.
 
-For more information about monitoring using the NSXLoadBalancerMonitor CRD see 
-[Monitoring Ingress Resources](nsxt-ingress-monitor.html).  
+For more information about monitoring using the NSXLoadBalancerMonitor CRD see
+[Monitoring Ingress Resources](nsxt-ingress-monitor.html).
 
 ## <a id='LoadBalancer'></a> Scale Ingress Load Balancer Resources
 
-The LoadBalancer CRD provides you with an interactive method to scale the load balancer 
-for ingress routing.  
+The LoadBalancer CRD provides you with an interactive method to scale the load balancer
+for ingress routing.
 
 #### <a id='LoadBalancer-example'></a> Create a New Ingress Load Balancer
 
-Use the LoadBalancer CRD to create a new ingress load balancer. 
+Use the LoadBalancer CRD to create a new ingress load balancer.
 
 1. To configure a new ingress load balancer, configure a new YAML file as follows:
 
@@ -42,7 +42,7 @@ Use the LoadBalancer CRD to create a new ingress load balancer.
       name: LB-NAME
     spec:
       httpConfig: HTTP-CONFIG
-        virtualIP: IP-ADDRESS  
+        virtualIP: IP-ADDRESS
         port: PORT
         tls:
           port: TLS-PORT
@@ -58,63 +58,63 @@ Use the LoadBalancer CRD to create a new ingress load balancer.
       httpVirtualIP: V-IP-ADDRESS
     ```
 
-    Where:  
+    Where:
 
-    * `LB-NAME` is the display name of the loadBalancer.  
-    * `HTTP-CONFIG` (Optional) is the configuration to support http/https route on the loadBalancer. Set as `httpConfig: {}` to apply default settings.  
-    * `IP-ADDRESS` (Optional) is the virtual IP address. Defaults to `auto_allocate`.  
-    * `PORT` (Optional) is the port. Defaults to `80`.  
-    * `TLS-PORT` (Optional) is the TLS port. Defaults to `443`.  
-    * `SECRET-NAME` (Optional) is the TLS secret name. Defaults to `nil`.  
+    * `LB-NAME` is the display name of the loadBalancer.
+    * `HTTP-CONFIG` (Optional) is the configuration to support http/https route on the loadBalancer. Set as `httpConfig: {}` to apply default settings.
+    * `IP-ADDRESS` (Optional) is the virtual IP address. Defaults to `auto_allocate`.
+    * `PORT` (Optional) is the port. Defaults to `80`.
+    * `TLS-PORT` (Optional) is the TLS port. Defaults to `443`.
+    * `SECRET-NAME` (Optional) is the TLS secret name. Defaults to `nil`.
     * `SECRET-NAMESPACE` (Optional) is the TLS secret namespace. Defaults to `nil`.
-    You must deploy the new ingress load balancer in the same namespace where you deploy the ingress resource.  
-    * `FORWARD-TYPE` (Optional) is the forward type. Supported values are: `INSERT` and `REPLACE`. Defaults to `nil`.  
-    * `IP-SOURCE` (Optional) is the source IP. Supported values are: `sourceIP` and `cookie`.  
-    * `TIMEOUT` (Optional) is the connection timeout. Defaults to `10800`.  
-    * `SIZE` (Optional) is the ingress load balancer size. Supported values are: `SMALL` and `MEDIUM`. Defaults to `SMALL`.  
-    * `NETWORK-NAME` (Optional) is the virtual network name. Defaults to `nil`.  
-    * `V-IP-ADDRESS` is the external IP address for http/https virtual server. The external IP address can be auto-allocated or user specified.  
+    You must deploy the new ingress load balancer in the same namespace where you deploy the ingress resource.
+    * `FORWARD-TYPE` (Optional) is the forward type. Supported values are: `INSERT` and `REPLACE`. Defaults to `nil`.
+    * `IP-SOURCE` (Optional) is the source IP. Supported values are: `sourceIP` and `cookie`.
+    * `TIMEOUT` (Optional) is the connection timeout. Defaults to `10800`.
+    * `SIZE` (Optional) is the ingress load balancer size. Supported values are: `SMALL` and `MEDIUM`. Defaults to `SMALL`.
+    * `NETWORK-NAME` (Optional) is the virtual network name. Defaults to `nil`.
+    * `V-IP-ADDRESS` is the external IP address for http/https virtual server. The external IP address can be auto-allocated or user specified.
 
-1. To create a new ingress load balancer run the following command:  
+1. To create a new ingress load balancer run the following command:
 
     ```
     kubectl apply –f YAML-FILE
     ```
 
-    Where `YAML-FILE` is the filename of a the load balancer configuration YAML file.  
+    Where `YAML-FILE` is the filename of a the load balancer configuration YAML file.
 
-    For example:  
+    For example:
 
     ```console
-    # kubectl apply –f lb.yaml  
-    apiVersion: vmware.com/v1alpha1  
-    kind: LoadBalancer  
-    metadata:  
-      name: cluster1_lbs0  
-    spec:  
-      httpConfig:  
-        virtualIP:  
-        port: 233  
-        tls:  
-          port: 2333  
-          secretName: default_secret  
-          secretNamespace: default  
-        xForwardedFor: INSERT  
-        affinity:  
-          type: source_ip  
-          timeout: 100  
-      size: MEDIUM  
-      virtualNetwork: virtualnetwork1  
-    status:  
-      httpVirtualIP: <realized external ip>  
-    ```  
-<br>    
+    # kubectl apply –f lb.yaml
+    apiVersion: vmware.com/v1alpha1
+    kind: LoadBalancer
+    metadata:
+      name: cluster1_lbs0
+    spec:
+      httpConfig:
+        virtualIP:
+        port: 233
+        tls:
+          port: 2333
+          secretName: default_secret
+          secretNamespace: default
+        xForwardedFor: INSERT
+        affinity:
+          type: source_ip
+          timeout: 100
+      size: MEDIUM
+      virtualNetwork: virtualnetwork1
+    status:
+      httpVirtualIP: <realized external ip>
+    ```
+<br>
 
 
 #### <a id='kubernetes-configure'></a> Configure Your Kubernetes Ingress Resource to Use the New Ingress Load Balancer
 
-Annotate the Kubernetes ingress resource with the newly created ingress load balancer. 
-NCP will attach the ingress rules to the scaled out load balancer.  
+Annotate the Kubernetes ingress resource with the newly created ingress load balancer.
+NCP will attach the ingress rules to the scaled out load balancer.
 
 1. To configure a Kubernetes ingress resource with the new ingress load balancer, configure a new YAML file as follows:
 
@@ -140,15 +140,15 @@ NCP will attach the ingress rules to the scaled out load balancer.
                   number: SERVICE-PORT
     ```
 
-    Where:  
+    Where:
 
-    * `ING-NAME` is the name of the ingress resource.  
-    * `LB-NAME` is the display name of the loadBalancer.  
-    * `HOST-NAME` is the host name.  
-    * `HTTP-PATH` is the HTTP path.  
+    * `ING-NAME` is the name of the ingress resource.
+    * `LB-NAME` is the display name of the loadBalancer.
+    * `HOST-NAME` is the host name.
+    * `HTTP-PATH` is the HTTP path.
     * `PATH-TYPE` refers to [Ingress Path types](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types) in the Kubernetes documentation.
-    * `SERVICE-NAME` is the http backend service name.  
-    * `SERVICE-PORT` is the http backend service port.  
+    * `SERVICE-NAME` is the http backend service name.
+    * `SERVICE-PORT` is the http backend service port.
 
 1. To annotate the Kubernetes ingress resource with the newly created ingress load balancer, run the following command:
 
@@ -156,10 +156,10 @@ NCP will attach the ingress rules to the scaled out load balancer.
     kubectl apply –f YAML-FILE
     ```
 
-    Where `YAML-FILE` is the filename of a the Kubernetes ingress resource configuration YAML file.  
+    Where `YAML-FILE` is the filename of a the Kubernetes ingress resource configuration YAML file.
 <br>
-    For example:  
-    
+    For example:
+
     ```
     apiVersion: networking.k8s.io/v1
     kind: Ingress

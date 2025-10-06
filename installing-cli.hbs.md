@@ -1,6 +1,6 @@
 ---
 title: Installing the TKGI CLI
-owner: TKGI
+
 ---
 
 This topic describes how to install the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface

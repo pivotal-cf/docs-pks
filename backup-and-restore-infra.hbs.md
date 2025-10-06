@@ -1,6 +1,6 @@
 ---
 title: Backing Up and Restoring the Data Center for TKGI
-owner: TKGI
+
 ---
 
 This topic describes how to back up and restore the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) infrastructure.
@@ -19,8 +19,8 @@ Backing up and restoring the TKGI infrastructure includes the following componen
 As part of your TKGI back up and restore planning and testing, consider the following test scenarios for NSX.
 
 - Back up NSX.
-- Shut down (or delete) NSX Manager nodes. 
-- Deploy new NSX Manager node and restore configuration from backup. 
+- Shut down (or delete) NSX Manager nodes.
+- Deploy new NSX Manager node and restore configuration from backup.
 - Restore additional NSX Manager nodes.
 
 - If you deploy a Kubernetes application with a service endpoint, and it is included in the NSX backup, on restore of NSX there is no loss in application connectivity. However, the application must be redeployed if it was deployed after the backup was taken.

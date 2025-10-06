@@ -1,6 +1,6 @@
 ---
 title: Configuring an AWS Load Balancer for the TKGI API
-owner: TKGI
+
 ---
 
 This topic describes how to create a load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) using Amazon Web Services (AWS). Refer to the procedures in this topic to create a load balancer by using AWS.

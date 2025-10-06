@@ -1,6 +1,6 @@
 ---
 title: Azure Prerequisites and Resource Requirements
-owner: TKGI
+
 ---
 
 This topic describes the prerequisites and resource requirements for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on Microsoft Azure.

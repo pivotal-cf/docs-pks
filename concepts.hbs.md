@@ -1,11 +1,11 @@
 ---
 title: Tanzu Kubernetes Grid Integrated Edition Concepts
-owner: TKGI
+
 ---
 
-This topic describes conceptual and architectural information about VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and its primary components.  
+This topic describes conceptual and architectural information about VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and its primary components.
 
-See the following topics for an architectural overview of TKGI systems and components:  
+See the following topics for an architectural overview of TKGI systems and components:
 
 <ul>
   <li>

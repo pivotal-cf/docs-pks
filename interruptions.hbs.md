@@ -1,6 +1,6 @@
 ---
 title: Service Interruptions
-owner: TKGI
+
 ---
 
 This topic describes events in the lifecycle of a Kubernetes cluster deployed by VMware Tanzu Kubernetes Grid Integrated Edition that can cause temporary service interruptions.

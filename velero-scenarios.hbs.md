@@ -1,9 +1,9 @@
 ---
-title: Scenarios for Backing Up and Restoring TKGI Workloads 
-owner: TKGI
+title: Scenarios for Backing Up and Restoring TKGI Workloads
+
 ---
 
-This section summarizes the scenarios and considerations for workload back up and restore using Velero.  
+This section summarizes the scenarios and considerations for workload back up and restore using Velero.
 
 ## <a id="velero-scenarios"></a>Kubernetes Workload Back Up and Restore Scenarios Using Velero
 

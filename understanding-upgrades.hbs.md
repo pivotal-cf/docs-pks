@@ -1,6 +1,6 @@
 ---
 title: About Tanzu Kubernetes Grid Integrated Edition Upgrades
-owner: TKGI
+
 ---
 
 This topic provides conceptual information about upgrading VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and TKGI-provisioned Kubernetes clusters.

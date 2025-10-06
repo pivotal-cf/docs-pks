@@ -1,6 +1,6 @@
 ---
 title: Monitor and Manage Tanzu Kubernetes Grid Integrated Edition in the Management Console
-owner: TKGI
+
 ---
 
 After you have deployed VMware Tanzu Kubernetes Grid Integrated Edition on vSphere, you can use VMware Tanzu Kubernetes Grid Integrated Edition Management Console to perform the following operations:

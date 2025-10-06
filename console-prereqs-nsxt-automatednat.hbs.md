@@ -1,6 +1,6 @@
 ---
 title: Prerequisites for an Automated NAT Deployment to VMware NSX
-owner: TKGI
+
 ---
 
 An unprepared environment is an VMware NSX instance that you have not already configured for use with Tanzu Kubernetes Grid Integrated Edition. Tanzu Kubernetes Grid Integrated Edition Management Console helps you to complete the configuration of an unprepared environment on vSphere, but the environment must meet certain infrastructure prerequisites.
@@ -14,8 +14,8 @@ For information about the supported versions of VMware NSX, see the [release not
 ## <a id='general-requirements'></a> General Requirements
 
 - Edge Cluster with at least 2 VMware NSX Edge Nodes deployed and connectivity to an uplink network configured and verified
-- Overlay Transport Zone created, with the edge nodes included 	
-- VLAN Transport Zone created, with the edge nodes included 
+- Overlay Transport Zone created, with the edge nodes included
+- VLAN Transport Zone created, with the edge nodes included
 - MTU of all transport nodes and physical interfaces configured to 1600 or more
 - In NSX 3.0, you can create host transport nodes by installing NSX on a VDS switch. The NSX logical switch is created on the VDS as a distributed virtual port group.
 - Obtain the following IP addresses for the uplink network to use:
@@ -23,7 +23,7 @@ For information about the supported versions of VMware NSX, see the [release not
   - Addresses within the uplink subnet for the Tier 0 uplinks
   - Address to use for the HA Virtual IP on the Tier-0 router
 - Obtain the following IP additional addresses:
-  - CIDR ranges to use for deployment, pods, and nodes. This range of IP addresses must not be in conflict with any other workloads.  
+  - CIDR ranges to use for deployment, pods, and nodes. This range of IP addresses must not be in conflict with any other workloads.
   - IP addresses of DNS and NTP servers
   - A range of 5 available floating IP addresses
 - If your VMware NSX environment uses custom certificates, obtain the CA certificate for NSX Manager

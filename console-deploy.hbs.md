@@ -1,6 +1,6 @@
 ---
 title: Deploy Tanzu Kubernetes Grid Integrated Edition from the Management Console
-owner: TKGI
+
 ---
 
 You can deploy a new VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) instance on vSphere either by using the VMware Tanzu Kubernetes Grid Integrated Edition Management Portal configuration wizard to guide you through the configuration process, or by importing an existing YAML configuration file into the YAML editor.

@@ -1,6 +1,6 @@
 ---
 title: Creating and Managing Compute Profiles with the CLI (vSphere)
-owner: TKGI
+
 ---
 
 This topic describes how to create and manage compute profiles using the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Command Line Interface (TKGI CLI).

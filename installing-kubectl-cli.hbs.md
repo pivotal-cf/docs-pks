@@ -1,6 +1,6 @@
 ---
 title: Installing the Kubernetes CLI
-owner: TKGI
+
 ---
 
 This topic describes how to install the Kubernetes Command Line Interface (kubectl).

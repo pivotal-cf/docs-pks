@@ -1,23 +1,23 @@
 ---
 title: Using a Windows Pause Image for an Air-Gapped Environment
-owner: TKGI
+
 ---
 
 This topic describes how to configure a private registry and a Windows pause image for an air-gapped environment
-for Windows worker-based Kubernetes clusters in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+for Windows worker-based Kubernetes clusters in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
 
 
 
 ## <a id='overview'></a> Overview
 
-To deploy a Windows pod, Kubelet deploys a Windows container image fetched from a Docker registry.  
+To deploy a Windows pod, Kubelet deploys a Windows container image fetched from a Docker registry.
 
 Microsoft restricts distribution of Windows container base images and the
-fetched Windows container image is typically pulled from the 
-Microsoft Docker registry. This registry is inaccessible from within an air-gapped environment.  
+fetched Windows container image is typically pulled from the
+Microsoft Docker registry. This registry is inaccessible from within an air-gapped environment.
 
-To deploy Windows pods in an air-gapped environment 
-you must have a Windows container image in a private Docker registry:  
+To deploy Windows pods in an air-gapped environment
+you must have a Windows container image in a private Docker registry:
 
 * [Prepare Your Private Docker Registry](#prepare-registry)
 * [Prepare a Windows Pause Image for an Air-Gapped Environment](#prepare-windows-pause-image)
@@ -27,26 +27,26 @@ you must have a Windows container image in a private Docker registry:
 
 ## <a id='prepare-registry'></a> Prepare Your Private Docker Registry
 
-Your private Docker registry must meet the following requirements:  
+Your private Docker registry must meet the following requirements:
 
-* The registry must be accessible from your Tanzu Kubernetes Grid Integrated Edition environment.  
-* The registry must be configured to support Microsoft Windows images. 
-For an example of a Windows-supporting registry, see 
-[Pushing Images](https://goharbor.io/docs/2.0.0/working-with-projects/working-with-images/pulling-pushing-images/) 
-in the VMware Harbor documentation.  
+* The registry must be accessible from your Tanzu Kubernetes Grid Integrated Edition environment.
+* The registry must be configured to support Microsoft Windows images.
+For an example of a Windows-supporting registry, see
+[Pushing Images](https://goharbor.io/docs/2.0.0/working-with-projects/working-with-images/pulling-pushing-images/)
+in the VMware Harbor documentation.
 
-Follow the instructions for the Docker registry you chose to configure an accessible Windows image-supporting registry.  
+Follow the instructions for the Docker registry you chose to configure an accessible Windows image-supporting registry.
 
 
 ## <a id='prepare-windows-pause-image'></a> Prepare a Windows Pause Image for an Air-Gapped Environment
 
 To prepare a Windows pause image for an air-gapped environment, perform the following:
 
-1. Create an accessible Windows Server 2019 machine in your environment.  
-1. Install Docker on this Windows Server 2019 machine.  
-1. Configure the machine's Docker daemon to allow non-redistributable artifacts to be 
-pushed to your private registry. For information about configuring your Docker daemon, 
-see [Allow push of nondistributable artifacts](https://docs.docker.com/engine/reference/commandline/dockerd/#allow-push-of-nondistributable-artifacts) in the Docker documentation.   
+1. Create an accessible Windows Server 2019 machine in your environment.
+1. Install Docker on this Windows Server 2019 machine.
+1. Configure the machine's Docker daemon to allow non-redistributable artifacts to be
+pushed to your private registry. For information about configuring your Docker daemon,
+see [Allow push of nondistributable artifacts](https://docs.docker.com/engine/reference/commandline/dockerd/#allow-push-of-nondistributable-artifacts) in the Docker documentation.
 1. Open a command line on the Windows machine.
 1. To download a Windows container image from the Microsoft Docker registry, run the following command:
 
@@ -60,7 +60,7 @@ see [Allow push of nondistributable artifacts](https://docs.docker.com/engine/re
     docker tag mcr.microsoft.com/oss/kubernetes/pause:3.6  REGISTRY-ROOT/windows/pause:3.6
     ```
 
-    Where `REGISTRY-ROOT` is your private registry's URI.   
+    Where `REGISTRY-ROOT` is your private registry's URI.
 
 1. To upload the Windows container image to your accessible private registry, run the following command:
 
@@ -68,22 +68,22 @@ see [Allow push of nondistributable artifacts](https://docs.docker.com/engine/re
     docker push  PAUSE-IMAGE-URI
     ```
 
-    Where `PAUSE-IMAGE-URI` is the URI to the Windows pause image in your private registry. 
-    Specify a pause image URI that follows the pattern: `my.private.registry/windows/pause:3.6`.  
+    Where `PAUSE-IMAGE-URI` is the URI to the Windows pause image in your private registry.
+    Specify a pause image URI that follows the pattern: `my.private.registry/windows/pause:3.6`.
 
 
 ## <a id='configure-to-use-pause-image'></a> Configure Tanzu Kubernetes Grid Integrated Edition to Use the Windows Pause Image
-To configure Tanzu Kubernetes Grid Integrated Edition to fetch your accessible Windows container image when 
+To configure Tanzu Kubernetes Grid Integrated Edition to fetch your accessible Windows container image when
 deploying Windows pods, perform the following:
 
-1. Open the Tanzu Kubernetes Grid Integrated Edition tile.  
-1. Click the Windows worker Plan that you want to configure to use your accessible private registry.  
-1. Modify the **Kubelet customization - Windows pause image location** property to be your pause image URI.  
+1. Open the Tanzu Kubernetes Grid Integrated Edition tile.
+1. Click the Windows worker Plan that you want to configure to use your accessible private registry.
+1. Modify the **Kubelet customization - Windows pause image location** property to be your pause image URI.
 <br>
-    For example: 
+    For example:
 
     ```
     my.private.registry/windows/pause:3.6
     ```
 
-1. Click **Save**.  
+1. Click **Save**.

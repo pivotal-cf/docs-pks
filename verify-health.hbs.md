@@ -1,6 +1,6 @@
 ---
 title: Verifying Deployment Health
-owner: TKGI
+
 ---
 
 This topic describes how to check the health of your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deployment and the nodes, pods, and clusters that it hosts.

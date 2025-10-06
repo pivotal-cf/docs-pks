@@ -1,6 +1,6 @@
 ---
 title: Shutting Down and Restarting Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 iaas: vsphere-nsxt
 ---
 

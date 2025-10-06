@@ -1,9 +1,9 @@
 ---
 title: Limit Resource Usage
-owner: TKGI
+
 ---
 
-The following topics describe how to define and use resource quotas for Kubernetes clusters in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):  
+The following topics describe how to define and use resource quotas for Kubernetes clusters in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):
 
 <ul>
   <li>

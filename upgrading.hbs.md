@@ -1,6 +1,6 @@
 ---
 title: Upgrading Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 The following topics describe how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):

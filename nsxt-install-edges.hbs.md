@@ -1,6 +1,6 @@
 ---
 title: Install and Configure the NSX Edge Nodes
-owner: TKGI-NSXT
+ -NSXT
 ---
 
 This topic describes how to deploy and configure NSX-T Data Center v3.0 NSX-T Edge Nodes for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
@@ -32,7 +32,7 @@ Before completing this section, make sure you have completed the following secti
 
 ##<a id='nsxt30-edge-nodes'></a> Deploy NSX Edge Nodes
 
-In this section you deploy two NSX Edge Nodes. 
+In this section you deploy two NSX Edge Nodes.
 
 NSX Edge Nodes provide the bridge between the virtual network environment implemented using NSX and the physical network. Edge Nodes for Tanzu Kubernetes Grid Integrated Edition run load balancers for TKGI API traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in Tanzu Kubernetes Grid Integrated Edition](./about-lb.html) for more information.
 
@@ -42,15 +42,15 @@ In NSX, a load balancer is deployed on the Edge Nodes as a virtual server. The f
 - 2 Layer 7 global virtual servers for Kubernetes pod ingress resources (HTTP and HTTPS)
 - 1 global virtual server for the TKGI API
 
-The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node.  
+The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node.
 
-The default size of the load balancer deployed by NSX for a Kubernetes cluster is `small`. 
-Tanzu Kubernetes Grid Integrated Edition supports only the `medium`, `large` and larger VM Edge Node form factors and the bare metal Edge Node. 
-Customize the size of the load balancer using <a href="./network-profiles-define.html">Network Profiles</a>.  
+The default size of the load balancer deployed by NSX for a Kubernetes cluster is `small`.
+Tanzu Kubernetes Grid Integrated Edition supports only the `medium`, `large` and larger VM Edge Node form factors and the bare metal Edge Node.
+Customize the size of the load balancer using <a href="./network-profiles-define.html">Network Profiles</a>.
 
 For this installation, we use the Large VM form factor for the Edge Node. See [VMware Configuration Maximums](https://configmax.vmware.com/guest?vmwareproduct=VMware%20NSX&release=NSX%20Data%20Center%203.0.0&categories=17-0) for more information.
 
-###<a id='nsxt30-edge-node-1'></a> Install and Configure Edge Node 1 
+###<a id='nsxt30-edge-node-1'></a> Install and Configure Edge Node 1
 
 Deploy the Edge Node 1 VM using the NSX Manager interface.
 
@@ -99,7 +99,7 @@ The next step is to configure the N-VDS switch and Transport Zones for NSX Edge 
 
 1. In vCenter, use the **Recent Tasks** panel at the bottom of the page to verify that you see the Edge Node 1 VM being deployed.
 
-1. Once the process completes, use the NSX Manager to ensure the Edge Node 1 has deployed successfully.  
+1. Once the process completes, use the NSX Manager to ensure the Edge Node 1 has deployed successfully.
   <img src="images/nsxt/nsxt-30/edge-node-08.png">
 
 1. Click the N-VDS link and verify that you see the switch or switches.

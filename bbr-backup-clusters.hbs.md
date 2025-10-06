@@ -1,6 +1,6 @@
 ---
 title: Backing Up Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+
 ---
 
 This topic describes how to use BOSH Backup and Restore (BBR) to back up VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.

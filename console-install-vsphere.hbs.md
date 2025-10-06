@@ -1,6 +1,6 @@
 ---
 title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Management Console
-owner: TKGI
+
 ---
 
 VMware Tanzu Kubernetes Grid Integrated Edition Management Console provides a unified installation experience for

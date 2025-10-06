@@ -1,20 +1,20 @@
 ---
 title: Adding Custom Linux Workloads
-owner: TKGI
+
 ---
- 
-This topic describes how to add custom workloads to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.  
+
+This topic describes how to add custom workloads to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.
 
 
 
 ## <a id='overview'></a>Overview
 
-Custom workloads define what a cluster includes out of the box. For example, you can use custom workloads to configure metrics or logging.  
+Custom workloads define what a cluster includes out of the box. For example, you can use custom workloads to configure metrics or logging.
 
-To add custom workloads to a TKGI-provisioned Kubernetes cluster:  
+To add custom workloads to a TKGI-provisioned Kubernetes cluster:
 
-1. [Create YAML Configuration](#create)  
-1. [Apply Custom Workloads](#apply)  
+1. [Create YAML Configuration](#create)
+1. [Apply Custom Workloads](#apply)
 
 
 ## <a id='create'></a> Create YAML Configuration
@@ -48,9 +48,9 @@ spec:
 
 ## <a id='apply'></a> Apply Custom Workloads
 
-To apply custom Kubernetes workloads to every cluster created on a plan, enter your YAML configuration in the **(Optional) Add-ons - Use with caution** field in the pane for configuring a plan in the Tanzu Kubernetes Grid Integrated Edition tile. 
+To apply custom Kubernetes workloads to every cluster created on a plan, enter your YAML configuration in the **(Optional) Add-ons - Use with caution** field in the pane for configuring a plan in the Tanzu Kubernetes Grid Integrated Edition tile.
 
-For more information, see the *Plans* section of the *Installing Tanzu Kubernetes Grid Integrated Edition* topic for your IaaS. For example, [Plans](installing-vsphere.html#plans) in *Installing Tanzu Kubernetes Grid Integrated Edition on vSphere*. 
+For more information, see the *Plans* section of the *Installing Tanzu Kubernetes Grid Integrated Edition* topic for your IaaS. For example, [Plans](installing-vsphere.html#plans) in *Installing Tanzu Kubernetes Grid Integrated Edition on vSphere*.
 
 
 

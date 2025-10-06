@@ -1,10 +1,10 @@
 ---
 title: vSphere with NSX Version Requirements
-owner: TKGI
+
 topictype: vspherewithnsxt
 ---
 
-This topic describes the version requirements for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX integration.  
+This topic describes the version requirements for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX integration.
 
 For prerequisites and resource requirements for installing Tanzu Kubernetes Grid Integrated Edition on vSphere without NSX
 integration, see

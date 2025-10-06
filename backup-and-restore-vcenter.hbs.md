@@ -1,6 +1,6 @@
 ---
 title: Backing Up and Restoring the vCenter Server
-owner: TKGI
+
 ---
 
 This topic describes how to back up and restore the vCenter Server for a VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deployment.

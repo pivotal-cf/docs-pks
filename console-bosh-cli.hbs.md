@@ -1,6 +1,6 @@
 ---
 title: Using the BOSH CLI
-owner: TKGI
+
 ---
 
 This topic describes how to use the BOSH CLI from both the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) VM and the {{ vars.platform_name }} VM.

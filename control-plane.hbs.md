@@ -1,6 +1,6 @@
 ---
 title: Tanzu Kubernetes Grid Integrated Edition Architecture
-owner: TKGI
+
 ---
 
 This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deploys and manages Kubernetes clusters.
@@ -8,34 +8,34 @@ This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) 
 
 ## <a id="overview"></a>Tanzu Kubernetes Grid Integrated Edition Overview
 
-A Tanzu Kubernetes Grid Integrated Edition environment consists of a TKGI Control Plane 
-and one or more workload clusters.  
+A Tanzu Kubernetes Grid Integrated Edition environment consists of a TKGI Control Plane
+and one or more workload clusters.
 
-Tanzu Kubernetes Grid Integrated Edition administrators use the TKGI Control Plane to 
-deploy and manage Kubernetes clusters. The workload clusters run the apps pushed by developers.  
+Tanzu Kubernetes Grid Integrated Edition administrators use the TKGI Control Plane to
+deploy and manage Kubernetes clusters. The workload clusters run the apps pushed by developers.
 
-The following illustrates the interaction between Tanzu Kubernetes Grid Integrated Edition components:  
+The following illustrates the interaction between Tanzu Kubernetes Grid Integrated Edition components:
 <br>
 {{ image_tag src="images/tkgi-overview-ha.png" alt="HA TKGI Control Plane with HA TKGI API VM Group and HA DB VM cluster" }}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/drawings/d/1TZkaTSCiddEE7mZtOTjTg6jBuDAy0D3CI9JY56HBIAY/edit  --> {{{{/raw}}}}
 
-Administrators access the TKGI Control Plane 
-through the TKGI Command Line Interface (TKGI CLI) installed on their local workstations.  
+Administrators access the TKGI Control Plane
+through the TKGI Command Line Interface (TKGI CLI) installed on their local workstations.
 
-Within the TKGI Control Plane the TKGI API and TKGI Broker use BOSH to execute the requested cluster management functions. 
-For information about the TKGI Control Plane, see [TKGI Control Plane Overview](#control-plane) below. 
-For instructions on installing the TKGI CLI, see [Installing the TKGI CLI](installing-cli.html).  
+Within the TKGI Control Plane the TKGI API and TKGI Broker use BOSH to execute the requested cluster management functions.
+For information about the TKGI Control Plane, see [TKGI Control Plane Overview](#control-plane) below.
+For instructions on installing the TKGI CLI, see [Installing the TKGI CLI](installing-cli.html).
 
 Kubernetes deploys and manages workloads on Kubernetes clusters.
-Administrators use the  Kubernetes CLI, `kubectl`, to direct Kubernetes 
-from their local workstations. 
-For information about `kubectl`, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.  
+Administrators use the  Kubernetes CLI, `kubectl`, to direct Kubernetes
+from their local workstations.
+For information about `kubectl`, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.
 
 
 ## <a id="cluster-management"></a><a id="control-plane"></a>TKGI Control Plane Overview
 
-The TKGI Control Plane manages the lifecycle of Kubernetes clusters deployed 
-using Tanzu Kubernetes Grid Integrated Edition. 
+The TKGI Control Plane manages the lifecycle of Kubernetes clusters deployed
+using Tanzu Kubernetes Grid Integrated Edition.
 
 The control plane provides the following via the TKGI API:
 
@@ -54,17 +54,17 @@ For more information, see [Upgrade Kubernetes Clusters](upgrade.html#upgrade-ins
 TKGI Control Plane is hosted on a pair of VM groups:
 
 * The [TKGI API VM Group](#tkgi-api-vm) for hosting cluster management services.
-* The [TKGI Database VM Cluster](#tkgi-db-vm) to store cluster management data. 
+* The [TKGI Database VM Cluster](#tkgi-db-vm) to store cluster management data.
 
 
 ###<a id="tkgi-api-vm"></a>TKGI API VM Group
 
 The instances in the TKGI API VM Group host the following services:
 
-* User Account and Authentication (UAA)  
-* TKGI API  
+* User Account and Authentication (UAA)
+* TKGI API
 * TKGI Broker
-* Billing and Telemetry 
+* Billing and Telemetry
 
 The following sections describe UAA, TKGI API, and TKGI Broker services,
 the primary services hosted on the TKGI API VM.
@@ -85,11 +85,11 @@ For more information, see [Managing Tanzu Kubernetes Grid Integrated Edition Use
 Through the TKGI CLI, users instruct the TKGI API service to deploy, scale up, and delete Kubernetes clusters as well as show cluster details and plans.
 The TKGI API can also write Kubernetes cluster credentials to a local kubeconfig file, which enables users to connect to a cluster through `kubectl`.
 
-On AWS and vSphere without NSX, the TKGI CLI communicates with the 
-TKGI API within the control plane via the TKGI API Load Balancer. 
-On vSphere with NSX deployments the TKGI API host is accessible via a DNAT rule. 
-For information about enabling the TKGI API on vSphere with NSX, see the 
-[Share the TKGI API Endpoint](installing-nsx-t.html#retrieve-endpoint) section in 
+On AWS and vSphere without NSX, the TKGI CLI communicates with the
+TKGI API within the control plane via the TKGI API Load Balancer.
+On vSphere with NSX deployments the TKGI API host is accessible via a DNAT rule.
+For information about enabling the TKGI API on vSphere with NSX, see the
+[Share the TKGI API Endpoint](installing-nsx-t.html#retrieve-endpoint) section in
 _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Integration_.
 
 The TKGI API sends all cluster management requests, except read-only requests, to the TKGI Broker.
@@ -108,7 +108,7 @@ The TKGI NSX Proxy Broker then forwards the request to the On-Demand Service Bro
 
 ### <a id="tkgi-db-vm"></a>TKGI Database VM Cluster
 
-The instances in the TKGI Database VM Cluster host MySQL, proxy, and other data-related services. 
+The instances in the TKGI Database VM Cluster host MySQL, proxy, and other data-related services.
 These data-related functions persist TKGI Control Plane data for the the following services:
 
 * TKGI API
@@ -120,16 +120,16 @@ These data-related functions persist TKGI Control Plane data for the the followi
 
 ## <a id="overview-ha"></a>High Availability Modes
 
-Tanzu Kubernetes Grid Integrated Edition can be configured for TKGI Control Plane and workload high availability.   
+Tanzu Kubernetes Grid Integrated Edition can be configured for TKGI Control Plane and workload high availability.
 
 ####<a id="control-plane-ha"></a>TKGI Control Plane High Availability Mode (Beta)
 
 The TKGI Control Plane can be configured in either standard or high availability (beta) modes.
 
-* In standard mode:  
+* In standard mode:
     * The TKGI API is hosted on the `pivotal-container-service` VM.
     * The TKGI Database is hosted on the `pks-db` VM.
-* In high availability mode (beta):  
+* In high availability mode (beta):
     * The TKGI API is hosted on multiple `pivotal-container-service` VMs.
     * The TKGI Database is hosted on three `pks-db` VMs.
 <p class="note warning"><strong>Warning:</strong> High availability mode is a beta feature.
@@ -137,7 +137,7 @@ The TKGI Control Plane can be configured in either standard or high availability
 	to more than one instance in production environments.
 </p>
 
-The following illustrates the interaction between Tanzu Kubernetes Grid Integrated Edition components in high availability mode:  
+The following illustrates the interaction between Tanzu Kubernetes Grid Integrated Edition components in high availability mode:
 <br>
 {{ image_tag src="images/tkgi-overview-ha.png" alt="HA TKGI Control Plane with HA TKGI API VM Group and HA DB VM cluster" }}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/drawings/d/1hTTmoBpkcjvZJTwlwsXMy9fn91x3KGfIeM4_dzIrW60/edit  --> {{{{/raw}}}}
@@ -152,12 +152,12 @@ You establish HA mode during the resource configuation phase of TKGI tile deploy
 
 Windows worker-based cluster Linux nodes can be configured in either standard or high availability modes.
 
-* In standard mode, a single control plane/etcd node and a single Linux worker manage a cluster's Windows Kubernetes VMs.  
-* In high availability mode, 
-multiple control plane/etcd and Linux worker nodes manage a cluster's Windows Kubernetes VMs.  
+* In standard mode, a single control plane/etcd node and a single Linux worker manage a cluster's Windows Kubernetes VMs.
+* In high availability mode,
+multiple control plane/etcd and Linux worker nodes manage a cluster's Windows Kubernetes VMs.
 
-The following illustrates the interaction between the 
-Tanzu Kubernetes Grid Integrated Edition Management Plane and Windows worker-based Kubernetes clusters:  
+The following illustrates the interaction between the
+Tanzu Kubernetes Grid Integrated Edition Management Plane and Windows worker-based Kubernetes clusters:
 <br>
 {{ image_tag src="images/overview-windows-ha-linux-workers.png" alt="HA Windows worker clusters include HA ETCD Nodes that communicate out to a BOSH VM and internally to HA Linux workers that communicate with Windows Kubernetes nodes" }}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/drawings/d/1ec0T8iZx3P8Uf-dxnl1dLesuvtabTwapXClf2kxZ3qA/edit  --> {{{{/raw}}}}
