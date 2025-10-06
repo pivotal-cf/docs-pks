@@ -306,7 +306,7 @@ This role includes the following privileges at the **vCenter, Datacenter, Datast
 1. From the vCenter console, create the BOSH/{{ vars.platform_name }} User Account.
 1. If you are deploying both {{ vars.app_runtime }} and TKGI
 within the same vSphere environment, create an additional BOSH/{{ vars.platform_name }} Service Account so that
-you have one account for TAS and a separate account for TKGI.
+you have one account for {{ vars.app_runtime }} and a separate account for TKGI.
 
 ## <a id='grant-bosh-ops-man'></a>Grant Permissions to the BOSH/{{ vars.platform_name }} User Account
 There are two options for granting permissions to the BOSH/{{ vars.platform_name }} Service Accounts:

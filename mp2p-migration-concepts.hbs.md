@@ -235,7 +235,7 @@ PSO assistance might be required to migrate some complex environments.
 Verify your cluster cluster certificates, including the NSX certificate, are valid for the entire duration of your TKGI MP2P Migration before starting MP2P Migration.
 * When planning your TKGI MP2P Migration, include redefining firewall rules in your cluster promotion procedure:
   - **Distributed Firewall (DFW)**: See [Dealing with DFW Sections Created by NSX Admin](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/event-catalog/3-1/nsx-container-plugin-for-kubernetes-and-tanzu-application-service/migrating-ncp-clusters-and-foundations-to-policy/dealing-with-dfw-sections-created-by-nsx-admin-new.html) in the VMware NSX Container Plugin documentation.
-  - **Gateway Firewall (GFW)**: Review firewall rules or set T0 rules to `BYPASS` as described in [Migrating NCP Clusters and TAS Foundations to Policy](https://techdocs.broadcom.com/de/de/vmware-cis/nsx/event-catalog/4-2/nsx-container-plugin-for-kubernetes-and-tanzu-application-service/migrating-ncp-clusters-and-foundations-to-policy.html)  in the VMware NSX Container Plugin documentation.
+  - **Gateway Firewall (GFW)**: Review firewall rules or set T0 rules to `BYPASS` as described in [Migrating NCP Clusters and {{ vars.app_runtime }} Foundations to Policy](https://techdocs.broadcom.com/de/de/vmware-cis/nsx/event-catalog/4-2/nsx-container-plugin-for-kubernetes-and-tanzu-application-service/migrating-ncp-clusters-and-foundations-to-policy.html)  in the VMware NSX Container Plugin documentation.
 
 ### <a id="during"></a> During MP2P Migration
 
