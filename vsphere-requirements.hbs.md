@@ -60,7 +60,7 @@ Installing {{ vars.platform_name }} and {{ vars.product }} requires the followin
   </tr>
 </table>
 
-<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated {{ vars.platform_name }} instance, rather than on a shared {{ vars.platform_name }} that also hosts other runtimes such as Tanzu Application Service.</p>
+<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated {{ vars.platform_name }} instance, rather than on a shared {{ vars.platform_name }} that also hosts other runtimes such as {{ vars.app_runtime }}.</p>
 
 {{> _increase_persistent_disk }}
 
