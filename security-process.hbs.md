@@ -1,6 +1,5 @@
 ---
-title: {{  vars.product }} Security Disclosure and Release Process
-
+title: {{ vars.product }} Security Disclosure and Release Process
 ---
 
 This topic describes the processes for disclosing security issues and releasing related fixes for {{  vars.product_full }} ({{ vars.product_short }}), Kubernetes, VMware NSX, and VMware Harbor.
