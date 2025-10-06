@@ -1,5 +1,5 @@
 ---
-title: {{  vars.product }} Certificates
+title: About {{  vars.product }} Certificates
 
 ---
 

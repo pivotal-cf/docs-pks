@@ -1,6 +1,5 @@
 ---
-title: {{  vars.product }} Concepts
-
+title: General {{  vars.product }} Concepts
 ---
 
 This topic describes conceptual and architectural information about {{  vars.product_full }} ({{ vars.product_short }}) and its primary components.

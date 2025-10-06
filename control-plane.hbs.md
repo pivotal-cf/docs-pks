@@ -1,5 +1,5 @@
 ---
-title: {{  vars.product }} Architecture
+title: Overview of {{  vars.product }} Architecture
 
 ---
 

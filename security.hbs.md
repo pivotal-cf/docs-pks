@@ -1,6 +1,5 @@
 ---
-title: {{  vars.product }} Security
-
+title: Security
 ---
 
 The following topics describe {{  vars.product_full }} ({{ vars.product_short }}) security and security procedures:

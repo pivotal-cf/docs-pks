@@ -1,6 +1,5 @@
 ---
-title: {{  vars.product_full }}
-
+title: VMware Tanzu Kubernetes Grid Integrated Edition
 ---
 
 {{  vars.product_full }} ({{ vars.product_short }}) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and {{ vars.platform_name }}.
