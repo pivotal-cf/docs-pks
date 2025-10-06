@@ -1,69 +1,69 @@
 ---
-title: Installing and Configuring +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- on vSphere
-
+title: Installing and Configuring Ops Manager on vSphere
+owner: Ops Manager
 ---
 
-This topic describes how to install and configure +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-
+This topic describes how to install and configure VMware Tanzu Operations Manager (Ops Manager)
 before deploying VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on VMware vSphere.
 
 
-+ACMAIw- +ADw-a id+AD0-'overview'+AD4APA-/a+AD4- Overview
+## <a id='overview'></a> Overview
 
-Use +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- to install and configure TKGI.
+Use Ops Manager to install and configure TKGI.
 
-+AHsAewB7- vars.platform+AF8-name +AH0AfQB9- provides a dashboard UI for installing applications and components.
-+AHsAewB7- vars.platform+AF8-name +AH0AfQB9- and the installed components include an interface for configuring the +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- environment, component settings, and cluster configurations.
+Ops Manager provides a dashboard UI for installing applications and components.
+Ops Manager and the installed components include an interface for configuring the Ops Manager environment, component settings, and cluster configurations.
 
-To install +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-:
+To install Ops Manager:
 
-1. +AFs-Prerequisites+AF0-(+ACM-prerequisites)
-1. +AFs-Install and Configure +AHsAewB7- vars.platform+AF8-name +AH0AfQB9AF0-(+ACM-install-om)
+1. [Prerequisites](#prerequisites)
+1. [Install and Configure Ops Manager](#install-om)
 
-+ACMAIw- +ADw-a id+AD0-'prerequisites'+AD4APA-/a+AD4-Prerequisites
+## <a id='prerequisites'></a>Prerequisites
 
-Before installing +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-, review the following prerequisites:
+Before installing Ops Manager, review the following prerequisites:
 
-+ACo- +AFs-vSphere Prerequisites and Resource Requirements+AF0-(vsphere-requirements.html)
-+ACo- +AFs-VMware Ports and Protocols+AF0-(https://ports.vmware.com/home/vSphere+NSU-Data-Center-for-vSphere+NSU-Data-Center)
+* [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html)
+* [VMware Ports and Protocols](https://ports.vmware.com/home/vSphere+NSX-Data-Center-for-vSphere+NSX-Data-Center)
 on the VMware site.
-+ACo- +AFs-Creating Dedicated Users and Roles for vSphere (Optional)+AF0-(vsphere-prepare-env.html)
+* [Creating Dedicated Users and Roles for vSphere (Optional)](vsphere-prepare-env.html)
 
-+ACMAIw- +ADw-a id+AD0AIg-install-om+ACIAPgA8-/a+AD4-Install and Configure +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-
+## <a id="install-om"></a>Install and Configure Ops Manager
 
-To install +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-:
+To install Ops Manager:
 
-1. Determine the most recent version of +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- that is compatible with the TKGI version you are deploying.
-For information on +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- compatibility with TKGI,
-see +AFsAewB7AHs- vars.product+AF8-network +AH0AfQB9AF0-(https://support.broadcom.com/group/ecx/productfiles?subFamily+AD0-Tanzu+ACU-20Kubernetes+ACU-20Grid+ACU-20Integrated+ACU-20Edition+ACU-20(TKGi)+ACU-20-+ACU-20CLI+ACU-20+ACU-26+ACU-20Tile+ACY-displayGroup+AD0-Tanzu+ACU-20Kubernetes+ACU-20Grid+ACU-20Integrated+ACU-20Edition+ACU-20(TKGi)+ACU-20-+ACU-20CLI+ACU-20+ACU-26+ACU-20Tile+ACY-release+AD0-1.22.2+ACY-os+AD0AJg-servicePk+AD0AJg-language+AD0-EN).
+1. Determine the most recent version of Ops Manager that is compatible with the TKGI version you are deploying.
+For information on Ops Manager compatibility with TKGI,
+see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
 
-1. To install and configure +AHsAewB7- vars.platform+AF8-name +AH0AfQB9-, follow the installation instructions for your selected +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- version:
+1. To install and configure Ops Manager, follow the installation instructions for your selected Ops Manager version:
 
-    +ADw-table+AD4-
-      +ADw-tr+AD4-
-        +ADw-th+AD4-Version+ADw-/th+AD4-
-        +ADw-th+AD4-Instructions+ADw-/th+AD4-
-      +ADw-/tr+AD4-
-      +ADw-tr+AD4-
-        +ADw-td+AD4AewB7AHs- vars.platform+AF8-name +AH0AfQB9- v3.0+ADw-/td+AD4-
-        +ADw-td+AD4-
-          +ADw-ol+AD4-
-            +ADw-li+AD4APA-a href+AD0AIg-https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-deploy.html+ACIAPg-Deploying +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- on vSphere+ADw-/a+AD4APA-/li+AD4-
-            +ADw-li+AD4APA-a href+AD0AIg-https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html+ACIAPg-Configuring BOSH Director on vSphere+ADw-/a+AD4APA-/li+AD4-
-          +ADw-/ol+AD4-
-        +ADw-/td+AD4-
-      +ADw-/tr+AD4-
-      +ADw-tr+AD4-
-        +ADw-td+AD4AewB7AHs- vars.platform+AF8-name +AH0AfQB9- v2.10+ADw-/td+AD4-
-        +ADw-td+AD4-
-          +ADw-ol+AD4-
-            +ADw-li+AD4APA-a href+AD0AIg-https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/vsphere-deploy.html+ACIAPg-Deploying +AHsAewB7- vars.platform+AF8-name +AH0AfQB9- on vSphere+ADw-/a+AD4APA-/li+AD4-
-            +ADw-li+AD4APA-a href+AD0AIg-https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/vsphere-config.html+ACIAPg-Configuring BOSH Director on vSphere+ADw-/a+AD4APA-/li+AD4-
-          +ADw-/ol+AD4-
-        +ADw-/td+AD4-
-      +ADw-/tr+AD4-
-    +ADw-/table+AD4-
+    <table>
+      <tr>
+        <th>Version</th>
+        <th>Instructions</th>
+      </tr>
+      <tr>
+        <td>Ops Manager v3.0</td>
+        <td>
+          <ol>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-deploy.html">Deploying Ops Manager on vSphere</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html">Configuring BOSH Director on vSphere</a></li>
+          </ol>
+        </td>
+      </tr>
+      <tr>
+        <td>Ops Manager v2.10</td>
+        <td>
+          <ol>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/vsphere-deploy.html">Deploying Ops Manager on vSphere</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/vsphere-config.html">Configuring BOSH Director on vSphere</a></li>
+          </ol>
+        </td>
+      </tr>
+    </table>
 
-+ACMAIw- +ADw-a id+AD0AIg-next-steps+ACIAPgA8-/a+AD4-Next Installation Step
+## <a id="next-steps"></a>Next Installation Step
 
 To install and configure Tanzu Kubernetes Grid Integrated Edition,
-follow the instructions in +AFs-Installing Tanzu Kubernetes Grid Integrated Edition on vSphere+AF0-(installing-vsphere.html).
+follow the instructions in [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html).

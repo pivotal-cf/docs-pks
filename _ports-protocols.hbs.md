@@ -29,8 +29,8 @@ The following table lists ports and protocols used for network communication bet
 | Admin/Operator Console | NSX API VIP | TCP | 443 | HTTPS |  
 {{ else }}
 {{/ evalExpression }}
-| Admin/Operator Console | {{{ vars.platform_name }}} | TCP | 22 | SSH |
-| Admin/Operator Console | {{{ vars.platform_name }}} | TCP | 443 | HTTPS |
+| Admin/Operator Console | Ops Manager | TCP | 22 | SSH |
+| Admin/Operator Console | Ops Manager | TCP | 443 | HTTPS |
 | Admin/Operator Console | TKGI Controller | TCP | 9021 | TKGI API Server |
 {{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
 | Admin/Operator Console | vCenter Server | TCP | 443 | HTTPS |
@@ -70,25 +70,25 @@ The following table lists ports and protocols used for network communication bet
 {{ else }}
 {{/ evalExpression }}
 | All System Control Plane Components | AD/LDAP Directory Server | TCP/UDP | 389/636 | LDAP/LDAPS| 
-| {{{ vars.platform_name }}} | Admin/Operator Console | TCP | 22 | SSH|
-| {{{ vars.platform_name }}} | BOSH Director | TCP | 6868 | BOSH Agent HTTP|
-| {{{ vars.platform_name }}} | BOSH Director | TCP | 8443 | HTTPSCA|
-| {{{ vars.platform_name }}} | BOSH Director | TCP | 8844 | BOSH CredHub |
-| {{{ vars.platform_name }}} | BOSH Director | TCP | 25555 | BOSH Director REST API |
-| {{{ vars.platform_name }}} | Harbor Private Image Registry | TCP | 22 | SSH|
-| {{{ vars.platform_name }}} | Kubernetes Cluster Control Plane/etcd Node | TCP | 22 | SSH|
-| {{{ vars.platform_name }}} | Kubernetes Cluster Worker Node | TCP | 22 | SSH|
+| Ops Manager | Admin/Operator Console | TCP | 22 | SSH|
+| Ops Manager | BOSH Director | TCP | 6868 | BOSH Agent HTTP|
+| Ops Manager | BOSH Director | TCP | 8443 | HTTPSCA|
+| Ops Manager | BOSH Director | TCP | 8844 | BOSH CredHub |
+| Ops Manager | BOSH Director | TCP | 25555 | BOSH Director REST API |
+| Ops Manager | Harbor Private Image Registry | TCP | 22 | SSH|
+| Ops Manager | Kubernetes Cluster Control Plane/etcd Node | TCP | 22 | SSH|
+| Ops Manager | Kubernetes Cluster Worker Node | TCP | 22 | SSH|
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| {{{ vars.platform_name }}} | NSX API VIP | TCP | 443 | HTTPS|
-| {{{ vars.platform_name }}} | NSX Manager/Controller Node | TCP | 22 | SSH|
-| {{{ vars.platform_name }}} | NSX Manager/Controller Node | TCP | 443 | HTTPS|
+| Ops Manager | NSX API VIP | TCP | 443 | HTTPS|
+| Ops Manager | NSX Manager/Controller Node | TCP | 22 | SSH|
+| Ops Manager | NSX Manager/Controller Node | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
-| {{{ vars.platform_name }}} | TKGI Controller | TCP | 22 | SSH|
-| {{{ vars.platform_name }}} | TKGI Controller | TCP | 8443 | HTTPSCA|
+| Ops Manager | TKGI Controller | TCP | 22 | SSH|
+| Ops Manager | TKGI Controller | TCP | 8443 | HTTPSCA|
 {{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
-| {{{ vars.platform_name }}} | vCenter Server | TCP | 443 | HTTPS|
-| {{{ vars.platform_name }}} | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS|
+| Ops Manager | vCenter Server | TCP | 443 | HTTPS|
+| Ops Manager | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}

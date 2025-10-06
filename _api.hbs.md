@@ -11,9 +11,9 @@ Perform the following steps:
   <p class="note warning"><strong>Warning:</strong> TLS certificates generated for wildcard DNS records only work for a single domain level.
   For example, a certificate generated for <code>&#42;.tkgi.EXAMPLE.com</code> does not permit communication to <code>&#42;.api.tkgi.EXAMPLE.com</code>.
   If the certificate does not contain the correct FQDN for the TKGI API, calls to the API will fail.</p>
-  You can enter your own certificate and private key pair, or have {{{ vars.platform_name }}} generate one for you.
+  You can enter your own certificate and private key pair, or have Ops Manager generate one for you.
 <br>
-  To generate a certificate using {{{ vars.platform_name }}}:
+  To generate a certificate using Ops Manager:
     1. Click **Generate RSA Certificate** for a new install or **Change** to update a previously-generated certificate.
     1. Enter the domain for your API hostname. This must match the domain you configure under **TKGI API** > **API Hostname (FQDN)** below, in the same pane. It can be a standard FQDN or a wildcard domain.
     1. Click **Generate**.<br>

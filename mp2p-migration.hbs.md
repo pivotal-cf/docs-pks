@@ -1,9 +1,9 @@
 ---
-title: Migrating from NSX Management Plane API to Policy API Using {{{ vars.platform_name }}}
+title: Migrating from NSX Management Plane API to Policy API Using Ops Manager
 owner: TKGI
 ---
 
-This topic describes how to migrate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from NSX Management Plane API to NSX Policy API (MP2P) using the TKGI tile in {{{ vars.platform_name }}}.  
+This topic describes how to migrate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from NSX Management Plane API to NSX Policy API (MP2P) using the TKGI tile in Ops Manager.  
 
 To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI Management Console, see [Migrating from NSX Management Plane API to Policy API with the Management Console](mp2p-migration-mc.html).  
 
@@ -15,7 +15,7 @@ The NSX Management Plane API to NSX Policy API (MP2P) Migration feature switches
 
 MP2P migration procedures for TKGI follow the Prepare -> Migrate -> Clean Up workflow described in [MP2P Workflow](#mp2p-migration-concepts.html#workflow).
 
-To complete an MP2P Migration in your TKGI environment using {{{ vars.platform_name }}}:
+To complete an MP2P Migration in your TKGI environment using Ops Manager:
 
 1. Before migrating your TKGI environment to NSX Policy API, review the warnings and considerations in 
 [Migrating from NSX Management Plane API to Policy API - Overview](mp2p-migration-concepts.html).  
@@ -43,9 +43,9 @@ verify your TKGI environment meets the following requirements:
         * NSX v4.0.1.1 or later.  
         * NSX environment is a dedicated, single TKGI foundation environment. 
         For example, an environment with one TKGI foundation and without VMware {{{ vars.app_runtime }}} or other installations in production.  
-    * VMware {{{ vars.platform_name }}}:  
-        * {{{ vars.platform_name }}} {{{ vars.ops_man_version_v3 }}} or later.  
-        * {{{ vars.platform_name }}} CLI on the latest version.  
+    * VMware Tanzu Operations Manager:  
+        * Ops Manager {{{ vars.ops_man_version_v3 }}} or later.  
+        * Ops Manager CLI on the latest version.  
 
 * Cluster Requirements:  
 
@@ -61,7 +61,7 @@ verify your TKGI environment meets the following requirements:
         
 * Other Requirements:  
 
-    * Administrator access to NSX, {{{ vars.platform_name }}}, BOSH, and TKGI.  
+    * Administrator access to NSX, Ops Manager, BOSH, and TKGI.  
     * For more information about TKGI MP2P Migration limitations, see 
     [TKGI MP2P Migration Configurations](mp2p-migration-concepts.html#features-configs) and
     [TKGI MP2P Migration Operational Limitations](mp2p-migration-concepts.html#concerns-limitations) 
@@ -80,7 +80,7 @@ To prepare your TKGI environment for MP2P Migration:
 ### <a id="migration-prep-enable"></a> Enable Migration
 
 You must enable support for MP2P Migration in NSX before promoting clusters to NSX Policy API. 
-Additionally, {{{ vars.platform_name }}} and BOSH must be configured to support a mixed environment of NSX Management Plane API and NSX Policy API clusters 
+Additionally, Ops Manager and BOSH must be configured to support a mixed environment of NSX Management Plane API and NSX Policy API clusters 
 before promoting clusters.  
 
 <p class="note"><strong>Note</strong>: After activating NSX Policy API, 
@@ -102,11 +102,11 @@ Make all migration requests on a single NSX Manager.
 
 
 <br>
-To prepare {{{ vars.platform_name }}} and BOSH for MP2P Migration:   
+To prepare Ops Manager and BOSH for MP2P Migration:   
 
-* If you are using {{{ vars.platform_name }}} v3.0.0 or later:  
+* If you are using Ops Manager v3.0.0 or later:  
 
-    1. Open your {{{ vars.platform_name }}} BOSH Director for vSphere tile to the **vCenter Config** pane.
+    1. Open your Ops Manager BOSH Director for vSphere tile to the **vCenter Config** pane.
     
     1. Activate **Use NSX Policy API Migration Mode**.  
 
@@ -116,21 +116,21 @@ To prepare {{{ vars.platform_name }}} and BOSH for MP2P Migration:
 
     1. Click **Save**.  
 
-    1. On the {{{ vars.platform_name }}} **Installation Dashboard**, select **Review Pending Changes**, review the changes, and select **Apply Changes**.  
+    1. On the Ops Manager **Installation Dashboard**, select **Review Pending Changes**, review the changes, and select **Apply Changes**.  
 
-* If you are using {{{ vars.platform_name }}} v2.10.45 or later:  
+* If you are using Ops Manager v2.10.45 or later:  
 
     1. Download [bosh_migration_mode.sh](https://github.com/pivotal-cf/docs-pks/blob/{{{ vars.product_version_raw }}}/cli/bosh_migration_mode.sh), 
     the BOSH Migration Mode script, from the VMware Tanzu Kubernetes Grid Integrated Edition documentation GitHub repository.  
 
-    1. Select a virtual machine that is able to reach {{{ vars.platform_name }}}, 
-    and can run the [{{{ vars.platform_name }}} CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-cli.html), [BOSH CLI](https://bosh.io/docs/cli-v2-install), and [yq CLI](https://github.com/mikefarah/yq).  
+    1. Select a virtual machine that is able to reach Ops Manager, 
+    and can run the [Ops Manager CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-cli.html), [BOSH CLI](https://bosh.io/docs/cli-v2-install), and [yq CLI](https://github.com/mikefarah/yq).  
 
     1. Copy the the BOSH Migration Mode script to the virtual machine.  
 
     1. Export the `BOSH_CLIENT`, `BOSH_CLIENT_SECRET`, `BOSH_ENVIRONMENT`, and `BOSH_CA_CERT` 
     environment variables. For more information, see 
-    [Set the BOSH Environment Variables on the {{{ vars.platform_name }}} VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-trouble-advanced.html#export-bosh-envs) 
+    [Set the BOSH Environment Variables on the Ops Manager VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-trouble-advanced.html#export-bosh-envs) 
     in _Advanced Troubleshooting with the BOSH CLI_.  
 
         For example:  
@@ -147,8 +147,8 @@ To prepare {{{ vars.platform_name }}} and BOSH for MP2P Migration:
     
         Where:  
 
-        * `OPSMAN-IP` is the IP address for the {{{ vars.platform_name }}}.  
-        * `USERNAME` is the account to use to run {{{ vars.platform_name }}} API commands.  
+        * `OPSMAN-IP` is the IP address for the Ops Manager.  
+        * `USERNAME` is the account to use to run Ops Manager API commands.  
         * `PASSWORD` is the password for the account.  
 
 
@@ -384,9 +384,9 @@ To clean up after promoting all clusters:
 
 1. To switch BOSH to Policy API mode:   
 
-    * If you are using {{{ vars.platform_name }}} v3.0.0 or later:  
+    * If you are using Ops Manager v3.0.0 or later:  
 
-        1. Open your {{{ vars.platform_name }}} BOSH Director for vSphere tile to the **vCenter Config** pane.  
+        1. Open your Ops Manager BOSH Director for vSphere tile to the **vCenter Config** pane.  
 
         1. Deactivate **Use NSX Policy API Migration Mode**.  
         
@@ -394,19 +394,19 @@ To clean up after promoting all clusters:
 
         1. Click **Save**.  
 
-        1. On the {{{ vars.platform_name }}} **Installation Dashboard**, select **Review Pending Changes**.  
+        1. On the Ops Manager **Installation Dashboard**, select **Review Pending Changes**.  
         
         1. Ensure that **BOSH Director** is the only product selected.  
         
         1. Select **Apply Changes**.  
 
-    * If you are using {{{ vars.platform_name }}} v2.10.45 or later:  
+    * If you are using Ops Manager v2.10.45 or later:  
 
-        1. Access the virtual machine where you ran the BOSH Migration Mode script when you prepared {{{ vars.platform_name }}} and BOSH for MP2P Migration.  
+        1. Access the virtual machine where you ran the BOSH Migration Mode script when you prepared Ops Manager and BOSH for MP2P Migration.  
 
         1. Export the `BOSH_CLIENT`, `BOSH_CLIENT_SECRET`, `BOSH_ENVIRONMENT`, and `BOSH_CA_CERT` 
         environment variables. For more information, see 
-        [Set the BOSH Environment Variables on the {{{ vars.platform_name }}} VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-trouble-advanced.html#export-bosh-envs) 
+        [Set the BOSH Environment Variables on the Ops Manager VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-trouble-advanced.html#export-bosh-envs) 
         in _Advanced Troubleshooting with the BOSH CLI_.  
 
             For example:  
@@ -423,6 +423,6 @@ To clean up after promoting all clusters:
 
             Where:  
 
-            * `OPSMAN-IP` is the IP address for the {{{ vars.platform_name }}}.  
-            * `USERNAME` is the account to use to run {{{ vars.platform_name }}} API commands.  
+            * `OPSMAN-IP` is the IP address for the Ops Manager.  
+            * `USERNAME` is the account to use to run Ops Manager API commands.  
             * `PASSWORD` is the password for the account.  

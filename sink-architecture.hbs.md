@@ -50,7 +50,7 @@ In the **Tanzu Kubernetes Grid Integrated Edition** tile > **In-Cluster Monitori
 - **Enable Log Sink Resources** enables log sinks.
 - **Enable node exporter on workers** forwards additional infrastructure metrics.
 
-Setting these check boxes in {{{ vars.platform_name }}} directs how BOSH configures the observability manager.
+Setting these check boxes in Ops Manager directs how BOSH configures the observability manager.
 
 For more information about enabling log sinks and metrics sinks,
 see [(Optional) In-Cluster Monitoring](./installing-vsphere.html#cluster-monitoring) in the _Installing_ topic for your IaaS.

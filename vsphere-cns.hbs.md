@@ -689,13 +689,13 @@ To create a Windows stemcell that supports vSphere CSI:
     * [Step 3: Clone the Base VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#clone-vm)
     * [Step 4: Construct the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#construct-stemcell)
     * [Step 5: Package the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#package-stemcell)
-    * [Step 6: Upload the BOSH Stemcell to {{{ vars.platform_name }}}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#upload-stemcell)
+    * [Step 6: Upload the BOSH Stemcell to Ops Manager](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#upload-stemcell)
 
 #### <a id='windows-upload-stemcell'></a>Upload and Test the Windows Stemcell
 
 To test your Windows stemcell:  
 
-1. In {{{ vars.platform_name }}}, navigate to **Stemcell Library**.  
+1. In Ops Manager, navigate to **Stemcell Library**.  
 
 1. Upload the Windows stemcell.
 

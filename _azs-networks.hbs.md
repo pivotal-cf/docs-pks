@@ -6,7 +6,7 @@ used by the Tanzu Kubernetes Grid Integrated Edition control plane:
 1. Under **Place singleton jobs in**, select the AZ where you want to deploy the 
 TKGI API and TKGI Database.
 
-    ![Assign AZs and Networks pane in {{{ vars.platform_name }}}](images/azs-networks.png) 
+    ![Assign AZs and Networks pane in Ops Manager](images/azs-networks.png) 
 1. Under **Balance other jobs in**, select the AZ for balancing other Tanzu Kubernetes Grid Integrated Edition control plane jobs.  
     <p class="note"><strong>Note</strong>: You must specify the <strong>Balance other jobs in</strong> AZ, but the selection has no effect in the current version of Tanzu Kubernetes Grid Integrated Edition.
     </p>

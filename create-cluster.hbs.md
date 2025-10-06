@@ -224,8 +224,8 @@ To locate the IP addresses and VM IDs for the control plane VMs of an existing c
 
 1. Gather credential and IP address information for your BOSH Director.
 1. To log in to the BOSH Director, perform the following:
-    1. SSH into the {{{ vars.platform_name }}} VM.
-    1. Log in to the BOSH Director by using the BOSH CLI from the {{{ vars.platform_name }}} VM.
+    1. SSH into the Ops Manager VM.
+    1. Log in to the BOSH Director by using the BOSH CLI from the Ops Manager VM.
     
     For information on how to complete these steps, see [Advanced Troubleshooting with the BOSH CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html)
     .

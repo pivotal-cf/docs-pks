@@ -31,7 +31,7 @@ The deployment metadata provides credentials, certificates, and other metadata a
     [View a larger version of this image](images/console/deployment-metadata.png) 
 1. Select the clipboard icon at the end of each row to copy the relevant value. 
     
-    For example, copy the {{{ vars.platform_name }}} password so that you can log in to the instance of {{{ vars.platform_name }}} that is running in your deployment.
+    For example, copy the Ops Manager password so that you can log in to the instance of Ops Manager that is running in your deployment.
 
 ## <a id='component-status'></a>View Component Deployment Status
 

@@ -17,7 +17,7 @@ If your environment includes HTTP proxies, you can configure Tanzu Kubernetes Gr
 In addition, Tanzu Kubernetes Grid Integrated Edition proxy settings apply to the TKGI API instance.
 When an Tanzu Kubernetes Grid Integrated Edition operator creates a Kubernetes cluster, the TKGI API VM behind a proxy is able to manage NSX objects on the standard network.
 
-You can also proxy outgoing HTTP/HTTPS traffic from {{{ vars.platform_name }}} and the BOSH Director so that all Tanzu Kubernetes Grid Integrated Edition components use the same proxy service.
+You can also proxy outgoing HTTP/HTTPS traffic from Ops Manager and the BOSH Director so that all Tanzu Kubernetes Grid Integrated Edition components use the same proxy service.
 
 The following diagram illustrates the network architecture:
 
@@ -28,7 +28,7 @@ The following diagram illustrates the network architecture:
 
 To configure a global HTTP proxy for all outgoing HTTP/HTTPS traffic from the Kubernetes cluster nodes and the TKGI API server, perform the following steps:
 
-1. Navigate to {{{ vars.platform_name }}} and log in.
+1. Navigate to Ops Manager and log in.
 
 1. Click the **Tanzu Kubernetes Grid Integrated Edition** tile.
 
@@ -41,7 +41,7 @@ To configure a global HTTP proxy for all outgoing HTTP/HTTPS traffic from the Ku
 
 1. Proceed with any remaining Tanzu Kubernetes Grid Integrated Edition tile configurations and deploy Tanzu Kubernetes Grid Integrated Edition. See <a href="./installing-nsx-t.html">Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX</a>.
 
-## <a id='tkgi-om-bosh-proxy'></a>Enable {{{ vars.platform_name }}} and BOSH Proxy
+## <a id='tkgi-om-bosh-proxy'></a>Enable Ops Manager and BOSH Proxy
 
 {{> proxy-ops-man }}
 

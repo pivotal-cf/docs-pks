@@ -54,7 +54,7 @@ To implement host groups with Tanzu Kubernetes Grid Integrated Edition, the firs
 
 Once the host group is defined in vSphere, the next step is to declare this host group when defining the BOSH Availability Zone (AZ) for use with Tanzu Kubernetes Grid Integrated Edition.
 
-1. Log in to {{{ vars.platform_name }}}.
+1. Log in to Ops Manager.
 1. Select the BOSH Director tile.
 1. Select the **Create Availability Zones** tab.
 1. Select the desired AZ, or create a new one.

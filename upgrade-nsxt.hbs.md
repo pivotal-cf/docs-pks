@@ -25,7 +25,7 @@ to plan and prepare your upgrade.
 
 After you complete the preparation steps,
 continue to the procedures in [Perform the Upgrade](#upgrade) below.
-These steps guide you through the process of upgrading {{{ vars.platform_name }}} and the TKGI tile,
+These steps guide you through the process of upgrading VMware Tanzu Operations Manager (Ops Manager) and the TKGI tile,
 importing a new stemcell, and applying the changes to your deployment.
 
 After you complete the upgrade, follow the procedures
@@ -47,7 +47,7 @@ from TKGI {{{ vars.product_version_prev }}} to TKGI {{{ vars.product_version }}}
 [Upgrade Preparation Checklist for {{{ vars.product_short }}}](checklist.html).
 * Review the upgrade procedures in [Upgrade Order for {{{ vars.product_short }}} Environments on vSphere](upgrade-scenarios.html).
 * To upgrade with multiple datacenters, see below.
-  * You must use {{{ vars.platform_name }}}. You cannot upgrade on multiple datacenters using the Management Console.
+  * You must use Ops Manager. You cannot upgrade on multiple datacenters using the Management Console.
 
 ### <a id="prepare-multi-dc"></a>Prepare to Upgrade with Multiple Datacenters
 
@@ -59,7 +59,7 @@ from TKGI {{{ vars.product_version_prev }}} to TKGI {{{ vars.product_version }}}
 This section describes the steps required to upgrade to TKGI {{{ vars.product_version }}}:
 
 1. [Upgrade NSX](#upgrade-nsxt)
-1. [Upgrade {{{ vars.platform_name }}}](#upgrade-opsman)
+1. [Upgrade Ops Manager](#upgrade-opsman)
 1. [Download and Import TKGI {{{ vars.product_version }}}](#stage-tkgi)
 1. [Download and Import Stemcells](#stemcell)
 1. [Upgrade the TKGI Tile](#upgrade-tkgi)
@@ -102,7 +102,7 @@ update the BOSH Director and TKGI tiles with the new or updated IP addresses:
   1. In the BOSH Director tile > **vCenter Configuration** pane, update **NSX Address** and **NSX CA Cert**.
   1. In the TKGI tile > **Networking** pane, update **NSX Manager hostname** and **NSX Manager CA Cert**.
   1. After making changes to the BOSH Director or TKGI tiles:
-      1. On the **Installation Dashboard** in {{{ vars.platform_name }}},
+      1. On the **Installation Dashboard** in Ops Manager,
       click **Review Pending Changes**.
       1. Expand the **Errands** list for TKGI.
       1. Ensure that the **Upgrade all clusters errand** is selected.
@@ -119,49 +119,49 @@ To upgrade an NSX-T v3.2 deployment to NSX v4.0 or later:
 
 1. Upgrade to NSX as described in the [NSX Upgrade Guide](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-1/upgrade-guide.html).
 
-### <a id="upgrade-opsman"></a>Upgrade {{{ vars.platform_name }}}
+### <a id="upgrade-opsman"></a>Upgrade Ops Manager
 
-Each version of TKGI is compatible with multiple versions of {{{ vars.platform_name }}}.
+Each version of TKGI is compatible with multiple versions of Ops Manager.
 See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN)
-to determine if your {{{ vars.platform_name }}} version is compatible with TKGI {{{ vars.product_version }}}.
+to determine if your Ops Manager version is compatible with TKGI {{{ vars.product_version }}}.
 
 <p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
-see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{{ vars.platform_name }}} and Ubuntu Jammy Stemcell for Tanzu Downloading</a> in <em>Configuring the Upgrade Pipeline</em>.
+see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated Ops Manager and Ubuntu Jammy Stemcell for Tanzu Downloading</a> in <em>Configuring the Upgrade Pipeline</em>.
 </p>
 
-To upgrade {{{ vars.platform_name }}}:
+To upgrade Ops Manager:
 
-1. Log in to {{{ vars.platform_name }}}.
+1. Log in to Ops Manager.
 
 1. Click your user name in the top right corner and navigate to **Settings** > **Export Installation Settings**.
 
 1. Click **Export Installation Settings**.
-  - {{{ vars.platform_name }}} exports an encrypted archive of your current installation configuration.
-  - Later, you import this configuration into to your upgraded {{{ vars.platform_name }}}.
-  <img src="images/nsxt/nsxt-30/upgrade-01.png" alt="The {{{ vars.platform_name }}} Export Installation Settings tab showing there is only one option: the Export Installation Settings button.">
+  - Ops Manager exports an encrypted archive of your current installation configuration.
+  - Later, you import this configuration into to your upgraded Ops Manager.
+  <img src="images/nsxt/nsxt-30/upgrade-01.png" alt="The Ops Manager Export Installation Settings tab showing there is only one option: the Export Installation Settings button.">
 
 1. Log in to vCenter Server using the vSphere Client.
 
-1. Shut down the {{{ vars.platform_name }}} VM.
+1. Shut down the Ops Manager VM.
 
-1. Deploy the upgraded {{{ vars.platform_name }}} VM by following the first two steps of [Deploying {{{ vars.platform_name }}} with NSX for TKGI](vsphere-nsxt-om-deploy.html):
+1. Deploy the upgraded Ops Manager VM by following the first two steps of [Deploying Ops Manager with NSX for TKGI](vsphere-nsxt-om-deploy.html):
   1. [Step 1: Generate SSH Key Pair](vsphere-nsxt-om-deploy.html#ssh-key)
-  1. [Step 2: Deploy {{{ vars.platform_name }}} for Tanzu Kubernetes Grid Integrated Edition](vsphere-nsxt-om-deploy.html#deploy-om)
+  1. [Step 2: Deploy Ops Manager for Tanzu Kubernetes Grid Integrated Edition](vsphere-nsxt-om-deploy.html#deploy-om)
 
-1. Using a browser, navigate to the newly-deployed {{{ vars.platform_name }}} web interface.
+1. Using a browser, navigate to the newly-deployed Ops Manager web interface.
 
 1. On the welcome page, select **Import Existing Installation**.
-  <img src="images/nsxt/nsxt-30/upgrade-02.png" alt="The {{{ vars.platform_name }}} Welcome page showing Authentication System options and the Import Existing Installation button.">
+  <img src="images/nsxt/nsxt-30/upgrade-02.png" alt="The Ops Manager Welcome page showing Authentication System options and the Import Existing Installation button.">
 
 1. Browse to and select the installation configuration archive you exported.
 
-1. Log in to {{{ vars.platform_name }}}
+1. Log in to Ops Manager
 
 1. Click **Apply Changes**.
-  <img src="images/nsxt/nsxt-30/upgrade-03.png" alt="The {{{ vars.platform_name }}} Review Pending Changes page, with options to select which product updates to apply, and the Apply Changes button.">
+  <img src="images/nsxt/nsxt-30/upgrade-03.png" alt="The Ops Manager Review Pending Changes page, with options to select which product updates to apply, and the Apply Changes button.">
 
 1. Verify that the BOSH Director for vSphere tile shows the upgrade version.
-  <img src="images/nsxt/nsxt-30/upgrade-04.png" alt="The {{{ vars.platform_name }}} Installation Dashboard page with the BOSH Director and tiles.">
+  <img src="images/nsxt/nsxt-30/upgrade-04.png" alt="The Ops Manager Installation Dashboard page with the BOSH Director and tiles.">
 
 ### <a id="stage-tkgi"></a> Download and Import TKGI {{{ vars.product_version }}}
 
@@ -172,8 +172,8 @@ To download and import a TKGI version:
 1. Download the target version of the product
 from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
 
-1. Import the target version of the TKGI tile to the {{{ vars.platform_name }}} Installation Dashboard.
-  <img src="images/nsxt/nsxt-30/upgrade-05.png" alt="The {{{ vars.platform_name }}} Installation Dashboard page after importing and applying the TKGI tile.">
+1. Import the target version of the TKGI tile to the Ops Manager Installation Dashboard.
+  <img src="images/nsxt/nsxt-30/upgrade-05.png" alt="The Ops Manager Installation Dashboard page after importing and applying the TKGI tile.">
 
 1. Click **Review Pending Changes**.
 
@@ -207,11 +207,11 @@ For information about Windows stemcells, see
 [Configuring Windows Worker-Based Clusters](windows-workers.html).
 
 <p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
-see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{{ vars.platform_name }}} and Ubuntu Jammy Stemcell for Tanzu Downloading</a>
+see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated Ops Manager and Ubuntu Jammy Stemcell for Tanzu Downloading</a>
 in <em>Configuring the Upgrade Pipeline</em>.
 </p>
 
-If {{{ vars.platform_name }}} does not have the Ubuntu Jammy Stemcell for VMware Tanzu required for TKGI {{{ vars.product_version }}},
+If Ops Manager does not have the Ubuntu Jammy Stemcell for VMware Tanzu required for TKGI {{{ vars.product_version }}},
 the TKGI tile displays the message **Missing stemcell**.
 To download and import a new Ubuntu Jammy Stemcell for VMware Tanzu, follow the steps below:
 
@@ -224,13 +224,13 @@ To download and import a new Ubuntu Jammy Stemcell for VMware Tanzu, follow the 
 1. Navigate to the [Stemcells (Ubuntu Jammy)](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Ubuntu%20Jammy)) page on {{{ vars.product_network }}}
 and download the required Stemcell for VMware Tanzu version for your IaaS.
 
-1. Return to the **Installation Dashboard** in {{{ vars.platform_name }}} and click **Stemcell Library**.
+1. Return to the **Installation Dashboard** in Ops Manager and click **Stemcell Library**.
 
 1. On the **Stemcell Library** page, click **Import Stemcell** and select the stemcell file you downloaded from {{{ vars.product_network }}}.
 
 1. Select the TKGI tile and click **Apply Stemcell to Products**.
 
-1. Verify that {{{ vars.platform_name }}} successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for TKGI.
+1. Verify that Ops Manager successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for TKGI.
 
 1. Return to the **Installation Dashboard**.
 
@@ -238,14 +238,14 @@ and download the required Stemcell for VMware Tanzu version for your IaaS.
 
 To complete the upgrade of the TKGI tile:
 
-1. Return to the **Installation Dashboard** in {{{ vars.platform_name }}}.
+1. Return to the **Installation Dashboard** in Ops Manager.
 
 1. Click **Review Pending Changes**.
-     For more information about this {{{ vars.platform_name }}} page, see
+     For more information about this Ops Manager page, see
     [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
 
 1. Click **Apply Changes.**
-  <img src="images/nsxt/nsxt-30/upgrade-06.png" alt="The {{{ vars.platform_name }}} Review Pending Changes page, with options to select which product updates to apply, and the Apply Changes button.">
+  <img src="images/nsxt/nsxt-30/upgrade-06.png" alt="The Ops Manager Review Pending Changes page, with options to select which product updates to apply, and the Apply Changes button.">
 
 1. (Optional) If you activated the **Upgrade all clusters errand**, you can use the BOSH CLI to monitor its progress:
       1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your TKGI deployment. For more information, see [Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
@@ -254,7 +254,7 @@ To complete the upgrade of the TKGI tile:
       1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
 
 1. Verify that the TKGI tile shows the target version.
-  <img src="images/nsxt/nsxt-30/upgrade-07.png"  alt="The {{{ vars.platform_name }}} Installation Dashboard page after upgrading the TKGI tile.">
+  <img src="images/nsxt/nsxt-30/upgrade-07.png"  alt="The Ops Manager Installation Dashboard page after upgrading the TKGI tile.">
 
 ## <a id="after-upgrade"></a>After the Upgrade
 

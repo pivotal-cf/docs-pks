@@ -34,7 +34,7 @@ If you are rotating the NSX Manager certificate for an existing TKGI installatio
     <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition</a>
   </li>
   <li>
-    <a href="./vsphere-nsxt-om-deploy.html">Deploying {{{ vars.platform_name }}} with NSX-T for Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX-T for Tanzu Kubernetes Grid Integrated Edition</a>
   </li>
   <li>
     <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>

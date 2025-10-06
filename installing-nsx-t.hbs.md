@@ -8,7 +8,7 @@ thistopic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
-on vSphere with NSX integration as a {{{ vars.platform_name }}} tile.
+on vSphere with NSX integration as a VMware Tanzu Operations Manager (Ops Manager) tile.
 
 
 ## <a id="prerequisites"></a>Prerequisites
@@ -22,7 +22,7 @@ Before you begin this procedure, ensure that you have successfully completed all
   <li><a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition</a></li>
   <li><a href="./nsxt-3-1-install-delta.html">Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for Tanzu Kubernetes Grid Integrated Edition</a></li>
   <li>
-    <a href="./vsphere-nsxt-om-deploy.html">Deploying {{{ vars.platform_name }}} with NSX for Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX for Tanzu Kubernetes Grid Integrated Edition</a>
   </li>
   <li>
     <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>
@@ -64,7 +64,7 @@ To configure TKGI:
 
     <p class="note"><strong>Note</strong>: Configuration of NSX or Antrea <strong>cannot</strong> be changed after initial installation and configuration of Tanzu Kubernetes Grid Integrated Edition.</p>
 
-    ![TKGI tile on the {{{ vars.platform_name }}} installation dashboard](images/tkgi-tile-orange.png)
+    ![TKGI tile on the Ops Manager installation dashboard](images/tkgi-tile-orange.png)
 
     <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile,
     do not use spaces in any field entries. This includes spaces between characters as well as
@@ -93,7 +93,7 @@ used by the Tanzu Kubernetes Grid Integrated Edition control plane:
 1. Under **Place singleton jobs in**, select the availability zone (AZ) where you want to deploy
 the TKGI API and TKGI Database VMs.
 
-    ![Assign AZs and Networks pane in {{{ vars.platform_name }}}](images/azs-networks.png)
+    ![Assign AZs and Networks pane in Ops Manager](images/azs-networks.png)
 
 1. Under **Balance other jobs in**, select the AZ for balancing other Tanzu Kubernetes Grid Integrated Edition control plane jobs.
     <p class="note"><strong>Note</strong>: You must specify the <strong>Balance other jobs in</strong> AZ, but the selection has no effect in the current version of Tanzu Kubernetes Grid Integrated Edition.
@@ -138,7 +138,7 @@ If you did not enter a CA certificate, or if your CA certificate is self-signed,
 1. If you are using a NAT deployment topology, leave the **NAT mode** check box selected. If you are using a No-NAT topology, clear this check box. For more information, see [NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition](nsxt-topologies.html).
 1. If you are using the NSX Policy API, select **Policy API mode**.
 1. Configure the NSX networking objects, including the **Pods IP Block ID**, **Nodes IP Bock ID**, **T0 Router ID**, **Floating IP Pool ID**, **Nodes DNS**, **vSphere Cluster Names**, and **Kubernetes Service Network CIDR Range**. Each of the these fields are described in more detail beneath the example screenshots. If you are using the NSX Policy API, you must have created the **Pods IP Block ID**, **Nodes IP Bock ID**, **T0 Router ID**, and **Floating IP Pool ID** objects using the NSX Policy API. See [Create NSX Objects for Kubernetes Clusters Using the Policy Interface](./nsxt-install-objects-k8s.html#nsxt3-k8s-objects-policy).
-    ![NSX Networking configuration pane in {{{ vars.platform_name }}}](images/networking-nsx-t-3.png)
+    ![NSX Networking configuration pane in Ops Manager](images/networking-nsx-t-3.png)
     [View a larger version of this image.](images/networking-nsx-t-3.png)
 
     * **Pods IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes pods. Tanzu Kubernetes Grid Integrated Edition allocates IP addresses for the pods when they are created in Kubernetes. Each time a namespace is created in Kubernetes, a subnet from this IP block is allocated. The current subnet size that is created is /24, which means a maximum of 256 pods can be created per namespace.

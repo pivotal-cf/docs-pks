@@ -21,7 +21,7 @@ BBR can also be used to back up and restore the TKGI Management Plane. See [Back
 In context of TKGI, BBR does not back up and restore:
 
 * Kubernetes workloads, see [Backing up and restoring Kubernetes workloads](./backup-and-restore-work.html).
-* {{{ vars.platform_name }}} VM (including the BOSH Director and TKGI tiles), see [Backing up and restoring {{{ vars.platform_name }}}](./bbr-backup-tkgi.html#export-opsman-settings).
+* Ops Manager VM (including the BOSH Director and TKGI tiles), see [Backing up and restoring Ops Manager](./bbr-backup-tkgi.html#export-opsman-settings).
 * NSX objects and resources, such as load balancers, see [Backing up and restoring TKGI Infrastructure](./backup-and-restore-infra.html).
 * Harbor VM
 

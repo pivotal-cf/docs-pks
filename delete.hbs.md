@@ -3,7 +3,7 @@ title: Deleting Tanzu Kubernetes Grid Integrated Edition
 owner: TKGI
 ---
 
-This topic describes how to delete the Tanzu Kubernetes Grid Integrated Edition (TKGI) tile from the {{{ vars.platform_name }}} Installation Dashboard.  
+This topic describes how to delete the Tanzu Kubernetes Grid Integrated Edition (TKGI) tile from the VMware Tanzu Operations Manager (Ops Manager) Installation Dashboard.  
 
 <p class='note'><strong>Note</strong>: 
 If you used the VMware Tanzu Kubernetes Grid Integrated Edition Management Console to deploy TKGI, you must remove TKGI from the TKGI Management Console. For more information, see
@@ -14,7 +14,7 @@ If you used the VMware Tanzu Kubernetes Grid Integrated Edition Management Conso
 
 ## <a id='overview'></a>Overview
 
-If you no longer require a TKGI deployment, you can remove the TKGI tile from {{{ vars.platform_name }}}.  
+If you no longer require a TKGI deployment, you can remove the TKGI tile from Ops Manager.  
 
 To remove a TKGI installation:  
 
@@ -27,7 +27,7 @@ For more information, see [Deleting Clusters](delete-cluster.html).
 
 To delete the TKGI tile, perform the following steps:
 
-1. Navigate to the {{{ vars.platform_name }}} Installation Dashboard.
+1. Navigate to the VMware Tanzu Operations Manager (Ops Manager) Installation Dashboard.
 
 1. Click the trash can icon on the TKGI tile.
 
@@ -37,7 +37,7 @@ To delete the TKGI tile, perform the following steps:
 
 1. (Optional) To preserve clusters created by TKGI, click **Errands** and deactivate the **Delete all clusters errand** check box under **Pre-Delete Errands**.
   - By default, the **Delete all clusters** errand is activated, which deletes all
-  TKGI clusters before {{{ vars.platform_name }}} deletes the TKGI tile.
+  TKGI clusters before Ops Manager deletes the TKGI tile.
 
 
 1. Click **Apply Changes**.

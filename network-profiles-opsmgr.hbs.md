@@ -1,9 +1,9 @@
 ---
-title: Working with Network Profiles in {{{ vars.platform_name }}}
+title: Working with Network Profiles in Ops Manager
 owner: TKGI
 ---
 
-The following topics describe how to define and use network profiles in {{{ vars.platform_name }}}, for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters deployed on NSX with vSphere:  
+The following topics describe how to define and use network profiles in VMware Tanzu Operations Manager (Ops Manager), for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters deployed on NSX with vSphere:  
 
 <ul>
   <li>

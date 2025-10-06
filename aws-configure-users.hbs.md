@@ -13,33 +13,33 @@ UAA is the identity management service for TKGI.
 You must use UAA to create an admin user during your initial set up of TKGI.  
 
 TKGI includes a UAA server, hosted on the TKGI API VM. 
-Use the UAA Command Line Interface (UAAC) from the {{{ vars.platform_name }}} VM to interact with the TKGI UAA server. 
+Use the UAA Command Line Interface (UAAC) from the VMware Tanzu Operations Manager (Ops Manager) VM to interact with the TKGI UAA server. 
 You can also install UAAC on a workstation and run UAAC commands from there.  
 
 ## <a id='prerequisites'></a> Prerequisites
 
 Before setting up admin users for Tanzu Kubernetes Grid Integrated Edition, you must have one of the following:
 
-* SSH access to the {{{ vars.platform_name }}} VM
+* SSH access to the Ops Manager VM
 
 * A machine that can connect to your TKGI API VM
 
 ## <a id='connect'></a>Step 1: Connect to the TKGI API VM
 
-You can connect to the TKGI API VM from the {{{ vars.platform_name }}} VM or from a different machine such as your local workstation.
+You can connect to the TKGI API VM from the Ops Manager VM or from a different machine such as your local workstation.
 
-### <a name='ssh-aws'></a>Option 1: Connect through the {{{ vars.platform_name }}} VM
+### <a name='ssh-aws'></a>Option 1: Connect through the Ops Manager VM
 
-You can connect to the TKGI API VM by logging in to the {{{ vars.platform_name }}} VM through SSH.
-To SSH into the {{{ vars.platform_name }}} VM on AWS, do the following:
+You can connect to the TKGI API VM by logging in to the Ops Manager VM through SSH.
+To SSH into the Ops Manager VM on AWS, do the following:
 
 1. Retrieve the key pair you used when you
-created the {{{ vars.platform_name }}} VM. To see the name of the key pair:
+created the Ops Manager VM. To see the name of the key pair:
   
-  1. In the AWS console, click the {{{ vars.platform_name }}} VM
+  1. In the AWS console, click the Ops Manager VM
   1. Locate the `key pair name` in the properties.
 
-1. On the AWS **EC2 instances** page, locate the {{{ vars.platform_name }}} FQDN.
+1. On the AWS **EC2 instances** page, locate the Ops Manager FQDN.
 
 1. Change the permissions on the `.pem` file to be more restrictive by running the `chmod 600` command. For example:
 
@@ -47,12 +47,12 @@ created the {{{ vars.platform_name }}} VM. To see the name of the key pair:
     $ chmod 600 ops_mgr.pem
     ```
 
-1. SSH into the {{{ vars.platform_name }}} VM by running the following command:
+1. SSH into the Ops Manager VM by running the following command:
 
     ```
     ssh -i ops_mgr.pem ubuntu@OPS-MANAGER-FQDN
     ```
-    Where `OPS-MANAGER-FQDN` is the FQDN of {{{ vars.platform_name }}}. For example:
+    Where `OPS-MANAGER-FQDN` is the FQDN of Ops Manager. For example:
 
     ```console
     $ ssh -i ops_mgr.pem ubuntu@my-opsmanager-fqdn.example.com
@@ -60,7 +60,7 @@ created the {{{ vars.platform_name }}} VM. To see the name of the key pair:
 
 1. Proceed to the [Log In as a UAA Admin](#uaa-admin-login) section to manage users with UAAC.
 
-### <a name='local-workstation'></a>Option 2: Connect through a Non-{{{ vars.platform_name }}} Machine
+### <a name='local-workstation'></a>Option 2: Connect through a Non-Ops Manager Machine
 
 To connect to the TKGI API VM and run UAA commands, do the following:
 
@@ -69,10 +69,10 @@ To connect to the TKGI API VM and run UAA commands, do the following:
     ```
     gem install cf-uaac
     ```
-1. Download a copy of your {{{ vars.platform_name }}} root CA certificate to the machine. To download the certificate, do the following:
+1. Download a copy of your Ops Manager root CA certificate to the machine. To download the certificate, do the following:
 
-  1. In a web browser, navigate to the FQDN of {{{ vars.platform_name }}} and log in.
-  1. In {{{ vars.platform_name }}}, navigate to **Settings** in the drop-down menu under your user name.
+  1. In a web browser, navigate to the FQDN of Ops Manager and log in.
+  1. In Ops Manager, navigate to **Settings** in the drop-down menu under your user name.
   1. Click **Advanced Options**.
   1. On the **Advanced Options** configuration page, click **Download Root CA Cert**.
   1. Move the certificate to a secure location on your machine and record the path.

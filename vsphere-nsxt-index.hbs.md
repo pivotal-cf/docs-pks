@@ -1,10 +1,10 @@
 ---
-title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX Using {{{ vars.platform_name }}}
+title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX Using Ops Manager
 owner: TKGI
 iaas: vsphere-nsxt
 ---
 
-This topic lists the procedures to follow when installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX networking manually, using {{{ vars.platform_name }}}.  
+This topic lists the procedures to follow when installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX networking manually, using VMware Tanzu Operations Manager (Ops Manager).  
 
 <p class="note"><strong>Note</strong>: The recommended method for installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX is to use the Tanzu Kubernetes Grid Integrated Edition Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 
@@ -21,7 +21,7 @@ See <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Cent
 
 ##<a id='step03'></a> Step 3: Create the Management Plane for Tanzu Kubernetes Grid Integrated Edition
 
-Prepare the vSphere and NSX infrastructure for the Tanzu Kubernetes Grid Integrated Edition Management Plane where {{{ vars.platform_name }}}, BOSH Director, Tanzu Kubernetes Grid Integrated Edition components, and Harbor Registry are deployed. This includes creating a vSphere resource pool for Tanzu Kubernetes Grid Integrated Edition management components, an NSX Tier-1 (T1) Logical Switch, an NSX Tier-1 Logical Router and Port, and NAT rules (if you are using NAT mode). 
+Prepare the vSphere and NSX infrastructure for the Tanzu Kubernetes Grid Integrated Edition Management Plane where Ops Manager, BOSH Director, Tanzu Kubernetes Grid Integrated Edition components, and Harbor Registry are deployed. This includes creating a vSphere resource pool for Tanzu Kubernetes Grid Integrated Edition management components, an NSX Tier-1 (T1) Logical Switch, an NSX Tier-1 Logical Router and Port, and NAT rules (if you are using NAT mode). 
 
 For instructions, see [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
 
@@ -35,11 +35,11 @@ Create a [Floating IP Pool](./nsxt-prepare-env.html#plan-cidrs) from which to as
 
 For instructions, see [Create IP Blocks and Pool for Compute Plane](./nsxt-3-0-install.html#nsxt30-ip-blocks-pool) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
 
-##<a id='step05'></a> Step 5: Deploy {{{ vars.platform_name }}} for Tanzu Kubernetes Grid Integrated Edition with NSX
+##<a id='step05'></a> Step 5: Deploy Ops Manager for Tanzu Kubernetes Grid Integrated Edition with NSX
 
-Deploy a supported version of {{{ vars.platform_name }}} on the NSX Management Plane network.
+Deploy a supported version of Ops Manager on the NSX Management Plane network.
 
-For instructions, see <a href="./vsphere-nsxt-om-deploy.html">Deploying {{{ vars.platform_name }}} with NSX for Tanzu Kubernetes Grid Integrated Edition</a>.
+For instructions, see <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX for Tanzu Kubernetes Grid Integrated Edition</a>.
 
 ##<a id='step06'></a> Step 6: Generate the NSX Management Cluster Root CA Certificate and Key
 
@@ -61,13 +61,13 @@ For instructions, see <a href="./nsxt-generate-pi-cert.html">Generating and Regi
 
 ##<a id='step09'></a> Step 9: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX
 
-At this point your NSX environment is prepared for Tanzu Kubernetes Grid Integrated Edition installation using the Tanzu Kubernetes Grid Integrated Edition tile in {{{ vars.platform_name }}}. 
+At this point your NSX environment is prepared for Tanzu Kubernetes Grid Integrated Edition installation using the Tanzu Kubernetes Grid Integrated Edition tile in Ops Manager. 
 
 For instructions, see <a href="./installing-nsx-t.html">Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX</a>.
 
 ##<a id='step10'></a> Step 10: Install VMware Harbor Registry for Tanzu Kubernetes Grid Integrated Edition
 
-The VMware Harbor Registry is recommended for Tanzu Kubernetes Grid Integrated Edition. Install Harbor in the NSX Management Plane with other Tanzu Kubernetes Grid Integrated Edition components, such as the TKGI API and TKGI database, {{{ vars.platform_name }}}, and BOSH.
+The VMware Harbor Registry is recommended for Tanzu Kubernetes Grid Integrated Edition. Install Harbor in the NSX Management Plane with other Tanzu Kubernetes Grid Integrated Edition components, such as the TKGI API and TKGI database, Ops Manager, and BOSH.
 
 If you are using the [NAT deployment topology](nsxt-topologies.html#topology-nat), create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the TKGI management network. See <a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html#create-dnat">Create DNAT Rule</a>.
 

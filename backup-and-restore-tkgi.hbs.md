@@ -9,10 +9,10 @@ This topic describes how to back up and restore the VMware Tanzu Kubernetes Grid
 
 Back up and restore of the TKGI Management Plane includes the following components: 
 
-- {{{ vars.platform_name }}} configuration, including the BOSH Director and TKGI tiles.
+- Ops Manager configuration, including the BOSH Director and TKGI tiles.
 - The TKGI Management Plane VMs, including the [BOSH Director VM](bbr-backup-tkgi.html#back-up-director), and the [TKGI Control Plane VM](bbr-backup-tkgi.html#back-up-control-plane).
 
-You use {{{ vars.platform_name }}} to back up and restore the BOSH Director and TKGI tiles. You use [BOSH Backup and Restore](https://docs.cloudfoundry.org/bbr/index.html) (BBR) to back up and restore the TKGI Management Plane VMs. Restoring the {{{ vars.platform_name }}} VM is a manual process.
+You use Ops Manager to back up and restore the BOSH Director and TKGI tiles. You use [BOSH Backup and Restore](https://docs.cloudfoundry.org/bbr/index.html) (BBR) to back up and restore the TKGI Management Plane VMs. Restoring the Ops Manager VM is a manual process.
 
 To back up and restore the TKGI Management Plane, see the following topics:
 
@@ -24,10 +24,10 @@ To back up and restore the TKGI Management Plane, see the following topics:
 
 As part of your TKGI back up and restore planning and testing, consider the following test scenario.
 
-- Export {{{ vars.platform_name }}} configuration.  
+- Export Ops Manager configuration.  
 - Take a back up of TKGI Management Plane using BBR.
-- Power off the {{{ vars.platform_name }}}, BOSH, and TKGI Control Plane VMs. 
-- Deploy a new {{{ vars.platform_name }}} VM and import the exported configuration. 
+- Power off the Ops Manager, BOSH, and TKGI Control Plane VMs. 
+- Deploy a new Ops Manager VM and import the exported configuration. 
 - Restore BOSH and TKGI VMs using BBR. 
 
 On restore of all TKGI Management Plane components, confirm there has not been a loss of data for configurations included in the backups. Any TKGI configuration changes made after the backup was taken are not restored since they were made after the backup.

@@ -968,7 +968,7 @@ All updated values will persist through cluster upgrades.
   -h, --help                                     help for update-cluster
 ```
 
-The {{{ vars.platform_name }}} TKGI tile exposes an additional option, under **TKGI API** > **Automatic retry on cluster update operations failure**, which when enabled retries the `tkgi update-cluster` process up to three times if it fails.
+The Ops Manager TKGI tile exposes an additional option, under **TKGI API** > **Automatic retry on cluster update operations failure**, which when enabled retries the `tkgi update-cluster` process up to three times if it fails.
 
 For information about using compute profiles, including some limitations, see [Using Compute Profiles (vSphere)](../compute-profiles-use.html).  
 

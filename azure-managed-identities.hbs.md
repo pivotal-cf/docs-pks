@@ -1,6 +1,6 @@
 ---
 title: Creating Managed Identities in Azure for Tanzu Kubernetes Grid Integrated Edition
-
+owner: Ops Manager
 ---
 
 This topic describes how to create managed identities for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on Microsoft Azure.  
@@ -27,7 +27,7 @@ If you do not know your Subscription ID or Resource Group:
 
 <p class="note"><strong>Note:</strong> You specified the Subscription ID to use and your Tanzu Kubernetes Grid Integrated Edition Resource Group name 
   when completing the steps in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-deploy-manual.html#network">Step 1: Create Network Resources</a>
-in <i>Deploying {{{ vars.platform_name }}} on Azure Manually</i>.  
+in <i>Deploying Ops Manager on Azure Manually</i>.  
 </p>
 
 ## <a id='create-master'></a>Create the Control Plane Node Managed Identity

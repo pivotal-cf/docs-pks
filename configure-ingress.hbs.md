@@ -85,7 +85,7 @@ To deploy an open source ingress controller to a TKGI cluster, do the following:
     The example output above includes the URL for this DNS service, indicating it is running.  
 <br>
     If a DNS service is not running for your cluster, enable the `CoreDNS` service:  
-    1. Navigate to {{{ vars.platform_name }}} and click the **BOSH Director** tile.  
+    1. Navigate to Ops Manager and click the **BOSH Director** tile.  
     1. Click the **Director Config** pane.  
     1. Select the **Enable Post Deploy Scripts** check box.  
     1. Click **Review Pending Changes**, and then **Apply Changes**.  

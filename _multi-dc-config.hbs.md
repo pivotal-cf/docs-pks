@@ -1,6 +1,6 @@
 To upgrade a TKGI installation that runs on multiple datacenters, include the following steps:
 
-1. Upload to {{{ vars.platform_name }}} a TKGI tile version that supports multiple datacenters.
+1. Upload to Ops Manager a TKGI tile version that supports multiple datacenters.
     * Support for multiple datacenters varies between TKGI patch releases within the same minor release line, with later patch releases supporting the functionality while earlier ones do not.
 1. In the TKGI tile > **Kubernetes Cloud Profile** pane, set **vSphere Datacenter** to a comma-separated list of datacenters, for example `"DC1, DC2, folder-name/DC3"`. For datacenters that are under folders in your inventory, include the folder in the name.
 {{# evalExpression "current_page.data.windowsclusters != true && current_page.data.iaas != 'vSphere' &&  current_page.data.iaas != 'vSphere-NSX-T'"}}

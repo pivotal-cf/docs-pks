@@ -112,8 +112,8 @@ you will upgrade them through the TKGI CLI.
 ## <a id="what-happens"></a> What Happens During Full TKGI and TKGI Control Plane Only Upgrades
 
 After you add a new Tanzu Kubernetes Grid Integrated Edition tile version to your staging area
-on the {{{ vars.platform_name }}} Installation Dashboard,
-{{{ vars.platform_name }}} automatically migrates your configuration settings into the new tile version.  
+on the Ops Manager Installation Dashboard,
+Ops Manager automatically migrates your configuration settings into the new tile version.  
 
 You can perform a full TKGI upgrade or a TKGI control plane only upgrade:  
 

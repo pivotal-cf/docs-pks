@@ -9,7 +9,7 @@ This topic describes how to check the health of your VMware Tanzu Kubernetes Gri
 
 Verify the health of your Kubernetes nodes and pods by following the steps below:
 
-1. From the {{{ vars.platform_name }}} VM, run the following command:
+1. From the Ops Manager VM, run the following command:
 
     ```
     bosh -e ENVIRONMENT login
@@ -38,7 +38,7 @@ Verify the health of your Kubernetes nodes and pods by following the steps below
 
 Verify the health of your Kubernetes clusters by following the steps below:
 
-1. From the {{{ vars.platform_name }}} VM, run the following command:
+1. From the Ops Manager VM, run the following command:
 
     ```
     bosh -e ENVIRONMENT login

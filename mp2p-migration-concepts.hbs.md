@@ -7,7 +7,7 @@ This topic provides an overview of migrating VMware Tanzu Kubernetes Grid Integr
 
 To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI Management Console, see [Migrating from NSX Management Plane API to Policy API with the Management Console](mp2p-migration-mc.html).  
 
-To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI tile in {{{ vars.platform_name }}}, see [Migrating from NSX Management Plane API to Policy API Using {{{ vars.platform_name }}}](mp2p-migration.html).  
+To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI tile in Ops Manager, see [Migrating from NSX Management Plane API to Policy API Using Ops Manager](mp2p-migration.html).  
 
 ## <a id="overview"></a> Overview
 

@@ -41,7 +41,7 @@ first determine which certificates are due to expire and then rotate them:
 * [Rotate TKGI Control Plane Certificates](#control)  
 
 The procedures below can be used to rotate TKGI control plane certificates, 
-certificates for TKGI communication with underlying {{{ vars.platform_name }}} and BOSH infrastructure, and 
+certificates for TKGI communication with underlying Ops Manager and BOSH infrastructure, and 
 certificates for components such as database, CredHub, UAA, and Telemetry.  
 
 <p class="note warning"><strong>Warning:</strong>
@@ -54,13 +54,13 @@ Before rotating your certificates, verify which certificates require rotation.
 
 To check certificate expiration dates, see 
 [Check Expiration Dates and Certificate Types](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-pcf-infrastructure/advanced-certificate-rotation.html#check-expiration)
-in the {{{ vars.platform_name }}} documentation.
+in the Ops Manager documentation.
 
 ## <a id="control"></a>Rotate TKGI Control Plane Certificates
 
 TKGI control plane and tile certificates are configurable and non-configurable certificates stored in CredHub.
 For an explanation of configurable, non-configurable, and other certificate types, see [Certificate Types](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-pcf-infrastructure/certificate-types.html)
-in the {{{ vars.platform_name }}} documentation.
+in the Ops Manager documentation.
 
 
 Rotate configurable and non-configurable certificates as follows:

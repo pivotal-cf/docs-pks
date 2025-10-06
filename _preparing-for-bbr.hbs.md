@@ -12,12 +12,12 @@ follow these steps to retrieve deployment information and credentials:
 
 ### <a id='verify-bbr-version'></a> Verify Your BBR Version
 
-Before running BBR, verify that the installed version of BBR is compatible with the version of {{{ vars.platform_name }}} 
+Before running BBR, verify that the installed version of BBR is compatible with the version of Ops Manager 
 your TKGI tile is on:  
 
-1. To determine the {{{ vars.platform_name }}} BBR version requirements, 
-see the [{{{ vars.platform_name }}} Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html) 
-for the version of {{{ vars.platform_name }}} you are using.  
+1. To determine the Ops Manager BBR version requirements, 
+see the [Ops Manager Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html) 
+for the version of Ops Manager you are using.  
 
 1. To verify the currently installed BBR version, run the following command:
 
@@ -25,21 +25,21 @@ for the version of {{{ vars.platform_name }}} you are using.
     bbr version  
     ```
 
-1. If the installed BBR version does not meet the {{{ vars.platform_name }}} BBR version requirement, or BBR is not installed, you must upgrade BBR. 
+1. If the installed BBR version does not meet the Ops Manager BBR version requirement, or BBR is not installed, you must upgrade BBR. 
 For more information, see [Installing BOSH Backup and Restore](bbr-install.html).  
 
 ### <a id='bbr-ssh-creds'></a> Retrieve the BBR SSH Credentials
 
 There are two ways to retrieve BOSH Director credentials:
 
-* [{{{ vars.platform_name }}} Installation Dashboard](#bbr-ssh-creds-via-ui)
-* [{{{ vars.platform_name }}} API](#bbr-ssh-creds-via-api)
+* [Ops Manager Installation Dashboard](#bbr-ssh-creds-via-ui)
+* [Ops Manager API](#bbr-ssh-creds-via-api)
 
-#### <a id='bbr-ssh-creds-via-ui'></a> {{{ vars.platform_name }}} Installation Dashboard
+#### <a id='bbr-ssh-creds-via-ui'></a> Ops Manager Installation Dashboard
 
-To retrieve your BBR SSH Credentials using the {{{ vars.platform_name }}} Installation Dashboard:
+To retrieve your BBR SSH Credentials using the Ops Manager Installation Dashboard:
 
-1. Navigate to the {{{ vars.platform_name }}} Installation Dashboard.
+1. Navigate to the Ops Manager Installation Dashboard.
 1. Click the BOSH Director tile.
 1. Click the **Credentials** tab.
 
@@ -47,12 +47,12 @@ To retrieve your BBR SSH Credentials using the {{{ vars.platform_name }}} Instal
 1. Click **Link to Credentials** next to it.
 1. Copy the `private_key_pem` field value.
 
-#### <a id='bbr-ssh-creds-via-api'></a> {{{ vars.platform_name }}} API
+#### <a id='bbr-ssh-creds-via-api'></a> Ops Manager API
 
-To retrieve your BBR SSH Credentials using the {{{ vars.platform_name }}} API:
+To retrieve your BBR SSH Credentials using the Ops Manager API:
 
 1. Obtain your UAA access token. For more information, 
-see [Access the {{{ vars.platform_name }}} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html#access).
+see [Access the Ops Manager API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html#access).
 1. Retrieve the **Bbr Ssh Credentials** by running the following command:  
 
     ```
@@ -62,7 +62,7 @@ see [Access the {{{ vars.platform_name }}} API](https://techdocs.broadcom.com/us
     ```
     Where:  
 
-    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your {{{ vars.platform_name }}} deployment.  
+    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.  
     * `UAA-ACCESS-TOKEN` is your UAA access token.  
 
 1. Copy the value of the `private_key_pem` field.
@@ -90,14 +90,14 @@ To save the BBR SSH credentials to a private key file:
 
 There are two ways to retrieve BOSH Director credentials:
 
-* [{{{ vars.platform_name }}} Installation Dashboard](#bosh-creds-via-ui)
-* [{{{ vars.platform_name }}} API](#bosh-creds-via-api)
+* [Ops Manager Installation Dashboard](#bosh-creds-via-ui)
+* [Ops Manager API](#bosh-creds-via-api)
 
-#### <a id='bosh-creds-via-ui'></a> {{{ vars.platform_name }}} Installation Dashboard
+#### <a id='bosh-creds-via-ui'></a> Ops Manager Installation Dashboard
 
-To retrieve your BOSH Director credentials using the {{{ vars.platform_name }}} Installation Dashboard, perform the following steps:
+To retrieve your BOSH Director credentials using the Ops Manager Installation Dashboard, perform the following steps:
 
-1. Navigate to the {{{ vars.platform_name }}} Installation Dashboard.
+1. Navigate to the Ops Manager Installation Dashboard.
 1. Click the BOSH Director tile.
 1. Click the **Credentials** tab.
 
@@ -105,12 +105,12 @@ To retrieve your BOSH Director credentials using the {{{ vars.platform_name }}} 
 1. Click **Link to Credentials** next to it.
 1. Copy and record the value of the `password` field.
 
-#### <a id='bosh-creds-via-api'></a> {{{ vars.platform_name }}} API
+#### <a id='bosh-creds-via-api'></a> Ops Manager API
 
-To retrieve your BOSH Director credentials using the {{{ vars.platform_name }}} API, perform the following steps:
+To retrieve your BOSH Director credentials using the Ops Manager API, perform the following steps:
 
 1. Obtain your UAA access token. For more information, see 
-[Access the {{{ vars.platform_name }}} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html#access).
+[Access the Ops Manager API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html#access).
 1. Retrieve the **Director Credentials** by running the following command:  
 
     ```
@@ -120,7 +120,7 @@ To retrieve your BOSH Director credentials using the {{{ vars.platform_name }}} 
     ```
     Where:  
 
-    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your {{{ vars.platform_name }}} deployment.  
+    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.  
     * `UAA-ACCESS-TOKEN` is your UAA access token.  
 
 1. Copy and record the value of the `password` field.
@@ -129,7 +129,7 @@ To retrieve your BOSH Director credentials using the {{{ vars.platform_name }}} 
 
 To obtain BOSH credentials for your BBR operations, perform the following steps:
 
-1. From the {{{ vars.platform_name }}} Installation Dashboard, click the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. From the Ops Manager Installation Dashboard, click the **Tanzu Kubernetes Grid Integrated Edition** tile.
 1. Select the **Credentials** tab.
 1. Navigate to **Credentials > UAA Client Credentials**.
 1. Record the value for `uaa_client_secret`.
@@ -143,12 +143,12 @@ You access the BOSH Director using an IP address.
 
 To obtain your BOSH Director's IP address:
 
-1. Open the {{{ vars.platform_name }}} Installation Dashboard.  
+1. Open the Ops Manager Installation Dashboard.  
 1. Select **BOSH Director > Status**.  
 1. Select the listed Director IP Address.  
 
 #### <a id='bosh-address-log-in'></a> Log In To BOSH Director
-1. If you are not using the {{{ vars.platform_name }}} VM as your jump box, install the latest [BOSH CLI](https://bosh.io/docs/cli-v2.html#install) on your jump box.
+1. If you are not using the Ops Manager VM as your jump box, install the latest [BOSH CLI](https://bosh.io/docs/cli-v2.html#install) on your jump box.
 1. To log in to BOSH Director, using the IP address that you recorded above, run the following command line:  
 
     ```
@@ -180,14 +180,14 @@ To obtain your BOSH Director's IP address:
 To download the root CA certificate for your Tanzu Kubernetes Grid Integrated Edition deployment, 
 perform the following steps:
 
-1. Open the {{{ vars.platform_name }}} Installation Dashboard.
+1. Open the Ops Manager Installation Dashboard.
 1. In the top right corner, click your user name.
 1. Navigate to **Settings** > **Advanced**.
 1. Click **Download Root CA Cert**.
 
 ### <a id='bosh-cli-creds'></a> Retrieve the BOSH Command Line Credentials
 
-1. Open the {{{ vars.platform_name }}} Installation Dashboard.
+1. Open the Ops Manager Installation Dashboard.
 1. Click the **BOSH Director** tile.
 1. In the BOSH Director tile, click the **Credentials** tab.
 1. Navigate to **Bosh Commandline Credentials**.
@@ -210,7 +210,7 @@ To locate and record a cluster deployment name, follow the steps below for each 
 
 1. From the output of this command, record the **UUID** value.
 
-1. Open the {{{ vars.platform_name }}} Installation Dashboard.
+1. Open the Ops Manager Installation Dashboard.
 1. Click the **BOSH Director** tile.
 
 1. Select the **Credentials** tab.

@@ -212,9 +212,9 @@ Existing Tanzu Kubernetes Grid Integrated Edition deployments where NAT mode is 
 
 In a Multi-T0 environment with NAT mode, traffic on the Tenant Tier-0 network going from Kubernetes cluster nodes to TKGI management components residing on the Shared Tier-0 router must bypass NAT rules. This is required because TKGI-managed components such as BOSH Director connect to Kubernetes nodes based on routable connectivity without NAT.
 
-To avoid NAT rules being applied to this class of traffic, you need to create two high-priority **NO_SNAT** rules on each Tenant Tier-0 router. These NO_SNAT rules allow "selective" bypass of NAT for the relevant class of traffic, which in this case is connectivity from Kubernetes node networks to TKGI management components such as the TKGI API, {{{ vars.platform_name }}}, and BOSH Director, as well as to infrastructure components such as vCenter and NSX Manager.
+To avoid NAT rules being applied to this class of traffic, you need to create two high-priority **NO_SNAT** rules on each Tenant Tier-0 router. These NO_SNAT rules allow "selective" bypass of NAT for the relevant class of traffic, which in this case is connectivity from Kubernetes node networks to TKGI management components such as the TKGI API, Ops Manager, and BOSH Director, as well as to infrastructure components such as vCenter and NSX Manager.
 
-For each Tenant Tier-0 router, define two NO_SNAT rules to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the TKGI Management network where TKGI, {{{ vars.platform_name }}}, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
+For each Tenant Tier-0 router, define two NO_SNAT rules to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the TKGI Management network where TKGI, Ops Manager, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
 
 For example, the following image shows two NO_SNAT rules created on a Tenant Tier-0 router. The first rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the TKGI management network (`30.0.0.0/24`). The second rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the external network (`192.168.201.0/24`).
 
@@ -317,7 +317,7 @@ To configure BGP peering for each Tenant Tier-0 router, follow the steps below:
 
 ### <a id="bgp-shared"></a>Step 11: Configure BGP on the Shared Tier-0 Router
 
-The configuration of BGP on the Shared Tier-0 is similar to the BGP configuration each Tenant Tier-0, with the exception of the IP Prefix list that permits traffic to the TKGI management network where TKGI, BOSH, and {{{ vars.platform_name }}} are located.
+The configuration of BGP on the Shared Tier-0 is similar to the BGP configuration each Tenant Tier-0, with the exception of the IP Prefix list that permits traffic to the TKGI management network where TKGI, BOSH, and Ops Manager are located.
 
 As with each Tenant Tier-0 router, you will need to assign a unique private AS number within the private range `64512-65534` to the Shared Tier-0 router. Once the AS number is assigned, use NSX Manager to configure the following BGP rules for the Shared Tier-0 router.
 
@@ -338,7 +338,7 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 1. Click **Add** and configure as follows:
 	1. **Name**: Enter a descriptive name.
 	1. Click **Add** and create a **Permit** rule for the infrastructure components vCenter and NSX Manager.
-	1. Click **Add** and create a **Permit** rule for the TKGI management components (TKGI, {{{ vars.platform_name }}}, and BOSH).
+	1. Click **Add** and create a **Permit** rule for the TKGI management components (TKGI, Ops Manager, and BOSH).
 	1. Click **Add** and create a **Deny** rule that denies everything else on the network `0.0.0.0/0`.
   ![IP Prefix Lists](images/nsxt/mt0/ip-prefix-03.png)
 

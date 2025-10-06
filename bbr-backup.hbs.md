@@ -23,7 +23,7 @@ To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup
 
 {{{ vars.recommended_by }}} recommends:
 
-* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of {{{ vars.platform_name }}} and Tanzu Kubernetes Grid Integrated Edition to restore from.
+* Follow the full procedure documented in this topic when creating a backup. This ensures that you always have a consistent backup of Ops Manager and Tanzu Kubernetes Grid Integrated Edition to restore from.
 
 * Back up frequently, especially before upgrading your Tanzu Kubernetes Grid Integrated Edition deployment.
 
@@ -63,8 +63,8 @@ For general information about the jump box, see [Installing BOSH Backup and Rest
 
 To connect to your jump box with SSH, do one of the following:
 
-+ **If you are using the {{{ vars.platform_name }}} VM as your jump box, log in to the {{{ vars.platform_name }}} VM.** See
-    [Log in to the {{{ vars.platform_name }}} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
++ **If you are using the Ops Manager VM as your jump box, log in to the Ops Manager VM.** See
+    [Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
     <br><br>
 + **If you want to connect to your jump box using the command line, run the following
  command:**
@@ -153,15 +153,15 @@ through the proxy which means moving backup artifacts can be significantly slowe
 
 ### <a id='export-opsman-settings'></a> Back Up Installation Settings
 
-To ensure your BBR backup is reliable, frequently export your {{{ vars.platform_name }}} installation settings as a backup.
+To ensure your BBR backup is reliable, frequently export your Ops Manager installation settings as a backup.
 
-There are two ways to export {{{ vars.platform_name }}} installation settings:
+There are two ways to export Ops Manager installation settings:
 
-* [Export settings using the {{{ vars.platform_name }}} UI](#export-via-ui)
-* [Export settings using the {{{ vars.platform_name }}} API](#export-via-api)
+* [Export settings using the Ops Manager UI](#export-via-ui)
+* [Export settings using the Ops Manager API](#export-via-api)
 
 <p class="note"><strong>Note</strong>: If you want to automate the back up process,
-you can use the {{{ vars.platform_name }}} API to export your installation settings.</p>
+you can use the Ops Manager API to export your installation settings.</p>
 
 When exporting your installation settings, keep in mind the following:
 
@@ -169,27 +169,27 @@ When exporting your installation settings, keep in mind the following:
 [Restore the BOSH Director](bbr-restore.html#redeploy-restore-director)
 section of the *Restoring Tanzu Kubernetes Grid Integrated Edition* topic.
 
-* You can only export {{{ vars.platform_name }}} installation settings after you have deployed at least once.
+* You can only export Ops Manager installation settings after you have deployed at least once.
 
-* Your {{{ vars.platform_name }}} settings export is only a backup of {{{ vars.platform_name }}} configuration settings.
+* Your Ops Manager settings export is only a backup of Ops Manager configuration settings.
 The export is not a backup of your VMs or any external MySQL databases.
 
-* Your {{{ vars.platform_name }}} settings export is encrypted. Make sure you keep track of your Decryption Passphrase
-because this is needed to restore the {{{ vars.platform_name }}} settings.
+* Your Ops Manager settings export is encrypted. Make sure you keep track of your Decryption Passphrase
+because this is needed to restore the Ops Manager settings.
 
-#### <a id='export-via-ui'></a> Export Settings Using the {{{ vars.platform_name }}} UI
+#### <a id='export-via-ui'></a> Export Settings Using the Ops Manager UI
 
-To export your {{{ vars.platform_name }}} installation settings using the {{{ vars.platform_name }}} UI, perform the following steps:
+To export your Ops Manager installation settings using the Ops Manager UI, perform the following steps:
 
-1. From the **Installation Dashboard** in the {{{ vars.platform_name }}} interface, click your user name at the top right navigation.
+1. From the **Installation Dashboard** in the Ops Manager interface, click your user name at the top right navigation.
 1. Select **Settings**.
 1. Select **Export Installation Settings**.
 1. Click **Export Installation Settings**.
 
-#### <a id='export-via-api'></a> Export Settings Using the {{{ vars.platform_name }}} API
-To export your {{{ vars.platform_name }}} installation settings using the {{{ vars.platform_name }}} API, perform the following steps:
+#### <a id='export-via-api'></a> Export Settings Using the Ops Manager API
+To export your Ops Manager installation settings using the Ops Manager API, perform the following steps:
 
-1. To export your installation settings using the {{{ vars.platform_name }}} API, run the following command:
+1. To export your installation settings using the Ops Manager API, run the following command:
 
     ```
     curl https://OPS-MAN-FQDN/api/v0/installation_asset_collection \
@@ -197,7 +197,7 @@ To export your {{{ vars.platform_name }}} installation settings using the {{{ va
     ```
     Where:  
 
-    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your {{{ vars.platform_name }}} deployment.
+    * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.
     * `UAA-ACCESS-TOKEN` is your UAA access token. For more information, see Access the API.
 
 ### <a id='back-up-director'></a> Back Up the Tanzu Kubernetes Grid Integrated Edition BOSH Director
@@ -274,9 +274,9 @@ To back up your Tanzu Kubernetes Grid Integrated Edition Control Plane you will 
 #### <a id='locate-deploy-name'></a> Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name
 Locate and record your Tanzu Kubernetes Grid Integrated Edition BOSH deployment name as follows:
 
-1. Open an SSH connection to either your jump box, as described in the previous section, or the {{{ vars.platform_name }}} VM.
-For instructions on how to SSH into the {{{ vars.platform_name }}} VM, see
-[Log in to the {{{ vars.platform_name }}} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
+1. Open an SSH connection to either your jump box, as described in the previous section, or the Ops Manager VM.
+For instructions on how to SSH into the Ops Manager VM, see
+[Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
 in _Advanced Troubleshooting with the BOSH CLI_.
 1. On the command line, run the following command to retrieve your Tanzu Kubernetes Grid Integrated Edition BOSH deployment name.
 

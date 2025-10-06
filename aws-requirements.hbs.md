@@ -11,12 +11,12 @@ Before installing Tanzu Kubernetes Grid Integrated Edition:
 
 1. Review the sections below.
 
-1. Install and configure {{{ vars.platform_name }}}.
-To install {{{ vars.platform_name }}}, follow the instructions in [Installing and Configuring {{{ vars.platform_name }}} on AWS](aws-om-install-config.html).
+1. Install and configure Ops Manager.
+To install Ops Manager, follow the instructions in [Installing and Configuring Ops Manager on AWS](aws-om-install-config.html).
 
 ##<a id='resources'></a> Resource Requirements
 
-Installing {{{ vars.platform_name }}} and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
+Installing Ops Manager and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
 
 <table>
   <tr>
@@ -41,7 +41,7 @@ Installing {{{ vars.platform_name }}} and Tanzu Kubernetes Grid Integrated Editi
   </tr>
 </table>
 
-<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated {{{ vars.platform_name }}} instance, rather than on a shared {{{ vars.platform_name }}} that also hosts other runtimes such as {{{ vars.app_runtime }}}.</p>
+<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated Ops Manager instance, rather than on a shared Ops Manager that also hosts other runtimes such as {{{ vars.app_runtime }}}.</p>
 
 {{> _increase_persistent_disk }}
 

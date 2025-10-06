@@ -40,7 +40,7 @@ tkgi login -a TKGI-API -u USERNAME -p PASSWORD --ca-cert CERT-PATH
 
 Where:  
 
-* `TKGI-API` is the domain name for the TKGI API that you entered in **{{{ vars.platform_name }}}** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**.
+* `TKGI-API` is the domain name for the TKGI API that you entered in **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**.
 For example, `api.tkgi.example.com`.  
 
 * `USERNAME` and `PASSWORD` belong to the account you created in the [Grant Tanzu Kubernetes Grid Integrated Edition Access to an Individual User](manage-users.html#uaa-user) section of _Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA_.
@@ -77,7 +77,7 @@ tkgi login -a TKGI-API --client-name CLIENT-NAME --client-secret CLIENT-SECRET -
 ```
 Where:
 
-* `TKGI-API` is the domain name for the TKGI API that you entered in **{{{ vars.platform_name }}}** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**. For example, `api.tkgi.example.com`.  
+* `TKGI-API` is the domain name for the TKGI API that you entered in **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**. For example, `api.tkgi.example.com`.  
 * `CLIENT-NAME` is an OAuth client ID for either:  
     - A UAA admin client created with `--authorities "pks.clusters.admin"`  
     - The default admin client **Pks Uaa Management Admin Client**  

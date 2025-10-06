@@ -1,5 +1,5 @@
 ---
-title: Upgrading Tanzu Kubernetes Grid Integrated Edition with {{{ vars.platform_name }}}
+title: Upgrading Tanzu Kubernetes Grid Integrated Edition with Ops Manager
 owner: TKGI
 ---
 

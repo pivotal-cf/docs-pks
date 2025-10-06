@@ -49,7 +49,7 @@ For specific instructions on creating the required objects, see [Create the NSX 
 
 When you configure the BOSH Director tile for Tanzu Kubernetes Grid Integrated Edition, you must enable the option vCenter Config > NSX Networking > **Use NSX Policy API**. See [Configure NSX Networking](./vsphere-nsxt-om-config.html#vcenter-config).
 
-Also, when you configure the TKGI tile in {{{ vars.platform_name }}}, you must enabled Settings > Networking > NSX > **Policy API mode**. See [Configure TKGI Networking](./installing-nsx-t.html#networking).
+Also, when you configure the TKGI tile in Ops Manager, you must enabled Settings > Networking > NSX > **Policy API mode**. See [Configure TKGI Networking](./installing-nsx-t.html#networking).
 
 ## <a id='nsxt-policy-mgmt-console'></a>Management Console
 

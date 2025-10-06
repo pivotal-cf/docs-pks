@@ -11,7 +11,7 @@ For more information about Admission Control Plugins, see [Using Admission Contr
 
 To deactivate a single admission control plugin, do the following:
 
-1. Log in to {{{ vars.platform_name }}}.
+1. Log in to VMware Tanzu Operations Manager (Ops Manager).
 1. Click the Tanzu Kubernetes Grid Integrated Edition tile.
 1. Select the plan where you configured the admission control plugin, such as **Plan 1**.
 1. Deselect the admission control plugin.
@@ -26,18 +26,18 @@ For instructions on upgrading individual Kubernetes clusters, see [Upgrading Clu
 
 ##<a id='admission-plugin-disable'></a> Deactivating an Orphaned Admission Control Plugin
 
-The {{{ vars.platform_name }}} UI does not let you deselect (deactivate) all admission control plugins. 
+The Ops Manager UI does not let you deselect (deactivate) all admission control plugins. 
 
 In other words, after an admission control plugin is activated, 
-the {{{ vars.platform_name }}} UI requires that at least one admission control plugin check box is selected (activated).
+the Ops Manager UI requires that at least one admission control plugin check box is selected (activated).
 
 To deactivate an orphaned Admission control Plugin, complete the following workflow:
 
-1. Obtain the FQDN, user name, and password of your {{{ vars.platform_name }}}.
-1. Authenticate into the {{{ vars.platform_name }}} API and retrieve a UAA access token to access {{{ vars.platform_name }}}. 
-    For more information, see [Using the {{{ vars.platform_name }}} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).
+1. Obtain the FQDN, user name, and password of your Ops Manager.
+1. Authenticate into the Ops Manager API and retrieve a UAA access token to access Ops Manager. 
+    For more information, see [Using the Ops Manager API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).
 1. Obtain the BOSH deployment name for the Tanzu Kubernetes Grid Integrated Edition tile by doing one of the following options:
-    1. Option 1: Use the {{{ vars.platform_name }}} API:
+    1. Option 1: Use the Ops Manager API:
         1. In a terminal, run the following command:
             
             ```
@@ -45,14 +45,14 @@ To deactivate an orphaned Admission control Plugin, complete the following workf
             ```
         1. In the output, locate the `installation_name` that begins with `pivotal-container-service`.
         1. Copy the entire BOSH deployment name, including the unique GUID. For example, `pivotal-container-service-4b48fc5b704d54c6c7de`.
-    1. Option 2: Use the {{{ vars.platform_name }}} UI:
-        1. In {{{ vars.platform_name }}}, click the Tanzu Kubernetes Grid Integrated Edition tile. 
+    1. Option 2: Use the Ops Manager UI:
+        1. In Ops Manager, click the Tanzu Kubernetes Grid Integrated Edition tile. 
         1. Copy the BOSH deployment name including the GUID from the URL:
 
             <img src="images/pks-guid.png" alt="TKGI GUID">
             <br/><br/>
             The deployment name contains "pivotal-container-service" and a unique GUID string. For example, `pivotal-container-service-4b48fc5b704d54c6c7de`.
-1. To deactivate the orphaned admission control plugin, run the following {{{ vars.platform_name }}} API command:
+1. To deactivate the orphaned admission control plugin, run the following Ops Manager API command:
 
     ```
     curl -i "https://OPS-MAN-FQDN/api/v0/staged/pivotal-container-service-GUID/properties" \
@@ -62,7 +62,7 @@ To deactivate an orphaned Admission control Plugin, complete the following workf
 	```
     Where:  
 
-	   * `OPS-MAN-FQDN` is the URL of your {{{ vars.platform_name }}}.  
+	   * `OPS-MAN-FQDN` is the URL of your Ops Manager.  
 	   * `pivotal-container-service-GUID` is the BOSH deployment name of your Tanzu Kubernetes Grid Integrated Edition that you retrieved earlier in this procedure.  
 	   * `UAA-ACCESS-TOKEN` is the UAA token you retrieved earlier in this procedure.  
        * `PLAN-NUMBER` is the plan configuration you want to update. For example, `plan1` or `plan2`.  
@@ -76,8 +76,8 @@ To deactivate an orphaned Admission control Plugin, complete the following workf
     ```
 
 1. From the output, verify that the command returns a `HTTP 200` status code.
-1. Validate your manifest change in the {{{ vars.platform_name }}} UI. Do the following:
-    1. Log in to {{{ vars.platform_name }}}.
+1. Validate your manifest change in the Ops Manager UI. Do the following:
+    1. Log in to Ops Manager.
     1. Select **Review Pending Changes**.
     1. On the Review Pending Changes pane, navigate to the Tanzu Kubernetes Grid Integrated Edition section and select **SEE CHANGES**.
     1. Verify that the admission control plugins are displayed as removed in the **Manifest** section. For example:

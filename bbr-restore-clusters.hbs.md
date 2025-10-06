@@ -9,7 +9,7 @@ the BOSH Director, VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) contro
 ##<a id="overview"></a> Overview
 
 In the event of a disaster, you might lose your environment's VMs, disks, and your IaaS network and load balancer resources as well.
-You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition {{{ vars.platform_name }}} Installation settings,
+You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition Ops Manager Installation settings,
 using your BBR backup artifacts.
 
 Before restoring using BBR:  
@@ -98,7 +98,7 @@ see [Redeploy a Single Cluster](#redeploy-single-cluster).
 
 To redeploy all clusters:
 
-1. In {{{ vars.platform_name }}}, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. In Ops Manager, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
 1. Click **Errands**.
 1. Ensure the **Upgrade all clusters** errand is **On**.
 This errand redeploys all your TKGI-provisioned clusters.

@@ -48,7 +48,7 @@ To increase or decrease the number of worker nodes on a cluster:
         worker nodes.  
         * To scale up your existing cluster, enter a number higher than the current number of worker
         nodes. The maximum number of worker nodes you can set is configured in the **Plan** pane of
-        the Tanzu Kubernetes Grid Integrated Edition tile in {{{ vars.platform_name }}}.  
+        the Tanzu Kubernetes Grid Integrated Edition tile in Ops Manager.  
         <p class="note"><strong>Note</strong>: VMware recommends that you avoid using the
         <code>tkgi resize</code> command to perform resizing operations.</p>
 
@@ -68,7 +68,7 @@ another within the cluster. For more information, see
 
 To change the size of a Kubernetes cluster node VM, complete the following steps:  
 
-1. Log in to {{{ vars.platform_name }}}.  
+1. Log in to Ops Manager.  
 1. Select the TKGI tile.  
 1. Select the plan that is in use by the cluster(s) you want to resize.  
 1. To change the VM size:  
@@ -77,7 +77,7 @@ To change the size of a Kubernetes cluster node VM, complete the following steps
 <p class="note"><strong>Note:</strong> See <a href="vm-sizing.html#node-sizing-custom">Customize Control Plane and Worker Node VM Size and Type</a> for information on creating a custom VM size for use with a TKGI cluster.</p>
 1. Click **Save** to preserve tile changes.  
 1. At the **Installation Dashboard**, click **Review Pending Changes**.  
-    <img src="images/pending-changes.png"  alt="The {{{ vars.platform_name }}} Review Pending Changes page, showing only the TKGI product with an Errands button.">
+    <img src="images/pending-changes.png"  alt="The Ops Manager Review Pending Changes page, showing only the TKGI product with an Errands button.">
 1. For the TKGI tile, expand the **ERRANDS** list.  
 1. Select the **Update all clusters errand** if it is not already selected. You must ensure that **Update all clusters errand** is selected so that the cluster deployment manifest is regenerated after the plan is updated.  
 1. Click **Apply Changes**.  
