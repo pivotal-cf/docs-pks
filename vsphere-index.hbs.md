@@ -4,7 +4,7 @@ title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere
 iaas: vSphere
 ---
 
-This topic describes options for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
+This topic describes options for installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 ## <a id='overview'></a>Overview
 

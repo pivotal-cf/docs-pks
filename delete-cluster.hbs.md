@@ -3,7 +3,7 @@ title: Deleting Clusters
 
 ---
 
-This topic describes how to delete a Kubernetes cluster deployed by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to delete a Kubernetes cluster deployed by {{  vars.product_full }} ({{ vars.product_short }}).
 
 
 ## <a id='overview'></a>Overview

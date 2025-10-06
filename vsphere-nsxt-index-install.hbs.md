@@ -4,7 +4,7 @@ title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMwar
 iaas: vsphere-nsxt
 ---
 
-The following topics describe how to install NSX Data Center on vSphere for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+The following topics describe how to install NSX Data Center on vSphere for use with {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## Install NSX on vSphere
 

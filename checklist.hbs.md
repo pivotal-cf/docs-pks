@@ -4,7 +4,7 @@ title: Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Editio
 ---
 
 This topic describes the preparation steps to complete before upgrading
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
+{{  vars.product_full }} ({{ vars.product_short }}) from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
 
 ##<a id='overview'></a> Overview
 

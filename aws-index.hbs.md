@@ -4,7 +4,7 @@ owner: {{ vars.platform_name }}
 iaas: AWS
 ---
 
-The topics below describe how to install VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on Amazon Web Services (AWS).
+The topics below describe how to install {{  vars.product_full }} ({{ vars.product_short }}) on Amazon Web Services (AWS).
 
 ## Install Tanzu Kubernetes Grid Integrated Edition on AWS
 

@@ -3,7 +3,7 @@ title: Configuring VMware NSX v3 Transport Zones and Edge Node Switches for Tanz
  -NSXT
 ---
 
-This topic describes how to configure NSX Data Center v3 Transport Zones and N-VDS switches on NSX Edge Nodes for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
+This topic describes how to configure NSX Data Center v3 Transport Zones and N-VDS switches on NSX Edge Nodes for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

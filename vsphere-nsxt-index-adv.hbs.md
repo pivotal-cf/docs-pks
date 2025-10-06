@@ -4,7 +4,7 @@ title: Advanced Configurations for Tanzu Kubernetes Grid Integrated Edition on v
 iaas: vsphere-nsxt
 ---
 
-The following topics describe how to complete your installation of VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX Data Center.
+The following topics describe how to complete your installation of {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX Data Center.
 
 ## Post-Installation NSX Configurations
 

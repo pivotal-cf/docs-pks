@@ -3,7 +3,7 @@ title: Supporting Windows Clusters
 
 ---
 
-The following topics describe how to support Windows worker-based Kubernetes clusters provisioned by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):
+The following topics describe how to support Windows worker-based Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}):
 
 <ul>
   <li>

@@ -3,7 +3,7 @@ title: Configuring Containerd Cluster Access to Insecure Container Registries
 
 ---
 
-This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters that run the Containerd runtime with insecure container registries.
+This topic describes how to configure {{  vars.product_full }} ({{ vars.product_short }}) Kubernetes clusters that run the Containerd runtime with insecure container registries.
 
 
 ## <a id='insec-overview'></a> Overview

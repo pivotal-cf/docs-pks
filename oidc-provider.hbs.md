@@ -4,7 +4,7 @@ title: OIDC Provider for Kubernetes Clusters
 ---
 
 This topic describes how to configure the global default OpenID Connect (OIDC) provider
-settings for your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters
+settings for your {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters
 and how to override the default configuration for individual clusters.
 
 ## <a id='overview'></a>Overview

@@ -3,7 +3,7 @@ title: Configuring the Upgrade Pipeline
 
 ---
 
-This topic describes how to configure a Concourse pipeline to automatically upgrade a VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) installation.
+This topic describes how to configure a Concourse pipeline to automatically upgrade a {{  vars.product_full }} ({{ vars.product_short }}) installation.
 
 ## <a id="Overview"></a> Overview
 

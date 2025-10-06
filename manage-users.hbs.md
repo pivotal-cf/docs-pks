@@ -3,7 +3,7 @@ title: Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA
 
 ---
 
-This topic describes how to manage users in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+This topic describes how to manage users in {{  vars.product_full }} ({{ vars.product_short }})
 with User Account and Authentication (UAA).
 
 ## <a id='overview'></a> Overview

@@ -3,7 +3,7 @@ title: Working with Network Profiles in {{ vars.platform_name }}
 
 ---
 
-The following topics describe how to define and use network profiles in {{ vars.platform_name }}, for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters deployed on NSX with vSphere:
+The following topics describe how to define and use network profiles in {{ vars.platform_name }}, for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters deployed on NSX with vSphere:
 
 <ul>
   <li>

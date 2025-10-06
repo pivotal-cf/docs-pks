@@ -3,7 +3,7 @@ title: Specify Nodes DNS Servers
 
 ---
 
-This topic describes how to define network profiles for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.
+This topic describes how to define network profiles for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters on vSphere with NSX.
 
 ## <a id='dns'></a> DNS Configuration for Kubernetes Clusters
 

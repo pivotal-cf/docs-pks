@@ -3,7 +3,7 @@ title: Using BOSH VM&nbsp;Extensions
 
 ---
 
-This topic describes how to configure Kubernetes clusters with BOSH VM&nbsp;extensions using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to configure Kubernetes clusters with BOSH VM&nbsp;extensions using {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id='overview'></a>Overview
 

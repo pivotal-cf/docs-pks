@@ -3,7 +3,7 @@ title: Using Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edit
 
 ---
 
-The topics below describe how to manage and use admission control plugins for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.
+The topics below describe how to manage and use admission control plugins for {{  vars.product_full }} ({{ vars.product_short }}) clusters.
 
 For more information about Admission Controllers, see [Using Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/) in the Kubernetes documentation.
 

@@ -3,7 +3,7 @@ title: Creating VMware NSX Objects for Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-This topic describes how to create VMware NSX Objects for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to create VMware NSX Objects for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='overview'></a>Overview
 

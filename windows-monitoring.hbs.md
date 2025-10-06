@@ -5,7 +5,7 @@ owner: PKS
 
 This topic describes how to set up monitoring tools to capture
 metrics from Windows worker-based Kubernetes clusters
-deployed by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+deployed by {{  vars.product_full }} ({{ vars.product_short }}).
 
 
 ## <a id='overview'></a> Overview

@@ -3,7 +3,7 @@ title: PersistentVolume Storage Options on vSphere
 
 ---
 
-This topic describes options for configuring VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere to support stateful apps using PersistentVolumes (PVs).
+This topic describes options for configuring {{  vars.product_full }} ({{ vars.product_short }}) on vSphere to support stateful apps using PersistentVolumes (PVs).
 
 <p class="note"><strong>Note</strong>: This topic assumes that you have strong familiarity with PVs and workloads in Kubernetes.</p>
 

@@ -3,7 +3,7 @@ title: NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-This topic describes the topologies supported for deploying VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) with NSX.
+This topic describes the topologies supported for deploying {{  vars.product_full }} ({{ vars.product_short }}) with NSX.
 
 ##<a id='topology-nat'></a> NAT Topology
 

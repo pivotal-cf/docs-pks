@@ -3,7 +3,7 @@ title: Managing Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-The following topics describe how to manage VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):
+The following topics describe how to manage {{  vars.product_full }} ({{ vars.product_short }}):
 
 <ul>
   <li>

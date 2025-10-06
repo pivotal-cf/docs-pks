@@ -3,7 +3,7 @@ title: Customize Floating IP Pools
 
 ---
 
-This topic describes how to define network profiles for custom floating IP pools for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.
+This topic describes how to define network profiles for custom floating IP pools for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
 
 ## <a id='floating-ip'></a> Create a Custom Floating IP Pool
 

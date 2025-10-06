@@ -3,7 +3,7 @@ title: Adding Custom Linux Workloads
 
 ---
 
-This topic describes how to add custom workloads to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.
+This topic describes how to add custom workloads to {{  vars.product_full }} ({{ vars.product_short }}) clusters.
 
 
 

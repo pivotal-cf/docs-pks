@@ -4,7 +4,7 @@ title: Restoring TKGI Management Plane Components
 ---
 
 This topic describes how to use BOSH Backup and Restore (BBR) to restore
-the BOSH Director, VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) control plane.
+the BOSH Director, {{  vars.product_full }} ({{ vars.product_short }}) control plane.
 
 ##<a id="overview"></a> Overview
 

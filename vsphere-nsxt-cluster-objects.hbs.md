@@ -4,7 +4,7 @@ title: vSphere with VMware NSX Cluster Objects
 iaas: vsphere-nsxt
 ---
 
-This topic describes the vSphere VMs and NSX objects created by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) when you create a Kubernetes cluster. When you delete a Kubernetes cluster, Tanzu Kubernetes Grid Integrated Edition removes these objects.
+This topic describes the vSphere VMs and NSX objects created by {{  vars.product_full }} ({{ vars.product_short }}) when you create a Kubernetes cluster. When you delete a Kubernetes cluster, Tanzu Kubernetes Grid Integrated Edition removes these objects.
 
 For information about creating a Kubernetes cluster using Tanzu Kubernetes Grid Integrated Edition, see [Creating Clusters](create-cluster.html). For information about deleting a Kubernetes cluster using Tanzu Kubernetes Grid Integrated Edition, see [Deleting Clusters](delete-cluster.html).
 

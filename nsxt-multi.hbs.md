@@ -3,7 +3,7 @@ title: Implementing a Multi-Foundation Tanzu Kubernetes Grid Integrated Edition 
 
 ---
 
-This topic describes how to deploy multiple instances of VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX infrastructure.
+This topic describes how to deploy multiple instances of {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX infrastructure.
 
 ## <a id='about'></a> About Multi-Foundation Tanzu Kubernetes Grid Integrated Edition
 

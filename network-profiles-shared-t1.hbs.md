@@ -3,7 +3,7 @@ title: Shared and Dedicated Tier-1 Router Topologies
 
 ---
 
-This topic describes how to define a network profile to configure shared and dedicated Tier-1 router topologies for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.
+This topic describes how to define a network profile to configure shared and dedicated Tier-1 router topologies for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters on vSphere with NSX.
 
 This topic also explains how to define a network profile that overrides the Shared Tier-1 topology default, to specify Dedicated Tier-1 topology for TKGI clusters.
 

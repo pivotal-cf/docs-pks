@@ -3,7 +3,7 @@ title: Tanzu Kubernetes Grid Integrated Edition Architecture
 
 ---
 
-This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deploys and manages Kubernetes clusters.
+This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) deploys and manages Kubernetes clusters.
 
 
 ## <a id="overview"></a>Tanzu Kubernetes Grid Integrated Edition Overview

@@ -3,7 +3,7 @@ title: Configuring Ingress Resources and Load Balancer Services
  -NSX
 ---
 
-This topic describes example ingress routing (Layer 7) and load balancing (Layer 4) configurations for Kubernetes clusters deployed by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX integration.
+This topic describes example ingress routing (Layer 7) and load balancing (Layer 4) configurations for Kubernetes clusters deployed by {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX integration.
 
 <p class="note"><strong>Note:</strong> The examples in this topic are based on NCP v2.3.2.</p>
 

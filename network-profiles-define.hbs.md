@@ -3,7 +3,7 @@ title: Creating and Managing Network Profiles (NSX Only)
 
 ---
 
-This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) administrators
+This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) administrators
 can create and delete network profiles for TKGI-provisioned Kubernetes clusters on vSphere with NSX integration.
 
 This topic also describes the use cases for when a TKGI administrator must use a network profile.

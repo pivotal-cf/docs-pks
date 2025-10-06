@@ -4,7 +4,7 @@ title: Using Kubernetes Profiles
 ---
 
 This topic describes how to create and use Kubernetes profiles
-for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.
+for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
 
 
 

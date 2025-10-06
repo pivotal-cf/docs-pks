@@ -3,7 +3,7 @@ title: About Tanzu Kubernetes Grid Integrated Edition Upgrades
 
 ---
 
-This topic provides conceptual information about upgrading VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and TKGI-provisioned Kubernetes clusters.
+This topic provides conceptual information about upgrading {{  vars.product_full }} ({{ vars.product_short }}) and TKGI-provisioned Kubernetes clusters.
 
 For step-by-step instructions on upgrading TKGI
 and TKGI-provisioned Kubernetes clusters, see:

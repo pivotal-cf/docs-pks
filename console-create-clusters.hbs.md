@@ -3,7 +3,7 @@ title: Create Clusters in the Management Console
 
 ---
 
-This topic describes how to manage VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters in the TKGI Management Console (TKGI MC) on vSphere.
+This topic describes how to manage {{  vars.product_full }} ({{ vars.product_short }}) clusters in the TKGI Management Console (TKGI MC) on vSphere.
 
 
 ## <a id='overview'></a>Overview

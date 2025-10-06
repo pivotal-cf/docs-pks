@@ -3,7 +3,7 @@ title: Provisioning a VMware NSX Load Balancer for the TKGI API Server
 owner: PKS-NSXT
 ---
 
-This topic describes how to deploy an NSX load balancer for the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) API Server.
+This topic describes how to deploy an NSX load balancer for the {{  vars.product_full }} ({{ vars.product_short }}) API Server.
 
 ##<a id='about'></a> About the NSX Load Balancer for the TKGI API Server
 

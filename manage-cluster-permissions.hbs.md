@@ -3,7 +3,7 @@ title: Managing Cluster Access and Permissions
 
 ---
 
-This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id='overview'></a> Overview
 

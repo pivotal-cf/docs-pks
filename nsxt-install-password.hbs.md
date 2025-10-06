@@ -3,7 +3,7 @@ title: Configure VMware NSX Passwords
  -NSXT
 ---
 
-This topic describes how to configure NSX passwords after you have installed NSX for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to configure NSX passwords after you have installed NSX for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

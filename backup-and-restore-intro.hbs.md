@@ -3,7 +3,7 @@ title: Overview of Backing Up and Restoring TKGI
 
 ---
 
-This topic describes the back up and restore process for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI), and provides high-level considerations for implementing your back up and restore strategy for TKGI.
+This topic describes the back up and restore process for {{  vars.product_full }} ({{ vars.product_short }}), and provides high-level considerations for implementing your back up and restore strategy for TKGI.
 
 ##<a id="layers-tools"></a> Layers and Tools
 

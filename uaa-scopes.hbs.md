@@ -3,7 +3,7 @@ title: UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users
 
 ---
 
-This topic describes User Account and Authentication (UAA) scopes that a UAA admin can assign to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) users.
+This topic describes User Account and Authentication (UAA) scopes that a UAA admin can assign to {{  vars.product_full }} ({{ vars.product_short }}) users.
 
 ## <a id="overview"></a> Overview
 

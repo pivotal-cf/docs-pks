@@ -3,7 +3,7 @@ title: Installing and Configuring NSX Transport Nodes
  -NSXT
 ---
 
-This topic describes how to install and configure NSX Data Center v3.0 for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
+This topic describes how to install and configure NSX Data Center v3.0 for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

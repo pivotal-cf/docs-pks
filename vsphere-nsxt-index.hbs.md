@@ -4,7 +4,7 @@ title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware N
 iaas: vsphere-nsxt
 ---
 
-This topic lists the procedures to follow when installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX networking manually, using {{ vars.platform_name }}.
+This topic lists the procedures to follow when installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX networking manually, using {{ vars.platform_name }}.
 
 <p class="note"><strong>Note</strong>: The recommended method for installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX is to use the Tanzu Kubernetes Grid Integrated Edition Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 

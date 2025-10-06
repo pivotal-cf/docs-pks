@@ -4,7 +4,7 @@ title: Install Tanzu Kubernetes Grid Integrated Edition with Antrea on vSphere U
 iaas: vSphere
 ---
 
-The following topics describe how to use {{ vars.platform_name }} to manually install VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with Antrea networking.
+The following topics describe how to use {{ vars.platform_name }} to manually install {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with Antrea networking.
 
 <p class="note"><strong>Note</strong>: The recommended method for installing Tanzu Kubernetes Grid Integrated Edition on vSphere is to use the Tanzu Kubernetes Grid Integrated Edition Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 

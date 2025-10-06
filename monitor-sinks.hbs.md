@@ -4,7 +4,7 @@ title: Monitoring Clusters with Log Sinks
 ---
 
 This topic describes the log sink resources you can use
-to monitor VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters and their workloads.
+to monitor {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters and their workloads.
 
 ## <a id='overview'></a>Overview
 

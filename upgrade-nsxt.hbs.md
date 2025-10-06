@@ -5,7 +5,7 @@ windowsclusters: #Empty var to prevent build breaking
 iaas: #Empty var to prevent build breaking
 ---
 
-This topic describes how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+This topic describes how to upgrade {{  vars.product_full }} ({{ vars.product_short }})
 from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
 on vSphere with NSX networking.
 

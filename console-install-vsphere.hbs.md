@@ -4,7 +4,7 @@ title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Mana
 ---
 
 VMware Tanzu Kubernetes Grid Integrated Edition Management Console provides a unified installation experience for
-deploying VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) to vSphere.
+deploying {{  vars.product_full }} ({{ vars.product_short }}) to vSphere.
 
 
 ## <a id='overview'></a>Overview

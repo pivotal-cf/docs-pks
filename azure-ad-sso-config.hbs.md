@@ -3,12 +3,12 @@ title: Configuring Azure Active Directory as a SAML Identity Provider
 owner: Identity
 ---
 
-This topic describes how to configure single sign-on (SSO) between Microsoft Azure Active Directory (Azure AD) and VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to configure single sign-on (SSO) between Microsoft Azure Active Directory (Azure AD) and {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id='prerequisites'></a> Prerequisites
 
 To configure Azure AD to designate Tanzu Kubernetes Grid Integrated Edition as a service provider,
-you must have an Azure AD Global Administrator account. 
+you must have an Azure AD Global Administrator account.
 
 ## <a id='configure-saml'></a> Configure SAML in Azure AD
 

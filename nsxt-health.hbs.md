@@ -3,7 +3,7 @@ title: Viewing and Troubleshooting the Health Status of Cluster Network Objects
  -NSX
 ---
 
-This topic describes how cluster managers and users can troubleshoot NSX networking errors using the `kubectl nsxerrors` command for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how cluster managers and users can troubleshoot NSX networking errors using the `kubectl nsxerrors` command for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id='nsxerrors-about'></a>About the NSX Errors CRD
 

@@ -4,7 +4,7 @@ title: Rotating Tanzu Kubernetes Grid Integrated Edition Control Plane Certifica
 ---
 
 This topic describes how to rotate certificates used only by
-the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) control plane and tile.
+the {{  vars.product_full }} ({{ vars.product_short }}) control plane and tile.
 
 This topic covers rotating TKGI control plane certificates only.
 For more information about certificates used by TKGI:

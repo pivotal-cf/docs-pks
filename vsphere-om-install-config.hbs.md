@@ -4,7 +4,7 @@ owner: {{ vars.platform_name }}
 ---
 
 This topic describes how to install and configure {{ vars.platform_name }}
-before deploying VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on VMware vSphere.
+before deploying {{  vars.product_full }} ({{ vars.product_short }}) on VMware vSphere.
 
 
 ## <a id='overview'></a> Overview

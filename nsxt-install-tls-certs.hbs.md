@@ -3,7 +3,7 @@ title: Generate and Register the NSX Management TLS Certificate and Private Key
  -NSXT
 ---
 
-This topic describes how to install and configure an NSX Data Center v3 Management TLS Certificate for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
+This topic describes how to install and configure an NSX Data Center v3 Management TLS Certificate for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

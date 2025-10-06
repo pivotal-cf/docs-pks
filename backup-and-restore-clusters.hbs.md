@@ -3,7 +3,7 @@ title: Backing Up and Restoring Kubernetes Clusters Provisioned by TKGI
 
 ---
 
-This topic describes how to back up and restore Kubernetes clusters provisioned by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to back up and restore Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## Overview
 

@@ -3,7 +3,7 @@ title: VMware Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and {{ vars.platform_name }}.
+{{  vars.product_full }} ({{ vars.product_short }}) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and {{ vars.platform_name }}.
 
 ## <a id='overview'></a>Overview
 

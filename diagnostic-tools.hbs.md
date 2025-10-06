@@ -3,7 +3,7 @@ title: Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Editio
 owner: {{ vars.platform_name }}
 ---
 
-This topic describes how to access information about your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) deployment
+This topic describes how to access information about your {{  vars.product_full }} ({{ vars.product_short }}) deployment
 by using the BOSH Command Line Interface (BOSH CLI).
 
 

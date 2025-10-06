@@ -3,7 +3,7 @@ title: AWS Prerequisites and Resource Requirements
 
 ---
 
-This topic describes the prerequisites and resource requirements for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on Amazon Web Services (AWS).
+This topic describes the prerequisites and resource requirements for installing {{  vars.product_full }} ({{ vars.product_short }}) on Amazon Web Services (AWS).
 
 ##<a id='prerequisites'></a> Prerequisites
 

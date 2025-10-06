@@ -3,120 +3,120 @@ title: Logging Windows Worker Workloads
 owner: PKS
 ---
 
-This topic describes how to install and configure 
-components and integrations to capture logs from 
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) 
-provisioned Windows Worker Kubernetes clusters and worker nodes.  
+This topic describes how to install and configure
+components and integrations to capture logs from
+{{  vars.product_full }} ({{ vars.product_short }})
+provisioned Windows Worker Kubernetes clusters and worker nodes.
 
 ## <a id='logging-prerequisites'></a> Prerequisites
 
-Before starting the tasks in this topic:  
+Before starting the tasks in this topic:
 
-* Your environment must be a Windows 2019 data center with vRealize Log Insight (vRLI).  
-* You must have an accessible container image registry.  
-* Docker must be installed on the local machine you are working from. 
+* Your environment must be a Windows 2019 data center with vRealize Log Insight (vRLI).
+* You must have an accessible container image registry.
+* Docker must be installed on the local machine you are working from.
 For more information, see [Prepare the Working Environment](#prep-windows-nodes) below.
 
 ## <a id='overview'></a> Overview
 
-This procedure describes how to send logs to vRLI 
-from Windows workers on TKGI-provisioned Windows clusters 
-using Fluent Bit.  
+This procedure describes how to send logs to vRLI
+from Windows workers on TKGI-provisioned Windows clusters
+using Fluent Bit.
 
-To use Fluent Bit to send Windows worker logs to vRLI: 
+To use Fluent Bit to send Windows worker logs to vRLI:
 
 1. [Prepare a Fluent Bit Image](#prep-fb-image)
-1. [Install Fluent Bit](#install-fluent-bit)  
+1. [Install Fluent Bit](#install-fluent-bit)
 
 
 ## <a id='prep-windows-nodes'></a> Prepare the Working Environment
 
 To prepare your working environment:
 
-1. Install `docker` on the local machine you are working from. 
+1. Install `docker` on the local machine you are working from.
 If you are working from a TKGI-provisioned Windows worker node, Docker is already installed.
-1. Follow the steps in 
-[Configure Docker for Creating Windows Containers](#configure-docker) below.  
+1. Follow the steps in
+[Configure Docker for Creating Windows Containers](#configure-docker) below.
 
 ### <a id='configure-docker'></a> Configure Docker for Creating Windows Containers
 
-To configure Docker to create Windows containers:  
+To configure Docker to create Windows containers:
 
-1. To open the Docker Desktop menu, click the Docker icon in the Windows system tray notification area.  
-1. If the **Switch to Windows containers...** option is present on the Docker Desktop menu, click it. 
-The Docker Desktop menu now displays the **Switch to Linux containers...** option.  
+1. To open the Docker Desktop menu, click the Docker icon in the Windows system tray notification area.
+1. If the **Switch to Windows containers...** option is present on the Docker Desktop menu, click it.
+The Docker Desktop menu now displays the **Switch to Linux containers...** option.
 
-For more information, see [Switch between Windows and Linux containers](https://docs.docker.com/docker-for-windows/#switch-between-windows-and-linux-containers) 
+For more information, see [Switch between Windows and Linux containers](https://docs.docker.com/docker-for-windows/#switch-between-windows-and-linux-containers)
 in _Docker Desktop for Windows user manual_ in the Docker documentation.
 
 
 ## <a id='prep-fb-image'></a> Prepare a Fluent Bit Image
 
-1. [Build a Windows Fluent Bit Docker Image](#build-docker-image)  
-1. [Configure Fluent Bit](#configure-fluent)  
+1. [Build a Windows Fluent Bit Docker Image](#build-docker-image)
+1. [Configure Fluent Bit](#configure-fluent)
 
 
 ### <a id='build-docker-image'></a> Build a Windows Fluent Bit Docker Image
 
-To build a Fluent Bit Windows Docker image:  
+To build a Fluent Bit Windows Docker image:
 
-1. Log in to the Windows 2019 machine where you are doing your work.  
-1. Download the Fluent Bit source code from the [fluent/fluent-bit](https://github.com/fluent/fluent-bit) 
-repository on GitHub.  
+1. Log in to the Windows 2019 machine where you are doing your work.
+1. Download the Fluent Bit source code from the [fluent/fluent-bit](https://github.com/fluent/fluent-bit)
+repository on GitHub.
 1. Open the Windows Dockerfile located at `fluent-bit/dockerfiles/Dockerfile.windows` for editing.
-1. Set the `FLUENTBIT_VERSION` parameter to `1.8`. Fluent Bit v1.8 supports the native syslog plugin.  
+1. Set the `FLUENTBIT_VERSION` parameter to `1.8`. Fluent Bit v1.8 supports the native syslog plugin.
 1. Change the last line in the Windows Dockerfile from:
 
     ```
     ENTRYPOINT ["fluent-bit.exe", "-i", "dummy", "-o", "stdout"]
     ```
 
-    to instead read:  
+    to instead read:
 
     ```
     ENTRYPOINT ["fluent-bit.exe", "--config", "/fluent-bit/etc/fluent-bit.conf"]
     ```
 1. Save the modified Windows Dockerfile.
-1. Configure Docker for creating Windows containers. 
-For more information, see [Configure Docker for Creating Windows Containers](#configure-docker) above.  
-1. To build a Fluent Bit container image, run:    
+1. Configure Docker for creating Windows containers.
+For more information, see [Configure Docker for Creating Windows Containers](#configure-docker) above.
+1. To build a Fluent Bit container image, run:
 
     ```
     docker.exe build  -f Dockerfile.windows -t fluent-bit-1.8 .
     ```
 
-    While building the Fluent Bit container, Docker downloads the Fluent Bit Windows installation ZIP and 
-    _Microsoft Visual C++ Redistributable Update_ and installs `vc_redist.x64.exe` in the new container:  
-    * If the process fails while Docker downloads the Microsoft Visual C++ Redistributable Update or while 
-    installing `vc_redist.x64.exe` in the new container, see 
-    ['Cannot Find Path' Error When Creating the Fluent Bit Docker Container](#cannot-find-path) in _Troubleshooting_ below.  
-    * If Docker fails to invoke `Invoke-WebRequest` while downloading the Fluent Bit Windows installation ZIP from fluentbit.io, see 
-    ['The remote name could not be resolved' Error When Creating the Fluent Bit Docker Container](#remote-server-cannot-resolve) 
-    in _Troubleshooting_ below.  
+    While building the Fluent Bit container, Docker downloads the Fluent Bit Windows installation ZIP and
+    _Microsoft Visual C++ Redistributable Update_ and installs `vc_redist.x64.exe` in the new container:
+    * If the process fails while Docker downloads the Microsoft Visual C++ Redistributable Update or while
+    installing `vc_redist.x64.exe` in the new container, see
+    ['Cannot Find Path' Error When Creating the Fluent Bit Docker Container](#cannot-find-path) in _Troubleshooting_ below.
+    * If Docker fails to invoke `Invoke-WebRequest` while downloading the Fluent Bit Windows installation ZIP from fluentbit.io, see
+    ['The remote name could not be resolved' Error When Creating the Fluent Bit Docker Container](#remote-server-cannot-resolve)
+    in _Troubleshooting_ below.
 1. Push the Fluent Bit container image to your registry.
 
 
 
-### <a id='configure-fluent'></a> Configure Fluent Bit 
+### <a id='configure-fluent'></a> Configure Fluent Bit
 
-A Fluent Bit configuration defines the `ServiceAccount`, `ClusterRole`, and `ClusterRoleBinding` objects 
-that ensure that the Fluent Bit Kubernetes filter can access and read metadata from the 
-Kubernetes API server `kubernetes.default.svc.cluster.local:443`.  
+A Fluent Bit configuration defines the `ServiceAccount`, `ClusterRole`, and `ClusterRoleBinding` objects
+that ensure that the Fluent Bit Kubernetes filter can access and read metadata from the
+Kubernetes API server `kubernetes.default.svc.cluster.local:443`.
 
-You must configure Fluent Bit using a YAML configuration file. For more information on configuring the Syslog output plugin, 
-see [Syslog](https://docs.fluentbit.io/manual/pipeline/outputs/syslog) in the Fluent Bit documentation.  
+You must configure Fluent Bit using a YAML configuration file. For more information on configuring the Syslog output plugin,
+see [Syslog](https://docs.fluentbit.io/manual/pipeline/outputs/syslog) in the Fluent Bit documentation.
 
 
-<p class="note"><strong>Note:</strong> Because of Docker container drive mounting limitations, 
-  the Fluent Bit configuration below mounts the entire <code>E:</code> disk to the container, 
+<p class="note"><strong>Note:</strong> Because of Docker container drive mounting limitations,
+  the Fluent Bit configuration below mounts the entire <code>E:</code> disk to the container,
   allowing Fluent Bit to read content from the container log path <code>E:\\docker-root</code>.
 </p>
 
 
-To create a Fluent Bit deployment configuration YAML file:  
+To create a Fluent Bit deployment configuration YAML file:
 
-1. Create a file named `fluent-bit.yml`.  
-1. Populate the file with the following:  
+1. Create a file named `fluent-bit.yml`.
+1. Populate the file with the following:
 
     ```
     apiVersion: v1
@@ -163,7 +163,7 @@ To create a Fluent Bit deployment configuration YAML file:
             Log_Level     debug
             Daemon        off
             Parsers_File  parsers.conf
-     
+
         [INPUT]
             Name              tail
             Tag               kube.*
@@ -172,7 +172,7 @@ To create a Fluent Bit deployment configuration YAML file:
             DB                /var/log/flb_kube1.db
             Skip_Long_Lines   On
             Refresh_Interval  60
-     
+
         [FILTER]
             Name                kubernetes
             Match               kube.*
@@ -184,19 +184,19 @@ To create a Fluent Bit deployment configuration YAML file:
             K8S-Logging.Parser  On
             K8S-Logging.Exclude Off
             Kube_Tag_Prefix     kube.c.var.log.containers.
-     
+
         [FILTER]
             Name                nest
             Match               kube.*
             Operation           lift
             Nested_Under        kubernetes
-     
+
         [OUTPUT]
             Name          syslog
             Match          *
             Host          OUTPUT-ADDRESS
-            Port          OUTPUT-PORT  
-            Mode          MODE  
+            Port          OUTPUT-PORT
+            Mode          MODE
             syslog_format rfc5424
             Syslog_Hostname_key  host
             Syslog_Appname_key   pod_name
@@ -204,14 +204,14 @@ To create a Fluent Bit deployment configuration YAML file:
             Syslog_Message_key   log
        #    tls           on    #only needed when use tls mode
        #    tls.verify    off   #only needed when use tls mode
-     
+
       parsers.conf: |
         [PARSER]
             Name   json
             Format json
             Time_Key time
             Time_Format %d/%b/%Y:%H:%M:%S %z
-     
+
         [PARSER]
             Name        docker
             Format      json
@@ -263,37 +263,37 @@ To create a Fluent Bit deployment configuration YAML file:
               path: E:/
           - configMap:
               defaultMode: 420
-              name: fluent-bit-windows-config                                       
+              name: fluent-bit-windows-config
             name: fluent-bit-windows-config
           serviceAccountName: fluent-bit-win
       updateStrategy:
         type: RollingUpdate
     ```
-    
-    Where:  
 
-    * `OUTPUT-ADDRESS` is the IP address of your vRealize Log Insight installation.  
+    Where:
+
+    * `OUTPUT-ADDRESS` is the IP address of your vRealize Log Insight installation.
     * `OUTPUT-PORT` is the port to use to communicate with your vRealize Log Insight installation.
-    If you enable TLS, set the `Port` parameter to `1514`, otherwise set `Port` to `514` for most installations.  
-    * `MODE` is the desired transport type. The available options are `tcp`, `tls`, and `udp`. 
-    If you set `MODE` as `tls`, you must also include the required `tls` parameters.  
-    * `FLUENT-BIT-IMAGE` is the name of the Fluent Bit image in your registry. For example, `fluent-bit-1.8`.  
+    If you enable TLS, set the `Port` parameter to `1514`, otherwise set `Port` to `514` for most installations.
+    * `MODE` is the desired transport type. The available options are `tcp`, `tls`, and `udp`.
+    If you set `MODE` as `tls`, you must also include the required `tls` parameters.
+    * `FLUENT-BIT-IMAGE` is the name of the Fluent Bit image in your registry. For example, `fluent-bit-1.8`.
 
-1. Save the file.  
+1. Save the file.
 
 ## <a id='install-fluent-bit'></a> Install Fluent Bit
 
 To install Fluent Bit:
 
-1. [Deploy Fluent Bit on the Windows Cluster](#deploy-fluent-bit)  
-1. [Validate the Fluent Bit Deployment Using a Sample App](#validate-fluent-bit-using-app)  
+1. [Deploy Fluent Bit on the Windows Cluster](#deploy-fluent-bit)
+1. [Validate the Fluent Bit Deployment Using a Sample App](#validate-fluent-bit-using-app)
 
-### <a id='deploy-fluent-bit'></a> Deploy Fluent Bit on the Windows Cluster  
+### <a id='deploy-fluent-bit'></a> Deploy Fluent Bit on the Windows Cluster
 
-To send container logs to vRLI, deploy Fluent Bit and related objects using your 
-deployment configuration file.  
+To send container logs to vRLI, deploy Fluent Bit and related objects using your
+deployment configuration file.
 
-To deploy Fluent Bit:  
+To deploy Fluent Bit:
 
 1. Deploy Fluent Bit using kubectl:
 
@@ -301,29 +301,29 @@ To deploy Fluent Bit:
     kubectl create -f CONFIG-FILE
     ```
 
-    Where `CONFIG-FILE` is the filename of your Fluent Bit deployment configuration file.  
+    Where `CONFIG-FILE` is the filename of your Fluent Bit deployment configuration file.
 <br>
     For example:
 
     ```
     kubectl create -f fluent-bit.yml
-    ```  
+    ```
 
-### <a id='validate-fluent-bit-using-app'></a> Validate the Fluent Bit Deployment Using a Sample App 
+### <a id='validate-fluent-bit-using-app'></a> Validate the Fluent Bit Deployment Using a Sample App
 
 1. [Configure a Sample App](#configure-sample)
 1. [Deploy the Sample App](#deploy-sample-app)
 1. [Validate the Fluent Bit Deployment](#validate-fluent-bit)
 
-#### <a id='configure-sample'></a>  Configure a Sample App 
+#### <a id='configure-sample'></a>  Configure a Sample App
 
-To confirm that logging is working correctly, use a sample app that outputs log entries frequently. 
-The `logspewer` sample app defined below outputs a log every 10 seconds when running.  
+To confirm that logging is working correctly, use a sample app that outputs log entries frequently.
+The `logspewer` sample app defined below outputs a log every 10 seconds when running.
 
-To configure a `logspewer` sample app for testing:  
+To configure a `logspewer` sample app for testing:
 
-1. Create a file named `sample.yml`.  
-1. Populate the file with the following:  
+1. Create a file named `sample.yml`.
+1. Populate the file with the following:
 
     ```
     apiVersion: apps/v1
@@ -358,37 +358,37 @@ To configure a `logspewer` sample app for testing:
             effect: "NoSchedule"
     ```
 
-1. Save the file. 
+1. Save the file.
 
 #### <a id='deploy-sample-app'></a> Deploy the Sample App
 
-Deploy the test app using kubectl:  
- 
-1. To deploy the test app:  
+Deploy the test app using kubectl:
+
+1. To deploy the test app:
 
     ```
     kubectl create -f CONFIG-FILE
     ```
 
-    Where `CONFIG-FILE` is the filename of your sample app deployment configuration file.  
+    Where `CONFIG-FILE` is the filename of your sample app deployment configuration file.
 <br>
     For example:
 
     ```
     kubectl create -f sample.yml
-    ```   
+    ```
 
 
 #### <a id='validate-fluent-bit'></a> Validate the Fluent Bit Deployment
 
-Validate your Fluent Bit configuration and confirm that Fluent Bit is functioning 
+Validate your Fluent Bit configuration and confirm that Fluent Bit is functioning
 using the test app you created.
- 
-To confirm the sample app's logs are being written to vRLI:  
 
-1. Open vRLI.  
-1. Open the **vRLI** > **Interactive Analytics** tab.  
-1. Search the list for "logspewer". The "logspewer" items are the log entries generated by the sample app.  
+To confirm the sample app's logs are being written to vRLI:
+
+1. Open vRLI.
+1. Open the **vRLI** > **Interactive Analytics** tab.
+1. Search the list for "logspewer". The "logspewer" items are the log entries generated by the sample app.
 
 
 ## <a id='troubleshooting'></a> Troubleshooting
@@ -401,28 +401,28 @@ To confirm the sample app's logs are being written to vRLI:
 
 #### Symptom
 
-The error message `Copy-Item : Cannot find path 'C:\Windows\System32\msvcp140.dll'` is displayed while Docker 
-installs the _Microsoft Visual C++ Redistributable Update_. 
+The error message `Copy-Item : Cannot find path 'C:\Windows\System32\msvcp140.dll'` is displayed while Docker
+installs the _Microsoft Visual C++ Redistributable Update_.
 
 #### Description
 
-When Docker builds the Fluent Bit container, 
-it installs the _Microsoft Visual C++ Redistributable Update_ to the container. 
-To do this, it downloads the _Redistributable Update_ as `vc_redist.x64.exe`, 
-installs the update in the new Docker container, and copies three DLL files to the `/fluent-bit/bin/` directory.  
+When Docker builds the Fluent Bit container,
+it installs the _Microsoft Visual C++ Redistributable Update_ to the container.
+To do this, it downloads the _Redistributable Update_ as `vc_redist.x64.exe`,
+installs the update in the new Docker container, and copies three DLL files to the `/fluent-bit/bin/` directory.
 
-If a `Copy-Item : Cannot find path` error is returned for either `msvcp140.dll`, `vccorlib140.dll`, or 
+If a `Copy-Item : Cannot find path` error is returned for either `msvcp140.dll`, `vccorlib140.dll`, or
 `vcruntime140.dll` the installation of `vc_redist.x64.exe` has failed.
 
 #### Workaround
 
-To manually install the _Microsoft Visual C++ Redistributable Update_ to the Fluent Bit container:  
+To manually install the _Microsoft Visual C++ Redistributable Update_ to the Fluent Bit container:
 
-1. Download the _Microsoft Visual C++ Redistributable Update_, `vc_redist.x64.exe`, from Microsoft.  
-1. Install `vc_redist.x64.exe` on your local Windows 2019 machine.  
-1. Copy the following files from `C:\Windows\System32\` to the directory containing `dockerfile.windows`: 
-`msvcp140.dll`, `vccorlib140.dll`, and `vcruntime140.dll`.  
-1. Modify your `Dockerfile.windows` file:  
+1. Download the _Microsoft Visual C++ Redistributable Update_, `vc_redist.x64.exe`, from Microsoft.
+1. Install `vc_redist.x64.exe` on your local Windows 2019 machine.
+1. Copy the following files from `C:\Windows\System32\` to the directory containing `dockerfile.windows`:
+`msvcp140.dll`, `vccorlib140.dll`, and `vcruntime140.dll`.
+1. Modify your `Dockerfile.windows` file:
 
     1. Remove the following lines from the file:
 
@@ -434,19 +434,19 @@ To manually install the _Microsoft Visual C++ Redistributable Update_ to the Flu
             Copy-Item -Path /Windows/System32/vcruntime140.dll -Destination /fluent-bit/bin/;
         ```
 
-    1. Replace those lines with the following:  
+    1. Replace those lines with the following:
 
         ```
         RUN Write-Host ('Installing Visual C++ Redistributable Package'); `
-            Start-Process /local/vc_redist.x64.exe -ArgumentList '/install', '/quiet', '/norestart' -NoNewWindow -Wait; 
- 
-        COPY msvcp140.dll  /fluent-bit/bin/; 
-        COPY vccorlib140.dll /fluent-bit/bin/; 
+            Start-Process /local/vc_redist.x64.exe -ArgumentList '/install', '/quiet', '/norestart' -NoNewWindow -Wait;
+
+        COPY msvcp140.dll  /fluent-bit/bin/;
+        COPY vccorlib140.dll /fluent-bit/bin/;
         COPY vcruntime140.dll /fluent-bit/bin/;
         ```
 
-    1. Save the file.  
-1. Re-run the Docker build command. For more information, see 
+    1. Save the file.
+1. Re-run the Docker build command. For more information, see
 [Build a Windows Fluent Bit Docker Image](#build-docker-image) above.
 
 
@@ -457,52 +457,52 @@ To manually install the _Microsoft Visual C++ Redistributable Update_ to the Flu
 
 #### Symptom
 
-At the `Installing Fluent Bit` step, you see the error `Invoke-WebRequest : The remote name could not be resolved: 'fluentbit.io'`.  
+At the `Installing Fluent Bit` step, you see the error `Invoke-WebRequest : The remote name could not be resolved: 'fluentbit.io'`.
 
 For example:
 
 ```
-Step 10/16 : RUN Write-Host ('Installing Fluent Bit');     
-             $majorminor = ([Version]::Parse("$env:FLUENTBIT_VERSION")).toString(2);     
-             Invoke-WebRequest -Uri "https://fluentbit.io/releases/$($majorminor)/td-agent-bit-$($env:FLUENTBIT_VERSION)-win64.zip" -OutFile td-agent-bit.zip;     
-             Expand-Archive -Path td-agent-bit.zip -Destination /local/fluent-bit;     
+Step 10/16 : RUN Write-Host ('Installing Fluent Bit');
+             $majorminor = ([Version]::Parse("$env:FLUENTBIT_VERSION")).toString(2);
+             Invoke-WebRequest -Uri "https://fluentbit.io/releases/$($majorminor)/td-agent-bit-$($env:FLUENTBIT_VERSION)-win64.zip" -OutFile td-agent-bit.zip;
+             Expand-Archive -Path td-agent-bit.zip -Destination /local/fluent-bit;
              Move-Item -Path /local/fluent-bit/*/* -Destination /fluent-bit/;
- 
+
  ---> Running in f56e62f47fb5
- 
+
 Installing Fluent Bit
- 
+
 Invoke-WebRequest : The remote name could not be resolved: 'fluentbit.io'
- 
+
 At line:1 char:184
- 
+
 + ... oString(2); Invoke-WebRequest -Uri https://fluentbit.io/releases/$($m ...
- 
+
 +                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
+
     + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebException
- 
+
     + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
- 
-The command 
-            'powershell -Command $ErrorActionPreference = 'Stop'; 
-            $ProgressPreference = 'SilentlyContinue'; 
-            Write-Host ('Installing Fluent Bit');     
-            $majorminor = ([Version]::Parse("$env:FLUENTBIT_VERSION")).toString(2);     
-            Invoke-WebRequest -Uri "https://fluentbit.io/releases/$($majorminor)/td-agent-bit-$($env:FLUENTBIT_VERSION)-win64.zip" -OutFile td-agent-bit.zip;     
-            Expand-Archive -Path td-agent-bit.zip -Destination /local/fluent-bit;     
-            Move-Item -Path /local/fluent-bit/*/* -Destination /fluent-bit/;' 
+
+The command
+            'powershell -Command $ErrorActionPreference = 'Stop';
+            $ProgressPreference = 'SilentlyContinue';
+            Write-Host ('Installing Fluent Bit');
+            $majorminor = ([Version]::Parse("$env:FLUENTBIT_VERSION")).toString(2);
+            Invoke-WebRequest -Uri "https://fluentbit.io/releases/$($majorminor)/td-agent-bit-$($env:FLUENTBIT_VERSION)-win64.zip" -OutFile td-agent-bit.zip;
+            Expand-Archive -Path td-agent-bit.zip -Destination /local/fluent-bit;
+            Move-Item -Path /local/fluent-bit/*/* -Destination /fluent-bit/;'
 returned a non-zero code: 1
 ```
 
 #### Description
 
-To install Fluent Bit while building a Fluent Bit container, Docker uses `Invoke-WebRequest` to download the Fluent Bit Windows installation ZIP from fluentbit.io.  
+To install Fluent Bit while building a Fluent Bit container, Docker uses `Invoke-WebRequest` to download the Fluent Bit Windows installation ZIP from fluentbit.io.
 
-The PowerShell `Invoke-WebRequest` command is not consistently reliable within a docker container. 
-For more information, see 
-[docker build exception: Invoke-WebRequest : The remote name could not be resolved](https://github.com/docker/for-win/issues/6453) 
-in the Docker GitHub repository.  
+The PowerShell `Invoke-WebRequest` command is not consistently reliable within a docker container.
+For more information, see
+[docker build exception: Invoke-WebRequest : The remote name could not be resolved](https://github.com/docker/for-win/issues/6453)
+in the Docker GitHub repository.
 
 #### Workaround
 
@@ -516,31 +516,31 @@ To modify the file:
 
     ```
     RUN Write-Host ('Installing Fluent Bit'); `
-     
+
         $majorminor = ([Version]::Parse("$env:FLUENTBIT_VERSION")).toString(2); `
-     
+
         Invoke-WebRequest -Uri "https://fluentbit.io/releases/$($majorminor)/td-agent-bit-$($env:FLUENTBIT_VERSION)-win64.zip" -OutFile td-agent-bit.zip; `
-     
+
         Expand-Archive -Path td-agent-bit.zip -Destination /local/fluent-bit; `
-     
+
     Move-Item -Path /local/fluent-bit/*/* -Destination /fluent-bit/;
     ```
 
 1. Replace the lines with:
-   
+
     ```
     ...
     ARG FLUENTBIT_VERSION=1.8.0
     ARG majorminor=1.8
     ...
-     
+
     ADD "https://fluentbit.io/releases/$majorminor/td-agent-bit-$FLUENTBIT_VERSION-win64.zip" /local/td-agent-bit.zip
     RUN Write-Host ('Installing Fluent Bit'); `
     Expand-Archive -Path td-agent-bit.zip -Destination /local/fluent-bit; `
     Move-Item -Path /local/fluent-bit/*/* -Destination /fluent-bit/;
     ```
-1. Save the file. 
-1. Re-run the Docker build command. For more information, see 
+1. Save the file.
+1. Re-run the Docker build command. For more information, see
 [Build a Windows Fluent Bit Docker Image](#build-docker-image) above.
 
 

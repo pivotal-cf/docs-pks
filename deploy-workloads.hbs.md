@@ -3,7 +3,7 @@ title: Deploying and Exposing Basic Linux Workloads
 
 ---
 
-This topic describes how to configure, deploy, and expose basic workloads in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to configure, deploy, and expose basic workloads in {{  vars.product_full }} ({{ vars.product_short }}).
 
 
 ## <a id='overview'></a> Overview

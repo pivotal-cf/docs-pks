@@ -3,7 +3,7 @@ title: Backing Up and Restoring Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-The following topics describe how to back up and restore VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):
+The following topics describe how to back up and restore {{  vars.product_full }} ({{ vars.product_short }}):
 
 * [Back Up and Restore Overview](./backup-and-restore-intro.html)
 * [Back Up and Restore Kubernetes Workloads](./backup-and-restore-work.html)

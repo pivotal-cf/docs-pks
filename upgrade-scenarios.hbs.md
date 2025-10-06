@@ -4,7 +4,7 @@ title: Upgrade Order for Tanzu Kubernetes Grid Integrated Edition Environments o
 ---
 
 This topic describes upgrade scenarios for
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) environments that are upgraded from
+{{  vars.product_full }} ({{ vars.product_short }}) environments that are upgraded from
 {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} on vSphere.
 
 ## <a id="overview"></a>Overview

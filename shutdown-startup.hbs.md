@@ -4,7 +4,7 @@ title: Shutting Down and Restarting Tanzu Kubernetes Grid Integrated Edition
 iaas: vsphere-nsxt
 ---
 
-This topic describes how to shut down and startup VMware Tanzu Kubernetes Grid Integrated Edition (TKGI),
+This topic describes how to shut down and startup {{  vars.product_full }} ({{ vars.product_short }}),
 including TKGI-provisioned Kubernetes cluster nodes, TKGI components, and vSphere hosts (vSphere only).
 
 Many of these operations use your IaaS dashboard, such as vSphere Client, Azure Portal, or AWS Management Console.

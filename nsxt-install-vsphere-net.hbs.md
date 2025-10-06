@@ -3,7 +3,7 @@ title: Configure vSphere Networking for ESXi Hosts
  -NSXT
 ---
 
-This topic describes how to configure vSphere Networking for ESXi Hosts for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to configure vSphere Networking for ESXi Hosts for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

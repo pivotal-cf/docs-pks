@@ -4,7 +4,7 @@ title: Configuring Telegraf in TKGI
 ---
 
 This topic describes how to configure Telegraf in
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+{{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id="overview"></a>Overview
 

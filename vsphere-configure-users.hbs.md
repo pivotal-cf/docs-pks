@@ -4,7 +4,7 @@ title: Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on vSpher
 iaas: vSphere
 ---
 
-This topic describes how to create admin users in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) with User Account and Authentication (UAA).
+This topic describes how to create admin users in {{  vars.product_full }} ({{ vars.product_short }}) with User Account and Authentication (UAA).
 
 ## <a id='overview'></a> Overview
 

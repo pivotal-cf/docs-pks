@@ -3,7 +3,7 @@ title: Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero
 
 ---
 
-This topic describes the Velero back up and restore process for Kubernetes workloads deployed to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters.
+This topic describes the Velero back up and restore process for Kubernetes workloads deployed to {{  vars.product_full }} ({{ vars.product_short }}) clusters.
 
 ## <a id="velero-about"></a>About Tanzu Kubernetes Workload Back Up and Restore
 

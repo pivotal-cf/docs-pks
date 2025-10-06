@@ -3,7 +3,7 @@ title: Defining DFW Section Markers
 
 ---
 
-This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) administrators
+This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) administrators
 can define network profiles to create markers for NSX distributed firewall (DFW).
 
 <p class="note"><strong>Note:</strong> The NSX Policy API features a tiered policy model using categories

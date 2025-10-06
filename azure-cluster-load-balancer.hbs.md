@@ -3,7 +3,7 @@ title: Creating and Configuring an Azure Load Balancer for Tanzu Kubernetes Grid
 
 ---
 
-This topic describes how to create and configure a Microsoft Azure load balancer for your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) cluster.
+This topic describes how to create and configure a Microsoft Azure load balancer for your {{  vars.product_full }} ({{ vars.product_short }}) cluster.
 
 
 ##<a id='overview'></a> Overview

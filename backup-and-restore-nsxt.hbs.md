@@ -3,7 +3,7 @@ title: Backing Up and Restoring VMware NSX Manager
 
 ---
 
-This topic describes how to back up and restore NSX Data Center for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to back up and restore NSX Data Center for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## NSX Data Center Back Up and Recover
 

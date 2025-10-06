@@ -5,7 +5,7 @@ iaas: vSphere
 authenttype: boshtile
 ---
 
-This topic describes how to configure BOSH Director for vSphere with NSX integration for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to configure BOSH Director for vSphere with NSX integration for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='other-super-certificates'></a> How {{{ vars.platform_name }}} Accesses NSX Manager
 

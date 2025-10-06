@@ -3,7 +3,7 @@ title: Upgrading Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-The following topics describe how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):
+The following topics describe how to upgrade {{  vars.product_full }} ({{ vars.product_short }}):
 
 <ul>
   <li>

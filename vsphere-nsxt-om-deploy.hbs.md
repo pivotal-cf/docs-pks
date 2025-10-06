@@ -3,7 +3,7 @@ title: Deploying {{ vars.platform_name }} with VMware NSX for Tanzu Kubernetes G
 owner: {{ vars.platform_name }}
 ---
 
-This topic describes how to deploy {{ vars.platform_name }} on VMware vSphere with NSX integration for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to deploy {{ vars.platform_name }} on VMware vSphere with NSX integration for use with {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='prerequisites'></a>Prerequisites
 

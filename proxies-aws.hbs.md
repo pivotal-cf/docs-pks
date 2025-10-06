@@ -5,7 +5,7 @@ topic: proxies-aws
 iaas: #Empty var to prevent build breaking
 ---
 
-This topic describes how HTTP/HTTPS proxies work in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on AWS,
+This topic describes how HTTP/HTTPS proxies work in {{  vars.product_full }} ({{ vars.product_short }}) on AWS,
 and how to set proxies globally.
 
 To configure proxy settings specifically for individual TKGI clusters, see [Configure Cluster Proxies](proxies-cluster.html).

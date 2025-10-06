@@ -4,7 +4,7 @@ title: Firewall Ports and Protocols Requirements for vSphere (Antrea Networking)
 netenv: vsphere
 ---
 
-This topic describes the firewall ports and protocols requirements for using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+This topic describes the firewall ports and protocols requirements for using {{  vars.product_full }} ({{ vars.product_short }})
 on vSphere with Antrea container networking.
 
 If you are not using TKGI on vSphere Antrea container networking, see one of the follow topics instead:

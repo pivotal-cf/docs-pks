@@ -4,7 +4,7 @@ title: Configure NCP Logging
 lbtype: ncplogging
 ---
 
-This topic describes how to define network profiles for logging NCP configurations for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.
+This topic describes how to define network profiles for logging NCP configurations for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
 
 ## <a id='log-about'></a> About Logging for NCP Configurations
 

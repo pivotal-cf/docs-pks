@@ -5,7 +5,7 @@ title: Rotate Kubernetes Cluster Certificates
 
 
 This topic describes how to rotate certificates used by
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters.
+{{  vars.product_full }} ({{ vars.product_short }}) Kubernetes clusters.
 
 For more information about TKGI Certificates:
 

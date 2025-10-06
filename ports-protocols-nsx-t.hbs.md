@@ -4,7 +4,7 @@ title: Firewall Ports and Protocols Requirements for vSphere with NSX
 netenv: nsxt
 ---
 
-This topic describes the firewall ports and protocols requirements for using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+This topic describes the firewall ports and protocols requirements for using {{  vars.product_full }} ({{ vars.product_short }})
 on vSphere with NSX integration.
 
 If you are not using TKGI on vSphere with NSX, see one of the follow topics instead:

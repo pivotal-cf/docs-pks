@@ -3,7 +3,7 @@ title: Installing Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-This topics below describe how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topics below describe how to install and configure {{  vars.product_full }} ({{ vars.product_short }}).
 
 
 

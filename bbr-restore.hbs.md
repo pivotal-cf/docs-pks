@@ -4,7 +4,7 @@ title: Restoring Tanzu Kubernetes Grid Integrated Edition
 ---
 
 This topic describes how to use BOSH Backup and Restore (BBR) to restore
-the BOSH Director, VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) control plane, and Kubernetes clusters.
+the BOSH Director, {{  vars.product_full }} ({{ vars.product_short }}) control plane, and Kubernetes clusters.
 
 ##<a id="overview"></a> Overview
 

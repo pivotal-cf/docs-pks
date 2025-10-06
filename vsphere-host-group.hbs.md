@@ -3,7 +3,7 @@ title: Using vSphere Host Groups with Tanzu Kubernetes Grid Integrated Edition
 owner: vsphere
 ---
 
-This topic describes how to use vSphere Host Groups with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to use vSphere Host Groups with {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id="host-groups-about"></a>About vSphere Host Groups
 

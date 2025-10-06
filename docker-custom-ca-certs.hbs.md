@@ -3,7 +3,7 @@ title: Configuring Cluster Access to Private Registries
 
 ---
 
-This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters to access private Docker or containerd image registries, including:
+This topic describes how to configure {{  vars.product_full }} ({{ vars.product_short }}) Kubernetes clusters to access private Docker or containerd image registries, including:
 
 * **Secure private registries** that use `HTTPS` protocol and require an SSL Certificate Authority (CA) certificate for access.
 * **Insecure private registries** that use `HTTP` protocol.

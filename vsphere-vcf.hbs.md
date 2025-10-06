@@ -3,7 +3,7 @@ title: Install Tanzu Kubernetes Grid Integrated Edition on VMware Cloud Foundati
 
 ---
 
-This topic describes how to install and operate VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+This topic describes how to install and operate {{  vars.product_full }} ({{ vars.product_short }})
 on the VMware Cloud Foundation (VCF) platform.
 
 <p class="note warning"><strong>Warning:</strong>

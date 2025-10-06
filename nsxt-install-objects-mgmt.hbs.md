@@ -3,7 +3,7 @@ title: Create VMware NSX Objects for the Management Plane
  -NSXT
 ---
 
-This topic describes how to create NSX objects for the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Management Plane.
+This topic describes how to create NSX objects for the {{  vars.product_full }} ({{ vars.product_short }}) Management Plane.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

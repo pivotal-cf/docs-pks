@@ -19,7 +19,7 @@ see [Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for
 
 ##<a id='overview'></a> Overview
 
-This topic provides instructions for configuring NSX-T Data Center v3.1 Transport Zones and N-VDS switches on NSX-T Edge Nodes for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
+This topic provides instructions for configuring NSX-T Data Center v3.1 Transport Zones and N-VDS switches on NSX-T Edge Nodes for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 TKGI requires two Transport Zones for TKGI: an Overlay Transport Zone for the ESXi Transport Nodes
 and a VLAN Transport Zone for Edge Nodes.

@@ -4,7 +4,7 @@ title: Creating and Managing Sink Resources
 ---
 
 This topic describes how to create and manage sink resources for a Kubernetes cluster
-provisioned with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI), or
+provisioned with {{  vars.product_full }} ({{ vars.product_short }}), or
 for a namespace within a cluster.
 
 

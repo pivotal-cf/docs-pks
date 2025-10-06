@@ -4,7 +4,7 @@ owner: {{ vars.platform_name }}
 ---
 
 This topic describes how to install and configure {{ vars.platform_name }}
-before deploying VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on Amazon Web Services (AWS).
+before deploying {{  vars.product_full }} ({{ vars.product_short }}) on Amazon Web Services (AWS).
 
 
 ## <a id='overview'></a> Overview

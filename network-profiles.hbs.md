@@ -3,7 +3,7 @@ title: Using Network Profiles (NSX Only)
 
 ---
 
-This topic describes how VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) cluster managers
+This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) cluster managers
 can manage and use network profiles to customize NSX configuration parameters for Kubernetes clusters provisioned by TKGI on vSphere with NSX integration.
 
 

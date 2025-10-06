@@ -3,7 +3,7 @@ title: Assign Resource Quotas to Users in the Management Console
 
 ---
 
-This topic describes how to assign VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) resource quotas to users.
+This topic describes how to assign {{  vars.product_full }} ({{ vars.product_short }}) resource quotas to users.
 
 <p class="note warning"><strong>Warning</strong>: This feature is a beta component and is intended for evaluation and test purposes only. Do not use this feature in a production environment. Product support and future availability are not guaranteed for beta components.</p>
 

@@ -4,7 +4,7 @@ title: vSphere Prerequisites and Resource Requirements
 topictype: vsphere
 ---
 
-This topic describes the prerequisites and resource requirements for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
+This topic describes the prerequisites and resource requirements for installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 For prerequisites and resource requirements for installing TKGI on vSphere with NSX integration,
 see +AFs-vSphere with NSX Version Requirements+AF0-(vsphere-nsxt-requirements.html) and

@@ -3,7 +3,7 @@ title: Pod Security Admission in Tanzu Kubernetes Grid Integrated Edition
 
 ---
 
-This topic describes how to use Kubernetes Pod Security Admission (PSA) with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to use Kubernetes Pod Security Admission (PSA) with {{  vars.product_full }} ({{ vars.product_short }}).
 
 > **Note** Support for Kubernetes Pod Security Policy (PSP) has been removed in Kubernetes v1.25.
 

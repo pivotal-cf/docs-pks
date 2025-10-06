@@ -3,7 +3,7 @@ title: VM Sizing for Tanzu Kubernetes Grid Integrated Edition Clusters
 
 ---
 
-This topic describes the {{{ vars.recommended_by }}}-recommended procedure for sizing VMs for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) cluster components.
+This topic describes the {{{ vars.recommended_by }}}-recommended procedure for sizing VMs for {{  vars.product_full }} ({{ vars.product_short }}) cluster components.
 
 ##<a id="overview"></a>Overview
 

@@ -3,7 +3,7 @@ title: Managing Tanzu Kubernetes Grid Integrated Edition Users in {{ vars.platfo
 
 ---
 
-The following topics describe how to connect User Account and Authentication (UAA) to external user stores when using {{ vars.platform_name }} to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and how to manage users with UAA:
+The following topics describe how to connect User Account and Authentication (UAA) to external user stores when using {{ vars.platform_name }} to configure {{  vars.product_full }} ({{ vars.product_short }}) and how to manage users with UAA:
 
 <ul>
   <li>

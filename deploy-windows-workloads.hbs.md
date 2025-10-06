@@ -3,7 +3,7 @@ title: Deploying and Exposing Basic Windows Workloads
 
 ---
 
-This topic describes deploying Windows worker-based Kubernetes clusters in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes deploying Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
 
 <p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is enabled for
   TKGI on vSphere with NSX and as a beta feature for TKGI on vSphere without NSX.

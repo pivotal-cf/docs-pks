@@ -3,7 +3,7 @@ title: Deploying Workloads
 
 ---
 
-The topics below describe how to deploy workloads to Kubernetes clusters provisioned by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):
+The topics below describe how to deploy workloads to Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}):
 
 <ul>
   <li>

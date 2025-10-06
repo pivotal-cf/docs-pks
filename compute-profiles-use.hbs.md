@@ -3,7 +3,7 @@ title: Using Compute Profiles (vSphere)
 
 ---
 
-This topic describes how to use compute profiles using the VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Command Line Interface (TKGI CLI).
+This topic describes how to use compute profiles using the {{  vars.product_full }} ({{ vars.product_short }}) Command Line Interface (TKGI CLI).
 
 
 ## <a id="overview"></a>Overview
