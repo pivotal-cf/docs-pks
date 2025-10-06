@@ -39,7 +39,7 @@ The BOSH stemcell that you create in this topic is based on Windows Server 2019.
 If you already have a BOSH stemcell for Windows on vSphere, see [Monthly Stemcell Upgrades](#upgrade-stemcell) below.
 
 For more information, see
-[Best Practices for Stembuild for Tanzu Application Service & Tanzu Kubernetes Grid Integrated Edition](https://tanzu.vmware.com/content/practitioners/best-practices-for-stembuild-for-tanzu-application-service-tanzu-kubernetes-grid-integrated-edition)
+[Best Practices for Stembuild for {{{ vars.app_runtime }}} & Tanzu Kubernetes Grid Integrated Edition](https://tanzu.vmware.com/content/practitioners/best-practices-for-stembuild-for-tanzu-application-service-tanzu-kubernetes-grid-integrated-edition)
 in _VMware Tanzu Tech Tutorials_.
 
 To construct, package and upload a BOSH Stemcell for Windows to TKGI, complete the following:

@@ -180,7 +180,7 @@ Before initiating TKGI MP2P, consider the following supported and unsupported co
 
 TKGI MP2P Migration supports migrating TKGI in only NSX environments dedicated to TKGI. 
 Do not start TKGI MP2P Migration if TKGI shares your NSX environment 
-with other products, for example, Tanzu Application Service or VMware Aria Automation.
+with other products, for example, {{{ vars.app_runtime }}} or VMware Aria Automation.
 
 TKGI MP2P Migration supports the following topologies:  
 
@@ -199,7 +199,7 @@ or is a multi-foundation deployment of TKGI.
 
 The following are not supported by TKGI MP2P Migration or TKGI using the NSX Policy API:  
 
-* Do not start TKGI MP2P Migration if TKGI shares your NSX environment with other products, for example, Tanzu Application Service or VMware Aria Automation.
+* Do not start TKGI MP2P Migration if TKGI shares your NSX environment with other products, for example, {{{ vars.app_runtime }}} or VMware Aria Automation.
 
 * TKGI MP2P Migration does not support 
 clusters configured with NSGroups, including [Bootstrap Security Group](network-profiles-ns-groups.html) 
