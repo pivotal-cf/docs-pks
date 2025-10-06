@@ -1,6 +1,5 @@
 ---
 title: TKGI API Authentication
-
 ---
 
 This topic describes how the {{  vars.product_full }} API (TKGI API) works with User Account and Authentication (UAA) to manage TKGI deployment authentication and authorization.
