@@ -7,65 +7,65 @@ topictype: vsphere
 This topic describes the prerequisites and resource requirements for installing VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.
 
 For prerequisites and resource requirements for installing TKGI on vSphere with NSX integration,
-see [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and
-[Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](./vsphere-nsxt-rpd-mpd.html).
+see +AFs-vSphere with NSX Version Requirements+AF0-(vsphere-nsxt-requirements.html) and
++AFs-Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX+AF0-(./vsphere-nsxt-rpd-mpd.html).
 
-##<a id='prerequisites'></a> Prerequisites
++ACMAIwA8-a id+AD0-'prerequisites'+AD4APA-/a+AD4- Prerequisites
 
 Before installing Tanzu Kubernetes Grid Integrated Edition:
 
-1. Review the sections below and the instructions in [Creating Dedicated Users and Roles for vSphere (Optional)](vsphere-prepare-env.html).
+1. Review the sections below and the instructions in +AFs-Creating Dedicated Users and Roles for vSphere (Optional)+AF0-(vsphere-prepare-env.html).
 
-1. Install and configure {{ vars.platform_name }}. To install {{ vars.platform_name }}, follow the instructions in [Installing and Configuring {{ vars.platform_name }} on vSphere](vsphere-om-install-config.html).
+1. Install and configure +AHsAew- vars.platform+AF8-name +AH0AfQ-. To install +AHsAew- vars.platform+AF8-name +AH0AfQ-, follow the instructions in +AFs-Installing and Configuring +AHsAew- vars.platform+AF8-name +AH0AfQ- on vSphere+AF0-(vsphere-om-install-config.html).
 
-##<a id='vsphere'></a> vSphere Version Requirements
++ACMAIwA8-a id+AD0-'vsphere'+AD4APA-/a+AD4- vSphere Version Requirements
 
-{{> _vsphere_versions }}
-
-
-##<a id='resources'></a> Resource Requirements
-
-Installing {{ vars.platform_name }} and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
-
-<table>
-  <tr>
-    <th>VM</th>
-    <th>CPU</th>
-    <th>Memory (GB)</th>
-    <th>Ephemeral Disk (GB)</th>
-  </tr>
-  <tr>
-    <td>BOSH Director</td>
-    <td>2</td>
-    <td>8</td>
-    <td>16</td>
-  </tr>
-  <tr>
-    <td>{{ vars.platform_name }}</td>
-    <td>1</td>
-    <td>8</td>
-    <td>160</td>
-  </tr>
-  <tr>
-    <td>TKGI API</td>
-    <td>2</td>
-    <td>8</td>
-    <td>64</td>
-  </tr>
-  <tr>
-    <td>TKGI Database</td>
-    <td>2</td>
-    <td>8</td>
-    <td>64</td>
-  </tr>
-</table>
-
-<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated {{ vars.platform_name }} instance, rather than on a shared {{ vars.platform_name }} that also hosts other runtimes such as Tanzu Application Service.</p>
-
-{{> _increase_persistent_disk }}
++AHsAewA+- +AF8-vsphere+AF8-versions +AH0AfQ-
 
 
-<h3> Ephemeral VM Resources </h3>
++ACMAIwA8-a id+AD0-'resources'+AD4APA-/a+AD4- Resource Requirements
+
+Installing +AHsAew- vars.platform+AF8-name +AH0AfQ- and Tanzu Kubernetes Grid Integrated Edition requires the following virtual machines (VMs):
+
++ADw-table+AD4-
+  +ADw-tr+AD4-
+    +ADw-th+AD4-VM+ADw-/th+AD4-
+    +ADw-th+AD4-CPU+ADw-/th+AD4-
+    +ADw-th+AD4-Memory (GB)+ADw-/th+AD4-
+    +ADw-th+AD4-Ephemeral Disk (GB)+ADw-/th+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4-BOSH Director+ADw-/td+AD4-
+    +ADw-td+AD4-2+ADw-/td+AD4-
+    +ADw-td+AD4-8+ADw-/td+AD4-
+    +ADw-td+AD4-16+ADw-/td+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4AewB7- vars.platform+AF8-name +AH0AfQA8-/td+AD4-
+    +ADw-td+AD4-1+ADw-/td+AD4-
+    +ADw-td+AD4-8+ADw-/td+AD4-
+    +ADw-td+AD4-160+ADw-/td+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4-TKGI API+ADw-/td+AD4-
+    +ADw-td+AD4-2+ADw-/td+AD4-
+    +ADw-td+AD4-8+ADw-/td+AD4-
+    +ADw-td+AD4-64+ADw-/td+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4-TKGI Database+ADw-/td+AD4-
+    +ADw-td+AD4-2+ADw-/td+AD4-
+    +ADw-td+AD4-8+ADw-/td+AD4-
+    +ADw-td+AD4-64+ADw-/td+AD4-
+  +ADw-/tr+AD4-
++ADw-/table+AD4-
+
++ADw-p class+AD0AIg-note+ACIAPgA8-strong+AD4-NOTE:+ADw-/strong+AD4- VMware recommends deploying TKGI on its own dedicated +AHsAew- vars.platform+AF8-name +AH0AfQ- instance, rather than on a shared +AHsAew- vars.platform+AF8-name +AH0AfQ- that also hosts other runtimes such as +AHsAew- vars.app+AF8-runtime +AH0AfQ-.+ADw-/p+AD4-
+
++AHsAewA+- +AF8-increase+AF8-persistent+AF8-disk +AH0AfQ-
+
+
++ADw-h3+AD4- Ephemeral VM Resources +ADw-/h3+AD4-
 
 Each Tanzu Kubernetes Grid Integrated Edition deployment requires ephemeral VMs during installation and upgrades of Tanzu Kubernetes Grid Integrated Edition.
 After you deploy Tanzu Kubernetes Grid Integrated Edition, BOSH automatically deletes these VMs.
@@ -73,65 +73,65 @@ After you deploy Tanzu Kubernetes Grid Integrated Edition, BOSH automatically de
 To enable Tanzu Kubernetes Grid Integrated Edition to dynamically create the ephemeral VMs when needed, ensure that the following
 resources are available in your vSphere infrastructure before deploying Tanzu Kubernetes Grid Integrated Edition:
 
-<table>
-  <tr>
-    <th>Ephemeral VM</th>
-    <th>VM&nbsp;Count</th>
-    <th>CPU Cores</th>
-    <th>Memory (GB)</th>
-    <th>Ephemeral Disk (GB)</th>
-  </tr>
-  <tr>
-    <td>BOSH Compilation VMs</td>
-    <td>4</td>
-    <td>4</td>
-    <td>4</td>
-    <td>32</td>
-  </tr>
-</table>
++ADw-table+AD4-
+  +ADw-tr+AD4-
+    +ADw-th+AD4-Ephemeral VM+ADw-/th+AD4-
+    +ADw-th+AD4-VM+ACY-nbsp+ADs-Count+ADw-/th+AD4-
+    +ADw-th+AD4-CPU Cores+ADw-/th+AD4-
+    +ADw-th+AD4-Memory (GB)+ADw-/th+AD4-
+    +ADw-th+AD4-Ephemeral Disk (GB)+ADw-/th+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4-BOSH Compilation VMs+ADw-/td+AD4-
+    +ADw-td+AD4-4+ADw-/td+AD4-
+    +ADw-td+AD4-4+ADw-/td+AD4-
+    +ADw-td+AD4-4+ADw-/td+AD4-
+    +ADw-td+AD4-32+ADw-/td+AD4-
+  +ADw-/tr+AD4-
++ADw-/table+AD4-
 
-<h3> Kubernetes Cluster Resources </h3>
++ADw-h3+AD4- Kubernetes Cluster Resources +ADw-/h3+AD4-
 
 Each Kubernetes cluster provisioned through Tanzu Kubernetes Grid Integrated Edition deploys the VMs listed below. If you deploy more
 than one Kubernetes cluster, you must scale your allocated resources appropriately.
 
-<table>
-  <tr>
-    <th>VM</th>
-    <th>VM&nbsp;Count</th>
-    <th>CPU Cores</th>
-    <th>Memory (GB)</th>
-    <th>Ephemeral Disk (GB)</th>
-    <th>Persistent Disk (GB)</th>
-  </tr>
-  <tr>
-    <td>Control Plane</td>
-    <td>1 or 3</td>
-    <td>2</td>
-    <td>4</td>
-    <td>8</td>
-    <td>5</td>
-  </tr>
-  <tr>
-    <td>Worker</td>
-    <td>1 or more</td>
-    <td>2</td>
-    <td>4</td>
-    <td>8</td>
-    <td>50</td>
-  </tr>
-  <tr>
-    <td>Errand (ephemeral)</td>
-    <td>1</td>
-    <td>1</td>
-    <td>1</td>
-    <td>8</td>
-    <td>none</td>
-  </tr>
-</table>
++ADw-table+AD4-
+  +ADw-tr+AD4-
+    +ADw-th+AD4-VM+ADw-/th+AD4-
+    +ADw-th+AD4-VM+ACY-nbsp+ADs-Count+ADw-/th+AD4-
+    +ADw-th+AD4-CPU Cores+ADw-/th+AD4-
+    +ADw-th+AD4-Memory (GB)+ADw-/th+AD4-
+    +ADw-th+AD4-Ephemeral Disk (GB)+ADw-/th+AD4-
+    +ADw-th+AD4-Persistent Disk (GB)+ADw-/th+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4-Control Plane+ADw-/td+AD4-
+    +ADw-td+AD4-1 or 3+ADw-/td+AD4-
+    +ADw-td+AD4-2+ADw-/td+AD4-
+    +ADw-td+AD4-4+ADw-/td+AD4-
+    +ADw-td+AD4-8+ADw-/td+AD4-
+    +ADw-td+AD4-5+ADw-/td+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4-Worker+ADw-/td+AD4-
+    +ADw-td+AD4-1 or more+ADw-/td+AD4-
+    +ADw-td+AD4-2+ADw-/td+AD4-
+    +ADw-td+AD4-4+ADw-/td+AD4-
+    +ADw-td+AD4-8+ADw-/td+AD4-
+    +ADw-td+AD4-50+ADw-/td+AD4-
+  +ADw-/tr+AD4-
+  +ADw-tr+AD4-
+    +ADw-td+AD4-Errand (ephemeral)+ADw-/td+AD4-
+    +ADw-td+AD4-1+ADw-/td+AD4-
+    +ADw-td+AD4-1+ADw-/td+AD4-
+    +ADw-td+AD4-1+ADw-/td+AD4-
+    +ADw-td+AD4-8+ADw-/td+AD4-
+    +ADw-td+AD4-none+ADw-/td+AD4-
+  +ADw-/tr+AD4-
++ADw-/table+AD4-
 
-## <a id="firewall-ports"></a> Network Communication Requirements
++ACMAIw- +ADw-a id+AD0AIg-firewall-ports+ACIAPgA8-/a+AD4- Network Communication Requirements
 
 For a complete list of network communication requirements for vSphere without NSX, see
-[VMware Ports and Protocols](https://ports.vmware.com/home/vSphere+NSX-Data-Center-for-vSphere+NSX-Data-Center)
++AFs-VMware Ports and Protocols+AF0-(https://ports.vmware.com/home/vSphere+NSU-Data-Center-for-vSphere+NSU-Data-Center)
 on the VMware site.

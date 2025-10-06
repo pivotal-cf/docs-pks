@@ -42,7 +42,7 @@ verify your TKGI environment meets the following requirements:
     * NSX:
         * NSX v4.0.1.1 or later.
         * NSX environment is a dedicated, single TKGI foundation environment.
-        For example, an environment with one TKGI foundation and without VMware Tanzu Application Service or other installations in production.
+        For example, an environment with one TKGI foundation and without VMware {{ vars.app_runtime }} or other installations in production.
     * {{ vars.platform_name }}:
         * {{ vars.platform_name }} {{{ vars.ops_man_version_v3 }}} or later.
         * {{ vars.platform_name }} CLI on the latest version.
