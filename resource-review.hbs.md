@@ -10,6 +10,12 @@ This topic describes how to review your resource usage
 and quotas in {{  vars.product_full }} ({{ vars.product_short }}) using
 the TKGI API.
 
+* [Overview](#overview)
+* [Set up Your API Access Token](#set-token)
+* [View Quotas](#quota-dev)
+* [View Usage](#usage-dev)
+* [Error Message When You Exceed Cluster Quota](#error)
+
 ## <a id="overview"></a> Overview
 
 Your {{  vars.product }} administrator might set a limit on

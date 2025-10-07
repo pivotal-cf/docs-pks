@@ -5,6 +5,11 @@ title: Installing the Kubernetes CLI
 
 This topic describes how to install the Kubernetes Command Line Interface (kubectl).
 
+* [Overview](#overview)
+* [Install the Kubernetes CLI](#install)
+  * [Mac OS X](#mac)
+  * [Linux](#linux)
+  * [Windows](#windows)
 
 ## <a id="overview"></a>Overview
 

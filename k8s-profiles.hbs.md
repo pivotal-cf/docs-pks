@@ -6,7 +6,22 @@ title: Using Kubernetes Profiles
 This topic describes how to create and use Kubernetes profiles
 for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
 
-
+* [Overview](#overview)
+  * [Who Creates and Manages TKGI Kubernetes Profiles](#who-creates)
+  * ["k8s" to "kubernetes" Alias in TKGI CLI](#alias)
+* [Create a TKGI Kubernetes Profile](#create)
+  * [TKGI Kubernetes Profile Format](#profile-format)
+  * [TKGI Kubernetes Profile Parameters](#profile-params)
+  * [The `tkgi create-k8s-profile` Command](#create-command)
+* [Manage TKGI Kubernetes Profiles](#manage)
+  * [List TKGI Kubernetes Profiles](#list-profiles)
+  * [Delete a TKGI Kubernetes Profile](#delete-profile)
+  * [View TKGI Kubernetes Profile Details](#view-details)
+* [Use a TKGI Kubernetes Profile](#use-k8s-profiles)
+  * [Create a TKGI Cluster with a Kubernetes Profile](#create-cluster-with-profile)
+  * [Assign a Kubernetes Profile to an Existing TKGI Cluster](#assign-existing-profile)
+  * [Validated vs Experimental Customizations](#validated-vs-experimental)
+  * [TKGI Kubernetes Profile Use Cases](#profile-use-cases)
 
 ## <a id="overview"></a> Overview
 

@@ -6,6 +6,11 @@ title: Installing the TKGI CLI
 This topic describes how to install the {{  vars.product_full }} Command Line Interface
 (TKGI CLI).
 
+* [Overview](#overview)
+* [Install the TKGI CLI](#install)
+  * [Mac OS X](#mac)
+  * [Linux](#linux)
+  * [Windows](#windows)
 
 ## <a id="overview"></a>Overview
 
@@ -34,6 +39,8 @@ To download and install the TKGI CLI:
     * **Windows**: Click <strong>TKGI CLI - Windows</strong> to download the Windows executable file.
 1. To install the TKGI CLI, follow the procedures for your operating system:
 
+    * [Overview](#overview)
+    * [Install the TKGI CLI](#install)
     * [Mac OS X](#mac)
     * [Linux](#linux)
     * [Windows](#windows)

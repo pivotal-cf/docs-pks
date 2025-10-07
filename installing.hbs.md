@@ -5,7 +5,9 @@ title: Installing {{  vars.product }}
 
 This topics below describe how to install and configure {{  vars.product_full }} ({{ vars.product_short }}).
 
-
+* [Overview](#overview)
+* [TKGI Management Console (vSphere Only)](#install-mc)
+* [TKGI on {{ vars.platform_name }}](#install-manual)
 
 ## <a id='overview'></a>Overview
 

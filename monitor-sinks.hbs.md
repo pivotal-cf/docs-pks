@@ -6,6 +6,19 @@ title: Monitoring Clusters with Log Sinks
 This topic describes the log sink resources you can use
 to monitor {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters and their workloads.
 
+* [Overview](#overview)
+* [Log Sinks](#logs)
+  * [Log Format](#log-format)
+    * [Syslog Format](#syslog)
+    * [Pod Logs](#pod-logs)
+    * [Kubernetes API Events](#k8s-api)
+  * [Notable Kubernetes API Events](#important-events)
+    * [Failure to Retrieve Containers from Registry](#imagepullbackoff)
+    * [Malfunctioning Containers](#crashloopbackoff)
+    * [Successful Scheduling of Containers](#containercreated)
+    * [Failure to Schedule Containers](#failedscheduling)
+* [Related Links](#related-links)
+
 ## <a id='overview'></a>Overview
 
 You can use the following sink resources to collect logs from your

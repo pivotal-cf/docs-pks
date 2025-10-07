@@ -6,6 +6,13 @@ title: Using Network Profiles (NSX Only)
 This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) cluster managers
 can manage and use network profiles to customize NSX configuration parameters for Kubernetes clusters provisioned by TKGI on vSphere with NSX integration.
 
+* [Prerequisite](#prerequisites)
+* [Overview](#overview)
+  * [List Network Profiles](#list-profiles)
+  * [Create a Cluster with a Network Profile](#create-new)
+  * [Assign a Network Profile to an Existing Cluster](#assign-profile)
+  * [Update an Existing Network Profile](#update-profile)
+* [Network Profile Use Cases](#use-cases)
 
 ## <a id='prerequisites'></a> Prerequisite
 

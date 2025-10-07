@@ -4,6 +4,12 @@ title: Process for {{ vars.product }} Security Disclosure and Release
 
 This topic describes the processes for disclosing security issues and releasing related fixes for {{  vars.product_full }} ({{ vars.product_short }}), Kubernetes, VMware NSX, and VMware Harbor.
 
+* [Security Issues in {{  vars.product }}](#security-tkgi)
+* [Security Issues in Kubernetes](#security-kubernetes)
+* [Security Issues from CFF](#security-cff)
+* [Security Issues in VMware NSX](#security-nsx)
+* [Security Issues in VMware Harbor](#security-harbor)
+
 ##<a id='security-tkgi'></a> Security Issues in {{  vars.product }}
 
 VMware provides security coverage for {{  vars.product }}.
@@ -20,7 +26,7 @@ This process is discussed in [Kubernetes Security and Disclosure Information](ht
 
 When the Kubernetes project releases security fixes, {{  vars.product }} releases fixes according to the [{{ vars.platform_name }} Security Overview and Policy](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/security-process-pcf-security.html#release-policy).
 
-##<a id='security'></a> Security Issues from CFF
+##<a id='security-cff'></a> Security Issues from CFF
 VMware follows the Cloud Foundry Foundation (CFF) responsible disclosure process to report and address suspected security issues.
 
 This process is discussed in [Cloud Foundry Security](https://www.cloudfoundry.org/security/).

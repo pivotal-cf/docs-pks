@@ -5,6 +5,12 @@ title: VM Sizing for {{  vars.product }} Clusters
 
 This topic describes the {{{ vars.recommended_by }}}-recommended procedure for sizing VMs for {{  vars.product_full }} ({{ vars.product_short }}) cluster components.
 
+* [Overview](#overview)
+* [Control Plane Node VM Size](#master-sizing)
+* [Worker Node VM Number and Size](#worker-sizing)
+  * [Example Worker Node Requirement Calculation](#worker-example)
+* [Customize Control Plane and Worker Node VM Size and Type](#node-sizing-custom)
+
 ##<a id="overview"></a>Overview
 
 When you configure plans in the {{  vars.product }} tile, you provide VM sizes for the control plane and worker node VMs.

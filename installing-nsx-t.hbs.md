@@ -10,6 +10,28 @@ thistopic: #Empty var to prevent build breaking
 This topic describes how to install and configure {{  vars.product_full }} ({{ vars.product_short }})
 on vSphere with NSX integration as a {{ vars.platform_name }} tile.
 
+* [Prerequisites](#prerequisites)
+* [Overview](#overview)
+* [Step 1: Install {{  vars.product }}](#install)
+* [Step 2: Configure {{  vars.product }}](#configure)
+  * [Assign AZs and Networks](#azs-networks)
+  * [TKGI API](#tkgi-api-config)
+  * [Plans](#plans)
+  * [Kubernetes Cloud Provider](#cloud-provider)
+  * [Networking](#networking)
+  * [UAA](#uaa)
+  * [(Optional) Host Monitoring](#syslog-config)
+  * [(Optional) In-Cluster Monitoring](#cluster-monitoring-config)
+  * [Tanzu Mission Control](#tmc)
+  * [VMware CEIP](#telemetry)
+  * [Storage](#storage-config)
+  * [Errands](#errands)
+  * [Resource Config](#resource-config)
+* [Step 3: Apply Changes](#apply-changes)
+* [Step 4: Install the TKGI and Kubernetes CLIs](#clis)
+* [Step 5: Verify NAT Rules](#retrieve-endpoint)
+* [Step 6: Configure Authentication for {{  vars.product }}](#auth)
+* [Next Steps](#next-steps)
 
 ## <a id="prerequisites"></a>Prerequisites
 

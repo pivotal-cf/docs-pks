@@ -5,6 +5,10 @@ title: Azure Prerequisites and Resource Requirements
 
 This topic describes the prerequisites and resource requirements for installing {{  vars.product_full }} ({{ vars.product_short }}) on Microsoft Azure.
 
+* [Prerequisites](#prerequisites)
+* [Subscription Requirements](#subscription)
+* [Resource Requirements](#resources)
+
 ##<a id='prerequisites'></a> Prerequisites
 
 Before installing {{  vars.product }}:

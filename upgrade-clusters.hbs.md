@@ -6,6 +6,23 @@ title: Upgrading Clusters
 This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI)
 to upgrade TKGI-provisioned Kubernetes clusters.
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Upgrade Clusters](#upgrade-clusters)
+  * [Upgrade a Single Cluster](#upgrade-cluster)
+    * [Upgrade Cluster Validation](#upgrade-cluster-pre-check)
+    * [Upgrade Cluster Worker Nodes in Parallel](#upgrade-nodes-in-parallel)
+  * [Upgrade Multiple Clusters](#upgrade-clusters-multi)
+    * [Upgrade Clusters in Parallel](#upgrade-clusters-parallel)
+    * [Upgrade Clusters With Canaries](#upgrade-clusters-errors)
+* [Manage Your Cluster Upgrade Job](#manage-upgrade)
+  * [Monitor Your Clusters](#monitor-upgrades)
+  * [Monitor Your Cluster Upgrade Job](#monitor-upgrade-job)
+  * [Stop Your Cluster Upgrade Job](#stop-upgrade-job)
+* [After Upgrading Clusters](#after-upgrade-clusters)
+  * [Upgrade Velero](#upgrade-velero)
+  * [(Optional) Restore Cluster Sizing](#restore-cluster-sizing)
+
 For information about how to upgrade TKGI-provisioned clusters
 through the {{  vars.product }} tile,
 see _Verify Errand Configuration_ in one of the following topics:

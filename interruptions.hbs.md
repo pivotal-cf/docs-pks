@@ -5,6 +5,28 @@ title: Service Interruptions
 
 This topic describes events in the lifecycle of a Kubernetes cluster deployed by {{  vars.product_full }} that can cause temporary service interruptions.
 
+* [Stemcell or Service Update](#service-update)
+  * [Impact](#impact)
+  * [Required Actions](#required-actions)
+* [VM Process Failure on a Cluster Control Plane](#process-fail-master)
+  * [Impact (2)](#impact)
+  * [Required Actions (2)](#required-actions)
+* [VM Process Failure on a Cluster Worker](#process-fail-worker)
+  * [Impact (3)](#impact)
+  * [Required Actions (3)](#required-actions)
+* [VM Process Failure on the TKGI API VM](#process-fail-tkgi)
+  * [Impact (4)](#impact)
+  * [Required Actions (4)](#required-actions)
+* [VM Failure](#vm-fail)
+  * [Impact (5)](#impact)
+  * [Required Actions (5)](#required-actions)
+* [AZ Failure](#az-fail)
+  * [Impact (6)](#impact)
+  * [Required Actions (6)](#required-actions)
+* [Region Failure](#region-fail)
+  * [Impact (7)](#impact)
+  * [Required Actions (7)](#required-actions)
+
 ## <a id='service-update'></a>Stemcell or Service Update
 
 An operator performs a stemcell version update or {{  vars.product }} version update.

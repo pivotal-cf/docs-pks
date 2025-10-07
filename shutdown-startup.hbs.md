@@ -9,6 +9,35 @@ including TKGI-provisioned Kubernetes cluster nodes, TKGI components, and vSpher
 
 Many of these operations use your IaaS dashboard, such as vSphere Client, Azure Portal, or AWS Management Console.
 
+* [Shutdown Sequence and Tasks](#shutdown)
+  * [Step 1: Deactivate BOSH Resurrection](#stop-resurrector)
+  * [Step 2: Delete All PodDisruptionBudgets](#delete-pdbs)
+  * [Step 3: Shut Down Customer Apps](#shutdown-apps)
+  * [Step 4: Shut Down Kubernetes Clusters](#shutdown-k8s)
+  * [Step 5: Stop the TKGI Control Plane](#shutdown-tkgi-control)
+    * [Stop TKGI Control Plane Processes](#stop-tkgi-control)
+    * [Shut Down the TKGI API and Database VMs](#shutdown-tkgi-vms)
+  * [Step 6: Shut Down VMware Harbor Registry (vSphere Only)](#shutdown-harbor)
+  * [Step 7: Shut Down BOSH Director](#shutdown-bosh)
+  * [Step 8: Shut Down {{ vars.platform_name }}](#shutdown-om)
+  * [Step 9: Shut Down NSX Components (vSphere NSX Only)](#shutdown-nsxt)
+  * [Step 10: Shut Down vCenter Server (vSphere Only)](#shutdown-vc)
+  * [Step 11: Shut Down ESXi Hosts (vSphere NSX Only)](#shutdown-esxi)
+* [Startup Sequence and Tasks](#startup)
+  * [Step 1: Start ESXi Hosts (vSphere NSX Only)](#start-esxi)
+  * [Step 2: Start vCenter (vSphere Only)](#start-vc)
+  * [Step 3: Start NSX Components (vSphere NSX Only)](#start-nsxt)
+  * [Step 4: Start {{ vars.platform_name }}](#start-om)
+  * [Step 5: Start the BOSH Director](#start-bosh)
+  * [Step 6: Start the TKGI Control Plane](#start-tkgi-control)
+  * [Step 7: Start Harbor Registry (vSphere Only)](#start-harbor)
+  * [Step 8: Start the Kubernetes Clusters](#start-k8s)
+    * [Start a Cluster with Three Control Plane Nodes](#three-node-start)
+    * [Start a Cluster with Five Control Plane Nodes](#five-node-start)
+  * [Step 9: Start Customer Apps](#start-apps)
+  * [Step 10: Restore All PodDisruptionBudgets](#restore-pdbs)
+  * [Step 11: Re-enable BOSH Resurrection](#start-resurrector)
+
 ##<a id="shutdown"></a> Shutdown Sequence and Tasks
 
 To perform a graceful shutdown of all Kubernetes, {{  vars.product }}, and infrastructure components, complete the following tasks in sequence.

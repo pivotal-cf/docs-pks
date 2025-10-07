@@ -5,6 +5,18 @@ title: Auditing {{  vars.product }} Logs
 
 This topic describes key TKGI (TKGI) auditable events and the log entries they generate.
 
+* [TKGI API events](#overview)
+  * [Cluster Creation](#cluster-creation)
+  * [Cluster Deletion](#cluster-deletion)
+  * [Successful Login](#successful-login)
+  * [Unsuccessful Login](#unsuccessful-login)
+  * [Successful Cluster Credential Retrieval](#get-credentials)
+  * [User Creation](#create-user)
+  * [User Deletion](#delete-user)
+  * [Telemetry Collection](#telemetry)
+* [Kubernetes Audit Log Events](#kubernetes-audit-logs)
+* [Related Links](#related-links)
+
 Operators can use this information to audit event logs to see
 what users took what actions at what times.
 This is helpful

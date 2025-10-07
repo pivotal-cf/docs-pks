@@ -7,6 +7,9 @@ pkscommand: update
 This topic describes how to scale an existing {{  vars.product_full }} ({{ vars.product_short }}) provisioned cluster.
 You can scale TKGI-provisioned clusters horizontally by adding worker nodes or vertically by changing the size of the node VMs.
 
+* [Scale Horizontally by Changing the Number of Worker Nodes Using the TKGI CLI](#scale-horizontal)
+* [Scale Vertically by Changing Cluster Node VM Sizes in the TKGI Tile](#scale-vertical)
+
 To change the default number of worker nodes created in new clusters,
   change your plan's **Worker Node Instances** setting.
   For more information, see [Plans](installing-azure.html#plans)

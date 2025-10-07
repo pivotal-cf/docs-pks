@@ -5,6 +5,13 @@ title: Managing Cluster Access and Permissions
 
 This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Overview](#overview)
+  * [Example Workflow](#workflow)
+* [Prerequisites](#prerequisites)
+* [Grant Cluster Access to a User](#cluster-access-user)
+* [Obtain Cluster Access as a User](#obtain-cluster-access)
+* [Grant Cluster Access to a Group](#cluster-access-group)
+
 ## <a id='overview'></a> Overview
 
 {{  vars.product }} admin users can grant Kubernetes users, such as developers, permissions to specific clusters.

@@ -5,6 +5,9 @@ title: Customize Floating IP Pools
 
 This topic describes how to define network profiles for custom floating IP pools for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
 
+* [Create a Custom Floating IP Pool](#floating-ip)
+* [Modify a Floating IP Pool](#floating-ip-modify)
+
 ## <a id='floating-ip'></a> Create a Custom Floating IP Pool
 
 To deploy {{  vars.product }} to vSphere with NSX, you must define a Floating IP Pool in NSX Manager. IP addresses from the Floating IP Pool are used for SNAT IP addresses whenever a Namespace is created (NAT mode). In addition, IP addresses from the Floating IP Pool are assigned to load balancers automatically provisioned by NSX, including the load balancer fronting the TKGI API server and load balancers for pod ingress. For more information, see the [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) section of _Planning, Preparing, and Configuring NSX for {{  vars.product }}_.

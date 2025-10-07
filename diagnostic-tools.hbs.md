@@ -6,6 +6,12 @@ owner: {{ vars.platform_name }}
 This topic describes how to access information about your {{  vars.product_full }} ({{ vars.product_short }}) deployment
 by using the BOSH Command Line Interface (BOSH CLI).
 
+* [Overview](#overview)
+* [Log in to the BOSH Director VM](#alias)
+* [SSH into the TKGI API VM](#tkgi-api)
+* [SSH into the TKGI Database VM](#pks-db)
+* [SSH into a Kubernetes Cluster VM](#cluster)
+* [View Log Files](#bosh-tkgi-map)
 
 ## <a id='overview'></a>Overview
 

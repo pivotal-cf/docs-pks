@@ -7,6 +7,16 @@ topic: gmsa-cluster
 This topic describes how to integrate Microsoft Active Directory (AD)
 with your {{  vars.product }} (TKGI) Windows worker-based Kubernetes clusters.
 
+* [Overview](#overview)
+* [Prerequisites](#prereqs)
+* [Create a New Cluster with AD Authentication](#create)
+* [Add or Change a Cluster's AD Authentication](#change-ad)
+* [Change a Cluster with AD Authentication to use Pod-Based gMSA](#non-joined-nodes)
+  * [Pod-Based gMSA Troubleshooting](#non-joined-nodes-troubleshooting)
+* [Integrate Kubernetes with Active Directory](#integrate)
+* [View a Cluster's gMSA Configuration](#list)
+* [GMSA Configuration Settings](#settings)
+
 ## <a id='overview'></a>Overview
 
 Windows Server with Active Directory can control access to Windows worker-based Kubernetes clusters in TKGI.

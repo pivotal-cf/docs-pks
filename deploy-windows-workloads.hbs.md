@@ -5,6 +5,16 @@ title: Deploying and Exposing Basic Windows Workloads
 
 This topic describes deploying Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Access Your Windows-Based Cluster](#access-cluster)
+* [Deploy a Windows Worker Pod](#deploy-pod)
+  * [Configure a Pod Deployment Manifest](#configure-pod)
+  * [Deploy the Pod](#deploy-pod-steps)
+* [Deploy a Service to a Windows Worker Pod](#deploy-service)
+  * [Configure a Service Manifest](#configure-service)
+  * [Deploy the Service](#deploy-service-steps)
+
 <p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is enabled for
   TKGI on vSphere with NSX and as a beta feature for TKGI on vSphere without NSX.
 <br><br>Do not enable this feature if you are using TKGI with Azure or Amazon Web Services (AWS).

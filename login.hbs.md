@@ -5,6 +5,12 @@ title: Logging in to {{  vars.product }}
 
 This topic describes how to log in to {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Log in to the TKGI CLI](#login)
+* [Log in to the TKGI CLI as an Automated Client](#client)
+* [Export TKGI API Access Token](#tkgi-api-access)
+
 ## <a id='overview'></a>Overview
 
 To manage {{  vars.product }}-deployed clusters, you use the TKGI Command

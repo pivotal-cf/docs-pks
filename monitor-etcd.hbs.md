@@ -6,6 +6,12 @@ title: Configuring Telegraf in TKGI
 This topic describes how to configure Telegraf in
 {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Overview](#overview)
+* [Collect Metrics Using Telegraf](#collect)
+  * [Create a Configuration File](#toml)
+  * [Configure Telegraf in the Tile](#connect)
+* [Troubleshoot etcd](#errors)
+
 ## <a id="overview"></a>Overview
 
 You can configure Telegraf to collect metrics from TKGI API,

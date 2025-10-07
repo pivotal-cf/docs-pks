@@ -6,6 +6,14 @@ iaas: vsphere-nsxt
 
 This topic describes the vSphere VMs and NSX objects created by {{  vars.product_full }} ({{ vars.product_short }}) when you create a Kubernetes cluster. When you delete a Kubernetes cluster, {{  vars.product }} removes these objects.
 
+* [vSphere Virtual Machines](#vsphere-vms)
+* [NSX Logical Switches](#nsxt-ls)
+* [NSX Tier-1 Logical Routers](#nsxt-t1)
+* [NSX Load Balancers](#nsxt-lb)
+* [NSX DDI/IPAM](#nsxt-ddi)
+* [NSX Tier-0 Logical Routers](#nsxt-t0)
+* [NSX Distributed Firewall (DFW) Rules](#nsxt-dfw)
+
 For information about creating a Kubernetes cluster using {{  vars.product }}, see [Creating Clusters](create-cluster.html). For information about deleting a Kubernetes cluster using {{  vars.product }}, see [Deleting Clusters](delete-cluster.html).
 
 

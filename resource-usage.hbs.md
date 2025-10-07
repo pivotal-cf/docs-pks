@@ -9,6 +9,20 @@ title: Managing Resource Usage with Quotas
 This topic describes how to review and restrict the usage of
 {{  vars.product_full }} ({{ vars.product_short }}) resources by TKGI users.
 
+* [Overview](#overview)
+* [Set up Your API Access Token](#quota-admin)
+* [Manage Quotas](#quota-admin-1)
+  * [Add a Quota](#quota-add)
+  * [Modify an Existing Quota](#quota-modify)
+  * [Delete a Quota](#quota-delete)
+* [View Quotas](#quota-view-admin)
+  * [View Quotas for a Single User](#view-quotas-by-user)
+  * [View All Quotas](#view-all-quotas)
+* [Error Message When User Exceeds Cluster Quota](#error)
+* [View Usage](#usage-view-admin)
+  * [View Resource Usage by User](#view-single-user)
+  * [View All Resource Usage](#view-all-usage)
+
 ## <a id="overview"></a> Overview
 
 As an {{  vars.product }} administrator,
@@ -201,7 +215,7 @@ https://example.com:9021/v1/quotas/$user
 }
 ```
 
-### <a id='view-quotas-by-user'></a> View All Quotas
+### <a id='view-all-quotas'></a> View All Quotas
 
 To list all current resource and cluster quota restrictions, run the following command:
 

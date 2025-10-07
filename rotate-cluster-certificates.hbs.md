@@ -7,6 +7,16 @@ title: Rotate Kubernetes Cluster Certificates
 This topic describes how to rotate certificates used by
 {{  vars.product_full }} ({{ vars.product_short }}) Kubernetes clusters.
 
+* [Overview](#overview)
+* [Procedure](#overview-procedure)
+  * [List TLS Certificates](#certs-list)
+  * [Rotate TLS Certificates](#cert-use-cases)
+    * [Rotate All Cluster Certificates](#rotate-all)
+    * [Rotate All Cluster Certificates Except NSX](#rotate-all-but-nsx)
+    * [Rotate NSX Certificates Only](#rotate-only-nsx)
+    * [Rotate Custom CA](#rotate-custom)
+    * [Rotate TLS Certificates Using the TKGI CLI](#certs-rotate)
+
 For more information about TKGI Certificates:
 
 * For conceptual information about certificates in TKGI, see [TKGI Certificates](certificate-concepts.html).

@@ -5,6 +5,9 @@ title: AWS Prerequisites and Resource Requirements
 
 This topic describes the prerequisites and resource requirements for installing {{  vars.product_full }} ({{ vars.product_short }}) on Amazon Web Services (AWS).
 
+* [Prerequisites](#prerequisites)
+* [Resource Requirements](#resources)
+
 ##<a id='prerequisites'></a> Prerequisites
 
 Before installing {{  vars.product }}:

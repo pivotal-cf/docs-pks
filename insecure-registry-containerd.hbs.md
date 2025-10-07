@@ -5,6 +5,12 @@ title: Configuring Containerd Cluster Access to Insecure Container Registries
 
 This topic describes how to configure {{  vars.product_full }} ({{ vars.product_short }}) Kubernetes clusters that run the Containerd runtime with insecure container registries.
 
+* [Overview](#insec-overview)
+* [Prerequisites](#prereq-sec-reg)
+* [Set up Your API Access Token](#set-token)
+* [Create a Containerd Runtime Cluster with an Access to Insecure Registries](#create-cluster)
+* [Update a Containerd Runtime Cluster with an Access to Insecure Registries](#update-cluster)
+* [Verify the Configuration](#verify-config)
 
 ## <a id='insec-overview'></a> Overview
 

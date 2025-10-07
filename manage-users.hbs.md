@@ -6,6 +6,16 @@ title: Managing {{  vars.product }} Users with UAA
 This topic describes how to manage users in {{  vars.product_full }} ({{ vars.product_short }})
 with User Account and Authentication (UAA).
 
+* [Overview](#overview)
+  * [UAA Scopes for {{  vars.product }} Users](#tkgi-uaa-scope)
+* [Prerequisites](#prerequisites)
+* [Log In as a UAA Admin](#uaa-admin-login)
+* [Grant {{  vars.product }} Access to an Individual User](#uaa-user)
+* [Grant {{  vars.product }} Access to an External Group](#external-group)
+  * [Grant {{  vars.product }} Access to an External LDAP Group](#ldap)
+  * [Grant {{  vars.product }} Access to an External SAML Group](#saml)
+* [Grant {{  vars.product }} Access to a Client](#uaa-client)
+
 ## <a id='overview'></a> Overview
 
 UAA is the identity management service for {{  vars.product }}.

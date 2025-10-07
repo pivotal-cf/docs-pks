@@ -6,6 +6,14 @@ owner: PKS
 This topic describes how to use a Kubernetes Network Policy to secure access to the AWS instance metadata service
 from Kubernetes clusters created with {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Overview](#overview)
+* [Secure Access to AWS Instance Metadata for a Namespace](#secure-namespaces)
+  * [Deny Access from a Specific Namespace](#deny-namespace-access)
+  * [Grant Access to Specific Apps in a Namespace](#grant-namespace-access)
+* [Secure Access for All Namespaces Using an Antrea Cluster-Wide Network Policy](#secure-namespace-antrea)
+  * [Deny Access to All Namespaces Using Antrea](#deny-namespace-access-antrea)
+  * [Allow Access to a Specific App Using Antrea](#grant-namespace-access-antrea)
+
 ## <a id='overview'></a> Overview
 
 For Pods on TKGI clusters deployed on AWS,

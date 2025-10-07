@@ -5,6 +5,19 @@ title: Migrating from NSX Management Plane API to Policy API - Overview
 
 This topic provides an overview of migrating {{  vars.product_full }} ({{ vars.product_short }}) from the NSX Management Plane API to NSX Policy API (MP2P).
 
+* [Overview](#overview)
+  * [MP2P Workflow](#workflow)
+  * [NSX Management Plane API to NSX Policy API Migration Features](#features)
+* [TKGI MP2P Migration Configurations](#features-configs)
+  * [Supported Configurations](#features-supported-configs)
+  * [Unsupported Configurations](#features-unsupported-configs)
+* [TKGI MP2P Migration Operational Limitations](#concerns-limitations)
+  * [Before MP2P Migration](#before)
+  * [During MP2P Migration](#during)
+  * [DFW Migration](#dfw)
+  * [GFW Migration](#gfw)
+  * [During Cluster Promotion to NSX Policy API](#nsx-api)
+
 To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI Management Console, see [Migrating from NSX Management Plane API to Policy API with the Management Console](mp2p-migration-mc.html).
 
 To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI tile in {{ vars.platform_name }}, see [Migrating from NSX Management Plane API to Policy API Using {{ vars.platform_name }}](mp2p-migration.html).

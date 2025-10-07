@@ -5,6 +5,12 @@ title: Maintaining Workload Uptime
 
 This topic describes how you can maintain workload uptime for Kubernetes clusters deployed with {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [About Cluster Upgrades](#upgrades)
+* [Set Workload Replicas](#replicas)
+* [Define an Anti-Affinity Rule](#anti-affinity)
+* [Multi-AZ Worker](#multi-az-worker)
+* [PersistentVolumes](#persistent-volumes)
+
 To maintain workload uptime, configure the following settings in your deployment manifest:
 
 1. Configure [workload replicas](#replicas) to handle traffic during rolling upgrades.

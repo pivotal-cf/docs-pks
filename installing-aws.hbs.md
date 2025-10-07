@@ -10,6 +10,28 @@ thistopic: #Empty var to prevent build breaking
 This topic describes how to install and configure {{  vars.product_full }} ({{ vars.product_short }})
 on Amazon Web Services (AWS) as a {{ vars.platform_name }} tile.
 
+* [Prerequisites](#prerequisites)
+* [Overview](#overview)
+* [Step 1: Install {{  vars.product }}](#install)
+* [Step 2: Configure {{  vars.product }}](#configure)
+  * [Assign AZs and Networks](#azs-networks)
+  * [TKGI API](#tkgi-api-config)
+  * [Plans](#plans)
+  * [Kubernetes Cloud Provider](#cloud-provider)
+  * [Networking](#networking)
+  * [UAA](#uaa)
+  * [(Optional) Host Monitoring](#syslog-config)
+  * [(Optional) In-Cluster Monitoring](#cluster-monitoring)
+  * [Tanzu Mission Control](#tmc)
+  * [VMware CEIP](#telemetry)
+  * [Errands](#errands)
+  * [Resource Config](#resource-config)
+* [Step 3: Apply Changes](#apply-changes)
+* [Step 4: Retrieve the TKGI API Endpoint](#retrieve-tkgi-api)
+* [Step 5: Configure an AWS Load Balancer for the TKGI API](#lb-tkgi-api)
+* [Step 6: Install the TKGI and Kubernetes CLIs](#clis)
+* [Step 7: Configure Authentication for {{  vars.product }}](#auth)
+* [Next Steps](#next-steps)
 
 ## <a id='prerequisites'></a>Prerequisites
 

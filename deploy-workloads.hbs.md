@@ -5,6 +5,28 @@ title: Deploying and Exposing Basic Linux Workloads
 
 This topic describes how to configure, deploy, and expose basic workloads in {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+  * [vSphere without NSX Prerequisites](#nonsxt)
+  * [AWS, Azure, and vSphere with NSX Prerequisites](#aws-az-nsx)
+  * [AWS Prerequisites](#aws)
+* [Deploy Workloads on vSphere with NSX](#external-lb-nsxt)
+  * [Configure Your Workload](#external-lb-configure-nsx)
+* [Deploy Workloads on AWS or Azure, Using a Public-Cloud External Load Balancer](#external-lb)
+  * [Configure Your Workload (2)](#external-lb-configure-public-cloud)
+* [Deploy AWS Workloads Using an Internal Load Balancer](#internal-lb)
+  * [Configure Your Workload (3)](#internal-lb-configure)
+  * [Deploy and Expose Your Workload (1)](#internal-lb-deploy)
+  * [Access Your Workload (1)](#internal-lb-access)
+* [Deploy Workloads for a Generic External Load Balancer](#external-lb-generic)
+  * [Configure Your Workload (4)](#external-lb-generic-configure)
+  * [Deploy and Expose Your Workload (2)](#external-lb-generic-deploy)
+  * [Access Your Workload (2)](#external-lb-generic-access)
+* [Deploy Workloads without a Load Balancer](#without-lb)
+  * [Configure Your Workload (5)](#without-lb-configure)
+  * [Deploy and Expose Your Workload (3)](#without-lb-deploy)
+  * [Access Your Workload (3)](#without-lb-access)
+
 
 ## <a id='overview'></a> Overview
 

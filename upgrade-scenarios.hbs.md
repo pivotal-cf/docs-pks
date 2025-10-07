@@ -7,6 +7,10 @@ This topic describes upgrade scenarios for
 {{  vars.product_full }} ({{ vars.product_short }}) environments that are upgraded from
 {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} on vSphere.
 
+* [Overview](#overview)
+* [TKGI on vSphere with NSX Networking](#nsxt)
+* [TKGI on vSphere (Antrea Networking)](#antrea)
+
 ## <a id="overview"></a>Overview
 
 When you upgrade TKGI on vSphere, you might also upgrade

@@ -5,6 +5,13 @@ title: Monitoring TKGI and TKGI-Provisioned Clusters on Linux
 
 This topic describes the components and integrations you can use with {{  vars.product_full }} ({{ vars.product_short }}) to capture logs and metrics on Linux.
 
+* [Overview](#overview)
+* [Logs: Syslog and vRLI](#logs)
+  * [Syslog](#syslog)
+  * [vRealize Log Insight (vSphere Only)](#vrealize)
+* [Metrics: Telegraf](#telegraf)
+  * [About Node Exporter](#node-exporter)
+* [Healthwatch](#healthwatch)
 
 ## <a id='overview'></a>Overview
 

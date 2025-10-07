@@ -6,7 +6,7 @@ iaas: vsphere-nsxt
 
 The following topics describe how to complete your installation of {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX Data Center.
 
-## Post-Installation NSX Configurations
+##<a id="post-installation-nsx-configurations"></a> Post-Installation NSX Configurations
 
 After you have installed {{  vars.product }} on vSphere with NSX, refer to the following sections for additional NSX configuration options:
 

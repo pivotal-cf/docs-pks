@@ -5,6 +5,11 @@ owner: PKS
 
 This topic describes the components and integrations you can use to capture Kubernetes workload and worker node logs and metrics on {{  vars.product_full }} ({{ vars.product_short }}) Linux clusters.
 
+* [Overview](#overview)
+* [Configure Monitoring Components and Integrations](#configure)
+  * [Monitoring Components and Integrations](#integrations)
+* [Sink Resources](#sinks)
+
 For information about logging and monitoring Kubernetes clusters, workers and workloads on Windows,
 see [Monitoring Windows Worker Clusters and Workers](windows-monitoring.html) or [Logging Windows Worker Clusters and Workers](windows-logging.html).
 

@@ -10,6 +10,26 @@ thistopic: #Empty var to prevent build breaking
 This topic describes how to install and configure {{  vars.product_full }} ({{ vars.product_short }})
 on vSphere with Antrea networking as a {{ vars.platform_name }} tile.
 
+* [Prerequisites](#prerequisites)
+* [Overview](#overview)
+* [Step 1: Install {{  vars.product }}](#install)
+* [Step 2: Configure {{  vars.product }}](#configure)
+  * [Assign AZs and Networks](#azs-networks)
+  * [TKGI API](#tkgi-api-config)
+  * [Plans](#plans)
+  * [Kubernetes Cloud Provider](#cloud-provider)
+  * [Networking](#networking)
+  * [UAA](#uaa)
+  * [(Optional) Host Monitoring](#syslog-config)
+  * [(Optional) In-Cluster Monitoring](#cluster-monitoring-config)
+  * [Tanzu Mission Control](#tmc)
+  * [VMware CEIP](#telemetry)
+  * [Storage](#storage-config-details)
+  * [Errands](#errands)
+  * [Resource Config](#resource-config)
+* [Step 3: Apply Changes](#apply-changes)
+* [Next Installation Step](#next-install-step)
+
 ##<a id='prerequisites'></a>Prerequisites
 
 Before performing the procedures in this topic, you must have deployed and configured {{ vars.platform_name }}.

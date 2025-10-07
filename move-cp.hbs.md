@@ -6,6 +6,12 @@ iaas: vsphere-nsxt
 
 This topic explains how to migrate a TKGI control plane and cluster container volumes to a new vSphere datastore without impacting workload cluster functioning.
 
+* [Overview](#overview)
+* [Step 1: Change the Datastore for Container Volumes](#volumes)
+* [Step 2: Change the Datastore for {{ vars.platform_name }} and the BOSH Director](#foundation)
+* [Step 3: Change the Datastore for the TKGI Tile](#tile)
+* [Step 4: Change the Datastore for TKGI-managed Clusters](#clusters)
+
 For prerequisites and notes, see [How to migrate TKGI environment from one datastore to another datastore](https://knowledge.broadcom.com/external/article?legacyId=67277) in the Broadcom Support KB.
 
 ## <a id="overview"></a> Overview

@@ -5,6 +5,16 @@ title: Adding an OIDC Provider
 
 This topic explains how you can use a Kubernetes profile in {{  vars.product }} (TKGI) to override the default Identity Provider (IDP).
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Configure a Custom OIDC Provider](#process)
+  * [Set Up Dex Workload](#dex)
+  * [Set Up Communication Path](#paths)
+  * [Deploy and Expose Dex](#deploy)
+  * [Create Kubernetes Profile](#profile)
+  * [Create Cluster](#cluster)
+  * [Test Cluster Access](#test)
+
 ## <a id='overview'></a>Overview
 
 The TKGI **UAA** pane configures a default IDP for all the clusters that TKGI creates.
