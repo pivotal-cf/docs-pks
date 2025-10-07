@@ -5,15 +5,6 @@ title: Configuring and Using PersistentVolumes
 
 This topic describes how to provision static and dynamic PersistentVolumes (PVs) to run stateful apps using {{  vars.product_full }} ({{ vars.product_short }}).
 
-* [Provision a Static PV](#static-pv)
-  * [Provision a Static PV for a Deployment Workload](#static-pv-deployment)
-  * [Provision a Static PV for a StatefulSets Workload](#static-pv-statefulsets)
-* [Provision a Dynamic PV](#dynamic-pv)
-  * [Provision a Dynamic PV for Deployment Workloads](#dynamic-pv-deployment)
-  * [Provision a Dynamic PV for StatefulSets Workloads](#dynamic-pv-statefulsets)
-  * [Specify a Default StorageClass](#default-storage-class)
-  * [Provision Dynamic PVs for Use with {{ vars.product }}](#dynamic-pv-tkgi)
-
 For static PV provisioning, the PersistentVolumeClaim (PVC) does not need to reference a StorageClass. For dynamic PV provisioning, you must specify a StorageClass and define the PVC using a reference to that StorageClass.
 
 For more information about storage management in Kubernetes,

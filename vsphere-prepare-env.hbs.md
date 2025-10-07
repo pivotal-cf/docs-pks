@@ -5,18 +5,6 @@ owner: {{ vars.platform_name }}
 
 This topic describes how to create dedicated users and roles for your vSphere environment before deploying {{  vars.product_full }} ({{ vars.product_short }}).
 
-* [Overview](#overview)
-* [Prerequisites](#prerequisites)
-* [Create the Master Node User Account](#create-master)
-* [Grant Storage Permissions](#addl-permissions)
-  * [Static Only Persistent Volume Provisioning](#static-only)
-  * [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
-  * [Dynamic Volume Provisioning (without Storage Policy-Based Volume Placement)](#dynamic-no-policy)
-* [Create the BOSH/{{ vars.platform_name }} User Account](#create-bosh-ops-man)
-* [Grant Permissions to the BOSH/{{ vars.platform_name }} User Account](#grant-bosh-ops-man)
-* [Configure DNS for the TKGI API](#dns)
-* [Next Installation Step](#next-steps)
-
 <p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by {{  vars.product }}. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the {{  vars.product }} and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the TKGI and Kubernetes cluster VMs, skip this topic.</p>
 
 ## <a id='overview'></a>Overview

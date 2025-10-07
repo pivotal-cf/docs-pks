@@ -7,23 +7,6 @@ This topic describes how to set up monitoring tools to capture
 metrics from Windows worker-based Kubernetes clusters
 deployed by {{  vars.product_full }} ({{ vars.product_short }}).
 
-* [Overview](#overview)
-* [Healthwatch](#healthwatch)
-* [Wavefront](#wavefront)
-* [Prometheus with Grafana](#prometheus)
-  * [Prerequisites](#monitor-prerequisites)
-  * [Overview](#overview-prometheus)
-* [Install Prometheus and Grafana](#install-prometheus)
-  * [Download the Prometheus Source Code](#download-source)
-  * [Generate Your Prometheus Dashboard Configuration](#monitor-rules)
-  * [Generate Monitoring Rules](#monitor-rules)
-  * [Deploy Prometheus and Grafana](#deploy-prometheus)
-  * [Verify Grafana is Running](#verify-grafana)
-* [Install the Windows Node Exporter](#install-node-exporter)
-  * [Deploy the Windows Node Exporter](#deploy-node-exporter)
-  * [Configure the Windows Node Exporter](#configure-node-exporter)
-  * [Set Up the Grafana Windows Node Dashboard](#set-up-node-exporter-grafana-dashboard)
-* [Administer Prometheus and Grafana](#post-install-admin)
 
 ## <a id='overview'></a> Overview
 
@@ -171,6 +154,7 @@ To generate Prometheus monitoring rules:
 
     * `KUBERNETES-MIXIN-PATH` is the `kubernetes_mixin` source directory.
     * `PROMETHEUS-OP-PATH` is the Prometheus operator path.
+{{{{raw}}}} <!--      1. Copy the Windows dashboard definition files generated above to the Prometheus operator directory.     --> {{{{/raw}}}}
 1. Change directory to the `kube-prometheus/jsonnet/kube-prometheus/rules` source code directory.
 1. Edit the `rules.libsonnet` configuration file.
 1. To add the Windows rule to the configuration add the following to the `rules.libsonnet` file:

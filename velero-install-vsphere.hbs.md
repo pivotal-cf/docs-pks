@@ -6,24 +6,6 @@ title: Installing Velero vSphere Plugin
 This topic describes how to install Velero for backing up and restoring
 {{  vars.product }} (TKGI)-provisioned Kubernetes workloads on vSphere.
 
-* [Prerequisites](#prereqs)
-* [Deploy an Object Store](#minio-deploy)
-* [Install the Velero CLI on Your Workstation](#velero-deploy)
-  * [Download the Velero CLI Binary](#velero-download)
-  * [Install the Velero CLI](#velero-cli-install)
-* [Install Velero on the Target Kubernetes Cluster](#velero-cluster-install)
-  * [Prerequisites](#velero-cluster-install-prereqs)
-  * [Set Up the kubectl Context](#velero-cluster-setup)
-  * [Install Velero](#velero-cluster-install-procedure)
-  * [Create a Velero vSphere Credential Secret](#velero-credentials-secret)
-  * [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-config-file)
-  * [Install Velero vSphere Plugin](#velero-vsphere-plugin-install)
-  * [Back up the VCP Volumes Migrated to vSphere CSI Driver](#velero-vcp-csi-migration)
-  * [Adjust Velero Memory Limits If Necessary](#velero-memory)
-* [Install Velero in an Air-Gapped Environment](#velero-cluster-install-airgapped)
-  * [Prerequisites](#velero-cluster-install-airgapped-prereqs)
-  * [Procedure](#velero-cluster-install-airgapped-procedure)
-
 ##<a id="prereqs"></a> Prerequisites
 
 Ensure the following before installing Velero for backing up and restoring TKGI on vSphere:

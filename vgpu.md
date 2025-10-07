@@ -3,20 +3,6 @@
 This page explains how to create TKGI clusters on vSphere that run NVIDIA vGPU worker nodes.
 Applications hosted on these clusters access GPU functionality via Compute Unified Device Architecture (CUDA).
 
-* [Overview](#overview)
-* [Prerequisites](#prereqs)
-* [Prepare the Hardware](#hardware)
-* [Install NVIDIA Software](#nvidia-software)
-* [Configure BOSH VM Extension](#extension)
-* [(Optional) Configure Compute Profile for vGPU](#cp)
-* [Create vGPU Cluster](#create)
-* [Build and Store Guest Driver Image](#driver)
-* [Install GPU Kubernetes Operator](#operator)
-* [Verify Operator](#verify-operator)
-* [Upgrading NVIDIA Drivers on ESXi](#upgrade)
-* [Troubleshooting](#troubleshoot)
-* [Resources](#resources)
-
 To run NVIDIA GPU worker nodes, see [Create GPU Clusters](gpu.html).
 
 ## <a id="overview"></a> Overview

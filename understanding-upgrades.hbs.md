@@ -5,22 +5,6 @@ title: About {{  vars.product }} Upgrades
 
 This topic provides conceptual information about upgrading {{  vars.product_full }} ({{ vars.product_short }}) and TKGI-provisioned Kubernetes clusters.
 
-* [Overview](#overview)
-  * [Deciding Between Full and Two-Phase Upgrade](#decide)
-  * [Deciding Between Tile or CLI Upgrade](#decide-method)
-* [What Happens During Full TKGI and TKGI Control Plane Only Upgrades](#what-happens)
-  * [Full TKGI Upgrades](#full-upgrades)
-  * [TKGI Control Plane Only Upgrades](#control-plane-upgrades)
-* [What Happens During Control Plane Upgrades](#control-plane-upgrades-details)
-  * [Control Plane Outages](#outages)
-  * [Canary Instances](#canary)
-  * [Tasks Supported Following a TKGI Control Plane Only Upgrade](#control-plane-upgrades-supported-tasks)
-    * [TKGI CLI Utility Commands](#control-plane-upgrades-supported-tasks-utility)
-    * [TKGI CLI Cluster Management Commands](#control-plane-upgrades-supported-tasks-management)
-* [What Happens During Cluster Upgrades](#cluster-upgrades)
-  * [Cluster Control Plane Nodes Outage](#master)
-  * [Worker Nodes Outage](#worker)
-
 For step-by-step instructions on upgrading TKGI
 and TKGI-provisioned Kubernetes clusters, see:
 

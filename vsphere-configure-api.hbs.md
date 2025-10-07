@@ -6,12 +6,6 @@ iaas: vSphere
 
 This topic describes how to configure an external load balancer for the {{  vars.product_full }} Control Plane (TKGI API).
 
-* [Overview](#overview)
-* [Prerequisites](#prerequisites)
-* [Step 1: Retrieve the TKGI API Endpoint](#retrieve-tkgi-api)
-* [Step 2: Configure an External Load Balancer](#loadbalancer-tkgi-api)
-* [Next Installation Step](#next-install-step)
-
 ## <a id='overview'></a> Overview
 
 You must configure an external load balancer to make the TKGI API accessible from outside the network.

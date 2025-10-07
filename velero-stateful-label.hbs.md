@@ -5,14 +5,6 @@ title: Back Up and Restore Stateful App with Label
 
 This topic describes how to use Velero to back up and restore a stateless application using the label selector feature with Velero.
 
-* [Overview](#overview)
-* [Prerequisites](#prereqs)
-* [Deploy Guestbook App](#guestbook-deploy)
-* [Apply a Common Label to all App Objects](#guestbook-br-ns)
-* [Back Up the Guestbook App Using Label (1)](#guestbook-br-ns)
-* [Restore the Guestbook App Using Label (2)](#guestbook-br-ns)
-* [Conclusions](#conclusions-label)
-
 ##<a id="overview"></a> Overview
 
 To test Velero back up and restore, use the [stateless Guestbook application](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/). This example demonstrates Velero back up and restore with [label selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/), so the stateless Guestbook app is deployed using labels.

@@ -5,11 +5,6 @@ title: Verifying Deployment Health
 
 This topic describes how to check the health of your {{  vars.product_full }} ({{ vars.product_short }}) deployment and the nodes, pods, and clusters that it hosts.
 
-* [Verify Kubernetes Node and Pod Health](#nodes-pods)
-* [Verify Kubernetes Cluster Health](#cluster)
-* [Retrieve Cluster Upgrade Task ID](#upgrade-code)
-* [Verify NCP Health (NSX Only)](#ncp)
-
 ## <a id="nodes-pods"></a>Verify Kubernetes Node and Pod Health
 
 Verify the health of your Kubernetes nodes and pods by following the steps below:

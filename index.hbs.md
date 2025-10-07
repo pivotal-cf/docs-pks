@@ -2,12 +2,6 @@
 
 {{  vars.product_full }} ({{ vars.product_short }}) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and {{ vars.platform_name }}.
 
-* [Overview](#overview)
-* [What {{  vars.product }} Adds to Kubernetes](#tkgi-kubernetes)
-* [Features](#features)
-* [Documentation Highlights](#docs-highlights)
-* [Learn More](#more)
-
 ## <a id='overview'></a>Overview
 
 {{  vars.product }} deploys Kubernetes to [BOSH](https://bosh.io) and [{{ vars.platform_name }}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/index.html),

@@ -5,10 +5,6 @@ title: Configuring the Upgrade Pipeline
 
 This topic describes how to configure a Concourse pipeline to automatically upgrade a {{  vars.product_full }} ({{ vars.product_short }}) installation.
 
-* [Overview](#Overview)
-* [Download the Upgrade Pipeline](#download)
-* [Configure Automated {{ vars.platform_name }} and Ubuntu Jammy Stemcell for Tanzu Downloading](#configure-pipeline)
-
 ## <a id="Overview"></a> Overview
 
 You can configure Concourse pipeline to automatically upgrade your  TKGI installation when a new TKGI release becomes available on Broadcom Support.

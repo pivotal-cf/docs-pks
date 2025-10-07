@@ -5,36 +5,6 @@ title: Hardware Requirements for {{  vars.product }} on vSphere with NSX
 
 This topic describes the hardware requirements for production deployments of {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX.
 
-* [vSphere Cluster Requirements](#tkgi-cluster-chars)
-  * [Management Cluster](#tkgi-mgmt-cluster)
-  * [Edge Cluster](#tkgi-edge-cluster)
-  * [Compute Cluster](#tkgi-compute-cluster)
-  * [Management Plane Placement](#tkgi-cluster-consids)
-  * [vSphere Cluster Configuration Requirements](#tkgi-cluster-reqs)
-* [RPD Topology with NSX](#tkgi-rpd)
-  * [RPD with vSAN](#tkgi-rpd-vsan)
-    * [Management/Edge Cluster](#management-edge-cluster)
-    * [Compute Clusters](#compute-clusters)
-    * [Storage (vSAN)](#storage-vsan)
-    * [Future Growth](#future-growth)
-  * [RPD without vSAN](#tkgi-rpd-no-vsan)
-    * [Management/Edge Cluster](#management-edge-cluster-1)
-    * [Compute Clusters](#compute-clusters-1)
-    * [Storage (non-vSAN)](#storage-non-vsan)
-    * [Future Growth](#future-growth-1)
-* [MPD Topology with NSX](#tkgi-mpd)
-  * [MPD Topology Requirements](#tkgi-mpd-topology)
-  * [MPD Topology Configuration](#tkgi-mpd-config)
-  * [MPD Considerations](#tkgi-mpd-config)
-* [VM Inventory and Sizes](#vm-size-inventory)
-  * [Management Plane VMs and Sizes](#control-plane-sizes)
-  * [NSX Edge Node VMs and Sizes](#edge-node-sizes)
-  * [Kubernetes Cluster Nodes VMs and Sizes](#k8s-node-sizes)
-* [Hardware Requirements](#hardware-reqs)
-  * [RPD Hardware Requirements](#rpd-hardware)
-  * [MPD Hardware Requirements](#mpd-hardware)
-  * [Adding Hardware Capacity](#hardware-capacity)
-
 ##<a id='tkgi-cluster-chars'></a> vSphere Cluster Requirements
 
 A vSphere cluster is a collection of ESXi hosts and associated virtual machines (VMs) with shared resources and a shared management interface. Installing {{  vars.product }} on vSphere with NSX requires the following vSphere clusters:

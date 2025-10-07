@@ -5,13 +5,6 @@ title: Back Up and Restore Stateless App with Namespace
 
 This topic describes how to use Velero to back up and restore a stateless application using the namespace feature with Velero.
 
-* [Overview](#overview)
-* [Prerequisites](#prereqs)
-* [Deploy Guestbook App](#guestbook-deploy)
-* [Back Up the Guestbook App using Namespace](#guestbook-br-ns)
-* [Restore the Guestbook App](#guestbook-br-ns)
-* [Conclusions](#guestbook-conclusions-ns)
-
 ##<a id="overview"></a> Overview
 
 The application we are going to use to test back up/restore with Velero is the standard Guestbook app (stateless app).

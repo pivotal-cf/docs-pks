@@ -5,14 +5,6 @@ title: Back Up and Restore Stateful App with Static IP for Ingress
 
 This topic describes how to use Velero to back up and restore a stateful application with ingress and a static IP address.
 
-* [Overview](#overview)
-* [Prerequisites](#prereqs)
-* [Create a Network Profile](#create-np)
-* [Deploy the Coffee-Tea App](#coffee-tea-deploy)
-* [Back Up the Coffee-Tea App Using Namespace](#coffee-tea-backup)
-* [Restore the Coffee-Tea App](#coffee-tea-restore)
-* [Conclusions](#wordpress-conclude)
-
 ##<a id="overview"></a> Overview
 
 This topic describes how to use Velero to back up and restore a stateful application with ingress and a static IP address.

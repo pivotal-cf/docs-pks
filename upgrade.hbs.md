@@ -10,21 +10,6 @@ thistopic: #Empty var to prevent build breaking
 This topic explains how to upgrade {{  vars.product_full }} ({{ vars.product_short }}) in Antrea Networking environments from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
 on vSphere, Amazon Web Services (AWS), and Azure.
 
-* [Overview](#overview)
-* [Prepare to Upgrade](#prepare)
-  * [Prepare to Upgrade with Multiple Datacenters](#prepare-multi-dc)
-* [Perform the Upgrade](#upgrade)
-  * [Upgrade {{ vars.platform_name }}](#upgrade-opsman)
-  * [Download and Import {{ vars.product }} {{{ vars.product_version }}}](#upgrade-tile)
-  * [Download and Import Stemcells](#stemcell)
-  * [Modify Container Network Interface Configuration](#modify-cni)
-  * [Verify Errand Configuration](#errands)
-  * [Verify Other Configurations](#final-review)
-  * [Apply Changes to the {{ vars.product }} Tile](#apply-changes)
-* [After the Upgrade](#after-upgrade)
-  * [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
-  * [Verify the Upgrade](#verify-upgrade)
-
 For instructions on upgrading {{  vars.product }}
 on vSphere with NSX networking,
 see [Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html).

@@ -5,14 +5,6 @@ title: Back Up and Restore Stateful App with Static IP for Load Balancer Service
 
 This topic describes how to use Velero to back up and restore a stateful application with a load balancer service with a static IP address.
 
-* [Overview](#overview)
-* [Prerequisites](#prereqs)
-* [Configure WordPress YAML Files](#wordpress-yaml)
-* [Deploy WordPress App](#wordpress-deploy)
-* [Back Up the WordPress App Using Namespace](#wordpress-backup)
-* [Restore the WordPress App](#wordpress-restore)
-* [Conclusions](#wordpress-conclude)
-
 ##<a id="overview"></a> Overview
 
 This topic describes how to use Velero to back up and restore a Kubernetes stateful application with a service of type load balancer that uses a static IP address.
