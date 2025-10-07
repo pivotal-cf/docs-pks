@@ -6,6 +6,9 @@ topictype: vspherewithnsxt
 
 This topic describes the version requirements for installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX integration.
 
+* [vSphere Version Requirements](#vsphere-version)
+* [NSX Integration Component Version Requirements](#tkgi-with-nsx-t)
+
 For prerequisites and resource requirements for installing {{  vars.product }} on vSphere without NSX
 integration, see
 [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html).

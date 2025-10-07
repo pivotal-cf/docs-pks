@@ -6,6 +6,10 @@ owner: {{ vars.platform_name }}
 This topic describes how to install and configure {{ vars.platform_name }}
 before deploying {{  vars.product_full }} ({{ vars.product_short }}) on VMware vSphere.
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Install and Configure {{ vars.platform_name }}](#install-om)
+* [Next Installation Step](#next-steps)
 
 ## <a id='overview'></a> Overview
 

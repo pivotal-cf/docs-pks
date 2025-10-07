@@ -6,6 +6,15 @@ iaas: vSphere
 
 This topic describes how to create admin users in {{  vars.product_full }} ({{ vars.product_short }}) with User Account and Authentication (UAA).
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Step 1: Connect to the TKGI API VM](#connect)
+  * [Option 1: Connect through the {{ vars.platform_name }} VM](#ssh-vsphere)
+  * [Option 2: Connect through a Non-{{ vars.platform_name }} Machine](#local-workstation)
+* [Step 2: Log In as a UAA Admin](#uaa-admin-login)
+* [Step 3: Assign {{ vars.product }} Cluster Scopes](#tkgi-access)
+* [Next Step](#next-steps)
+
 ## <a id='overview'></a> Overview
 
 You must create at least one admin user during the initial set up of TKGI.

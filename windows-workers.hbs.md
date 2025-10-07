@@ -9,6 +9,15 @@ thistopic: #Empty var to prevent build breaking
 
 This topic describes how to configure Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+  * [vSphere with NSX Requirements](#prerequisites-nsxt)
+  * [vSphere with Flannel Requirements (Beta)](#prerequisites-flannel)
+* [Configure a Windows Worker-Based Kubernetes Cluster](#install)
+  * [Plans](#plans)
+  * [Networking](#networking)
+  * [Upload the Windows Server Stemcell](#upload-stemcell)
+* [Create a Windows Worker-Based Cluster](#create-cluster)
 
 ## <a id='overview'></a>Overview
 

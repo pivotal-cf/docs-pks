@@ -7,6 +7,24 @@ authenttype: boshtile
 
 This topic describes how to configure BOSH Director for vSphere with NSX integration for {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [How {{{ vars.platform_name }}} Accesses NSX Manager](#other-super-certificates)
+* [Prerequisites](#prerequisites)
+* [Step 1: Open the BOSH Director Tile](#set-up)
+* [Step 2: Configure vCenter for {{ vars.product }}](#vcenter-config)
+* [Step 3: Configure BOSH Director](#dir-config)
+* [Step 4: Create Availability Zones](#create-az)
+* [Step 5: Create Networks](#create-networks)
+* [Step 6: Assign AZs and Networks](#assign-azs)
+* [Step 7: Configure Security](#security-config)
+* [Step 8: Configure BOSH DNS](#bosh-dns)
+* [Step 9: Configure Logging](#syslog)
+* [Step 10: Configure Resources](#resource-config)
+* [Step 11: (Optional) Add Custom VM Extensions](#custom-vm-extensions)
+* [Step 12: Deploy BOSH](#deploy-bosh)
+* [Step 13: Update Network Availability Zones](#update-network-azs)
+* [Next Step](#next)
+  * [Network Selection for vSphere v6.5](#vsphere-65)
+
 ##<a id='other-super-certificates'></a> How {{{ vars.platform_name }}} Accesses NSX Manager
 
 {{> other-super-certificates }}

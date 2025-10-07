@@ -20,8 +20,11 @@ You can install {{  vars.product }} (TKGI) on VCF. You can use either the [TKGI 
 
 For more information, see:
 
+* [About TKGI Integration with VCF](#about-vcf)
 * [Requirements for Installing TKGI on VCF](#vcf-requirements)
 * [Supported Topologies for TKGI on VCF](#vcf-topos)
+  * [Topology 1: Workload Domain with a Single vSphere Cluster](#vcf-topo-1)
+  * [Topology 2: Workload Domain with Multiple vSphere Clusters](#vcf-topo-2)
 * [TKGI on VCF Deployment Procedure](#vcf-deployment)
 
 

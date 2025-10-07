@@ -6,6 +6,8 @@ iaas: vSphere
 
 This topic describes options for installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
+* [Overview](#overview)
+
 ## <a id='overview'></a>Overview
 
 You can install TKGI on vSphere in four ways:

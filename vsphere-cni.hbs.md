@@ -6,6 +6,8 @@ iaas: vSphere
 
 The following topics describe how to use {{ vars.platform_name }} to manually install {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with Antrea networking.
 
+* [Install the TKGI and Kubernetes CLIs](#install-the-tkgi-and-kubernetes-clis)
+
 <p class="note"><strong>Note</strong>: The recommended method for installing {{  vars.product }} on vSphere is to use the {{  vars.product }} Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 
 To install {{  vars.product }} on vSphere with Antrea networking follow the instructions below:

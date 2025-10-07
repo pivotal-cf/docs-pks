@@ -10,6 +10,11 @@ For prerequisites and resource requirements for installing TKGI on vSphere with 
 see [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and
 [Hardware Requirements for {{ vars.product }} on vSphere with NSX](./vsphere-nsxt-rpd-mpd.html).
 
+* [Prerequisites](#prerequisites)
+* [vSphere Version Requirements](#vsphere)
+* [Resource Requirements](#resources)
+* [Network Communication Requirements](#firewall-ports)
+
 ##<a id='prerequisites'></a> Prerequisites
 
 Before installing {{ vars.product }}:

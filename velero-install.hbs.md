@@ -6,6 +6,25 @@ title: Installing Velero with File System Backup
 This topic describes how to install Velero for backing up and restoring {{  vars.product }} (TKGI)-provisioned Kubernetes workloads.
 This topic also describes how to install MinIO for Velero.
 
+* [Prerequisites](#prereqs)
+* [Deploy an Object Store](#minio-deploy)
+  * [Install MinIO](#minio-install)
+  * [Start MinIO](#minio-start)
+  * [Enable MinIO as a Service](#minio-service)
+  * [Create MinIO Bucket](#minio-create)
+* [Install the Velero CLI on Your Workstation](#velero-deploy)
+  * [Download the Velero CLI Binary](#velero-download)
+  * [Install the Velero CLI](#velero-cli-install)
+* [Install Velero on the Target Kubernetes Cluster](#velero-cluster-install)
+  * [Prerequisites](#velero-cluster-install-prereqs)
+  * [Set Up the kubectl Context](#velero-cluster-setup)
+  * [Install Velero](#velero-cluster-install-procedure)
+  * [Modify the Host Path](#velero-privileged)
+  * [Adjust Velero Memory Limits If Necessary](#velero-memory)
+* [Install Velero in an Air-Gapped Environment](#velero-cluster-install-airgapped)
+  * [Prerequisites](#velero-cluster-install-airgapped-prereqs)
+  * [Procedure](#velero-cluster-install-airgapped-procedure)
+
 ##<a id="prereqs"></a> Prerequisites
 
 Ensure the following before installing Velero for backing up and restoring TKGI:

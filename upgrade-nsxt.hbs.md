@@ -9,6 +9,24 @@ This topic describes how to upgrade {{  vars.product_full }} ({{ vars.product_sh
 from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
 on vSphere with NSX networking.
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Prepare to Upgrade](#prepare)
+  * [Prepare to Upgrade with Multiple Datacenters](#prepare-multi-dc)
+* [Perform the Upgrade](#upgrade)
+  * [Upgrade NSX (1)](#upgrade-nsxt)
+  * [Upgrade {{ vars.platform_name }}](#upgrade-opsman)
+  * [Download and Import TKGI {{{ vars.product_version }}}](#stage-tkgi)
+  * [Download and Import Stemcells](#stemcell)
+  * [Upgrade the TKGI Tile](#upgrade-tkgi)
+* [After the Upgrade](#after-upgrade)
+  * [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
+  * [Upgrade Kubernetes Clusters If Needed](#upgrade-k8s)
+  * [Verify TKGI Upgrade](#verify)
+  * [Upgrade NSX Data Center to NSX v3.2.3 or Later (2)](#upgrade-nsxt)
+  * [(Optional) Upgrade to vSphere 8](#upgrade-vsphere)
+* [Troubleshoot the Upgrade](#troubleshoot)
+
 For instructions on upgrading TKGI with Antrea networking,
 see [Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html).
 
@@ -263,7 +281,7 @@ complete the following verifications and upgrades:
 
 1. [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
 1. [Upgrade Kubernetes Clusters if Needed](#upgrade-k8s)
-1. [Verify TKGI Upgrade](#verify-upgrade)
+1. [Verify TKGI Upgrade](#verify)
 1. [Upgrade NSX Data Center to NSX v3.2.3 or Later](#upgrade-nsxt)
 1. [(Optional) Upgrade to vSphere 8](#upgrade-vsphere)
 

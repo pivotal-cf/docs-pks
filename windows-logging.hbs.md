@@ -8,6 +8,23 @@ components and integrations to capture logs from
 {{  vars.product_full }} ({{ vars.product_short }})
 provisioned Windows Worker Kubernetes clusters and worker nodes.
 
+* [Prerequisites](#logging-prerequisites)
+* [Overview](#overview)
+* [Prepare the Working Environment](#prep-windows-nodes)
+  * [Configure Docker for Creating Windows Containers](#configure-docker)
+* [Prepare a Fluent Bit Image](#prep-fb-image)
+  * [Build a Windows Fluent Bit Docker Image](#build-docker-image)
+  * [Configure Fluent Bit](#configure-fluent)
+* [Install Fluent Bit](#install-fluent-bit)
+  * [Deploy Fluent Bit on the Windows Cluster](#deploy-fluent-bit)
+  * [Validate the Fluent Bit Deployment Using a Sample App](#validate-fluent-bit-using-app)
+    * [Configure a Sample App](#configure-sample)
+    * [Deploy the Sample App](#deploy-sample-app)
+    * [Validate the Fluent Bit Deployment](#validate-fluent-bit)
+* [Troubleshooting](#troubleshooting)
+  * ['Cannot Find Path' Error When Creating the Fluent Bit Docker Container](#cannot-find-path)
+  * ['The remote name could not be resolved' Error When Creating the Fluent Bit Docker Container](#remote-server-cannot-resolve)
+
 ## <a id='logging-prerequisites'></a> Prerequisites
 
 Before starting the tasks in this topic:

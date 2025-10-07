@@ -7,6 +7,15 @@ This topic describes upgrade scenarios for
 {{  vars.product_full }} ({{ vars.product_short }}) environments that are upgraded from
 {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} on vSphere.
 
+* [Overview](#overview)
+* [TKGI on vSphere with NSX Networking](#nsxt)
+  * [Scenario 1: Upgrading to TKGI {{{ vars.product_version }}}](#tkgi-only)
+  * [Scenario 2: Upgrading to TKGI {{{ vars.product_version }}} and NSX v4.0](#tkgi-nsxt)
+  * [Scenario 3: Upgrading to TKGI {{{ vars.product_version }}}, NSX v4.0, and vSphere v8.0](#tkgi-nsxt-vsphere)
+* [TKGI on vSphere (Antrea Networking)](#antrea)
+  * [Scenario 1: Upgrading to TKGI {{{ vars.product_version }}} (1)](#tkgi-only-antrea)
+  * [Scenario 2: Upgrading to TKGI {{{ vars.product_version }}} and vSphere v8.0 (2)](#tkgi-vsphere)
+
 ## <a id="overview"></a>Overview
 
 When you upgrade TKGI on vSphere, you might also upgrade

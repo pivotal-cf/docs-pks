@@ -8,6 +8,47 @@ to enable {{  vars.product_full }} ({{ vars.product_short }}) provisioned cluste
 On vSphere, TKGI automatically installs the vSphere CSI Driver to all TKGI-provisioned clusters.
 
 
+* [Overview](#overview)
+* [Requirements and Limitations of the vSphere CSI Driver](#concerns)
+  * [vSphere CSI Driver Supported Features and Requirements](#supported-feature)
+  * [Unsupported Features and Limitations](#unsupported-features)
+* [Customize vSphere File Volumes](#create-file-volumes)
+  * [Prerequisites](#file-volumes-prereqs)
+  * [Create a Cluster with Customized File Volume Parameters](#file-volumes-create)
+  * [Modify a Cluster with Customized File Volume Parameters](#file-volumes-modify)
+  * [Remove File Volume Parameters from a Cluster](#file-volumes-remove)
+  * [File Volume Configuration](#file-volumes-params)
+    * [File Volume DataStores Configuration](#file-volumes-params-datastores)
+    * [File Volume NetPermissions Object Configuration](#file-volumes-params-netperm)
+* [Create or Use CNS Block Volumes](#use-cns)
+  * [Create a vSphere Storage Class](#create-storage)
+  * [Create a PersistentVolumeClaim](#persistent-volumes-create)
+  * [Create Workloads Using Persistent Volumes](#persistent-volumes-workloads)
+* [Customize a Cluster with vSphere Topology-Aware Volume Provisioning](#vsphere-topology-provisioning)
+  * [Topology Overview](#overview-topology)
+  * [Prepare for Topology](#prepare-for-topology)
+  * [Topology Limitations and Prerequisites](#prereqs-topology)
+  * [Create a Cluster with Topology](#create-topology)
+  * [Manage Clusters with Topology-Aware Volumes](#manage-topology)
+* [Configure vSphere CSI for Windows](#windows-configure-csi)
+  * [Overview](#windows-overview)
+  * [Prerequisites](#windowsfile-volumes-prereqs)
+  * [Limitations of the vSphere CSI Driver](#windows-concerns)
+  * [Prepare a Windows Stemcell for vSphere CSI](#windows-prepare-stemcell)
+    * [Prepare a CSI Proxy](#windows-prepare-csiproxy)
+    * [Create a Windows Stemcell for vSphere CSI](#windows-create-stemcell)
+    * [Upload and Test the Windows Stemcell](#windows-upload-stemcell)
+  * [Prepare vSphere CSI for a Windows Cluster](#windows-prepare-windows-cluster)
+    * [Apply a CSI Manifest to a Windows Cluster](#windows-apply-csi-manifest)
+    * [Provision a Windows Persistent Volume](#windows-create-pv)
+* [Customize and Manage vSphere CNS](#manage-cns)
+  * [Customize the Maximum Number of Persistent Volumes](#customize-max-persistent-volumes)
+  * [Customize the Maximum Number of Volume Snapshots](#customize-max-snapshot)
+  * [Configure CNS Data Centers](#cns-datacenters)
+  * [Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver](#uninstall-csi-after-topology)
+  * [Windows CSI Node Manifest](#windows-csi-manifest)
+
+
 ## <a id='overview'></a>Overview
 
 vSphere Cloud Native Storage (CNS) provides comprehensive data management for stateful, containerized apps,

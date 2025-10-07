@@ -6,6 +6,22 @@ iaas: vsphere-nsxt
 
 This topic lists the procedures to follow when installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX networking manually, using {{ vars.platform_name }}.
 
+* [Step 1: Prepare to Install {{ vars.product }} on vSphere with NSX](#step01)
+* [Step 2: Install and Configure VMware NSX for {{ vars.product }}](#step02)
+* [Step 3: Create the Management Plane for {{ vars.product }}](#step03)
+* [Step 4: Create the Compute Plane for {{ vars.product }}](#step04)
+* [Step 5: Deploy {{ vars.platform_name }} for {{ vars.product }} with NSX](#step05)
+* [Step 6: Generate the NSX Management Cluster Root CA Certificate and Key](#step06)
+* [Step 7: Configure BOSH Director for vSphere with NSX](#step07)
+* [Step 8: Generate and Register the NSX Management Cluster Super User Principal Identity Certificate and Key](#step08)
+* [Step 9: Install {{ vars.product }} on vSphere with NSX](#step09)
+* [Step 10: Install VMware Harbor Registry for {{ vars.product }}](#step10)
+* [Step 11: Install the TKGI and Kubectl CLIs](#step11)
+* [Step 12: Create Admin Users for {{ vars.product }}](#step12)
+* [Step 13: Verify the Installation of {{ vars.product }}](#step13)
+* [Step 14: Perform Desired Post-Installation Configurations](#step14)
+* [Step 15: Create Network Profiles to Customize Cluster Deployments](#step15)
+
 <p class="note"><strong>Note</strong>: The recommended method for installing {{  vars.product }} on vSphere with NSX is to use the {{  vars.product }} Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 
 ##<a id='step01'></a> Step 1: Prepare to Install {{  vars.product }} on vSphere with NSX

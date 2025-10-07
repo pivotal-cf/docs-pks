@@ -5,6 +5,13 @@ owner: {{ vars.platform_name }}
 
 This topic describes how to deploy {{ vars.platform_name }} on VMware vSphere with NSX integration for use with {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [Prerequisites](#prerequisites)
+* [Step 1: Generate SSH Key Pair](#ssh-key)
+* [Step 2: Deploy {{ vars.platform_name }} for {{ vars.product }}](#deploy-om)
+  * [Network Selection for vSphere v6.5](#vsphere-65)
+* [Step 3: Configure {{ vars.platform_name }} for {{ vars.product }}](#config-om)
+* [Next Step](#next)
+
 ##<a id='prerequisites'></a>Prerequisites
 
 Before deploying {{ vars.platform_name }} with NSX for {{  vars.product }}, you must have completed the following tasks:

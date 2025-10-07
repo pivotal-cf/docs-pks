@@ -5,6 +5,13 @@ owner: vsphere
 
 This topic describes how to use vSphere Host Groups with {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [About vSphere Host Groups](#host-groups-about)
+* [Host Group Use Cases for {{ vars.product }}](#host-groups-uses)
+  * [Enabling Support for vSAN Fault Domains](#enabling-support-for-vsan-fault-domains)
+  * [Using Host Group as a New AZ in BOSH](#using-host-group-as-a-new-az-in-bosh)
+* [Defining a Host Group in vSphere](#host-groups-define)
+* [Using a Host Group with {{ vars.product }}](#host-groups-use)
+
 ## <a id="host-groups-about"></a>About vSphere Host Groups
 
 In vSphere, a cluster is a collection of ESXi servers that run virtual machines (VMs). A typical way to organize resources within a cluster is using resource pools. A resource pool is a collection of vSphere resources.
