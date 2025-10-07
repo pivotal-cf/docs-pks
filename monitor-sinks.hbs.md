@@ -1,10 +1,10 @@
 ---
 title: Monitoring Clusters with Log Sinks
-owner: TKGI
+
 ---
 
 This topic describes the log sink resources you can use
-to monitor VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters and their workloads.  
+to monitor {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters and their workloads.
 
 ## <a id='overview'></a>Overview
 
@@ -52,7 +52,7 @@ For more information, see:
 
 ### <a id='log-format'></a>Log Format
 
-In Tanzu Kubernetes Grid Integrated Edition,
+In {{  vars.product }},
 you can create `ClusterLogSink` and `LogSink` resources of the following types:</p>
 
 * Syslog
@@ -61,7 +61,7 @@ you can create `ClusterLogSink` and `LogSink` resources of the following types:<
 
 Your log format depends on the type of `ClusterLogSink` or `LogSink` you want to use.
 For example, if you use a `ClusterLogSink` or `LogSink` resource of type `syslog`,
-Tanzu Kubernetes Grid Integrated Edition formats your logs as described in the sections below.
+{{  vars.product }} formats your logs as described in the sections below.
 
 #### <a id='syslog'></a>Syslog Format
 
@@ -86,9 +86,9 @@ The following is a sample pod log entry:
 
 ```
 36 <14>1 2018-11-26T18:51:41.647825+00:00 cluster-name
-pod.log/rocky-raccoon/logspewer-6b58b6689d-dhddj - - [kubernetes@47450 
-app="logspewer" pod-template-hash="2614622458" namespace_name="rocky-raccoon" 
-object_name="logspewer-6b58b6689d-dhddj" container_name="logspewer"] 
+pod.log/rocky-raccoon/logspewer-6b58b6689d-dhddj - - [kubernetes@47450
+app="logspewer" pod-template-hash="2614622458" namespace_name="rocky-raccoon"
+object_name="logspewer-6b58b6689d-dhddj" container_name="logspewer"]
 2018/11/26 18:51:41 Log Message 589910
 ```
 
@@ -107,8 +107,8 @@ The following is an example Kubernetes API event log entry:
 
 ```
 Nov 14 16:01:49 cluster-name
-k8s.event/rocky-raccoon/logspewer-6b58b6689d-j9n: 
-Successfully assigned rocky-raccoon/logspewer-6b58b6689d-j9nq7 
+k8s.event/rocky-raccoon/logspewer-6b58b6689d-j9n:
+Successfully assigned rocky-raccoon/logspewer-6b58b6689d-j9nq7
 to vm-38dfd896-bb21-43e4-67b0-9d2f339adaf1
 ```
 
@@ -121,7 +121,7 @@ Where:
 
 ### <a id="important-events"></a>Notable Kubernetes API Events
 
-The following section lists Kubernetes API events that can help assess Kubernetes scheduling problems in Tanzu Kubernetes Grid Integrated Edition.
+The following section lists Kubernetes API events that can help assess Kubernetes scheduling problems in {{  vars.product }}.
 
 To monitor for these events, look for log entries that contain the <strong>Identifying String</strong> indicated below for each event.
 
@@ -132,9 +132,9 @@ To monitor for these events, look for log entries that contain the <strong>Ident
    <tr>
       <th width="25%">Description</th>
       <td>
-         Image pull back offs occur when the Kubernetes API cannot reach a registry to retrieve a container or the container does not exist in the registry. 
-         The scheduler might be trying to access a registry that is not available on the network. 
-         For example, access to Docker Hub is blocked by a firewall. 
+         Image pull back offs occur when the Kubernetes API cannot reach a registry to retrieve a container or the container does not exist in the registry.
+         The scheduler might be trying to access a registry that is not available on the network.
+         For example, access to Docker Hub is blocked by a firewall.
          Other reasons might include the registry is experiencing an outage or a specified container has been deleted or was never uploaded.
       </td>
    </tr>
@@ -227,7 +227,7 @@ For more information about log sinks, see:
 
     Follow these instructions to create `ClusterLogSink` and `LogSink` resources,
     described in [Overview](#overview) above.
-* [Sink Architecture in Tanzu Kubernetes Grid Integrated Edition](./sink-architecture.html).
+* [Sink Architecture in {{  vars.product }}](./sink-architecture.html).
 
     See this topic for conceptual information about sinks.
 

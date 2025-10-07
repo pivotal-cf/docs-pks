@@ -1,23 +1,23 @@
 ---
-title: Troubleshooting Tanzu Kubernetes Grid Integrated Edition Management Console 
-owner: TKGI
+title: Troubleshooting {{  vars.product }} Management Console
+
 ---
 
-The following sections describe how to troubleshoot failures to deploy of the VMware Tanzu Kubernetes Grid Integrated Edition Management Console and of Tanzu Kubernetes Grid Integrated Edition instances from the management console.
+The following sections describe how to troubleshoot failures to deploy of the {{  vars.product_full }} Management Console and of {{  vars.product }} instances from the management console.
 
-For information about how to deploy the management console and install Tanzu Kubernetes Grid Integrated Edition, see [Install on vSphere with the Management Console](console-install-vsphere.html).
+For information about how to deploy the management console and install {{  vars.product }}, see [Install on vSphere with the Management Console](console-install-vsphere.html).
 
 <hr>
 
-## <a id='ova-fails'></a> Deployment of the Tanzu Kubernetes Grid Integrated Edition Management Console Fails
+## <a id='ova-fails'></a> Deployment of the {{  vars.product }} Management Console Fails
 
 **Problem**
 
-Tanzu Kubernetes Grid Integrated Edition Management Console VM fails to deploy from the OVA template.
+{{  vars.product }} Management Console VM fails to deploy from the OVA template.
 
 **Solution**
 
-1. Use SSH to log in to the Tanzu Kubernetes Grid Integrated Edition Management Console VM as `root` user.
+1. Use SSH to log in to the {{  vars.product }} Management Console VM as `root` user.
 <br>Use the password that you specified when you  deployed the OVA.
 1. Run the following command to obtain the server logs:
 
@@ -29,24 +29,24 @@ Tanzu Kubernetes Grid Integrated Edition Management Console VM fails to deploy f
 
 <hr>
 
-## <a id='tkgi-deployment-fails'></a>Deployment of Tanzu Kubernetes Grid Integrated Edition from the Management Console Fails
+## <a id='tkgi-deployment-fails'></a>Deployment of {{  vars.product }} from the Management Console Fails
 
 **Problem**
 
-Tanzu Kubernetes Grid Integrated Edition fails to deploy from the management console.
+{{  vars.product }} fails to deploy from the management console.
 
 **Solution**
 
-1. Follow the procedure in [Delete Your Tanzu Kubernetes Grid Integrated Edition Deployment](console-delete-deployment.html) to cleanly remove all Tanzu Kubernetes Grid Integrated Edition components from vSphere and to clean up related objects in the management console VM.
-1. Attempt to deploy Tanzu Kubernetes Grid Integrated Edition again. 
+1. Follow the procedure in [Delete Your {{  vars.product }} Deployment](console-delete-deployment.html) to cleanly remove all {{  vars.product }} components from vSphere and to clean up related objects in the management console VM.
+1. Attempt to deploy {{  vars.product }} again.
 
 <hr>
 
-## <a id='multi-T0-deployments'></a>Tanzu Kubernetes Grid Integrated Edition Management Console Cannot Retrieve Cluster Data in a Multi-Tier0 Topology
+## <a id='multi-T0-deployments'></a>{{  vars.product }} Management Console Cannot Retrieve Cluster Data in a Multi-Tier0 Topology
 
 **Problem**
 
-In a deployment to a multiple-tier0 topology, Tanzu Kubernetes Grid Integrated Edition Management Console cannot display cluster information when you go to **TKG Integrated Edition** > **Clusters** and select a cluster. You see errors of the following type:
+In a deployment to a multiple-tier0 topology, {{  vars.product }} Management Console cannot display cluster information when you go to **TKG Integrated Edition** > **Clusters** and select a cluster. You see errors of the following type:
 
 ```
 Failed to retrieve current K8s Cluster summary. cannot get cluster details: cannot get cluster namespaces: Get https://<address>:8443/api/v1/namespaces: dial tcp <address>:8443: i/o timeout
@@ -55,16 +55,16 @@ Failed to retrieve current K8s Cluster Volumes. cannot get namespaces of cluster
 
 **Cause**
 
-In a single tier0 topology, Tanzu Kubernetes Grid Integrated Edition Management Console is deployed to the same infrastructure network as vSphere and VMware NSX. In a multiple-tier0 topology, due to tenant isolation, the infrastructure network is not routable to tenant tier0 uplink networks. In a multiple-tier0 topology, data from the Kubernetes API is exposed by floating IP addresses on tenant tier0 routers. Consequently, the management console cannot retrieve cluster data from the Kubernetes API because it is not on the same network as the tenants.
+In a single tier0 topology, {{  vars.product }} Management Console is deployed to the same infrastructure network as vSphere and VMware NSX. In a multiple-tier0 topology, due to tenant isolation, the infrastructure network is not routable to tenant tier0 uplink networks. In a multiple-tier0 topology, data from the Kubernetes API is exposed by floating IP addresses on tenant tier0 routers. Consequently, the management console cannot retrieve cluster data from the Kubernetes API because it is not on the same network as the tenants.
 
 **Solution**
 
-Make sure that the Tanzu Kubernetes Grid Integrated Edition Management Console can connect to tenant floating IP addresses. 
+Make sure that the {{  vars.product }} Management Console can connect to tenant floating IP addresses.
 
 
 1. Connect to the management console VM by using `ssh`.
 1. Configure a route on the management console VM.
-    For example, run the following command:   
+    For example, run the following command:
     `route add -net <destination_subnet> gw <gateway_address>`
     - **Destination subnet**: The network CIDR of the tenant floating IP addresses.
     - **Gateway**: A VM that can reach the tenant floating IP addresses and the management console.
@@ -76,93 +76,93 @@ Because the gateway can reach both the management console and the tenant floatin
 ## <a id="upgrade-fail-nvds-cvds"></a> TKGI MC is Unable to Upgrade the TKGI Control Plane After Migrating from N-VDS to VDS
 
 If you have an existing TKGI installation on a vSphere N-VDS network and migrate your network to VDS,
-TKGI MC will no longer be able to upgrade TKGI to a newer version.  
+TKGI MC will no longer be able to upgrade TKGI to a newer version.
 
 **Explanation**
 
-TKGI MC uses network resource MOIDs to manage network resources, 
-allowing the Management Console to manage network resources with identical names.  
+TKGI MC uses network resource MOIDs to manage network resources,
+allowing the Management Console to manage network resources with identical names.
 
-When converting a network from N-VDS to VDS, network resources are assigned new MOIDs.  
+When converting a network from N-VDS to VDS, network resources are assigned new MOIDs.
 
-Although your existing TKGI Kubernetes cluster workloads continue to function, 
-the Management Console configuration maintains stale network resource MOIDs 
-and cannot upgrade the TKGI control plane.  
+Although your existing TKGI Kubernetes cluster workloads continue to function,
+the Management Console configuration maintains stale network resource MOIDs
+and cannot upgrade the TKGI control plane.
 
 
 **Workaround**
 
-To upgrade TKGI MC after converting a network from N-VDS to VDS:  
+To upgrade TKGI MC after converting a network from N-VDS to VDS:
 
-1. Log in to the VM of your existing TKGI MC installation.  
-1. To collect your network's current configuration:  
-    
-    1. Export the `pks-management-server` container's IP as an environment variable:  
-    
+1. Log in to the VM of your existing TKGI MC installation.
+1. To collect your network's current configuration:
+
+    1. Export the `pks-management-server` container's IP as an environment variable:
+
         ```
         export MGMT_IP=`docker inspect  pks-mgmt-server --format='\{{.NetworkSettings.Networks.pks.IPAddress}}'`
         ```
-        
-    1. Query and save your data center list as a json file named `datacenter.json`:  
-    
+
+    1. Query and save your data center list as a json file named `datacenter.json`:
+
         ```
         curl -u root  http://{$MGMT_IP}:8080/api/v1/inventory/vcenter/datacenter -X GET  -k  -H \
         "Content-type:application/json" > datacenter.json
         ```
-        
-    1. Review the exported `datacenter.json` file and note the data center MOID.  
-    1. Query and save your network list as a json file named `networks.json`:  
-    
+
+    1. Review the exported `datacenter.json` file and note the data center MOID.
+    1. Query and save your network list as a json file named `networks.json`:
+
         ```
         curl -u root  http://{$MGMT_IP}:8080/api/v1/inventory/vcenter/network?dc=DC-MOID -X GET   -k  -H \
         "Content-type:application/json" > networks.json
         ```
-        Where `DC-MOID` is the data center MOID you noted in the previous step.  
-        
-1. To reconfigure TKGI MC with the current network resources MOIDs, do one of the following:  
-    * Configure TKGI MC in the TKGI MC YAML Editor, replacing the old MOIDs in your configuration with the current MOIDs.  
-    * Manually configure TKGI MC using a manifest file:  
+        Where `DC-MOID` is the data center MOID you noted in the previous step.
+
+1. To reconfigure TKGI MC with the current network resources MOIDs, do one of the following:
+    * Configure TKGI MC in the TKGI MC YAML Editor, replacing the old MOIDs in your configuration with the current MOIDs.
+    * Manually configure TKGI MC using a manifest file:
         1. Manually create a TKGI MC manifest file with the current network resources MOIDs:
 
-            1. Export the TKGI MC manifest as a manifest file named `manifest.json`:  
+            1. Export the TKGI MC manifest as a manifest file named `manifest.json`:
 
                 ```
                 curl -u root:Admin\ADMIN-PASSWORD  https://localhost/api/v1/deployment/manifest -X GET   -k  -H "Content-type:application/json" > manifest.json
                 ```
-                Where `ADMIN-PASSWORD` is the password for the admin account used in the command.  
-                
-            1. Back up the exported manifest file.  
-            1. Review the `networks.json` file you exported above and note the `moid` and `type` values.  
-            1. Open the exported manifest file in an editor and change the `dep_network_moid` and `dep_network_type` values 
-               to the `moid` and `type` values you collected from the `networks.json` file.  
-            1. Save the revised manifest file.     
-        1. To restore your TKGI MC's ability to manage the TKGI network resources:  
+                Where `ADMIN-PASSWORD` is the password for the admin account used in the command.
 
-            1. Update TKGI MC with the revised manifest:  
+            1. Back up the exported manifest file.
+            1. Review the `networks.json` file you exported above and note the `moid` and `type` values.
+            1. Open the exported manifest file in an editor and change the `dep_network_moid` and `dep_network_type` values
+               to the `moid` and `type` values you collected from the `networks.json` file.
+            1. Save the revised manifest file.
+        1. To restore your TKGI MC's ability to manage the TKGI network resources:
+
+            1. Update TKGI MC with the revised manifest:
 
                 ```
                 curl -u root:Admin\ADMIN-PASSWORD  http://{$MGMT_IP}:8080/api/v1/deployment -X POST -d @manifest.json  -k  -H "Content-type:application/json"
                 ```
-                
-                Where `ADMIN-PASSWORD` is the password for the admin account used in the command.  
-                
-1. To validate your TKGI MC's configuration:  
 
-    1. Open the TKGI MC UI.  
-    1. Review **Configuration** > **Deployment** and confirm that all statuses are either `SUCCESS` or `SKIPPED`.  
-    1. Review the **TKGI MC Wizard** and confirm the displayed **Network Information** is correct.  
-    
+                Where `ADMIN-PASSWORD` is the password for the admin account used in the command.
+
+1. To validate your TKGI MC's configuration:
+
+    1. Open the TKGI MC UI.
+    1. Review **Configuration** > **Deployment** and confirm that all statuses are either `SUCCESS` or `SKIPPED`.
+    1. Review the **TKGI MC Wizard** and confirm the displayed **Network Information** is correct.
+
 1. To upgrade TKGI MC, deploy the TKGI MC OVA for the desired TKGI MC version.
 
 <hr>
 
-## <a id='log-insight'></a>Obtain the vRealize Log Insight Agent ID for Tanzu Kubernetes Grid Integrated Edition Management Console 
+## <a id='log-insight'></a>Obtain the vRealize Log Insight Agent ID for {{  vars.product }} Management Console
 
-If you enabled integration with VMware vRealize Log Insight, Tanzu Kubernetes Grid Integrated Edition Management Console generates a unique vRealize Log Insight agent ID for the management console VM. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console.
+If you enabled integration with VMware vRealize Log Insight, {{  vars.product }} Management Console generates a unique vRealize Log Insight agent ID for the management console VM. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console.
 
 You obtain the vRealize Log Insight agent ID as follows:
 
-1. Use SSH to log in to the Tanzu Kubernetes Grid Integrated Edition Management Console VM as `root` user.
+1. Use SSH to log in to the {{  vars.product }} Management Console VM as `root` user.
 1. Run the following command to obtain the ID:
 
     ```

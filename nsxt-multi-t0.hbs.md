@@ -1,59 +1,59 @@
 ---
 title: Isolating Tenants
-owner: TKGI
+
 ---
 
-This topic describes how to isolate tenants in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) multi-tenant environments.  
+This topic describes how to isolate tenants in {{  vars.product_full }} ({{ vars.product_short }}) multi-tenant environments.
 
 
 ## <a id='about'></a> About Tenant Isolation
 
-You can isolate a cluster and its workloads using NSX Tier-0 (T0) logical routers or VRF Tier-0 gateways:  
+You can isolate a cluster and its workloads using NSX Tier-0 (T0) logical routers or VRF Tier-0 gateways:
 
-* [Using a Multi-T0 Router Configuration for Tenant Isolation](#about-t0-router-isolation)  
-* [Using a VRF Tier-0 Gateway Configuration for Tenant Isolation](#about-vrf-gateway-isolation)  
+* [Using a Multi-T0 Router Configuration for Tenant Isolation](#about-t0-router-isolation)
+* [Using a VRF Tier-0 Gateway Configuration for Tenant Isolation](#about-vrf-gateway-isolation)
 
 ### <a id='about-t0-router-isolation'></a> Using a Multi-T0 Router Configuration for Tenant Isolation
 
-Tanzu Kubernetes Grid Integrated Edition multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks. 
-As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers. 
-The Shared Tier-0 router handles traffic between the TKGI management network and the vSphere standard network 
-where vCenter and NSX Manager are deployed. 
-There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX logical switch using a virtual LAN (VLAN) or Overlay transport zone. 
+{{  vars.product }} multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks.
+As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers.
+The Shared Tier-0 router handles traffic between the TKGI management network and the vSphere standard network
+where vCenter and NSX Manager are deployed.
+There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX logical switch using a virtual LAN (VLAN) or Overlay transport zone.
 Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each tenant network.
 
   <img src="images/nsxt/mt0/mt0-03.png" alt="Multi-T0 Router">
 
-To isolate a cluster and its workloads behind T0 routers:  
+To isolate a cluster and its workloads behind T0 routers:
 
-* [Prerequisites](#prereqs)  
-* [Configure Multi-T0 Router-Based Tenant Isolation](#base-config)  
-* [Configure Multi-T0 Security](#security-config)  
+* [Prerequisites](#prereqs)
+* [Configure Multi-T0 Router-Based Tenant Isolation](#base-config)
+* [Configure Multi-T0 Security](#security-config)
 
 
 
 ### <a id='about-vrf-gateway-isolation'></a> Using a VRF Tier-0 Gateway Configuration for Tenant Isolation
 
-Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Policy API also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway.  
+{{  vars.product }} on vSphere with NSX Policy API also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway.
 
-As shown in the diagram below, instead of using one or more T0 routers, clusters are isolated behind a VRF gateway. 
-The Shared Tier-0 router handles traffic between the TKGI management network and the 
-vSphere standard network where vCenter and NSX Manager are deployed. 
-Using Tenant VRF Tier-0 gateways to connect to the Shared Tier-0, Kubernetes clusters are deployed in complete isolation on tenant networks.  
+As shown in the diagram below, instead of using one or more T0 routers, clusters are isolated behind a VRF gateway.
+The Shared Tier-0 router handles traffic between the TKGI management network and the
+vSphere standard network where vCenter and NSX Manager are deployed.
+Using Tenant VRF Tier-0 gateways to connect to the Shared Tier-0, Kubernetes clusters are deployed in complete isolation on tenant networks.
 
 <img src="images/nsxt/mt0/mt0-03-vrf.png" alt="VRF Tier-0 Gateway">
 
-To isolate a cluster and its workloads behind a VRF gateway:  
+To isolate a cluster and its workloads behind a VRF gateway:
 
-* [Prerequisites](#prereqs)  
-* [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf)  
+* [Prerequisites](#prereqs)
+* [Configure VRF Tier-0 Gateway-Based Tenant Isolation](#base-config-vrf)
 
 ## <a id="prereqs"></a>Prerequisites
 
-The prerequisites for tenant isolation depend on the configuration used:  
+The prerequisites for tenant isolation depend on the configuration used:
 
-* [Multi-T0-Based Tenant Isolation Prerequisites](#prereqs-multi-t0)  
-* [VRF Tier-0 Gateway-Based Tenant Isolation Prerequisites](#prereqs-vrf)  
+* [Multi-T0-Based Tenant Isolation Prerequisites](#prereqs-multi-t0)
+* [VRF Tier-0 Gateway-Based Tenant Isolation Prerequisites](#prereqs-vrf)
 
 
 
@@ -70,26 +70,26 @@ To implement Multi-T0-based tenant isolation, verify the following prerequisites
 
 To implement VRF Tier-0 Gateway-based tenant isolation:
 
-* TKGI on vSphere with NSX Policy API.  
-* Three VLANs for the VRF Tier-0 gateway.  
+* TKGI on vSphere with NSX Policy API.
+* Three VLANs for the VRF Tier-0 gateway.
 
 
 ## <a id="base-config"></a> Configure Multi-T0 Router-Based Tenant Isolation
 
 To isolate tenants using a multi-T0 router-based configuration:
 
-1. [Plan and Provision Additional NSX Edge Nodes for Each Multi-T0 Router](#edge-nodes)  
-1. [Configure Inter-T0 Logical Switch](#logical-switch)  
-1. [Configure a New Uplink Interface on the Shared Tier-0 Router](#router-port)  
-1. [Provision Tier-0 Router for Each Tenant](#provision)  
-1. [Create Two Uplink Interfaces on Each Tenant Tier-0 Router](#port-interfaces)  
-1. [Verify the Status of the Shared and Tenant Tier-0 Routers](#port-interfaces)  
-1. [Configure Static Routes](#static-routes)  
-1. [Considerations for NAT Topology on Shared Tier-0](#consider-nat-shared)  
-1. [Considerations for NAT Topology on Tenant Tier-0](#consider-nat-tenant)  
-1. [Configure BGP on Each Tenant Tier-0 Router](#bgp)  
-1. [Configure BGP on the Shared Tier-0 Router](#bgp-shared)  
-1. [Test the Base Configuration](#test)  
+1. [Plan and Provision Additional NSX Edge Nodes for Each Multi-T0 Router](#edge-nodes)
+1. [Configure Inter-T0 Logical Switch](#logical-switch)
+1. [Configure a New Uplink Interface on the Shared Tier-0 Router](#router-port)
+1. [Provision Tier-0 Router for Each Tenant](#provision)
+1. [Create Two Uplink Interfaces on Each Tenant Tier-0 Router](#port-interfaces)
+1. [Verify the Status of the Shared and Tenant Tier-0 Routers](#port-interfaces)
+1. [Configure Static Routes](#static-routes)
+1. [Considerations for NAT Topology on Shared Tier-0](#consider-nat-shared)
+1. [Considerations for NAT Topology on Tenant Tier-0](#consider-nat-tenant)
+1. [Configure BGP on Each Tenant Tier-0 Router](#bgp)
+1. [Configure BGP on the Shared Tier-0 Router](#bgp-shared)
+1. [Test the Base Configuration](#test)
 
 
 ### <a id="edge-nodes"></a>Step 1: Plan and Provision Additional NSX Edge Nodes for Each Multi-T0 Router
@@ -180,29 +180,29 @@ Similarly, the Tenant Tier-0 has one uplink interface at `10.40.206.13/25` on th
 
 ### <a id="static-routes"></a>Step 7: Configure Static Routes
 
-To configure static routes:  
+To configure static routes:
 
 1. For each T0 router, including the Shared Tier-0 and all Tenant Tier-0 routers, define a static route to the external network. For instructions, see [Create Tier-0 Router](./nsxt-3-0-install.html#nsxt30-t0-router-create) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
 
-1. For the Shared Tier-0 router, the default static route points to the external management components such as vCenter and NSX Manager and provides internet connectivity.  
+1. For the Shared Tier-0 router, the default static route points to the external management components such as vCenter and NSX Manager and provides internet connectivity.
 
     As shown in the image below, the Shared Tier-0 defines a static route for vCenter and NSX Manager as `192.168.201.0/24`, and the static route for internet connectivity as `0.0.0.0/0`:
 
     ![T0-shared-route](images/nsxt/mt0/nsxt-static-routes-01.png)
 
-1. Confirm that the default static route for each Tenant Tier-0 router points to the tenant's corporate network.  
+1. Confirm that the default static route for each Tenant Tier-0 router points to the tenant's corporate network.
 
-    As shown in the image below, the Tenant Tier-0 defines a static route to the corporate network as `0.0.0.0/0`:  
+    As shown in the image below, the Tenant Tier-0 defines a static route to the corporate network as `0.0.0.0/0`:
 
     ![T0-customer-route](images/nsxt/mt0/nsxt-static-routes-02.png)
 
 ### <a id="consider-nat-shared"></a>Step 8: Considerations for NAT Topology on Shared Tier-0
 
-The Multi-T0 configuration steps documented here apply to deployments where NAT mode is **not** used on the Shared Tier-0 router. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition</a>.
+The Multi-T0 configuration steps documented here apply to deployments where NAT mode is **not** used on the Shared Tier-0 router. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for {{  vars.product }}</a>.
 
 For deployments where NAT-mode is used on the Shared Tier-0 router, additional provisioning steps must be followed to preserve NAT functionality to external networks while bypassing NAT rules for traffic flowing from the Shared Tier-0 router to each Tenant Tier-0 router.
 
-Existing Tanzu Kubernetes Grid Integrated Edition deployments where NAT mode is configured on the Shared Tier-0 router cannot be re-purposed to support a Multi-T0 deployment following this documentation.
+Existing {{  vars.product }} deployments where NAT mode is configured on the Shared Tier-0 router cannot be re-purposed to support a Multi-T0 deployment following this documentation.
 
 ### <a id="consider-nat-tenant"></a>Step 9: Considerations for NAT Topology on Tenant Tier-0
 
@@ -212,9 +212,9 @@ Existing Tanzu Kubernetes Grid Integrated Edition deployments where NAT mode is 
 
 In a Multi-T0 environment with NAT mode, traffic on the Tenant Tier-0 network going from Kubernetes cluster nodes to TKGI management components residing on the Shared Tier-0 router must bypass NAT rules. This is required because TKGI-managed components such as BOSH Director connect to Kubernetes nodes based on routable connectivity without NAT.
 
-To avoid NAT rules being applied to this class of traffic, you need to create two high-priority **NO_SNAT** rules on each Tenant Tier-0 router. These NO_SNAT rules allow "selective" bypass of NAT for the relevant class of traffic, which in this case is connectivity from Kubernetes node networks to TKGI management components such as the TKGI API, Ops Manager, and BOSH Director, as well as to infrastructure components such as vCenter and NSX Manager.
+To avoid NAT rules being applied to this class of traffic, you need to create two high-priority **NO_SNAT** rules on each Tenant Tier-0 router. These NO_SNAT rules allow "selective" bypass of NAT for the relevant class of traffic, which in this case is connectivity from Kubernetes node networks to TKGI management components such as the TKGI API, {{ vars.platform_name }}, and BOSH Director, as well as to infrastructure components such as vCenter and NSX Manager.
 
-For each Tenant Tier-0 router, define two NO_SNAT rules to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the TKGI Management network where TKGI, Ops Manager, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
+For each Tenant Tier-0 router, define two NO_SNAT rules to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the TKGI Management network where TKGI, {{ vars.platform_name }}, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
 
 For example, the following image shows two NO_SNAT rules created on a Tenant Tier-0 router. The first rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the TKGI management network (`30.0.0.0/24`). The second rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the external network (`192.168.201.0/24`).
 
@@ -228,17 +228,17 @@ The end result is two NO_SNAT rules on each Tenant Tier-0 router that bypass the
 
 ### <a id="bgp"></a>Step 10: Configure BGP on Each Tenant Tier-0 Router
 
-Use Border Gateway Protocol (BGP) to route redistribution and filtering across all Tier-0 routers. 
-BGP allows the Shared Tier-0 router to dynamically discover the location of Kubernetes clusters (Node networks) 
-deployed on each Tenant Tier-0 router.  
+Use Border Gateway Protocol (BGP) to route redistribution and filtering across all Tier-0 routers.
+BGP allows the Shared Tier-0 router to dynamically discover the location of Kubernetes clusters (Node networks)
+deployed on each Tenant Tier-0 router.
 
-To configure BGP on each tenant Tier-0 router:  
+To configure BGP on each tenant Tier-0 router:
 
-* [Considerations When Configuring BGP on Tenant Tier-0 Routers](#bgp-considerations)  
-* [Configure BGP AS Number](#bgp-as-config)  
-* [Configure BGP Route Distribution](#bgp-route-tenant)  
-* [Configure IP Prefix Lists](#ip-prefix-tenant)  
-* [Configure BGP Peer](#bgp-peer-tenant)  
+* [Considerations When Configuring BGP on Tenant Tier-0 Routers](#bgp-considerations)
+* [Configure BGP AS Number](#bgp-as-config)
+* [Configure BGP Route Distribution](#bgp-route-tenant)
+* [Configure IP Prefix Lists](#ip-prefix-tenant)
+* [Configure BGP Peer](#bgp-peer-tenant)
 
 
 ### <a id="bgp-considerations"></a>Considerations When Configuring BGP on Tenant Tier-0 Routers
@@ -287,14 +287,14 @@ In this step you define an **IP Prefix List** for each Tenant Tier-0 router to a
 
 For more information about IP Prefix Lists, see <a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/manager-mode/advanced-routing/tier-0-logical-router/create-an-ip-prefix-list.html">Create an IP Prefix List</a> in the NSX documentation.
 
-To configure an IP Prefix List for each Tenant Tier-0 router, follow the steps below:  
+To configure an IP Prefix List for each Tenant Tier-0 router, follow the steps below:
 
-1. In NSX Manager, select the Tenant Tier-0 router.  
-1. Select **Routing** > **IP Prefix Lists**.  
-1. Click **Add** and configure as follows:  
-	1. **Name**: Enter a descriptive name.  
-	1. Click **Add** and create a **Permit** rule that allows redistribution of the exact /24 network, carved from the **Nodes IP Block**.  
-	1. Click **Add** and create a **Deny** rule that denies everything else on the network `0.0.0.0/0`.  
+1. In NSX Manager, select the Tenant Tier-0 router.
+1. Select **Routing** > **IP Prefix Lists**.
+1. Click **Add** and configure as follows:
+	1. **Name**: Enter a descriptive name.
+	1. Click **Add** and create a **Permit** rule that allows redistribution of the exact /24 network, carved from the **Nodes IP Block**.
+	1. Click **Add** and create a **Deny** rule that denies everything else on the network `0.0.0.0/0`.
 	![IP Prefix Example 2](images/nsxt/mt0/ip-prefix-01.png)
 
 #### <a id="bgp-peer-tenant"></a>Configure BGP Peer
@@ -306,18 +306,18 @@ To configure BGP peering for each Tenant Tier-0 router, follow the steps below:
 1. Click **Add** and configure the BGP rule as follows:
 	1. **Neighbor Address**: Enter the IP address of the Shared Tier-0 router.
 	1. **Local Address**: Select the individual uplink interfaces facing the inter-tier0 logical switch.
-	1. **Address Families**: Click **Add** and configure as follows:  
-		1. **Type**: `IPV4_UNICAST`.  
-		1. **State**: `Enabled`.  
-		1. **Out Filter**: Select the IP Prefix List created above.  
-		1. Click **Add**.  
-	1. Back at the **Routing** > **BGP** screen:  
-		1. Enter the Shared Tier-0 AS number.  
-		1. After creating the BGP neighbor, select **Edit** and click **Enable BGP**.  
+	1. **Address Families**: Click **Add** and configure as follows:
+		1. **Type**: `IPV4_UNICAST`.
+		1. **State**: `Enabled`.
+		1. **Out Filter**: Select the IP Prefix List created above.
+		1. Click **Add**.
+	1. Back at the **Routing** > **BGP** screen:
+		1. Enter the Shared Tier-0 AS number.
+		1. After creating the BGP neighbor, select **Edit** and click **Enable BGP**.
 
 ### <a id="bgp-shared"></a>Step 11: Configure BGP on the Shared Tier-0 Router
 
-The configuration of BGP on the Shared Tier-0 is similar to the BGP configuration each Tenant Tier-0, with the exception of the IP Prefix list that permits traffic to the TKGI management network where TKGI, BOSH, and Ops Manager are located.
+The configuration of BGP on the Shared Tier-0 is similar to the BGP configuration each Tenant Tier-0, with the exception of the IP Prefix list that permits traffic to the TKGI management network where TKGI, BOSH, and {{ vars.platform_name }} are located.
 
 As with each Tenant Tier-0 router, you will need to assign a unique private AS number within the private range `64512-65534` to the Shared Tier-0 router. Once the AS number is assigned, use NSX Manager to configure the following BGP rules for the Shared Tier-0 router.
 
@@ -338,7 +338,7 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 1. Click **Add** and configure as follows:
 	1. **Name**: Enter a descriptive name.
 	1. Click **Add** and create a **Permit** rule for the infrastructure components vCenter and NSX Manager.
-	1. Click **Add** and create a **Permit** rule for the TKGI management components (TKGI, Ops Manager, and BOSH).
+	1. Click **Add** and create a **Permit** rule for the TKGI management components (TKGI, {{ vars.platform_name }}, and BOSH).
 	1. Click **Add** and create a **Deny** rule that denies everything else on the network `0.0.0.0/0`.
   ![IP Prefix Lists](images/nsxt/mt0/ip-prefix-03.png)
 
@@ -362,20 +362,20 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 
 ### <a id="test"></a>Step 12: Test the Base Configuration
 
-Perform the following validation checks on all Tier-0 routers:  
+Perform the following validation checks on all Tier-0 routers:
 
-* [Shared Tier-0 Validation](#test-shared-tier-0)  
-* [Tenant Tier-0 Validation](#test-tenant-tier-0)  
+* [Shared Tier-0 Validation](#test-shared-tier-0)
+* [Tenant Tier-0 Validation](#test-tenant-tier-0)
 
-Perform the validation checks on the Shared Tier-0 first followed by each Tenant Tier-0 router. 
-For each Tier-0, confirm the validation alternates among checking for the BGP summary and the router Routing Table.  
+Perform the validation checks on the Shared Tier-0 first followed by each Tenant Tier-0 router.
+For each Tier-0, confirm the validation alternates among checking for the BGP summary and the router Routing Table.
 
 
 #### <a id="test-shared-tier-0"></a>Shared Tier-0 Validation
 
-Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router. 
+Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router.
 
-To verify BGP Peering:  
+To verify BGP Peering:
 
 1. In NSX Manager, select the Shared Tier-0 router and choose **Actions** > **Generate BGP Summary**.
 1. Validate that the Shared Tier-0 router has one active peer connection to each Tenant Tier-0 router.
@@ -388,7 +388,7 @@ Verify that the Shared Tier-0 routing table includes all BGP routes to each Shar
 
 #### <a id="test-tenant-tier-0"></a>Tenant Tier-0 Validation
 
-Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router. 
+Verify that the Shared Tier-0 has an active peer connection to each Tenant Tier-0 router.
 
 To verify BGP Peering:
 
@@ -396,7 +396,7 @@ To verify BGP Peering:
 1. Validate that the Tenant Tier-0 router has one active peer connection to the Shared Tier-0 router.
 1. Repeat for all other Tenant Tier-0 routers.
 
-Verify that the T0 routing table for each Tenant Tier-0 includes all BGP routes to reach vCenter, 
+Verify that the T0 routing table for each Tenant Tier-0 includes all BGP routes to reach vCenter,
 NSX Manager, and the TKGI management network:
 
 1. In NSX Manager, select **Networking** > **Routers** > **Routing**.
@@ -410,20 +410,20 @@ NSX Manager, and the TKGI management network:
 
 In a multi-T0 environment, you can secure two types of traffic:
 
-- Traffic between tenants. See [Secure Inter-Tenant Communications](#secure-inter-tenant).  
-- Traffic between clusters in the same tenant. See [Secure Intra-Tenant Communications](#secure-intra-tenant).  
+- Traffic between tenants. See [Secure Inter-Tenant Communications](#secure-inter-tenant).
+- Traffic between clusters in the same tenant. See [Secure Intra-Tenant Communications](#secure-intra-tenant).
 
 ### <a id="secure-inter-tenant"></a> Secure Inter-Tenant Communications
 
-Securing traffic between tenants isolates each tenant and ensures the traffic between the Tenant Tier-0 routers and the Shared Tier-0 router is restricted to the legitimate traffic path.  
+Securing traffic between tenants isolates each tenant and ensures the traffic between the Tenant Tier-0 routers and the Shared Tier-0 router is restricted to the legitimate traffic path.
 
 To secure traffic between tenants:
 
-1. [Define IP Sets](#ip-sets)  
-1. [Create Edge Firewall](#edge-firewall)  
-1. [Add Firewall Rules](#firewall-rules)  
-1. [Create DFW Section](#dfw-section)  
- 
+1. [Define IP Sets](#ip-sets)
+1. [Create Edge Firewall](#edge-firewall)
+1. [Add Firewall Rules](#firewall-rules)
+1. [Create DFW Section](#dfw-section)
+
 
 #### <a id="ip-sets"></a>Step 1: Define IP Sets
 
@@ -474,11 +474,11 @@ The following image shows a summary of the five firewall rules you will create:
 
 Select the Edge Firewall **Section** you just created, then select **Add Rule**. Add the following five firewall rules:
 
-* [BGP Firewall Rule](#bgp-firewall-rule)  
-* [Clusters Masters Firewall Rule](#masters-firewall-rule)  
-* [Node Network to Management Firewall Rule](#nodes-firewall-rule)  
-* [TKGI Firewall Rule](#tkgi-firewall-rule)  
-* [Deny All Firewall Rule](#deny-all-firewall-rule)  
+* [BGP Firewall Rule](#bgp-firewall-rule)
+* [Clusters Masters Firewall Rule](#masters-firewall-rule)
+* [Node Network to Management Firewall Rule](#nodes-firewall-rule)
+* [TKGI Firewall Rule](#tkgi-firewall-rule)
+* [Deny All Firewall Rule](#deny-all-firewall-rule)
 
 
 ##### <a id="bgp-firewall-rule"></a>BGP Firewall Rule
@@ -577,15 +577,15 @@ Securing inter-cluster communications is achieved by provisioning security group
 
 <p class="note"><strong>Note</strong>: You must perform the global procedures, the first three steps described below, before you deploy a Kubernetes cluster to the target tenant Tier-0 router.</p>
 
-To secure communication between clusters in the same tenancy:  
+To secure communication between clusters in the same tenancy:
 
-1. [Create NSGroup for All Tanzu Kubernetes Grid Integrated Edition Clusters](#ns-group)  
-1. [Create DFW Section](#dfw-section)  
-1. [Create NSGroups](#ns-groups)  
-1. [Create DFW Rules](#dfw-rules) 
+1. [Create NSGroup for All {{  vars.product }} Clusters](#ns-group)
+1. [Create DFW Section](#dfw-section)
+1. [Create NSGroups](#ns-groups)
+1. [Create DFW Rules](#dfw-rules)
 
 
-#### <a id="ns-group"></a>Step 1: Create NSGroup for All Tanzu Kubernetes Grid Integrated Edition Clusters
+#### <a id="ns-group"></a>Step 1: Create NSGroup for All {{  vars.product }} Clusters
 
 1. In NSX Manager, navigate to **Inventory > Groups > Groups** and **Add new group**.
 1. Configure the new NSGroup as follows:
@@ -672,11 +672,11 @@ After you configure the NSGroup for cluster nodes and pods, the **Membership Cri
 
 #### <a id="dfw-rules"></a>Step 4: Create DFW Rules
 
-Select the DFW section you created above and configure the following three DFW rules:  
+Select the DFW section you created above and configure the following three DFW rules:
 
-* [Deny Everything Else](#deny-else)  
-* [Prevent Pod to Node Communication](#pods-rule)  
-* [Allow Node to Node and Nodes to Pods Communications](#nodes-rule)  
+* [Deny Everything Else](#deny-else)
+* [Prevent Pod to Node Communication](#pods-rule)
+* [Allow Node to Node and Nodes to Pods Communications](#nodes-rule)
 
 
 ##### <a id="deny-else"></a>DFW Rule 1: Deny Everything Else
@@ -722,119 +722,119 @@ For example, see the three configured DFW rules below:
 
 ## <a id="base-config-vrf"></a> Configure VRF Tier-0 Gateway-Based Tenant Isolation
 
-To isolate a cluster and its workloads behind a VRF gateway:  
+To isolate a cluster and its workloads behind a VRF gateway:
 
-* [Review Your Network Configuration](#review-network-vrf)  
-* [Create VRF Gateway Segments](#create-gateway-segments-vrf)  
-* [Create VRF Gateways](#create-gateway-vrf)  
-* [Create a Network Profile](#create-network-profile-vrf)  
-* [Configure a Cluster with a VRF Gateway](#update-cluster-vrf)  
+* [Review Your Network Configuration](#review-network-vrf)
+* [Create VRF Gateway Segments](#create-gateway-segments-vrf)
+* [Create VRF Gateways](#create-gateway-vrf)
+* [Create a Network Profile](#create-network-profile-vrf)
+* [Configure a Cluster with a VRF Gateway](#update-cluster-vrf)
 
 
 ### <a id="review-network-vrf"></a>Step 1: Review Your Network Configuration
 
-To review the network configuration of your three VLANs:  
+To review the network configuration of your three VLANs:
 
-1. To determine the VLAN IDs of your three VLANs, run either of the following for each VLAN:  
+1. To determine the VLAN IDs of your three VLANs, run either of the following for each VLAN:
 
-    * Method one:  
-    
+    * Method one:
+
         ```
         sudo cat /proc/net/vlan/VLAN-NAME |grep VID
         ```
-    
-        Where VLAN-NAME is the name of a single VLAN.  
-    
-    * Method two:  
-    
+
+        Where VLAN-NAME is the name of a single VLAN.
+
+    * Method two:
+
         ```
         ip -d link show dev VLAN-NAME |grep id
         ```
-    
-        Where VLAN-NAME is the name of a single VLAN.  
-     
-1. Confirm that a t0-shared gateway uses the VLAN IDs 
-and that its segment matches the segments returned by the commands above.  
+
+        Where VLAN-NAME is the name of a single VLAN.
+
+1. Confirm that a t0-shared gateway uses the VLAN IDs
+and that its segment matches the segments returned by the commands above.
 
 
 ### <a id="create-gateway-segments-vrf"></a>Step 2: Create VRF Gateway Segments
 
-You must create two VLAN-backed segments for your VRF gateways. 
-For information on creating a VLAN-backed segment, 
-see [Add a Segment](https://techdocs.broadcom.com/jp/ja/vmware-cis/nsx/vmware-nsx/4-1/administration-guide/segments/add-an-nsx-segment.html) 
-in the VMware NSX-T Data Center documentation.  
+You must create two VLAN-backed segments for your VRF gateways.
+For information on creating a VLAN-backed segment,
+see [Add a Segment](https://techdocs.broadcom.com/jp/ja/vmware-cis/nsx/vmware-nsx/4-1/administration-guide/segments/add-an-nsx-segment.html)
+in the VMware NSX-T Data Center documentation.
 
-To create two gateway segments:  
+To create two gateway segments:
 
-1. Create a VLAN-backed segment for one of your VRF gateway VLANs with the following configuration:  
+1. Create a VLAN-backed segment for one of your VRF gateway VLANs with the following configuration:
 
-    * Configure **Segment Name**. For example, `internet-vlan-vrf-0-seg`.  
-    * Configure **Transport Zone**. For example, `internet-tz-vlan-0`.  
-    * Configure **VLAN**. Specify one of the VLAN IDs determined above.  
+    * Configure **Segment Name**. For example, `internet-vlan-vrf-0-seg`.
+    * Configure **Transport Zone**. For example, `internet-tz-vlan-0`.
+    * Configure **VLAN**. Specify one of the VLAN IDs determined above.
 
-1. Create a VLAN-backed segment for your remaining VRF gateway VLAN with the following configuration:  
+1. Create a VLAN-backed segment for your remaining VRF gateway VLAN with the following configuration:
 
-    * Configure **Segment Name** with a new unique name. For example, `internet-vlan-vrf-1-seg`.  
-    * Configure **Transport Zone** with the same zone used by the first segment.  
-    * Configure **VLAN** with the VLAN ID for the second VLAN.  
+    * Configure **Segment Name** with a new unique name. For example, `internet-vlan-vrf-1-seg`.
+    * Configure **Transport Zone** with the same zone used by the first segment.
+    * Configure **VLAN** with the VLAN ID for the second VLAN.
 
 
 ### <a id="create-gateway-vrf"></a>Step 3: Create VRF Gateways
 
-You must create two VRF gateways to isolate your tenants. 
-For information on creating a VRF gateway, 
-see [Add a VRF Gateway](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/tier-0-gateways/add-a-vrf-gateway.html) 
-in the VMware NSX-T Data Center documentation.  
-    
-1. Create a VRF gateway with the following configuration:  
+You must create two VRF gateways to isolate your tenants.
+For information on creating a VRF gateway,
+see [Add a VRF Gateway](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/tier-0-gateways/add-a-vrf-gateway.html)
+in the VMware NSX-T Data Center documentation.
 
-    1. Provide a **Name** for the VRF gateway. For example, `t0-vrf-0`.  
-    1. Connect the VRF gateway to your Tier-0 Gateway.  
+1. Create a VRF gateway with the following configuration:
+
+    1. Provide a **Name** for the VRF gateway. For example, `t0-vrf-0`.
+    1. Connect the VRF gateway to your Tier-0 Gateway.
     1. Save your configuration.
-    1. Set the interface for the gateway. For example, `t0-vrf-0-uplink-0` and `t0-vrf-0-uplink-1`.  
-    1. Assign a high availability VIP. For example, `192.168.116.2`.  
-    
-1. Create a second VRF gateway with the following configuration:  
+    1. Set the interface for the gateway. For example, `t0-vrf-0-uplink-0` and `t0-vrf-0-uplink-1`.
+    1. Assign a high availability VIP. For example, `192.168.116.2`.
 
-    * Configure **Name** with a unique name. For example, `t0-vrf-1`.  
-    * Configure **Interface** with unique settings. For example, `t0-vrf-1-uplink-0` and `t0-vrf-1-unlink-1`.  
-    * Configure **HA VIP** with a unique IP Address. For example, `192.168.117.2`.  
+1. Create a second VRF gateway with the following configuration:
 
-1. To test your configuration, Ping each gateway uplink VIP.  
-    
-    For example:  
-    
+    * Configure **Name** with a unique name. For example, `t0-vrf-1`.
+    * Configure **Interface** with unique settings. For example, `t0-vrf-1-uplink-0` and `t0-vrf-1-unlink-1`.
+    * Configure **HA VIP** with a unique IP Address. For example, `192.168.117.2`.
+
+1. To test your configuration, Ping each gateway uplink VIP.
+
+    For example:
+
     ```console
-    $ ping 192.168.116.2  
-    PING 192.168.116.2 (192.168.116.2) 56(84) bytes of data.  
-    64 bytes from 192.168.116.2: icmp_seq=1 ttl=64 time=0.478 ms  
-    64 bytes from 192.168.116.2: icmp_seq=2 ttl=64 time=0.520 ms  
-    ^C  
-    --- 192.168.116.2 ping statistics ---  
-    2 packets transmitted, 2 received, 0% packet loss, time 999ms  
-    rtt min/avg/max/mdev = 0.478/0.499/0.520/0.021 ms  
-      
-    $ ping 192.168.117.2  
-    PING 192.168.117.2 (192.168.117.2) 56(84) bytes of data.  
-    64 bytes from 192.168.117.2: icmp_seq=1 ttl=64 time=0.531 ms  
-    64 bytes from 192.168.117.2: icmp_seq=2 ttl=64 time=0.504 ms  
-    ^C  
-    --- 192.168.117.2 ping statistics ---  
-    2 packets transmitted, 2 received, 0% packet loss, time 999ms  
-    rtt min/avg/max/mdev = 0.504/0.517/0.531/0.026 ms	 
+    $ ping 192.168.116.2
+    PING 192.168.116.2 (192.168.116.2) 56(84) bytes of data.
+    64 bytes from 192.168.116.2: icmp_seq=1 ttl=64 time=0.478 ms
+    64 bytes from 192.168.116.2: icmp_seq=2 ttl=64 time=0.520 ms
+    ^C
+    --- 192.168.116.2 ping statistics ---
+    2 packets transmitted, 2 received, 0% packet loss, time 999ms
+    rtt min/avg/max/mdev = 0.478/0.499/0.520/0.021 ms
+
+    $ ping 192.168.117.2
+    PING 192.168.117.2 (192.168.117.2) 56(84) bytes of data.
+    64 bytes from 192.168.117.2: icmp_seq=1 ttl=64 time=0.531 ms
+    64 bytes from 192.168.117.2: icmp_seq=2 ttl=64 time=0.504 ms
+    ^C
+    --- 192.168.117.2 ping statistics ---
+    2 packets transmitted, 2 received, 0% packet loss, time 999ms
+    rtt min/avg/max/mdev = 0.504/0.517/0.531/0.026 ms
     ```
 
-1. (Optional) To allow communication to an external data path, add a default router for each VRF gateway. 
-For each router, add a default route and configure **Network** and **Next Hop**.  
+1. (Optional) To allow communication to an external data path, add a default router for each VRF gateway.
+For each router, add a default route and configure **Network** and **Next Hop**.
 
 
 ### <a id="create-network-profile-vrf"></a>Step 4: Create a Network Profile
 
-You must use a Network Profile to isolate a cluster behind a VRF gateway.  
+You must use a Network Profile to isolate a cluster behind a VRF gateway.
 
 To configure a Network Profile for connecting to a VRF gateway:
 
-1. Create a network profile configuration JSON file that defines the gateway as the `"t0_router_id"` value:  
+1. Create a network profile configuration JSON file that defines the gateway as the `"t0_router_id"` value:
 
     ```
     {
@@ -868,15 +868,15 @@ To configure a Network Profile for connecting to a VRF gateway:
     }
     ```
 
-    Where:  
+    Where:
 
-    * `VRF-GATEWAY-NAME` is the name of the VRF gateway for the cluster to use.  
-    * `NETWORK-RANGES` is an array of IP ranges the cluster can access.  
-    * `PROFILE-NAME` is the internal name for your network profile.  
-    * `PROFILE-DESCRIP` is an internal description for your network profile.  
+    * `VRF-GATEWAY-NAME` is the name of the VRF gateway for the cluster to use.
+    * `NETWORK-RANGES` is an array of IP ranges the cluster can access.
+    * `PROFILE-NAME` is the internal name for your network profile.
+    * `PROFILE-DESCRIP` is an internal description for your network profile.
 
     For example:
-    
+
     ```
     {
         "name": "np-1",
@@ -908,23 +908,23 @@ To configure a Network Profile for connecting to a VRF gateway:
         }
     }
     ```
-    
-For more information on creating a Network Profile, 
+
+For more information on creating a Network Profile,
 see [Creating and Managing Network Profiles](network-profiles-define.html).
-    
+
 
 ### <a id="create-update-cluster-vrf"></a>Step 5: Configure a Cluster with a VRF Gateway
 
-To configure a cluster to use a VRF gateway, assign the Network Profile to the cluster:  
+To configure a cluster to use a VRF gateway, assign the Network Profile to the cluster:
 
-* Create a new cluster using the VRF gateway Network Profile.  
+* Create a new cluster using the VRF gateway Network Profile.
 
-    For more information on creating clusters using a Network Profile, 
-    see [Create a Cluster with a Network Profile](network-profiles.html#create-new) 
+    For more information on creating clusters using a Network Profile,
+    see [Create a Cluster with a Network Profile](network-profiles.html#create-new)
     in _Using Network Profiles_.
-    
-* Update an existing cluster using the VRF gateway Network Profile.  
 
-    For more information on updating existing clusters with a Network Profile, 
-    see [Assign a Network Profile to an Existing Cluster](network-profiles.html##assign-profile) 
+* Update an existing cluster using the VRF gateway Network Profile.
+
+    For more information on updating existing clusters with a Network Profile,
+    see [Assign a Network Profile to an Existing Cluster](network-profiles.html##assign-profile)
     in _Using Network Profiles_.

@@ -1,49 +1,49 @@
 ---
 title: Firewall Ports and Protocols Requirements for vSphere with NSX
-owner: TKGI
+
 netenv: nsxt
 ---
 
-This topic describes the firewall ports and protocols requirements for using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
-on vSphere with NSX integration.  
+This topic describes the firewall ports and protocols requirements for using {{  vars.product_full }} ({{ vars.product_short }})
+on vSphere with NSX integration.
 
 If you are not using TKGI on vSphere with NSX, see one of the follow topics instead:
 
-* [Firewall Ports and Protocols Requirements for vSphere (Antrea Networking)](ports-protocols-wo-nsx-t.html)  
-* [Firewall Ports and Protocols Requirements (Antrea Networking)](ports-protocols-antrea.html)  
+* [Firewall Ports and Protocols Requirements for vSphere (Antrea Networking)](ports-protocols-wo-nsx-t.html)
+* [Firewall Ports and Protocols Requirements (Antrea Networking)](ports-protocols-antrea.html)
 
 
 ## <a id="overview"></a> Overview
 
-Apps frequently require the ability to pass internal communication between system components on 
-different networks.  
+Apps frequently require the ability to pass internal communication between system components on
+different networks.
 
-Firewalls and Kubernetes Pod Security Admission are used to filter traffic and limit access in environments with strict 
-inter-network access control policies and your apps require one or more conduits through a secured environment's firewalls. 
+Firewalls and Kubernetes Pod Security Admission are used to filter traffic and limit access in environments with strict
+inter-network access control policies and your apps require one or more conduits through a secured environment's firewalls.
 
-{{{ vars.recommended_by }}} recommends that 
-rather than using a Kubernetes Pod Security Admission to filter traffic between networks and 
-TKGI system components and clusters that you instead use one of the following methods:  
+{{{ vars.recommended_by }}} recommends that
+rather than using a Kubernetes Pod Security Admission to filter traffic between networks and
+TKGI system components and clusters that you instead use one of the following methods:
 
 * Enable access to apps through standard Kubernetes load-balancers and ingress
-controller types. This enables you to designate specific ports and protocols as a firewall conduit.  
-* Enable access using the NSX load balancer and ingress. This enables you to configure external addresses and ports 
+controller types. This enables you to designate specific ports and protocols as a firewall conduit.
+* Enable access using the NSX load balancer and ingress. This enables you to configure external addresses and ports
 that are automatically mapped and resolved to internal/local addresses and ports.
 
-For more information about vSphere with NSX port and protocol requirements, see 
+For more information about vSphere with NSX port and protocol requirements, see
 [VMware Ports and Protocols](https://ports.vmware.com/home/vSphere+NSX-Data-Center-for-vSphere+NSX-Data-Center)
-on the VMware site.  
+on the VMware site.
 
-Consult the following tables when configuring port settings to install or upgrade TKGI 
+Consult the following tables when configuring port settings to install or upgrade TKGI
 or configure a Kubernetes cluster:
 
-* [TKGI Users Ports and Protocols](#users)  
-* [TKGI Core Ports and Protocols](#core)  
-* [VMware Virtual Infrastructure Ports and Protocols](#virtual-infra)  
-* [VMware Optional Integration Ports and Protocols](#optional-integration)  
+* [TKGI Users Ports and Protocols](#users)
+* [TKGI Core Ports and Protocols](#core)
+* [VMware Virtual Infrastructure Ports and Protocols](#virtual-infra)
+* [VMware Optional Integration Ports and Protocols](#optional-integration)
 
-<p class="note"><strong>Note</strong>: To control which groups access deploying and scaling 
-your organization's Tanzu Kubernetes Grid Integrated Edition-deployed Kubernetes clusters, configure your firewall settings 
+<p class="note"><strong>Note</strong>: To control which groups access deploying and scaling
+your organization's {{  vars.product }}-deployed Kubernetes clusters, configure your firewall settings
 as described on the Operator –> TKGI API server lines below.</p>
 
 {{> ports-protocols }}

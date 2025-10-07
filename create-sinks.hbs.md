@@ -1,10 +1,10 @@
 ---
 title: Creating and Managing Sink Resources
-owner: TKGI
+
 ---
 
 This topic describes how to create and manage sink resources for a Kubernetes cluster
-provisioned with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI), or
+provisioned with {{  vars.product_full }} ({{ vars.product_short }}), or
 for a namespace within a cluster.
 
 
@@ -19,7 +19,7 @@ You can create two types of sinks:
 * Metric sinks
 
 For more conceptual information about sinks, see
-[Sink Architecture in Tanzu Kubernetes Grid Integrated Edition](sink-architecture.html).
+[Sink Architecture in {{  vars.product }}](sink-architecture.html).
 
 
 ## <a id='prerequisites'></a>Prerequisites
@@ -27,8 +27,8 @@ For more conceptual information about sinks, see
 Before creating a sink resource:
 
 1. Review [Sink Types](sink-architecture.html#types) in
-_Sink Architecture in Tanzu Kubernetes Grid Integrated Edition_.
-1. Configure sink resources in the **Tanzu Kubernetes Grid Integrated Edition** tile >
+_Sink Architecture in {{  vars.product }}_.
+1. Configure sink resources in the **{{  vars.product }}** tile >
 **In-Cluster Monitoring**:
   * If you want to create a `ClusterLogSink` or `LogSink` resource, select
   the **Enable Log Sink Resources** check box.
@@ -41,10 +41,10 @@ _Sink Architecture in Tanzu Kubernetes Grid Integrated Edition_.
   <br><br>
       For more information about these configuration settings,
       see the TKGI installation topic for your IaaS:
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#cluster-monitoring)
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Integration](installing-nsx-t.html#cluster-monitoring)
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#cluster-monitoring)
-      * [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on vSphere](installing-vsphere.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on vSphere with NSX Integration](installing-nsx-t.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on AWS](installing-aws.html#cluster-monitoring)
+      * [Installing {{  vars.product }} on Azure](installing-azure.html#cluster-monitoring)
 
 1. Install the Kubernetes CLI, <code>kubectl</code>.
 For installation instructions, see <a href="installing-kubectl-cli.html">Installing the Kubernetes CLI</a>.
@@ -69,17 +69,17 @@ for log forwarding when using <code>ClusterLogSink</code> and <code>LogSink</cod
 
 ### <a id='syslog'></a> Create a Syslog ClusterLogSink or LogSink Resource
 
-`ClusterLogSink` and `LogSink` resources of type `syslog` deliver logs using the TCP-based syslog protocol.  
+`ClusterLogSink` and `LogSink` resources of type `syslog` deliver logs using the TCP-based syslog protocol.
 
-By default, TKGI uses a system root certificate authority (CA) certificate 
-to secure `syslog` `ClusterLogSink` and `LogSink` log forwarding connections, 
-but you can optionally use a custom CA certificate to secure the connections.  
+By default, TKGI uses a system root certificate authority (CA) certificate
+to secure `syslog` `ClusterLogSink` and `LogSink` log forwarding connections,
+but you can optionally use a custom CA certificate to secure the connections.
 
 To define a `syslog` `ClusterLogSink` or `LogSink` resource, perform the following steps:
 
 1. Create a YAML file that specifies your log destination in one of the following formats:
-    * To use the default system root CA certificate to secure log forwarding connections:  
-        
+    * To use the default system root CA certificate to secure log forwarding connections:
+
         ```
         apiVersion: pksapi.io/v1beta1
         kind: YOUR-SINK-RESOURCE
@@ -93,19 +93,19 @@ To define a `syslog` `ClusterLogSink` or `LogSink` resource, perform the followi
            enable_tls: true
            insecure_skip_verify: false
         ```
-        Where:  
+        Where:
 
         * `YOUR-SINK-RESOURCE` is the sink resource that you want to create.
         This must be either `ClusterLogSink` or `LogSink`.
-        For information about these sink resources, see [Overview](#overview).  
-        * `YOUR-SINK` is a name that you choose for your sink.  
+        For information about these sink resources, see [Overview](#overview).
+        * `YOUR-SINK` is a name that you choose for your sink.
         * `YOUR-NAMESPACE` is the name of your namespace.
-        Omit this line if you are creating `ClusterLogSink`.  
-        * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.  
-        * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.  
+        Omit this line if you are creating `ClusterLogSink`.
+        * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.
+        * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.
 
         <p class="note"><strong>Note:</strong> <code>enable_tls</code> must be <code>true</code>.</p>
-    * To use a custom CA certificate to secure log forwarding connections:  
+    * To use a custom CA certificate to secure log forwarding connections:
 
         ```
         apiVersion: pksapi.io/v1beta1
@@ -121,35 +121,35 @@ To define a `syslog` `ClusterLogSink` or `LogSink` resource, perform the followi
            insecure_skip_verify: false
            fluent_bit_ca_cert: YOUR-CA-CERT
         ```
-        Where:  
+        Where:
 
         * `YOUR-SINK-RESOURCE` is the sink resource that you want to create.
         This must be either `ClusterLogSink` or `LogSink`.
-        For information about these sink resources, see [Overview](#overview).  
-        * `YOUR-SINK` is a name that you choose for your sink.  
+        For information about these sink resources, see [Overview](#overview).
+        * `YOUR-SINK` is a name that you choose for your sink.
         * `YOUR-NAMESPACE` is the name of your namespace.
-        Omit this line if you are creating `ClusterLogSink`.  
-        * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.  
-        * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.  
-        * `YOUR-CA-CERT` is your custom CA certificate to secure the `syslog` connection. 
-        The custom CA certificate must include a `SAN` field. 
-        If the certificate does not include a `SAN` field, Fluent Bit will not send logs.  
+        Omit this line if you are creating `ClusterLogSink`.
+        * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.
+        * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.
+        * `YOUR-CA-CERT` is your custom CA certificate to secure the `syslog` connection.
+        The custom CA certificate must include a `SAN` field.
+        If the certificate does not include a `SAN` field, Fluent Bit will not send logs.
 
         <p class="note"><strong>Note:</strong> <code>enable_tls</code> must be <code>true</code>.</p>
 
-1. (Optional) To filter the logging output, include a `filters` section in your configuration. 
-For more information, see [Define a Filter for LogSink and ClusterLogSink Resources](#filter-ls-cls) below.  
+1. (Optional) To filter the logging output, include a `filters` section in your configuration.
+For more information, see [Define a Filter for LogSink and ClusterLogSink Resources](#filter-ls-cls) below.
 
 1. Save the YAML file with an appropriate file name. For example, `my-cluster-log-sink.yml`.
 
-1. Apply the `ClusterLogSink` or `LogSink` resource to your cluster by running the following command:  
+1. Apply the `ClusterLogSink` or `LogSink` resource to your cluster by running the following command:
 
     ```
     kubectl apply -f YOUR-SINK.yml
     ```
-    Where `YOUR-SINK.yml` is the name of your YAML file.  
+    Where `YOUR-SINK.yml` is the name of your YAML file.
 <br>
-    For example:  
+    For example:
     ```console
     $ kubectl apply -f my-cluster-log-sink.yml
     ```
@@ -163,7 +163,7 @@ log management service.
 
 To define a webhook `ClusterLogSink` or `LogSink` resource, perform the following steps:
 
-1. Create a YAML file that specifies your log destination in the following format:  
+1. Create a YAML file that specifies your log destination in the following format:
 
     ```
     apiVersion: pksapi.io/v1beta1
@@ -175,17 +175,17 @@ To define a webhook `ClusterLogSink` or `LogSink` resource, perform the followin
       type: webhook
       url: YOUR-LOG-DESTINATION
     ```
-    Where:  
+    Where:
 
     * `YOUR-SINK-RESOURCE` is the sink resource you want to create.
-    This must be either `ClusterLogSink` or `LogSink`. For information about these sink resources, see [Overview](#overview).  
-    * `YOUR-SINK` is a name you choose for your sink.  
+    This must be either `ClusterLogSink` or `LogSink`. For information about these sink resources, see [Overview](#overview).
+    * `YOUR-SINK` is a name you choose for your sink.
     * `YOUR-NAMESPACE` is the name of your namespace.
-    Omit this line if you are creating `ClusterLogSink`.  
-    * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.  
+    Omit this line if you are creating `ClusterLogSink`.
+    * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.
 
-1. (Optional) To filter the logging output, include a `filters` section in your configuration. 
-For more information, see [Define a Filter for LogSink and ClusterLogSink Resources](#filter-ls-cls) below.  
+1. (Optional) To filter the logging output, include a `filters` section in your configuration.
+For more information, see [Define a Filter for LogSink and ClusterLogSink Resources](#filter-ls-cls) below.
 
 1. Save the YAML file with an appropriate filename. For example, `my-cluster-log-sink.yml`.
 
@@ -194,9 +194,9 @@ For more information, see [Define a Filter for LogSink and ClusterLogSink Resour
     ```
     kubectl apply -f YOUR-SINK.yml
     ```
-    Where `YOUR-SINK.yml` is the name of your YAML file.  
+    Where `YOUR-SINK.yml` is the name of your YAML file.
 <br>
-    For example:  
+    For example:
     ```console
     $ kubectl apply -f my-cluster-log-sink.yml
     ```
@@ -210,7 +210,7 @@ that you specify in your resource configuration.
 To define a `ClusterLogSink` or `LogSink` resource with a Fluent Bit output plugin,
 perform the following steps:
 
-1. Create a YAML file that specifies your log destination in the following format:  
+1. Create a YAML file that specifies your log destination in the following format:
 
     ```
     apiVersion: pksapi.io/v1beta1
@@ -227,27 +227,27 @@ perform the following steps:
         tls: on
         tls.verify: off
     ```
-    Where:  
+    Where:
 
     * `YOUR-SINK-RESOURCE` is the sink resource you want to create.
-    This must be either `ClusterLogSink` or `LogSink`. For information about these sink resources, see [Overview](#overview).  
-    * `YOUR-SINK` is a name you choose for your log sink.  
+    This must be either `ClusterLogSink` or `LogSink`. For information about these sink resources, see [Overview](#overview).
+    * `YOUR-SINK` is a name you choose for your log sink.
     * `YOUR-NAMESPACE` is the name of your namespace.
-    Omit this line if you are creating `ClusterLogSink`.  
+    Omit this line if you are creating `ClusterLogSink`.
 
     <p class=note><strong>Note:</strong> This is a sample plugin configuration for <code>http</code>. For a full list of supported plugins, see the <a href="https://docs.fluentbit.io/manual/v/1.3/output">Fluent Bit</a> documentation.</p>
 
-1. (Optional) To filter the logging output, include a `filters` section in your configuration. 
-For more information, see [Define a Filter for LogSink and ClusterLogSink Resources](#filter-ls-cls) below.  
+1. (Optional) To filter the logging output, include a `filters` section in your configuration.
+For more information, see [Define a Filter for LogSink and ClusterLogSink Resources](#filter-ls-cls) below.
 1. Save the YAML file with an appropriate filename. For example, `my-cluster-log-sink.yml`.
 1. Apply the `ClusterLogSink` or `LogSink` resource to your cluster by running the following command:
 
     ```
     kubectl apply -f YOUR-SINK.yml
     ```
-    Where `YOUR-SINK.yml` is the name of your YAML file.  
+    Where `YOUR-SINK.yml` is the name of your YAML file.
 <br>
-    For example:  
+    For example:
     ```console
     $ kubectl apply -f my-cluster-log-sink.yml
     ```
@@ -255,25 +255,25 @@ For more information, see [Define a Filter for LogSink and ClusterLogSink Resour
 
 ### <a id='filter-ls-cls'></a> (Optional) Define a Filter for LogSink and ClusterLogSink Resources
 
-You can set filters on your `LogSink` and `ClusterLogSink` resources:  
+You can set filters on your `LogSink` and `ClusterLogSink` resources:
 
-* You can include or exclude all logs or all events from sink output. 
-For more information, see [Exclude Logs or Events from Sink Output](#filter-log-sinks-evenst) below.  
+* You can include or exclude all logs or all events from sink output.
+For more information, see [Exclude Logs or Events from Sink Output](#filter-log-sinks-evenst) below.
 
 
-* If you are using Fluent Bit, you can filter logs using conditions and rules. 
-For more information, see [Create a Fluent Bit ClusterLogSink or LogSink Filter](#filter-logs) below.  
+* If you are using Fluent Bit, you can filter logs using conditions and rules.
+For more information, see [Create a Fluent Bit ClusterLogSink or LogSink Filter](#filter-logs) below.
 
 
 #### <a id='filter-log-sinks-events'></a> Exclude Logs or Events from Sink Output
 
 The `LogSink` and `ClusterLogSink` resources allow users to set filters to
-include or exclude all logs or all events from sink output.  
+include or exclude all logs or all events from sink output.
 
-To filter all logs or all events from sink output:  
+To filter all logs or all events from sink output:
 
 1. Add a filter properties section to the YAML file that
-specifies the sink's log output destination and which types of log entities to include or exclude from the output:  
+specifies the sink's log output destination and which types of log entities to include or exclude from the output:
 
     ```
     apiVersion: pksapi.io/v1beta1
@@ -290,66 +290,66 @@ specifies the sink's log output destination and which types of log entities to i
         include-events: true
         include-logs: false
     ```
-    Where:  
+    Where:
 
-    * `YOUR-SINK-RESOURCE` is the sink resource type that you created. This must be either `ClusterLogSink` or `LogSink`.  
-    * `YOUR-SINK` is the name you chose for your sink.  
-    * `YOUR-NAMESPACE` is the name of your namespace. Omit this line for `ClusterLogSink` type sink resources.  
-    * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.  
-    * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.  
+    * `YOUR-SINK-RESOURCE` is the sink resource type that you created. This must be either `ClusterLogSink` or `LogSink`.
+    * `YOUR-SINK` is the name you chose for your sink.
+    * `YOUR-NAMESPACE` is the name of your namespace. Omit this line for `ClusterLogSink` type sink resources.
+    * `YOUR-LOG-DESTINATION` is the URL or IP address of your log management service.
+    * `YOUR-LOG-DESTINATION-PORT` is the port number of your log management service.
 
-The default values for these filter properties is **true**. 
-If you do not specify `filters` properties, both logs and events are included in the sink's output.  
+The default values for these filter properties is **true**.
+If you do not specify `filters` properties, both logs and events are included in the sink's output.
 
 For more information, see
-[Monitoring Clusters with Log Sinks](monitor-sinks.html).  
+[Monitoring Clusters with Log Sinks](monitor-sinks.html).
 
 #### <a id='filter-logs'></a> Fluent Bit ClusterLogSink or LogSink FilterSpecs
 
-As you consider your sink, you might realize that the sink needs a filter more complex than "all logs" or "all events" or even more complex than a single query. 
-You might even need to route your log output to more than one destination target.  
+As you consider your sink, you might realize that the sink needs a filter more complex than "all logs" or "all events" or even more complex than a single query.
+You might even need to route your log output to more than one destination target.
 
-If you are using a Fluent Bit ClusterLogSink or LogSink sink resource, 
-you can define a filterSpec with condition rules for filtering incoming logs. 
-Your Fluent Bit sink resource will selectively direct matching log entries 
-to the output destination for the sink. 
-The output target for a Fluent Bit sink is the `Output_properties` destination defined for the sink resource.  
+If you are using a Fluent Bit ClusterLogSink or LogSink sink resource,
+you can define a filterSpec with condition rules for filtering incoming logs.
+Your Fluent Bit sink resource will selectively direct matching log entries
+to the output destination for the sink.
+The output target for a Fluent Bit sink is the `Output_properties` destination defined for the sink resource.
 
-For example, you might want only the error log entries of your `Production` Pods routed to a specific service that you are monitoring 
-and for the remaining `Production` Pod status log entries to be managed separately from your non-production Pod logs. 
-For this scenario, you require the ability to create a complex filtering query and to control the routing destination of filtered log entries.  
+For example, you might want only the error log entries of your `Production` Pods routed to a specific service that you are monitoring
+and for the remaining `Production` Pod status log entries to be managed separately from your non-production Pod logs.
+For this scenario, you require the ability to create a complex filtering query and to control the routing destination of filtered log entries.
 
 **Support for Multiple Filtering Rules**
 
-You can define multiple filtering rules in a filterSpec:  
+You can define multiple filtering rules in a filterSpec:
 
-* Define multiple condition tests in a filterSpec filter:  
-    * Define filter conditions that filter based on log content.  
+* Define multiple condition tests in a filterSpec filter:
+    * Define filter conditions that filter based on log content.
     * Define filter conditions that filter based on the log metadata.
-    You can filter log metadata by: Namespace, Host Name, Container Name, Pod Name, and Pod labels.  
-   
-    
-    When you define multiple condition tests in a filterSpec filter, 
-    a log entry is considered a match only if all of the defined conditions in the filter are matched.  
+    You can filter log metadata by: Namespace, Host Name, Container Name, Pod Name, and Pod labels.
 
-* Define multiple filters for a filterSpec:  
 
-    When you define multiple filters in your filterSpec configuration, 
-    a log entry is considered a match if one or more of the filters is matched.  
-    
+    When you define multiple condition tests in a filterSpec filter,
+    a log entry is considered a match only if all of the defined conditions in the filter are matched.
+
+* Define multiple filters for a filterSpec:
+
+    When you define multiple filters in your filterSpec configuration,
+    a log entry is considered a match if one or more of the filters is matched.
+
 
 **Support for Multiple Target Destinations**
 
-If you have multiple output target destinations, you need to define a separate sink for each destination. 
-When you have multiple sinks, log entry output is directed to only one destination, 
-no matter how many sinks the log entry is a match for.  
+If you have multiple output target destinations, you need to define a separate sink for each destination.
+When you have multiple sinks, log entry output is directed to only one destination,
+no matter how many sinks the log entry is a match for.
 
-Which destination a log entry is routed to depends on which sinks the entry matches:  
+Which destination a log entry is routed to depends on which sinks the entry matches:
 
-* If one or more of the sinks is configured without a filterSpec, 
-all log entries are directed to the output target of the first sink without a filterSpec.  
+* If one or more of the sinks is configured without a filterSpec,
+all log entries are directed to the output target of the first sink without a filterSpec.
 
-* If all of the sinks are configured with a filterSpec, 
+* If all of the sinks are configured with a filterSpec,
 the log entries are  directed to the output target as follows:
 
     <table>
@@ -380,8 +380,8 @@ the log entries are  directed to the output target as follows:
 
 To define a filter for a `ClusterLogSink` or `LogSink` resource, perform the following steps:
 
-1. Configure `include-logs` as `true` in the `filters` section of your Sink resource configuration file.  
-1. Add a `filterSpec` section to the `filters` section in your Sink resource configuration file:  
+1. Configure `include-logs` as `true` in the `filters` section of your Sink resource configuration file.
+1. Add a `filterSpec` section to the `filters` section in your Sink resource configuration file:
 
     ```
       filters:
@@ -394,35 +394,35 @@ To define a filter for a `ClusterLogSink` or `LogSink` resource, perform the fol
         Output_properties:
           output_target
     ```
-    
-    Where:  
 
-    * `CONDITION-TYPE` is the type of conditional test to apply to the log entries.  
-    * `KEY` is the name of the key to validate.  
-    * `VALUE` is the value of the key to validate.  
-    
-    For more information, see [Define a Filter Condition](#filter-log-condition-define) below.  
+    Where:
 
-1. Create additional condition sections for each condition you want to apply to your filter.  
-1. Create additional filter sections as needed.  
+    * `CONDITION-TYPE` is the type of conditional test to apply to the log entries.
+    * `KEY` is the name of the key to validate.
+    * `VALUE` is the value of the key to validate.
+
+    For more information, see [Define a Filter Condition](#filter-log-condition-define) below.
+
+1. Create additional condition sections for each condition you want to apply to your filter.
+1. Create additional filter sections as needed.
 
 
 #### <a id='filter-log-condition-define'></a> Define a Filter Condition
 
-When you define a Fluent Bit Sink resource filter, you must specify the filter's `condition` type, `key`, and `value`:  
+When you define a Fluent Bit Sink resource filter, you must specify the filter's `condition` type, `key`, and `value`:
 
-* The filter `condition` type is the type of rule to apply to the filter. 
-For example, common `condition` types include `key_value_equals` and `key_value_does_not_equal`.  
-* The filter `key` indicates which property in the log entry JSON to test against.  
-* The filter `value` is the value of the key to test for.  
+* The filter `condition` type is the type of rule to apply to the filter.
+For example, common `condition` types include `key_value_equals` and `key_value_does_not_equal`.
+* The filter `key` indicates which property in the log entry JSON to test against.
+* The filter `value` is the value of the key to test for.
 
-To build a filter for your filterSpec, see:  
+To build a filter for your filterSpec, see:
 
-* [Chose a Filter Condition Type](#filter-log-conditions)  
-* [Create a Filter Key](#filter-log-keys)  
+* [Chose a Filter Condition Type](#filter-log-conditions)
+* [Create a Filter Key](#filter-log-keys)
 
 
-For example, consider a situation where you wish to include only production Pod log entries in your logs. If the administrator has tagged production Pods as a `production`, the 
+For example, consider a situation where you wish to include only production Pod log entries in your logs. If the administrator has tagged production Pods as a `production`, the
 output JSON for error log entries might have a format similar to the following:
 
 ```
@@ -437,19 +437,19 @@ output JSON for error log entries might have a format similar to the following:
 ```
 All of the following example filter settings for `condition`, `key`, and `value` match the example JSON-structured log entry above:
 
-* Match against error condition:  
+* Match against error condition:
 
     * condition: `key_value_matches`
     * key: `log`
     * value: `^/[ERROR/]`
-    
-* Match against pod_id:  
+
+* Match against pod_id:
 
     * condition: `key_value_equals`
     * key: `$kubernetes[???pod_id???]`
     * value: `05184f35-44ba-45ed-8f75-5016321619ce`
-        
-* Match against environment = production:  
+
+* Match against environment = production:
 
     * condition: `key_value_equals`
     * key: `$kubernetes[???labels???][???environment???]`
@@ -553,7 +553,7 @@ The following are the supported filter condition types supported by TKGI:
 
 #### <a id='filter-log-keys'></a> Create a Filter Key
 
-The filter key follows the pattern:  
+The filter key follows the pattern:
 
 ```
           key: $ROOTNODE-NAME[OBJECT-NAME][PARAMETER-NAME]`
@@ -561,15 +561,15 @@ The filter key follows the pattern:
 
 Where:
 
-* `ROOTNODE-NAME` is the name of the root node in the JSON log entry.  
-* `OBJECT-NAME` is name of a child node in the root node.  
-* `PARAMETER-NAME` is name of a parameter in the child node.  
+* `ROOTNODE-NAME` is the name of the root node in the JSON log entry.
+* `OBJECT-NAME` is name of a child node in the root node.
+* `PARAMETER-NAME` is name of a parameter in the child node.
 
-For an examples of how to create a Filter Key, see [Define a Filter Condition](#filter-log-condition-define) above.  
+For an examples of how to create a Filter Key, see [Define a Filter Condition](#filter-log-condition-define) above.
 
 ### <a name='unsecured-sink-configuration'></a>(Optional) Unsecured ClusterLogSink and LogSink Log Forwarding
 
-By default, TKGI uses a secure connection for log forwarding 
+By default, TKGI uses a secure connection for log forwarding
 when using `ClusterLogSink` and `LogSink` resources of type `syslog` or `webhook`.
 
 For debugging purposes on a local machine, you might want to temporarily forward logs using an unsecured connection.
@@ -581,48 +581,48 @@ To do this, you must:
     kubectl delete validatingwebhookconfigurations validator.pksapi.io
     ```
 
-1. Set `enable_tls` to `false` in your log destination YAML file.  
+1. Set `enable_tls` to `false` in your log destination YAML file.
 
 <p class="note warning"><strong>Warning:</strong> Deactivating secure log forwarding is not recommended.</p>
 
 
 ## <a id='define-sinks'></a> Create ClusterMetricSink and MetricSink Resources
 
-ClusterMetricSink and MetricSink resources collect metrics from different sources:  
+ClusterMetricSink and MetricSink resources collect metrics from different sources:
 
-* `ClusterMetricSink` resources collect metrics from a cluster. 
-If you want to collect pod usage metrics, you have to use a ClusterMetricSink.  
-* `MetricSink` resources collect metrics from a namespace within a cluster. 
-If you want to isolate a certain workload???s metrics to its own output, you have to use a namespaced MetricSink.  
+* `ClusterMetricSink` resources collect metrics from a cluster.
+If you want to collect pod usage metrics, you have to use a ClusterMetricSink.
+* `MetricSink` resources collect metrics from a namespace within a cluster.
+If you want to isolate a certain workload???s metrics to its own output, you have to use a namespaced MetricSink.
 
 ### <a id='define-cluster-metric-sinks'></a> ClusterMetricSink Resources
 
 #### How It Works
 
-By default, a `ClusterMetricSink` resource collects metrics from a cluster using the 
-[Kubernetes Input Plugin](https://github.com/influxdata/telegraf/tree/1.13.4/plugins/inputs/kubernetes) 
+By default, a `ClusterMetricSink` resource collects metrics from a cluster using the
+[Kubernetes Input Plugin](https://github.com/influxdata/telegraf/tree/1.13.4/plugins/inputs/kubernetes)
 and writes them to one or more outputs
-that you specify in your `ClusterMetricSink` configuration:  
+that you specify in your `ClusterMetricSink` configuration:
 
-* ClusterMetricSink DaemonSet collect pod usage metrics using Telegraf agents 
-running on every node in a cluster.  
+* ClusterMetricSink DaemonSet collect pod usage metrics using Telegraf agents
+running on every node in a cluster.
 * The ClusterMetricSink is able to fetch pod
 metrics using the Kubernetes input plugin, which gives access to pod
-usage metrics for each kubernetes node. Pod metrics come from the underlying container runtime, which does not isolate metrics based on namespace. 
+usage metrics for each kubernetes node. Pod metrics come from the underlying container runtime, which does not isolate metrics based on namespace.
 
 
 Do not use a ClusterMetricSink to isolate a specific workload???s metrics to its own output. A ClusterMetricSink cannot isolate one input from all the others because all of a ClusterMetricSink's configurations are located in a shared ConfigMap. This
 means that each ClusterMetricSink's input will also go to all other
-ClusterMetricSinks' outputs.  
+ClusterMetricSinks' outputs.
 
-### <a id='define-metric-sinks'></a> MetricSink Resources  
+### <a id='define-metric-sinks'></a> MetricSink Resources
 
 A `MetricSink` resource runs in a single node only and collects metrics from a namespace within a cluster using
 `prometheus.io/scrape` annotations set to `true`.
-A MetricSink creates a unique Telegraf agent pod and ConfigMap in the namespace, then writes the metrics to one or more outputs that you specify in your `MetricSink` configuration. 
+A MetricSink creates a unique Telegraf agent pod and ConfigMap in the namespace, then writes the metrics to one or more outputs that you specify in your `MetricSink` configuration.
 
-Do not use MetricSinks to collect pod usage metrics. Pod metrics come from the underlying container runtime, which does not isolate 
-metrics based on namespace, so only ClusterMetricSink is able to fetch pod 
+Do not use MetricSinks to collect pod usage metrics. Pod metrics come from the underlying container runtime, which does not isolate
+metrics based on namespace, so only ClusterMetricSink is able to fetch pod
 metrics.
 
 For a list of supported output plugins,
@@ -680,20 +680,20 @@ To define a `ClusterMetricSink` or `MetricSink` resource, perform the following 
       interval:  INTERVAL-LENGTH
 
     ```
-    Where:  
+    Where:
 
     * `YOUR-SINK-RESOURCE` is the sink resource you want to create.
-    This must be either `ClusterMetricSink` or `MetricSink`. For information about these sink resources, see [Overview](#overview).  
-    * `YOUR-SINK` is a name you choose for your sink.  
+    This must be either `ClusterMetricSink` or `MetricSink`. For information about these sink resources, see [Overview](#overview).
+    * `YOUR-SINK` is a name you choose for your sink.
     * `YOUR-NAMESPACE` is the name of your namespace.
-    Omit this line if you are creating `ClusterMetricSink`.  
-    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.  
+    Omit this line if you are creating `ClusterMetricSink`.
+    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.
     * (Optional) `INTERVAL-LENGTH` is the interval, in seconds, separating sink collection of input data.
-    The assigned `INTERVAL-LENGTH` must be a positive integer less than 9223372037. The default is `10`.  
+    The assigned `INTERVAL-LENGTH` must be a positive integer less than 9223372037. The default is `10`.
     <p class="note"><strong>Note:</strong> You can leave the <code>inputs</code> field blank.
     For <code>ClusterMetricSink</code>, this field is configured to include metrics from the kubelet by default. For <code>MetricSink</code>, the field includes all <code>prometheus.io/scrape</code> annotations set to <code>true</code> by default.</p>
 
-    For example:  
+    For example:
 
     ```
     apiVersion: pksapi.io/v1beta1
@@ -717,8 +717,8 @@ To define a `ClusterMetricSink` or `MetricSink` resource, perform the following 
 To define a `ClusterMetricSink` resource for collecting Node Exporter metrics, perform the following steps:
 
 1. Activate Node Exporter on your cluster workers by selecting the **Enable node exporter on workers**
-check box in the **Tanzu Kubernetes Grid Integrated Edition** tile > **In-Cluster Monitoring**.
-1. Create a YAML file in the following format:  
+check box in the **{{  vars.product }}** tile > **In-Cluster Monitoring**.
+1. Create a YAML file in the following format:
 
     ```
     apiVersion: pksapi.io/v1beta1
@@ -732,12 +732,12 @@ check box in the **Tanzu Kubernetes Grid Integrated Edition** tile > **In-Cluste
       outputs:
       - type: YOUR-OUTPUT-PLUGIN
     ```
-    Where:  
+    Where:
 
-    * `YOUR-SINK` is a name you choose for your sink.  
-    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.  
+    * `YOUR-SINK` is a name you choose for your sink.
+    * `YOUR-OUTPUT-PLUGIN` is the name of the output plugin you want to use for your metrics.
 
-    For example:  
+    For example:
 
     ```
     apiVersion: pksapi.io/v1beta1
@@ -762,9 +762,9 @@ check box in the **Tanzu Kubernetes Grid Integrated Edition** tile > **In-Cluste
     ```
     kubectl apply -f YOUR-SINK.yml
     ```
-    Where `YOUR-SINK.yml` is the name of your YAML file.  
+    Where `YOUR-SINK.yml` is the name of your YAML file.
 <br>
-    For example:  
+    For example:
     ```console
     $ kubectl apply -f my-cluster-metric-sink.yml
     ```
@@ -818,43 +818,43 @@ To delete sinks for clusters and namespaces, use the commands in the following s
 
 ### <a id='log-sinks-delete'></a> ClusterLogSink and LogSink Resources
 
-To delete a cluster log sink, run the following command:  
+To delete a cluster log sink, run the following command:
 
 ```
 kubectl delete clusterlogsink YOUR-SINK
 ```
 
-Where `YOUR-SINK` is the name of your sink.  
+Where `YOUR-SINK` is the name of your sink.
 
-To delete a namespace log sink, run the following command:  
+To delete a namespace log sink, run the following command:
 
 ```
 kubectl -n YOUR-NAMESPACE delete logsink YOUR-SINK
 ```
 
-Where:  
+Where:
 
-* `YOUR-NAMESPACE` is the name of your namespace.  
-* `YOUR-SINK` is the name of your log sink.  
+* `YOUR-NAMESPACE` is the name of your namespace.
+* `YOUR-SINK` is the name of your log sink.
 
 
 ### <a id="metric-sinks-delete"></a> ClusterMetricSink and MetricSink Resources
 
-To delete a cluster metric sink, use the following command:  
+To delete a cluster metric sink, use the following command:
 
 ```
 kubectl delete clustermetricsink YOUR-SINK
 ```
 
-Where `YOUR-SINK` is the name of your sink.  
+Where `YOUR-SINK` is the name of your sink.
 
-To delete a namespace metric sink, use the following command:  
+To delete a namespace metric sink, use the following command:
 
 ```
 kubectl -n YOUR-NAMESPACE delete metricsink YOUR-SINK
 ```
 
-Where:  
+Where:
 
-* `YOUR-NAMESPACE` is the name of your namespace.  
-* `YOUR-SINK` is the name of your metric sink.  
+* `YOUR-NAMESPACE` is the name of your namespace.
+* `YOUR-SINK` is the name of your metric sink.

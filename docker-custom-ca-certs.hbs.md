@@ -1,14 +1,14 @@
 ---
 title: Configuring Cluster Access to Private Registries
-owner: TKGI
+
 ---
 
-This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters to access private Docker or containerd image registries, including:
+This topic describes how to configure {{  vars.product_full }} ({{ vars.product_short }}) Kubernetes clusters to access private Docker or containerd image registries, including:
 
 * **Secure private registries** that use `HTTPS` protocol and require an SSL Certificate Authority (CA) certificate for access.
 * **Insecure private registries** that use `HTTP` protocol.
 
-The ability to configure clusters to use private registries is enabled by default, but a platform admin can disable this ability from the TKGI Ops Manager tile > **TKGI API** pane > **Configure clusters to use private registries** option.
+The ability to configure clusters to use private registries is enabled by default, but a platform admin can disable this ability from the TKGI {{ vars.platform_name }} tile > **TKGI API** pane > **Configure clusters to use private registries** option.
 
 For secure private registries, the procedures below configure an individual TKGI Kubernetes cluster with access certificates.
 To configure all of your TKGI clusters to share the same certificates for accessing secure Harbor registries, see [Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html#provide-harbor-cert) in the Harbor documentation.
@@ -134,13 +134,13 @@ To remove newline wrapping from a certificate string, run the following command:
 
 ### <a id='certificate-formats'></a> SSL CA Certificate Formats
 
-SSL CA certificates are unique CA-issued ASCII text strings.  
+SSL CA certificates are unique CA-issued ASCII text strings.
 
-The CAs issue most certificates as a PEM formatted ASCII text files. 
-PEM certificate files typically have the extensions `.pem`, `.crt`, `.cer`, or `.key`.  
+The CAs issue most certificates as a PEM formatted ASCII text files.
+PEM certificate files typically have the extensions `.pem`, `.crt`, `.cer`, or `.key`.
 
-PEM files start with the string `-----BEGIN CERTIFICATE-----`, terminate with `-----END CERTIFICATE-----`, 
-and are Base64-encoded. 
+PEM files start with the string `-----BEGIN CERTIFICATE-----`, terminate with `-----END CERTIFICATE-----`,
+and are Base64-encoded.
 Certificate strings are long and are frequently stored within a certificate file with newline wrapping every 64 characters.
 
 
@@ -162,7 +162,7 @@ To update an existing cluster to use private registries:
 Before configuring TKGI Kubernetes clusters to access private registries, you must have the following:
 
 * A private registry secured with SSL CA certificates.
-For more information about securing a private Docker registry, see 
+For more information about securing a private Docker registry, see
 [Use self-signed certificates](https://docs.docker.com/registry/insecure/#use-self-signed-certificates)
 in the _Docker Registry_ manual.
 
@@ -211,23 +211,23 @@ using the TKGI API `create-cluster` endpoint.
       }
     }'
     ```
-    Where:  
+    Where:
 
-    * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.  
-    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.  
-    * `CLUSTER-NAME` is the name of your cluster.  
-        <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
+    * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
+    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.
+    * `CLUSTER-NAME` is the name of your cluster.
+        <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster
         if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
         </p>
     * `PLAN-NAME` is the name of your plan.
-    * `KUBERNETES-CONTROLPLANE-HOST` is your Kubernetes control plane host.  
+    * `KUBERNETES-CONTROLPLANE-HOST` is your Kubernetes control plane host.
     * `DOMAIN-NAME` is the address of the private registry, for example `registry.tkgi.local` or `10.148.253.20`.
 
         - You cannot remove an existing Docker Registry URL from a cluster.
         If you specify a URL that is already registered with your cluster, the cluster's existing CA certificate for that URL is overwritten.
     * `CA-CERTIFICATE` is the CA certificate for the registry at `DOMAIN-NAME`.
     For more information about including CA certificates in a TKGI API command, see
-    [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.  
+    [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.
     <br>
     To configure your cluster with additional registries, add them to the `insecure_registries` list and include their certificates in
     the <code>custom_ca_certs</code> array as additional <code>domain_name</code>,
@@ -262,10 +262,10 @@ You can update an existing cluster with one or more SSL CA certificates by using
             ]
           }'
     ```
-    Where:  
+    Where:
 
     * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
-    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.  
+    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.
     * `CLUSTER-NAME` is the name of your cluster.
     * `DOMAIN-NAME` is the address of the private registry, for example `registry.tkgi.local` or `10.148.253.20`.
 
@@ -273,7 +273,7 @@ You can update an existing cluster with one or more SSL CA certificates by using
         If you specify a URL that is already registered with your cluster, the cluster's existing CA certificate for that URL is overwritten.
     * `CA-CERTIFICATE` is the CA certificate for the registry at `DOMAIN-NAME`.
     For more information about including CA certificates in a TKGI API command, see
-    [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.  
+    [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.
     <br>
     To configure your cluster with additional registries, add them to the `insecure_registries` list and include their certificates in
     the <code>custom_ca_certs</code> array as additional <code>domain_name</code>,

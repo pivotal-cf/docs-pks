@@ -5,13 +5,13 @@ owner: PKS
 
 This topic describes how to set up monitoring tools to capture
 metrics from Windows worker-based Kubernetes clusters
-deployed by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+deployed by {{  vars.product_full }} ({{ vars.product_short }}).
 
 
 ## <a id='overview'></a> Overview
 
 You can use any of the following monitoring tools to capture
-metrics from TKGI Windows worker-based Kubernetes clusters:  
+metrics from TKGI Windows worker-based Kubernetes clusters:
 
 * [Healthwatch](#healthwatch)
 * [Wavefront](#wavefront)
@@ -25,7 +25,7 @@ to monitor the health of the TKGI Control Plane
 and your Linux and Windows cluster control plane nodes.
 
 Healthwatch enables you to monitor the functionality of your TKGI environment
-and can be configured to expose metrics to a service or database external to your Ops Manager
+and can be configured to expose metrics to a service or database external to your {{ vars.platform_name }}
 foundation.
 For more information, see [Overview of the Healthwatch Exporter for TKGI Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
 
@@ -38,7 +38,7 @@ in the Healthwatch documentation.
 
 Wavefront runs as an external service that you set up to monitor Windows worker-based clusters the same way that you set it up to monitor clusters running Linux worker nodes:
 
-1. Install Helm on your local machine, if you do not already have it, by following [Install and Configure Helm](./helm.html#install-helm) in the topic _Using Helm with Tanzu Kubernetes Grid Integrated Edition_.
+1. Install Helm on your local machine, if you do not already have it, by following [Install and Configure Helm](./helm.html#install-helm) in the topic _Using Helm with {{  vars.product }}_.
 
 1. Use the Helm CLI to deploy Wavefront to the target cluster:
 
@@ -51,14 +51,14 @@ Wavefront runs as an external service that you set up to monitor Windows worker-
     --set collector.useDaemonset=false
     ```
 
-    Where:  
+    Where:
 
-    * `CLUSTER-NAME` is the name of your Kubernetes cluster.  
-    * `INSTANCE-NAME` is the subdomain name for your Wavefront instance.  
-    * `API-TOKEN` is the Wavefront API token for your Wavefront subscription.  
+    * `CLUSTER-NAME` is the name of your Kubernetes cluster.
+    * `INSTANCE-NAME` is the subdomain name for your Wavefront instance.
+    * `API-TOKEN` is the Wavefront API token for your Wavefront subscription.
 
 1. Do one of the following:
-  - Configure Wavefront Integration in Ops Manager using the [VMware Tanzu Kubernetes Grid Integrated Edition Integration](https://docs.wavefront.com/tkgi.html) procedure in the Wavefront documentation.
+  - Configure Wavefront Integration in {{ vars.platform_name }} using the [{{  vars.product_full }} Integration](https://docs.wavefront.com/tkgi.html) procedure in the Wavefront documentation.
   - Set up a metric sink to send metrics to Wavefront following the instructions in [Creating and Managing Sink Resources](./create-sinks.html).
 
 
@@ -70,49 +70,49 @@ clusters and worker nodes.
 
 ### <a id='monitor-prerequisites'></a> Prerequisites
 
-Before installing Prometheus ensure you have installed kubectl. 
-For more information about installing kubectl, 
-see [Install and Set Up kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) 
+Before installing Prometheus ensure you have installed kubectl.
+For more information about installing kubectl,
+see [Install and Set Up kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 in the Kubernetes documentation.
 
-For additional Prometheus and Grafana prerequisites, see 
-[Prerequisites](https://github.com/prometheus-operator/kube-prometheus#prerequisites) 
+For additional Prometheus and Grafana prerequisites, see
+[Prerequisites](https://github.com/prometheus-operator/kube-prometheus#prerequisites)
 in the `kube-prometheus` GitHub repository.
 
 ### <a id='overview-prometheus'></a> Overview
 
-To monitor Windows clusters and worker node metrics using Prometheus and Grafana:  
+To monitor Windows clusters and worker node metrics using Prometheus and Grafana:
 
 1. [Install Prometheus and Grafana](#install-prometheus)
 1. [Install the Windows Node Exporter](#install-node-exporter)
-1. [Administer Prometheus and Grafana](#post-install-admin)  
+1. [Administer Prometheus and Grafana](#post-install-admin)
 
 
-## <a id='install-prometheus'></a> Install Prometheus and Grafana  
+## <a id='install-prometheus'></a> Install Prometheus and Grafana
 
-To install Prometheus and Grafana: 
+To install Prometheus and Grafana:
 
-1. [Download the Prometheus Source Code](#download-source)  
-1. [Generate Your Prometheus Dashboard Configuration](#monitor-rules)  
+1. [Download the Prometheus Source Code](#download-source)
+1. [Generate Your Prometheus Dashboard Configuration](#monitor-rules)
 1. [Generate Monitoring Rules](#monitor-rules)
-1. [Deploy Prometheus and Grafana](#deploy-prometheus) 
+1. [Deploy Prometheus and Grafana](#deploy-prometheus)
 1. [Verify Grafana is Running ](#verify-grafana)
 
-#### <a id='download-source'></a> Download the Prometheus Source Code  
+#### <a id='download-source'></a> Download the Prometheus Source Code
 
 To download the Prometheus source code:
 
-1. Clone or download the Prometheus operator source code from 
-[Latest release](https://github.com/prometheus-operator/kube-prometheus/releases) 
+1. Clone or download the Prometheus operator source code from
+[Latest release](https://github.com/prometheus-operator/kube-prometheus/releases)
 in the `prometheus-operator/kube-prometheus` GitHub repository.
 
-1. Clone or download the Prometheus monitoring mixin for Kubernetes source code from  
-[Latest release](https://github.com/kubernetes-monitoring/kubernetes-mixin/releases) 
+1. Clone or download the Prometheus monitoring mixin for Kubernetes source code from
+[Latest release](https://github.com/kubernetes-monitoring/kubernetes-mixin/releases)
 in the `kubernetes-monitoring/kubernetes-mixin` GitHub repository.
 
 #### <a id='monitor-rules'></a> Generate Your Prometheus Dashboard Configuration
 
-To generate a Prometheus dashboard configuration:  
+To generate a Prometheus dashboard configuration:
 
 1. Open a command line.
 1. Change directory to the `kubernetes-mixin/dashboards` source code directory.
@@ -129,7 +129,7 @@ To generate a Prometheus dashboard configuration:
     ```
     make dashboards_out
     ```
-1. Review the `kubernetes-mixin/dashboards_out` directory and confirm the following Windows dashboard definition files were created:  
+1. Review the `kubernetes-mixin/dashboards_out` directory and confirm the following Windows dashboard definition files were created:
 
     ```
     k8s-resources-windows-cluster.json
@@ -141,7 +141,7 @@ To generate a Prometheus dashboard configuration:
 
 #### <a id='monitor-rules'></a> Generate Monitoring Rules
 
-To generate Prometheus monitoring rules:  
+To generate Prometheus monitoring rules:
 
 1. Open a command line.
 1. Copy the rule definition file from the `kubernetes_mixin/rules` directory to the `kube-prometheus/jsonnet/kube-prometheus/rules` directory:
@@ -150,10 +150,10 @@ To generate Prometheus monitoring rules:
     cp KUBERNETES-MIXIN-PATH/rules/windows.libsonnet PROMETHEUS-OP-PATH/jsonnet/kube-prometheus/rules/windows.libsonnet
     ```
 
-    Where:  
+    Where:
 
-    * `KUBERNETES-MIXIN-PATH` is the `kubernetes_mixin` source directory.  
-    * `PROMETHEUS-OP-PATH` is the Prometheus operator path.  
+    * `KUBERNETES-MIXIN-PATH` is the `kubernetes_mixin` source directory.
+    * `PROMETHEUS-OP-PATH` is the Prometheus operator path.
 {{{{raw}}}} <!--      1. Copy the Windows dashboard definition files generated above to the Prometheus operator directory.     --> {{{{/raw}}}}
 1. Change directory to the `kube-prometheus/jsonnet/kube-prometheus/rules` source code directory.
 1. Edit the `rules.libsonnet` configuration file.
@@ -170,63 +170,63 @@ To generate Prometheus monitoring rules:
     make manifests
     ```
 
-#### <a id='deploy-prometheus'></a> Deploy Prometheus and Grafana  
+#### <a id='deploy-prometheus'></a> Deploy Prometheus and Grafana
 
 To deploy Prometheus and Grafana:
 
-1. Get `kubeconfig` for your Windows cluster. 
-For more information, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html).  
+1. Get `kubeconfig` for your Windows cluster.
+For more information, see [Retrieving Cluster Credentials and Configuration](cluster-credentials.html).
 1. Open a command line.
-1. Change directory to the `kube-prometheus` Prometheus source code root directory. 
-1. To deploy Prometheus and Grafana, run:  
+1. Change directory to the `kube-prometheus` Prometheus source code root directory.
+1. To deploy Prometheus and Grafana, run:
 
     ```
     kubectl create -f manifests/setup
     until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
     kubectl create -f manifests/
     ```
-1. To forward the Prometheus and Grafana ports to localhost run:  
+1. To forward the Prometheus and Grafana ports to localhost run:
 
     ```
     kubectl --namespace monitoring port-forward svc/prometheus-k8s PROMETHEUS-PORT
     kubectl --namespace monitoring port-forward svc/grafana GRAFANA-PORT
     ```
 
-    Where:  
+    Where:
 
-    * `PROMETHEUS-PORT` is a localhost port for Prometheus, for example, `9090`.  
-    * `GRAFANA-PORT` is a localhost port for Grafana, for example, `3000`.  
+    * `PROMETHEUS-PORT` is a localhost port for Prometheus, for example, `9090`.
+    * `GRAFANA-PORT` is a localhost port for Grafana, for example, `3000`.
 
-For more information about installing Prometheus and Grafana, see [Quickstart](https://github.com/prometheus-operator/kube-prometheus#quickstart) 
-in the `prometheus-operator/kube-prometheus` GitHub repository.  
+For more information about installing Prometheus and Grafana, see [Quickstart](https://github.com/prometheus-operator/kube-prometheus#quickstart)
+in the `prometheus-operator/kube-prometheus` GitHub repository.
 
-### <a id='verify-grafana'></a> Verify Grafana is Running  
+### <a id='verify-grafana'></a> Verify Grafana is Running
 
-To verify Grafana is running:  
+To verify Grafana is running:
 
-1. To open the Grafana Dashboard, open a browser to:  
+1. To open the Grafana Dashboard, open a browser to:
 
     ```
     http://localhost:GRAFANA-PORT
     ```
 
-    Where `GRAFANA-PORT` is the localhost port for Grafana, for example, `3000`.  
+    Where `GRAFANA-PORT` is the localhost port for Grafana, for example, `3000`.
 
-1. To log in to the Grafana Dashboard authenticate with user `admin`, 
-password `admin`. 
+1. To log in to the Grafana Dashboard authenticate with user `admin`,
+password `admin`.
 1. To view Kubelet metrics from all of your windows workers, navigate
-to **Dashboard** > **Default** > **Kubernetes/Kubelet**.  
+to **Dashboard** > **Default** > **Kubernetes/Kubelet**.
 
 ### <a id='install-node-exporter'></a> Install the Windows Node Exporter
 
-To monitor Windows worker node metrics, you need endpoints, the Windows Node Exporter service, 
-and the Windows Node Exporter service monitor. 
+To monitor Windows worker node metrics, you need endpoints, the Windows Node Exporter service,
+and the Windows Node Exporter service monitor.
 
-To install and configure the Windows Node Exporter:  
+To install and configure the Windows Node Exporter:
 
 1. [Deploy the Windows Node Exporter](#deploy-node-exporter)
 1. [Configure the Windows Node Exporter](#configure-node-exporter)
-1. [Set Up the Grafana Windows Node Dashboard](#set-up-node-exporter-grafana-dashboard)  
+1. [Set Up the Grafana Windows Node Dashboard](#set-up-node-exporter-grafana-dashboard)
 
 #### <a id='deploy-node-exporter'></a> Deploy the Windows Node Exporter
 
@@ -240,26 +240,26 @@ To determine the names and IP addresses of all of your Windows worker nodes:
     ```
     kubectl get nodes -L spec.ip
     ```
-1. Note the names and IP addresses of the Windows worker nodes.  
+1. Note the names and IP addresses of the Windows worker nodes.
 
 <br>
-To deploy the Windows Node Exporter to all of your Windows worker nodes, 
-repeat the steps below for each Windows worker node you want to monitor:  
+To deploy the Windows Node Exporter to all of your Windows worker nodes,
+repeat the steps below for each Windows worker node you want to monitor:
 
-1. Start an SSH session to the Windows worker.  
-1. To download the 
-[`windows_exporter-0.13.0-amd64.msi`](https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-amd64.msi) 
-to the worker from [v0.13.0](https://github.com/prometheus-community/windows_exporter/releases/) 
-in the _prometheus-community/windows\_exporter_ repository on GitHub:  
+1. Start an SSH session to the Windows worker.
+1. To download the
+[`windows_exporter-0.13.0-amd64.msi`](https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-amd64.msi)
+to the worker from [v0.13.0](https://github.com/prometheus-community/windows_exporter/releases/)
+in the _prometheus-community/windows\_exporter_ repository on GitHub:
 
     ```
     Powershell Invoke-WebRequest https://github.com/prometheus-community/windows_exporter/releases/download/v0.13.0/windows_exporter-0.13.0-amd64.msi ^
-        -OutFile DOWNLOAD-PATH 
+        -OutFile DOWNLOAD-PATH
     ```
 
     Where `DOWNLOAD-PATH` is the full path to the output location and filename for the retrieved file. For example, `c:\windows_exporter-0.13.0-amd64.msi`.
 
-1. To start the `windows_exporter` msi as a Windows service, open a command line:  
+1. To start the `windows_exporter` msi as a Windows service, open a command line:
 
     ```
     msiexec /i DOWNLOAD-PATH ENABLED_COLLECTORS="cpu,cs,logical_disk,net,os,system,container,memory"
@@ -269,13 +269,13 @@ in the _prometheus-community/windows\_exporter_ repository on GitHub:
 
 #### <a id='configure-node-exporter'></a> Configure the Windows Node Exporter
 
-To support monitoring by Prometheus and Grafana, the Windows Node Exporter service must be configured 
+To support monitoring by Prometheus and Grafana, the Windows Node Exporter service must be configured
 to access your Windows worker node metrics.
 
-To configure the Windows Node Exporter:  
+To configure the Windows Node Exporter:
 
 1. Create a file named `windows-exporter.yml`.
-1. Populate the file with the following:  
+1. Populate the file with the following:
 
     ```
     apiVersion: v1
@@ -333,16 +333,16 @@ To configure the Windows Node Exporter:
           k8s-app: APP-NAME
     ```
 
-    Where:  
+    Where:
 
-    * `APP-NAME` is the name for the Kubernetes app.  
-    * `ENDPOINT-NAME` is the name for the endpoint.  
-    * `SERVICE-NAME` is the name for the service.  
-    * `SERVICEMONITOR-NAME` is the name for the service monitor.  
-    * `NODE-IP` is the IP address of the Windows worker node to monitor.  
-    * `NODE-NAME` is the name of the Windows worker node to monitor.  
+    * `APP-NAME` is the name for the Kubernetes app.
+    * `ENDPOINT-NAME` is the name for the endpoint.
+    * `SERVICE-NAME` is the name for the service.
+    * `SERVICEMONITOR-NAME` is the name for the service monitor.
+    * `NODE-IP` is the IP address of the Windows worker node to monitor.
+    * `NODE-NAME` is the name of the Windows worker node to monitor.
 
-    For example:  
+    For example:
 
     ```console
     apiVersion: v1
@@ -405,7 +405,7 @@ To configure the Windows Node Exporter:
     ```
 
 
-1. Create an additional `subsets.addresses` item for each Windows worker node you want to monitor:  
+1. Create an additional `subsets.addresses` item for each Windows worker node you want to monitor:
 
     ```
     subsets:
@@ -424,17 +424,17 @@ To configure the Windows Node Exporter:
           name: NODE-THREE-NAME
     ```
 
-    Where:  
+    Where:
 
-    * `NODE-ONE-IP` is the IP address of the first Windows worker node to monitor.  
-    * `NODE-ONE-NAME` is the name of the first Windows worker node to monitor.  
-    * `NODE-TWO-IP` is the IP address of the second Windows worker node to monitor.  
-    * `NODE-TWO-NAME` is the name of the second Windows worker node to monitor.  
-    * `NODE-THREE-IP` is the IP address of the third Windows worker node to monitor.  
-    * `NODE-THREE-NAME` is the name of the third Windows worker node to monitor.  
+    * `NODE-ONE-IP` is the IP address of the first Windows worker node to monitor.
+    * `NODE-ONE-NAME` is the name of the first Windows worker node to monitor.
+    * `NODE-TWO-IP` is the IP address of the second Windows worker node to monitor.
+    * `NODE-TWO-NAME` is the name of the second Windows worker node to monitor.
+    * `NODE-THREE-IP` is the IP address of the third Windows worker node to monitor.
+    * `NODE-THREE-NAME` is the name of the third Windows worker node to monitor.
 
 
-1. Save your changes to the `windows-exporter.yml` file.  
+1. Save your changes to the `windows-exporter.yml` file.
 1. To create the Windows node exporter objects, run:
 
     ```
@@ -447,16 +447,16 @@ To configure the Windows Node Exporter:
     http://localhost:PROMETHEUS-PORT/targets
     ```
 
-    Where `PROMETHEUS-PORT` is the localhost port for Prometheus, for example, `9090`.  
+    Where `PROMETHEUS-PORT` is the localhost port for Prometheus, for example, `9090`.
 
-#### <a id='set-up-node-exporter-grafana-dashboard'></a> Set Up the Grafana Windows Node Dashboard  
+#### <a id='set-up-node-exporter-grafana-dashboard'></a> Set Up the Grafana Windows Node Dashboard
 
-To import the dashboard files generated above to Grafana:  
+To import the dashboard files generated above to Grafana:
 
 1. Open a browser to your Grafana dashboard.
 1. To open the **Import** tab, click **+** on the Grafana side menu.
-1. Click **Upload .json file**.  
-1. Upload the five dashboard files from the `kubernetes-mixin/dashboards_out` directory one at a time:  
+1. Click **Upload .json file**.
+1. Upload the five dashboard files from the `kubernetes-mixin/dashboards_out` directory one at a time:
 
     ```
     k8s-resources-windows-cluster.json
@@ -465,21 +465,21 @@ To import the dashboard files generated above to Grafana:
     k8s-windows-cluster-rsrc-use.json
     k8s-windows-node-rsrc-use.json
     ```
-1. To verify the dashboard, open a browser to your Grafana dashboard.  
+1. To verify the dashboard, open a browser to your Grafana dashboard.
 
-If you prefer to use a different Grafana dashboard, 
-you can use and configure the preferred dashboard to monitor the Windows Node Exporter. 
-For more information, see [Dashboards](https://grafana.com/grafana/dashboards) 
+If you prefer to use a different Grafana dashboard,
+you can use and configure the preferred dashboard to monitor the Windows Node Exporter.
+For more information, see [Dashboards](https://grafana.com/grafana/dashboards)
 at the Grafana Labs site.
 
 ### <a id='post-install-admin'></a> Administer Prometheus and Grafana
 
-After completing the minimum installation steps described above:  
+After completing the minimum installation steps described above:
 
-* Change your Grafana installation's account authentication to not use the default `admin/admin` user/password pair.  
+* Change your Grafana installation's account authentication to not use the default `admin/admin` user/password pair.
 * Review the Grafana and Prometheus documentation for any additional steps you must complete:
 
-    * For information about managing Grafana, see [Administration](https://grafana.com/docs/grafana/latest/administration/) in the Grafana documentation.  
+    * For information about managing Grafana, see [Administration](https://grafana.com/docs/grafana/latest/administration/) in the Grafana documentation.
     * For information about managing Prometheus, see [Customizing Kube-Prometheus](https://github.com/prometheus-operator/kube-prometheus#customizing-kube-prometheus)
-    in the `kube-prometheus` documentation.  
+    in the `kube-prometheus` documentation.
 

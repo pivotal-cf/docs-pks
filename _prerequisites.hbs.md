@@ -1,6 +1,6 @@
-If you use an instance of Ops Manager that you configured previously to install other runtimes, perform the following steps before you install Tanzu Kubernetes Grid Integrated Edition:
+If you use an instance of {{ vars.platform_name }} that you configured previously to install other runtimes, perform the following steps before you install {{  vars.product }}:
 
-1. Navigate to Ops Manager.
+1. Navigate to {{ vars.platform_name }}.
 1. Open the **Director Config** pane.
 1. Select the **Enable Post Deploy Scripts** check box.
 1. Click the **Installation Dashboard** link to return to the Installation Dashboard.

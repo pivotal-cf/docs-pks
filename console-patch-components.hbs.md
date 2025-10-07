@@ -1,19 +1,19 @@
 ---
-title: Patch Tanzu Kubernetes Grid Integrated Edition Management Console Components
-owner: TKGI
+title: Patch {{  vars.product }} Management Console Components
+
 ---
 
-You can use VMware Tanzu Kubernetes Grid Integrated Edition Management Console on vSphere to update some of the components of your deployment individually when a new minor version of those components is available.
+You can use {{  vars.product_full }} Management Console on vSphere to update some of the components of your deployment individually when a new minor version of those components is available.
 
-1. In Tanzu Kubernetes Grid Integrated Edition Management Console, go to **Configuration** &gt; **TKGI Component Patch** to view the list of components that are ready for patching. 
-1. Obtain the patch installers. 
+1. In {{  vars.product }} Management Console, go to **Configuration** &gt; **TKGI Component Patch** to view the list of components that are ready for patching.
+1. Obtain the patch installers.
   - In air-gapped environments, download the patch installer from https://downloads.vmware.com/ to a local location. Click the **Import Patch** button to upload the installer to the management console.
   - In environments with access to the internet, click the **Download** button next to the relevant components to import the patch installers directly.
     ![Import patches](images/console/import-patches.png)
 1. When the patch imports are complete, select **Install Patch** to patch a component.
     ![Install patches](images/console/install-patch.png)
-    
-    If you are patching Tanzu Kubernetes Grid Integrated Edition Management Console itself, you will be automatically logged out during the patching process.
+
+    If you are patching {{  vars.product }} Management Console itself, you will be automatically logged out during the patching process.
 1. Log back in to the management console.
-1. Click the help icon `?` in the top banner and select **About** to check that the version of Tanzu Kubernetes Grid Integrated Edition Management Console has been updated.
+1. Click the help icon `?` in the top banner and select **About** to check that the version of {{  vars.product }} Management Console has been updated.
 1. Click **TKG Integrated Edition** to check the versions of the installed components.

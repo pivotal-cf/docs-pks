@@ -1,14 +1,13 @@
 ---
 title: TKGI API Authentication
-owner: TKGI
 ---
 
-This topic describes how the VMware Tanzu Kubernetes Grid Integrated Edition API (TKGI API) works with User Account and Authentication (UAA) to manage TKGI deployment authentication and authorization.  
+This topic describes how the {{  vars.product_full }} API (TKGI API) works with User Account and Authentication (UAA) to manage TKGI deployment authentication and authorization.
 
 ##<a id='authenticating'></a> Authentication of TKGI API Requests
 
-Before users can log in and use the TKGI CLI, you must configure TKGI API access with UAA. For more information, 
-see [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html) and [Logging in to Tanzu Kubernetes Grid Integrated Edition](login.html).
+Before users can log in and use the TKGI CLI, you must configure TKGI API access with UAA. For more information,
+see [Managing {{  vars.product }} Users with UAA](manage-users.html) and [Logging in to {{  vars.product }}](login.html).
 
 You use the UAA Command Line Interface (UAAC) to target the UAA server and request an access token for the UAA admin user.
 If your request is successful, the UAA server returns the access token.
@@ -42,11 +41,11 @@ For example, if your TKGI API domain is `api.tkgi.example.com`, you can reach yo
   </tr>
 </table>
 
-Refer to **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition tile** > **TKGI API** > **API Hostname (FQDN)** for your TKGI API domain.
+Refer to **{{ vars.platform_name }}** > **{{  vars.product }} tile** > **TKGI API** > **API Hostname (FQDN)** for your TKGI API domain.
 
 Load balancer implementations differ by deployment environment.
-For Tanzu Kubernetes Grid Integrated Edition deployments on AWS or vSphere without NSX, you configure a load balancer to access 
-the TKGI API when you install the Tanzu Kubernetes Grid Integrated Edition tile.
+For {{  vars.product }} deployments on AWS or vSphere without NSX, you configure a load balancer to access
+the TKGI API when you install the {{  vars.product }} tile.
 For example, see [Configuring TKGI API Load Balancer](./vsphere-configure-api.html).
 
-For overview information about load balancers in Tanzu Kubernetes Grid Integrated Edition, see [Load Balancers in Tanzu Kubernetes Grid Integrated Edition Deployments without NSX](about-lb.html#without-nsx-t).
+For overview information about load balancers in {{  vars.product }}, see [Load Balancers in {{  vars.product }} Deployments without NSX](about-lb.html#without-nsx-t).

@@ -1,18 +1,18 @@
 ---
-title: Installing Tanzu Kubernetes Grid Integrated Edition on Azure (Antrea Networking)
-owner: TKGI
+title: Installing {{  vars.product }} on Azure (Antrea Networking)
+
 iaas: Azure
 windowsclusters: #Empty var to prevent build breaking
 topic: #Empty var to prevent build breaking
 thistopic: #Empty var to prevent build breaking
 ---
 
-This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
-on Azure as a VMware Tanzu Operations Manager (Ops Manager) tile.
+This topic describes how to install and configure {{  vars.product_full }} ({{ vars.product_short }})
+on Azure as a {{ vars.platform_name }} tile.
 
 ##<a id='prerequisites'></a>Prerequisites
 
-Before performing the procedures in this topic, you must have deployed and configured Ops Manager.
+Before performing the procedures in this topic, you must have deployed and configured {{ vars.platform_name }}.
 For more information, see [Azure Prerequisites and Resource Requirements](azure-requirements.html).
 
 {{> prerequisites }}
@@ -23,30 +23,30 @@ For more information, see [Azure Prerequisites and Resource Requirements](azure-
 
 To install and configure TKGI:
 
-1. [Install Tanzu Kubernetes Grid Integrated Edition](#install)
-1. [Configure Tanzu Kubernetes Grid Integrated Edition](#configure)
+1. [Install {{  vars.product }}](#install)
+1. [Configure {{  vars.product }}](#configure)
 1. [Apply Changes](#apply-changes)
 1. [Retrieve the TKGI API Endpoint](#retrieve-tkgi-api)
 1. [Configure an Azure Load Balancer for the TKGI API](#lb-tkgi-api)
 1. [Install the TKGI and Kubernetes CLIs](#clis)
-1. [Configure Authentication for Tanzu Kubernetes Grid Integrated Edition](#auth)
+1. [Configure Authentication for {{  vars.product }}](#auth)
 
 
-## <a id='install'></a> Step 1: Install Tanzu Kubernetes Grid Integrated Edition
+## <a id='install'></a> Step 1: Install {{  vars.product }}
 
 {{> install }}
 
 
 
-## <a id='configure'></a> Step 2: Configure Tanzu Kubernetes Grid Integrated Edition
+## <a id='configure'></a> Step 2: Configure {{  vars.product }}
 
 To configure TKGI:
 
-1. Click the orange **Tanzu Kubernetes Grid Integrated Edition** tile to start the configuration process.
+1. Click the orange **{{  vars.product }}** tile to start the configuration process.
 
-    ![TKGI tile on the Ops Manager installation dashboard](images/tkgi-tile-orange.png)
-    <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile, do not use spaces in any field entries. This includes spaces between characters as well as
-    leading and trailing spaces. If you use a space in any field entry, the deployment of Tanzu Kubernetes Grid Integrated Edition fails.</p>
+    ![TKGI tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
+    <p class="note warning"><strong>WARNING</strong>: When you configure the {{  vars.product }} tile, do not use spaces in any field entries. This includes spaces between characters as well as
+    leading and trailing spaces. If you use a space in any field entry, the deployment of {{  vars.product }} fails.</p>
 
 1. [Assign Networks](#azs-networks)
 1. [TKGI API](#tkgi-api)
@@ -97,7 +97,7 @@ To configure your Kubernetes cloud provider settings, follow the procedures belo
 
     1. If you do not already know the valid location value for your resource group, determine it:
         1. You set the location name in [Step 1: Create Network Resources](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-deploy-manual.html#network)
-        in _Deploying Ops Manager on Azure Manually_.
+        in _Deploying {{ vars.platform_name }} on Azure Manually_.
         1. The location name property is a lower-case string without spaces.
         For example, if your resource group location is `Central US`,
         the location name property value is `centralus`.
@@ -117,21 +117,21 @@ To configure your Kubernetes cloud provider settings, follow the procedures belo
 1. Enter **Virtual Network Resource Group**. This is the name of the resource group that the virtual network is deployed in.
 
 1. Enter **Default Security Group**. This is the name of the security group attached to the cluster's subnet.
-<p class="note"><strong>Note:</strong> Tanzu Kubernetes Grid Integrated Edition automatically assigns the default security group to each VM when you create a Kubernetes cluster.
+<p class="note"><strong>Note:</strong> {{  vars.product }} automatically assigns the default security group to each VM when you create a Kubernetes cluster.
 
 However, on Azure this automatic assignment might not occur. For more information,
 see <a href="release-notes.html#security-group">Azure Default Security Group Is Not Automatically Assigned to Cluster VMs</a>
-in <em>Tanzu Kubernetes Grid Integrated Edition Release Notes</em>.</p>
+in <em>{{  vars.product }} Release Notes</em>.</p>
 
 1. Enter **Primary Availability Set**.
 This is the name of the availability set that will be used as the load balancer back end.
 Locate the name of the availability set within the Azure console.
 
 1. For **Master Managed Identity**, enter `tkgi-master`. You created the managed identity for the control plane nodes in
-[Create the Control Plane Nodes Managed Identity](azure-managed-identities.html#create-master) in *Creating Managed Identities in Azure for Tanzu Kubernetes Grid Integrated Edition*.
+[Create the Control Plane Nodes Managed Identity](azure-managed-identities.html#create-master) in *Creating Managed Identities in Azure for {{  vars.product }}*.
 
 1. For **Worker Managed Identity**, enter `tkgi-worker`. You created the managed identity for the worker nodes in
-[Create the Worker Nodes Managed Identity](azure-managed-identities.html#create-worker) in *Creating Managed Identities in Azure for Tanzu Kubernetes Grid Integrated Edition*.
+[Create the Worker Nodes Managed Identity](azure-managed-identities.html#create-worker) in *Creating Managed Identities in Azure for {{  vars.product }}*.
 
 1. Select **Disable Outbound SNAT** to deactivate the default outbound SNAT rule for Azure.
 
@@ -186,7 +186,7 @@ To configure networking, do the following:
 
 ###<a id='resource-config'></a> Resource Config
 
-To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition and specify your TKGI API load balancer, follow the steps below:
+To modify the resource configuration of {{  vars.product }} and specify your TKGI API load balancer, follow the steps below:
 
 1. Select **Resource Config**.
 
@@ -205,7 +205,7 @@ To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition
     * (Optional) If you do not use a NAT instance, select **INTERNET CONNECTED**. This allows component instances direct access to the internet.
 
   <p class="note warning"><strong>Warning:</strong> To avoid workload downtime, use the resource configuration recommended in
-  <a href="understanding-upgrades.html">About Tanzu Kubernetes Grid Integrated Edition Upgrades</a>
+  <a href="understanding-upgrades.html">About {{  vars.product }} Upgrades</a>
   and <a href="maintain-uptime.html">Maintaining Workload Uptime</a>.
   </p>
 
@@ -233,14 +233,14 @@ Follow the procedures in [Configuring an Azure Load Balancer for the TKGI API](a
 
 
 
-## <a id='auth'></a> Step 7: Configure Authentication for Tanzu Kubernetes Grid Integrated Edition
+## <a id='auth'></a> Step 7: Configure Authentication for {{  vars.product }}
 
-Follow the procedures in [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on Azure](azure-configure-users.html).
+Follow the procedures in [Setting Up {{  vars.product }} Admin Users on Azure](azure-configure-users.html).
 
 
 ## <a id='next-steps'></a> Next Steps
 
-After installing Tanzu Kubernetes Grid Integrated Edition on Azure, you might want to do one or more of the following:
+After installing {{  vars.product }} on Azure, you might want to do one or more of the following:
 
-* Create a load balancer for your Tanzu Kubernetes Grid Integrated Edition clusters. For more information, see [Creating and Configuring an Azure Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters](azure-cluster-load-balancer.html).
-* Create your first Tanzu Kubernetes Grid Integrated Edition cluster. For more information, see [Creating Clusters](create-cluster.html).
+* Create a load balancer for your {{  vars.product }} clusters. For more information, see [Creating and Configuring an Azure Load Balancer for {{  vars.product }} Clusters](azure-cluster-load-balancer.html).
+* Create your first {{  vars.product }} cluster. For more information, see [Creating Clusters](create-cluster.html).

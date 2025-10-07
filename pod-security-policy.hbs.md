@@ -1,12 +1,12 @@
 ---
 title: Enabling and Configuring Pod Security Policies
-owner: TKGI
+
 ---
 
-This topic describes how to enable and use Pod Security Policies in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to enable and use Pod Security Policies in {{  vars.product_full }} ({{ vars.product_short }}).
 
-<p class="note"><strong>Note</strong>: In Kubernetes v1.25, Pod Security Admission (PSA) is now stable and support for Kubernetes Pod Security Policy (PSP) has been removed. 
-For more information, see [Pod Security Admission in Tanzu Kubernetes Grid Integrated Edition](pod-security-admission.html)</a>.  
+<p class="note"><strong>Note</strong>: In Kubernetes v1.25, Pod Security Admission (PSA) is now stable and support for Kubernetes Pod Security Policy (PSP) has been removed.
+For more information, see [Pod Security Admission in {{  vars.product }}](pod-security-admission.html)</a>.
 </p>
 
 
@@ -15,8 +15,8 @@ For more information, see [Pod Security Admission in Tanzu Kubernetes Grid Integ
 
 In Kubernetes, a Pod Security Policy (PSP) is a cluster-level resource that controls security-sensitive aspects of the pod specification. <strong>PodSecurityPolicy</strong> objects define a set of Pod conditions required for a Pod to be accepted into the system and the default values for related fields. For more information, see [Pod Security Policies](https://kubernetes.io/docs/concepts/policy/pod-security-policy/) in the Kubernetes documentation.
 
-<p class="note"><strong>Note</strong>: When the <strong>PodSecurityPolicy</strong> option is enabled for a Kubernetes cluster plan, 
-  a cluster administrator must define the policy, role, and role binding that gives cluster users (developers) permission to deploy pods to the cluster. 
+<p class="note"><strong>Note</strong>: When the <strong>PodSecurityPolicy</strong> option is enabled for a Kubernetes cluster plan,
+  a cluster administrator must define the policy, role, and role binding that gives cluster users (developers) permission to deploy pods to the cluster.
   See <a href="./pod-security-policy.html#psp-enable-workflow">Workflow for Enabling PSPs</a>.
 </p>
 
@@ -30,7 +30,7 @@ A role binding grants the permissions defined in a role to a user or set of user
 
 ##<a id='psp-default'></a> Default Pod Security Policies in TKGI
 
-Tanzu Kubernetes Grid Integrated Edition ships with two default PSPs: PKS Privileged and PKS Restricted.
+{{  vars.product }} ships with two default PSPs: PKS Privileged and PKS Restricted.
 
 PSP             | Description
 ----------------|------------
@@ -46,9 +46,9 @@ By default, when PSPs are enabled for a plan, the cluster administrator is bound
 
 ##<a id='psp-enable'></a> Enabling Pod Security Policies in TKGI
 
-Enabling PSPs is done during configuration of Tanzu Kubernetes Grid Integrated Edition in the Plan section of the tile configuration. Refer to the TKGI tile configuration documentation for your IaaS for details.
-<p class="note"><strong>Note:</strong> 
-To use PodSecurityPolicy features, you must use Ops Manager v2.10.17 or later.
+Enabling PSPs is done during configuration of {{  vars.product }} in the Plan section of the tile configuration. Refer to the TKGI tile configuration documentation for your IaaS for details.
+<p class="note"><strong>Note:</strong>
+To use PodSecurityPolicy features, you must use {{ vars.platform_name }} v2.10.17 or later.
 </p>
 
   <img src="images/psp-enable.png" alt="Enabling Pod Security Policy" width="225">
@@ -58,16 +58,16 @@ To use PodSecurityPolicy features, you must use Ops Manager v2.10.17 or later.
 A Kubernetes cluster created from a plan with the **PodSecurityPolicy** option enabled will require cluster users to have a binding that grants `use` on an appropriate PSP to deploy pods. Enabling the **PodSecurityPolicy** option is a security feature. The design goal is to make the Kubernetes cluster more secure. Once enabled, **PodSecurityPolicy** acts on creation and modification of pods in that cluster or namespace, and determines the permitted actions based on the requested security context and the applied PSP. See [PSP Policy Order](https://kubernetes.io/docs/concepts/policy/pod-security-policy/#policy-order) for more information on PSP application order when multiple PSPs are in use.
 
 <p class="note"><strong>WARNING</strong>: Enabling the <strong>PodSecurityPolicy</strong> option on install or upgrade
-  of Tanzu Kubernetes Grid Integrated Edition will prevent developers from using the cluster as they would expect unless the proper PSP,
+  of {{  vars.product }} will prevent developers from using the cluster as they would expect unless the proper PSP,
 role, and role binding are configured by the cluster administrator before cluster deployment.</p>
 
 ###<a id='psp-new-installs'></a> New Installations of TKGI: PSPs Are Not Enabled for Any Plan
 
-For new Tanzu Kubernetes Grid Integrated Edition installations, the **PodSecurityPolicy** option is not enabled by default in a plan. If the **PodSecurityPolicy** option is enabled, the cluster administrator will be able to deploy pods, but developers without a binding to a PSP will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods. Once you enable PSPs, you will need to define the RBAC objects and PSP for cluster users. See [Workflow for Enabling PSPs](#psp-enable-workflow) and [Configuring the pks-restricted PSP for Developers to Use with TKGI](#psp-config).
+For new {{  vars.product }} installations, the **PodSecurityPolicy** option is not enabled by default in a plan. If the **PodSecurityPolicy** option is enabled, the cluster administrator will be able to deploy pods, but developers without a binding to a PSP will not. For new deployments, the cluster administrator will need to create one or more PSPs, roles, and role bindings for developers to deploy pods. Once you enable PSPs, you will need to define the RBAC objects and PSP for cluster users. See [Workflow for Enabling PSPs](#psp-enable-workflow) and [Configuring the pks-restricted PSP for Developers to Use with TKGI](#psp-config).
 
 ###<a id='psp-upgrades'></a> Upgrade of TKGI: PSPs Must Be Enabled per Plan
 
-On upgrade of Tanzu Kubernetes Grid Integrated Edition, existing plans will not have the **PodSecurityPolicy** option enabled. If the PSP option is enabled for a plan that is in use and did not previously leverage PSPs, and the cluster is upgraded, the cluster administrator will need to create the appropriate PSPs, roles, and role bindings **BEFORE** upgrading the clusters associated to that plan. Cluster upgrades when enabling PSPs on an existing plan can have unpredictable results on workloads if the appropriate PSPs are not enabled. If you are considering enabling PSPs on an existing plan to apply to all associated clusters,  the following set of tasks is recommended:
+On upgrade of {{  vars.product }}, existing plans will not have the **PodSecurityPolicy** option enabled. If the PSP option is enabled for a plan that is in use and did not previously leverage PSPs, and the cluster is upgraded, the cluster administrator will need to create the appropriate PSPs, roles, and role bindings **BEFORE** upgrading the clusters associated to that plan. Cluster upgrades when enabling PSPs on an existing plan can have unpredictable results on workloads if the appropriate PSPs are not enabled. If you are considering enabling PSPs on an existing plan to apply to all associated clusters,  the following set of tasks is recommended:
 
 ###<a id='psp-enable-workflow'></a> Workflow for Enabling PSPs
 
@@ -76,7 +76,7 @@ Before you select the **PodSecurityPolicy** check box and enable PSPs for a new 
 1. Review all existing pods to collect their security requirements for each cluster associated with that plan. There are open-source tools to assist with pod review, such as [kube-psp-advisor](https://github.com/sysdiglabs/kube-psp-advisor).
 1. Create the appropriate PSPs, roles, and role bindings for each cluster associated with that plan to allow the pods to run after upgrade. See [Configuring PSP for Developers to Use](#psp-config) as a starting point.
 1. Enable PSPs by selecting the **PodSecurityPolicy** check box in the appropriate plan.
-1. Review the pending changes and verify that **Upgrade all clusters errand** is enabled.  
+1. Review the pending changes and verify that **Upgrade all clusters errand** is enabled.
 1. Apply the changes to update the clusters that use the plan with PSPs enabled.
 1. Verify that the workloads are in desired state after upgrade.
 1. If **Upgrade all clusters errand** was not enabled, run it manually and redeploy.
@@ -477,4 +477,4 @@ The most commonly used Kubernetes workloads, for example, `deployment` and `repl
 
 ##<a id='psp-demo-files'></a> PSP Files and Demo
 
-Tanzu Kubernetes Grid Integrated Edition provides additional resources for implementing PSPs, including the two default PSPs provided with the product, example YAML files, and a PSP demo movie. Download the files at the following location: [https://github.com/pivotal-cf/docs-pks/blob/master/demos/psp-demo.tar.gz](https://github.com/pivotal-cf/docs-pks/blob/master/demos/psp-demo.tar.gz).
+{{  vars.product }} provides additional resources for implementing PSPs, including the two default PSPs provided with the product, example YAML files, and a PSP demo movie. Download the files at the following location: [https://github.com/pivotal-cf/docs-pks/blob/master/demos/psp-demo.tar.gz](https://github.com/pivotal-cf/docs-pks/blob/master/demos/psp-demo.tar.gz).

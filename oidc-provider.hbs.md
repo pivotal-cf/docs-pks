@@ -1,11 +1,11 @@
 ---
 title: OIDC Provider for Kubernetes Clusters
-owner: TKGI
+
 ---
 
 This topic describes how to configure the global default OpenID Connect (OIDC) provider
-settings for your VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters 
-and how to override the default configuration for individual clusters.  
+settings for your {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters
+and how to override the default configuration for individual clusters.
 
 ## <a id='overview'></a>Overview
 
@@ -14,10 +14,10 @@ enables Kubernetes to verify end-user identities based
 on the authentication performed by UAA or a custom OIDC provider.
 
 You can use the following methods to configure an OIDC provider in
-Tanzu Kubernetes Grid Integrated Edition:
+{{  vars.product }}:
 
 * Configure UAA as the default OIDC provider in the
-**Tanzu Kubernetes Grid Integrated Edition** tile > **UAA**. For more information,
+**{{  vars.product }}** tile > **UAA**. For more information,
 see [UAA as the Default OIDC Provider](#uaa-oidc)
 below.
 * Configure a custom OIDC provider by applying a Kubernetes profile
@@ -26,7 +26,7 @@ to one or more TKGI-provisioned clusters. For more information, see
 
 ## <a id='uaa-oidc'></a> UAA as the Default OIDC Provider
 
-The **Tanzu Kubernetes Grid Integrated Edition** tile > **UAA** > **Configure created clusters
+The **{{  vars.product }}** tile > **UAA** > **Configure created clusters
 to use UAA as the OIDC provider** is a global setting for
 TKGI-provisioned clusters, described in the table below:
 
@@ -65,7 +65,7 @@ regenerate the files for all existing clusters.
 You can configure one or more Kubernetes clusters to use a custom OIDC
 provider by creating and applying a Kubernetes profile to the clusters.
 This overrides the global **Configure created clusters to use UAA as the
-OIDC provider** setting in the **Tanzu Kubernetes Grid Integrated Edition** tile > **UAA**.
+OIDC provider** setting in the **{{  vars.product }}** tile > **UAA**.
 
 For instructions, see
 <a href="./k8s-profiles-dex-oidc.html">Adding an OIDC Provider</a>.
@@ -78,5 +78,5 @@ you must create Kubernetes role bindings for them.
 
 For instructions, see
 [Managing Cluster Access and Permissions](manage-cluster-permissions.html).
- 
-      
+
+

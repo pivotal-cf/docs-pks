@@ -1,32 +1,32 @@
 ---
 title: Installing Velero vSphere Plugin
-owner: TKGI
+
 ---
 
-This topic describes how to install Velero for backing up and restoring 
-Tanzu Kubernetes Grid Integrated Edition (TKGI)-provisioned Kubernetes workloads on vSphere.  
+This topic describes how to install Velero for backing up and restoring
+{{  vars.product }} (TKGI)-provisioned Kubernetes workloads on vSphere.
 
 ##<a id="prereqs"></a> Prerequisites
 
-Ensure the following before installing Velero for backing up and restoring TKGI on vSphere:  
+Ensure the following before installing Velero for backing up and restoring TKGI on vSphere:
 
-* Your clusters use the automatically installed vSphere CSI Driver. For more information, 
-see [Deploying and Managing Cloud Native Storage (CNS) on vSphere](vsphere-cns.html).  
-* **Allow Privileged** is enabled in the plan for the cluster being backed up. 
-For more information, see [Plans](installing-vsphere.html#plans) in 
-_Installing Tanzu Kubernetes Grid Integrated Edition on vSphere_.    
+* Your clusters use the automatically installed vSphere CSI Driver. For more information,
+see [Deploying and Managing Cloud Native Storage (CNS) on vSphere](vsphere-cns.html).
+* **Allow Privileged** is enabled in the plan for the cluster being backed up.
+For more information, see [Plans](installing-vsphere.html#plans) in
+_Installing {{  vars.product }} on vSphere_.
 * You have read: [Tanzu Kubernetes Workload Back Up and Restore Requirements](./backup-and-restore-work.html#requirements)
-in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero_.  
+in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero_.
 * You have a Linux VM with sufficient storage to store several workload backups.
 You will install MinIO on this VM. For more information, see
-[Quick start evaluation install with MinIO](https://velero.io/docs/v1.8/contributions/minio/) in the Velero documentation.  
+[Quick start evaluation install with MinIO](https://velero.io/docs/v1.8/contributions/minio/) in the Velero documentation.
 * You have a TKGI Client VM (Linux) where CLI tools are installed, such as the TKGI CLI, kubectl, and others.
 You will install the Velero CLI on this client VM.
-If you do not have such a VM, you can install the Velero CLI locally 
-but adjust the following installation steps to match your configuration.  
+If you do not have such a VM, you can install the Velero CLI locally
+but adjust the following installation steps to match your configuration.
 * The Kubernetes environment has internet access and can be reached by the client VM.
 If the environment does not have internet access, refer to
-[Install Velero in an Air-Gapped Environment](#velero-cluster-install-airgapped) below.  
+[Install Velero in an Air-Gapped Environment](#velero-cluster-install-airgapped) below.
 
 ##<a id="minio-deploy"></a> Deploy an Object Store
 
@@ -35,113 +35,113 @@ For more information, see [Deploy an Object Store](velero-install.html#deploy-an
 
 ##<a id="velero-deploy"></a> Install the Velero CLI on Your Workstation
 
-To install the Velero CLI on your workstation:  
+To install the Velero CLI on your workstation:
 
-1. [Download the Velero CLI Binary](#velero-download)  
-1. [Install the Velero CLI](#velero-cli-install)  
+1. [Download the Velero CLI Binary](#velero-download)
+1. [Install the Velero CLI](#velero-cli-install)
 
 ### <a id='velero-download'></a> Download the Velero CLI Binary
 
-To download the Velero CLI Binary:  
+To download the Velero CLI Binary:
 
-1. Download the supported version of the signed Velero binary for your version of TKGI 
-from the TKGI product downloads page at myVMware. 
-For more information about the currently supported Velero versions, 
-see the _Product Snapshot_ section of the [Release Notes](release-notes.html).  
+1. Download the supported version of the signed Velero binary for your version of TKGI
+from the TKGI product downloads page at myVMware.
+For more information about the currently supported Velero versions,
+see the _Product Snapshot_ section of the [Release Notes](release-notes.html).
 
     <p class="note"><strong>Note</strong>: You must use the Velero binary signed by VMware to be eligible for support from VMware.</p>
 
 ### <a id='velero-cli-install'></a> Install the Velero CLI
 
-To install the Velero CLI on the TKGI client or on your local machine:  
+To install the Velero CLI on the TKGI client or on your local machine:
 
-1. Open a command line and change directory to the Velero CLI download.  
-1. Unzip the download file:  
+1. Open a command line and change directory to the Velero CLI download.
+1. Unzip the download file:
 
     ```
     gunzip velero-linux-{{{ vars.velero_version }}}+vmware.1.gz
     ```
 
-1. Grant execute permissions to the Velero CLI:  
+1. Grant execute permissions to the Velero CLI:
 
     ```
     chmod +x velero-linux-{{{ vars.velero_version }}}+vmware.1
     ```
 
-1. Make the Velero CLI globally available by moving it to the system path:  
+1. Make the Velero CLI globally available by moving it to the system path:
 
     ```
     cp velero-linux-{{{ vars.velero_version }}}+vmware.1 /usr/local/bin/velero
     ```
 
-1. Verify the installation:  
+1. Verify the installation:
 
     ```
     velero version
     ```
-    For example:  
+    For example:
 
     ```console
     $ velero version
-    
+
     Client:
         Version: {{{ vars.velero_version }}}
     ```
 
 ##<a id='velero-cluster-install'></a> Install Velero on the Target Kubernetes Cluster
 
-To install the Velero pod on each Kubernetes cluster whose workloads you intend to back up, complete the following:  
+To install the Velero pod on each Kubernetes cluster whose workloads you intend to back up, complete the following:
 
-1. [Prerequisites](#velero-cluster-install-prereqs)  
+1. [Prerequisites](#velero-cluster-install-prereqs)
 1. [Set Up the kubectl Context](#velero-cluster-setup)
 1. [Install Velero](#velero-cluster-install-procedure)
 1. [Create a Velero vSphere Credential Secret](#velero-credentials-secret)
-1. [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-config-file)  
+1. [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-config-file)
 1. [Install Velero vSphere Plugin](#velero-vsphere-plugin-install)
 1. [Back up the VCP Volumes Migrated to vSphere CSI Driver](#velero-vcp-csi-migration)
 1. [Adjust Velero Memory Limits If Necessary](#velero-memory)
 
 ###<a id='velero-cluster-install-prereqs'></a>Prerequisites
 
-The following steps require that:  
+The following steps require that:
 
 * You have installed MinIO as your backup object store.
-For more information, see [Deploy an Object Store](velero-install.html#deploy-an-object-store-1) above.  
-* Your Kubernetes cluster has internet access.  
+For more information, see [Deploy an Object Store](velero-install.html#deploy-an-object-store-1) above.
+* Your Kubernetes cluster has internet access.
 
 ###<a id='velero-cluster-setup'></a>Set Up the kubectl Context
 
 The Velero CLI context will automatically follow the kubectl context.
-Before running Velero CLI commands to install Velero on the target cluster, set the kubectl context:  
+Before running Velero CLI commands to install Velero on the target cluster, set the kubectl context:
 
-1. Retrieve the name of the MinIO bucket. For example, `tkgi-velero`.  
+1. Retrieve the name of the MinIO bucket. For example, `tkgi-velero`.
 1. Get the AccessKey and SecretKey for the MinIO bucket.
-For example, AccessKey: `0XXNO8JCCGV41QZBV0RQ` and SecretKey: `clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx`.  
-1. Verify `kubectl` works against the cluster. If needed, use `tkgi get-credentials`.  
+For example, AccessKey: `0XXNO8JCCGV41QZBV0RQ` and SecretKey: `clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx`.
+1. Verify `kubectl` works against the cluster. If needed, use `tkgi get-credentials`.
 1. Set the context for the target Kubernetes cluster so that the Velero CLI knows which cluster to work:
 
     ```
     tkgi get-credentials CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of the cluster.  
-    
-    For example:  
+    Where `CLUSTER-NAME` is the name of the cluster.
+
+    For example:
 
     ```console
     $ tkgi get-credentials cluster-1
-    
+
     Fetching credentials for cluster cluster-1.
     Password: ********
     Context set for cluster cluster-1.
-    
+
     You can now switch between clusters by using:
     $kubectl config use-context <cluster-name>
     ```
 
-    You can also run `kubectl config use-context CLUSTER-NAME` to set context.  
+    You can also run `kubectl config use-context CLUSTER-NAME` to set context.
 
-1. To create a secrets file, create a file named `credentials-minio`. 
-Update the file with the MinIO server access credentials that you collected above:  
+1. To create a secrets file, create a file named `credentials-minio`.
+Update the file with the MinIO server access credentials that you collected above:
 
     ```
     [default]
@@ -149,12 +149,12 @@ Update the file with the MinIO server access credentials that you collected abov
     aws_secret_access_key = SECRET-KEY
     ```
 
-    Where:  
+    Where:
 
-    * `ACCESS-KEY` is the AccessKey that you collected above.  
-    * `SECRET-KEY` is the SecretKey that you collected above.  
+    * `ACCESS-KEY` is the AccessKey that you collected above.
+    * `SECRET-KEY` is the SecretKey that you collected above.
 
-    For example:  
+    For example:
 
     ```
     [default]
@@ -162,11 +162,11 @@ Update the file with the MinIO server access credentials that you collected abov
     aws_secret_access_key = clZ1bf8Ljkvkmq7fHucrKCkxV39BRbcycGeXQDfx
     ```
 
-1. Save the file.  
+1. Save the file.
 
 ###<a id='velero-cluster-install-procedure'></a>Install Velero
 
-1. Install Velero on the target Kubernetes cluster:  
+1. Install Velero on the target Kubernetes cluster:
 
     ```
     velero install \
@@ -178,11 +178,11 @@ Update the file with the MinIO server access credentials that you collected abov
     --snapshot-location-config region=minio
     ```
     Where:
-    
+
     * `IP-ADDRESS` is the IP address that is used to connect to the MinIO server.
     * `PORT` is the number of the port that is used to connect to the MinIO server.
 
-    For example:  
+    For example:
 
     ```console
     $ velero install --image projects.packages.broadcom.com/tkg/velero/velero:{{{ vars.velero_version }}}_vmware.1 --provider aws --bucket tkgi-velero --secret-file ./credentials-minio --plugins "projects.packages.broadcom.com/tkg/velero/velero-plugin-for-aws:{{{ vars.velero_version_aws }}}_vmware.1" --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.233.44:9000,publicUrl=http://20.20.233.44:9000 --snapshot-location-config region=minio
@@ -195,23 +195,23 @@ Update the file with the MinIO server access credentials that you collected abov
 
     <p class="note"><strong>Note</strong>: You must include the <code>--snapshot-location-config</code> region configuration parameter.</p>
 
-1. Verify the installation of Velero:  
+1. Verify the installation of Velero:
 
     ```
     kubectl logs deployment/velero -n velero
     ```
 
-1. Verify the `velero` namespace:  
+1. Verify the `velero` namespace:
 
     ```
     kubectl get ns
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     $ kubectl get ns
-    
+
     NAME              STATUS   AGE
     default           Active   13d
     kube-node-lease   Active   13d
@@ -220,40 +220,40 @@ Update the file with the MinIO server access credentials that you collected abov
     pks-system        Active   13d
     velero            Active   2m38s
     ```
-    
+
 ### <a id='velero-credentials-secret'></a> Create a Velero vSphere Credential Secret
-    
+
 1. Create the `csi-vsphere.conf` file with the following details:
-    
+
     ```
     [Global]
-    cluster-id = "CLUSTER-NAME"                
-    [VirtualCenter "IP-ADDRESS"]    
-    user = "USERNAME"       
-    password = "PASSWORD" 
-    port = "443" 
-    ```    
-          
-    Where:  
-      
+    cluster-id = "CLUSTER-NAME"
+    [VirtualCenter "IP-ADDRESS"]
+    user = "USERNAME"
+    password = "PASSWORD"
+    port = "443"
+    ```
+
+    Where:
+
     * `CLUSTER-NAME` is the name of your cluster.
     * `IP-ADDRESS` is the IP address of the vCenter Server.
     * `USERNAME` is the user name that you want to use.
     * `PASSWORD` is the user name that you want to use.
-               
+
 1. Create the secret:
-    
+
     ```
     kubectl -n NAMESPACE create secret generic velero-vsphere-config-secret --from-file=csi-vsphere.conf
     ```
-      
+
     Where `NAMESPACE` is the Velero namespace.
-    
-### <a id='create-vsphere-plugin-config-file'></a> Create the Velero vSphere Plugin Configuration File 
-    
-1. Create a ConfigMap YAML file. For example `configmap.yaml`.  
-1. Modify the ConfigMap file with the following:  
-    
+
+### <a id='create-vsphere-plugin-config-file'></a> Create the Velero vSphere Plugin Configuration File
+
+1. Create a ConfigMap YAML file. For example `configmap.yaml`.
+1. Modify the ConfigMap file with the following:
+
     ```
     apiVersion: v1
     kind: ConfigMap
@@ -264,33 +264,33 @@ Update the file with the MinIO server access credentials that you collected abov
       vsphere_secret_name:      "SECRET-NAME"
       vsphere_secret_namespace: "SECRET-NAMESPACE"  #optional, default is velero
     ```
-        
-    Where:  
-    
-    * `SECRET-NAME` is the name you applied to your Velero secret.  
-    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.  
-        
-1. Save the ConfigMap file.  
-1. Apply the ConfigMap:  
-     
+
+    Where:
+
+    * `SECRET-NAME` is the name you applied to your Velero secret.
+    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.
+
+1. Save the ConfigMap file.
+1. Apply the ConfigMap:
+
     ```
     kubectl apply -f CONFIGMAP-FILE -n SECRET-NAMESPACE
     ```
-        
-    Where:  
-    
-    * `CONFIGMAP-FILE` is the name of your ConfigMap file. For example `configmap.yaml`.  
-    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.  
+
+    Where:
+
+    * `CONFIGMAP-FILE` is the name of your ConfigMap file. For example `configmap.yaml`.
+    * `SECRET-NAMESPACE` is the secret namespace. For example `velero`.
 
 ### <a id='velero-vsphere-plugin-install'></a> Install Velero vSphere Plugin
 
-1. Install the Velero plugin for vSphere:  
+1. Install the Velero plugin for vSphere:
 
     ```
     velero plugin add projects.packages.broadcom.com/tkg/velero/velero-plugin-for-vsphere:{{{ vars.velero_version_vsphere }}}_vmware.1
     ```
 
-1. Configure the Velero snapshot location:  
+1. Configure the Velero snapshot location:
 
     ```
     velero snapshot-location create vsl-vsphere --provider velero.io/vsphere
@@ -302,11 +302,11 @@ Update the file with the MinIO server access credentials that you collected abov
     kubectl get all -n velero
     ```
 
-    For example:  
-    
+    For example:
+
     ```console
     $ kubectl get all -n velero
-    
+
     NAME                         READY   STATUS             RESTARTS   AGE
     pod/velero-8dc7498d9-9v7x4   1/1     Running            0          30s
     ```
@@ -317,13 +317,13 @@ Update the file with the MinIO server access credentials that you collected abov
     velero plugin get
     ```
 
-    Confirm the vsphere `VolumeSnapshotter` plugin is included in the returned list.  
+    Confirm the vsphere `VolumeSnapshotter` plugin is included in the returned list.
 
-    For example:  
-    
+    For example:
+
     ```console
     $ velero plugin get
-    
+
     NAME                               KIND
     velero.io/crd-remap-version        BackupItemAction
     velero.io/pod                      BackupItemAction
@@ -354,8 +354,8 @@ Update the file with the MinIO server access credentials that you collected abov
 Follow this step if you will back up the VCP volumes that were migrated to vSphere CSI Driver.
 
 1. Create the `velero-vsphere-plugin-feature-states.yaml` ConfigMap file.
-1. Modify the ConfigMap file with the following:  
-    
+1. Modify the ConfigMap file with the following:
+
     ```
     apiVersion: v1
     data:
@@ -366,10 +366,10 @@ Follow this step if you will back up the VCP volumes that were migrated to vSphe
     metadata:
    name: velero-vsphere-plugin-feature-states
    ```
-    
-1. Save the ConfigMap file.  
-1. Apply the ConfigMap:  
- 
+
+1. Save the ConfigMap file.
+1. Apply the ConfigMap:
+
     ```
     kubectl apply -f velero-vsphere-plugin-feature-states.yaml -n velero
     ```
@@ -378,14 +378,14 @@ Follow this step if you will back up the VCP volumes that were migrated to vSphe
 If your Velero back up returns `status=InProgress` for many hours,
 increase the limits and requests memory settings. To do this:
 
-1. Run the following command:  
+1. Run the following command:
 
     ```
     kubectl edit deployment/velero -n velero
     ```
 
 1. Change the limits and request memory settings from the default of
-`256Mi` and `128Mi` to `512Mi` and `256Mi`:  
+`256Mi` and `128Mi` to `512Mi` and `256Mi`:
 
     ```
     ports:
@@ -402,28 +402,28 @@ increase the limits and requests memory settings. To do this:
     terminationMessagePath: /dev/termination-log
     terminationMessagePolicy: File
     ```
-    
+
 ##<a id='velero-cluster-install-airgapped'></a> Install Velero in an Air-Gapped Environment
 
 If you are working in an air-gapped environment, you can install Velero using an internal registry.
 For more information, see [Air-gapped deployments](https://velero.io/docs/v1.8/on-premises/#air-gapped-deployments)
-in the Velero documentation.  
+in the Velero documentation.
 
 ###<a id='velero-cluster-install-airgapped-prereqs'></a> Prerequisites
 
-Ensure the following before installing Velero in an air-gapped environment:  
+Ensure the following before installing Velero in an air-gapped environment:
 
 * A private container registry is installed and configured.
-The procedure below uses a VMware Harbor Container Registry.  
-* Docker is installed on the workstation or TKGI jump host.  
-* kubectl context has been set and the MinIO `credentials-minio` file exists. 
-For more information, see [Set Up the kubectl Context ](#velero-cluster-setup) above.  
+The procedure below uses a VMware Harbor Container Registry.
+* Docker is installed on the workstation or TKGI jump host.
+* kubectl context has been set and the MinIO `credentials-minio` file exists.
+For more information, see [Set Up the kubectl Context ](#velero-cluster-setup) above.
 
 ###<a id='velero-cluster-install-airgapped-procedure'></a> Procedure
 
-1. Open the VMware Velero downloads page for your version of TKGI 
-linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html).  
-1. Download the Velero CLI and Velero Plugin for vSphere images for your version of TKGI:  
+1. Open the VMware Velero downloads page for your version of TKGI
+linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html).
+1. Download the Velero CLI and Velero Plugin for vSphere images for your version of TKGI:
 
     ```
     backup-driver-{{{ vars.velero_version_backup }}}_vmware.1.tar.gz
@@ -432,7 +432,7 @@ linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html)
     ```
     <p class="note"><strong>Note</strong>: You must use the container images signed by VMware to be eligible for support from VMware.</p>
 
-1. Push the Docker images into the internal registry. Adjust the variables as needed for your registry instance and preferences.  
+1. Push the Docker images into the internal registry. Adjust the variables as needed for your registry instance and preferences.
 
     ```
     docker login harbor.example.com
@@ -447,7 +447,7 @@ linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html)
     docker push harbor.example.com/vmware-tanzu/data-manager-for-plugin:{{{ vars.velero_version_data_manager }}}_vmware.1
     ```
 
-4. Install Velero:  
+4. Install Velero:
 
     ```
     velero install --image harbor.example.com/vmware-tanzu/velero:{{{ vars.velero_version }}}_vmware.1 \
@@ -456,26 +456,26 @@ linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html)
     --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://IP-ADDRESS:PORT,publicUrl=http://IP-ADDRESS:PORT --snapshot-location-config region=minio
     ```
     Where:
-    
+
     * `IP-ADDRESS` is the IP address that is used to connect to the MinIO server.
     * `PORT` is the number of the port that is used to connect to the MinIO server.
-    
-    For example:  
-    
+
+    For example:
+
     ```console
     $ velero install --image harbor.example.com/vmware-tanzu/harbor.example.com/vmware-tanzu/velero:{{{ vars.velero_version }}}_vmware.1 --plugins harbor.example.com/vmware-tanzu/velero-plugin-for-aws:{{{ vars.velero_version_aws }}}_vmware.1 --provider aws --bucket tkgi-velero --secret-file ./credentials-minio  --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://20.20.224.27:9000,publicUrl=http://20.20.224.27:9000 --snapshot-location-config region=minio
     Velero is installed! Use 'kubectl logs deployment/velero -n velero' to view the status.
     ```
 
     For more information about installing Velero, see
-    [On-Premises Environments](https://velero.io/docs/v1.8/on-premises/) 
-    in the Velero documentation.  
+    [On-Premises Environments](https://velero.io/docs/v1.8/on-premises/)
+    in the Velero documentation.
 
-1. Complete the steps in [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-config-file) above. 
-You must create the Velero vSphere plugin configuration file before installing the Velero plugin for vSphere.  
-5. Install the Velero plugin for vSphere:  
+1. Complete the steps in [Create the Velero vSphere Plugin Configuration File](#create-vsphere-plugin-config-file) above.
+You must create the Velero vSphere plugin configuration file before installing the Velero plugin for vSphere.
+5. Install the Velero plugin for vSphere:
 
     ```
     velero plugin add harbor.example.com/vmware-tanzu/velero-plugin-for-vsphere:{{{ vars.velero_version_vsphere }}}_vmware.1
     ```
-    
+

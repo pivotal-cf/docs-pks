@@ -1,13 +1,13 @@
 ---
-title: Managing Tanzu Kubernetes Grid Integrated Edition Users in Ops Manager
-owner: TKGI
+title: Managing {{  vars.product }} Users in {{ vars.platform_name }}
+
 ---
 
-The following topics describe how to connect User Account and Authentication (UAA) to external user stores when using VMware Tanzu Operations Manager (Ops Manager) to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) and how to manage users with UAA:  
+The following topics describe how to connect User Account and Authentication (UAA) to external user stores when using {{ vars.platform_name }} to configure {{  vars.product_full }} ({{ vars.product_short }}) and how to manage users with UAA:
 
 <ul>
   <li>
-    <a href="configuring-ldap.html">Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server</a>
+    <a href="configuring-ldap.html">Connecting {{  vars.product }} to an LDAP Server</a>
   </li>
   <li>
     <a href="okta-sso-config.html">Configuring Okta as a SAML Identity Provider</a>
@@ -16,13 +16,13 @@ The following topics describe how to connect User Account and Authentication (UA
     <a href="azure-ad-sso-config.html">Configuring Azure Active Directory as a SAML Identity Provider</a>
   </li>
   <li>
-    <a href="configuring-saml.html">Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider</a>
+    <a href="configuring-saml.html">Connecting {{  vars.product }} to a SAML Identity Provider</a>
   </li>
   <li>
-    <a href="manage-users.html">Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA</a>
+    <a href="manage-users.html">Managing {{  vars.product }} Users with UAA</a>
   </li>
   <li>
-    <a href="uaa-scopes.html">UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users</a>
+    <a href="uaa-scopes.html">UAA Scopes for {{  vars.product }} Users</a>
   </li>
   <li>
     <a href="oidc-provider.html">OIDC Provider for Kubernetes Clusters</a>

@@ -1,6 +1,6 @@
 # Security Fixes
 
-This topic lists all of the CVEs fixed inTanzu Kubernetes Grid Integrated Edition (TKGI) {{{ vars.product_version }}}.
+This topic lists all of the CVEs fixed in{{  vars.product }} (TKGI) {{{ vars.product_version }}}.
 
 > **Note** To see the full list of security advisories for VMware Tanzu products, go to the [Security Advisories - Tanzu](https://support.broadcom.com/web/ecx/security-advisory?) page on the Broadcom Support portal. To sign up to receive email notifications about security advisories and other alerts, follow the instructions in [Subscribing to Broadcom product notifications and alerts](https://knowledge.broadcom.com/external/article/142615/subscribing-to-broadcom-product-notifica.html).
 

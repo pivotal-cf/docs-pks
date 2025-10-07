@@ -1,9 +1,9 @@
 ---
 title: Managing Kubernetes Clusters and Workloads
-owner: TKGI
+
 ---
 
-The following topics describe how to manage VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters and workloads:  
+The following topics describe how to manage {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters and workloads:
 
 <ul>
   <li>

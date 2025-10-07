@@ -1,59 +1,59 @@
 ---
-title: Using the BOSH CLI 
-owner: TKGI
+title: Using the BOSH CLI
+
 ---
 
-This topic describes how to use the BOSH CLI from both the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) VM and the VMware Tanzu Operations Manager (Ops Manager) VM.  
+This topic describes how to use the BOSH CLI from both the {{  vars.product_full }} Management Console (TKGI MC) VM and the {{ vars.platform_name }} VM.
 
 
 ## <a id='overview'></a>Overview
 
-After you deploy TKGI from TKGI Management Console on vSphere, you can use the BOSH CLI from both the TKGI MC VM and the Ops Manager VM:  
+After you deploy TKGI from TKGI Management Console on vSphere, you can use the BOSH CLI from both the TKGI MC VM and the {{ vars.platform_name }} VM:
 
-* [Using the BOSH CLI from the Tanzu Kubernetes Grid Integrated Edition Management Console VM](#bosh-cli-appliance)  
-* [Using BOSH SSH](#bosh-ssh)  
+* [Using the BOSH CLI from the {{  vars.product }} Management Console VM](#bosh-cli-appliance)
+* [Using BOSH SSH](#bosh-ssh)
 
 
 ## <a id='bosh-cli-appliance'></a>Using the BOSH CLI from the TKGI Management Console VM
 
-To use the BOSH CLI from the TKGI Management Console VM:  
+To use the BOSH CLI from the TKGI Management Console VM:
 
 1. In TKGI Management Console, go to the **Deployment Metadata** view.
 1. Expand the row for **BOSH CLI invocation from console appliance**.
 1. Click the clipboard icon at the end of the row to copy the BOSH CLI invocation information.
-1. Connect to the management console VM by using SSH.  
+1. Connect to the management console VM by using SSH.
 
     ```
     ssh ADDRESS
     ```
-    Where `ADDRESS` is the management console VM address.  
-1. Export the value that you copied from Deployment Metadata view to use BOSH CLI from the management console VM.  
+    Where `ADDRESS` is the management console VM address.
+1. Export the value that you copied from Deployment Metadata view to use BOSH CLI from the management console VM.
 
     ```
     export BOSH-VALUE
     ```
-    Where `BOSH-VALUE` is the BOSH CLI invocation value.  
+    Where `BOSH-VALUE` is the BOSH CLI invocation value.
 
 
 ## <a id='bosh-ssh'></a>Using BOSH SSH
 
-To  use the BOSH CLI `bosh ssh` command to connect to the BOSH VM, you must use the BOSH CLI from the Ops Manager VM. The management console VM does not support using `bosh ssh` to connect to the BOSH VM from the management console VM.  
+To  use the BOSH CLI `bosh ssh` command to connect to the BOSH VM, you must use the BOSH CLI from the {{ vars.platform_name }} VM. The management console VM does not support using `bosh ssh` to connect to the BOSH VM from the management console VM.
 
 <p class="note"><strong>Note:</strong>
     You cannot run the BOSH CLI <code>bosh ssh</code> command on the TKGI Management Console VM to connect to the BOSH VM.
 </p>
 
-To connect to the BOSH VM:  
+To connect to the BOSH VM:
 
-1. In Tanzu Kubernetes Grid Integrated Edition Management Console, go to the **Deployment Metadata** view.
-1. Expand the row for **BOSH CLI invocation from Ops Manager**.
+1. In {{  vars.product }} Management Console, go to the **Deployment Metadata** view.
+1. Expand the row for **BOSH CLI invocation from {{ vars.platform_name }}**.
 1. Click the clipboard icon at the end of the row to copy the BOSH CLI invocation command.
-1. Connect to the Ops Manager VM by using SSH.  
+1. Connect to the {{ vars.platform_name }} VM by using SSH.
 <br>
-    For information about how to connect to the Ops Manager VM, see [Connect to Operations Manager with SSH](console-login-opsmanager.html#ops-manager-ssh).  
-1.  Export the value that you copied from Deployment Metadata view to use BOSH CLI from Ops Manager.  
+    For information about how to connect to the {{ vars.platform_name }} VM, see [Connect to Operations Manager with SSH](console-login-opsmanager.html#ops-manager-ssh).
+1.  Export the value that you copied from Deployment Metadata view to use BOSH CLI from {{ vars.platform_name }}.
 
     ```
     export BOSH-VALUE
     ```
-    Where `BOSH-VALUE` is the BOSH CLI invocation value.  
+    Where `BOSH-VALUE` is the BOSH CLI invocation value.

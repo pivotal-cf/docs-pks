@@ -1,25 +1,25 @@
 ---
 title: Considerations for Using the VMware NSX Policy API with TKGI
-owner: TKGI
+
 topic: nsx-t-policy
 ---
 
-This topic provides considerations for using the NSX Policy API with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.  
+This topic provides considerations for using the NSX Policy API with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 <p class="note warning"><strong>Warning:</strong>
-    The NSX Policy API feature is available at only 50% of NSX Management Plane API scale with VMware NSX v4.0.1.1. 
-    For detailed scale numbers, see 
+    The NSX Policy API feature is available at only 50% of NSX Management Plane API scale with VMware NSX v4.0.1.1.
+    For detailed scale numbers, see
     <a href="https://configmax.esp.vmware.com/guest?vmwareproduct=VMware%20NSX&release=NSX%204.0.1&categories=17-0">NSX 4.0.1 Configuration Limits</a>.
     To use Policy API at 100% of Management Plane API scale, you require VMware NSX v4.1.1.
 </p>
 
 ##<a id='overview'></a>NSX Policy API Support
 
-The NSX Policy API is the next-generation interface for integrating with the NSX networking and security framework. 
+The NSX Policy API is the next-generation interface for integrating with the NSX networking and security framework.
 
-In addition to supporting the NSX Management API, TKGI supports using the NSX Policy API to deploy Tanzu Kubernetes Grid Integrated Edition on vSphere.
+In addition to supporting the NSX Management API, TKGI supports using the NSX Policy API to deploy {{  vars.product }} on vSphere.
 
-If you are planning on using the NSX Policy API, keep in mind that only new deployments of TKGI are supported. You cannot configure an existing installation of TKGI to use the NSX Policy API. 
+If you are planning on using the NSX Policy API, keep in mind that only new deployments of TKGI are supported. You cannot configure an existing installation of TKGI to use the NSX Policy API.
 
 In addition, while all TKGI functionality is supported in both NSX modes, Policy and Management, there are some differences to be aware of when configuring NSX objects for TKGI, and when configuring the BOSH and TKGI tiles. These differences are described in more detail below.
 
@@ -29,15 +29,15 @@ To use the NSX Policy API with your TKGI installation, you must use a supported 
 
 ## <a id='nsxt-policy-toplogy'></a>NSX Deployment Topologies
 
-Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX supports several [deployment topologies](./nsxt-topologies.html). 
+{{  vars.product }} on vSphere with NSX supports several [deployment topologies](./nsxt-topologies.html).
 
-Currently Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Policy API supports all network topologies except the [VSS/VDS topology](./nsxt-topologies.html#topology-no-nat-virtual-switch).
+Currently {{  vars.product }} on vSphere with NSX Policy API supports all network topologies except the [VSS/VDS topology](./nsxt-topologies.html#topology-no-nat-virtual-switch).
 
 ## <a id='nsxt-policy-intall'></a>NSX Installation
 
-To use the NSX Policy API, there are no changes required to the installation of the main NSX components, including NSX Manager and Edge Nodes. 
+To use the NSX Policy API, there are no changes required to the installation of the main NSX components, including NSX Manager and Edge Nodes.
 
-For installation instructions, see [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Data Center](vsphere-nsxt-index-install.html).
+For installation instructions, see [Installing {{  vars.product }} on vSphere with NSX Data Center](vsphere-nsxt-index-install.html).
 
 ## <a id='nsxt-policy-obects'></a>NSX Objects for Kubernetes Clusters
 
@@ -47,9 +47,9 @@ For specific instructions on creating the required objects, see [Create the NSX 
 
 ## <a id='nsxt-policy-config'></a>TKGI Configuration
 
-When you configure the BOSH Director tile for Tanzu Kubernetes Grid Integrated Edition, you must enable the option vCenter Config > NSX Networking > **Use NSX Policy API**. See [Configure NSX Networking](./vsphere-nsxt-om-config.html#vcenter-config).
+When you configure the BOSH Director tile for {{  vars.product }}, you must enable the option vCenter Config > NSX Networking > **Use NSX Policy API**. See [Configure NSX Networking](./vsphere-nsxt-om-config.html#vcenter-config).
 
-Also, when you configure the TKGI tile in Ops Manager, you must enabled Settings > Networking > NSX > **Policy API mode**. See [Configure TKGI Networking](./installing-nsx-t.html#networking).
+Also, when you configure the TKGI tile in {{ vars.platform_name }}, you must enabled Settings > Networking > NSX > **Policy API mode**. See [Configure TKGI Networking](./installing-nsx-t.html#networking).
 
 ## <a id='nsxt-policy-mgmt-console'></a>Management Console
 
@@ -57,8 +57,8 @@ If you are using the TKGI Management Console, you need to select the Policy API 
 
 ## <a id='nsxt-policy-runtime'></a>Network Profile
 
-Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX supports the use of [Network Profile](./network-profiles-index.html) for modifying specific NSX settings post-installation. A limited number of network profile use cases are not supported when using TKGI with the NSX Policy API.
+{{  vars.product }} on vSphere with NSX supports the use of [Network Profile](./network-profiles-index.html) for modifying specific NSX settings post-installation. A limited number of network profile use cases are not supported when using TKGI with the NSX Policy API.
 
-The Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Policy API does not support either the "Top Firewall" or the "Bottom Firewall" DFW Section Markers. For more information, see [DFW Section Markers](./network-profiles-ncp-dfw.html).  
+The {{  vars.product }} on vSphere with NSX Policy API does not support either the "Top Firewall" or the "Bottom Firewall" DFW Section Markers. For more information, see [DFW Section Markers](./network-profiles-ncp-dfw.html).
 
-The Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX Policy API does not support [NSGroups](./network-profiles-ns-groups.html) if you create the group in a domain other than the default. With the Policy API, a group must be part of a domain. The `default` domain is supported, and if you create the group using the NSX Policy interface, the group is automatically put in the `default` domain. However, if you use the Policy REST API to create a group in a domain other than the default, it is not supported.
+The {{  vars.product }} on vSphere with NSX Policy API does not support [NSGroups](./network-profiles-ns-groups.html) if you create the group in a domain other than the default. With the Policy API, a group must be part of a domain. The `default` domain is supported, and if you create the group using the NSX Policy interface, the group is automatically put in the `default` domain. However, if you use the Policy REST API to create a group in a domain other than the default, it is not supported.

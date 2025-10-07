@@ -1,23 +1,23 @@
 ---
-title: Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server
-owner: TKGI
+title: Connecting {{  vars.product }} to an LDAP Server
+
 ---
 
-This topic describes how to connect VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
-to an external LDAP server.  
+This topic describes how to connect {{  vars.product_full }} ({{ vars.product_short }})
+to an external LDAP server.
 
 
 ## <a id='overview'></a>Overview
 
 User Account and Authentication (UAA), the identity management
-service for Tanzu Kubernetes Grid Integrated Edition, can
+service for {{  vars.product }}, can
 authenticate users either through its internal user account store or external
 authentication mechanisms such as an LDAP server or a SAML identity provider.
 
 To enable an internal user account store for UAA, you select **Internal UAA**
-in the **Tanzu Kubernetes Grid Integrated Edition** tile > **UAA**.
+in the **{{  vars.product }}** tile > **UAA**.
 
-If you want to connect Tanzu Kubernetes Grid Integrated Edition to an external LDAP server, you
+If you want to connect {{  vars.product }} to an external LDAP server, you
 must integrate the UAA server with your LDAP server by following the
 instructions in [Integrate UAA with an LDAP Server](#integrate) below.
 This enables UAA to delegate authentication to your LDAP user store.
@@ -27,9 +27,9 @@ This enables UAA to delegate authentication to your LDAP user store.
 
 To integrate UAA with one or more LDAP servers:
 
-1. In **Tanzu Kubernetes Grid Integrated Edition** > **UAA**, under **Configure your UAA user
+1. In **{{  vars.product }}** > **UAA**, under **Configure your UAA user
 account store with either internal or external authentication mechanisms**,
-select **LDAP Server**.  
+select **LDAP Server**.
   <img src="images/ldap1.png" alt="LDAP Server configuration pane">
 
 1. Under **Server URL**, enter the URLs that point to your LDAP server.
@@ -55,9 +55,9 @@ If the bind user belongs to a different search base, you must use the full DN.
 1. Under **User Search Base**, enter the location in the LDAP directory tree
 where LDAP user search begins. For example, a domain named
 `cloud.example.com` might use `ou=Users,dc=example,dc=com` as its LDAP user
-search base.  
+search base.
   <img src="images/ldap2.png" alt="LDAP configuration fields">
-    
+
 1. Under **User Search Filter**, enter a string to use for
 LDAP user search criteria. The search criteria allows LDAP to perform more
 effective and efficient searches.
@@ -65,13 +65,13 @@ For example, the standard LDAP search filter `cn=Smith` returns all objects
 with a common name equal to `Smith`.
 <br><br>
 In the LDAP search filter string that you use to configure
-Tanzu Kubernetes Grid Integrated Edition, use `{0}` instead of the user name. For example, use
+{{  vars.product }}, use `{0}` instead of the user name. For example, use
 `cn={0}` to return all LDAP objects with the same common name as the user name.
 In addition to `cn`, other common attributes are `mail`, `uid`, and
 for Active Directory, `sAMAccountName`.
     <p class="note"><strong>Note:</strong> For information about testing and
     troubleshooting your LDAP search filters, see
-    <a href="https://knowledge.broadcom.com/external/article/297557/">Configuring LDAP integration with VMware Tanzu Application Service (TAS) for VMs</a>.</p>
+    <a href="https://knowledge.broadcom.com/external/article/297557/">Configuring LDAP integration with {{ vars.app_runtime_full }}</a>.</p>
 
 1. Under **Group Search Base**, enter the location in the LDAP directory tree
 where the LDAP group search begins. For example, a domain named
@@ -79,10 +79,10 @@ where the LDAP group search begins. For example, a domain named
 search base.
 You must configure **Group Search Base**
 if you want to map an external LDAP group to a role in
-Tanzu Kubernetes Grid Integrated Edition or a Kubernetes group.
+{{  vars.product }} or a Kubernetes group.
     <p class="note"><strong>Note:</strong> To map the groups under this
-    search base to roles in Tanzu Kubernetes Grid Integrated Edition, follow the instructions
-    in <a href="manage-users.html#external-group">Grant Tanzu Kubernetes Grid Integrated Edition Access to an External LDAP Group</a>.</p>
+    search base to roles in {{  vars.product }}, follow the instructions
+    in <a href="manage-users.html#external-group">Grant {{  vars.product }} Access to an External LDAP Group</a>.</p>
 
 1. Under **Group Search Filter**, enter a string that defines LDAP group
 search criteria. The default value is `member={0}`.
@@ -91,7 +91,7 @@ search criteria. The default value is `member={0}`.
 certificate or your self-signed certificate.
 
 1. Under **First Name Attribute**, enter the attribute name in your LDAP
-directory that contains user first names. For example, `cn`.  
+directory that contains user first names. For example, `cn`.
 
 1. Under **Last Name Attribute**, enter the attribute name in your LDAP
 directory that contains user last names. For example, `sn`.
@@ -111,43 +111,43 @@ abort the authentication.
 patterns that need to be populated in the user's `id_token`. For more
 information about accepted patterns, see the description of
 `config.externalGroupsWhitelist` in the OAuth/OIDC
-[Identity Provider Documentation](https://docs.cloudfoundry.org/api/uaa/version/4.19.0/index.html#oauth-oidc).  
+[Identity Provider Documentation](https://docs.cloudfoundry.org/api/uaa/version/4.19.0/index.html#oauth-oidc).
     <p class="note"><strong>Note</strong>: When sent as a Bearer token in the
     Authentication header, wide pattern queries for users who are members of
     multiple groups can cause the size of the <code>id_token</code> to extend
     beyond what is supported by web servers.</p>
-  
-1. Under **Group Max Search Depth**, enter the LDAP group search depth. 
-Allowed values are between `1` and `10`. 
-The default value is `1`, which limits queering under the searchBase to one subtree. 
-Values greater than `1` activate nested group searching. 
-If the searchBase in your LDAP groups includes more than one subtree, for example: 
-`ou=XX1,ou=XX2,ou=XX3,dc=yy1,dc=yy2,dc=yy3`, increase the **Group Max Search Depth** value 
-to support searching all subtrees in your groups.     
+
+1. Under **Group Max Search Depth**, enter the LDAP group search depth.
+Allowed values are between `1` and `10`.
+The default value is `1`, which limits queering under the searchBase to one subtree.
+Values greater than `1` activate nested group searching.
+If the searchBase in your LDAP groups includes more than one subtree, for example:
+`ou=XX1,ou=XX2,ou=XX3,dc=yy1,dc=yy2,dc=yy3`, increase the **Group Max Search Depth** value
+to support searching all subtrees in your groups.
     <p class="note"><strong>Note</strong>: Increasing the LDAP group search depth impacts performance.</p>
-    
+
 1. Click **Save**.
 
 
 ## <a id='complete'></a>Complete Your Tile Configuration
 
 * If you do not need to configure any other settings in the
-Tanzu Kubernetes Grid Integrated Edition tile, return to the Ops Manager Installation Dashboard and
+{{  vars.product }} tile, return to the {{ vars.platform_name }} Installation Dashboard and
 click **Review Pending Changes** > **Apply Changes**.
-* If you need to configure any other settings in the Tanzu Kubernetes Grid Integrated Edition
-tile, return to the _Installing Tanzu Kubernetes Grid Integrated Edition_ topic for your IaaS and
+* If you need to configure any other settings in the {{  vars.product }}
+tile, return to the _Installing {{  vars.product }}_ topic for your IaaS and
 follow the instructions for the pane you want to configure:
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](installing-nsx-t.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on AWS](installing-aws.html#uaa)
-  * [Installing Tanzu Kubernetes Grid Integrated Edition on Azure](installing-azure.html#uaa)
+  * [Installing {{  vars.product }} on vSphere](installing-vsphere.html#uaa)
+  * [Installing {{  vars.product }} on vSphere with NSX](installing-nsx-t.html#uaa)
+  * [Installing {{  vars.product }} on AWS](installing-aws.html#uaa)
+  * [Installing {{  vars.product }} on Azure](installing-azure.html#uaa)
 
 
 ## <a id='next'></a>Next Steps
 
-For information about creating Tanzu Kubernetes Grid Integrated Edition roles and
+For information about creating {{  vars.product }} roles and
 managing Kubernetes cluster access, see:
 
-* [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users](vsphere-configure-users.html)
+* [Setting Up {{  vars.product }} Admin Users](vsphere-configure-users.html)
 for your IaaS
 * [Managing Cluster Access and Permissions](manage-cluster-permissions.html)

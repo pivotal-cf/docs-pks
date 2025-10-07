@@ -1,22 +1,22 @@
 ---
 title: Managing Cluster Access and Permissions
-owner: TKGI
+
 ---
 
-This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id='overview'></a> Overview
 
-Tanzu Kubernetes Grid Integrated Edition admin users can grant Kubernetes users, such as developers, permissions to specific clusters.
+{{  vars.product }} admin users can grant Kubernetes users, such as developers, permissions to specific clusters.
 
-If you are an Tanzu Kubernetes Grid Integrated Edition admin user, you can do the following:
+If you are an {{  vars.product }} admin user, you can do the following:
 
 + Grant user access to a cluster with a `ClusterRole` or a namespace within a cluster with a `Role`.
 See [Grant Cluster Access to a User](#cluster-access-user) below.
 + Grant group access to a cluster with a `ClusterRole` or a namespace within a cluster with a `Role`.
 See [Grant Cluster Access to a Group](#cluster-access-group) below.
 
-After you grant user or group access to an Tanzu Kubernetes Grid Integrated Edition-provisioned cluster,
+After you grant user or group access to an {{  vars.product }}-provisioned cluster,
 Kubernetes users can connect to the cluster through the Kubernetes CLI (kubectl).
 Kubernetes users cannot create, resize, or delete clusters.
 
@@ -25,8 +25,8 @@ Kubernetes users cannot create, resize, or delete clusters.
 The following diagram outlines the workflow to grant cluster access to users
 who belong to an identity provider group:
 
-![This diagram shows the workflow that operators and cluster admins use to grant cluster access to users.](images/enterprise-id.png)  
-[View a larger version of this image.](images/enterprise-id.png)  
+![This diagram shows the workflow that operators and cluster admins use to grant cluster access to users.](images/enterprise-id.png)
+[View a larger version of this image.](images/enterprise-id.png)
 {{{{raw}}}} <!--   <a href="images/enterprise-id.png" target="_blank"><img src="images/enterprise-id.png" alt="This diagram shows the workflow that operators and cluster admins use to grant cluster access to users."></a>   # --> {{{{/raw}}}}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/presentation/d/1s5oP_eGo7jms7pYpA29MWDp_3iPIkdfKW6Tu_vYV7yE/edit#slide=id.g5cf13dc5d4_0_0 %  >   # --> {{{{/raw}}}}
 
@@ -34,13 +34,13 @@ For more information, see [RoleBinding and ClusterRoleBinding](https://kubernete
 
 ## <a id='prerequisites'></a> Prerequisites
 
-Before setting up cluster access for users in Tanzu Kubernetes Grid Integrated Edition, you must have the following:
+Before setting up cluster access for users in {{  vars.product }}, you must have the following:
 
-* Access to an Tanzu Kubernetes Grid Integrated Edition admin user account. For information about how to create Tanzu Kubernetes Grid Integrated Edition admin users,
-see [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).
+* Access to an {{  vars.product }} admin user account. For information about how to create {{  vars.product }} admin users,
+see [Managing {{  vars.product }} Users with UAA](manage-users.html).
 * Fully qualified domain name (FQDN) of your TKGI deployment.
 * OpenID Connect (OIDC) provider for your Kubernetes clusters, configured using one or both of the following:
-    * Global OIDC provider configuration for all clusters in **Ops Manager Installation Dashboard** > **Tanzu Kubernetes Grid Integrated Edition** >
+    * Global OIDC provider configuration for all clusters in **{{ vars.platform_name }} Installation Dashboard** > **{{  vars.product }}** >
     **Settings** > **UAA** > **Configure created clusters to use UAA as the OIDC provider**.
     For instructions, see [UAA](installing-vsphere.html#uaa) in the _Installing_ topic for your IaaS.
     * Custom OIDC provider configuration for individual clusters through a Kubernetes profile.
@@ -50,19 +50,19 @@ see [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-us
 
 To grant cluster access to a user, do the following:
 
-1. Log in to Tanzu Kubernetes Grid Integrated Edition by running following command:  
+1. Log in to {{  vars.product }} by running following command:
 
     ```
     tkgi login -u USERNAME -p PASSWORD -a TKGI-API --ca-cert CERT-PATH
     ```
-    Where:  
+    Where:
 
-    * `USERNAME` is your cluster admin user name.  
-    * `PASSWORD` is your cluster admin password.  
-    * `TKGI-API` is the FQDN you use to access the TKGI API.  
-    * `CERT-PATH` is the path to your root CA certificate.  
-    Provide the certificate to validate the TKGI API certificate with SSL.  
-    
+    * `USERNAME` is your cluster admin user name.
+    * `PASSWORD` is your cluster admin password.
+    * `TKGI-API` is the FQDN you use to access the TKGI API.
+    * `CERT-PATH` is the path to your root CA certificate.
+    Provide the certificate to validate the TKGI API certificate with SSL.
+
     {{> saml-sso-login }}
 
 
@@ -73,7 +73,7 @@ kubectl as a cluster admin by running the following command:
     tkgi get-credentials CLUSTER-NAME
     ```
     This step creates a `ClusterRoleBinding` for the cluster admin.
-    
+
     {{> saml-sso-login }}
 
 
@@ -93,18 +93,18 @@ Use the following example as a template:
       resources: RESOURCE
       verbs: API-REQUEST-VERB
     ```
-    Where:  
+    Where:
 
-    * `ROLE-TYPE` is the type of role you are creating. This must be either `Role` or `ClusterRole`.  
-    * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.  
+    * `ROLE-TYPE` is the type of role you are creating. This must be either `Role` or `ClusterRole`.
+    * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.
     * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you are creating.
-    This name is created by the cluster admin.  
+    This name is created by the cluster admin.
     * `RESOURCE` is the resource you are granting access to.
-    It must be specified in a comma-separated array. For example: `["pod-reader"]`.  
+    It must be specified in a comma-separated array. For example: `["pod-reader"]`.
     * `API-REQUEST-VERB` is the request verb used to specify resource requests. For more information, see
-	 [Determine the Request Verb](https://kubernetes.io/docs/reference/access-authn-authz/authorization/#determine-the-request-verb) in the Kubernetes documentation.  
+	 [Determine the Request Verb](https://kubernetes.io/docs/reference/access-authn-authz/authorization/#determine-the-request-verb) in the Kubernetes documentation.
 
-1. Create the `Role` or `ClusterRole` resource defined in your YAML file by running the following command:  
+1. Create the `Role` or `ClusterRole` resource defined in your YAML file by running the following command:
 
     ```
     kubectl create -f ROLE-CONFIGURATION.yml
@@ -131,46 +131,46 @@ Use the following example as a template:
       name: ROLE-OR-CLUSTER-ROLE-BINDING-NAME
       apiGroup: rbac.authorization.k8s.io
     ```
-    Where:  
+    Where:
 
     * `ROLE-BINDING-TYPE` is the type of role binding you are creating.
-    This must be either `RoleBinding` or `ClusterRoleBinding`.  
+    This must be either `RoleBinding` or `ClusterRoleBinding`.
     * `ROLE-OR-CLUSTER-ROLE-BINDING-NAME` is the name of the role binding.
-    This is given by the cluster admin.  
+    This is given by the cluster admin.
     * `NAMESPACE` is the namespace within the cluster.
-    This is omitted when creating a `ClusterRole`.  
-    * `USERNAME` is the Kubernetes end user user name. This is the user name created for your organization's LDAP or SAML identity provider.  
+    This is omitted when creating a `ClusterRole`.
+    * `USERNAME` is the Kubernetes end user user name. This is the user name created for your organization's LDAP or SAML identity provider.
 
-    <p class="note"><strong>Note:</strong> If you configured an OIDC user name prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong>Tanzu Kubernetes Grid Integrated Edition</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
+    <p class="note"><strong>Note:</strong> If you configured an OIDC user name prefix in <strong>{{ vars.platform_name }} Installation Dashboard</strong> > <strong>{{  vars.product }}</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
     you must prepend <code>USERNAME</code> with the prefix you configured.
-    For more information, see <a href="./installing-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Adding an OIDC Provider</a>.</p>  
+    For more information, see <a href="./installing-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Adding an OIDC Provider</a>.</p>
     * `ROLE-TYPE` is the type of role you created in the previous step.
-    This must be either `Role` or `ClusterRole`.  
-    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you created in the previous step.  
+    This must be either `Role` or `ClusterRole`.
+    * `ROLE-OR-CLUSTER-ROLE-NAME` is the name of the `Role` or `ClusterRole` you created in the previous step.
 
 1. Create the `RoleBinding` or `ClusterRoleBinding` resource defined
-in your YAML file by running following command:  
+in your YAML file by running following command:
 
     ```
     kubectl apply -f ROLE-BINDING-CONFIGURATION.yml
     ```
-    Where `ROLE-BINDING-CONFIGURATION.yml` is the YAML file you created in the above step.  
+    Where `ROLE-BINDING-CONFIGURATION.yml` is the YAML file you created in the above step.
 
-1. Share the following information with your Kubernetes end users:  
+1. Share the following information with your Kubernetes end users:
     * TKGI API FQDN
     * Cluster name
 
 ## <a id='obtain-cluster-access'></a> Obtain Cluster Access as a User
 
-To obtain access to a Tanzu Kubernetes Grid Integrated Edition-provisioned cluster, the end user must do the following:
+To obtain access to a {{  vars.product }}-provisioned cluster, the end user must do the following:
 
-1. Fetch the kubeconfig file by running one of the following command:  
-    * If you want to validate the TKGI API certificate with SSL, run the following command:  
+1. Fetch the kubeconfig file by running one of the following command:
+    * If you want to validate the TKGI API certificate with SSL, run the following command:
 
         ```
         tkgi get-kubeconfig CLUSTER-NAME -u USERNAME -a TKGI-API --ca-cert CERT-PATH
         ```
-        Where:  
+        Where:
 
         * `CLUSTER-NAME` is the cluster name provided by the cluster admin.
         * `USERNAME` is the Kubernetes end user user name. This is the user name created for your organization's LDAP or SAML identity provider.
@@ -178,23 +178,23 @@ To obtain access to a Tanzu Kubernetes Grid Integrated Edition-provisioned clust
         * `CERT-PATH` is the path to your root CA certificate.
         Provide the certificate to validate the TKGI API certificate with SSL.
 
-        For example:  
+        For example:
         ```console
         $ tkgi get-kubeconfig my-cluster -u naomi -a api.tkgi.example.com \
         --ca-cert /var/tempest/workspaces/default/root_ca_certificate
         ```
-    * If your CA is trusted and you want to skip SSL validation, run the following command:  
+    * If your CA is trusted and you want to skip SSL validation, run the following command:
 
         ```
         tkgi get-kubeconfig CLUSTER-NAME -u USERNAME -a TKGI-API -k
         ```
-        Where `-k` is the shortcut flag to skip SSL validation.  
+        Where `-k` is the shortcut flag to skip SSL validation.
 <br>
-        For example:  
+        For example:
         ```console
         $ tkgi get-kubeconfig my-cluster -u naomi -a api.tkgi.example.com -k
-        ```  
-          
+        ```
+
     {{> saml-sso-login }}
 
 
@@ -241,16 +241,16 @@ Cluster admins can grant access to an identity provider group by creating a `Clu
 `RoleBinding` for that  group. You can grant access to an identity provider group
 only if you use a LDAP or SAML identity provider for UAA.
 You can configure a LDAP or SAML identity provider in
-<strong>Ops Manager Installation Dashboard</strong> >
-<strong> Tanzu Kubernetes Grid Integrated Edition </strong> > <strong> Settings </strong> > <strong>UAA</strong>.
+<strong>{{ vars.platform_name }} Installation Dashboard</strong> >
+<strong> {{  vars.product }} </strong> > <strong> Settings </strong> > <strong>UAA</strong>.
 
 <p class='note'><strong>Note:</strong> If you are using a LDAP group,
   you must confirm that the LDAP group you are
   giving access is in the allowlist in the
-  Tanzu Kubernetes Grid Integrated Edition tile.
+  {{  vars.product }} tile.
   To do this, review <strong>External Groups Whitelist</strong> in
-  <strong>Ops Manager Installation Dashboard</strong> > <strong>
-  Tanzu Kubernetes Grid Integrated Edition </strong> > <strong> Settings </strong> > <strong>UAA</strong>.</p>
+  <strong>{{ vars.platform_name }} Installation Dashboard</strong> > <strong>
+  {{  vars.product }} </strong> > <strong> Settings </strong> > <strong>UAA</strong>.</p>
 
 To grant cluster access to an identity provider group,
 do the procedure in [Grant Cluster Access to a User](#cluster-access-user) above
@@ -284,14 +284,14 @@ with the following:
       apiGroup: rbac.authorization.k8s.io
     ```
 
-    Where:  
+    Where:
 
     * `ROLE-BINDING-TYPE` is the type of role binding you are creating. This must be either `RoleBinding` or `ClusterRoleBinding`.
     * `ROLE-OR-CLUSTER-ROLE-BINDING-NAME` is the name of the role binding. This is given by the cluster admin.
     * `NAMESPACE` is the namespace within the cluster. This is omitted when creating a `ClusterRole`.
     * `NAME-OF-GROUP` is the identity provider group name. This name is case sensitive.
 
-        <p class="note"><strong>Note:</strong> If you configured an OIDC groups prefix in <strong>Ops Manager Installation Dashboard</strong> > <strong>Tanzu Kubernetes Grid Integrated Edition</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
+        <p class="note"><strong>Note:</strong> If you configured an OIDC groups prefix in <strong>{{ vars.platform_name }} Installation Dashboard</strong> > <strong>{{  vars.product }}</strong> > <strong>Settings</strong> > <strong>UAA</strong> or in a Kubernetes profile,
         you must prepend <code>NAME-OF-GROUP</code> with the prefix you configured.
         For more information, see <a href="./installing-vsphere.html#uaa">UAA</a> in the <em>Installing</em> topic for your IaaS and <a href="./k8s-profiles-dex-oidc.html">Adding an OIDC Provider</a>.</p>
     * `ROLE-TYPE` is the type of role you created in the previous step.

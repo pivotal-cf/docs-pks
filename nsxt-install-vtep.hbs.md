@@ -1,9 +1,9 @@
 ---
 title: Create an IP Pool for VTEP
-owner: TKGI-NSXT
+ -NSXT
 ---
 
-This topic describes how to install and configure NSX Data Center v3.0 for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.  
+This topic describes how to install and configure NSX Data Center v3.0 for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 ##<a id='nsxt30-ip-pools'></a> Create an IP Pool for VTEP
 

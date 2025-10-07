@@ -1,33 +1,33 @@
 ---
 title: Creating Dedicated Users and Roles for vSphere (Optional)
-owner: Ops Manager
+owner: {{ vars.platform_name }}
 ---
 
-This topic describes how to create dedicated users and roles for your vSphere environment before deploying VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to create dedicated users and roles for your vSphere environment before deploying {{  vars.product_full }} ({{ vars.product_short }}).
 
-<p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by Tanzu Kubernetes Grid Integrated Edition. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the Tanzu Kubernetes Grid Integrated Edition and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the TKGI and Kubernetes cluster VMs, skip this topic.</p>
+<p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by {{  vars.product }}. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the {{  vars.product }} and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the TKGI and Kubernetes cluster VMs, skip this topic.</p>
 
 ## <a id='overview'></a>Overview
 
-Before you install Tanzu Kubernetes Grid Integrated Edition on vSphere, you can prepare your vSphere environment by creating the
+Before you install {{  vars.product }} on vSphere, you can prepare your vSphere environment by creating the
 required user accounts and configuring DNS for the TKGI API endpoint.
 
 You can create the following service accounts in vSphere:
 
 * **Master Node User Account** for the Kubernetes control plane node VMs.
-* **BOSH/Ops Manager User Account** for BOSH Director operations.
+* **BOSH/{{ vars.platform_name }} User Account** for BOSH Director operations.
 
 <p class="note warning"><strong> WARNING:</strong> The TKGI <b>Master Node User Account</b> and
-BOSH/Ops Manager service accounts must be two separate accounts.</p>
+BOSH/{{ vars.platform_name }} service accounts must be two separate accounts.</p>
 
-After creating the Master Node and BOSH/Ops Manager service accounts you must grant
-the accounts privileges in vSphere:  
+After creating the Master Node and BOSH/{{ vars.platform_name }} service accounts you must grant
+the accounts privileges in vSphere:
 
 * **Master Node User Account**: Kubernetes control plane node VMs require storage permissions to create load balancers
 and attach persistent disks to pods. Creating a custom role for this service account allows vSphere to apply
-the same privileges to all Kubernetes control plane node VMs in your Tanzu Kubernetes Grid Integrated Edition installation.
+the same privileges to all Kubernetes control plane node VMs in your {{  vars.product }} installation.
 
-* **BOSH/Ops Manager User Account**: BOSH Director requires permissions to create VMs.
+* **BOSH/{{ vars.platform_name }} User Account**: BOSH Director requires permissions to create VMs.
 You can apply privileges directly to this service account without creating a role.
 You can also apply the default
 [VMware Administrator System Role](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/vcenter-server-system-roles.html)
@@ -43,9 +43,9 @@ To prepare your vSphere environment, do the following:
 
 1. [Create the Master Node Service Account](#create-master)
 1. [Grant Storage Permissions](#addl-permissions)
-1. [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man)
-1. [Grant Permissions to the BOSH/Ops Manager Service Account](#grant-bosh-ops-man)
-1. [Configure DNS for the TKGI API](#dns)  
+1. [Create the BOSH/{{ vars.platform_name }} Service Account](#create-bosh-ops-man)
+1. [Grant Permissions to the BOSH/{{ vars.platform_name }} Service Account](#grant-bosh-ops-man)
+1. [Configure DNS for the TKGI API](#dns)
 
 ## <a id='prerequisites'></a>Prerequisites
 
@@ -75,7 +75,7 @@ Before you prepare your vSphere environment, fulfill the prerequisites in [vSphe
 Kubernetes control plane node VM user accounts require the following:
 
 * Read access to the folder, host, and data center of the cluster node VMs
-* Permission to create and delete VMs within the resource pool where Tanzu Kubernetes Grid Integrated Edition is deployed
+* Permission to create and delete VMs within the resource pool where {{  vars.product }} is deployed
 
 Grant these permissions to the control plane node user account based on your storage configuration using one of the procedures below:
 
@@ -83,11 +83,11 @@ Grant these permissions to the control plane node user account based on your sto
 * [Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)](#dynamic-policy)
 * [Dynamic Persistent Volume Provisioning (without Storage Policy-Based Volume Placement)](#dynamic-no-policy)
 
-The procedures in this topic use the following vCenter permissions objects:  
+The procedures in this topic use the following vCenter permissions objects:
 
 * **Virtual Machine Configuration** privileges control the ability to configure virtual machine options and devices.
 For information about **Virtual Machine Configuration**, see [Virtual Machine Configuration Privileges](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vsphere-security-7-0/defined-privileges/virtual-machine-configuration-privileges.html)
- in the VMware vSphere documentation.  
+ in the VMware vSphere documentation.
 
 * **Datastore** privileges control the ability to browse, manage, and allocate space on datastores.
 For information about **Datastore**, see [Datastore Privileges](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vsphere-security-7-0/defined-privileges/datastore-cluster-privileges.html)
@@ -104,17 +104,17 @@ For information about **Storage Views**, see [Storage Views Privileges](https://
 in the VMware vSphere documentation.
 For more information about vSphere storage configurations, see
 [vSphere Storage for Kubernetes](https://techdocs.broadcom.com/it/it/vmware-cis/vsphere/vsphere-supervisor/7-0/vsphere-with-tanzu-configuration-and-management-7-0/using-persistent-storage-in-vsphere-with-tanzu.html)
-in the VMware vSphere documentation.  
+in the VMware vSphere documentation.
 
 For information about the vSphere virtual machine permissions API, see
 [ReconfigVM_Task(reconfigure)](https://code.vmware.com/apis/358/vsphere/doc/vim.VirtualMachine.html)
-in the _vSphere Web Services API_ documentation.  
+in the _vSphere Web Services API_ documentation.
 
 ### <a id="static-only"></a>Static Only Persistent Volume Provisioning
 
 To configure your Kubernetes control plane node user account using static only Persistent Volume (PV) provisioning, do the following:
 
-1. Create a custom role that allows the service account to manage Kubernetes node VMs. For more information about custom roles in vCenter, see [Create a Custom Role](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/6-5/vsphere-security-6-5/vsphere-permissions-and-user-management-tasks/using-roles-to-assign-privileges/create-a-custom-role.html) in the VMware vSphere documentation.  
+1. Create a custom role that allows the service account to manage Kubernetes node VMs. For more information about custom roles in vCenter, see [Create a Custom Role](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/6-5/vsphere-security-6-5/vsphere-permissions-and-user-management-tasks/using-roles-to-assign-privileges/create-a-custom-role.html) in the VMware vSphere documentation.
     1. Give this role a name. For example, `manage-k8s-node-vms`.
     1. Grant the following privileges at the **VM Folder** level using either the vCenter UI or API:
     <table>
@@ -136,7 +136,7 @@ To configure your Kubernetes control plane node user account using static only P
        <td><code>VirtualMachine.Config.RemoveDisk</code></td>
       </tr>
     </table>
-    
+
     1. Select the **Propagate to Child Objects** check box.
 
 1. (Optional) Create a custom role that allows the user account to manage Kubernetes volumes.
@@ -151,7 +151,7 @@ To configure your Kubernetes control plane node user account using static only P
        <td><code>Datastore.FileManagement</code></td>
       </tr>
     </table>
-    
+
     1. Clear the **Propagate to Child Objects** check box.
 
 1. Grant the service account the existing **Read-only** role. This role includes the following privileges at the **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
@@ -163,14 +163,14 @@ and **Datastore Storage Folder** levels:
       <tr><td></td><td><code>System.Read</code></td></tr>
       <tr><td></td><td><code>System.View</code></td></tr>
     </table>
-    
-1. Continue to [Create the BOSH/Ops Manager User Account](#create-bosh-ops-man).
+
+1. Continue to [Create the BOSH/{{ vars.platform_name }} User Account](#create-bosh-ops-man).
 
 ### <a id="dynamic-policy"></a>Dynamic Persistent Volume Provisioning (with Storage Policy-Based Volume Placement)
 
 To configure your Kubernetes control plane node user account using dynamic PV provisioning **with** storage policy-based placement, do the following:
 
-1. Create a custom role that allows the user account to manage Kubernetes node VMs. For more information about custom roles in vCenter, see [Create a Custom Role](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/6-5/vsphere-security-6-5/vsphere-permissions-and-user-management-tasks/using-roles-to-assign-privileges/create-a-custom-role.html) in the VMware vSphere documentation.  
+1. Create a custom role that allows the user account to manage Kubernetes node VMs. For more information about custom roles in vCenter, see [Create a Custom Role](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/6-5/vsphere-security-6-5/vsphere-permissions-and-user-management-tasks/using-roles-to-assign-privileges/create-a-custom-role.html) in the VMware vSphere documentation.
     1. Give this role a name. For example, `manage-k8s-node-vms`.
     1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:
     <table>
@@ -204,7 +204,7 @@ To configure your Kubernetes control plane node user account using dynamic PV pr
        <td><code>VirtualMachine.Inventory.Remove</code></td>
       </tr>
     </table>
-    
+
   1. Select the **Propagate to Child Objects** check box.
 
 1. Create a custom role that allows the user account to manage Kubernetes volumes.
@@ -236,7 +236,7 @@ To configure your Kubernetes control plane node user account using dynamic PV pr
   1. Clear the **Propagate to Child Objects** check box.
 
 1. Grant the user account the existing **Read-only** role.
-This role includes the following privileges at the 
+This role includes the following privileges at the
 **vCenter, Datacenter, Datastore Cluster,** and **Datastore Storage Folder** levels:
   <table>
     <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
@@ -245,15 +245,15 @@ This role includes the following privileges at the
       <tr><td></td><td><code>System.View</code></td></tr>
   </table>
 
-1. Continue to [Create the BOSH/Ops Manager Service Account](#create-bosh-ops-man).
+1. Continue to [Create the BOSH/{{ vars.platform_name }} Service Account](#create-bosh-ops-man).
 
 ###<a id="dynamic-no-policy"></a>Dynamic Volume Provisioning (without Storage Policy-Based Volume Placement)
 
 To configure your Kubernetes control plane node user account using dynamic PV provisioning **without** storage policy-based placement, do the following:
 
-1. Create a custom role that allows the user account to manage Kubernetes node VMs. For more information about custom roles in vCenter, see [Create a Custom Role](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/6-5/vsphere-security-6-5/vsphere-permissions-and-user-management-tasks/using-roles-to-assign-privileges/create-a-custom-role.html) in the VMware vSphere documentation.  
-    1. Give this role a name. For example, `manage-k8s-node-vms`.  
-    1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:  
+1. Create a custom role that allows the user account to manage Kubernetes node VMs. For more information about custom roles in vCenter, see [Create a Custom Role](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/6-5/vsphere-security-6-5/vsphere-permissions-and-user-management-tasks/using-roles-to-assign-privileges/create-a-custom-role.html) in the VMware vSphere documentation.
+    1. Give this role a name. For example, `manage-k8s-node-vms`.
+    1. Grant the following privileges at the **Cluster, Hosts,** and **VM Folder** levels using either the vCenter UI or API:
     <table>
       <tr><th>Privilege (UI)</th><th>Privilege (API)</th></tr>
       <tr>
@@ -273,10 +273,10 @@ To configure your Kubernetes control plane node user account using dynamic PV pr
         <td><code>VirtualMachine.Config.RemoveDisk</code></td>
       </tr>
     </table>
-    
-    1. Select the **Propagate to Child Objects** check box.  
 
-1. Create a custom role that allows the user account to manage Kubernetes volumes.  
+    1. Select the **Propagate to Child Objects** check box.
+
+1. Create a custom role that allows the user account to manage Kubernetes volumes.
     1. Give this role a name. For example, `manage-k8s-volumes`.
     1. Grant the following privileges using either the vCenter UI or API:
     <table>
@@ -302,33 +302,33 @@ This role includes the following privileges at the **vCenter, Datacenter, Datast
       <tr><td></td><td><code>System.View</code></td></tr>
     </table>
 
-## <a id='create-bosh-ops-man'></a>Create the BOSH/Ops Manager User Account
-1. From the vCenter console, create the BOSH/Ops Manager User Account.
-1. If you are deploying both Tanzu Application Service (TAS) and TKGI
-within the same vSphere environment, create an additional BOSH/Ops Manager Service Account so that
-you have one account for TAS and a separate account for TKGI.
+## <a id='create-bosh-ops-man'></a>Create the BOSH/{{ vars.platform_name }} User Account
+1. From the vCenter console, create the BOSH/{{ vars.platform_name }} User Account.
+1. If you are deploying both {{ vars.app_runtime }} and TKGI
+within the same vSphere environment, create an additional BOSH/{{ vars.platform_name }} Service Account so that
+you have one account for {{ vars.app_runtime }} and a separate account for TKGI.
 
-## <a id='grant-bosh-ops-man'></a>Grant Permissions to the BOSH/Ops Manager User Account
-There are two options for granting permissions to the BOSH/Ops Manager Service Accounts:
+## <a id='grant-bosh-ops-man'></a>Grant Permissions to the BOSH/{{ vars.platform_name }} User Account
+There are two options for granting permissions to the BOSH/{{ vars.platform_name }} Service Accounts:
 
-* Grant minimal permissions. Grant each BOSH/Ops Manager User Account the minimum required permissions as described in
-[vSphere Service Account Requirements](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-vsphere-service-account.html).  
-* Grant Administrator Role permissions. Apply the default VMware Administrator Role to each BOSH/Ops Manager Service Account as described in
+* Grant minimal permissions. Grant each BOSH/{{ vars.platform_name }} User Account the minimum required permissions as described in
+[vSphere Service Account Requirements](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-vsphere-service-account.html).
+* Grant Administrator Role permissions. Apply the default VMware Administrator Role to each BOSH/{{ vars.platform_name }} Service Account as described in
 [vCenter Server System Roles](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/vcenter-server-system-roles.html)
-.  
+.
 
-    <p class="note warning"><strong>Warning</strong>: Applying the VMware Administrator Role to the BOSH/Ops Manager Service Account grants the account more privileges than are required.
+    <p class="note warning"><strong>Warning</strong>: Applying the VMware Administrator Role to the BOSH/{{ vars.platform_name }} Service Account grants the account more privileges than are required.
     For optimal security always use the least privileged account.</p>
 
 ## <a id='dns'></a>Configure DNS for the TKGI API
 
 Navigate to your DNS provider and create an entry for a fully qualified domain name (FQDN) within your system domain. For example, `api.tkgi.example.com`.
 
-When you configure the Tanzu Kubernetes Grid Integrated Edition tile, enter this FQDN in the **TKGI API** pane.
+When you configure the {{  vars.product }} tile, enter this FQDN in the **TKGI API** pane.
 
-After you deploy Tanzu Kubernetes Grid Integrated Edition, you map the IP address of the TKGI API to this FQDN. You can then use this FQDN to access the TKGI API from your local system.
+After you deploy {{  vars.product }}, you map the IP address of the TKGI API to this FQDN. You can then use this FQDN to access the TKGI API from your local system.
 
 ## <a id="next-steps"></a>Next Installation Step
 
-To install and configure Ops Manager,
-follow the instructions in [Installing and Configuring Ops Manager on vSphere](vsphere-om-install-config.html).
+To install and configure {{ vars.platform_name }},
+follow the instructions in [Installing and Configuring {{ vars.platform_name }} on vSphere](vsphere-om-install-config.html).

@@ -1,17 +1,17 @@
 ---
 title: Configuring and Using PersistentVolumes
-owner: TKGI
+
 ---
 
-This topic describes how to provision static and dynamic PersistentVolumes (PVs) to run stateful apps using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to provision static and dynamic PersistentVolumes (PVs) to run stateful apps using {{  vars.product_full }} ({{ vars.product_short }}).
 
 For static PV provisioning, the PersistentVolumeClaim (PVC) does not need to reference a StorageClass. For dynamic PV provisioning, you must specify a StorageClass and define the PVC using a reference to that StorageClass.
 
-For more information about storage management in Kubernetes, 
+For more information about storage management in Kubernetes,
 see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
  in the _Kubernetes Concepts_ documentation.
 
-For more information about the supported vSphere topologies for PV storage, 
+For more information about the supported vSphere topologies for PV storage,
 see [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html).
 
 ## <a id='static-pv'></a>Provision a Static PV
@@ -190,7 +190,7 @@ Dynamic PV provisioning gives developers the freedom to provision storage when t
 
 For dynamic PV provisioning, the procedure is to define and create a PVC that automatically triggers the creation of the PV and its backend VMDK file. When the PV is created, Kubernetes knows which volume instance is available for use. When a PVC or volumeClaimTemplate is requested, Kubernetes chooses an available PV and allocates it to the Deployment or StatefulSets workload.
 
-Tanzu Kubernetes Grid Integrated Edition supports dynamic PV provisioning by providing StorageClasses for all supported cloud providers, as well as an example PVC.
+{{  vars.product }} supports dynamic PV provisioning by providing StorageClasses for all supported cloud providers, as well as an example PVC.
 
 <p class="note"><strong>Note</strong>: For dynamic PVs on vSphere, you must create or map the VMDK file for the StorageClass on a shared file system datastore. This shared file system datastore must be accessible to each vSphere cluster where Kubernetes cluster nodes run. For more information, see <a href="vsphere-persistent-storage.html">PersistentVolume Storage Options on vSphere</a>.</p>
 
@@ -305,13 +305,13 @@ provisioner: kubernetes.io/vsphere-volume
 <p class="note"><strong>Note</strong>: The above example uses the vSphere provisioner. Refer to the <a href="https://kubernetes.io/docs/concepts/storage/storage-classes/#provisioner">Kubernetes documentation</a> for information about provisioners for other cloud providers.</p>
 
 
-### <a id='dynamic-pv-tkgi'></a>Provision Dynamic PVs for Use with Tanzu Kubernetes Grid Integrated Edition
+### <a id='dynamic-pv-tkgi'></a>Provision Dynamic PVs for Use with {{  vars.product }}
 
 Perform the steps in this section to register one or more StorageClasses and define a PVC that can be applied to newly-created pods.
 
 1. Download the StorageClass spec for your cloud provider by running the command for your cloud provider:
     * **AWS**: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-aws.yml`
-    * **Azure**: 
+    * **Azure**:
         * For Azure disk storage: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-azure.yml`
         * For Azure file storage: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-azure-file.yml`
     * **vSphere**: `wget https://raw.githubusercontent.com/cloudfoundry-incubator/kubo-ci/master/specs/storage-class-vsphere.yml`
@@ -332,10 +332,10 @@ Perform the steps in this section to register one or more StorageClasses and def
     ```
     kubectl create -f STORAGE-CLASS-SPEC.yml
     ```
-    Where `STORAGE-CLASS-SPEC` is the name of the file that you downloaded in the previous step.  
-    
-    For example:  
-    
+    Where `STORAGE-CLASS-SPEC` is the name of the file that you downloaded in the previous step.
+
+    For example:
+
     ```console
     $ kubectl create -f storage-class-aws.yml
     ```

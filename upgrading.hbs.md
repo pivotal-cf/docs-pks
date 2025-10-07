@@ -1,15 +1,15 @@
 ---
-title: Upgrading Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+title: Upgrading {{  vars.product }}
+
 ---
 
-The following topics describe how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):  
+The following topics describe how to upgrade {{  vars.product_full }} ({{ vars.product_short }}):
 
 <ul>
   <li>
-    <a href="./console-upgrade.html">Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console</a>
+    <a href="./console-upgrade.html">Upgrade {{  vars.product }} Management Console</a>
   </li>
   <li>
-    <a href="./upgrading-opsman.html">Upgrading Tanzu Kubernetes Grid Integrated Edition with Ops Manager</a>
-  </li> 
+    <a href="./upgrading-opsman.html">Upgrading {{  vars.product }} with {{ vars.platform_name }}</a>
+  </li>
 </ul>

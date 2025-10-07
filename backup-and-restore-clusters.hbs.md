@@ -1,9 +1,9 @@
 ---
 title: Backing Up and Restoring Kubernetes Clusters Provisioned by TKGI
-owner: TKGI
+
 ---
 
-This topic describes how to back up and restore Kubernetes clusters provisioned by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to back up and restore Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## Overview
 
@@ -21,22 +21,22 @@ BBR can also be used to back up and restore the TKGI Management Plane. See [Back
 In context of TKGI, BBR does not back up and restore:
 
 * Kubernetes workloads, see [Backing up and restoring Kubernetes workloads](./backup-and-restore-work.html).
-* Ops Manager VM (including the BOSH Director and TKGI tiles), see [Backing up and restoring Ops Manager](./bbr-backup-tkgi.html#export-opsman-settings).
+* {{ vars.platform_name }} VM (including the BOSH Director and TKGI tiles), see [Backing up and restoring {{ vars.platform_name }}](./bbr-backup-tkgi.html#export-opsman-settings).
 * NSX objects and resources, such as load balancers, see [Backing up and restoring TKGI Infrastructure](./backup-and-restore-infra.html).
 * Harbor VM
 
 To use BBR to back up and restore Kubernetes clusters provisioned by TKGI, see the following topics:
 
 * [Install and Configure BOSH Backup and Restore](bbr-install-config.html)
-* [Back Up Kubernetes Clusters Provisioned by Tanzu Kubernetes Grid Integrated Edition](bbr-backup-clusters.html)  
-* [Restore Kubernetes Clusters Provisioned by](bbr-restore-clusters.html)  
+* [Back Up Kubernetes Clusters Provisioned by {{  vars.product }}](bbr-backup-clusters.html)
+* [Restore Kubernetes Clusters Provisioned by](bbr-restore-clusters.html)
 
 ## Testing Considerations
 
 As part of your TKGI back up and restore planning and testing, consider the following test scenario.
 
-- Back up a TKGI-provisioned Kubernetes cluster using BBR. 
-- Delete the cluster control plane and worker node VMs. Delete the disks and references. 
-- Restore cluster nodes using BBR. Delete old worker nodes using kubectl and restart kubelet. 
+- Back up a TKGI-provisioned Kubernetes cluster using BBR.
+- Delete the cluster control plane and worker node VMs. Delete the disks and references.
+- Restore cluster nodes using BBR. Delete old worker nodes using kubectl and restart kubelet.
 
 Confirm the cluster nodes have been restored, and the cluster is operational. If an application was deployed before cluster back up, the VIP of the load balancer for the application changes. To recover without application redeployment, create the service using a static IP. How to do this is described in the [Workload Back Up and Restore](./backup-and-restore-work.html) documentation. If an application was deployed after cluster back up, the application is no longer available and the NSX objects created for the application are automatically deleted. In this case you will need to restore the application using Velero and the NSX objects using NSX Manager.

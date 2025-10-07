@@ -1,17 +1,17 @@
 ---
 title: PersistentVolume Storage Options on vSphere
-owner: TKGI
+
 ---
 
-This topic describes options for configuring VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere to support stateful apps using PersistentVolumes (PVs).
+This topic describes options for configuring {{  vars.product_full }} ({{ vars.product_short }}) on vSphere to support stateful apps using PersistentVolumes (PVs).
 
 <p class="note"><strong>Note</strong>: This topic assumes that you have strong familiarity with PVs and workloads in Kubernetes.</p>
 
 For procedural information about configuring PVs, see [Configuring and Using PersistentVolumes](volumes.html).
 
-For information about which vSphere CSI Driver features are supported by TKGI, 
-see [vSphere CSI Driver Supported Features and Requirements](vsphere-cns.html#supported-feature) 
-in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.  
+For information about which vSphere CSI Driver features are supported by TKGI,
+see [vSphere CSI Driver Supported Features and Requirements](vsphere-cns.html#supported-feature)
+in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.
 
 ## <a id='pv-kubernetes'></a>Considerations for Running Stateful Apps in Kubernetes
 
@@ -27,7 +27,7 @@ There are several factors to consider when running stateful apps in Kubernetes:
 Kubernetes provides two ways to provision persistent storage for stateful applications:
 
 - **Static provisioning**: A Kubernetes administrator creates the Virtual Machine Disk (VMDK) and PVs. Developers issue PersistentVolumeClaims (PVCs) on the pre-defined PVs.
-- **Dynamic provisioning**: Developers issue PVCs against a StorageClass object. The provisioning of the persistent storage depends on the infrastructure. With Tanzu Kubernetes Grid Integrated Edition on vSphere, the vSphere Cloud Provider (VCP) automatically provisions the VMDK and PVs.
+- **Dynamic provisioning**: Developers issue PVCs against a StorageClass object. The provisioning of the persistent storage depends on the infrastructure. With {{  vars.product }} on vSphere, the vSphere Cloud Provider (VCP) automatically provisions the VMDK and PVs.
 
 For more information about PVs in Kubernetes, refer to the [Kubernetes documentation](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
@@ -57,7 +57,7 @@ Migration is supported for all vSphere CSI-managed block PVs, including PVs crea
 
 ## <a id='vsphere-pv-scenarios'></a>Storage Scenarios for Compute Clusters and File Systems
 
-With Tanzu Kubernetes Grid Integrated Edition on vSphere, you can choose one of two storage options to support stateful apps:
+With {{  vars.product }} on vSphere, you can choose one of two storage options to support stateful apps:
 
 * vSAN datastores
 * Network File Share (NFS) or VMFS over Internet Small Computer Systems Interface (iSCSI), or fiber channel (FC) datastores
@@ -66,11 +66,11 @@ Refer to the [vSAN documentation](https://docs.vmware.com/en/VMware-vSphere/6.7/
 
 <p class="note"><strong>Note</strong>: This topic assumes that you have strong familiarity vSAN and VMFS storage technologies on the vSphere platform.</p>
 
-In Tanzu Kubernetes Grid Integrated Edition, an availability zone (AZ) corresponds to a vSphere cluster and a resource pool within that cluster. A resource pool is a vSphere construct that is not linked to a particular ESXi host. Resource pools can be used in testing environments to enable a single vSphere cluster to support multiple AZs. As a recommended practice, deploy multiple AZs across different vSphere clusters to afford best availability in production.
+In {{  vars.product }}, an availability zone (AZ) corresponds to a vSphere cluster and a resource pool within that cluster. A resource pool is a vSphere construct that is not linked to a particular ESXi host. Resource pools can be used in testing environments to enable a single vSphere cluster to support multiple AZs. As a recommended practice, deploy multiple AZs across different vSphere clusters to afford best availability in production.
 
 The vSAN datastore boundary is delimited by the vSphere cluster. All ESXi hosts in the same vSphere cluster belong to the same vSAN datastore. ESXi hosts in a different vSphere cluster belong to a different vSAN datastore. Each vSphere cluster has its own vSAN datastore.
 
-The table below summarizes Tanzu Kubernetes Grid Integrated Edition support for PVs in Kubernetes when deployed on vSphere:
+The table below summarizes {{  vars.product }} support for PVs in Kubernetes when deployed on vSphere:
 
 <table>
   <tr>
@@ -99,7 +99,7 @@ The table below summarizes Tanzu Kubernetes Grid Integrated Edition support for 
 
 ### <a id='single-vsan'></a>Single vSphere Compute Cluster with vSAN Datastore
 
-The following diagram illustrates a vSphere environment with a single compute cluster and a local vSAN datastore. This topology is also supported for environments with a single AZ or multiple AZs using multiple resource pools under the same vSphere cluster. For this topology, Tanzu Kubernetes Grid Integrated Edition supports both static and dynamic PV provisioning. Dynamic PV provisioning is recommended.
+The following diagram illustrates a vSphere environment with a single compute cluster and a local vSAN datastore. This topology is also supported for environments with a single AZ or multiple AZs using multiple resource pools under the same vSphere cluster. For this topology, {{  vars.product }} supports both static and dynamic PV provisioning. Dynamic PV provisioning is recommended.
 
   <img src="images/vsphere/vsphere-pv-a1-vsan.png" alt="Single vSphere compute cluster with vSAN datastore">
 
@@ -107,8 +107,8 @@ In this topology, a single vSphere compute cluster hosts all Kubernetes clusters
 
 You can configure a single computer cluster in the following ways:
 
-- If you use a single Tanzu Kubernetes Grid Integrated Edition foundation, create an AZ that is mapped directly to the single cluster.
-- If you use multiple Tanzu Kubernetes Grid Integrated Edition foundations, create an AZ that is mapped to this single cluster and a Resource Pool.
+- If you use a single {{  vars.product }} foundation, create an AZ that is mapped directly to the single cluster.
+- If you use multiple {{  vars.product }} foundations, create an AZ that is mapped to this single cluster and a Resource Pool.
 
 With this topology, you can create multiple vSAN datastores on the same compute cluster using different disk groups on each ESXi host. PVs, backed by respective VMDK files, can be dispatched across the datastores to mitigate the impact of datastore failure. For StatefulSets, all PVs used by different instances of the replica land in the same datastore.
 
@@ -120,7 +120,7 @@ This topology has the following failover scenarios:
 
 ### <a id='single-vmfs'></a>Single vSphere Compute Cluster with File System Datastore
 
-The following diagram illustrates a vSphere environment with a single vSphere compute cluster and a shared datastore using NFS or VMFS over iSCSI, or FC. For this topology, Tanzu Kubernetes Grid Integrated Edition supports both static and dynamic PV provisioning. Dynamic PV provisioning is recommended.
+The following diagram illustrates a vSphere environment with a single vSphere compute cluster and a shared datastore using NFS or VMFS over iSCSI, or FC. For this topology, {{  vars.product }} supports both static and dynamic PV provisioning. Dynamic PV provisioning is recommended.
 
   <img src="images/vsphere/vsphere-pv-a2-vmfs.png" alt="Single vSphere compute cluster with file system datastore">
 
@@ -165,9 +165,9 @@ Refer to the following diagram:
 
   <img src="images/vsphere/vsphere-pv-c1-vsan.png" alt="Multi vSphere compute clusters (Multi AZs) with Shared vSAN datastore">
 
-### <a id='multiple-shared-vmfs'></a>Multiple vSphere Compute Clusters with Shared File System Datastore 
+### <a id='multiple-shared-vmfs'></a>Multiple vSphere Compute Clusters with Shared File System Datastore
 
-The following diagram illustrates a vSphere environment with multiple compute clusters with VMFS over NFS, iSCSI, or FC datastores shared across all vSphere compute clusters. For this topology, Tanzu Kubernetes Grid Integrated Edition supports both static and dynamic PV provisioning. Dynamic PV provisioning is recommended.
+The following diagram illustrates a vSphere environment with multiple compute clusters with VMFS over NFS, iSCSI, or FC datastores shared across all vSphere compute clusters. For this topology, {{  vars.product }} supports both static and dynamic PV provisioning. Dynamic PV provisioning is recommended.
 
   <img src="images/vsphere/vsphere-pv-c2-vmfs.png" alt="Multi vSphere compute clusters (Multi AZs) with Shared VMFS datastore">
 

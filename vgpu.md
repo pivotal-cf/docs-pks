@@ -186,7 +186,7 @@ The pool name in the compute profile should be the same as its name in the VM ex
 ## <a id="create"></a>Create vGPU Cluster
 
 Before you create a vGPU cluster, make sure that the plan you will use to create the cluster is configured with **Allow Privileged** enabled.
-For more information, see [Plans](installing-vsphere.html#plans) in _Installing Tanzu Kubernetes Grid Integrated Edition on vSphere_.
+For more information, see [Plans in Installing {{ vars.product }} on vSphere](installing-vsphere.html#plans).
 
   ![plan_allow_privileged](images/plan_allow_privileged.png)
 

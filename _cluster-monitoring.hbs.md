@@ -43,9 +43,9 @@ To use Wavefront with Windows worker-based clusters, developers must install Wav
 
 **Procedure**
 
-To enable and configure Wavefront monitoring:  
+To enable and configure Wavefront monitoring:
 
-1. In the Tanzu Kubernetes Grid Integrated Edition tile, select **In-Cluster Monitoring**.
+1. In the {{  vars.product }} tile, select **In-Cluster Monitoring**.
 1. Under **Wavefront Integration**, select **Yes**.
 1. Under **Wavefront URL**, enter the URL of your Wavefront subscription. For example:
     ```console
@@ -55,14 +55,14 @@ To enable and configure Wavefront monitoring:
 1. (Optional) For installations that require a proxy server for outbound Internet access, enable access by entering values for **HTTP Proxy Host**, **HTTP Proxy Port**, **Proxy username**, and **Proxy password**.
 1. Click **Save**.
 
-The Tanzu Kubernetes Grid Integrated Edition tile does not validate your Wavefront configuration settings. To verify your setup, look for cluster and pod metrics in Wavefront.
+The {{  vars.product }} tile does not validate your Wavefront configuration settings. To verify your setup, look for cluster and pod metrics in Wavefront.
 
 {{# evalExpression "current_page.data.iaas == 'vSphere' || current_page.data.iaas == 'vSphere-NSX-T'"}}
 ####<a id='realize'></a> VMware vRealize Operations Management Pack for Container Monitoring
 
-You can monitor Tanzu Kubernetes Grid Integrated Edition Kubernetes clusters with VMware vRealize Operations Management Pack for Container Monitoring. 
+You can monitor {{  vars.product }} Kubernetes clusters with VMware vRealize Operations Management Pack for Container Monitoring.
 
-To integrate Tanzu Kubernetes Grid Integrated Edition with VMware vRealize Operations Management Pack for Container Monitoring, you must deploy a container running [cAdvisor](https://github.com/google/cadvisor) in your TKGI deployment.
+To integrate {{  vars.product }} with VMware vRealize Operations Management Pack for Container Monitoring, you must deploy a container running [cAdvisor](https://github.com/google/cadvisor) in your TKGI deployment.
 
 cAdvisor is an open source tool that provides monitoring and statistics for Kubernetes clusters.
 
@@ -74,7 +74,7 @@ To deploy a cAdvisor container:
 
 For more information about integrating this type of monitoring with TKGI, see the [VMware vRealize Operations Management Pack for Container Monitoring User Guide](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations-for-integrations/2-2/vrealize--operations-management-pack--for-pack-for-kubernetes-2-2/getting-started-with-vmware-aria-operations-management-pack-for-kubernetes.html) and [Release Notes](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/Chunk1503020612.html) in the VMware documentation.
 {{ else }}
-####<a id='realize'></a> cAdvisor 
+####<a id='realize'></a> cAdvisor
 
 cAdvisor is an open source tool for monitoring, analyzing, and exposing Kubernetes container resource usage and performance statistics.
 
@@ -84,10 +84,10 @@ To deploy a cAdvisor container:
 1. Under **Deploy cAdvisor**, select **Yes**.
 1. Click **Save**.
 
-<p class="note"><strong>Note:</strong> For information about configuring cAdvisor to monitor your running Kubernetes containers, see 
-    <a href="https://github.com/google/cadvisor#cadvisor/">cAdvisor</a> in the cAdvisor GitHub repository. 
-    For general information about Kubernetes cluster monitoring, see 
-    <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/#resource-metrics-pipeline">Tools for Monitoring Resources</a> 
+<p class="note"><strong>Note:</strong> For information about configuring cAdvisor to monitor your running Kubernetes containers, see
+    <a href="https://github.com/google/cadvisor#cadvisor/">cAdvisor</a> in the cAdvisor GitHub repository.
+    For general information about Kubernetes cluster monitoring, see
+    <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/#resource-metrics-pipeline">Tools for Monitoring Resources</a>
     in the Kubernetes documentation.</p>
 {{/ evalExpression }}
 
@@ -103,11 +103,11 @@ To enable clusters to send Kubernetes node metrics and pod metrics to metric
 sinks:
 
 1. In **In-Cluster Monitoring**, select **Enable Metric Sink Resources**.
-If you enable this check box, Tanzu Kubernetes Grid Integrated Edition deploys Telegraf as a
+If you enable this check box, {{  vars.product }} deploys Telegraf as a
 `DaemonSet`, a pod that runs on each worker node in all your Kubernetes clusters.
 1. (Optional) To enable Node Exporter to send worker node metrics to metric
 sinks of kind `ClusterMetricSink`, select **Enable node exporter on workers**.
-If you enable this check box, Tanzu Kubernetes Grid Integrated Edition deploys Node Exporter as
+If you enable this check box, {{  vars.product }} deploys Node Exporter as
 a `DaemonSet`, a pod that runs on each worker node in all your Kubernetes
 clusters.
 
@@ -122,16 +122,16 @@ You can configure TKGI-provisioned clusters to send Kubernetes API events and
 pod logs to log sinks. For more information about log sink resources and what to
 do after you enable them in the tile, see
 [Sink Resources](in-cluster-monitoring.html#sinks) in
-_Monitoring Workers and Workloads_.  
+_Monitoring Workers and Workloads_.
 
-To enable clusters to send Kubernetes API events and pod logs to log sinks:  
+To enable clusters to send Kubernetes API events and pod logs to log sinks:
 
 1. Select **Enable Log Sink Resources**. If you enable this check box,
-Tanzu Kubernetes Grid Integrated Edition deploys Fluent Bit as a `DaemonSet`, a pod that runs
-on each worker node in all your Kubernetes clusters.  
+{{  vars.product }} deploys Fluent Bit as a `DaemonSet`, a pod that runs
+on each worker node in all your Kubernetes clusters.
 1. (Optional) To increase the Fluent Bit Pod memory limit, enter a value greater than 100 in the **Fluent-bit container memory limit(Mi)** field.
 
   ![Fluent-bit Memory Limit](images/fluentbit-memory-limit.png)
 
-1. Click **Save**.  
+1. Click **Save**.
 

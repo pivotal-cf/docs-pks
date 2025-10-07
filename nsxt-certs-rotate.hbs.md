@@ -3,11 +3,11 @@ title: Rotate VMware NSX Certificates for Kubernetes Clusters
 owner: PKS-NSXT
 ---
 
-This topic describes how to list and rotate TLS certificates for Kubernetes clusters provisioned by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to list and rotate TLS certificates for Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='about'></a> About NSX Certificate Rotation for Kubernetes Clusters Provisioned by TKGI
 
-You can use the TKGI CLI to rotate the certificates for the NSX load balancer and the certificate for the NSX Principal Identity for the NSX Manager for the specified Kubernetes cluster provisioned by TKGI. To rotate other cluster certificates using the TKGI CLI, see [Rotate Kubernetes Cluster Certificates](./rotate-cluster-certificates.html). 
+You can use the TKGI CLI to rotate the certificates for the NSX load balancer and the certificate for the NSX Principal Identity for the NSX Manager for the specified Kubernetes cluster provisioned by TKGI. To rotate other cluster certificates using the TKGI CLI, see [Rotate Kubernetes Cluster Certificates](./rotate-cluster-certificates.html).
 
 <p class="note warning"><strong> WARNING:</strong> During NSX TLS certificate rotation, the system will update the Principal Identity certificate to access the NSX Manager API (for the specified TKGI cluster instance). The rotation process will impact network related operations (for the specified TKGI cluster instance), but will not impact existing cluster workloads.</p>
 
@@ -20,14 +20,14 @@ To list the TLS certificates created for a TKGI-provisioned Kubernetes cluster:
     ```
     tkgi certificates CLUSTER-NAME -d EXPIRATION-WINDOW
     ```
-    
-    Where:  
 
-    * `CLUSTER-NAME` is the name of your cluster.  
+    Where:
+
+    * `CLUSTER-NAME` is the name of your cluster.
     * `EXPIRATION-WINDOW` is the expiration range for the listed certificates. The listed certificates will expire within the designated number of days.
-    
-    The returned list of certificates includes TLS certificates used by TKGI for the specified cluster 
-    and the certificates named `tls-nsx-lb` and `tls-nsx-t`, which are used for NSX.  
+
+    The returned list of certificates includes TLS certificates used by TKGI for the specified cluster
+    and the certificates named `tls-nsx-lb` and `tls-nsx-t`, which are used for NSX.
 <br>
 
     For example:
@@ -35,39 +35,39 @@ To list the TLS certificates created for a TKGI-provisioned Kubernetes cluster:
     ```console
     tkgi certificates tkgi-cluster-01 -d 10000
 
-    NAME                                                                                            Type  Days Left  Valid until  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-lb                        Leaf  1803       2025-12-14T06:47:46Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-kube-proxy-2018           Leaf  1439       2024-12-15T06:47:41Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-ncp-2018                      Leaf  1439       2024-12-15T06:47:41Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-t                         Leaf  708        2022-12-15T06:47:40Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kube-controller-manager-2018  Leaf  1439       2024-12-15T06:47:40Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-metrics-server-2018           Leaf  1439       2024-12-15T06:47:39Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcdctl-root-2018-2           Leaf  1439       2024-12-15T06:47:38Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcdctl-2018-2                Leaf  1439       2024-12-15T06:47:37Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcd-2018-2                   Leaf  1439       2024-12-15T06:47:36Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubelet-client-2018           Leaf  1439       2024-12-15T06:47:36Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubelet-2018                  Leaf  1439       2024-12-15T06:47:35Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/etcd_ca_2018                      Root  1439       2024-12-15T06:47:35Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubernetes-2018               Leaf  1439       2024-12-15T06:47:34Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/monitoring-metric-cert            Leaf  1439       2024-12-15T06:47:34Z  
-    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/kubo_ca_2018                      Root  1439       2024-12-15T06:47:34Z  
-    ``` 
+    NAME                                                                                            Type  Days Left  Valid until
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-lb                        Leaf  1803       2025-12-14T06:47:46Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-kube-proxy-2018           Leaf  1439       2024-12-15T06:47:41Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-ncp-2018                      Leaf  1439       2024-12-15T06:47:41Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-nsx-t                         Leaf  708        2022-12-15T06:47:40Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kube-controller-manager-2018  Leaf  1439       2024-12-15T06:47:40Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-metrics-server-2018           Leaf  1439       2024-12-15T06:47:39Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcdctl-root-2018-2           Leaf  1439       2024-12-15T06:47:38Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcdctl-2018-2                Leaf  1439       2024-12-15T06:47:37Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-etcd-2018-2                   Leaf  1439       2024-12-15T06:47:36Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubelet-client-2018           Leaf  1439       2024-12-15T06:47:36Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubelet-2018                  Leaf  1439       2024-12-15T06:47:35Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/etcd_ca_2018                      Root  1439       2024-12-15T06:47:35Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/tls-kubernetes-2018               Leaf  1439       2024-12-15T06:47:34Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/monitoring-metric-cert            Leaf  1439       2024-12-15T06:47:34Z
+    /p-bosh/service-instance_62e2a43a-dc2a-47a8-a361-3911589e60aa/kubo_ca_2018                      Root  1439       2024-12-15T06:47:34Z
+    ```
 
 ##<a id='certs-rotate'></a> Rotate the TLS Certificates for NSX
 
-To rotate the TLS certificates for NSX:  
+To rotate the TLS certificates for NSX:
 
-1. To skip SSL verification during the certificate rotation, you must first deactivate SSL verification on the TKGI tile. 
-For more information, see the **Disable SSL certification verification** configuration instructions in [Networking](installing-nsx-t.html#networking).  
+1. To skip SSL verification during the certificate rotation, you must first deactivate SSL verification on the TKGI tile.
+For more information, see the **Disable SSL certification verification** configuration instructions in [Networking](installing-nsx-t.html#networking).
 
 1. Run the following:
 
     ```
     tkgi rotate-certs | rotate-certificates CLUSTER-NAME [flags]
     ```
-    
-    Where `CLUSTER-NAME` is the name of your cluster.  
-    
+
+    Where `CLUSTER-NAME` is the name of your cluster.
+
     Flags:
 
     ```
@@ -83,16 +83,16 @@ For more information, see the **Disable SSL certification verification** configu
 
     ```console
     tkgi rotate-certs tkgi-cluster-01 --only-nsx
- 
+
     You are about to rotate nsx related certificates for cluster tkgi-cluster-01. This operation requires bosh deployment, and will take a significant time. Are you sure you want to continue? (y/n):
     ```
-    <p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
-1. If running `tkgi rotate-certs` fails to rotate the certificates, you must manually rotate the certificates. 
-    To manually rotate certificates, see 
-    [How to rotate Tanzu Kubernetes Grid Integrated Edition tls-nsx-t cluster certificate](https://knowledge.broadcom.com/external/article?legacyId=80324) 
-    in the Broadcom Support Knowledge Base.  
+1. If running `tkgi rotate-certs` fails to rotate the certificates, you must manually rotate the certificates.
+    To manually rotate certificates, see
+    [How to rotate {{  vars.product }} tls-nsx-t cluster certificate](https://knowledge.broadcom.com/external/article?legacyId=80324)
+    in the Broadcom Support Knowledge Base.
 <br>
 
 For more information, see [Rotate Kubernetes Cluster Certificates](rotate-cluster-certificates.html).

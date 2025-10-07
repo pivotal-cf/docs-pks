@@ -1,18 +1,18 @@
 ---
 title: Configuring Windows Worker-Based Kubernetes Clusters
-owner: TKGI
+
 windowsclusters: true
 iaas: #Empty var to prevent build breaking
 topic: #Empty var to prevent build breaking
 thistopic: #Empty var to prevent build breaking
 ---
 
-This topic describes how to configure Windows worker-based Kubernetes clusters in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to configure Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
 
 
 ## <a id='overview'></a>Overview
 
-In Tanzu Kubernetes Grid Integrated Edition you can provision a Windows worker-based Kubernetes cluster on vSphere with NSX.
+In {{  vars.product }} you can provision a Windows worker-based Kubernetes cluster on vSphere with NSX.
 Additionally, TKGI provides beta support for provisioning Windows worker-based Kubernetes clusters on vSphere with Antrea.
 
 To provision a Windows worker-based Kubernetes cluster:
@@ -23,7 +23,7 @@ To provision a Windows worker-based Kubernetes cluster:
 1. [Create a Windows Worker-Based Cluster](#create-cluster).
 
 For information about the architecture of TKGI Windows worker-based Kubernetes clusters, see
-[Windows Worker-Based Kubernetes Cluster High Availability](control-plane.html#windows-ha) in _Tanzu Kubernetes Grid Integrated Edition Architecture_.
+[Windows Worker-Based Kubernetes Cluster High Availability](control-plane.html#windows-ha) in _{{  vars.product }} Architecture_.
 
 <p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is activated for TKGI
 on vSphere with NSX and as a beta feature on vSphere with Antrea.
@@ -40,13 +40,13 @@ on vSphere with NSX and as a beta feature on vSphere with Antrea.
 ### <a id='prerequisites-nsxt'></a>vSphere with NSX Requirements
 
 The following are required for creating a Windows worker-based Kubernetes cluster
-in Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX:
+in {{  vars.product }} on vSphere with NSX:
 
-* Tanzu Kubernetes Grid Integrated Edition must be installed in a vSphere with NSX environment.
+* {{  vars.product }} must be installed in a vSphere with NSX environment.
 * Your vSphere environment meets the [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html).
 
-* Tanzu Kubernetes Grid Integrated Edition has been configured as described in
-[Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](installing-nsx-t.html).
+* {{  vars.product }} has been configured as described in
+[Installing {{  vars.product }} on vSphere with NSX](installing-nsx-t.html).
 * You must have a vSphere stemcell for Windows Server version 2019.
 For vSphere stemcell version requirements, see [Product Snapshot](release-notes.html#1-8-0-snapshot)
 in _Release Notes_.
@@ -57,7 +57,7 @@ in _Release Notes_.
     complete the procedures in
     <a href="create-vsphere-stemcell.html">Creating a Windows Stemcell for vSphere Using Stembuild</a>.
     </p>
-* If your Tanzu Kubernetes Grid Integrated Edition installation is in an air-gapped environment, you must prepare a Windows
+* If your {{  vars.product }} installation is in an air-gapped environment, you must prepare a Windows
 pause image in a private registry. For information about setting up a Windows pause image, see
 [Using a Windows Pause Image for an Air-Gapped Environment](windows-pause-internetless.html).
 
@@ -65,11 +65,11 @@ pause image in a private registry. For information about setting up a Windows pa
 ### <a id='prerequisites-flannel'></a>vSphere with Flannel Requirements (Beta)
 
 The following are required for creating a Windows worker-based Kubernetes cluster
-in Tanzu Kubernetes Grid Integrated Edition on vSphere with Flannel:
+in {{  vars.product }} on vSphere with Flannel:
 
-* Tanzu Kubernetes Grid Integrated Edition must be installed in a vSphere with Flannel environment.
+* {{  vars.product }} must be installed in a vSphere with Flannel environment.
 * Your vSphere environment meets the [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html).
-* Tanzu Kubernetes Grid Integrated Edition has been configured as described in [Installing Tanzu Kubernetes Grid Integrated Edition on vSphere](installing-vsphere.html).
+* {{  vars.product }} has been configured as described in [Installing {{  vars.product }} on vSphere](installing-vsphere.html).
 * You must have a vSphere stemcell for Windows Server version 2019.
 For vSphere stemcell version requirements, see [Product Snapshot](release-notes.html#1-8-0-snapshot)
 in _Release Notes_.
@@ -79,9 +79,9 @@ in _Release Notes_.
     To create a Windows stemcell for vSphere,
     complete the procedures in
     <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html">
-    Creating a Windows Stemcell for vSphere Using Stembuild</a> in the TAS for VMs [Windows] documentation.
+    Creating a Windows Stemcell for vSphere Using Stembuild</a> in the {{ vars.app_runtime }} [Windows] documentation.
     </p>
-* If your Tanzu Kubernetes Grid Integrated Edition installation is in an air-gapped environment, you must prepare a Windows
+* If your {{  vars.product }} installation is in an air-gapped environment, you must prepare a Windows
 pause image in a private registry. For information about setting up a Windows pause image, see
 [Using a Windows Pause Image for an Air-Gapped Environment](windows-pause-internetless.html).
 
@@ -101,7 +101,7 @@ pause image in a private registry. For information about setting up a Windows pa
 
 
 ### <a id='upload-stemcell'></a> Upload the Windows Server Stemcell
-1. When prompted by Ops Manager to upload a stemcell, follow the instructions and provide your previously created
+1. When prompted by {{ vars.platform_name }} to upload a stemcell, follow the instructions and provide your previously created
 vSphere stemcell for Windows Server version 2019.
 
 

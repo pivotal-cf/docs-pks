@@ -1,21 +1,21 @@
 ---
-title: Pod Security Admission in Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+title: Pod Security Admission in {{  vars.product }}
+
 ---
 
-This topic describes how to use Kubernetes Pod Security Admission (PSA) with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to use Kubernetes Pod Security Admission (PSA) with {{  vars.product_full }} ({{ vars.product_short }}).
 
-> **Note** Support for Kubernetes Pod Security Policy (PSP) has been removed in Kubernetes v1.25.  
+> **Note** Support for Kubernetes Pod Security Policy (PSP) has been removed in Kubernetes v1.25.
 
 ##<a id='psa-about'></a> About Pod Security Admission
 
-PSA is the Kubernetes-recommended way to implement security standards. TKGI supports the built-in PSA in Kubernetes. 
-PSA is enabled in TKGI, by default.  
+PSA is the Kubernetes-recommended way to implement security standards. TKGI supports the built-in PSA in Kubernetes.
+PSA is enabled in TKGI, by default.
 
-In TKGI, you can configure PSA in a cluster or in a custom namespace. 
+In TKGI, you can configure PSA in a cluster or in a custom namespace.
 
-For more information on PSA, see [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/) 
-in the Kubernetes documentation.  
+For more information on PSA, see [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/)
+in the Kubernetes documentation.
 
 ##<a id='psa-cluster'></a> Pod Security Admission in a TKGI Cluster
 
@@ -43,9 +43,9 @@ You can configure cluster-specific PSA in TKGI by using a Kubernetes profile.
           runtimeClasses: []
           namespaces: [kube-system,pks-system,nsx-system,vmware-system-csi,CUSTOM-NAMESPACES]
     ```
-    
-    Where:  
-    
+
+    Where:
+
     - `ENFORCE-LEVEL` is the level for enforcing the security policy. Use a level that is accepted by Kubernetes, for example, `privileged`, `baseline`, or `restricted`.
     - `ENFORCE-VERSION` is the version for enforcing the security policy. VMware strongly recommends using `latest` for the enforce version.
     - `AUDIT-LEVEL` is the level for auditing a possible security policy violation. Use a level that is accepted by Kubernetes, for example, `privileged`, `baseline`, or `restricted`.
@@ -54,7 +54,7 @@ You can configure cluster-specific PSA in TKGI by using a Kubernetes profile.
     - `WARN-VERSION` is the version for the warning that is triggered for a security policy violation. VMware strongly recommends using `latest` for the warn version.
     - `CUSTOM-NAMESPACES` is the TKGI custom namespaces that you want to exclude.
 
-    <p class="note"><strong>Note</strong>: If you had configured any experimental admission control features by using a Kubernetes profile in the previous version 
+    <p class="note"><strong>Note</strong>: If you had configured any experimental admission control features by using a Kubernetes profile in the previous version
     of TKGI, you must append it under the `plugin` field in the `psa-cluster` yaml file.
     </p>
 
@@ -75,15 +75,15 @@ You can configure cluster-specific PSA in TKGI by using a Kubernetes profile.
     }
     ```
     Where:
-    
+
     - `DESCRIPTION` is the decsription for your Kubernetes profile.
     - `FILE-PATH` is the path to the `psa-cluster.yaml` file.
 
 1. Assign the profile to the cluster. For more iformation, see [Assign a Kubernetes Profile to an Existing Cluster](k8s-profiles.html#update).
-  
+
 For more information about configuring and using Kubernetes Profiles with TKGI, see [Using Kubernetes Profiles](k8s-profiles.html).
-  
-For more information about configuring cluster-level PSA, see [Enforce Pod Security Standards by Configuring the Built-in Admission Controller](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller) 
+
+For more information about configuring cluster-level PSA, see [Enforce Pod Security Standards by Configuring the Built-in Admission Controller](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller)
 in the Kubernetes documentation.
 
 ##<a id='psa-interaction'></a> Pod Security Admission in TKGI System Namespaces

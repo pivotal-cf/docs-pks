@@ -1,11 +1,11 @@
 ---
 title: Release Notes
-owner: TKGI
+
 topictype: releasenotes
 ---
 
 
-This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (TKGI) {{{ vars.product_version }}}.
+This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.product_version }}}.
 
 ## <a id="1-23-0"></a>TKGI {{{ vars.product_version }}}.0
 
@@ -118,7 +118,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
         <th colspan=3><h4>Interoperability</h4></th>
     </tr>
     <tr>
-        <td>Ops Manager</td>
+        <td>{{ vars.platform_name }}</td>
         <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
@@ -146,7 +146,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
         <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.23.0&os=&servicePk=527446&language=EN" target="_blank">v1.23.0</a></td><td><p class="note"><strong>Note</strong>: The component versions supported by TKGI Management Console might differ from or be more limited than the versions supported by TKGI.</p></td>
     </tr>
     <tr>
-        <td>Installed Ops Manager version</td>
+        <td>Installed {{ vars.platform_name }} version</td>
         <td>v3.0.37&#42;</td>
         <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html#3-0-37" target="_blank">Release Notes</a></td>
     </tr>
@@ -172,7 +172,7 @@ To use Policy API at 100% of Management Plane API scale, use NSX v4.1.1 or later
 
 ### <a id="1-23-0-upgrade"></a>Upgrade Path
 
-The supported upgrade paths to Tanzu Kubernetes Grid Integrated Edition v1.23.0 is from TKGI v1.21.0.
+The supported upgrade paths to {{  vars.product }} v1.23.0 is from TKGI v1.21.0.
 
 ### <a id="1-23-0-breaking-changes"></a>Breaking Changes
 
@@ -235,7 +235,7 @@ How to work around this issue depends on whether the upgrade to TKGI v1.22 was a
 * **If the upgrade to TKGI v1.22 was already started** from TKGI Management Console v1.21.0 with `tkgi-v1.21.0-rev.1-2b213e3f-910768.ova` and `Build Number: 29` and you see the error above:
 
   1. Download the latest TKGI v1.21.0 tile version (`pivotal-container-service-1.21.0-build.32.pivotal`), from [Broadcom Support](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.21.0&os=&servicePk=527600&language=EN).
-  1. From Ops Manager, click **Import a Product** to upload the tile. Click on the **+** sign to add the tile to the Installation Dashboard.
+  1. From {{ vars.platform_name }}, click **Import a Product** to upload the tile. Click on the **+** sign to add the tile to the Installation Dashboard.
   1. From the TKGI Management Console, click **TKGI Configuration** and then **Edit in Wizard**. The existing configuration details appear.
   1. Leave the configuration details as-is and re-apply without any changes. This should update TKGI v1.21.0 successfully.
 
@@ -247,7 +247,7 @@ How to work around this issue depends on whether the upgrade to TKGI v1.22 was a
         1. Upgrade to `tkgi-v1.21.0-rev.1-786afb36-963796.ova` on the [TKGI MC v1.21.0 downloads page](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.21.0&os=&servicePk=&language=EN).
         1. Upgrade to `tkgi-v1.22.1-rev.2-ad8c7435-1721891.ova` on the [TKGI MC v1.22.1 downloads page](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20%28TKGi%29%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20%28TKGi%29%20-%20Mgmt%20Console&release=1.22.1&os=&servicePk=&language=EN).
 
-  1. Log in to Ops Manager and check the version and build number listed on the TKGI tile to confirm that it was updated.
+  1. Log in to {{ vars.platform_name }} and check the version and build number listed on the TKGI tile to confirm that it was updated.
 
 <hr>
 
@@ -399,15 +399,15 @@ Create or update your network profile as described in [Creating and Managing Net
 
 **Symptom**
 
-After you restore Ops Manager and the TKGI API VM from backup,
+After you restore {{ vars.platform_name }} and the TKGI API VM from backup,
 TKGI functions normally, but your TKGI MC tabs
 include the following error: "...product 'pivotal-container service' is not deployed...".
 
 **Explanation**
 
-TKGI MC is associated with an Ops Manager with a specific name.
-If you rename Ops Manager with a new name while restoring, your TKGI MC
-will not recognize the restored Ops Manager and cannot manage it.
+TKGI MC is associated with an {{ vars.platform_name }} with a specific name.
+If you rename {{ vars.platform_name }} with a new name while restoring, your TKGI MC
+will not recognize the restored {{ vars.platform_name }} and cannot manage it.
 
 <hr>
 
@@ -525,7 +525,7 @@ For information about configuring NSX default header sizes, see [OIDC Response H
 
 #### <a id="1-22-0-windows-proxy"></a> Difficulty Changing Proxy for Windows Workers
 
-You must configure a global proxy in the Tanzu Kubernetes Grid Integrated Edition tile > **Networking** pane before you create any Windows workers that use the proxy.
+You must configure a global proxy in the {{  vars.product }} tile > **Networking** pane before you create any Windows workers that use the proxy.
 
 You cannot change the proxy configuration for Windows workers in an existing cluster.
 
@@ -589,8 +589,8 @@ any inbound and outbound traffic rules for your cluster VMs.
 
 **Explanation**
 
-As part of configuring the Tanzu Kubernetes Grid Integrated Edition tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
-When you create a Kubernetes cluster, Tanzu Kubernetes Grid Integrated Edition automatically assigns this security group to each VM in the cluster.
+As part of configuring the {{  vars.product }} tile for Azure, you enter **Default Security Group** in the **Kubernetes Cloud Provider** pane.
+When you create a Kubernetes cluster, {{  vars.product }} automatically assigns this security group to each VM in the cluster.
 However, on Azure the automatic assignment might not occur.
 
 As a result, your inbound and outbound traffic rules defined in the security group are not applied to the cluster VMs.
@@ -705,7 +705,7 @@ the deleted cluster continues to be listed when running `tkgi clusters`.
 
 You must manually remove the deleted cluster using a customized version of the ncp_cleanup script.
 For more information, see
-[Deleting a Tanzu Kubernetes Grid Integrated Edition cluster with "tkgi delete-cluster" stuck "in progress" status](https://knowledge.broadcom.com/external/article/298683/)
+[Deleting a {{  vars.product }} cluster with "tkgi delete-cluster" stuck "in progress" status](https://knowledge.broadcom.com/external/article/298683/)
 in the Broadcom Support Knowledge Base.
 
 <hr>
@@ -731,9 +731,9 @@ causing the metrics_server to fall into a crash-loop state.
 **Workaround**
 
 You must manually remove the `pivotal-container-service` cloud-config after removing your TKGI deployment,
-including after removing the TKGI tile from Ops Manager.
+including after removing the TKGI tile from {{ vars.platform_name }}.
 
-For more information, see ["Duplicate vm extension name" error when metrics_server runs on Director VM in Tanzu Kubernetes Grid Integrated Edition](https://knowledge.broadcom.com/external/article/298692/)
+For more information, see ["Duplicate vm extension name" error when metrics_server runs on Director VM in {{  vars.product }}](https://knowledge.broadcom.com/external/article/298692/)
 in the VMware Tanzu Community Knowledge Base.
 
 <hr>
@@ -914,7 +914,7 @@ BOSH reconfigures a deployment's NSGroup members if the deployment is redeployed
 
 After upgrading NSX, redeploy affected deployments to reconfigure their NSGroup members:
 
-1. Re-**Apply Changes** on the Ops Manager UI to redeploy TKGI tile deployments.
+1. Re-**Apply Changes** on the {{ vars.platform_name }} UI to redeploy TKGI tile deployments.
 1. Re-deploy the affected cluster deployments.
 
 <hr>

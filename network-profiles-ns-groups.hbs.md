@@ -1,24 +1,24 @@
 ---
 title: Configure Bootstrap NSGroups
-owner: TKGI
+
 ---
 
-This topic describes how to define network profiles for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.  
+This topic describes how to define network profiles for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters on vSphere with NSX.
 
 ## <a id='ns-groups'></a> Bootstrap Security Group
 
-Most of the NSX virtual interface tags used by Tanzu Kubernetes Grid Integrated Edition are added to the Kubernetes control plane node or nodes during the node initialization phase of cluster provisioning. To add tags to virtual interfaces, the Kubernetes control plane node needs to connect to the NSX Manager API. Network security rules provisioned prior to cluster creation time do not allow nodes to connect to NSX if the rules are based on a Namespace Group (NSGroup) managed by Tanzu Kubernetes Grid Integrated Edition.
+Most of the NSX virtual interface tags used by {{  vars.product }} are added to the Kubernetes control plane node or nodes during the node initialization phase of cluster provisioning. To add tags to virtual interfaces, the Kubernetes control plane node needs to connect to the NSX Manager API. Network security rules provisioned prior to cluster creation time do not allow nodes to connect to NSX if the rules are based on a Namespace Group (NSGroup) managed by {{  vars.product }}.
 
-To address this bootstrap issue, Tanzu Kubernetes Grid Integrated Edition exposes an optional configuration parameter in Network Profiles to systematically add Kubernetes control plane nodes to a pre-provisioned NSGroup. The BOSH vSphere cloud provider interface (CPI) has the ability to use the NSGroup to automatically manage members following the BOSH VM lifecycle for Kubernetes control plane nodes.
+To address this bootstrap issue, {{  vars.product }} exposes an optional configuration parameter in Network Profiles to systematically add Kubernetes control plane nodes to a pre-provisioned NSGroup. The BOSH vSphere cloud provider interface (CPI) has the ability to use the NSGroup to automatically manage members following the BOSH VM lifecycle for Kubernetes control plane nodes.
 
 To configure a Bootstrap Security Group, complete the following steps:
 
-1. Create the NSGroup in NSX Manager prior to provisioning a Kubernetes cluster using Tanzu Kubernetes Grid Integrated Edition. 
-For more information, see [Create an NSGroup](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-1/administration-guide/manager-mode/advanced-grouping-objects/create-an-ns-group.html) 
-in the NSX documentation.  
-2. Define a network profile that references the NSGroup UUID that the BOSH CPI can use to bootstrap the control plane node or nodes.  
+1. Create the NSGroup in NSX Manager prior to provisioning a Kubernetes cluster using {{  vars.product }}.
+For more information, see [Create an NSGroup](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-1/administration-guide/manager-mode/advanced-grouping-objects/create-an-ns-group.html)
+in the NSX documentation.
+2. Define a network profile that references the NSGroup UUID that the BOSH CPI can use to bootstrap the control plane node or nodes.
 <br>
-    For example, the following network profile specifies an NSGroup for the BOSH CPI to use to 
+    For example, the following network profile specifies an NSGroup for the BOSH CPI to use to
     dynamically update Kubernetes control plane node memberships:
 
     ```
@@ -31,4 +31,4 @@ in the NSX documentation.
     }
     ```
 
-You cannot modify the Bootstrap Security Group configuration on an existing cluster.  
+You cannot modify the Bootstrap Security Group configuration on an existing cluster.

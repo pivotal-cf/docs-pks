@@ -1,9 +1,9 @@
 ---
 title: Back Up and Restore StatefulSet App with Namespace
-owner: TKGI
+
 ---
 
-This topic describes how to use Velero to back up and restore a StatefulSet application with namespace.  
+This topic describes how to use Velero to back up and restore a StatefulSet application with namespace.
 
 ##<a id="overview"></a> Overview
 
@@ -152,7 +152,7 @@ cqlsh:demodb> select * from emp;
 
 Verify:
 
-``` 
+```
  emp_id | emp_city | emp_name | emp_phone | emp_sal
 --------+----------+----------+-----------+---------
     100 |     Cork |      Tom |       999 | 1000000
@@ -162,9 +162,9 @@ Verify:
 (3 rows)
 ```
 
-Verify that the other Cassandra DB instances have the same information:  
+Verify that the other Cassandra DB instances have the same information:
 
-* Cassandra DB instance 1  
+* Cassandra DB instance 1
 
   ```
   kubectl exec -it cassandra-1 -n cassandra -- cqlsh
@@ -183,7 +183,7 @@ Verify that the other Cassandra DB instances have the same information:
 
   (3 rows)
   ```
-* Cassandra DB instance 2  
+* Cassandra DB instance 2
 
   ```
   kubectl exec -it cassandra-2 -n cassandra -- cqlsh
@@ -314,8 +314,8 @@ kubectl describe backups.velero.io cassandra-backup -n velero
 
 Restore the Cassandra database app from the Velero backup. Note the following about the restore operation:
 
-- Pod annotation is still required for Velero backup of PV.  
-- The namespace `cassandra` was automatically re-created.  
+- Pod annotation is still required for Velero backup of PV.
+- The namespace `cassandra` was automatically re-created.
 
 
 Delete the namespace:
@@ -392,7 +392,7 @@ Restore PVs:  auto
 
 Node-Agent Restores (specify --details for more information):
   Completed:  3
-``` 
+```
 
 ```
 velero restore get
@@ -435,9 +435,9 @@ Verify the persistent volume:
 kubectl get pvc,pv -n cassandra
 ```
 
-Check the content of each Cassandra DB instance:  
+Check the content of each Cassandra DB instance:
 
-* Cassandra DB instance 0  
+* Cassandra DB instance 0
 
     ```
     kubectl exec -it cassandra-0 -n cassandra -- cqlsh
@@ -457,7 +457,7 @@ Check the content of each Cassandra DB instance:
     (3 rows)
     ```
 
-* Cassandra DB instance 1  
+* Cassandra DB instance 1
 
     ```
     kubectl exec -it cassandra-1 -n cassandra -- cqlsh
@@ -477,7 +477,7 @@ Check the content of each Cassandra DB instance:
     (3 rows)
     ```
 
-* Cassandra DB instance 2  
+* Cassandra DB instance 2
 
     ```
     kubectl exec -it cassandra-2 -n cassandra -- cqlsh

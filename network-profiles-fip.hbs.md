@@ -1,28 +1,28 @@
 ---
 title: Customize Floating IP Pools
-owner: TKGI
+
 ---
 
-This topic describes how to define network profiles for custom floating IP pools for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.  
+This topic describes how to define network profiles for custom floating IP pools for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
 
 ## <a id='floating-ip'></a> Create a Custom Floating IP Pool
 
-To deploy Tanzu Kubernetes Grid Integrated Edition to vSphere with NSX, you must define a Floating IP Pool in NSX Manager. IP addresses from the Floating IP Pool are used for SNAT IP addresses whenever a Namespace is created (NAT mode). In addition, IP addresses from the Floating IP Pool are assigned to load balancers automatically provisioned by NSX, including the load balancer fronting the TKGI API server and load balancers for pod ingress. For more information, see the [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) section of _Planning, Preparing, and Configuring NSX for Tanzu Kubernetes Grid Integrated Edition_.
+To deploy {{  vars.product }} to vSphere with NSX, you must define a Floating IP Pool in NSX Manager. IP addresses from the Floating IP Pool are used for SNAT IP addresses whenever a Namespace is created (NAT mode). In addition, IP addresses from the Floating IP Pool are assigned to load balancers automatically provisioned by NSX, including the load balancer fronting the TKGI API server and load balancers for pod ingress. For more information, see the [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) section of _Planning, Preparing, and Configuring NSX for {{  vars.product }}_.
 
-You can define a network profile that specifies a custom floating IP pool to use instead of the default pool specified in the Tanzu Kubernetes Grid Integrated Edition tile.  
+You can define a network profile that specifies a custom floating IP pool to use instead of the default pool specified in the {{  vars.product }} tile.
 
-<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range. 
-    To avoid conflicts with internal TKGI functions, always use IP addresses from the end of the floating IP pool. For more information, see 
+<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range.
+    To avoid conflicts with internal TKGI functions, always use IP addresses from the end of the floating IP pool. For more information, see
     <a href="troubleshoot-issues.html#fip-ip-reuse">Failed to Allocate FIP from Pool</a> in <em>General Troubleshooting</em>.
 </p>
 
 To define a custom floating IP pool, follow the steps below:
 
-1. Create a floating IP pool using NSX Manager prior to provisioning a Kubernetes cluster using Tanzu Kubernetes Grid Integrated Edition. For more information, see [Create IP Pool](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-2/administration-guide/manager-mode/advanced-grouping-objects/create-an-ip-pool.html) in the NSX documentation.
-1. Ensure routing to your external Tier-0 Router allows traffic to the new custom Floating IP subnet.  
-1. Define a network profile with a `fip_pool_ids` array containing the UUIDs for the floating IP pools that you defined. 
-If you want to include the default floating IP pool, 
-also add the UUID of the default floating IP pool to the `fip_pool_ids` array.  
+1. Create a floating IP pool using NSX Manager prior to provisioning a Kubernetes cluster using {{  vars.product }}. For more information, see [Create IP Pool](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-2/administration-guide/manager-mode/advanced-grouping-objects/create-an-ip-pool.html) in the NSX documentation.
+1. Ensure routing to your external Tier-0 Router allows traffic to the new custom Floating IP subnet.
+1. Define a network profile with a `fip_pool_ids` array containing the UUIDs for the floating IP pools that you defined.
+If you want to include the default floating IP pool,
+also add the UUID of the default floating IP pool to the `fip_pool_ids` array.
 <br>
     The following example defines a custom floating IP pool:
 
@@ -47,5 +47,5 @@ also add the UUID of the default floating IP pool to the `fip_pool_ids` array.
 
 ## <a id='floating-ip-modify'></a> Modify a Floating IP Pool
 
-You can modify the floating IP pool of an existing cluster. 
+You can modify the floating IP pool of an existing cluster.
 For more information, see [fip_pool_ids](network-profiles-define.html#parameter-fip-pool-ids) in _Creating and Managing Network Profiles_.

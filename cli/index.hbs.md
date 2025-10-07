@@ -1,34 +1,34 @@
 ---
 title: TKGI CLI Reference
-owner: TKGI
+
 ---
 
 {{{{raw}}}} <!--  NOTE: This page is automatically generated from the PKS CLI source. Do not manually edit this file.  --> {{{{/raw}}}}
 
-This topic lists VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) commands, used to interact with the TKGI API.
+This topic lists {{  vars.product_full }} Command Line Interface (TKGI CLI) commands, used to interact with the TKGI API.
 
 ## <a id="overview"></a>Overview
 
-The TKGI CLI is a command-line tool 
-to manage Tanzu Kubernetes Grid Integrated Edition provisioned Kubernetes clusters. 
-Use the TKGI CLI to create, manage, and delete Kubernetes clusters.  
+The TKGI CLI is a command-line tool
+to manage {{  vars.product }} provisioned Kubernetes clusters.
+Use the TKGI CLI to create, manage, and delete Kubernetes clusters.
 
-To install the TKGI CLI, see [Installing the TKGI CLI](../installing-cli.html).  
+To install the TKGI CLI, see [Installing the TKGI CLI](../installing-cli.html).
 
-To deploy workloads to a Kubernetes cluster, use [kubectl](../installing-kubectl-cli.html), the Kubernetes CLI.  
+To deploy workloads to a Kubernetes cluster, use [kubectl](../installing-kubectl-cli.html), the Kubernetes CLI.
 
-The `TKGI CLI` was previously named the `PKS CLI`, and both 
-CLIs accept the same commands and arguments.  
+The `TKGI CLI` was previously named the `PKS CLI`, and both
+CLIs accept the same commands and arguments.
 
-This version of Tanzu Kubernetes Grid Integrated Edition is compatible with both the TKGI and the PKS CLIs. 
-Enterprise PKS v1.7 and earlier versions are compatible with only the `PKS CLI`.  
+This version of {{  vars.product }} is compatible with both the TKGI and the PKS CLIs.
+Enterprise PKS v1.7 and earlier versions are compatible with only the `PKS CLI`.
 
-If you are using the `PKS CLI`:  
+If you are using the `PKS CLI`:
 
-* When using the reference below, substitute `pks` where the commands below use `tkgi`. 
-* Consider revising your command line scripts to use the `tkgi` CLI:  
-    * New commands have been added to the `tkgi` CLI.   
-    * The `pks` CLI might eventually be deprecated. 
+* When using the reference below, substitute `pks` where the commands below use `tkgi`.
+* Consider revising your command line scripts to use the `tkgi` CLI:
+    * New commands have been added to the `tkgi` CLI.
+    * The `pks` CLI might eventually be deprecated.
 
 ## <a id="cli-commands"></a>TKGI CLI Commands
 
@@ -44,11 +44,11 @@ Cancel a task.
 tkgi cancel-task TASK [flags]
 ```
 
-Where `TASK` is the ID of the task to cancel.  
+Where `TASK` is the ID of the task to cancel.
 
 ### Synopsis
 
-Cancels a task.  
+Cancels a task.
 
 ### Examples
 
@@ -65,17 +65,17 @@ Cancels a task.
 <hr>
 ## <a id='certificates'></a> tkgi certificates
 
-List a Kubernetes cluster's certificates.  
+List a Kubernetes cluster's certificates.
 
 ```
 tkgi certificates CLUSTER-NAME [flags]
 ```
 
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
 ### Synopsis
 
-Lists the certificates for a specific cluster. Requires a target cluster name.  
+Lists the certificates for a specific cluster. Requires a target cluster name.
 
 ### Examples
 
@@ -96,19 +96,19 @@ Lists the certificates for a specific cluster. Requires a target cluster name.
 <hr>
 ## <a id='cluster'></a> tkgi cluster
 
-List a cluster's details.  
+List a cluster's details.
 
 ```
 tkgi cluster CLUSTER-NAME [flags]
 ```
 
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
 ### Synopsis
 
 Returns the details about a cluster, including
-name, host, port, ID, number of worker nodes, and last operation.  
-      
+name, host, port, ID, number of worker nodes, and last operation.
+
 ### Examples
 
 ```
@@ -126,7 +126,7 @@ name, host, port, ID, number of worker nodes, and last operation.
 <hr>
 ## <a id='clusters'></a> tkgi clusters
 
-List clusters.  
+List clusters.
 
 ```
 tkgi clusters [flags]
@@ -134,8 +134,8 @@ tkgi clusters [flags]
 
 ### Synopsis
 
-Lists and describes the Kubernetes clusters created using TKGI. 
-Includes the last actions taken on the clusters.  
+Lists and describes the Kubernetes clusters created using TKGI.
+Includes the last actions taken on the clusters.
 
 ### Examples
 
@@ -153,17 +153,17 @@ Includes the last actions taken on the clusters.
 <hr>
 ## <a id='compute-profile'></a> tkgi compute-profile
 
-Describe a compute profile.  
+Describe a compute profile.
 
 ```
 tkgi compute-profile PROFILE [flags]
 ```
 
-Where `PROFILE` is the name of the profile to describe.  
+Where `PROFILE` is the name of the profile to describe.
 
 ### Synopsis
 
-Returns the configuration of a saved compute profile.  
+Returns the configuration of a saved compute profile.
 
 ### Examples
 
@@ -181,7 +181,7 @@ Returns the configuration of a saved compute profile.
 <hr>
 ## <a id='compute-profiles'></a> tkgi compute-profiles
 
-List compute profiles.  
+List compute profiles.
 
 ```
 tkgi compute-profiles [flags]
@@ -189,7 +189,7 @@ tkgi compute-profiles [flags]
 
 ### Synopsis
 
-Lists and describes compute profiles.  
+Lists and describes compute profiles.
 
 ### Examples
 
@@ -207,23 +207,23 @@ Lists and describes compute profiles.
 <hr>
 ## <a id='create-cluster'></a> tkgi create-cluster
 
-Create a Kubernetes cluster.  
+Create a Kubernetes cluster.
 
 ```
 tkgi create-cluster CLUSTER-NAME [flags]
 ```
 
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
-<p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
+<p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster
 if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
 </p>
 
 ### Synopsis
 
-Creates a Kubernetes cluster. 
-`create-cluster` requires a cluster name, an external hostname, and plan. 
-The external hostname can be the load balancer from which you access your Kubernetes API (aka, your cluster control plane).  
+Creates a Kubernetes cluster.
+`create-cluster` requires a cluster name, an external hostname, and plan.
+The external hostname can be the load balancer from which you access your Kubernetes API (aka, your cluster control plane).
 
 ### Examples
 
@@ -249,23 +249,23 @@ The external hostname can be the load balancer from which you access your Kubern
       --wait                         Wait for the operation to finish
 ```
 
-For information about using compute profiles, see [Using Compute Profiles (vSphere)](../compute-profiles-use.html).  
+For information about using compute profiles, see [Using Compute Profiles (vSphere)](../compute-profiles-use.html).
 
 <br>
 <hr>
 ## <a id='create-compute-profile'></a> tkgi create-compute-profile
 
-Create a compute profile.  
+Create a compute profile.
 
 ```
 tkgi create-compute-profile PROFILE-PATH [flags]
 ```
 
-Where `PROFILE-PATH` is the JSON file describing the compute profile.  
+Where `PROFILE-PATH` is the JSON file describing the compute profile.
 
 ### Synopsis
 
-Creates a compute profile. Requires a path to the profile JSON file.  
+Creates a compute profile. Requires a path to the profile JSON file.
 
 ### Examples
 
@@ -279,24 +279,24 @@ Creates a compute profile. Requires a path to the profile JSON file.
   -h, --help   help for create-compute-profile
 ```
 
-For information about creating compute profiles, 
-see [Creating and Managing Compute Profiles with the CLI (vSphere)](../compute-profiles-manage.html).  
+For information about creating compute profiles,
+see [Creating and Managing Compute Profiles with the CLI (vSphere)](../compute-profiles-manage.html).
 
 <br>
 <hr>
 ## <a id='create-kubernetes-profile'></a> tkgi create-kubernetes-profile
 
-Create a Kubernetes profile.  
+Create a Kubernetes profile.
 
 ```
 tkgi create-kubernetes-profile PROFILE-PATH [flags]
 ```
 
-Where `PROFILE-PATH` is the JSON file describing the Kubernetes profile.  
+Where `PROFILE-PATH` is the JSON file describing the Kubernetes profile.
 
 ### Synopsis
 
-Creates a Kubernetes profile. Requires a path to the profile JSON file.  
+Creates a Kubernetes profile. Requires a path to the profile JSON file.
 
 ### Examples
 
@@ -319,11 +319,11 @@ Create a network profile.
 tkgi create-network-profile PROFILE-PATH [flags]
 ```
 
-Where `PROFILE-PATH` is the JSON file describing the network profile.  
+Where `PROFILE-PATH` is the JSON file describing the network profile.
 
 ### Synopsis
 
-Creates a network profile. Requires a path to the profile JSON file. (Only applicable for NSX.)  
+Creates a network profile. Requires a path to the profile JSON file. (Only applicable for NSX.)
 
 
 ### Examples
@@ -341,17 +341,17 @@ Creates a network profile. Requires a path to the profile JSON file. (Only appli
 <hr>
 ## <a id='delete-cluster'></a> tkgi delete-cluster
 
-Delete a Kubernetes cluster.  
+Delete a Kubernetes cluster.
 
 ```
 tkgi delete-cluster CLUSTER-NAME [flags]
 ```
 
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
 ### Synopsis
 
-Deletes a Kubernetes cluster. Requires a cluster name.  
+Deletes a Kubernetes cluster. Requires a cluster name.
 
 ### Examples
 
@@ -376,11 +376,11 @@ Delete a compute profile.
 tkgi delete-compute-profile PROFILE [flags]
 ```
 
-Where `PROFILE` is the name of the profile to delete.  
+Where `PROFILE` is the name of the profile to delete.
 
 ### Synopsis
 
-Deletes a compute profile. Requires a compute profile name. The profile cannot be deleted if it is in use.  
+Deletes a compute profile. Requires a compute profile name. The profile cannot be deleted if it is in use.
 
 ### Examples
 
@@ -398,17 +398,17 @@ Deletes a compute profile. Requires a compute profile name. The profile cannot b
 <hr>
 ## <a id='delete-kubernetes-profile'></a> tkgi delete-kubernetes-profile
 
-Delete a Kubernetes profile.  
+Delete a Kubernetes profile.
 
 ```
 tkgi delete-kubernetes-profile PROFILE [flags]
 ```
 
-Where `PROFILE` is the name of the profile to delete.  
+Where `PROFILE` is the name of the profile to delete.
 
 ### Synopsis
 
-Deletes a Kubernetes profile. Requires a Kubernetes profile name. The profile cannot be deleted if it is in use.  
+Deletes a Kubernetes profile. Requires a Kubernetes profile name. The profile cannot be deleted if it is in use.
 
 ### Examples
 
@@ -426,18 +426,18 @@ Deletes a Kubernetes profile. Requires a Kubernetes profile name. The profile ca
 <hr>
 ## <a id='delete-network-profile'></a> tkgi delete-network-profile
 
-Delete a network profile.  
+Delete a network profile.
 
 ```
 tkgi delete-network-profile PROFILE [flags]
 ```
 
-Where `PROFILE` is the name of the profile to delete.  
+Where `PROFILE` is the name of the profile to delete.
 
 ### Synopsis
 
-Deletes a network profile. Requires a network profile name. 
-The profile cannot be deleted if it is in use.  Only applicable for NSX.  
+Deletes a network profile. Requires a network profile name.
+The profile cannot be deleted if it is in use.  Only applicable for NSX.
 
 ### Examples
 
@@ -461,15 +461,15 @@ Allows you to connect to a cluster and use kubectl.
 tkgi get-credentials CLUSTER-NAME [flags]
 ```
 
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
 ### Synopsis
 
-Run this command to update a kubeconfig file so that you can access the cluster through kubectl.  
+Run this command to update a kubeconfig file so that you can access the cluster through kubectl.
 
-Use the `--sso` flag if the TKGI tile is configured with SAML.  
+Use the `--sso` flag if the TKGI tile is configured with SAML.
 
-If OIDC is enabled and is not SSO, the password could also be set through environment variable: `PKS_USER_PASSWORD`.  
+If OIDC is enabled and is not SSO, the password could also be set through environment variable: `PKS_USER_PASSWORD`.
 
 ### Examples
 
@@ -498,17 +498,17 @@ tkgi get-kubeconfig CLUSTER-NAME -u USER -p PASSWORD -a API [flags]
 ```
 Where:
 
-* `CLUSTER-NAME` is the name of your cluster.  
-* `USER` is the account name to use for authentication.  
-* `PASSWORD` is the password to use for authentication.  
-* `API` is the IP Address for the API.  
+* `CLUSTER-NAME` is the name of your cluster.
+* `USER` is the account name to use for authentication.
+* `PASSWORD` is the password to use for authentication.
+* `API` is the IP Address for the API.
 
 ### Synopsis
 
-Run this command to generate a kubeconfig file so you can access the cluster through kubectl. 
-Typically your kubeconfig will need to be updated based on any new role bindings you have been granted.  
+Run this command to generate a kubeconfig file so you can access the cluster through kubectl.
+Typically your kubeconfig will need to be updated based on any new role bindings you have been granted.
 
-Use the `--sso` flag if the TKGI tile is configured with SAML.  
+Use the `--sso` flag if the TKGI tile is configured with SAML.
 
 ### Examples
 
@@ -516,7 +516,7 @@ Use the `--sso` flag if the TKGI tile is configured with SAML.
   tkgi get-kubeconfig my-cluster -u username -p password -a 192.168.1.1
 
 
-  tkgi get-kubeconfig my-cluster --sso -a 192.168.1.1 
+  tkgi get-kubeconfig my-cluster --sso -a 192.168.1.1
 ```
 
 ### Options
@@ -536,17 +536,17 @@ Use the `--sso` flag if the TKGI tile is configured with SAML.
 <hr>
 ## <a id='kubernetes-profile'></a> tkgi kubernetes-profile
 
-View a Kubernetes profile.  
+View a Kubernetes profile.
 
 ```
 tkgi kubernetes-profile PROFILE [flags]
 ```
 
-Where `PROFILE` is the name of the profile.  
+Where `PROFILE` is the name of the profile.
 
 ### Synopsis
 
-Lists the details of a saved Kubernetes profile configuration.  
+Lists the details of a saved Kubernetes profile configuration.
 
 ### Examples
 
@@ -572,7 +572,7 @@ tkgi kubernetes-profiles [flags]
 
 ### Synopsis
 
-Lists the details of all saved Kubernetes profile configurations.  
+Lists the details of all saved Kubernetes profile configurations.
 
 ### Examples
 
@@ -597,16 +597,16 @@ tkgi login  -u USER -p PASSWORD -a API [flags]
 ```
 Where:
 
-* `USER` is the account name to use for authentication.  
-* `PASSWORD` is the password to use for authentication.  
-* `API` is the IP Address for the TKGIAPI.  
+* `USER` is the account name to use for authentication.
+* `PASSWORD` is the password to use for authentication.
+* `API` is the IP Address for the TKGIAPI.
 
 ### Synopsis
 
-The login command requires the following parameters: 
-`-a` to target the IP of your TKGI API, `-u` for user name, and `-p` for password.  
+The login command requires the following parameters:
+`-a` to target the IP of your TKGI API, `-u` for user name, and `-p` for password.
 
-Use the `--sso` flag if the TKGI tile is configured with SAML.  
+Use the `--sso` flag if the TKGI tile is configured with SAML.
 
 ### Examples
 
@@ -643,7 +643,7 @@ Use the `--sso` flag if the TKGI tile is configured with SAML.
 <hr>
 ## <a id='logout'></a> tkgi logout
 
-Log out of TKGI.  
+Log out of TKGI.
 
 ```
 tkgi logout [flags]
@@ -651,12 +651,12 @@ tkgi logout [flags]
 
 ### Synopsis
 
-Log out of TKGI. Does not remove kubeconfig credentials or kubectl access.  
+Log out of TKGI. Does not remove kubeconfig credentials or kubectl access.
 
 ### Examples
 
 ```
-  tkgi logout 
+  tkgi logout
 ```
 
 ### Options
@@ -668,17 +668,17 @@ Log out of TKGI. Does not remove kubeconfig credentials or kubectl access.
 <hr>
 ## <a id='network-profile'></a> tkgi network-profile
 
-View a network profile.  
+View a network profile.
 
 ```
 tkgi network-profile PROFILE [flags]
 ```
 
-Where `PROFILE` is the name of the profile.  
+Where `PROFILE` is the name of the profile.
 
 ### Synopsis
 
-Returns the configuration of a saved network profile.  
+Returns the configuration of a saved network profile.
 
 ### Examples
 
@@ -696,7 +696,7 @@ Returns the configuration of a saved network profile.
 <hr>
 ## <a id='network-profiles'></a> tkgi network-profiles
 
-List network profiles.  
+List network profiles.
 
 ```
 tkgi network-profiles [flags]
@@ -704,7 +704,7 @@ tkgi network-profiles [flags]
 
 ### Synopsis
 
-Lists and describes all of the network profiles created with TKGI.  
+Lists and describes all of the network profiles created with TKGI.
 
 ### Examples
 
@@ -722,7 +722,7 @@ Lists and describes all of the network profiles created with TKGI.
 <hr>
 ## <a id='plans'></a> tkgi plans
 
-List plans.  
+List plans.
 
 ```
 tkgi plans [flags]
@@ -730,7 +730,7 @@ tkgi plans [flags]
 
 ### Synopsis
 
-Lists and describes the available preconfigured plans.  
+Lists and describes the available preconfigured plans.
 
 ### Examples
 
@@ -754,11 +754,11 @@ tkgi promote-cluster-to-policy CLUSTER-NAME [flags]
 ```
 Where:
 
-* `CLUSTER-NAME` is the name of your cluster.  
+* `CLUSTER-NAME` is the name of your cluster.
 
 ### Synopsis
 
-Promotes a specific cluster to NSX Policy.  
+Promotes a specific cluster to NSX Policy.
 
 
 ### Examples
@@ -779,14 +779,14 @@ Promotes a specific cluster to NSX Policy.
 <hr>
 ## <a id='resize'></a> tkgi resize
 
-Change the number of worker nodes in a cluster.  
+Change the number of worker nodes in a cluster.
 
 <p class="note caution">
 <strong>Note:</strong>
 This command is deprecated as of TKGI v1.12.
 VMware recommends that you avoid using the <code>tkgi resize</code> command to perform resizing
-operations. Use <code>tkgi update-cluster --num-nodes</code> instead. 
-For more information about the <code>update-cluster</code> command, 
+operations. Use <code>tkgi update-cluster --num-nodes</code> instead.
+For more information about the <code>update-cluster</code> command,
 see <a href="#update-cluster"><code>tkgi update-cluster</code></a> below.
 </p>
 
@@ -794,13 +794,13 @@ see <a href="#update-cluster"><code>tkgi update-cluster</code></a> below.
 tkgi resize CLUSTER-NAME [flags]
 ```
 
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
 ### Synopsis
 
 This command is deprecated as of TKGI v1.12. Use `tkgi update-cluster` instead.
 
-Resize requires a cluster name, and the number of desired worker nodes. 
+Resize requires a cluster name, and the number of desired worker nodes.
 You can scale up clusters to the plan defined maximum number of worker nodes, or scale down clusters to one node.
 
 
@@ -825,20 +825,20 @@ tkgi resize my-cluster --num-nodes 5
 <hr>
 ## <a id='rotate-certificates'></a> tkgi rotate-certificates
 
-Rotate certificates.  
+Rotate certificates.
 
 ```
 tkgi rotate-certificates CLUSTER-NAME [flags]
 ```
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Run <code>tkgi rotate-certificates</code> only on TKGI clusters that have been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Run <code>tkgi rotate-certificates</code> only on TKGI clusters that have been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
 ### Synopsis
 
-Rotates the certificates for a specific cluster. Requires a target cluster name.  
+Rotates the certificates for a specific cluster. Requires a target cluster name.
 
 ### Examples
 
@@ -867,12 +867,12 @@ List a task.
 tkgi task TASK [flags]
 ```
 
-Where `TASK` is the ID of the task to describe.  
+Where `TASK` is the ID of the task to describe.
 
 
 ### Synopsis
 
-List the status and details of a task.  
+List the status and details of a task.
 
 ### Examples
 
@@ -919,24 +919,24 @@ Lists recent upgrade tasks. By default, it lists the ten most recent upgrade tas
 <hr>
 ## <a id='update-cluster'></a> tkgi update-cluster
 
-Update a Kubernetes cluster's configuration.  
+Update a Kubernetes cluster's configuration.
 
 ```
 tkgi update-cluster CLUSTER-NAME [flags]
 ```
 
-Where `CLUSTER-NAME` is the name of your cluster.  
+Where `CLUSTER-NAME` is the name of your cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Some <code>tkgi update-cluster</code> options are not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Some <code>tkgi update-cluster</code> options are not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="../understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ### Synopsis
 
-Updates the configuration of a specific Kubernetes cluster.  
+Updates the configuration of a specific Kubernetes cluster.
 
-Requires a target cluster name and at least 1 valid action flag (e.g. --num-nodes). 
-Updates the cluster settings based on the passed flag values. 
-All updated values will persist through cluster upgrades.  
+Requires a target cluster name and at least 1 valid action flag (e.g. --num-nodes).
+Updates the cluster settings based on the passed flag values.
+All updated values will persist through cluster upgrades.
 
 ### Examples
 
@@ -958,7 +958,7 @@ All updated values will persist through cluster upgrades.
       --kubelet-drain-ignore-daemonsets string   Action flag, Ignore DaemonSet managed pods during drain.
       --kubelet-drain-delete-local-data string   Action flag, Drain even if there are pods using emptyDir.
       --kubelet-drain-force-node string          Action flag, Forcefully terminate pods which fail to drain. Use it with caution.
-      --node-pool-instances string               Specify how many instances each node pool should have, e.g. `node-pool1:2`. Applicable only when the cluster has a compute profile applied to it.  
+      --node-pool-instances string               Specify how many instances each node pool should have, e.g. `node-pool1:2`. Applicable only when the cluster has a compute profile applied to it.
       --tags []ClusterTag                        Action flag, Add/Update/Delete Tags for VMs as a list of key value pairs (eg. --tags "key1:val1,key2:val2,keyWithoutVal"). To delete all tags, pass an empty string (eg. --tags "")
       --config-file string                       Optional, path to the configuration file, supported format json/yaml, identified by file extension
       --enforce-compute-profile-update           Force update to the new compute profile without any validation
@@ -968,18 +968,18 @@ All updated values will persist through cluster upgrades.
   -h, --help                                     help for update-cluster
 ```
 
-The Ops Manager TKGI tile exposes an additional option, under **TKGI API** > **Automatic retry on cluster update operations failure**, which when enabled retries the `tkgi update-cluster` process up to three times if it fails.
+The {{ vars.platform_name }} TKGI tile exposes an additional option, under **TKGI API** > **Automatic retry on cluster update operations failure**, which when enabled retries the `tkgi update-cluster` process up to three times if it fails.
 
-For information about using compute profiles, including some limitations, see [Using Compute Profiles (vSphere)](../compute-profiles-use.html).  
+For information about using compute profiles, including some limitations, see [Using Compute Profiles (vSphere)](../compute-profiles-use.html).
 
-If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](../release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](../release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 <br>
 <hr>
 ## <a id='upgrade-cluster'></a> tkgi upgrade-cluster
 
-Upgrade a Kubernetes cluster.  
+Upgrade a Kubernetes cluster.
 
 ```
 tkgi upgrade-cluster CLUSTER-NAME [flags]
@@ -989,7 +989,7 @@ Where `CLUSTER-NAME` is the name of your cluster.
 
 ### Synopsis
 
-Upgrades the specified Kubernetes cluster to the current TKGI version. You must provide a single cluster name.  
+Upgrades the specified Kubernetes cluster to the current TKGI version. You must provide a single cluster name.
 
 ### Examples
 
@@ -1008,14 +1008,14 @@ Upgrades the specified Kubernetes cluster to the current TKGI version. You must 
       --wait                   Wait for the operation to finish
 ```
 
-If you are upgrading a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](../release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+If you are upgrading a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](../release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 <br>
 <hr>
 ## <a id='upgrade-clusters'></a> tkgi upgrade-clusters
 
-Upgrade one or more Kubernetes clusters.  
+Upgrade one or more Kubernetes clusters.
 
 ```
 tkgi upgrade-clusters --clusters CLUSTER-NAME-1,CLUSTER-NAME-2 [flags]
@@ -1023,12 +1023,12 @@ tkgi upgrade-clusters --clusters CLUSTER-NAME-1,CLUSTER-NAME-2 [flags]
 
 Where:
 
-* `CLUSTER-NAME-1` is the name of a cluster.  
-* `CLUSTER-NAME-2` is the name of a cluster.  
+* `CLUSTER-NAME-1` is the name of a cluster.
+* `CLUSTER-NAME-2` is the name of a cluster.
 
 ### Synopsis
 
-Upgrades one or more Kubernetes clusters to the current TKGI version.  
+Upgrades one or more Kubernetes clusters to the current TKGI version.
 
 ### Examples
 
@@ -1044,8 +1044,8 @@ Upgrades one or more Kubernetes clusters to the current TKGI version.
   -c, --clusters string       List of clusters to be upgraded. Should be a comma separated list of names.
   -h, --help                  help for upgrade-clusters.
       --json                  Return the TKGI-API output as JSON.
-      --max-in-flight int32   Optional, number of clusters to be upgraded in parallel (default 1).  
-                              The max-in-flight value cannot exceed the Worker VM Max in Flight setting defined for your TKGI environment.  
+      --max-in-flight int32   Optional, number of clusters to be upgraded in parallel (default 1).
+                              The max-in-flight value cannot exceed the Worker VM Max in Flight setting defined for your TKGI environment.
       --non-interactive       Don't ask for user input.
       --wait                  Wait for the operation to finish.
 ```
@@ -1053,8 +1053,8 @@ Upgrades one or more Kubernetes clusters to the current TKGI version.
 <p class="note"><strong>Note</strong>: <code>tkgi upgrade-clusters</code> supports upgrading clusters in parallel. When using <code>tkgi upgrade-clusters</code>, the worker nodes within an upgrading cluster are upgraded serially.
 </p>
 
-If you are upgrading a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](../release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+If you are upgrading a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](../release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
-For more information, see [Upgrade Multiple Clusters](../upgrade-clusters.html#upgrade-clusters-multi) in _Upgrading Clusters_.  
+For more information, see [Upgrade Multiple Clusters](../upgrade-clusters.html#upgrade-clusters-multi) in _Upgrading Clusters_.

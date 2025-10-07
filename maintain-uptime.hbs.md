@@ -1,9 +1,9 @@
 ---
 title: Maintaining Workload Uptime
-owner: TKGI
+
 ---
 
-This topic describes how you can maintain workload uptime for Kubernetes clusters deployed with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how you can maintain workload uptime for Kubernetes clusters deployed with {{  vars.product_full }} ({{ vars.product_short }}).
 
 To maintain workload uptime, configure the following settings in your deployment manifest:
 
@@ -14,21 +14,21 @@ To increase uptime, you can also refer to the documentation for the services tha
 
 ##<a id='upgrades'></a> About Cluster Upgrades
 
-The Tanzu Kubernetes Grid Integrated Edition tile contains an errand that upgrades all Kubernetes clusters. 
-Upgrades run on a single VM at a time:  
+The {{  vars.product }} tile contains an errand that upgrades all Kubernetes clusters.
+Upgrades run on a single VM at a time:
 
-* While a control plane VM is upgraded, the VM's workloads are distributed to the cluster's remaining control plane VMs. 
-* While a worker VM is upgraded, the workload on that VM goes down. 
-The cluster's additional worker VMs continue to run replicas of your workload, maintaining the uptime of your workload.  
+* While a control plane VM is upgraded, the VM's workloads are distributed to the cluster's remaining control plane VMs.
+* While a worker VM is upgraded, the workload on that VM goes down.
+The cluster's additional worker VMs continue to run replicas of your workload, maintaining the uptime of your workload.
 
     <p class="note"><strong>Note</strong>: Ensure that your pods are bound to a <em>ReplicaSet</em> or <em>Deployment</em>. Naked pods are not rescheduled in the event of a node failure. For more information, see <a href="https://kubernetes.io/docs/concepts/configuration/overview/#naked-pods-vs-replicasets-deployments-and-jobs">Configuration Best Practices</a> in the Kubernetes documentation.</p>
 
-Upgrading a cluster with only a single control plane or worker VM results in a workload outage. 
+Upgrading a cluster with only a single control plane or worker VM results in a workload outage.
 
-To prevent workload downtime during a cluster upgrade, {{{ vars.recommended_by }}} recommends the following:  
+To prevent workload downtime during a cluster upgrade, {{{ vars.recommended_by }}} recommends the following:
 
-* Ensure none of the control plane VMs being upgraded will become overloaded during the cluster upgrade. 
-See [Control Plane Node VM Size](vm-sizing.html#master-sizing) for more information. 
+* Ensure none of the control plane VMs being upgraded will become overloaded during the cluster upgrade.
+See [Control Plane Node VM Size](vm-sizing.html#master-sizing) for more information.
 * Run your workload on at least three worker VMs and using multiple replicas of your workloads spread across those VMs.
 You must edit your manifest to define the replica set and configure an anti-affinity rule to ensure that the replicas run on separate worker nodes.
 
@@ -154,6 +154,6 @@ Depending on the underlying storage type, PVs are either completely free of zona
 To ensure the uptime of your PVs during a cluster upgrade, {{{ vars.recommended_by }}} recommends that you have at least two nodes per AZ.
 By configuring your workload as suggested, Kubernetes reschedules pods in the other node of the same AZ while BOSH is performing the upgrade.
 
-For information about configuring PVs in Tanzu Kubernetes Grid Integrated Edition, see [Configuring and Using PersistentVolumes](volumes.html).
+For information about configuring PVs in {{  vars.product }}, see [Configuring and Using PersistentVolumes](volumes.html).
 
-For information about the supported storage topologies for Tanzu Kubernetes Grid Integrated Edition on vSphere, see [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html).
+For information about the supported storage topologies for {{  vars.product }} on vSphere, see [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html).

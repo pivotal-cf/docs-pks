@@ -1,13 +1,13 @@
 ---
 title: Managing Clusters with the CLI
-owner: TKGI
+
 ---
 
-The following topics describe how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) to manage TKGI-provisioned Kubernetes clusters:  
+The following topics describe how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) to manage TKGI-provisioned Kubernetes clusters:
 
 <ul>
   <li>
-    <a href="login.html">Logging in to Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="login.html">Logging in to {{  vars.product }}</a>
   </li>
   <li>
     <a href="create-cluster.html">Creating Clusters</a>

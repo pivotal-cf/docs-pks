@@ -1,10 +1,10 @@
 ---
 title: Configuring Telegraf in TKGI
-owner: TKGI
+
 ---
 
 This topic describes how to configure Telegraf in
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+{{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id="overview"></a>Overview
 
@@ -23,12 +23,12 @@ To collect metrics using Telegraf:
 
 1. Create a configuration file for your output plugin.
 See [Create a Configuration File](#toml) below.
-1. Configure Telegraf in the Tanzu Kubernetes Grid Integrated Edition tile.
-See [Configure Telegraf in the Tile](#connect) below. 
+1. Configure Telegraf in the {{  vars.product }} tile.
+See [Configure Telegraf in the Tile](#connect) below.
 
-### <a id="toml"></a> Create a Configuration File 
+### <a id="toml"></a> Create a Configuration File
 
-To connect a monitoring service to TKGI, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the Tanzu Kubernetes Grid Integrated Edition tile to connect the service. 
+To connect a monitoring service to TKGI, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the {{  vars.product }} tile to connect the service.
 
 To create a configuration file for your monitoring service:
 
@@ -36,7 +36,7 @@ To create a configuration file for your monitoring service:
     For example, if you want to collect metrics from etcd, the etcd documentation recommends using the open-source Prometheus monitoring service.
 
 1. Create your configuration file using the required format of your monitoring service.
-For example, if you want to create a configuration file for an HTTP output plugin, create a file similar to the following: 
+For example, if you want to create a configuration file for an HTTP output plugin, create a file similar to the following:
 
     ```
     [[outputs.http]]
@@ -53,10 +53,10 @@ For example, if you want to create a configuration file for an HTTP output plugi
 
 To configure TKGI to use Telegraf for metric collection:
 
-1. Navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile > **Settings** > **Host Monitoring**.
+1. Navigate to the **{{  vars.product }}** tile > **Settings** > **Host Monitoring**.
 
-1. Under **Enable Telegraf Outputs?**, select **Yes**.  
-  ![Host Monitoring pane](images/host-monitoring-telegraf.png)  
+1. Under **Enable Telegraf Outputs?**, select **Yes**.
+  ![Host Monitoring pane](images/host-monitoring-telegraf.png)
 1. Configure Telegraf output settings as described in the table below.
 
     <table class="nice">
@@ -71,13 +71,13 @@ To configure TKGI to use Telegraf for metric collection:
           <strong>Prometheus input plugin Metric version</strong>
         </td>
         <td>
-          Controls the metrics mapping from Prometheus to Telegraf when scraping metrics using the Prometheus input plugin. 
-          The Prometheus input plugin scrapes the following metrics: 
-          <code>node_exporter</code>, <code>kube_apiserver</code>, <code>kube_controller_manager</code>, <code>kube_scheduler</code>, and <code>etcd metrics</code>. 
+          Controls the metrics mapping from Prometheus to Telegraf when scraping metrics using the Prometheus input plugin.
+          The Prometheus input plugin scrapes the following metrics:
+          <code>node_exporter</code>, <code>kube_apiserver</code>, <code>kube_controller_manager</code>, <code>kube_scheduler</code>, and <code>etcd metrics</code>.
           <br><br>
-          Your Prometheus client must be configured with the matching <code>metric_version</code> setting. 
-          For more information, 
-          see <a href="https://github.com/influxdata/telegraf/blob/v1.20.3/plugins/inputs/prometheus/README.md">Prometheus Input Plugin</a> 
+          Your Prometheus client must be configured with the matching <code>metric_version</code> setting.
+          For more information,
+          see <a href="https://github.com/influxdata/telegraf/blob/v1.20.3/plugins/inputs/prometheus/README.md">Prometheus Input Plugin</a>
           in the Telegraf GitHub repository.
         </td>
       </tr>
@@ -153,9 +153,9 @@ To configure TKGI to use Telegraf for metric collection:
           <strong>Include Telegraf metrics when Telegraf enabled</strong>
         </td>
         <td>
-          Enable to send Telegraf process memory status, agent metrics, and write metrics. 
-          For more information, 
-          see <a href="https://github.com/influxdata/telegraf/tree/v1.20.3/plugins/inputs/internal">Telegraf Internal Input Plugin</a> 
+          Enable to send Telegraf process memory status, agent metrics, and write metrics.
+          For more information,
+          see <a href="https://github.com/influxdata/telegraf/tree/v1.20.3/plugins/inputs/internal">Telegraf Internal Input Plugin</a>
           in the Telegraf GitHub repository.
         </td>
       </tr>
@@ -164,7 +164,7 @@ To configure TKGI to use Telegraf for metric collection:
     <p class="note"><strong>Note:</strong>
       The Telegraf output configuration options are visible to TKGI admins only.
     </p>
-    
+
     Components you enable in this step will be visible to TKGI admins only.
 
 1. In **Setup Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents of the configuration file
@@ -180,15 +180,15 @@ See the following example for an HTTP output plugin:
       [processors.override.tags]
         director = "bosh-director-1"
     ```
-    
-1. In **Setup Telegraf Agent**, replace the default Telegraf agent property values 
-with your custom values for interval, buffering and debugging related properties. 
-For more information about the configurable Telegraf agent properties, 
-see [Agent configuration](https://docs.influxdata.com/telegraf/v1.15/administration/configuration/#agent-configuration) 
+
+1. In **Setup Telegraf Agent**, replace the default Telegraf agent property values
+with your custom values for interval, buffering and debugging related properties.
+For more information about the configurable Telegraf agent properties,
+see [Agent configuration](https://docs.influxdata.com/telegraf/v1.15/administration/configuration/#agent-configuration)
 in the Telegraf documentation.
 1. Click **Save**.
 
-1. To deploy the Tanzu Kubernetes Grid Integrated Edition tile, return to the Ops Manager
+1. To deploy the {{  vars.product }} tile, return to the {{ vars.platform_name }}
 Installation Dashboard and click **Review Pending Changes** >
 **Apply Changes**.
 

@@ -1,10 +1,10 @@
 ---
-title: Monitoring Ingress Resources 
-owner: TKGI-NSX
+title: Monitoring Ingress Resources
+ -NSX
 lbtype: monitor
 ---
 
-This topic describes how to monitor the health status of the NSX ingress load balancer resources for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to monitor the health status of the NSX ingress load balancer resources for {{  vars.product_full }} ({{ vars.product_short }}).
 
 <p class="note"><strong>Note:</strong> This feature requires NCP v2.5.1 or later.</p>
 
@@ -15,25 +15,25 @@ This topic describes how to monitor the health status of the NSX ingress load ba
 
 ## <a id='nsxLoadBalancerMonitors'></a> Monitor the NSX Load Balancer Service
 
-You can use the NSXLoadBalancerMonitor CRD to monitor the NSX load balancer service, 
-including traffic, usage and health score information. 
+You can use the NSXLoadBalancerMonitor CRD to monitor the NSX load balancer service,
+including traffic, usage and health score information.
 
-The NSXLoadBalancerMonitor returns statistics showing the number of 
-connections and throughput of the virtual servers for each type of load balancer.  
+The NSXLoadBalancerMonitor returns statistics showing the number of
+connections and throughput of the virtual servers for each type of load balancer.
 
-In addition to connections and throughput statistics the NSXLoadBalancerMonitor CRD returns 
+In addition to connections and throughput statistics the NSXLoadBalancerMonitor CRD returns
 two health scores for the current performance of load balancers:
 
-- `servicePressureIndex` which represents an overall health score for the NSX load balancer service.  
-- `infraPressureIndex` which represents the heath score of the NSX Edge Node that is running the load balancer and associated virtual servers.  
+- `servicePressureIndex` which represents an overall health score for the NSX load balancer service.
+- `infraPressureIndex` which represents the heath score of the NSX Edge Node that is running the load balancer and associated virtual servers.
 
-Based on the health score the user can decide what action to take:  
+Based on the health score the user can decide what action to take:
 
-* If the health score is poor for one of the layer 4 load balancers, you can use a network profile to 
-increase the size of the NSX load balancer service. 
-For more information see [Defining Network Profiles for the TCP Layer 4 Load Balancer](./network-profiles-ncp-lb.html).  
-* If the health score is poor for the layer 7 ingress load balancers, you can use the 
-[Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer CRD](nsxt-ingress-scale.html#LoadBalancer) to manually scale ingress.  
+* If the health score is poor for one of the layer 4 load balancers, you can use a network profile to
+increase the size of the NSX load balancer service.
+For more information see [Defining Network Profiles for the TCP Layer 4 Load Balancer](./network-profiles-ncp-lb.html).
+* If the health score is poor for the layer 7 ingress load balancers, you can use the
+[Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer CRD](nsxt-ingress-scale.html#LoadBalancer) to manually scale ingress.
 
 The table below summarizes the actions that you can take based on the health scores.
 
@@ -41,9 +41,9 @@ servicePressureIndex | infraPressureIndex | Cluster Manager  | Infrastructure Ad
 ---------------------|--------------------|------------------|--------------------
 LOW or WARM          | LOW or WARM        | NONE             | NONE
 LOW or WARM          | HIGH               | Alert infra admin| Move the LBS from the CRITICAL Edge Node to another Edge Node.
-HIGH                 | LOW or WARM        | Resolve the LBS health score by [Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer CRD](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [Defining Network Profiles for the TCP Layer 4 Load Balancer](./network-profiles-ncp-lb.html). | NONE 
-HIGH                 | HIGH               | Alert infra admin; Resolve the LBS health score by [Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer CRD](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [Defining Network Profiles for the TCP Layer 4 Load Balancer](./network-profiles-ncp-lb.html). | Move the LBS from the CRITICAL Edge Node to another Edge Node.  
- 
+HIGH                 | LOW or WARM        | Resolve the LBS health score by [Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer CRD](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [Defining Network Profiles for the TCP Layer 4 Load Balancer](./network-profiles-ncp-lb.html). | NONE
+HIGH                 | HIGH               | Alert infra admin; Resolve the LBS health score by [Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer CRD](./nsxt-ingress-scale.html#LoadBalancer) and, if necessary, by increasing the size of the LBS using [Defining Network Profiles for the TCP Layer 4 Load Balancer](./network-profiles-ncp-lb.html). | Move the LBS from the CRITICAL Edge Node to another Edge Node.
+
 
 #### <a id='nsxLoadBalancerMonitors-commands'></a> Monitor Your NSX Load Balancer Service Using the NSXLoadBalancerMonitor CRD
 
@@ -67,13 +67,13 @@ To monitor your NSX Load Balancer Service using the NSXLoadBalancerMonitor CRD, 
     kubectl describe nsxlbmonitors UUID-OF-LOAD-BALANCER
     ```
 
-    Where `UUID-OF-LOAD-BALANCER` is your load balancer's UUID.  
+    Where `UUID-OF-LOAD-BALANCER` is your load balancer's UUID.
 <br>
-    For example:   
+    For example:
 
     ```console
-    $ kubectl describe nsxlbmonitor f61a8cec-28eb-4b0c-bf4a-906f3ce2d8e6  
-    
+    $ kubectl describe nsxlbmonitor f61a8cec-28eb-4b0c-bf4a-906f3ce2d8e6
+
     Name:         f61a8cec-28eb-4b0c-bf4a-906f3ce2d8e6
     Namespace:
     Labels:       <none>

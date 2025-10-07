@@ -1,19 +1,19 @@
 ---
 title: Specify Nodes DNS Servers
-owner: TKGI
+
 ---
 
-This topic describes how to define network profiles for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters on vSphere with NSX.  
+This topic describes how to define network profiles for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters on vSphere with NSX.
 
 ## <a id='dns'></a> DNS Configuration for Kubernetes Clusters
 
 You can specify multiple DNS entries in a Network Profile to override the **Nodes DNS** parameter configured in the TKGI tile. In a multi-tenant environment, for example, each tenant can have a different set of DNS servers to do a DNS lookup.
 
-Using a network profile, you can define one or more DNS servers for use with Kubernetes clusters. Elements in the `nodes_dns` field of a network profile override the DNS server that is configured in the Networking section of the Tanzu Kubernetes Grid Integrated Edition tile. For more information, see [Networking](installing-nsx-t.html#networking).
+Using a network profile, you can define one or more DNS servers for use with Kubernetes clusters. Elements in the `nodes_dns` field of a network profile override the DNS server that is configured in the Networking section of the {{  vars.product }} tile. For more information, see [Networking](installing-nsx-t.html#networking).
 
-The `nodes_dns` field accepts an array with up to three elements. Each element must be a valid IP address of a DNS server. If you are deploying Tanzu Kubernetes Grid Integrated Edition in a multi-tenant environment with multiple Tier-0 routers and a single TKGI foundation (installation) shared across all the tenants, or if you have shared services that can be accessed by all Kubernetes clusters deployed across multiple Tier-0 routers, specify a shared DNS server as the first DNS server. Subsequent DNS entries in the Network Profile can be specific to the tenant.
+The `nodes_dns` field accepts an array with up to three elements. Each element must be a valid IP address of a DNS server. If you are deploying {{  vars.product }} in a multi-tenant environment with multiple Tier-0 routers and a single TKGI foundation (installation) shared across all the tenants, or if you have shared services that can be accessed by all Kubernetes clusters deployed across multiple Tier-0 routers, specify a shared DNS server as the first DNS server. Subsequent DNS entries in the Network Profile can be specific to the tenant.
 
-<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range. 
+<p class="note"><strong>Note</strong>: TKGI allocates IP Addresses from the start of the floating IP pool range.
     To avoid conflicts with internal TKGI functions, always use IP addresses from the end of the floating IP pool.
 </p>
 
@@ -32,4 +32,4 @@ nodes-dns.json
 }
 ```
 
-You can modify the Node DNS configuration on an existing cluster.  
+You can modify the Node DNS configuration on an existing cluster.

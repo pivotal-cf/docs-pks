@@ -1,9 +1,9 @@
 ---
 title: Retrieving Cluster Credentials and Configuration
-owner: TKGI
+
 ---
 
-This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) `get-credentials` command.  
+This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) `get-credentials` command.
 
 
 ## <a id='overview'></a> Overview
@@ -34,14 +34,14 @@ Perform the following steps to populate your local kubeconfig with cluster crede
 1. {{> login-api }}
 
 
-1. Run the following command:  
+1. Run the following command:
 
     ```
     tkgi get-credentials CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the unique name for your cluster.  
+    Where `CLUSTER-NAME` is the unique name for your cluster.
 <br>
-    For example:  
+    For example:
 
     ```console
     $ tkgi get-credentials tkgi-example-cluster
@@ -52,13 +52,13 @@ Perform the following steps to populate your local kubeconfig with cluster crede
     You can now switch between clusters by using:
     $kubectl config use-context <cluster-name>
     ```
-  <p class="note"><strong>Note</strong>: If you enable OpenID Connect (OIDC) in the Tanzu Kubernetes Grid Integrated Edition tile, 
-    TKGI requires your password to run the <code>tkgi get-credentials CLUSTER-NAME</code> command. 
-    This allows TKGI to retrieve valid tokens for the kubeconfig file. You can provide your password at the prompt 
-    or as the <code>TKGI&#95;USER&#95;PASSWORD</code> environment variable. For more information, see the 
-    <em>Configure OpenID Connect</em> section of <a href="installing.html">Installing Tanzu Kubernetes Grid Integrated Edition</a> 
+  <p class="note"><strong>Note</strong>: If you enable OpenID Connect (OIDC) in the {{  vars.product }} tile,
+    TKGI requires your password to run the <code>tkgi get-credentials CLUSTER-NAME</code> command.
+    This allows TKGI to retrieve valid tokens for the kubeconfig file. You can provide your password at the prompt
+    or as the <code>TKGI&#95;USER&#95;PASSWORD</code> environment variable. For more information, see the
+    <em>Configure OpenID Connect</em> section of <a href="installing.html">Installing {{  vars.product }}</a>
   for your IaaS.</p>
-  
+
     {{> saml-sso-login }}
 
 
@@ -69,5 +69,5 @@ After TKGI populates your kubeconfig, you can use the Kubernetes Command Line In
 
 See [Installing the Kubernetes CLI](installing-kubectl-cli.html) for information about installing kubectl.
 
-For information about using kubectl, see [Command line tool (kubectl)](https://kubernetes.io/docs/reference/kubectl/) 
-in the Kubernetes documentation.  
+For information about using kubectl, see [Command line tool (kubectl)](https://kubernetes.io/docs/reference/kubectl/)
+in the Kubernetes documentation.

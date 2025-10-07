@@ -1,13 +1,10 @@
----
-title: VMware Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
----
+# {{  vars.product_full }}
 
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and Ops Manager.
+{{  vars.product_full }} ({{ vars.product_short }}) enables operators to provision, operate, and manage enterprise-grade Kubernetes clusters using BOSH and {{ vars.platform_name }}.
 
 ## <a id='overview'></a>Overview
 
-Tanzu Kubernetes Grid Integrated Edition deploys Kubernetes to [BOSH](https://bosh.io) and [Ops Manager](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/index.html),
+{{  vars.product }} deploys Kubernetes to [BOSH](https://bosh.io) and [{{ vars.platform_name }}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/index.html),
 and uses the [On-Demand Broker](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/on-demand-services-sdk-for-tanzu/0-42.html) to dynamically
 instantiate, deploy, and manage highly-available Kubernetes clusters on-premises or on a public cloud.
 
@@ -15,21 +12,21 @@ After operators install TKGI,
 developers can use the TKGI Command Line Interface (TKGI CLI) to provision Kubernetes clusters,
 and run container-based workloads on the clusters with the Kubernetes CLI, [kubectl](installing-kubectl-cli.html).
 
-Operators install TKGI as a tile on the Ops Manager Installation Dashboard,
+Operators install TKGI as a tile on the {{ vars.platform_name }} Installation Dashboard,
 or from the TKGI Management Console on vSphere.
 
 You can run TKGI standalone or alongside {{{ vars.app_runtime_full }}}
-on Ops Manager.
+on {{ vars.platform_name }}.
 
-##<a id='tkgi-kubernetes'></a> What Tanzu Kubernetes Grid Integrated Edition Adds to Kubernetes
+##<a id='tkgi-kubernetes'></a> What {{  vars.product }} Adds to Kubernetes
 
-The following table details the features that Tanzu Kubernetes Grid Integrated Edition adds to the Kubernetes platform.
+The following table details the features that {{  vars.product }} adds to the Kubernetes platform.
 
 <table>
   <tr>
     <th>Feature</th>
     <th>Included in K8s</th>
-    <th>Included in Tanzu Kubernetes Grid Integrated Edition</th>
+    <th>Included in {{  vars.product }}</th>
   </tr>
   <tr>
     <td>Single tenant ingress</td>
@@ -95,7 +92,7 @@ The following table details the features that Tanzu Kubernetes Grid Integrated E
 
 ## <a id='features'></a>Features
 
-Tanzu Kubernetes Grid Integrated Edition has the following features:
+{{  vars.product }} has the following features:
 
 * **Kubernetes compatibility**: Constant compatibility with current stable release of Kubernetes
 
@@ -114,13 +111,13 @@ Tanzu Kubernetes Grid Integrated Edition has the following features:
 **Prerequisites**: Review the prerequisites for TKGI and infrastructure that it works with:
 
 - [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html)
-- [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and [Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX](vsphere-nsxt-rpd-mpd.html)
+- [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and [Hardware Requirements for {{  vars.product }} on vSphere with NSX](vsphere-nsxt-rpd-mpd.html)
 - [AWS Prerequisites and Resource Requirements](aws-requirements.html)
 - [Azure Prerequisites and Resource Requirements](azure-requirements.html)
 
 **Installation**: TKGI integrates with VMware NSX Data Center to provide pod-level container networking, load balancing, and security policies. You can install TKGI on vSphere with NSX Data Center in two ways:
 
--   The [Tanzu Kubernetes Grid Integrated Edition Management Console](console-install-vsphere.html) provides a graphical user interface that assists you with configuration when deploying TKGI on vSphere. After you deploy TKGI on vSphere, you can use the management console to [monitor and manage the operation of your deployments](console-monitor-manage-clusters.html) and perform upgrades.
+-   The [{{  vars.product }} Management Console](console-install-vsphere.html) provides a graphical user interface that assists you with configuration when deploying TKGI on vSphere. After you deploy TKGI on vSphere, you can use the management console to [monitor and manage the operation of your deployments](console-monitor-manage-clusters.html) and perform upgrades.
 
 -   You can [install TKGI using a more traditional approach](vsphere-nsxt-index.html) if you need more flexibility in configuring your deployment.
 
@@ -139,7 +136,7 @@ You can install TKGI on other IaaS platforms as well. Learn how to install TKGI 
 
 ## <a id='more'></a> Learn More
 
-- Read the [Tanzu Kubernetes Grid Integrated Edition solution brief](https://d1fto35gcfffzn.cloudfront.net/tanzu/tkg/TKGI.pdf) to learn about key benefits and capabilities, architecture, and features of TKGI.
+- Read the [{{  vars.product }} solution brief](https://d1fto35gcfffzn.cloudfront.net/tanzu/tkg/TKGI.pdf) to learn about key benefits and capabilities, architecture, and features of TKGI.
 
 - Explore videos on the [VMware Cloud Native Apps YouTube channel](https://www.youtube.com/channel/UCdkGV51Nu0unDNT58bHt9bg)
 

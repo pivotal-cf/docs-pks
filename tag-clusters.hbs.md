@@ -1,9 +1,9 @@
 ---
 title: Tagging Clusters
-owner: TKGI
+
 ---
 
-This topic describes how to tag new and existing clusters using the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI).  
+This topic describes how to tag new and existing clusters using the {{  vars.product_full }} Command Line Interface (TKGI CLI).
 
 ## <a id='overview'></a>Overview
 IaaSes provide the ability for customers to "tag" VMs, databases, and other resources with custom labels and metadata values.
@@ -12,76 +12,76 @@ Apply one or more tags to your clusters to simplify organizing, managing, search
 You can use the TKGI CLI to tag clusters by following the steps in
 [Tag Your Clusters as They Are Created](#tagging-cli) below.
 
-<p class="note"><strong>Note</strong>: Tanzu Kubernetes Grid Integrated Edition Cluster tagging requires Ops Manager v2.8.0 or later.
+<p class="note"><strong>Note</strong>: {{  vars.product }} Cluster tagging requires {{ vars.platform_name }} v2.8.0 or later.
 </p>
 
-## <a id='tagging-cli'></a>Tag Your Clusters as They Are Created 
+## <a id='tagging-cli'></a>Tag Your Clusters as They Are Created
 
-To apply tags to your cluster's VMs, include the `--tags` parameter in your 
-`tkgi create-cluster` command line, 
-and specify the desired tags as a comma-delimited list of `key:value` pairs. 
+To apply tags to your cluster's VMs, include the `--tags` parameter in your
+`tkgi create-cluster` command line,
+and specify the desired tags as a comma-delimited list of `key:value` pairs.
 
 ```
 tkgi create-cluster CLUSTER-NAME --tags "TAGS"
 ```
 
-Where:  
+Where:
 
-* `CLUSTER-NAME` is the name of the cluster to create.  
-    <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
+* `CLUSTER-NAME` is the name of the cluster to create.
+    <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster
     if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
     </p>
-* `TAGS` is a comma-delimited list of `key:value` pairs to apply to the cluster.  
+* `TAGS` is a comma-delimited list of `key:value` pairs to apply to the cluster.
 
-For example:  
+For example:
 
 ```console
-$ tkgi create-cluster my-cluster --tags "status:billable"  
-$ tkgi create-cluster my-cluster --tags "status:non-billable,region:northwest"  
-$ tkgi create-cluster my-cluster --tags "client:example.com, costcenter:pettycash"  
+$ tkgi create-cluster my-cluster --tags "status:billable"
+$ tkgi create-cluster my-cluster --tags "status:non-billable,region:northwest"
+$ tkgi create-cluster my-cluster --tags "client:example.com, costcenter:pettycash"
 ```
 
-## <a id='tagging-cli-existing'></a>Tag Your Existing Clusters 
+## <a id='tagging-cli-existing'></a>Tag Your Existing Clusters
 
-You can use the TKGI CLI to tag an existing cluster.  
+You can use the TKGI CLI to tag an existing cluster.
 
-To apply tags to your existing cluster's VMs:  
+To apply tags to your existing cluster's VMs:
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
-1. Run the `tkgi update-cluster` command line, 
-and specify the `--tags` parameter and a comma-delimited list of `key:value` pairs of the tags to apply to the cluster:  
+1. Run the `tkgi update-cluster` command line,
+and specify the `--tags` parameter and a comma-delimited list of `key:value` pairs of the tags to apply to the cluster:
 
     ```
     tkgi update-cluster CLUSTER-NAME --tags "TAGS"
     ```
 
-    Where:  
+    Where:
 
-    * `CLUSTER-NAME` is the name of the cluster to tag.  
-    * `TAGS` is a comma-delimited list of `key:value` pairs.  
+    * `CLUSTER-NAME` is the name of the cluster to tag.
+    * `TAGS` is a comma-delimited list of `key:value` pairs.
 
-    For example:  
+    For example:
 
     ```console
-    $ tkgi update-cluster my-cluster --tags "client:tinymegacorp"  
-    $ tkgi update-cluster my-cluster --tags "client:example.com,costcenter:pettycash"  
-    $ tkgi update-cluster my-cluster --tags "status:non-billable, region:northwest"  
+    $ tkgi update-cluster my-cluster --tags "client:tinymegacorp"
+    $ tkgi update-cluster my-cluster --tags "client:example.com,costcenter:pettycash"
+    $ tkgi update-cluster my-cluster --tags "status:non-billable, region:northwest"
     ```
-    
-<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+
+<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ### <a id='modify-tags'></a>Modify Cluster Tags
 
 You can also use `tkgi update-cluster` to modify your cluster's existing tags.
-When you modify cluster tags you completely replace all of the 
-cluster's existing tags with the specified tags.  
+When you modify cluster tags you completely replace all of the
+cluster's existing tags with the specified tags.
 
-<p class="note"><strong>Note:</strong> 
-On Azure, <code>tkgi update-cluster</code> cannot remove tags from your IaaS. 
+<p class="note"><strong>Note:</strong>
+On Azure, <code>tkgi update-cluster</code> cannot remove tags from your IaaS.
 For more information, see <a href="#tagging-limitations-azure">Azure-Specific Tagging Limitations</a> below.
 </p>
 
@@ -97,9 +97,9 @@ For information on `tkgi cluster` [Review Your Tags](#tagging-review) below.
   * To modify an existing tag, modify it within the tags list string.
   * To remove an existing tag, delete it from within the tags list string.
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
 1. Run the following command:
 
@@ -108,60 +108,60 @@ in _Release Notes_ for additional requirements.
     ```
     Where `TAGS` is a comma-delimited list of revised `key:value` pairs.
 
-<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 #### <a id='modify-existing-tags-remove'></a>Remove All Tags From Your Cluster
 
-To remove all of your cluster’s existing tags do the following:  
+To remove all of your cluster’s existing tags do the following:
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
 
-1. Run the following `tkgi update-cluster --tags` on your command line: 
+1. Run the following `tkgi update-cluster --tags` on your command line:
 
     ```
     tkgi update-cluster CLUSTER-NAME --tags ""
     ```
 
-    Where `CLUSTER-NAME` is the cluster to remove tags from.  
+    Where `CLUSTER-NAME` is the cluster to remove tags from.
 
-<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ## <a id='tagging-review'></a>Review Your Tags
 
-To review the tags applied to a cluster, run `tkgi cluster`. 
+To review the tags applied to a cluster, run `tkgi cluster`.
 
-For example:  
+For example:
 ```console
-$ tkgi cluster my-cluster 
+$ tkgi cluster my-cluster
 
-Name:                     my-cluster  
-Plan Name:                large  
-UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789  
-Last Action:              CREATE  
-Last Action State:        succeeded  
-Last Action Description:  Instance provisioning completed  
-Kubernetes Master Host:   my-cluster.example.com  
-Kubernetes Master Port:   8443  
-Worker Instances:         3  
+Name:                     my-cluster
+Plan Name:                large
+UUID:                     01a234bc-d56e-7f89-01a2-3b4cde5f6789
+Last Action:              CREATE
+Last Action State:        succeeded
+Last Action Description:  Instance provisioning completed
+Kubernetes Master Host:   my-cluster.example.com
+Kubernetes Master Port:   8443
+Worker Instances:         3
 Kubernetes Master IP(s):  192.168.20.7
-Network Profile Name:  
+Network Profile Name:
 Kubernetes Profile Name:
 Compute Profile Name:
 NSX Policy:               true
 Private Registries:       true
-Tags:                     client:tinymegacorp,costcenter:pettycash  
+Tags:                     client:tinymegacorp,costcenter:pettycash
 ```
 
-The `tkgi cluster` function returns only the custom tags you've applied to 
-the cluster using the TKGI CLI. 
+The `tkgi cluster` function returns only the custom tags you've applied to
+the cluster using the TKGI CLI.
 To display all of the tags applied to your cluster VMs use your IaaS-provided management console.
 
-<p class="note"><strong>Note:</strong> 
+<p class="note"><strong>Note:</strong>
 Do not use the IaaS-provided management console to modify your custom tags.
 Custom tag alterations you've applied via the management console will be overwritten
 when you next run <code>tkgi update-cluster</code>.
@@ -174,16 +174,16 @@ The tagging you apply must adhere to the following rules:
 * The tag key and tag value cannot be empty.
 * The value can contain a maximum of 80 alphanumeric characters.
 * Tag keys and values must not include any of the following symbols: `"`, `:`, `,`.
-* Surrounding double quotes are required if there are one or more spaces in your tag list, such as a space after a comma delimiter.  
-* Tag keys and values must adhere to the tagging rules of the IaaS hosting your Tanzu Kubernetes Grid Integrated Edition environment.   
+* Surrounding double quotes are required if there are one or more spaces in your tag list, such as a space after a comma delimiter.
+* Tag keys and values must adhere to the tagging rules of the IaaS hosting your {{  vars.product }} environment.
 
 <br>
-For information about IaaS-specific tagging rules see the following:  
+For information about IaaS-specific tagging rules see the following:
 
-* Azure: See 
-[Use tags to organize your Azure resources](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.  
-* vSphere: See 
-[vSphere Tags and Attributes](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-and-host-management-7-0/vsphere-tags-and-attributes-host-management.html) in the vSphere documentation.  
+* Azure: See
+[Use tags to organize your Azure resources](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.
+* vSphere: See
+[vSphere Tags and Attributes](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-and-host-management-7-0/vsphere-tags-and-attributes-host-management.html) in the vSphere documentation.
 
 
 ## <a id='tagging-limitations'></a>Tagging Limitations
@@ -198,7 +198,7 @@ These reserved tags impose the following limitations:
 * The maximum number of custom tags you can apply to a cluster is 10 less than
 the maximum number of tags supported by your IaaS.
     * For example: Azure limits tagging to a maximum of 50 tags per entity.
-Therefore, if your Tanzu Kubernetes Grid Integrated Edition environment is hosted on Azure,
+Therefore, if your {{  vars.product }} environment is hosted on Azure,
 apply fewer than 40 custom tags to your clusters.
 
 * You cannot set or change BOSH system-level tags using the TKGI CLI.
@@ -213,26 +213,26 @@ For tagging limitations on Amazon Web Services (AWS), see [Tag restrictions](htt
 
 The following are known tagging limitations specific to Microsoft Azure:
 
-* `tkgi update-cluster` cannot remove tags from your Azure clusters. 
+* `tkgi update-cluster` cannot remove tags from your Azure clusters.
 This limitation is due to an issue in the Azure CPI for BOSH which is used by
-`tkgi cli` for Azure IaaS tagging.  
-    * To remove an IaaS tag from an Azure cluster do the following:  
+`tkgi cli` for Azure IaaS tagging.
+    * To remove an IaaS tag from an Azure cluster do the following:
         1. Perform the removal steps described in [Modify Existing Tags](#modify-tags) above.
-        1. Remove unwanted tags through the Azure portal.  
+        1. Remove unwanted tags through the Azure portal.
 
-For information about additional Azure-specific tagging limitations see 
-[Use tags to organize your Azure resources](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.  
+For information about additional Azure-specific tagging limitations see
+[Use tags to organize your Azure resources](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources) in the Azure documentation.
 
 #### <a id='tagging-limitations-vsphere'></a>vSphere-Specific Tagging Limitations
 
 The following are known tagging limitations specific to vSphere:
 
-* `tkgi update-cluster` applies tagging to vSphere entities as vSphere Custom Attributes. 
-This limitation is due to an issue in the vSphere CPI which is used by `tkgi cli` for 
-vSphere IaaS tagging.  
-    * vSphere Custom Attribute tagging is applied to VMs only. Disks and other resources are not tagged.  
-    * A vSphere Custom Attribute applied to a single VM is also visible on all other VMs, but as an empty property.   
+* `tkgi update-cluster` applies tagging to vSphere entities as vSphere Custom Attributes.
+This limitation is due to an issue in the vSphere CPI which is used by `tkgi cli` for
+vSphere IaaS tagging.
+    * vSphere Custom Attribute tagging is applied to VMs only. Disks and other resources are not tagged.
+    * A vSphere Custom Attribute applied to a single VM is also visible on all other VMs, but as an empty property.
 
 
-For information about additional vSphere-specific tagging limitations see 
-[vSphere Tags and Attributes](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-and-host-management-7-0/vsphere-tags-and-attributes-host-management.html) in the vSphere documentation. 
+For information about additional vSphere-specific tagging limitations see
+[vSphere Tags and Attributes](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-and-host-management-7-0/vsphere-tags-and-attributes-host-management.html) in the vSphere documentation.

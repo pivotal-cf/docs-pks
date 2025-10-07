@@ -1,14 +1,14 @@
 ---
-title: Logging in to Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+title: Logging in to {{  vars.product }}
+
 ---
 
-This topic describes how to log in to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to log in to {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id='overview'></a>Overview
 
-To manage Tanzu Kubernetes Grid Integrated Edition-deployed clusters, you use the TKGI Command
-Line Interface (TKGI CLI). When you log in to Tanzu Kubernetes Grid Integrated Edition successfully
+To manage {{  vars.product }}-deployed clusters, you use the TKGI Command
+Line Interface (TKGI CLI). When you log in to {{  vars.product }} successfully
 for the first time, the TKGI CLI generates a local `creds.yml` file that contains
 the API endpoint, refresh token, access token, and CA certificate, if applicable.
 
@@ -18,13 +18,13 @@ store `creds.yml` in any directory on your system.
 
 ## <a id='prerequisites'></a>Prerequisites
 
-Before you can log in to Tanzu Kubernetes Grid Integrated Edition, you must have the following:
+Before you can log in to {{  vars.product }}, you must have the following:
 
-- A running Tanzu Kubernetes Grid Integrated Edition environment,
-including an external load balancer configured to forward traffic to the TKGI API endpoint. See the _Installing Tanzu Kubernetes Grid Integrated Edition_
+- A running {{  vars.product }} environment,
+including an external load balancer configured to forward traffic to the TKGI API endpoint. See the _Installing {{  vars.product }}_
 section for your cloud provider.
 - A user name and password that has access to the TKGI API.
-See [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).
+See [Managing {{  vars.product }} Users with UAA](manage-users.html).
 - The TKGI CLI installed on your local system. See [Installing the TKGI CLI](installing-cli.html).
 
 ## <a id='login'></a>Log in to the TKGI CLI
@@ -38,28 +38,28 @@ On the command line, run the following command in your terminal to log in to the
 tkgi login -a TKGI-API -u USERNAME -p PASSWORD --ca-cert CERT-PATH
 ```
 
-Where:  
+Where:
 
-* `TKGI-API` is the domain name for the TKGI API that you entered in **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**.
-For example, `api.tkgi.example.com`.  
+* `TKGI-API` is the domain name for the TKGI API that you entered in **{{ vars.platform_name }}** > **{{  vars.product }}** > **TKGI API** > **API Hostname (FQDN)**.
+For example, `api.tkgi.example.com`.
 
-* `USERNAME` and `PASSWORD` belong to the account you created in the [Grant Tanzu Kubernetes Grid Integrated Edition Access to an Individual User](manage-users.html#uaa-user) section of _Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA_.
+* `USERNAME` and `PASSWORD` belong to the account you created in the [Grant {{  vars.product }} Access to an Individual User](manage-users.html#uaa-user) section of _Managing {{  vars.product }} Users with UAA_.
 If you do not use `-p` to provide a password, the TKGI CLI prompts for the password interactively.
 {{{ vars.recommended_by }}} recommends running the login command without the `-p` flag for added security.
 
 * `CERT-PATH` is the path to your root CA certificate.
-Provide the certificate to validate the TKGI API certificate with SSL.  
+Provide the certificate to validate the TKGI API certificate with SSL.
 
-For example:  
+For example:
 
 ```console
 $ tkgi login -a api.tkgi.example.com -u alana \
 --ca-cert /var/tempest/workspaces/default/root_ca_certificate
 ```
 
-If you are logging in to a trusted environment, you can use `-k` to skip SSL verification instead of `--ca-cert CERT-PATH`.  
+If you are logging in to a trusted environment, you can use `-k` to skip SSL verification instead of `--ca-cert CERT-PATH`.
 
-For example:  
+For example:
 
 ```console
 $ tkgi login -a api.tkgi.example.com -u alana -k
@@ -77,16 +77,16 @@ tkgi login -a TKGI-API --client-name CLIENT-NAME --client-secret CLIENT-SECRET -
 ```
 Where:
 
-* `TKGI-API` is the domain name for the TKGI API that you entered in **Ops Manager** > **Tanzu Kubernetes Grid Integrated Edition** > **TKGI API** > **API Hostname (FQDN)**. For example, `api.tkgi.example.com`.  
-* `CLIENT-NAME` is an OAuth client ID for either:  
-    - A UAA admin client created with `--authorities "pks.clusters.admin"`  
-    - The default admin client **Pks Uaa Management Admin Client**  
-* `CLIENT-SECRET` the OAuth client secret for the `--client-name` value above.  
+* `TKGI-API` is the domain name for the TKGI API that you entered in **{{ vars.platform_name }}** > **{{  vars.product }}** > **TKGI API** > **API Hostname (FQDN)**. For example, `api.tkgi.example.com`.
+* `CLIENT-NAME` is an OAuth client ID for either:
+    - A UAA admin client created with `--authorities "pks.clusters.admin"`
+    - The default admin client **Pks Uaa Management Admin Client**
+* `CLIENT-SECRET` the OAuth client secret for the `--client-name` value above.
 * `CERTIFICATE-PATH` is the path to your root CA certificate.
-Provide the certificate to validate the TKGI API certificate with SSL.  
+Provide the certificate to validate the TKGI API certificate with SSL.
 
-    For example:  
-    
+    For example:
+
     ```console
     $ tkgi login -a api.tkgi.example.com \
     --client-name automated-client \
@@ -95,8 +95,8 @@ Provide the certificate to validate the TKGI API certificate with SSL.
     ```
 
 For information on how to create a UAA client, see
-[Grant Tanzu Kubernetes Grid Integrated Edition Access to a Client](manage-users.html#uaa-client)
-in _Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA_.  
+[Grant {{  vars.product }} Access to a Client](manage-users.html#uaa-client)
+in _Managing {{  vars.product }} Users with UAA_.
 
 ## <a id="tkgi-api-access"></a> Export TKGI API Access Token
 

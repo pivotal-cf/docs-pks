@@ -1,17 +1,17 @@
 ---
 title: vSphere with VMware NSX Cluster Objects
-owner: TKGI
+
 iaas: vsphere-nsxt
 ---
 
-This topic describes the vSphere VMs and NSX objects created by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) when you create a Kubernetes cluster. When you delete a Kubernetes cluster, Tanzu Kubernetes Grid Integrated Edition removes these objects.
+This topic describes the vSphere VMs and NSX objects created by {{  vars.product_full }} ({{ vars.product_short }}) when you create a Kubernetes cluster. When you delete a Kubernetes cluster, {{  vars.product }} removes these objects.
 
-For information about creating a Kubernetes cluster using Tanzu Kubernetes Grid Integrated Edition, see [Creating Clusters](create-cluster.html). For information about deleting a Kubernetes cluster using Tanzu Kubernetes Grid Integrated Edition, see [Deleting Clusters](delete-cluster.html).
+For information about creating a Kubernetes cluster using {{  vars.product }}, see [Creating Clusters](create-cluster.html). For information about deleting a Kubernetes cluster using {{  vars.product }}, see [Deleting Clusters](delete-cluster.html).
 
 
 ##<a id="vsphere-vms"></a> vSphere Virtual Machines
 
-When a new Kubernetes cluster is created, Tanzu Kubernetes Grid Integrated Edition creates the following virtual machines (VMs) in the designated vSphere cluster:
+When a new Kubernetes cluster is created, {{  vars.product }} creates the following virtual machines (VMs) in the designated vSphere cluster:
 
 <table>
   <tr>
@@ -28,11 +28,11 @@ When a new Kubernetes cluster is created, Tanzu Kubernetes Grid Integrated Editi
   </tr>
 </table>
 
-<p class="note"><strong>Note</strong>: For production clusters, three control plane nodes are required, and a minimum of three worker nodes are required. See <a href="vsphere-nsxt-rpd-mpd.html">Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX</a> for more information.</p>
+<p class="note"><strong>Note</strong>: For production clusters, three control plane nodes are required, and a minimum of three worker nodes are required. See <a href="vsphere-nsxt-rpd-mpd.html">Requirements for {{  vars.product }} on vSphere with NSX</a> for more information.</p>
 
 ##<a id="nsxt-ls"></a> NSX Logical Switches
 
-When a new Kubernetes cluster is created, Tanzu Kubernetes Grid Integrated Edition creates the following [NSX logical switches](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/manager-mode/logical-switches-and-configuring-vm-attachment.html):
+When a new Kubernetes cluster is created, {{  vars.product }} creates the following [NSX logical switches](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/manager-mode/logical-switches-and-configuring-vm-attachment.html):
 
 <table>
   <tr>
@@ -55,7 +55,7 @@ When a new Kubernetes cluster is created, Tanzu Kubernetes Grid Integrated Editi
 
 ##<a id="nsxt-t1"></a> NSX Tier-1 Logical Routers
 
-When a new Kubernetes cluster is created, Tanzu Kubernetes Grid Integrated Edition creates the following [NSX Tier-1 logical routers](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-automation/8-18/tier-1-logical-router.html):
+When a new Kubernetes cluster is created, {{  vars.product }} creates the following [NSX Tier-1 logical routers](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-automation/8-18/tier-1-logical-router.html):
 
 <table>
   <tr>
@@ -78,7 +78,7 @@ When a new Kubernetes cluster is created, Tanzu Kubernetes Grid Integrated Editi
 
 ##<a id="nsxt-lb"></a> NSX Load Balancers
 
-For each Kubernetes cluster created, Tanzu Kubernetes Grid Integrated Edition creates a single instance of a small [NSX load balancer](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/manager-mode/advanced-load-balancing.html). This load balancer contains the objects listed in the following table:
+For each Kubernetes cluster created, {{  vars.product }} creates a single instance of a small [NSX load balancer](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/manager-mode/advanced-load-balancing.html). This load balancer contains the objects listed in the following table:
 
 <table>
   <tr>
@@ -103,11 +103,11 @@ For each Kubernetes cluster created, Tanzu Kubernetes Grid Integrated Edition cr
   </tr>
 </table>
 
-The IP address allocated to each VS is derived from the **Floating IP Pool** that was created for use with Tanzu Kubernetes Grid Integrated Edition. The VS for the HTTP Ingress Controller and the VS for the HTTPS Ingress Controller use the same IP address.
+The IP address allocated to each VS is derived from the **Floating IP Pool** that was created for use with {{  vars.product }}. The VS for the HTTP Ingress Controller and the VS for the HTTPS Ingress Controller use the same IP address.
 
 ##<a id="nsxt-ddi"></a> NSX DDI/IPAM
 
-For each Kubernetes cluster created, Tanzu Kubernetes Grid Integrated Edition extracts and allocates the following NSX subnets from the [IP blocks](./nsxt-prepare-env.html#plan) created in preparation for installing Tanzu Kubernetes Grid Integrated Edition with NSX:
+For each Kubernetes cluster created, {{  vars.product }} extracts and allocates the following NSX subnets from the [IP blocks](./nsxt-prepare-env.html#plan) created in preparation for installing {{  vars.product }} with NSX:
 
 <table>
   <tr>
@@ -126,7 +126,7 @@ For each Kubernetes cluster created, Tanzu Kubernetes Grid Integrated Edition ex
 
 ##<a id="nsxt-t0"></a> NSX Tier-0 Logical Routers
 
-For each Kubernetes cluster created, Tanzu Kubernetes Grid Integrated Edition defines the following [NSX NAT rules](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/administration-guide/network-address-translation.html) on the Tier-0 logical router:
+For each Kubernetes cluster created, {{  vars.product }} defines the following [NSX NAT rules](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/administration-guide/network-address-translation.html) on the Tier-0 logical router:
 
 <table>
   <tr>
@@ -145,7 +145,7 @@ For each Kubernetes cluster created, Tanzu Kubernetes Grid Integrated Edition de
 
 ##<a id="nsxt-dfw"></a> NSX Distributed Firewall (DFW) Rules
 
-For each Kubernetes cluster created, Tanzu Kubernetes Grid Integrated Edition defines the following [NSX distributed firewall rules](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/3-2/administration-guide/manager-mode/advanced-firewall/about-firewall-rules.html):
+For each Kubernetes cluster created, {{  vars.product }} defines the following [NSX distributed firewall rules](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/3-2/administration-guide/manager-mode/advanced-firewall/about-firewall-rules.html):
 
 <table>
   <tr>

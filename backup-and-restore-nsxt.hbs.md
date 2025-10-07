@@ -1,9 +1,9 @@
 ---
 title: Backing Up and Restoring VMware NSX Manager
-owner: TKGI
+
 ---
 
-This topic describes how to back up and restore NSX Data Center for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic describes how to back up and restore NSX Data Center for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## NSX Data Center Back Up and Recover
 
@@ -23,9 +23,9 @@ Create a backup of the NSX Manager Nodes as follows:
 
 1. Navigate to **System > Backup & Restore**.
 
-1. Select **Edit** and configure the backup location for the NSX Configuration. 
-  For more information, refer to [Configure Backups](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-0/administration-guide/backing-up-and-restoring-the-nsx-manager/configure-backup-location.html) 
-  in the NSX Data Center documentation.  
+1. Select **Edit** and configure the backup location for the NSX Configuration.
+  For more information, refer to [Configure Backups](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-0/administration-guide/backing-up-and-restoring-the-nsx-manager/configure-backup-location.html)
+  in the NSX Data Center documentation.
     <img src="images/backup-restore/nsxt-br-01.png" alt="Backup Configuration screen fields.">
 
 1. Click **Start Backup** to begin the backing up the NSX Manager database.

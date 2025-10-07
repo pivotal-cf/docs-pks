@@ -1,21 +1,21 @@
 ---
-title: Auditing Tanzu Kubernetes Grid Integrated Edition Logs
-owner: TKGI
+title: Auditing {{  vars.product }} Logs
+
 ---
 
-This topic describes key TKGI (TKGI) auditable events and the log entries they generate.  
+This topic describes key TKGI (TKGI) auditable events and the log entries they generate.
 
-Operators can use this information to audit event logs to see 
+Operators can use this information to audit event logs to see
 what users took what actions at what times.
 This is helpful
-for security, compliance, and troubleshooting. 
+for security, compliance, and troubleshooting.
 
-Log content can either be [downloaded](./download-logs.html) or configured to be transported via syslog.    
+Log content can either be [downloaded](./download-logs.html) or configured to be transported via syslog.
 
-## <a id='overview'></a>TKGI API events 
+## <a id='overview'></a>TKGI API events
 
 The following log entry examples are produced by TKGI API events and correspond to key
-actions taken by a user logged into the TKGI CLI. 
+actions taken by a user logged into the TKGI CLI.
 
 ### <a id="cluster-creation"></a>Cluster Creation
 
@@ -93,7 +93,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserAuthenticationSuccess<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>A user has successfully logged into Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>A user has successfully logged into {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -104,7 +104,7 @@ actions taken by a user logged into the TKGI CLI.
       <td>
       <code>
       [2019-05-16 17:12:48.833] uaa - 7777 [https-jsse-nio-8443-exec-2] ....  INFO --- Audit: UserAuthenticationSuccess ('admin'): principal=0074aab6-6ff7-4b4c-b821-49526a96ebcb, origin=[remoteAddress=207.126.127.114, clientId=pks_cli], identityZoneId=[uaa]
-      [2019-05-16 17:12:48.873] uaa - 7777 [https-jsse-nio-8443-exec-2] ....  INFO --- Audit: TokenIssuedEvent ('["pks.clusters.admin"]'): principal=0074aab6-6ff7-4b4c-b821-49526a96ebcb, origin=[client=pks_cli, user=admin], identityZoneId=[uaa]      
+      [2019-05-16 17:12:48.873] uaa - 7777 [https-jsse-nio-8443-exec-2] ....  INFO --- Audit: TokenIssuedEvent ('["pks.clusters.admin"]'): principal=0074aab6-6ff7-4b4c-b821-49526a96ebcb, origin=[client=pks_cli, user=admin], identityZoneId=[uaa]
       </code>
       </td>
    </tr>
@@ -116,7 +116,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserAuthenticationFailure<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>A user has failed a login attempt into Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>A user has failed a login attempt into {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -140,7 +140,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>ClientAuthenticationSuccess<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>A user has successfully gained access to a cluster in Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>A user has successfully gained access to a cluster in {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -164,7 +164,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserCreatedEvent<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>An administrator has successfully created a new user for Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>An administrator has successfully created a new user for {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -186,7 +186,7 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>UserDeletedEvent<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>An administrator has successfully deleted a user for Tanzu Kubernetes Grid Integrated Edition.</td>
+      <td>An administrator has successfully deleted a user for {{  vars.product }}.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -208,8 +208,8 @@ actions taken by a user logged into the TKGI CLI.
    <tr><th colspan="2" style="text-align: center;"><br>Telemetry Ping<br><br></th></tr>
    <tr>
       <th width="25%">Description</th>
-      <td>The optional telemetry system has successfully reached an external host for collecting product data for Tanzu Kubernetes Grid Integrated Edition.<br><br>
-      To learn more about the Tanzu Kubernetes Grid Integrated Edition telemetry program, see <a href="./telemetry.html">Telemetry</a>.</td>
+      <td>The optional telemetry system has successfully reached an external host for collecting product data for {{  vars.product }}.<br><br>
+      To learn more about the {{  vars.product }} telemetry program, see <a href="./telemetry.html">Telemetry</a>.</td>
    </tr>
    <tr>
       <th>Identifying String</th>
@@ -268,10 +268,10 @@ audit event log entry is below.
 ```
 
 For more information about Kubernetes Audit
-Event Log format see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/). 
+Event Log format see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/).
 
 ## <a id="related-links"></a>Related Links
 
-* For information about configuring syslog log transport, see [Installing Tanzu Kubernetes Grid Integrated Edition](./installing.html).
+* For information about configuring syslog log transport, see [Installing {{  vars.product }}](./installing.html).
 * For information about downloading TKGI logs, see [Downloading Logs from VMs](./download-logs.html).
 * For information about Kubernetes Audit Log format, see [Kubernetes documentation](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/)

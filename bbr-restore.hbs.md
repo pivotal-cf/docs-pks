@@ -1,18 +1,18 @@
 ---
-title: Restoring Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+title: Restoring {{  vars.product }}
+
 ---
 
 This topic describes how to use BOSH Backup and Restore (BBR) to restore
-the BOSH Director, VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) control plane, and Kubernetes clusters.
+the BOSH Director, {{  vars.product_full }} ({{ vars.product_short }}) control plane, and Kubernetes clusters.
 
 ##<a id="overview"></a> Overview
 
 In the event of a disaster, you might lose your environment's VMs, disks, and your IaaS network and load balancer resources as well.
-You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition Ops Manager Installation settings,
+You can re-create your environment, configured with your saved {{  vars.product }} {{ vars.platform_name }} Installation settings,
 using your BBR backup artifacts.
 
-Before restoring using BBR:  
+Before restoring using BBR:
 
 * Review the requirements listed in [Compatibility of Restore](#compatibility)
 below.
@@ -24,29 +24,29 @@ Use BBR to restore the following:
 
 * The BOSH Director plane, see
 [Restore the BOSH Director](#redeploy-restore-director) below.
-* The Tanzu Kubernetes Grid Integrated Edition control plane, see
-[Restore Tanzu Kubernetes Grid Integrated Edition Control Plane](#redeploy-restore-control-plane)
+* The {{  vars.product }} control plane, see
+[Restore {{  vars.product }} Control Plane](#redeploy-restore-control-plane)
 below.
-* The Tanzu Kubernetes Grid Integrated Edition clusters, see
-[Restore Tanzu Kubernetes Grid Integrated Edition Clusters](#redeploy-restore-clusters)
+* The {{  vars.product }} clusters, see
+[Restore {{  vars.product }} Clusters](#redeploy-restore-clusters)
 below.
 
-## <a id="compatibility"></a> Compatibility of Restore  
+## <a id="compatibility"></a> Compatibility of Restore
 
-The following are the requirements for a backup artifact to be restorable to another environment:  
+The following are the requirements for a backup artifact to be restorable to another environment:
 
-* **Topology**: BBR requires the BOSH topology of a deployment to be the same in the restore 
-environment as it was in the backup environment.  
-* **Naming of instance groups and jobs**: For any deployment that implements the back up and restore 
-scripts, the instance groups and jobs must have the same names.  
-* **Number of instance groups and jobs**: For instance groups and jobs that have back up and restore scripts, the same number of instances must exist.  
+* **Topology**: BBR requires the BOSH topology of a deployment to be the same in the restore
+environment as it was in the backup environment.
+* **Naming of instance groups and jobs**: For any deployment that implements the back up and restore
+scripts, the instance groups and jobs must have the same names.
+* **Number of instance groups and jobs**: For instance groups and jobs that have back up and restore scripts, the same number of instances must exist.
 
-Additional considerations:  
+Additional considerations:
 
-* **Limited validation**: BBR puts the backed up data into the corresponding instance groups and 
-jobs in the restored environment, but cannot validate the restore beyond that.  
-* **Same Cluster**: Currently, BBR supports the in-place restore of a cluster backup artifact onto the same cluster. 
-Migration from one cluster to another using a BBR backup artifact has not yet been validated.  
+* **Limited validation**: BBR puts the backed up data into the corresponding instance groups and
+jobs in the restored environment, but cannot validate the restore beyond that.
+* **Same Cluster**: Currently, BBR supports the in-place restore of a cluster backup artifact onto the same cluster.
+Migration from one cluster to another using a BBR backup artifact has not yet been validated.
 
 <p class="note"><strong>Note:</strong> This section is for guidance only. Always validate your
 backups by using the backup artifacts in a restore.
@@ -55,13 +55,13 @@ backups by using the backup artifacts in a restore.
 ## <a id="prepare"></a> Prepare to Restore a Backup
 
 {{> preparing-for-bbr }}
-  
+
 <p>
 </p>
 
 ## <a id="artifacts-jumpbox"></a> Transfer Artifacts to Your Jump Box
 
-To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jump box.
+To restore BOSH director, {{  vars.product }} control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jump box.
 
 1. To copy an artifact onto a jump box, run the following SCP command:
 
@@ -69,7 +69,7 @@ To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane
     scp -r LOCAL-PATH-TO-BACKUP-ARTIFACT JUMP-BOX-USER@JUMP-BOX-ADDRESS:
     ```
 
-    Where:  
+    Where:
 
     * `LOCAL-PATH-TO-BACKUP-ARTIFACT` is the path to your BBR backup artifact.
     * `JUMP-BOX-USER` is the SSH user name of the jump box.
@@ -79,51 +79,51 @@ To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane
 
 ## <a id="redeploy-restore-director"></a> Restore the BOSH Director
 
-In the event of losing your BOSH Director or Ops Manager environment, you must first recreate the BOSH Director VM 
+In the event of losing your BOSH Director or {{ vars.platform_name }} environment, you must first recreate the BOSH Director VM
 before restoring the BOSH Director.
 
-You can restore your BOSH Director configuration by using Tanzu Kubernetes Grid Integrated Edition 
-Ops Manager to restore the installation settings artifacts saved when following the [Export Installation Settings](bbr-backup.html#export-opsman-settings) back up procedure steps.
+You can restore your BOSH Director configuration by using {{  vars.product }}
+{{ vars.platform_name }} to restore the installation settings artifacts saved when following the [Export Installation Settings](bbr-backup.html#export-opsman-settings) back up procedure steps.
 
-To redeploy and restore your Ops Manager and BOSH Director follow the procedures below.
+To redeploy and restore your {{ vars.platform_name }} and BOSH Director follow the procedures below.
 
-### <a id='deploy-opsmanager'></a> Deploy Ops Manager
+### <a id='deploy-opsmanager'></a> Deploy {{ vars.platform_name }}
 
-In the event of a disaster, you might lose your IaaS resources. You must recreate your IaaS resources before restoring using your BBR artifacts.  
+In the event of a disaster, you might lose your IaaS resources. You must recreate your IaaS resources before restoring using your BBR artifacts.
 
-1. To recreate your IaaS resources, such as networks and load balancers, prepare your 
-environment for Tanzu Kubernetes Grid Integrated Edition by following the installation instructions 
-specific to your IaaS in [Installing Tanzu Kubernetes Grid Integrated Edition](installing.html).
+1. To recreate your IaaS resources, such as networks and load balancers, prepare your
+environment for {{  vars.product }} by following the installation instructions
+specific to your IaaS in [Installing {{  vars.product }}](installing.html).
 
-1. After recreating IaaS resources, you must add those resources to Ops Manager 
-by performing the procedures in the [(Optional) Configure Ops Manager for New Resources](#config-new-resources) section.
+1. After recreating IaaS resources, you must add those resources to {{ vars.platform_name }}
+by performing the procedures in the [(Optional) Configure {{ vars.platform_name }} for New Resources](#config-new-resources) section.
 
 ### <a id='import-settings'></a>Import Installation Settings
 
 <p class="note warning">
-<strong>WARNING:</strong> After importing installation settings, do not click <strong>Apply Changes</strong> 
-in Ops Manager before instructed to in the steps <a href="#deploy-bosh-director">Deploy the BOSH Director</a> or
-<a href="#redeploy-restore-control-plane">Redeploy the Tanzu Kubernetes Grid Integrated Edition 
+<strong>WARNING:</strong> After importing installation settings, do not click <strong>Apply Changes</strong>
+in {{ vars.platform_name }} before instructed to in the steps <a href="#deploy-bosh-director">Deploy the BOSH Director</a> or
+<a href="#redeploy-restore-control-plane">Redeploy the {{  vars.product }}
 Control Plane</a>.
 </p>
 
 You can import installation settings in two ways:
 
-* Use the Ops Manager UI:
-    1. Access your new Ops Manager by navigating to `YOUR-OPS-MAN-FQDN` in a browser.
-    1. On the **Welcome to Ops Manager** page, click **Import Existing Installation**.
+* Use the {{ vars.platform_name }} UI:
+    1. Access your new {{ vars.platform_name }} by navigating to `YOUR-OPS-MAN-FQDN` in a browser.
+    1. On the **Welcome to {{ vars.platform_name }}** page, click **Import Existing Installation**.
     1. In the import panel, perform the following tasks:
-        * Enter the **Decryption Passphrase** in use when you exported the installation settings from Ops Manager.
+        * Enter the **Decryption Passphrase** in use when you exported the installation settings from {{ vars.platform_name }}.
         * Click **Choose File** and browse to the installation zip file that you exported in [Back Up Installation Settings](bbr-backup.html#export-opsman-settings).
     1. Click **Import**.
         <p class="note">
         <strong>Note:</strong> Some browsers do not provide the import process progress status, and might appear to hang.
-        The import process takes at least 10 minutes, and requires additional time for each restored Ops Manager tile.
+        The import process takes at least 10 minutes, and requires additional time for each restored {{ vars.platform_name }} tile.
         </p>
     1. **Successfully imported installation** is displayed upon successful completion of importing all installation settings.
 
-* Use the Ops Manager API:
-    1. To use the Ops Manager API to import installation settings, run the following command:
+* Use the {{ vars.platform_name }} API:
+    1. To use the {{ vars.platform_name }} API to import installation settings, run the following command:
 
         ```
         curl "https://OPS-MAN-FQDN/api/v0/installation_asset_collection" \
@@ -132,79 +132,79 @@ You can import installation settings in two ways:
         -F 'installation[file]=@installation.zip' \
         -F 'passphrase=DECRYPTION-PASSPHRASE'
         ```
-        Where:  
+        Where:
 
-        * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your Ops Manager deployment.  
-        * `UAA-ACCESS-TOKEN` is the UAA access token. For more information about how to retrieve this token, 
-        see [Using the Ops Manager API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).  
-        * `DECRYPTION-PASSPHRASE` is the decryption passphrase in use when you exported the installation 
-        settings from Ops Manager.  
+        * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your {{ vars.platform_name }} deployment.
+        * `UAA-ACCESS-TOKEN` is the UAA access token. For more information about how to retrieve this token,
+        see [Using the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).
+        * `DECRYPTION-PASSPHRASE` is the decryption passphrase in use when you exported the installation
+        settings from {{ vars.platform_name }}.
 
 
-### <a id="config-new-resources"></a> (Optional) Configure Ops Manager for New Resources
+### <a id="config-new-resources"></a> (Optional) Configure {{ vars.platform_name }} for New Resources
 
-If you recreated IaaS resources such as networks and load balancers by following the steps in the 
-[Deploy Ops Manager](#deploy-opsmanager) section above, perform the following steps to update Ops Manager with your new resources:
+If you recreated IaaS resources such as networks and load balancers by following the steps in the
+[Deploy {{ vars.platform_name }}](#deploy-opsmanager) section above, perform the following steps to update {{ vars.platform_name }} with your new resources:
 
-1. Activate Ops Manager advanced mode. For more information, see 
-[How to Enable Advanced Mode in the Ops Manager](https://knowledge.broadcom.com/external/article/293516/) 
+1. Activate {{ vars.platform_name }} advanced mode. For more information, see
+[How to Enable Advanced Mode in the {{ vars.platform_name }}](https://knowledge.broadcom.com/external/article/293516/)
 in the Knowledge Base.
   <p class="note">
-  <strong>Note:</strong> Ops Manager advanced mode allows you to make changes that are normally deactivated. 
+  <strong>Note:</strong> {{ vars.platform_name }} advanced mode allows you to make changes that are normally deactivated.
   You might see warning messages when you save changes.
   </p>
 
-1. Navigate to the Ops Manager Installation Dashboard and click the BOSH Director tile.
+1. Navigate to the {{ vars.platform_name }} Installation Dashboard and click the BOSH Director tile.
 
 1. Click **Create Networks** and update the network names to reflect the network names for the new environment.
 
-1. If your BOSH Director had an external hostname, you must change it in **Director Config > Director Hostname** 
+1. If your BOSH Director had an external hostname, you must change it in **Director Config > Director Hostname**
 to ensure it does not conflict with the hostname of the backed up Director.
 
-1. Ensure that there are no outstanding warning messages in the BOSH Director tile, then deactivate Ops Manager advanced mode. 
-For more information, see [How to Enable Advanced Mode in the Ops Manager](https://knowledge.broadcom.com/external/article/293516/) 
+1. Ensure that there are no outstanding warning messages in the BOSH Director tile, then deactivate {{ vars.platform_name }} advanced mode.
+For more information, see [How to Enable Advanced Mode in the {{ vars.platform_name }}](https://knowledge.broadcom.com/external/article/293516/)
 in the Knowledge Base.
 
 <p class="note">
-<strong>Note</strong>: A change in VM size or underlying hardware will not affect the ability for BBR 
+<strong>Note</strong>: A change in VM size or underlying hardware will not affect the ability for BBR
 restore data, as long as adequate storage space to restore the data exists.
 </p>
 
 ### <a id="bosh-state"></a> Remove BOSH State File
 
-1. SSH into your Ops Manager VM. For more information, see the 
-[Log in to the Ops Manager VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) 
+1. SSH into your {{ vars.platform_name }} VM. For more information, see the
+[Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
 section of the _Advanced Troubleshooting with the BOSH CLI_ topic.
 
-1. To delete the `/var/tempest/workspaces/default/deployments/bosh-state.json` file, run the following on the Ops Manager VM:
+1. To delete the `/var/tempest/workspaces/default/deployments/bosh-state.json` file, run the following on the {{ vars.platform_name }} VM:
 
     ```bash
     sudo rm /var/tempest/workspaces/default/deployments/bosh-state.json
     ```
 
-1. In a browser, navigate to your Ops Manager's fully-qualified domain name.
-1. Log in to Ops Manager.
+1. In a browser, navigate to your {{ vars.platform_name }}'s fully-qualified domain name.
+1. Log in to {{ vars.platform_name }}.
 
 ### <a id="deploy-bosh-director"></a> Deploy the BOSH Director
 
 You can deploy the BOSH Director by itself in two ways:
 
-* Use the Ops Manager UI:
-    1. Open the Ops Manager Installation Dashboard.  
-    1. Click  **Review Pending Changes**.  
-    1. On the Review Pending Changes page, click the **BOSH Director** check box.  
-    1. Click **Apply Changes**.    
+* Use the {{ vars.platform_name }} UI:
+    1. Open the {{ vars.platform_name }} Installation Dashboard.
+    1. Click  **Review Pending Changes**.
+    1. On the Review Pending Changes page, click the **BOSH Director** check box.
+    1. Click **Apply Changes**.
 
-* Use the Ops Manager API:
-    1. Use the Ops Manager API to deploy the BOSH Director.
+* Use the {{ vars.platform_name }} API:
+    1. Use the {{ vars.platform_name }} API to deploy the BOSH Director.
 
 ### <a id='restore-director'></a> Restore the BOSH Director
 
 Restore the BOSH Director by running BBR commands on your jump box.
 
-To restore the BOSH Director:  
+To restore the BOSH Director:
 
-1. Ensure the Tanzu Kubernetes Grid Integrated Edition BOSH Director backup artifact is in the folder from which you run BBR.
+1. Ensure the {{  vars.product }} BOSH Director backup artifact is in the folder from which you run BBR.
 
 1. Run the BBR restore command to restore the TKGI BOSH Director:
 
@@ -215,14 +215,14 @@ To restore the BOSH Director:
     --artifact-path PATH-TO-DIRECTOR-BACKUP
     ```
 
-    Where:  
+    Where:
 
-    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, BOSH-DIRECTOR-IP is a URL, 
-    such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` which you can 
-    retrieve as shown in [Retrieve the BOSH Director Address](#bosh-address).  
-    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in 
-    [Download the BBR SSH Credentials](#bbr-ssh-creds).  
-    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the TKGI BOSH Director backup that you want to restore.  
+    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, BOSH-DIRECTOR-IP is a URL,
+    such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` which you can
+    retrieve as shown in [Retrieve the BOSH Director Address](#bosh-address).
+    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in
+    [Download the BBR SSH Credentials](#bbr-ssh-creds).
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the TKGI BOSH Director backup that you want to restore.
 
     For example:
 
@@ -233,17 +233,17 @@ To restore the BOSH Director:
       --artifact-path /home/10.0.0.5-abcd1234abcd1234
     ```
     <p class="note">
-    <strong>Note</strong>: The BBR restore command can take a long time to complete. 
-    The example command in this section uses <code>nohup</code> and the restore process is run within your SSH session. 
-    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+    <strong>Note</strong>: The BBR restore command can take a long time to complete.
+    The example command in this section uses <code>nohup</code> and the restore process is run within your SSH session.
+    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will
     run separately from your SSH session and will continue to run, even if your SSH connection to the jump box fails.
     </p>
-1. If your BOSH Director restore fails, do one or more of the following:  
-    * Run the command again, adding the `--debug` flag to activate debug logs. For more information, 
-      see [BBR Logging](bbr-logging.html).  
-    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.  
+1. If your BOSH Director restore fails, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to activate debug logs. For more information,
+      see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.
 
-    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
+    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.
 
 ### <a id='remove-stale-cloud-ids'></a> Remove All Stale Deployment Cloud IDs
 
@@ -255,7 +255,7 @@ After BOSH Director has been restored, you must reconcile BOSH Director's intern
     BOSH-CLI-CREDENTIALS bosh deployments
     ```
 
-    Where:  
+    Where:
 
     * `BOSH-CLI-CREDENTIALS` is the full `Bosh Commandline Credentials` value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
 
@@ -267,30 +267,30 @@ After BOSH Director has been restored, you must reconcile BOSH Director's intern
     --resolution delete_vm_reference
     ```
 
-    Where:  
+    Where:
 
     * `BOSH-CLI-CREDENTIALS` is the full `Bosh Commandline Credentials` value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
     * `DEPLOYMENT-NAME` is a deployment name retrieved in the previous step.
 1. Repeat the last command for each deployment in the IaaS.
 
-## <a id='redeploy-restore-control-plane'></a> Restore the Tanzu Kubernetes Grid Integrated Edition Control Plane
+## <a id='redeploy-restore-control-plane'></a> Restore the {{  vars.product }} Control Plane
 
-You must redeploy the Tanzu Kubernetes Grid Integrated Edition tile before restoring the Tanzu Kubernetes Grid Integrated Edition control plane. 
-By redeploying the Tanzu Kubernetes Grid Integrated Edition tile you create the VMs that constitute the control plane deployment.
+You must redeploy the {{  vars.product }} tile before restoring the {{  vars.product }} control plane.
+By redeploying the {{  vars.product }} tile you create the VMs that constitute the control plane deployment.
 
-To redeploy the Tanzu Kubernetes Grid Integrated Edition tile, do the following:  
+To redeploy the {{  vars.product }} tile, do the following:
 
-* [Determine the Required Stemcell](#determine-stemcell) needed by the tile.  
-* Upload that stemcell as described in [Upload Stemcells](#upload-stemcell).  
-* [Redeploy the Tanzu Kubernetes Grid Integrated Edition Control Plane](#redeploy-control-plane).  
-* [Restore the TKGI Control Plane](#restore-control-plane) from a BBR backup on top of the deployment.  
+* [Determine the Required Stemcell](#determine-stemcell) needed by the tile.
+* Upload that stemcell as described in [Upload Stemcells](#upload-stemcell).
+* [Redeploy the {{  vars.product }} Control Plane](#redeploy-control-plane).
+* [Restore the TKGI Control Plane](#restore-control-plane) from a BBR backup on top of the deployment.
 
 ### <a id='determine-stemcell'></a> Determine the Required Stemcell
 
 Do either the following procedures to determine the stemcell that TKGI uses:
 
 * Review the Stemcell Library:
-    1. Open Ops Manager.
+    1. Open {{ vars.platform_name }}.
     1. Click **Stemcell Library**.
     1. Record the TKGI stemcell release number from the **Staged** column.
 
@@ -300,16 +300,16 @@ Do either the following procedures to determine the stemcell that TKGI uses:
         ```
         BOSH-CLI-CREDENTIALS bosh deployments
         ```
-        Where:  
+        Where:
 
-        * `BOSH-CLI-CREDENTIALS`  is the full `Bosh Commandline Credentials` value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+        * `BOSH-CLI-CREDENTIALS`  is the full `Bosh Commandline Credentials` value that you copied from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
 
         For example:
         ```console
-        $ bosh deployments  
-        Using environment '10.0.0.5' as user 'director' (bosh.*.read, openid, bosh.*.admin, bosh.read, bosh.admin)  
-        Name                                                   Release(s)                                 Stemcell(s)                                    Team(s)  
-        pivotal-container-service-453f2faa3bd2e16f52b7         backup-and-restore-sdk/1.9.0               bosh-google-kvm-ubuntu-jammy-go_agent/1.75  -  
+        $ bosh deployments
+        Using environment '10.0.0.5' as user 'director' (bosh.*.read, openid, bosh.*.admin, bosh.read, bosh.admin)
+        Name                                                   Release(s)                                 Stemcell(s)                                    Team(s)
+        pivotal-container-service-453f2faa3bd2e16f52b7         backup-and-restore-sdk/1.9.0               bosh-google-kvm-ubuntu-jammy-go_agent/1.75  -
         ...
         ```
 
@@ -317,11 +317,11 @@ Do either the following procedures to determine the stemcell that TKGI uses:
     stemcells, where one stemcell is Linux and the other stemcell is Windows.
 </p>
 
-For more information about stemcells in Ops Manager, see [Importing and Managing Stemcells](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/opsguide-managing-stemcells.html).  
+For more information about stemcells in {{ vars.platform_name }}, see [Importing and Managing Stemcells](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/opsguide-managing-stemcells.html).
 
 ### <a id='upload-stemcell'></a> Upload Stemcells
 
-To upload the stemcell used by your Tanzu Kubernetes Grid Integrated Edition tile:  
+To upload the stemcell used by your {{  vars.product }} tile:
 
 1. Download the stemcell from [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Ubuntu%20Xenial)).
 1. Run the following command to upload the stemcell used by TKGI:
@@ -332,33 +332,33 @@ To upload the stemcell used by your Tanzu Kubernetes Grid Integrated Edition til
     upload-stemcell \
     --fix PATH-TO-STEMCELL
     ```
-    Where:  
+    Where:
 
-    * `BOSH-CLI-CREDENTIALS`  is the full `Bosh Commandline Credentials` value that you copied 
-    from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
-    * `PATH-TO-BOSH-SERVER-CERTIFICATE` is the path to the root CA certificate that you 
-    downloaded in [Download the Root CA Certificate](#root-ca-cert).  
-    * `PATH-TO-STEMCELL` is the path to your tile's stemcell.  
+    * `BOSH-CLI-CREDENTIALS`  is the full `Bosh Commandline Credentials` value that you copied
+    from the BOSH Director tile in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
+    * `PATH-TO-BOSH-SERVER-CERTIFICATE` is the path to the root CA certificate that you
+    downloaded in [Download the Root CA Certificate](#root-ca-cert).
+    * `PATH-TO-STEMCELL` is the path to your tile's stemcell.
 
 1. To ensure the stemcells for all of your other installed tiles have been uploaded,
 repeat the last step, running the `bosh upload-stemcell --fix PATH-TO-STEMCELL` command,
 for each required stemcell that is different from the already uploaded TKGI stemcell.
 
-### <a id='redeploy-control-plane'></a> Redeploy the Tanzu Kubernetes Grid Integrated Edition Control Plane
+### <a id='redeploy-control-plane'></a> Redeploy the {{  vars.product }} Control Plane
 
-To redeploy your Tanzu Kubernetes Grid Integrated Edition tile's control plane:  
+To redeploy your {{  vars.product }} tile's control plane:
 
-1. From the Ops Manager Installation Dashboard, navigate to **VMware Tanzu Kubernetes Grid Integrated Edition** > **Resource Config**. 
+1. From the {{ vars.platform_name }} Installation Dashboard, navigate to **{{  vars.product_full }}** > **Resource Config**.
 
-1. Ensure the **Upgrade all clusters** errand is **Off**.  
+1. Ensure the **Upgrade all clusters** errand is **Off**.
 
-1. Ensure both **Instances** > **TKGI API** and 
-**Instances** > **TKGI Database** are configured as they had been 
-when the backup you are restoring was created.  
+1. Ensure both **Instances** > **TKGI API** and
+**Instances** > **TKGI Database** are configured as they had been
+when the backup you are restoring was created.
 
 1. Ensure that all errands needed by your system are set to run.
 
-1. Return to the Ops Manager Installation Dashboard.
+1. Return to the {{ vars.platform_name }} Installation Dashboard.
 
 1. Click **Review Pending Changes**.
 
@@ -368,11 +368,11 @@ when the backup you are restoring was created.
 
 ### <a id='restore-control-plane'></a> Restore the TKGI Control Plane
 
-Restore the Tanzu Kubernetes Grid Integrated Edition control plane by running BBR commands on your jump box.  
+Restore the {{  vars.product }} control plane by running BBR commands on your jump box.
 
-To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
+To restore the {{  vars.product }} control plane:
 
-1. Ensure the Tanzu Kubernetes Grid Integrated Edition deployment backup artifact is in the folder from which you run BBR.
+1. Ensure the {{  vars.product }} deployment backup artifact is in the folder from which you run BBR.
 
 1. Run the BBR restore command to restore the TKGI control plane:
 
@@ -384,7 +384,7 @@ To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
     restore \
     --artifact-path PATH-TO-DEPLOYMENT-BACKUP
     ```
-    Where:  
+    Where:
 
     * `BOSH-CLIENT-SECRET` is the value for `BOSH_CLIENT_SECRET` retrieved in
     [Download the BOSH Commandline Credentials](#bosh-cli-creds).
@@ -392,12 +392,12 @@ To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
     [Download the BOSH Commandline Credentials](#bosh-cli-creds).
     You must be able to reach the target address from the workstation where you run `bbr` commands.
     * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in
-    [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
-    * `DEPLOYMENT-NAME` is the deployment name retrieved in 
-    [Locate the Tanzu Kubernetes Grid Integrated Edition Deployment Name](#locate-deploy-name).  
-    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in 
-    [Download the Root CA Certificate](#root-ca-cert).  
-    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the TKGI control plane backup that you want to restore.  
+    [Download the BOSH Commandline Credentials](#bosh-cli-creds).
+    * `DEPLOYMENT-NAME` is the deployment name retrieved in
+    [Locate the {{  vars.product }} Deployment Name](#locate-deploy-name).
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in
+    [Download the Root CA Certificate](#root-ca-cert).
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the TKGI control plane backup that you want to restore.
 
     For example:
     ```console
@@ -409,21 +409,21 @@ To restore the Tanzu Kubernetes Grid Integrated Edition control plane:
     --artifact-path /home/pivotal-container-service_abcd1234abcd1234abcd-abcd1234abcd1234
     ```
     <p class="note">
-    <strong>Note</strong>: The BBR restore command can take a long time to complete. 
-    The command above uses <code>nohup</code> and the restore process is run within your SSH session. 
-    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+    <strong>Note</strong>: The BBR restore command can take a long time to complete.
+    The command above uses <code>nohup</code> and the restore process is run within your SSH session.
+    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will
     run separately from your SSH session and will continue to run, even if your SSH connection to the jump box fails.
     </p>
-1. If your Tanzu Kubernetes Grid Integrated Edition control plane restore fails, do one or more of the following:  
-    * Run the command again, adding the `--debug` flag to activate debug logs. For more information, 
-      see [BBR Logging](bbr-logging.html).  
-    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.  
+1. If your {{  vars.product }} control plane restore fails, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to activate debug logs. For more information,
+      see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.
 
-    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
+    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.
 
 ## <a id='redeploy-restore-clusters'></a> Redeploy and Restore Clusters
 
-After restoring the Tanzu Kubernetes Grid Integrated Edition control plane,
+After restoring the {{  vars.product }} control plane,
 perform the following steps to redeploy the TKGI-provisioned Kubernetes clusters
 and restore their state from backup.
 
@@ -441,7 +441,7 @@ see [Redeploy a Single Cluster](#redeploy-single-cluster).
 
 To redeploy all clusters:
 
-1. In Ops Manager, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. In {{ vars.platform_name }}, navigate to the **{{  vars.product }}** tile.
 1. Click **Errands**.
 1. Ensure the **Upgrade all clusters** errand is **On**.
 This errand redeploys all your TKGI-provisioned clusters.
@@ -451,7 +451,7 @@ For more information, see [Reviewing Pending Product Changes](https://techdocs.b
 
 #### <a id='redeploy-single-cluster'></a> Redeploy a Single Cluster
 
-To redeploy a TKGI-provisioned cluster through the TKGI CLI:  
+To redeploy a TKGI-provisioned cluster through the TKGI CLI:
 
 1. Identify the names of your TKGI-provisioned clusters:
 
@@ -479,11 +479,11 @@ Stateless workloads are tracked in the cluster etcd database, which BBR backs up
 During this process, only currently-deployed clusters function, and you cannot create new workloads.
 </p>
 
-To restore a cluster:  
+To restore a cluster:
 
 1. Move the cluster backup artifact to a folder from which you will run the BBR restore process.
 
-1. SSH into your jump box. For more information about the jump box, see 
+1. SSH into your jump box. For more information about the jump box, see
 [Configure Your Jump Box](bbr-install.html#jumpbox-setup) in _Installing BOSH Backup and Restore_.
 
 1. Run the following command:
@@ -496,17 +496,17 @@ To restore a cluster:
     restore \
     --artifact-path PATH-TO-DEPLOYMENT-BACKUP
     ```
-    Where:  
+    Where:
 
-    * `BOSH-CLIENT-SECRET` is the `BOSH_CLIENT_SECRET` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.  
-    * `BOSH-TARGET` is the `BOSH_ENVIRONMENT` property.  This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**. 
-    You must be able to reach the target address from the workstation where you run `bbr` commands.  
-    * `BOSH-CLIENT` is the `BOSH_CLIENT` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.  
-    * `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in 
+    * `BOSH-CLIENT-SECRET` is the `BOSH_CLIENT_SECRET` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.
+    * `BOSH-TARGET` is the `BOSH_ENVIRONMENT` property.  This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.
+    You must be able to reach the target address from the workstation where you run `bbr` commands.
+    * `BOSH-CLIENT` is the `BOSH_CLIENT` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.
+    * `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in
     [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.
-    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in the [Download the Root CA Certificate](#root-ca-cert) section above.  
-    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to to your deployment backup. 
-    Make sure you have transfer your artifact into your jump box as described in [Transfer Artifacts to Jump Box](#artifacts-jumpbox) above.  
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in the [Download the Root CA Certificate](#root-ca-cert) section above.
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to to your deployment backup.
+    Make sure you have transfer your artifact into your jump box as described in [Transfer Artifacts to Jump Box](#artifacts-jumpbox) above.
 
     For example:
     ```console
@@ -520,32 +520,32 @@ To restore a cluster:
     --artifact-path deployment-backup
     ```
     <p class="note">
-    <strong>Note</strong>: The BBR restore command can take a long time to complete. 
-    The BBR restore command above uses <code>nohup</code> and the restore process is run within your SSH session. 
-    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+    <strong>Note</strong>: The BBR restore command can take a long time to complete.
+    The BBR restore command above uses <code>nohup</code> and the restore process is run within your SSH session.
+    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will
     run separately from your SSH session and will continue to run, even if your SSH connection to the jump box fails.
 </p>
 1. To cancel a running `bbr restore`, see [Cancel a Restore](#cancel-restore) below.
 1. After you restore a Kubernetes cluster, you must register its workers with their control plane nodes by following the [Register Restored Worker VMs](#register-nodes) steps below.
-1. If your Tanzu Kubernetes Grid Integrated Edition cluster restore fails, do one or more of the following:  
-    * Run the command again, adding the `--debug` flag to activate debug logs. For more information, 
-      see [BBR Logging](bbr-logging.html).  
-    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.  
+1. If your {{  vars.product }} cluster restore fails, do one or more of the following:
+    * Run the command again, adding the `--debug` flag to activate debug logs. For more information,
+      see [BBR Logging](bbr-logging.html).
+    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.
 
-    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
+    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.
 
 ## <a id='register-nodes'></a> Register Restored Worker VMs
 
-After restoring a Kubernetes cluster, 
-you must register all of the cluster's worker nodes with their control plane nodes. 
-To register cluster worker nodes, complete the following:  
+After restoring a Kubernetes cluster,
+you must register all of the cluster's worker nodes with their control plane nodes.
+To register cluster worker nodes, complete the following:
 
 1. [Delete Nodes](#delete-nodes)
-1. [Restart kubelet](#restart-kubelet)  
+1. [Restart kubelet](#restart-kubelet)
 
 ### <a id='delete-nodes'></a> Delete Nodes
 
-To delete a cluster's restored nodes:  
+To delete a cluster's restored nodes:
 
 1. To determine your cluster's namespace, run the following command:
 
@@ -553,35 +553,35 @@ To delete a cluster's restored nodes:
     kubectl get all --all-namespaces
     ```
 
-1. To retrieve the list of worker nodes in the cluster, run the following command:  
+1. To retrieve the list of worker nodes in the cluster, run the following command:
 
     ```
     kubectl get nodes -o wide
     ```
-    Document the worker node names listed in the `NAME` column. 
-    Verify the worker nodes are all listed with a status of `NotReady`.  
-1. To delete a node, run the following:  
+    Document the worker node names listed in the `NAME` column.
+    Verify the worker nodes are all listed with a status of `NotReady`.
+1. To delete a node, run the following:
 
     ```
     kubectl delete node NODE-NAME
     ```
-    Where `NODE-NAME` is a node `NAME` returned by the `kubectl get nodes` command.  
+    Where `NODE-NAME` is a node `NAME` returned by the `kubectl get nodes` command.
 
 1. Repeat the preceding `kubectl delete node` step for each of your cluster's nodes.
 
 ### <a id='restart-kubelet'></a> Restart kubelet
 
-To restart `kubelet` on your worker node VMs:  
+To restart `kubelet` on your worker node VMs:
 
 1. To restart `kubelet` on all of your cluster's worker node VMs, run the following command:
 
     ```
     bosh ssh -d DEPLOYMENT-NAME worker -c 'sudo /var/vcap/bosh/bin/monit restart kubelet'
     ```
-    Where `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in 
-    [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.    
+    Where `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in
+    [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.
 
-1. To confirm all worker nodes in your cluster have been restored to a `Ready` state, 
+1. To confirm all worker nodes in your cluster have been restored to a `Ready` state,
 run the following command:
 
     ```
@@ -612,8 +612,8 @@ If you must cancel a restore, perform the following steps:
 
 ## <a id="manual-clean"></a>Clean Up After a Failed Restore
 
-If a BBR restore process fails, BBR might not have run the post-restore scripts, potentially leaving the instance in a locked state. 
-Additionally, the BBR restore folder might remain on the target instance and subsequent restore attempts might also fail.  
+If a BBR restore process fails, BBR might not have run the post-restore scripts, potentially leaving the instance in a locked state.
+Additionally, the BBR restore folder might remain on the target instance and subsequent restore attempts might also fail.
 
 * To resolve issues following a failed BOSH Director restore, run the following BBR command:
 
@@ -625,13 +625,13 @@ Additionally, the BBR restore folder might remain on the target instance and sub
     restore-cleanup
     ```
 
-    Where:  
+    Where:
 
-    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, 
-    BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` 
-    which you can retrieve as show in [Retrieve the BOSH Director Address](#bosh-address) above.  
-    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` 
-    as shown in [Download the BBR SSH Credentials](#bbr-ssh-creds) above.  
+    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public,
+    BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP`
+    which you can retrieve as show in [Retrieve the BOSH Director Address](#bosh-address) above.
+    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials`
+    as shown in [Download the BBR SSH Credentials](#bbr-ssh-creds) above.
     For example:
     ```console
     $ nohup bbr director \
@@ -653,14 +653,14 @@ Additionally, the BBR restore folder might remain on the target instance and sub
     restore-cleanup
     ```
 
-    Where:  
+    Where:
 
     * `BOSH-CLIENT-SECRET` is the value for `BOSH_CLIENT_SECRET` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.
     * `BOSH-TARGET` is the value for `BOSH_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.
         You must be able to reach the target address from the workstation where you run `bbr` commands.
-    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.  
-    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Name](#cluster-deployment-name) above.   
-    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.  
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.
+    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Name](#cluster-deployment-name) above.
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.
     For example:
     ```console
     $ BOSH_CLIENT_SECRET=p455w0rd \
@@ -684,14 +684,14 @@ Additionally, the BBR restore folder might remain on the target instance and sub
     restore-cleanup
     ```
 
-    Where:  
+    Where:
 
     * `BOSH-CLIENT-SECRET` is the value for `BOSH_CLIENT_SECRET` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
     * `BOSH-TARGET` is the value for `BOSH_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
         You must be able to reach the target address from the workstation where you run `bbr` commands.
-    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
-    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.   
-    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert).  
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
+    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert).
     For example:
     ```console
     $ BOSH_CLIENT_SECRET=p455w0rd \

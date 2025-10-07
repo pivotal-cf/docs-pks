@@ -1,9 +1,9 @@
 ---
 title: Compute Profiles and Host Groups (vSphere Only)
-owner: TKGI
+
 ---
 
-The following topics describe how to configure and apply compute profiles and host groups to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) clusters on vSphere:  
+The following topics describe how to configure and apply compute profiles and host groups to {{  vars.product_full }} ({{ vars.product_short }}) clusters on vSphere:
 
 <ul>
   <li>
@@ -16,6 +16,6 @@ The following topics describe how to configure and apply compute profiles and ho
     <a href="./compute-profiles-use.html">Using Compute Profiles (vSphere)</a>
   </li>
   <li>
-    <a href="./vsphere-host-group.html">Using vSphere Host Groups with Tanzu Kubernetes Grid Integrated Edition</a>
+    <a href="./vsphere-host-group.html">Using vSphere Host Groups with {{  vars.product }}</a>
   </li>
 <ul>

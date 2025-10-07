@@ -1,6 +1,6 @@
-To enable an HTTP proxy for outgoing HTTP/HTTPS traffic from Ops Manager and the BOSH Director, perform the following steps:
+To enable an HTTP proxy for outgoing HTTP/HTTPS traffic from {{ vars.platform_name }} and the BOSH Director, perform the following steps:
 
-1. Log in to Ops Manager.
+1. Log in to {{ vars.platform_name }}.
 
 1. Select **User Name > Settings** in the upper right.
 
@@ -9,22 +9,22 @@ To enable an HTTP proxy for outgoing HTTP/HTTPS traffic from Ops Manager and the
 1. Under **HTTP Proxy**, enter the FQDN or IP address of the HTTP proxy endpoint. For example, `http://myproxy.com:80`.
 
 1. Under **HTTPS Proxy**, enter the FQDN or IP address of the HTTPS proxy endpoint. For example, `http://myproxy.com:80`.
-  <p class="note"><strong>Note</strong>: Using an HTTPS connection to the proxy server is not supported. Ops Manager and BOSH HTTP and HTTPS proxy options can be only configured with an HTTP connection to the proxy.</p>
+  <p class="note"><strong>Note</strong>: Using an HTTPS connection to the proxy server is not supported. {{ vars.platform_name }} and BOSH HTTP and HTTPS proxy options can be only configured with an HTTP connection to the proxy.</p>
 
 1. Under **No Proxy**, include the hosts that must bypass the proxy. This is required.
 	<br><br>
-	In addition to `127.0.0.1` and `localhost`, include the BOSH Director IP, Ops Manager IP, TKGI API VM IP, and the TKGI Database VM IP.
+	In addition to `127.0.0.1` and `localhost`, include the BOSH Director IP, {{ vars.platform_name }} IP, TKGI API VM IP, and the TKGI Database VM IP.
 	If the TKGI Database is in HA mode (beta), enter all your database IPs in the **No Proxy** field.
 
 	```
 	127.0.0.1,localhost,BOSH-DIRECTOR-IP,TKGI-API-IP,OPS-MANAGER-IP,TKGI-DATABASE-IP
 	```
 
-	<p class="note"><strong>Note</strong>: Ops Manager does not allow the use of a CIDR range in the <strong>No Proxy</strong> field. You must specify each individual IP address to bypass the proxy.<br><br>
+	<p class="note"><strong>Note</strong>: {{ vars.platform_name }} does not allow the use of a CIDR range in the <strong>No Proxy</strong> field. You must specify each individual IP address to bypass the proxy.<br><br>
 	The <strong>No Proxy</strong> field does not accept wildcard domain notation, such as <code>*.docker.io</code> and <code>*.docker.com</code>. You must specify the exact IP or FQDN to bypass the proxy, such as <code>registry-1.docker.io</code>.</p>
 
 1. Click **Save**.
 
-1. Return to the Ops Manager Installation Dashboard and click **Review Pending Changes**.
+1. Return to the {{ vars.platform_name }} Installation Dashboard and click **Review Pending Changes**.
 
-1. Click **Apply Changes** to deploy Ops Manager and the BOSH Director with the updated proxy settings.
+1. Click **Apply Changes** to deploy {{ vars.platform_name }} and the BOSH Director with the updated proxy settings.

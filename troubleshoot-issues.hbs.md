@@ -1,9 +1,9 @@
 ---
 title: General Troubleshooting
-owner: TKGI
+
 ---
 
-This topic assists with diagnosing and troubleshooting issues when installing or using VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This topic assists with diagnosing and troubleshooting issues when installing or using {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='overview'></a>Overview
 
@@ -48,7 +48,7 @@ The Fluent Bit Pod has insufficient memory for your environment's utilization.
 **Solution**
 
 Increase the Fluent Bit Pod memory limit.
-For more information, see [Log Sink Resources](installing-vsphere.html#log-sinks) in the _Installing Tanzu Kubernetes Grid Integrated Edition_ topic for your IaaS.
+For more information, see [Log Sink Resources](installing-vsphere.html#log-sinks) in the _Installing {{  vars.product }}_ topic for your IaaS.
 
 <hr>
 
@@ -64,9 +64,9 @@ The TKGI API VM requires more resources.
 
 **Solution**
 
-1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the {{ vars.platform_name }} Installation Dashboard.
 
-1. Select the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. Select the **{{  vars.product }}** tile.
 
 1. Select the **Resource Config** page.
 
@@ -104,7 +104,7 @@ To confirm that there is a disk space issue, check recent BOSH activity for any 
 
 1. Log in to the BOSH Director and run `bosh tasks`.
   The output from `bosh tasks` provides details about the tasks that the BOSH Director has run.
-  See [Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html) for more information about logging in to the BOSH Director.
+  See [Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html) for more information about logging in to the BOSH Director.
 
 1. In the BOSH command output, locate a task that attempted to perform a cluster operation, such as cluster creation or deletion.
 
@@ -144,7 +144,7 @@ look for any nodes that display `failing` as their `Process State`. For example:
 
 **Solution**
 
-1. In the Tanzu Kubernetes Grid Integrated Edition tile, locate the plan assigned to the failing node.
+1. In the {{  vars.product }} tile, locate the plan assigned to the failing node.
 
 1. In the plan configuration, select a larger VM type for the plan's control plane or worker nodes or both.
 
@@ -168,7 +168,7 @@ There was an error creating the cluster.
 
 1. Log in to the BOSH Director and run `bosh tasks`.
   The output from `bosh tasks` provides details about the tasks that the BOSH Director has run.
-  See [Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html) for more information about logging in to the BOSH Director.
+  See [Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html) for more information about logging in to the BOSH Director.
 
 1. In the BOSH command output, locate the task that attempted to create the cluster.
 
@@ -248,8 +248,8 @@ To avoid the operation timeout:
     Configure the `nsx_feign_client_read_timeout` property value in the TKGI MC configuration YAML
     with your calculated Operation Timeout value.
     For more information about configuring the `nsx_feign_client_read_timeout` property,
-    see [Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition](console-deploy-wizard.html#deploy)
-    in _Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard_.
+    see [Generate Configuration File and Deploy {{  vars.product }}](console-deploy-wizard.html#deploy)
+    in _Deploy {{  vars.product }} by Using the Configuration Wizard_.
 
     <p class="note"><strong>Note</strong>: If you use the TKGI MC, you must configure
     the TKGI Operation Timeout in the TKGI MC configuration YAML.
@@ -266,14 +266,14 @@ creating the cluster again.
 
 **Explanation**
 
-Tanzu Kubernetes Grid Integrated Edition does not automatically clean up the failed BOSH deployment. Running `tkgi
+{{  vars.product }} does not automatically clean up the failed BOSH deployment. Running `tkgi
 create-cluster` using the same cluster name creates a name clash error in BOSH.
 
 **Solution**
 
 Log in to the BOSH Director and delete the BOSH deployment manually, then retry the `tkgi delete-cluster` operation. After cluster deletion succeeds, re-create the cluster.
 
-1. Log in to the BOSH Director and obtain the deployment name for cluster you want to delete. For instructions, see [Using BOSH Diagnostic Commands in Tanzu Kubernetes Grid Integrated Edition](diagnostic-tools.html).
+1. Log in to the BOSH Director and obtain the deployment name for cluster you want to delete. For instructions, see [Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html).
 
 1. Run the following BOSH command:
 
@@ -292,7 +292,7 @@ Log in to the BOSH Director and delete the BOSH deployment manually, then retry 
     ```
     tkgi delete-cluster CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of your Tanzu Kubernetes Grid Integrated Edition cluster.
+    Where `CLUSTER-NAME` is the name of your {{  vars.product }} cluster.
     <p class="note"><strong>Note</strong>: Use only lowercase characters in your TKGI-provisioned
     Kubernetes cluster names if you manage your clusters with Tanzu Mission Control (TMC).
     Clusters with names that include an uppercase character cannot be attached to TMC.
@@ -303,7 +303,7 @@ Log in to the BOSH Director and delete the BOSH deployment manually, then retry 
     ```
     tkgi create-cluster CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of your Tanzu Kubernetes Grid Integrated Edition cluster.
+    Where `CLUSTER-NAME` is the name of your {{  vars.product }} cluster.
     <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster
     if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
     </p>
@@ -322,9 +322,9 @@ Your vCenter login contains special characters, or you have `GOVC` environment v
 
 **Solution**
 
-For special characters, see [Authentication Error with Special Characters in stembuild Commands](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#special-characters), in the TAS for VMs [Windows] documentation.
+For special characters, see [Authentication Error with Special Characters in stembuild Commands](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#special-characters), in the {{ vars.app_runtime }} [Windows] documentation.
 
-For `GOVC` variables, follow the steps to unset the variables in [Step 4: Construct the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#construct-stemcell), in the TAS for VMs [Windows] documentation.
+For `GOVC` variables, follow the steps to unset the variables in [Step 4: Construct the BOSH Stemcell](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-platform-for-cloud-foundry/5-0/tpcf/create-vsphere-stemcell-automatically.html#construct-stemcell), in the {{ vars.app_runtime }} [Windows] documentation.
 
 <hr>
 
@@ -338,23 +338,23 @@ For example, pods cannot resolve DNS names, and error messages report the servic
 
 **Explanation**
 
-Kubernetes features and functions are provided by Tanzu Kubernetes Grid Integrated Edition add-ons.
+Kubernetes features and functions are provided by {{  vars.product }} add-ons.
 DNS resolution, for example, is provided by the `CoreDNS` service.
 
-To activate these add-ons, Ops Manager must run scripts after deploying Tanzu Kubernetes Grid Integrated Edition. You must configure Ops Manager to automatically run these post-deploy scripts.
+To activate these add-ons, {{ vars.platform_name }} must run scripts after deploying {{  vars.product }}. You must configure {{ vars.platform_name }} to automatically run these post-deploy scripts.
 
 **Solution**
 
-Perform the following steps to configure Ops Manager to run post-deploy scripts to deploy the missing add-ons to your cluster.
+Perform the following steps to configure {{ vars.platform_name }} to run post-deploy scripts to deploy the missing add-ons to your cluster.
 
-1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the {{ vars.platform_name }} Installation Dashboard.
 
 1. Click the **BOSH Director** tile.
 
 1. Select **Director Config**.
 
 1. Select **Enable Post Deploy Scripts**.
-  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your Ops Manager installation.</p>
+  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your {{ vars.platform_name }} installation.</p>
 
 1. Click **Save**.
 
@@ -365,7 +365,7 @@ information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.c
 
 1. Click **Apply Changes**.
 
-1. After Ops Manager finishes applying changes, enter `tkgi delete-cluster` on the command line to delete the cluster. For more information, see [Deleting Clusters](delete-cluster.html).
+1. After {{ vars.platform_name }} finishes applying changes, enter `tkgi delete-cluster` on the command line to delete the cluster. For more information, see [Deleting Clusters](delete-cluster.html).
 
 1. On the command line, enter `tkgi create-cluster` to recreate the cluster. For more information, see [Creating Clusters](create-cluster.html).
 
@@ -407,11 +407,11 @@ The above command, when applied to each VM, gives your VMs the correct permissio
 **Symptoms**
 
 After making your selection in the **Upgrade all clusters errand** section, the worker node might hang indefinitely.
-For more information about monitoring the **Upgrade all clusters errand** using the BOSH CLI, see [Upgrade the TKGI Tile](upgrade.html#upgrade-tile) in _Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)_.
+For more information about monitoring the **Upgrade all clusters errand** using the BOSH CLI, see [Upgrade the TKGI Tile](upgrade.html#upgrade-tile) in _Upgrading {{  vars.product }} (Antrea Networking)_.
 
 **Explanation**
 
-During the Tanzu Kubernetes Grid Integrated Edition tile upgrade process, worker nodes are cordoned and drained. This drain is dependent on Kubernetes being able to unschedule all pods. If Kubernetes is unable to unschedule a pod, then the drain hangs indefinitely.
+During the {{  vars.product }} tile upgrade process, worker nodes are cordoned and drained. This drain is dependent on Kubernetes being able to unschedule all pods. If Kubernetes is unable to unschedule a pod, then the drain hangs indefinitely.
 Kubernetes might be unable to unschedule the node if the `PodDisruptionBudget` object has been configured to permit zero disruptions and only a single instance of the pod has been scheduled.
 
 In your spec file, the `.spec.replicas` configuration sets the total amount of replicas that are available in your app.
@@ -430,10 +430,10 @@ To resolve this issue, do one of the following:
     When the number of replicas configured in `.spec.replicas` is greater than the number of replicas set in the `PodDisruptionBudget` object, disruptions can occur.
     <br><br>
     For more information, see [How Disruption Budgets Work](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work) in the Kubernetes documentation.<br>
-    For more information about workload capacity and uptime requirements in Tanzu Kubernetes Grid Integrated Edition, see [Prepare to Upgrade](upgrade.html#prepare) in _Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)_.
+    For more information about workload capacity and uptime requirements in {{  vars.product }}, see [Prepare to Upgrade](upgrade.html#prepare) in _Upgrading {{  vars.product }} (Antrea Networking)_.
 
 + Configure the default node drain behavior by doing the following:
-    1. Navigate to **Ops Manager Installation** > **Tanzu Kubernetes Grid Integrated Edition** > **Plans**.
+    1. Navigate to **{{ vars.platform_name }} Installation** > **{{  vars.product }}** > **Plans**.
     1. Set the default node drain behavior by configuring the following fields:
       <table class="nice">
           <tr>
@@ -476,14 +476,14 @@ To resolve this issue, do one of the following:
         Before enabling this configuration, set <strong>Node Drain Timeout</strong> to greater than <code>0</code>.</p>
         <p class="note warning"><strong>Warning:</strong> If you deselect <strong>Force node to drain even if it has running DaemonSet-managed pods</strong> with <strong>Enable Metric Sink Resources</strong>,
         <strong>Enable Log Sink Resources</strong>, or <strong>Enable Node Exporter</strong> selected, the upgrade will fail as all options deploy a DaemonSet in the <code>pks-system</code> namespace.</p>
-    3. Navigate to **Ops Manager Installation Dashboard** > **Review Pending Changes**, select **Upgrade all clusters errand**, and **Apply Changes**.
+    3. Navigate to **{{ vars.platform_name }} Installation Dashboard** > **Review Pending Changes**, select **Upgrade all clusters errand**, and **Apply Changes**.
     The new behavior takes effect during the next upgrade, not immediately after applying your changes.
 
     <p class='note'><strong>Note:</strong> You can also use the TKGI CLI to configure node drain behavior.
     To configure the default node drain behavior with the TKGI CLI, run <code>tkgi update-cluster</code>
     with an action flag. You can view the current node drain behavior with <code>tkgi cluster --details</code>.
     For more information, see <a href="./checklist.html#configure-node-drain">Configure Node Drain Behavior</a>
-    in <i> Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Edition v1.9</i>.
+    in <i> Upgrade Preparation Checklist for {{  vars.product }} v1.9</i>.
     <strong>Warning</strong>: Do not use <code>tkgi update-cluster</code>
     on clusters configured with a network profile CNI configuration.</p>
 
@@ -544,7 +544,7 @@ your apps deployed to clusters utilizing websocket. These apps are inaccessible 
 
 **Explanation**
 
-Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX fully supports websocket.
+{{  vars.product }} on vSphere with NSX fully supports websocket.
 The most likely cause for this behavior is a connectivity issue specific to supporting websocket.
 
 **Solution**
@@ -565,14 +565,14 @@ TKGI login command fails with an error "Credentials were rejected, please try ag
 
 **Explanation**
 
-You might experience this issue when a large number of pods are running continuously in your Tanzu Kubernetes Grid Integrated Edition deployment.
+You might experience this issue when a large number of pods are running continuously in your {{  vars.product }} deployment.
 As a result, the persistent disk on the TKGI Database VM runs out of space.
 
 **Solution**
 
-1. Check the total number of pods in your Tanzu Kubernetes Grid Integrated Edition  deployments.
+1. Check the total number of pods in your {{  vars.product }}  deployments.
 1. If there are a large number of pods such as over 1,000 pods, then check the amount of available persistent disk space on the TKGI Database VM.
-1. If available disk space is low, increase the amount of persistent disk storage on the TKGI Database VM depending on the number of pods in your Tanzu Kubernetes Grid Integrated Edition deployment. Refer to the table in the following section.
+1. If available disk space is low, increase the amount of persistent disk storage on the TKGI Database VM depending on the number of pods in your {{  vars.product }} deployment. Refer to the table in the following section.
 
 {{> increase_persistent_disk }}
 
@@ -615,20 +615,20 @@ In stdout or log files, you see an error message referencing `post-start scripts
 
 **Explanation**
 
-After deploying Tanzu Kubernetes Grid Integrated Edition, Ops Manager runs scripts to start a number of jobs. You must configure Ops Manager to automatically run these post-deploy scripts.
+After deploying {{  vars.product }}, {{ vars.platform_name }} runs scripts to start a number of jobs. You must configure {{ vars.platform_name }} to automatically run these post-deploy scripts.
 
 **Solution**
 
-Perform the following steps to configure Ops Manager to run post-deploy scripts.
+Perform the following steps to configure {{ vars.platform_name }} to run post-deploy scripts.
 
-1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the Ops Manager Installation Dashboard.
+1. Navigate to `https://YOUR-OPS-MANAGER-FQDN/` in a browser to log in to the {{ vars.platform_name }} Installation Dashboard.
 
 1. Click the **BOSH Director** tile.
 
 1. Select **Director Config**.
 
 1. Select **Enable Post Deploy Scripts**.
-  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your Ops Manager installation.</p>
+  <p class="note"><strong>Note</strong>: This setting activates post-deploy scripts for all tiles in your {{ vars.platform_name }} installation.</p>
 
 1. Click **Save**.
 
@@ -639,7 +639,7 @@ information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.c
 
 1. Click **Apply Changes**.
 
-1. (Optional) If it is a new deployment of Tanzu Kubernetes Grid Integrated Edition, follow the steps below:
+1. (Optional) If it is a new deployment of {{  vars.product }}, follow the steps below:
   1. On the command line, enter `tkgi delete-cluster` to delete the cluster. For more information, see [Deleting Clusters](delete-cluster.html).
   1. Enter `tkgi create-cluster` to recreate the cluster. For more information, see [Creating Clusters](create-cluster.html).
 
@@ -671,9 +671,9 @@ Plan not found error when an active plan is deactivated.
 
 **Explanation**
 
-You might receive the error "plan UUID not found" if, after creating a cluster using a plan (such as Plan 1), you then deactivate the plan (Plan 1) from the TKGI Tile in Ops Manager and then **Save** and **Apply Changes** with the **Upgrade all clusters errand** selected.
+You might receive the error "plan UUID not found" if, after creating a cluster using a plan (such as Plan 1), you then deactivate the plan (Plan 1) from the TKGI Tile in {{ vars.platform_name }} and then **Save** and **Apply Changes** with the **Upgrade all clusters errand** selected.
 
-Ops Manager does not have capability to check clusters that are using a particular plan. Only when user saves the plan, the deployment process will check whether a plan can be deactivated. The error message "plan is displayed in the Ops Manager logs.
+{{ vars.platform_name }} does not have capability to check clusters that are using a particular plan. Only when user saves the plan, the deployment process will check whether a plan can be deactivated. The error message "plan is displayed in the {{ vars.platform_name }} logs.
 
 **Solution**
 

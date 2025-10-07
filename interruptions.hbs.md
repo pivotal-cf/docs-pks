@@ -1,13 +1,13 @@
 ---
 title: Service Interruptions
-owner: TKGI
+
 ---
 
-This topic describes events in the lifecycle of a Kubernetes cluster deployed by VMware Tanzu Kubernetes Grid Integrated Edition that can cause temporary service interruptions.
+This topic describes events in the lifecycle of a Kubernetes cluster deployed by {{  vars.product_full }} that can cause temporary service interruptions.
 
 ## <a id='service-update'></a>Stemcell or Service Update
 
-An operator performs a stemcell version update or Tanzu Kubernetes Grid Integrated Edition version update.
+An operator performs a stemcell version update or {{  vars.product }} version update.
 
 ### Impact
 - **Workload**: If you use the recommended configuration, no workload downtime is expected since the VMs are upgraded one at a time.
@@ -64,7 +64,7 @@ If the process resumes cleanly, the TKGI control plane recovers automatically an
 
 ## <a id='vm-fail'></a>VM Failure
 
-An Tanzu Kubernetes Grid Integrated Edition VM fails and goes offline due to either a virtualization problem or a host hardware problem.
+An {{  vars.product }} VM fails and goes offline due to either a virtualization problem or a host hardware problem.
 
 ### Impact
 
@@ -98,14 +98,14 @@ If the persistent disks are gone, the disks can be restored from your last backu
 
 ## <a id='region-fail'></a>Region Failure
 
-An entire region fails, bringing all Tanzu Kubernetes Grid Integrated Edition components offline.
+An entire region fails, bringing all {{  vars.product }} components offline.
 
 ### Impact
-The entire Tanzu Kubernetes Grid Integrated Edition deployment and all services are unavailable.
+The entire {{  vars.product }} deployment and all services are unavailable.
 The extent of the downtime is unknown.
 
 ### Required Actions
 The TKGI control plane can be restored using BOSH Backup and Restore (BBR).
 Each cluster might need to be restored manually from backups.
 
-For more information, see [Restore Tanzu Kubernetes Grid Integrated Edition Control Plane](bbr-restore.html#redeploy-restore-control-plane) in _Restoring Tanzu Kubernetes Grid Integrated Edition_.
+For more information, see [Restore {{  vars.product }} Control Plane](bbr-restore.html#redeploy-restore-control-plane) in _Restoring {{  vars.product }}_.

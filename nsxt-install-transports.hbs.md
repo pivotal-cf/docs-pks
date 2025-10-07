@@ -1,9 +1,9 @@
 ---
 title: Installing and Configuring NSX Transport Nodes
-owner: TKGI-NSXT
+ -NSXT
 ---
 
-This topic describes how to install and configure NSX Data Center v3.0 for use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere.  
+This topic describes how to install and configure NSX Data Center v3.0 for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 
@@ -35,9 +35,9 @@ Before completing this section, make sure you have completed the following secti
 
 
 
-##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition
+##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for {{  vars.product }}
 
-To perform a new installation of VMware NSX for Tanzu Kubernetes Grid Integrated Edition, complete the following steps in the order presented.
+To perform a new installation of VMware NSX for {{  vars.product }}, complete the following steps in the order presented.
 
 
 ##<a id='nsxt30-esxi-tn'></a> Deploy ESXi Host Transport Nodes Using VDS
@@ -49,7 +49,7 @@ Deploy each ESXi host in the COMPUTE-cluster as an ESXi host transport node (TN)
 
 1. Expand the Compute Manager and select the ESXi host in the COMPUTE-cluster, or each ESXi host in the vSphere cluster.
   <img src="images/nsxt/nsxt-30/esxi-host-tn-02.png">
- 
+
 1. Click **Configure NSX**.
 
 1. In the **Host Details** tab, enter a name, such as `10.172.210.57`.
@@ -63,10 +63,10 @@ Deploy each ESXi host in the COMPUTE-cluster as an ESXi host transport node (TN)
   - **LLDP Profile**: `LLDP [Send Packet Disabled]`
   - **IP Assignment**: `Use IP Pool`
   - **IP Pool**: `TEP-IP-POOL`
-  - **Teaming Policy Switch Mapping**  
-     - **Uplinks**: `uplink-1`  
-     - **Physical NICs**: `vmnic1`  
-  <img src="images/nsxt/nsxt-30/esxi-host-tn-33.png">  
+  - **Teaming Policy Switch Mapping**
+     - **Uplinks**: `uplink-1`
+     - **Physical NICs**: `vmnic1`
+  <img src="images/nsxt/nsxt-30/esxi-host-tn-33.png">
 
 1. Click **Finish**.
 
@@ -108,7 +108,7 @@ To avoid any overlay communication in the future due to MTU issue, test TEP to T
 
 1. Go to **System** > **Fabric** > **Nodes** > **Edge Clusters**.
   <img src="images/nsxt/nsxt-30/edge-cluster-01.png">
- 
+
 1. Click **Add**.
   - Enter a name, such as `edge-cluster-1`.
   - Add members, including `edge-node-1` and `edge-node-2`.
@@ -130,51 +130,51 @@ Create an uplink Logical Switch to be used for the Tier-0 Router.
 
 1. Click **Add**.
 
-1. Configure the new logical switch as follows:  
-  - Name: `LS-T0-uplink`  
-  - Transport Zone: `tz-vlan`  
-  - VLAN: `1548`  
-  <img src="images/nsxt/nsxt-30/uplink-ls-02.png">  
+1. Configure the new logical switch as follows:
+  - Name: `LS-T0-uplink`
+  - Transport Zone: `tz-vlan`
+  - VLAN: `1548`
+  <img src="images/nsxt/nsxt-30/uplink-ls-02.png">
 
-1. Click **Add**.  
+1. Click **Add**.
 
-1. Verify.  
-  <img src="images/nsxt/nsxt-30/uplink-ls-03.png">  
+1. Verify.
+  <img src="images/nsxt/nsxt-30/uplink-ls-03.png">
 
 ##<a id='nsxt30-t0-router-create'></a> Create Tier-0 Router
 
-1. Select **Networking** from the **Manager** tab.  
-  <img src="images/nsxt/nsxt-30/tier-0-01.png">  
- 
-1. Select **Tier-0 Logical Router**.  
-  <img src="images/nsxt/nsxt-30/tier-0-02.png">  
- 
-1. Click **Add**.  
+1. Select **Networking** from the **Manager** tab.
+  <img src="images/nsxt/nsxt-30/tier-0-01.png">
+
+1. Select **Tier-0 Logical Router**.
+  <img src="images/nsxt/nsxt-30/tier-0-02.png">
+
+1. Click **Add**.
 
 1. Configure the new Tier-0 Router as follows:
   - **Name**: `T0-router`
   - **Edge Cluster**: `edge-cluster-1`
   - **HA mode**: Either `Active-Active` or `Active-Standby`
   - **Failover mode**: `Non-Preemptive`
-  
-    <p class="note"><strong>Note:</strong> 
-      Configuring <b>Failover mode</b> is optional if <b>HA mode</b> is configured as <code>Active-Active</code>. 
-      For more information on NSX HA mode configuration, see 
-      <a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/tier-0-gateways/add-an-nsx-tier-0-gateway.html">Add a Tier-0 Gateway</a> 
+
+    <p class="note"><strong>Note:</strong>
+      Configuring <b>Failover mode</b> is optional if <b>HA mode</b> is configured as <code>Active-Active</code>.
+      For more information on NSX HA mode configuration, see
+      <a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-0/administration-guide/tier-0-gateways/add-an-nsx-tier-0-gateway.html">Add a Tier-0 Gateway</a>
       in the VMware NSX-T Data Center documentation.
     </p>
     <img src="images/nsxt/nsxt-30/tier-0-03.png">
 1. Click **Save** and verify.
   <img src="images/nsxt/nsxt-30/tier-0-04.png">
- 
+
 1. Select the T0 router.
   <img src="images/nsxt/nsxt-30/tier-0-05.png">
 
 1. Select **Configuration** > **Router Ports**.
- 
+
 1. Click **Add**.
 
-1. Configure a new router port as follows: 
+1. Configure a new router port as follows:
   - **Name**: T0-uplink-1
   - **Type**: uplink
   - **Transport Node**: edge-node-1

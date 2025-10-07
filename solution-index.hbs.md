@@ -1,9 +1,9 @@
 ---
-title: Solution Guides for Tanzu Kubernetes Grid Integrated Edition 
-owner: TKGI
+title: Solution Guides for {{  vars.product }}
+
 ---
 
-The following topics are solution guides you can use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI):  
+The following topics are solution guides you can use with {{  vars.product_full }} ({{ vars.product_short }}):
 
 ## Solution Guides
 

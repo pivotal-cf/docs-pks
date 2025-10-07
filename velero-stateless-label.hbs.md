@@ -1,9 +1,9 @@
 ---
 title: Back Up and Restore Stateless App with Label
-owner: TKGI
+
 ---
 
-This topic describes how to use Velero to back up and restore a stateless application using the label selector feature with Velero.  
+This topic describes how to use Velero to back up and restore a stateless application using the label selector feature with Velero.
 
 ##<a id="overview"></a> Overview
 
@@ -19,7 +19,7 @@ Download the [Guestbook app YAML files](https://github.com/pivotal-cf/docs-pks/t
 - redis-leader-service.yaml
 - redis-follower-deployment.yaml
 - redis-follower-service.yaml
-- frontend-deployment.yaml 
+- frontend-deployment.yaml
 - frontend-service.yaml
 
 ## <a id='guestbook-deploy'></a> Deploy Guestbook App
@@ -342,5 +342,5 @@ Access the Guestbook app at <http://10.199.41.14/>.
 
 Note the following:
 
-- The namespace `guestbook` was automatically re-created.  
-- The IP address for the Kubernetes service load balancer is changed from `10.199.41.10` to `.14`.  
+- The namespace `guestbook` was automatically re-created.
+- The IP address for the Kubernetes service load balancer is changed from `10.199.41.10` to `.14`.

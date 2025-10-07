@@ -1,13 +1,13 @@
 ---
 title: Using Ingress URL Rewrite
-owner: TKGI-NSX
+ -NSX
 ---
 
-This topic describes how to perform URL rewrite for Kubernetes ingress resources for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to perform URL rewrite for Kubernetes ingress resources for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ## <a id='url-rewrite-about'></a>About Support for URL Rewrite for Ingress Resources
 
-Tanzu Kubernetes Grid Integrated Edition supports ingress URL path rewrite using NSX-T or NSX v2.5.1+ and NCP v2.5.1+.
+{{  vars.product }} supports ingress URL path rewrite using NSX-T or NSX v2.5.1+ and NCP v2.5.1+.
 
 All the ingress paths will be rewritten to the provided value. If an ingress has annotation `ingress.kubernetes.io/rewrite-target: /` and has path `/tea`, for example, the URI `/tea` will be rewritten to `/` before the request is sent to the backend service. Numbered capture groups are supported.
 

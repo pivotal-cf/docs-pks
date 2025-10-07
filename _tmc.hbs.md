@@ -1,16 +1,16 @@
 Tanzu Mission Control integration lets you monitor and manage
-Tanzu Kubernetes Grid Integrated Edition clusters from the Tanzu Mission Control console,
+{{  vars.product }} clusters from the Tanzu Mission Control console,
 which makes the Tanzu Mission Control console a single point of control
 for all Kubernetes clusters. For more information about Tanzu Mission Control, the [Tanzu Mission Control documentation](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components.html).
 
-To integrate Tanzu Kubernetes Grid Integrated Edition with Tanzu Mission Control:
+To integrate {{  vars.product }} with Tanzu Mission Control:
 
 1. Confirm that the TKGI API VM has internet access and
 can connect to `cna.tmc.tanzu.broadcom.com` and the other outbound URLs listed in
 the [What Happens When You Attach a Cluster](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-mission-control/1-4/tanzu-mission-control-documentation/tanzumc-concepts-GUID-147472ED-16BB-4AAA-9C35-A951C5ADA88A.html) section of the Tanzu Mission Control Product
 documentation.
 
-1. Navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile > the **Tanzu Mission Control** pane and
+1. Navigate to the **{{  vars.product }}** tile > the **Tanzu Mission Control** pane and
 select **Yes** under **Tanzu Mission Control Integration**.
 
     <img src="images/tmc-integration.png" alt="Tanzu Mission Control Integration">
@@ -36,10 +36,10 @@ select **Yes** under **Tanzu Mission Control Integration**.
           For more information about role and access policy,
           see  [Access Control](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-mission-control/1-4/tanzu-mission-control-documentation/tanzumc-concepts-GUID-EB9C6D83-1132-444F-8218-F264E43F25BD.html) in the VMware Tanzu Mission Control Product documentation.
   <br><br>
-  - **Tanzu Mission Control Cluster Name Prefix**: Enter a name prefix for identifying the Tanzu Kubernetes Grid Integrated Edition clusters in Tanzu Mission Control.
+  - **Tanzu Mission Control Cluster Name Prefix**: Enter a name prefix for identifying the {{  vars.product }} clusters in Tanzu Mission Control.
 1. Click **Save**.
 
-<p class="note warning"><strong>Warning:</strong> After the Tanzu Kubernetes Grid Integrated Edition tile is deployed with a configured cluster group, the cluster group cannot be updated.</p>
+<p class="note warning"><strong>Warning:</strong> After the {{  vars.product }} tile is deployed with a configured cluster group, the cluster group cannot be updated.</p>
 
 <p class="note"><strong>Note:</strong> When you upgrade your Kubernetes clusters and have Tanzu Mission Control integration enabled,
 existing clusters will be attached to Tanzu Mission Control.</p>

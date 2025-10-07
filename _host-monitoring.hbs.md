@@ -6,13 +6,13 @@
 
 
 {{# evalExpression "current_page.data.iaas == 'vSphere' || current_page.data.iaas == 'vSphere-NSX-T'"}}
-In **Host Monitoring**, you can configure monitoring of nodes and VMs using Syslog, 
-VMware vRealize Log Insight (vRLI) Integration, or Telegraf.  
+In **Host Monitoring**, you can configure monitoring of nodes and VMs using Syslog,
+VMware vRealize Log Insight (vRLI) Integration, or Telegraf.
 
   ![Host Monitoring pane](images/host-monitoring-vsphere.png)
 
 {{ else }}
-In **Host Monitoring**, you can configure monitoring of nodes and VMs using Syslog, or Telegraf.  
+In **Host Monitoring**, you can configure monitoring of nodes and VMs using Syslog, or Telegraf.
 
   ![Host Monitoring pane](images/host-monitoring.png)
 {{/ evalExpression }}
@@ -32,7 +32,7 @@ For more information about these components, see
 
 ####<a id="host-syslog"></a> Syslog
 
-To configure Syslog for all BOSH-deployed VMs in Tanzu Kubernetes Grid Integrated Edition:
+To configure Syslog for all BOSH-deployed VMs in {{  vars.product }}:
 
 1. Click **Host Monitoring**.
 1. Under **Enable Syslog for TKGI**, select **Yes**.
@@ -49,10 +49,10 @@ To configure Syslog for all BOSH-deployed VMs in Tanzu Kubernetes Grid Integrate
   <p class="note"><strong>Note</strong>: You do not need to provide a new certificate if the TLS certificate for the destination syslog endpoint is signed by a Certificate Authority (CA) in your BOSH certificate store.
   </p>
 1. (Optional) Under **Max Message Size**, enter a maximum message size for logs that are forwarded to a syslog endpoint. By default, the **Max Message Size** field is 10,000 characters.
-1. (Optional) Under **Custom Rsyslog Configuration**, enter your RSyslog rules configuration using RainerScript syntax. 
-For more information, see [RainerScript](https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html#rainerscript) in the RSyslog documentation. 
-For example RSyslog rule configurations, see [Example Custom Rules](https://github.com/cloudfoundry/syslog-release/blob/main/examples/example-custom-rules.md) 
-in the Syslog BOSH GitHub repository.  
+1. (Optional) Under **Custom Rsyslog Configuration**, enter your RSyslog rules configuration using RainerScript syntax.
+For more information, see [RainerScript](https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html#rainerscript) in the RSyslog documentation.
+For example RSyslog rule configurations, see [Example Custom Rules](https://github.com/cloudfoundry/syslog-release/blob/main/examples/example-custom-rules.md)
+in the Syslog BOSH GitHub repository.
 1. Click **Save**.
 
 {{# evalExpression "current_page.data.iaas == 'vSphere' || current_page.data.iaas == 'vSphere-NSX-T'"}}

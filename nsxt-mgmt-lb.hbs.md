@@ -3,13 +3,13 @@ title: Provisioning a Load Balancer for the VMware NSX Management Cluster
 owner: PKS-NSXT
 ---
 
-This topic describes how to deploy a load balancer for the NSX Management Cluster for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to deploy a load balancer for the NSX Management Cluster for {{  vars.product_full }} ({{ vars.product_short }}).
 
 ##<a id='about'></a> About the NSX Management Cluster
 
 NSX provides a converged management and control plane that is referred to as the **NSX Management Cluster**. The architecture delivers high availability of the NSX Manager node, reduces the likelihood of operation failures of NSX, and provides API and UI clients with multiple endpoints or a single VIP for high availability.
 
-While using a VIP to access the NSX Management layer provides high-availability, it does not balance the workload. To avoid overloading a single NSX Manager, which might be the case when [HA VIP addressing](https://community.broadcom.com/vmware-cloud-foundation/discussion/vcf-deployment-design-guide) is used, an NSX load balancer can be provisioned to allow NCP and other components orchestrated by Tanzu Kubernetes Grid Integrated Edition to distribute load efficiently among NSX Manager nodes.
+While using a VIP to access the NSX Management layer provides high-availability, it does not balance the workload. To avoid overloading a single NSX Manager, which might be the case when [HA VIP addressing](https://community.broadcom.com/vmware-cloud-foundation/discussion/vcf-deployment-design-guide) is used, an NSX load balancer can be provisioned to allow NCP and other components orchestrated by {{  vars.product }} to distribute load efficiently among NSX Manager nodes.
 
 The diagram below shows an external load balancer fronting the NSX Manager nodes. The load balancer is deployed within the NSX environment and intercepts requests to the NSX Management Cluster. The load balancer selects one of the NSX Manager nodes to handle the request and rewrites the destination IP address to reflect the selection.
 
@@ -28,7 +28,7 @@ To provision the load balancer for the NSX Management Cluster, complete the foll
 1. Log in to an NSX Manager Node.
 <p class="note"><strong>Note</strong>: You can connect to any NSX Manager Node in the management cluster to provision the load balancer.</p>
 1. Select the **Advanced Networking & Security** tab.
-<p class="note"><strong>Note</strong>: You must use the <strong>Advanced Networking and Security</strong> tab in NSX Manager to create, read, update, and delete all NSX networking objects used for Tanzu Kubernetes Grid Integrated Edition.</p>
+<p class="note"><strong>Note</strong>: You must use the <strong>Advanced Networking and Security</strong> tab in NSX Manager to create, read, update, and delete all NSX networking objects used for {{  vars.product }}.</p>
 
 ###<a id='s2'></a> Step 2: Configure a Logical Switch
 
@@ -105,16 +105,16 @@ Add and configure a virtual server for the load balancer.
 
 Configure **General Properties** for the virtual server:
 
-- **Name**: `VS-NSX-EXTERNAL-LB`.  
-- **Application Types**: `Layer 4 TCP`.  
-- **Application Profile**: `default-tcp-lb-app-profile`.  
-- **Access Log**: `Deactivated`.  
+- **Name**: `VS-NSX-EXTERNAL-LB`.
+- **Application Types**: `Layer 4 TCP`.
+- **Application Profile**: `default-tcp-lb-app-profile`.
+- **Access Log**: `Deactivated`.
 - Click **Next**
 
 Configure **Virtual Server Identifiers** for the virtual server:
 
 - **IP Address**: Enter an IP address from the floating pool, such as `10.40.14.250`.
-- **Port**: `443`.  
+- **Port**: `443`.
 - Click **Next**.
 
 Configure **Virtual Server Pool** for the virtual server:
@@ -123,8 +123,8 @@ Configure **Virtual Server Pool** for the virtual server:
 
 Configure **General Properties** for the server pool:
 
-- **Name**: For example `NSX-MGRS-SRV-POOL`.  
-- **Load Balancing Algorithm**: `ROUND_ROBIN`.  
+- **Name**: For example `NSX-MGRS-SRV-POOL`.
+- **Load Balancing Algorithm**: `ROUND_ROBIN`.
 - Click **Next**
 
 Configure **SNAT Translation** for the server pool:
@@ -135,7 +135,7 @@ Configure **SNAT Translation** for the server pool:
 
 Configure **Pool Members** for the server pool:
 
-- **Membership Type**: `Static`.  
+- **Membership Type**: `Static`.
 - **Static Membership**: Add all 3 NSX Managers as members by entering the node name, IP address, and port (443) for each node.
 - Click **Next**.
 
@@ -148,7 +148,7 @@ Back at the Server Pool screen, click **Next**.
 
 Configure **Load Balancing Profiles** for the load balancer:
 
-- **Persistence Profile** > **Source IP**: Select `default-source-ip-lb-persistence-profile`.  
+- **Persistence Profile** > **Source IP**: Select `default-source-ip-lb-persistence-profile`.
 - Click **Finish**.
 
 <p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the TKGI Management Plane, do not configure a persistence profile.</p>
@@ -177,18 +177,18 @@ Once the load balancer is configured, verify it by doing the following:
 Create a new Active Health Monitor (HM) for NSX Management Cluster members using the NSX Health Check protocol.
 
 - Select **Load Balancers** > **Server Pools**.
-- Select the server pool you created. For example, `NSX-MGRS-SRV-POOL`. 
-- Select the **Overview** tab.  
-- Click **Health Monitor** > **Edit**.  
-- Click **Create a new active monitor**.  
+- Select the server pool you created. For example, `NSX-MGRS-SRV-POOL`.
+- Select the **Overview** tab.
+- Click **Health Monitor** > **Edit**.
+- Click **Create a new active monitor**.
 
 Configure **Monitor Properties**:
 
-- **Name**: `NSX-Mgr-Health-Monitor`.  
-- **Health Check Protocol**: `LbHttpsMonitor`.  
-- **Monitoring Port**: `443`.  
+- **Name**: `NSX-Mgr-Health-Monitor`.
+- **Health Check Protocol**: `LbHttpsMonitor`.
+- **Monitoring Port**: `443`.
 
-Configure **Health Check Parameters**. 
+Configure **Health Check Parameters**.
 
 Configure the new Active HM with specific HTTP request fields as follows:
 
@@ -203,35 +203,35 @@ Configure the **HTTP Request Configuration** settings for the health monitor:
 
 Configure the **HTTP Request Headers** for the health monitor:
 
-- **Authorization**: `Basic YWRtaW46Vk13YXJlMSE=`, which is the base64-encoded value of the NSX administrator credentials.   
-- **Content-Type**: `application/json`.  
-- **Accept**: `application/json`.  
+- **Authorization**: `Basic YWRtaW46Vk13YXJlMSE=`, which is the base64-encoded value of the NSX administrator credentials.
+- **Content-Type**: `application/json`.
+- **Accept**: `application/json`.
 
 <p class="note"><strong>Note:</strong> In the example, <em>YWRtaW46Vk13YXJlMSE=</em> is the base64-encoded value of the NSX administrator credentials, expressed in the form <em>admin-user:password</em>. You can use the free online service <a href="https://www.base64encode.org/">www.base64encode.org</a> to base64 encode your NSX administrator credentials.</p>
 
 Configure the **HTTP Response Configuration** for the health monitor:
 
-- **HTTP Response Code**: `200`.  
+- **HTTP Response Code**: `200`.
 - Click **Finish**.
 
 At the Health Monitors screen, specify the Active Health Monitor you just created:
 
-- **Active Health Monitor**: Enter a name for the health monitor, such as `NSX-Mgr-Health-Monitor`.  
-- Click **Finish**.  
+- **Active Health Monitor**: Enter a name for the health monitor, such as `NSX-Mgr-Health-Monitor`.
+- Click **Finish**.
 
 ###<a id='s12'></a> Step 12: Create SNAT Rule
 
-If your Tanzu Kubernetes Grid Integrated Edition deployment uses NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 Router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
+If your {{  vars.product }} deployment uses NAT mode, make sure Health Monitoring traffic is correctly SNAT-translated when leaving the NSX topology. Add a specific SNAT rule that intercepts HM traffic generated by the load balancer and translates this to a globally-routable IP Address allocated using the same principle of the load balancer VIP. The following screenshot illustrates an example of SNAT rule added to the Tier0 Router to enable HM SNAT translation. In the example, `100.64.128.0/31` is the subnet for the Load Balancer Tier-1 uplink interface.
 
 To do this you need to retrieve the IP of the T1 uplink (Tier-1 Router that connected the NSX LB instance). In the example below, the T1 uplink IP is `100.64.112.37/31`.
 
 Create the following SNAT rule on the Tier-0 Router:
 
-- **Priority**: `2000`.  
-- **Action**: `SNAT`.  
-- **Source IP**: `100.64.112.36/31`, for example.  
-- **Destination IP**: `10.40.206.0/25`, for example.  
-- **Translated IP**: `10.40.14.251`, for example.  
+- **Priority**: `2000`.
+- **Action**: `SNAT`.
+- **Source IP**: `100.64.112.36/31`, for example.
+- **Destination IP**: `10.40.206.0/25`, for example.
+- **Translated IP**: `10.40.14.251`, for example.
 - Click **Save**
 
 - Verify configuration of the SNAT rule and server pool health:
@@ -240,11 +240,11 @@ Create the following SNAT rule on the Tier-0 Router:
 
 Verify the load balancer and that traffic is load balanced.
 
-- Confirm that the status of the Logical Switch for the load balancer is Up.  
-- Confirm that the status of the Virtual Server for the load balancer is Up.  
-- Confirm that the status of the Server Pool is Up.  
-- Open an HTTPS session using multiple browser clients.  
-- Confirm that traffic is load-balanced across different NSX Managers:  
+- Confirm that the status of the Logical Switch for the load balancer is Up.
+- Confirm that the status of the Virtual Server for the load balancer is Up.
+- Confirm that the status of the Server Pool is Up.
+- Open an HTTPS session using multiple browser clients.
+- Confirm that traffic is load-balanced across different NSX Managers:
 
     - You can use the NSX API to validate that secure HTTP requests against the new VIP address are associated with the load balancer's Virtual Server. Relying on the SuperUser Principal Identity created as part of TKGI provisioning steps, you can cURL the NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP. For example:
 
@@ -260,10 +260,10 @@ Verify the load balancer and that traffic is load balanced.
         curl -k -X GET "https://91.0.0.1/api/v1/trust-management/principal-identities" --cert $(pwd)/pks-nsx-t-superuser.crt --key $(pwd)/pks-nsx-t-superuser.key
         ```
 
-    - The Key behavioral differences among the two API calls:  
-        - The call toward the Virtual Server VIP effectively balances load requests among the NSX Server Pool members.  
-        - The call made toward the HA VIP address ALWAYS selects the same member, the Active Member. of the NSX Management Cluster.  
+    - The Key behavioral differences among the two API calls:
+        - The call toward the Virtual Server VIP effectively balances load requests among the NSX Server Pool members.
+        - The call made toward the HA VIP address ALWAYS selects the same member, the Active Member. of the NSX Management Cluster.
 
-- Residual configuration steps:  
+- Residual configuration steps:
     - Change TKGI Tile configuration for NSX Manager IP Address to use the newly-provisioned Virtual IP Address.
-    This configuration enables any component internal to TKGI, for example NCP, NSX OSB Proxy, BOSH CPI, etc., to use the new Load Balancer functionality.  
+    This configuration enables any component internal to TKGI, for example NCP, NSX OSB Proxy, BOSH CPI, etc., to use the new Load Balancer functionality.

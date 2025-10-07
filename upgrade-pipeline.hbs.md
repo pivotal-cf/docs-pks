@@ -1,9 +1,9 @@
 ---
 title: Configuring the Upgrade Pipeline
-owner: TKGI
+
 ---
 
-This topic describes how to configure a Concourse pipeline to automatically upgrade a VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) installation.  
+This topic describes how to configure a Concourse pipeline to automatically upgrade a {{  vars.product_full }} ({{ vars.product_short }}) installation.
 
 ## <a id="Overview"></a> Overview
 
@@ -27,25 +27,25 @@ Perform the following steps:
 
 1. Set the pipeline using the `fly` CLI for Concourse. See the [upgrade-tile pipeline documentation](https://github.com/pivotal-cf/pcf-pipelines/tree/v0.23.0/upgrade-tile) for more information.
 
-## <a id="configure-pipeline"></a>Configure Automated Ops Manager and Ubuntu Jammy Stemcell for Tanzu Downloading
+## <a id="configure-pipeline"></a>Configure Automated {{ vars.platform_name }} and Ubuntu Jammy Stemcell for Tanzu Downloading
 
-If you use an automated pipeline to upgrade TKGI, 
-you must configure your pipeline to download only Ops Manager and Ubuntu Jammy Stemcell for VMware Tanzu versions 
+If you use an automated pipeline to upgrade TKGI,
+you must configure your pipeline to download only {{ vars.platform_name }} and Ubuntu Jammy Stemcell for VMware Tanzu versions
 that are compatible with your version of TKGI.
 
-<p class="note warning"><strong>Warning:</strong> {{{ vars.recommended_by }}} recommends that you 
-review the Broadcom Support metadata for your version of TKGI 
-and confirm Ops Manager and stemcell version compatibility before using 
-the Broadcom Support APIs to update Ops Manager and Ubuntu Jammy Stemcells for VMware Tanzu in your automated pipeline. 
+<p class="note warning"><strong>Warning:</strong> {{{ vars.recommended_by }}} recommends that you
+review the Broadcom Support metadata for your version of TKGI
+and confirm {{ vars.platform_name }} and stemcell version compatibility before using
+the Broadcom Support APIs to update {{ vars.platform_name }} and Ubuntu Jammy Stemcells for VMware Tanzu in your automated pipeline.
 </p>
 
 To configure your automated TKGI upgrade pipeline:
 
-1. Retrieve the Ops Manager and Ubuntu Jammy Stemcells for VMware Tanzu versions that are compatible with your TKGI version Retrieve the Ops Manager and Ubuntu Jammy Stemcells for VMware Tanzu versions that are compatible with your TKGI version by clicking **Upgrade/Dependency Information** at the top right of the download page for your TKGI CLI & Tile version on Broadcom Support.
+1. Retrieve the {{ vars.platform_name }} and Ubuntu Jammy Stemcells for VMware Tanzu versions that are compatible with your TKGI version Retrieve the {{ vars.platform_name }} and Ubuntu Jammy Stemcells for VMware Tanzu versions that are compatible with your TKGI version by clicking **Upgrade/Dependency Information** at the top right of the download page for your TKGI CLI & Tile version on Broadcom Support.
 
-2. Configure your automated pipeline to upgrade to 
+2. Configure your automated pipeline to upgrade to
 only a component version specified in the returned metadata for your version of TKGI.
 
-For more information on retrieving TKGI dependencies, 
-see [API reference](https://support.broadcom.com/docs/api#release_dependencies) 
-in the Broadcom Support documentation.  
+For more information on retrieving TKGI dependencies,
+see [API reference](https://support.broadcom.com/docs/api#release_dependencies)
+in the Broadcom Support documentation.

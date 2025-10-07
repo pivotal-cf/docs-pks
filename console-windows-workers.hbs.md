@@ -1,24 +1,24 @@
 ---
 title: Enable Plans with Windows Worker Nodes
-owner: TKGI
+
 ---
 
-If you used Tanzu Kubernetes Grid Integrated Edition Management Console to deploy Tanzu Kubernetes Grid Integrated Edition on vSphere, and you created Plans that implement Windows worker nodes, you must use Operations Manager to provide BOSH with a vSphere stemcell for Windows Server. See the [release notes](release-notes.html) for the correct version of vSphere stemcell for this release.
+If you used {{  vars.product }} Management Console to deploy {{  vars.product }} on vSphere, and you created Plans that implement Windows worker nodes, you must use Operations Manager to provide BOSH with a vSphere stemcell for Windows Server. See the [release notes](release-notes.html) for the correct version of vSphere stemcell for this release.
 
-Tanzu Kubernetes Grid Integrated Edition Management Console does not provide a mechanism for the automatic upload and installation of the Windows stemcell. Because Operations Manager and BOSH Director for vSphere are deployed when you deploy Tanzu Kubernetes Grid Integrated Edition from Tanzu Kubernetes Grid Integrated Edition Management Console, you can only install the stemcell after you have deployed Tanzu Kubernetes Grid Integrated Edition. 
+{{  vars.product }} Management Console does not provide a mechanism for the automatic upload and installation of the Windows stemcell. Because Operations Manager and BOSH Director for vSphere are deployed when you deploy {{  vars.product }} from {{  vars.product }} Management Console, you can only install the stemcell after you have deployed {{  vars.product }}.
 
-After you deploy Tanzu Kubernetes Grid Integrated Edition from the management console, any plans that use Windows worker nodes are ignored until you install a Windows Stemcell and configure the management console to use it.
+After you deploy {{  vars.product }} from the management console, any plans that use Windows worker nodes are ignored until you install a Windows Stemcell and configure the management console to use it.
 
 ## <a id='prerequisites'></a>Prerequisites
 
-- During Tanzu Kubernetes Grid Integrated Edition deployment, you configured a plan that implements Windows worker nodes. For information about creating a plan with Windows worker nodes, see [Configure Plans](console-deploy-wizard.html#plans) in *Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard*.
-- If you did not create a plan that uses Windows worker nodes when you deployed Tanzu Kubernetes Grid Integrated Edition, or if you have upgraded Tanzu Kubernetes Grid Integrated Edition Management Console from a version that did not support Windows worker nodes, you can use Tanzu Kubernetes Grid Integrated Edition Management Console to reconfigure the plans of your existing deployment. For information about reconfiguring Tanzu Kubernetes Grid Integrated Edition in the management console, see [Reconfigure Your Tanzu Kubernetes Grid Integrated Edition Deployment](console-reconfigure.html).
+- During {{  vars.product }} deployment, you configured a plan that implements Windows worker nodes. For information about creating a plan with Windows worker nodes, see [Configure Plans](console-deploy-wizard.html#plans) in *Deploy {{  vars.product }} by Using the Configuration Wizard*.
+- If you did not create a plan that uses Windows worker nodes when you deployed {{  vars.product }}, or if you have upgraded {{  vars.product }} Management Console from a version that did not support Windows worker nodes, you can use {{  vars.product }} Management Console to reconfigure the plans of your existing deployment. For information about reconfiguring {{  vars.product }} in the management console, see [Reconfigure Your {{  vars.product }} Deployment](console-reconfigure.html).
 
 ## <a id='create-windows-stemcell'></a>Step 1: Create a Windows Server Stemcell
 
 vSphere stemcells for Windows Server version 2019 are not available on the <a href="https://support.broadcom.com/">Broadcom Support</a>. You must create Windows Server stemcells for vSphere by using Stembuild and your own Windows Server ISO.
 
-Create a vSphere stemcell for Windows Server version 2019 by following the instructions in [Creating a Windows Stemcell for vSphere Using Stembuild](create-vsphere-stemcell.html). 
+Create a vSphere stemcell for Windows Server version 2019 by following the instructions in [Creating a Windows Stemcell for vSphere Using Stembuild](create-vsphere-stemcell.html).
 
 ## <a id='install-stemcell-ops-mgr'></a>Step 2: Install the Windows Server Stemcell in Operations Manager
 
@@ -30,15 +30,15 @@ After you have created your stemcell, you must upload it to Operations Manager a
 1. Click **Import Stemcell** and navigate to the location on your local machine where you saved the stemcell `.tgz` file in [Step 1](#create-windows-stemcell) above.
 1. Click **Save**.
 
-## <a id='reconfigure-deployment'></a>Step 3: Reconfigure Your Tanzu Kubernetes Grid Integrated Edition Deployment to Use the Stemcell
+## <a id='reconfigure-deployment'></a>Step 3: Reconfigure Your {{  vars.product }} Deployment to Use the Stemcell
 
-After you have created a Windows stemcell and used Operations Manager to install it in BOSH Director for vSphere, you must redeploy your Tanzu Kubernetes Grid Integrated Edition with the Windows stemcell installed.
+After you have created a Windows stemcell and used Operations Manager to install it in BOSH Director for vSphere, you must redeploy your {{  vars.product }} with the Windows stemcell installed.
 
-1. In Tanzu Kubernetes Grid Integrated Edition Management Console, expand **Configuration** and select **TKGI Configuration**.
-1. If you did not already create a plan that uses Windows worker nodes, or if you have upgraded this Tanzu Kubernetes Grid Integrated Edition instance from a version that did not support Windows worker nodes, expand the **Plans** section and create or reconfigure a plan that uses Windows worker nodes.
+1. In {{  vars.product }} Management Console, expand **Configuration** and select **TKGI Configuration**.
+1. If you did not already create a plan that uses Windows worker nodes, or if you have upgraded this {{  vars.product }} instance from a version that did not support Windows worker nodes, expand the **Plans** section and create or reconfigure a plan that uses Windows worker nodes.
 1. If necessary, reconfigure any other options that show a red status bar or that you want to change.
 1. Click **Generate Configuration** to view the generated YAML file.
-1. Click **Apply Configuration** to redeploy this Tanzu Kubernetes Grid Integrated Edition instance.
+1. Click **Apply Configuration** to redeploy this {{  vars.product }} instance.
 1. After the deployment finishes, verify that the Windows Stemcell Status is **INSTALLED** on the **TKG Integrated Edition** view.
 
 You can now deploy Kubernetes clusters in plans that implement Windows worker nodes.

@@ -1,37 +1,37 @@
 ---
 title: Configuring Ingress Resources and Load Balancer Services
-owner: TKGI-NSX
+ -NSX
 ---
 
-This topic describes example ingress routing (Layer 7) and load balancing (Layer 4) configurations for Kubernetes clusters deployed by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) on vSphere with NSX integration.  
+This topic describes example ingress routing (Layer 7) and load balancing (Layer 4) configurations for Kubernetes clusters deployed by {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX integration.
 
 <p class="note"><strong>Note:</strong> The examples in this topic are based on NCP v2.3.2.</p>
 
 ## <a id='how'></a> Kubernetes Ingress Rules
 
-A Kubernetes ingress resource exposes HTTP and HTTPS routes from outside the cluster 
-to services within the cluster. Traffic routing is controlled by rules defined on the ingress 
-resource. 
+A Kubernetes ingress resource exposes HTTP and HTTPS routes from outside the cluster
+to services within the cluster. Traffic routing is controlled by rules defined on the ingress
+resource.
 
-You define ingress resource configuration in the manifest of your Kubernetes deployment. 
+You define ingress resource configuration in the manifest of your Kubernetes deployment.
 When you define an ingress rule, the hostname and path values are both optional.
-It is common to define an ingress rule that specifies a hostname and no path, 
-but defining an ingress rule without a hostname is uncommon. 
-You can use wildcard DNS entries to route traffic to the exposed ingress resource.  
+It is common to define an ingress rule that specifies a hostname and no path,
+but defining an ingress rule without a hostname is uncommon.
+You can use wildcard DNS entries to route traffic to the exposed ingress resource.
 
-When you define two ingress rules with the same hostname, 
-include both the hostname and path in the ingress rules to avoid ambiguity.  
+When you define two ingress rules with the same hostname,
+include both the hostname and path in the ingress rules to avoid ambiguity.
 
 Rules:
 
-* If multiple ingress rules use the same hostname and the same path, the first rule you create takes priority.  
-* If an ingress rule that includes only a hostname precedes a rule that includes both the same hostname and a path, 
-the first rule takes priority.  
+* If multiple ingress rules use the same hostname and the same path, the first rule you create takes priority.
+* If an ingress rule that includes only a hostname precedes a rule that includes both the same hostname and a path,
+the first rule takes priority.
 
 For example:
 
-* The following NSX ingress rule includes both a host and a path specification. 
-The rule matches `host: test.com` and `path: /testpath` in the incoming request:  
+* The following NSX ingress rule includes both a host and a path specification.
+The rule matches `host: test.com` and `path: /testpath` in the incoming request:
 <br>
     **Ingress Rule Example 1**
 
@@ -55,8 +55,8 @@ The rule matches `host: test.com` and `path: /testpath` in the incoming request:
                   number: 80
     ```
 
-* The following NSX ingress rule includes only a host specification. 
-The rule matches all `host: test.com` in the incoming request:  
+* The following NSX ingress rule includes only a host specification.
+The rule matches all `host: test.com` in the incoming request:
 <br>
     **Ingress Rule Example 2**
 
@@ -80,22 +80,22 @@ The rule matches all `host: test.com` in the incoming request:
                   number: 80
     ```
 
-* If you create **Ingress Rule Example 1** before **Ingress Rule Example 2**, 
+* If you create **Ingress Rule Example 1** before **Ingress Rule Example 2**,
 then `svc-ingress1` serves the `test.com/testpath` URI because inbound requests hit the `host: test.com` and `path: /testpath` NSX ingress rule first.
 
 * If you create **Ingress Rule Example 2** before **Ingress Rule Example 1**, then `svc2-ingress2` serves the `test.com/testpath` URI because inbound requests hit the `host: test.com` NSX ingress rule first.
 
-For more information about Kubernetes ingress resources, 
-see [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) in the Kubernetes documentation.  
+For more information about Kubernetes ingress resources,
+see [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) in the Kubernetes documentation.
 
 ## <a id='lb'></a> The NSX Load Balancer Service
 
-NSX supports autoscaling, which spins up a new Kubernetes `type: LoadBalancer` service 
-if the previous one has reached its scale limit. The NSX load balancer that is 
-automatically provisioned by Tanzu Kubernetes Grid Integrated Edition provides two Layer 7 virtual servers 
-for Kubernetes ingress resources, one for HTTP and the other for HTTPS.  
+NSX supports autoscaling, which spins up a new Kubernetes `type: LoadBalancer` service
+if the previous one has reached its scale limit. The NSX load balancer that is
+automatically provisioned by {{  vars.product }} provides two Layer 7 virtual servers
+for Kubernetes ingress resources, one for HTTP and the other for HTTPS.
 
-For more information, see [Supported Load Balancer Features](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/administration-guide/load-balancer/key-load-balancer-concepts/supported-load-balancer-features.html) 
+For more information, see [Supported Load Balancer Features](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/administration-guide/load-balancer/key-load-balancer-concepts/supported-load-balancer-features.html)
 in the NSX documentation.
 
 The following is the format for the Kubernetes `LoadBalancer` service definition:
@@ -118,21 +118,21 @@ spec:
 
 Where:
 
-* `SERVICE-NAME` is the name for your load balancer service.  
-* `APP-NAME` is the name of your app serviced by the load balancer service.  
-* `PROTOCOL` (Optional) is the network protocol to service. 
-If the protocol is not specified it defaults to `TCP`. 
-For more information about supported protocols, see 
-[Supported protocols](https://kubernetes.io/docs/concepts/services-networking/service/#protocol-support) 
+* `SERVICE-NAME` is the name for your load balancer service.
+* `APP-NAME` is the name of your app serviced by the load balancer service.
+* `PROTOCOL` (Optional) is the network protocol to service.
+If the protocol is not specified it defaults to `TCP`.
+For more information about supported protocols, see
+[Supported protocols](https://kubernetes.io/docs/concepts/services-networking/service/#protocol-support)
 in the Kubernetes documentation.
 * `PORT` is the listening port. An integer value is supported. For example, `80`.
-* `TARGET-PORT` is the target port. Either an integer or a string value is supported. 
+* `TARGET-PORT` is the target port. Either an integer or a string value is supported.
 For example, `8080` or `http`.
-* `PORT-NAME` (Optional) is the port name. 
-Kubernetes requires the port name be specified for multi-port services.  
+* `PORT-NAME` (Optional) is the port name.
+Kubernetes requires the port name be specified for multi-port services.
 
-For example, the following is a `LoadBalancer` service definition for an 
-Tanzu Kubernetes Grid Integrated Edition-provisioned cluster with NSX:
+For example, the following is a `LoadBalancer` service definition for an
+{{  vars.product }}-provisioned cluster with NSX:
 
 ```
 kind: Service
@@ -150,14 +150,14 @@ spec:
     name: web
 ```
 
-<p class="note"><strong>Note</strong>: With NCP v2.3.2 and earlier, the named <code>targetPort</code> 
-  must be an integer, not a string. If you define a service <code>type: LoadBalancer</code> with NSX, 
+<p class="note"><strong>Note</strong>: With NCP v2.3.2 and earlier, the named <code>targetPort</code>
+  must be an integer, not a string. If you define a service <code>type: LoadBalancer</code> with NSX,
   the value of <code>targetPort</code> must be a port number, not a port name.
 </p>
 
-For more information about the Kubernetes `LoadBalancer` service definition see 
-[Type LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) 
-in the Kubernetes documentation.  
+For more information about the Kubernetes `LoadBalancer` service definition see
+[Type LoadBalancer](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+in the Kubernetes documentation.
 
-When deploying a Kubernetes `LoadBalancer` service, 
-NSX automatically creates a new virtual IP address (VIP) on the existing load balancer. 
+When deploying a Kubernetes `LoadBalancer` service,
+NSX automatically creates a new virtual IP address (VIP) on the existing load balancer.

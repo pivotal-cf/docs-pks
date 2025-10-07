@@ -1,71 +1,71 @@
 ---
-title: Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Edition
-owner: TKGI
+title: Upgrade Preparation Checklist for {{  vars.product }}
+
 ---
 
-This topic describes the preparation steps to complete before upgrading 
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
+This topic describes the preparation steps to complete before upgrading
+{{  vars.product_full }} ({{ vars.product_short }}) from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}.
 
 ##<a id='overview'></a> Overview
 
 The following are the procedures that you must complete before beginning your TKGI upgrade.
 
-<p class="note warning"><strong>Warning</strong>: Failure to follow these instructions 
+<p class="note warning"><strong>Warning</strong>: Failure to follow these instructions
     might jeopardize your existing deployment data and cause the TKGI upgrade to fail.
 </p>
 
 To prepare for a TKGI Upgrade:
 
-1. [Back Up Your TKGI Deployment](#backup)  
-1. [Review What Happens During TKGI Upgrades](#understand-upgrades)  
-1. [Review Changes in TKGI](#review-changes)  
-1. [Determine Upgrade Order (vSphere Only)](#upgrade-order)  
-1. [Set User Expectations and Restrict Cluster Access](#expectations)  
-1. If you are upgrading a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
-1. [Upgrade All Clusters to {{{ vars.product_version_prev }}}](#upgrade-clusters)  
-1. [Verify Your Clusters Support Upgrading](#resource-usage)  
-1. [Verify Health of Kubernetes Environment](#verify-k8s-health)  
-1. [Verify Your Environment Configuration](#review-configurations)  
-1. [Clean Up or Fix Failed Kubernetes Clusters](#clean-up)  
-1. [Verify Kubernetes Clusters Have Unique External Hostnames](#unique-hostname)  
-1. [Verify TKGI Proxy Configuration](#tkgi-proxy)  
-1. [Check PodDisruptionBudget Value](#check-poddisruptionbudget-value)  
-1. [(Optional) Configure Node Drain Behavior](#configure-node-drain)  
+1. [Back Up Your TKGI Deployment](#backup)
+1. [Review What Happens During TKGI Upgrades](#understand-upgrades)
+1. [Review Changes in TKGI](#review-changes)
+1. [Determine Upgrade Order (vSphere Only)](#upgrade-order)
+1. [Set User Expectations and Restrict Cluster Access](#expectations)
+1. If you are upgrading a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
+1. [Upgrade All Clusters to {{{ vars.product_version_prev }}}](#upgrade-clusters)
+1. [Verify Your Clusters Support Upgrading](#resource-usage)
+1. [Verify Health of Kubernetes Environment](#verify-k8s-health)
+1. [Verify Your Environment Configuration](#review-configurations)
+1. [Clean Up or Fix Failed Kubernetes Clusters](#clean-up)
+1. [Verify Kubernetes Clusters Have Unique External Hostnames](#unique-hostname)
+1. [Verify TKGI Proxy Configuration](#tkgi-proxy)
+1. [Check PodDisruptionBudget Value](#check-poddisruptionbudget-value)
+1. [(Optional) Configure Node Drain Behavior](#configure-node-drain)
 
 
 After completing the steps in this topic, continue to
-[Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)](upgrade.html) or
-[Upgrading Tanzu Kubernetes Grid Integrated Edition (NSX Networking)](upgrade-nsxt.html).  
+[Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html) or
+[Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html).
 
 
-##<a id='backup'></a> Back Up Your Tanzu Kubernetes Grid Integrated Edition Deployment
+##<a id='backup'></a> Back Up Your {{  vars.product }} Deployment
 
-{{{ vars.recommended_by }}} recommends backing up your Tanzu Kubernetes Grid Integrated Edition
+{{{ vars.recommended_by }}} recommends backing up your {{  vars.product }}
 deployment and workloads before upgrading.
-To back up Tanzu Kubernetes Grid Integrated Edition, see
-[Backing Up and Restoring Tanzu Kubernetes Grid Integrated Edition](backup-and-restore.html).
+To back up {{  vars.product }}, see
+[Backing Up and Restoring {{  vars.product }}](backup-and-restore.html).
 
-##<a id='understand-upgrades'></a> Review What Happens During Tanzu Kubernetes Grid Integrated Edition Upgrades
+##<a id='understand-upgrades'></a> Review What Happens During {{  vars.product }} Upgrades
 
-If you have not already done so, review [About Tanzu Kubernetes Grid Integrated Edition Upgrades](understanding-upgrades.html).
+If you have not already done so, review [About {{  vars.product }} Upgrades](understanding-upgrades.html).
 
 Plan your upgrade based on your workload capacity and uptime requirements.
 
-##<a id='review-changes'></a> Review Changes in Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}
+##<a id='review-changes'></a> Review Changes in {{  vars.product }} {{{ vars.product_version }}}
 
-Review the [Release Notes](release-notes.html) for Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
+Review the [Release Notes](release-notes.html) for {{  vars.product }} {{{ vars.product_version }}}.
 
 ##<a id='upgrade-order'></a> Determine Upgrade Order (vSphere Only)
 
-To determine the upgrade order for your Tanzu Kubernetes Grid Integrated Edition environment,
+To determine the upgrade order for your {{  vars.product }} environment,
 review
-[Upgrade Order for Tanzu Kubernetes Grid Integrated Edition Environments on vSphere](upgrade-scenarios.html).
+[Upgrade Order for {{  vars.product }} Environments on vSphere](upgrade-scenarios.html).
 
 ##<a id='expectations'></a> Set User Expectations and Restrict Cluster Access
 
-Coordinate the Tanzu Kubernetes Grid Integrated Edition upgrade with cluster admins and users.
+Coordinate the {{  vars.product }} upgrade with cluster admins and users.
 During the upgrade:
 
 * Their workloads will remain active and accessible.
@@ -82,10 +82,10 @@ Wait for cluster operations to complete before upgrading.
 
 ##<a id='upgrade-clusters'></a> Upgrade All Clusters to {{{ vars.product_version_prev }}}
 
-Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}} does not support clusters
+{{  vars.product }} {{{ vars.product_version }}} does not support clusters
 running versions of TKGI earlier than {{{ vars.product_version_prev }}}.
 
-Before you upgrade from Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version_prev }}} to {{{ vars.product_version }}},
+Before you upgrade from {{  vars.product }} {{{ vars.product_version_prev }}} to {{{ vars.product_version }}},
 you must upgrade all of your TKGI-provisioned clusters
 to {{{ vars.product_version_prev }}}.
 
@@ -97,21 +97,21 @@ To upgrade TKGI-provisioned clusters:
     tkgi clusters
     ```
 
-1. If one or more of your clusters are running a version of TKGI 
-    earlier than {{{ vars.product_version_prev }}}:  
-    1. Verify these clusters support being upgraded to TKGI {{{ vars.product_version_prev }}}. 
-    For more information, see [Verify Your Clusters Support Upgrading](#resource-usage) below.  
-    1. Upgrade the clusters to TKGI {{{ vars.product_version_prev }}}. 
+1. If one or more of your clusters are running a version of TKGI
+    earlier than {{{ vars.product_version_prev }}}:
+    1. Verify these clusters support being upgraded to TKGI {{{ vars.product_version_prev }}}.
+    For more information, see [Verify Your Clusters Support Upgrading](#resource-usage) below.
+    1. Upgrade the clusters to TKGI {{{ vars.product_version_prev }}}.
         For instructions,
-        see the [Upgrading Clusters](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-kubernetes-grid-integrated-edition/{{{ vars.product_version_prev_raw }}}/tkgi/upgrade-clusters.html) topic 
-        in the TKGI {{{ vars.product_version_prev }}} documentation.  
+        see the [Upgrading Clusters](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-kubernetes-grid-integrated-edition/{{{ vars.product_version_prev_raw }}}/tkgi/upgrade-clusters.html) topic
+        in the TKGI {{{ vars.product_version_prev }}} documentation.
 
 ##<a id='resource-usage'></a> Verify Your Clusters Support Upgrading
 
 It is critical that you confirm that a cluster's resource usage is within the
 recommended maximum limits before upgrading the cluster.
 
-VMware Tanzu Kubernetes Grid Integrated Edition upgrades a cluster by upgrading control plane and worker nodes individually.
+{{  vars.product_full }} upgrades a cluster by upgrading control plane and worker nodes individually.
 The upgrade processes a control plane node by redistributing the node's workload, stopping the node, upgrading it and restoring its workload.
 This redistribution of a node's workloads increases the resource usage on the remaining nodes during the upgrade process.
 
@@ -128,23 +128,23 @@ See [Control Plane Node VM Size](vm-sizing.html#master-sizing) for more informat
 
 1. Review the cluster's workload resource usage.
 
-1. Scale up the cluster if it is near capacity on its existing infrastructure.  
+1. Scale up the cluster if it is near capacity on its existing infrastructure.
 
-    1. If you are updating a cluster that uses a public cloud CSI driver, 
-    see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-    in _Release Notes_ for additional requirements.  
+    1. If you are updating a cluster that uses a public cloud CSI driver,
+    see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+    in _Release Notes_ for additional requirements.
     1. Scale up your cluster by running the command below or create a new cluster
     using a larger plan. For more information, see [Changing Cluster Configurations](scale-clusters.html).
 
         ```
         tkgi update-cluster CLUSTER-NAME --num-nodes NUMBER-OF-WORKER-NODES
         ```
-        
-        Where:  
-        
-        * `CLUSTER-NAME` is the name of your cluster.  
-        * `NUMBER-OF-WORKER-NODES` is the number of worker nodes that you want to set for the cluster.  
-    
+
+        Where:
+
+        * `CLUSTER-NAME` is the name of your cluster.
+        * `NUMBER-OF-WORKER-NODES` is the number of worker nodes that you want to set for the cluster.
+
     <p class="note"><strong>Note</strong>: VMware recommends that you avoid using the
     <code>tkgi resize</code> command to perform resizing operations.</p>
 
@@ -156,19 +156,19 @@ For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
 ##<a id='verify-k8s-health'></a> Verify Health of Kubernetes Environment
 
 Verify that your Kubernetes environment is healthy.
-To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html).  
+To verify the health of your Kubernetes environment, see [Verifying Deployment Health](verify-health.html).
 
 ##<a id='review-configurations'></a> Verify Your Environment Configuration
 
-If you are upgrading Tanzu Kubernetes Grid Integrated Edition, 
-verify the configuration of your environment supports the TKGI version you are installing:  
+If you are upgrading {{  vars.product }},
+verify the configuration of your environment supports the TKGI version you are installing:
 
-* [Verify Your vSphere with NSX Configuration](#review-vsphere-nsxt)  
-* [Verify Your Antrea Environment Configuration](#review-non-nsxt)  
+* [Verify Your vSphere with NSX Configuration](#review-vsphere-nsxt)
+* [Verify Your Antrea Environment Configuration](#review-non-nsxt)
 
 ###<a id='review-vsphere-nsxt'></a> Verify Your vSphere with NSX Configuration
 
-If you are upgrading Tanzu Kubernetes Grid Integrated Edition for environments using vSphere with NSX, perform the following steps:
+If you are upgrading {{  vars.product }} for environments using vSphere with NSX, perform the following steps:
 
 1. Verify that the vSphere datastores have enough space.
 1. Verify that the vSphere hosts have enough memory.
@@ -178,20 +178,20 @@ If you are upgrading Tanzu Kubernetes Grid Integrated Edition for environments u
   <p class="note"><strong>Note</strong>: Workloads in your Kubernetes cluster are unavailable while
   the NSX Edge nodes run the upgrade unless you configure NSX Edge for high availability. For more
   information, see the <a href="./nsxt-prepare-env.html#nsx-edge-ha">Configure NSX Edge for High Availability (HA)</a>
-section of <em>Preparing NSX Before Deploying Tanzu Kubernetes Grid Integrated Edition</em>.</p>
+section of <em>Preparing NSX Before Deploying {{  vars.product }}</em>.</p>
 
 ###<a id='review-non-nsxt'></a> Verify Your Antrea Environment Configuration
 
-If you are upgrading Tanzu Kubernetes Grid Integrated Edition in an environment using Antrea networking, 
+If you are upgrading {{  vars.product }} in an environment using Antrea networking,
 perform the following steps:
 
-1. Verify the 6081 UDP port is open on all worker node VMs.  
-1. Verify the 8091 TCP port is open on all control plane node VMs.  
-1. Verify your environment configuration meets the Antrea networking requirements. 
-For more information, see [Network Requirements](https://github.com/antrea-io/antrea/blob/main/docs/network-requirements.md#network-requirements) 
-in the Antrea GitHub repository.  
+1. Verify the 6081 UDP port is open on all worker node VMs.
+1. Verify the 8091 TCP port is open on all control plane node VMs.
+1. Verify your environment configuration meets the Antrea networking requirements.
+For more information, see [Network Requirements](https://github.com/antrea-io/antrea/blob/main/docs/network-requirements.md#network-requirements)
+in the Antrea GitHub repository.
 
-<p class="note"><strong>Note</strong>: Port 6081 must be open on all of the worker node VMs and 
+<p class="note"><strong>Note</strong>: Port 6081 must be open on all of the worker node VMs and
   port 8091 must be open on all control plane node VMs in the clusters you create in an Antrea networking environment.</p>
 
 ##<a id='clean-up'></a> Clean Up or Fix Failed Kubernetes Clusters
@@ -223,9 +223,9 @@ Verify that existing Kubernetes clusters have unique external hostnames by check
 Kubernetes clusters with the same external hostname. Perform the following steps:
 
 1. Log in to the TKGI CLI. For more information, see
-[Logging in to Tanzu Kubernetes Grid Integrated Edition](login.html). You must log in with an account that has the
+[Logging in to {{  vars.product }}](login.html). You must log in with an account that has the
 UAA scope of `pks.clusters.admin`. For more information about UAA scopes, see
-[Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).
+[Managing {{  vars.product }} Users with UAA](manage-users.html).
 
 1. View your deployed TKGI clusters by running the following command:
 
@@ -245,19 +245,19 @@ For example:
 Verify your current TKGI proxy configuration by performing the following steps:
 
 1. Check whether an existing proxy is enabled:
-    1. Log in to Ops Manager.
-    1. Click the **VMware Tanzu Kubernetes Grid Integrated Edition** tile.
+    1. Log in to {{ vars.platform_name }}.
+    1. Click the **{{  vars.product_full }}** tile.
     1. Click **Networking**.
     1. If **HTTP/HTTPS Proxy** is **Disabled**, no action is required. Continue to the next section.
        If **HTTP/HTTPS Proxy** is **Enabled**, continue to the next step.
 
-1. Verify the **No Proxy** field values do not contain an underscore character, for example, `my_host.mydomain.com`.  
-    <p class="note warning"><strong>Warning</strong>: An underscore character in the <strong>No Proxy</strong> field can cause your upgrade to fail. 
+1. Verify the **No Proxy** field values do not contain an underscore character, for example, `my_host.mydomain.com`.
+    <p class="note warning"><strong>Warning</strong>: An underscore character in the <strong>No Proxy</strong> field can cause your upgrade to fail.
     If an existing <strong>No Proxy</strong> field value contains an underscore character, or you plan to add a value containing an underscore, contact Support.</p>
 
 ##<a id='check-poddisruptionbudget-value'></a> Check PodDisruptionBudget Value
 
-Tanzu Kubernetes Grid Integrated Edition upgrades can run without ever completing if any Kubernetes app has a `PodDisruptionBudget`
+{{  vars.product }} upgrades can run without ever completing if any Kubernetes app has a `PodDisruptionBudget`
 with `maxUnavailable` set to `0`.
 
 To ensure that no apps have a `PodDisruptionBudget` with
@@ -273,13 +273,13 @@ To ensure that no apps have a `PodDisruptionBudget` with
 
 ## <a id="configure-node-drain"></a> (Optional) Configure Node Drain Behavior
 
-During the Tanzu Kubernetes Grid Integrated Edition upgrade process, worker nodes are cordoned and drained.
+During the {{  vars.product }} upgrade process, worker nodes are cordoned and drained.
 Workloads can prevent worker nodes from draining and cause the upgrade to fail or hang.
 
-To prevent hanging cluster upgrades, you can configure default node drain behavior using the following methods:  
+To prevent hanging cluster upgrades, you can configure default node drain behavior using the following methods:
 
-* [Configure with the TKGI Tile](#node-drain-tile)  
-* [Configure with the TKGI CLI](#node-drain-cli)  
+* [Configure with the TKGI Tile](#node-drain-tile)
+* [Configure with the TKGI CLI](#node-drain-cli)
 
 The new default behavior takes effect during the next upgrade,
 not immediately after configuring the behavior.
@@ -287,7 +287,7 @@ not immediately after configuring the behavior.
 
 ### <a id="node-drain-tile"></a> Configure with the TKGI Tile
 
-To configure node drain behavior in the Tanzu Kubernetes Grid Integrated Edition tile,
+To configure node drain behavior in the {{  vars.product }} tile,
 see <a href="./troubleshoot-issues.html#upgrade-drain-hangs">Worker Node Hangs Indefinitely</a>
 in <i>Troubleshooting</i>.</p>
 
@@ -303,60 +303,60 @@ To configure default node drain behavior with the TKGI CLI:
 
     Where `CLUSTER-NAME` is the name of your cluster.
     <br><br>
-    For example:  
+    For example:
     ```
-    $ tkgi cluster my-cluster --details  
-    
-    Name:                     my-cluster  
-    Plan Name:                small  
-    UUID:                     f55ed6c4-c0a7-451d-b735-56c89fdb2ad7  
-    Last Action:              CREATE  
-    Last Action State:        succeeded  
-    Last Action Description:  Instance provisioning completed  
-    Kubernetes Master Host:   my-cluster.tkgi.local  
-    Kubernetes Master Port:   8443  
-    Worker Nodes:             3  
-    Kubernetes Master IP(s):  10.196.219.88  
-    Network Profile Name:  
+    $ tkgi cluster my-cluster --details
+
+    Name:                     my-cluster
+    Plan Name:                small
+    UUID:                     f55ed6c4-c0a7-451d-b735-56c89fdb2ad7
+    Last Action:              CREATE
+    Last Action State:        succeeded
+    Last Action Description:  Instance provisioning completed
+    Kubernetes Master Host:   my-cluster.tkgi.local
+    Kubernetes Master Port:   8443
+    Worker Nodes:             3
+    Kubernetes Master IP(s):  10.196.219.88
+    Network Profile Name:
     Kubernetes Profile Name:
     Compute Profile Name:
     NSX Policy:               true
     Private Registries:       true
-    Kubernetes Settings Details:  
-        Set by Cluster:  
-        Kubelet Node Drain timeout (mins)            (kubelet-drain-timeout):               10  
-        Kubelet Node Drain grace-period (mins)       (kubelet-drain-grace-period):          10  
-        Kubelet Node Drain force                     (kubelet-drain-force):                 true  
-        Set by Plan:  
-        Kubelet Node Drain force-node                (kubelet-drain-force-node):            true  
-        Kubelet Node Drain ignore-daemonsets         (kubelet-drain-ignore-daemonsets):     true  
-        Kubelet Node Drain delete-local-data         (kubelet-drain-delete-local-data):     true  
+    Kubernetes Settings Details:
+        Set by Cluster:
+        Kubelet Node Drain timeout (mins)            (kubelet-drain-timeout):               10
+        Kubelet Node Drain grace-period (mins)       (kubelet-drain-grace-period):          10
+        Kubelet Node Drain force                     (kubelet-drain-force):                 true
+        Set by Plan:
+        Kubelet Node Drain force-node                (kubelet-drain-force-node):            true
+        Kubelet Node Drain ignore-daemonsets         (kubelet-drain-ignore-daemonsets):     true
+        Kubelet Node Drain delete-local-data         (kubelet-drain-delete-local-data):     true
     ```
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 1. Configure the default node drain behavior by running the following command:
 
     ```
     tkgi update-cluster CLUSTER-NAME FLAG
     ```
 
-    Where:  
-    
+    Where:
+
     * `CLUSTER-NAME` is the name of your cluster.
     * `FLAG` is an action flag for updating the node drain behavior.
 
     For example:
     ```console
     $ tkgi update-cluster my-cluster --kubelet-drain-timeout 1 --kubelet-drain-grace-period 5
-    Update summary for cluster my-cluster:  
-    Kubelet Drain Timeout: 1  
-    Kubelet Drain Grace Period: 5  
-    Are you sure you want to continue? (y/n): y  
+    Update summary for cluster my-cluster:
+    Kubelet Drain Timeout: 1
+    Kubelet Drain Grace Period: 5
+    Are you sure you want to continue? (y/n): y
     Use 'tkgi cluster my-cluster' to monitor the state of your cluster
     ```
 
-    For a list of the available action flags for setting node drain behavior, 
-    see [tkgi update-cluster](cli/index.html#update-cluster) in _TKGI CLI_.  
+    For a list of the available action flags for setting node drain behavior,
+    see [tkgi update-cluster](cli/index.html#update-cluster) in _TKGI CLI_.
 

@@ -1,13 +1,13 @@
 ---
 title: Creating and Managing Network Profiles in the Management Console
-owner: TKGI
+
 ---
 
-You can add, view and remove network profiles using the Tanzu Kubernetes Grid Integrated Edition Management Console on vSphere.
+You can add, view and remove network profiles using the {{  vars.product }} Management Console on vSphere.
 
 ## <a id='network-profile-using'></a>Using Network Profiles
 
-Network profiles let you customize the NSX infrastructure networking and the runtime NCP networking for Kubernetes clusters provisioned by Tanzu Kubernetes Grid Integrated Edition. For example, using a network profile you can change the size of the control plane load balancer, add an additional subnet for nodes, and enable the use of a third party ingress controller. For a complete list of use cases, see [Network Profile Use Cases](./network-profiles.html#use-cases).
+Network profiles let you customize the NSX infrastructure networking and the runtime NCP networking for Kubernetes clusters provisioned by {{  vars.product }}. For example, using a network profile you can change the size of the control plane load balancer, add an additional subnet for nodes, and enable the use of a third party ingress controller. For a complete list of use cases, see [Network Profile Use Cases](./network-profiles.html#use-cases).
 
 ## <a id='network-profile-reqs'></a>Requirements for Network Profiles
 
@@ -15,7 +15,7 @@ Network profiles are supported in NSX mode only; there is no support for vSphere
 
 ## <a id='network-profile-cluster-create'></a>Create Cluster with Network Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to create a cluster with an existing network profile.
+Use the {{  vars.product }} Management Console to create a cluster with an existing network profile.
 
 1. Select **TKG Integrated Edition** > **Clusters**, and select **Create Cluster**.
 1. Use the **Network Profile** drop-down menu to select the network profile to use.
@@ -26,7 +26,7 @@ Use the Tanzu Kubernetes Grid Integrated Edition Management Console to create a 
 
 ## <a id='network-profile-define'></a>Define Network Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to define a network profile. 
+Use the {{  vars.product }} Management Console to define a network profile.
 
 <p class="note"><strong>NOTE:</strong> You must be at the console home page to view the <strong>Network Profiles</strong> tab.</p>
 
@@ -46,7 +46,7 @@ Use the Tanzu Kubernetes Grid Integrated Edition Management Console to define a 
 
 ## <a id='network-profile-delete'></a>Delete Network Profile
 
-Use the Tanzu Kubernetes Grid Integrated Edition Management Console to delete network profile. 
+Use the {{  vars.product }} Management Console to delete network profile.
 
 <p class="note"><strong>NOTE:</strong> You cannot delete a network profile that is in use by a cluster.</p>
 
@@ -62,12 +62,12 @@ Use the Tanzu Kubernetes Grid Integrated Edition Management Console to delete ne
 
 The table lists and describes the available network profile options for customizing NSX.
 
-Profile Option 								               		| Description											
+Profile Option 								               		| Description
 ----------------------------------------------------------------|------------------------------------------------------------------------------
 [Load Balancer Size](./network-profiles-lb-size.html)	   		| Size of the control plane load balancer: `Small`, `Medium`, `Large`.
 [Pod IP Block IDs](./network-profiles-pods.html) 		   		| Array of Pod IP Block UUIDs defined in NSX.
 [Pod Subnet Prefix](./network-profiles-pods.html#pod-prefix)	| Size of the Pods IP Block subnet.
-[Pod Routability](./network-profiles-pods.html#routable-pods) 	| Make routable the custom Pods subnet: `Yes` or `No`. 
+[Pod Routability](./network-profiles-pods.html#routable-pods) 	| Make routable the custom Pods subnet: `Yes` or `No`.
 [Floating Pool IDs](./network-profiles-fip.html)          		| Array of floating IP pool UUIDs defined in NSX.
 [T0 Router ID](./network-profiles-edge.html)	    	   		| Tenant Tier-0 Router UUID defined in NSX.
 Failover Mode	                                 	   		    | Select **Preemptive** or **Non-preemptive**.
@@ -77,7 +77,7 @@ Failover Mode	                                 	   		    | Select **Preemptive**
 [Node Subnet Prefix](./network-profiles-nodes.html)  	   		| Size of the Node IP Block subnet.
 [Nodes DNS](./network-profiles-nodes-dns.html)  		   		| Array of DNS server IP addresses for lookup of Kubernetes nodes and pods.
 [DNS Lookup Mode](./network-profiles-dns.html)			   		| DNS lookup for the API LB (`API`) and ingress controller (`API_INGRESS`).
-[Ingress Prefix](./network-profiles-ncp-ingress.html) 	   		| Ingress controller hostname prefix for DNS lookup. 
+[Ingress Prefix](./network-profiles-ncp-ingress.html) 	   		| Ingress controller hostname prefix for DNS lookup.
 [Single Tier Topology](./network-profiles-shared-t1.html)  	| Use a single Tier-1 Router per cluster: `Yes` or `No`.
 Infrastructure Networks											| Array of IP addresses and subnets for use with a [single tier topology](./network-profiles-shared-t1.html) in a [multi-T0 environment](./network-profiles-edge.html).
 Custom Infrastructure Networks 						   			| Comma-separated array of custom IP addresses or network CIDRs to be used for Infrastructure Networks.
@@ -86,7 +86,7 @@ Custom Infrastructure Networks 						   			| Comma-separated array of custom IP 
 
 The table lists and describes the available network profile options for customizing NCP.
 
-Profile Option 								              		| Description								
+Profile Option 								              		| Description
 ----------------------------------------------------------------|------------------------------------------------------------------------------
 [Use NSX L4 Virtual Server for K8s Load Balancer](./network-profiles-ncp-lb.html) | Use NSX layer 4 virtual server for each Kubernetes service of type LoadBalancer: `Yes` or `No`.
 [Use NSX L7 Virtual Server as the Ingress Controller for K8s Cluster](./network-profiles-ncp-ingress.html) | Use NSX layer 7 virtual server as the ingress controller for the Kubernetes cluster: `Yes` or `No`.

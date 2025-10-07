@@ -1,35 +1,35 @@
 ---
-title: Deploy the Tanzu Kubernetes Grid Integrated Edition Management Console
-owner: TKGI
+title: Deploy the {{  vars.product }} Management Console
+
 ---
 
-This topic describes how to deploy the VMware Tanzu Kubernetes Grid Integrated Edition Management Console (TKGI MC) from an OVA template.  
+This topic describes how to deploy the {{  vars.product_full }} Management Console (TKGI MC) from an OVA template.
 
-To upgrade an existing TKGI MC installation, see [Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console](console-upgrade.html).  
+To upgrade an existing TKGI MC installation, see [Upgrade {{  vars.product }} Management Console](console-upgrade.html).
 
 
 ## <a id='overview'></a>Overview
 
-To deploy the TKGI Management Console:  
+To deploy the TKGI Management Console:
 
-1. Review the [Prerequisites](#prereqs)  
-1. [Deploy the OVA Template](#deploy-ova)  
-1. [Log In to TKGI Management Console](#access-console)  
+1. Review the [Prerequisites](#prereqs)
+1. [Deploy the OVA Template](#deploy-ova)
+1. [Log In to TKGI Management Console](#access-console)
 
 
 
 ## <a id='prereqs'></a>Prerequisites
 
-Complete the following before deploying the TKGI Management Console:  
+Complete the following before deploying the TKGI Management Console:
 
 - Download the OVA template from https://downloads.vmware.com.
 - Use an account with vSphere administrator privileges to log in to vSphere using the vSphere Client.
-- The vCenter Server instance must be correctly configured for Tanzu Kubernetes Grid Integrated Edition Management Console deployment. For information about the vCenter Server requirements, see [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
+- The vCenter Server instance must be correctly configured for {{  vars.product }} Management Console deployment. For information about the vCenter Server requirements, see [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
 
 
 ## <a id='deploy-ova'></a>Step 1: Deploy the OVA Template
 
-To deploy the Tanzu Kubernetes Grid Integrated Edition Management Console to vSphere:
+To deploy the {{  vars.product }} Management Console to vSphere:
 
 1. In the vSphere Client, right-click an object in the vCenter Server inventory, select **Deploy OVF template**, select **Local file**, and click **Browse** to navigate to your download of the OVA template.
 1. Follow the installer prompts to perform basic configuration of the management console and to select the vSphere resources for it to use.
@@ -39,47 +39,47 @@ To deploy the Tanzu Kubernetes Grid Integrated Edition Management Console to vSp
   * Accept the end user license agreements (EULA)
   * Select the disk format and destination datastore for the management console VM
 1. On the **Select Networks** page, select a network port group to which to connect the management console VM.
-    <p class="note warning"><strong> Important:</strong> If you intend to deploy Tanzu Kubernetes Grid Integrated Edition in a bring your own topology VMWare NSX environment, do not use the network on which you deploy the Tanzu Kubernetes Grid Integrated Edition Management Console VM as the network for the management plane when you deploy Tanzu Kubernetes Grid Integrated Edition. Using the same network for the management console VM and the management plane requires additional NSX configuration and is not recommended.</p>
+    <p class="note warning"><strong> Important:</strong> If you intend to deploy {{  vars.product }} in a bring your own topology VMWare NSX environment, do not use the network on which you deploy the {{  vars.product }} Management Console VM as the network for the management plane when you deploy {{  vars.product }}. Using the same network for the management console VM and the management plane requires additional NSX configuration and is not recommended.</p>
 1. On the **Customize template** page, expand **Appliance Configuration**.
   * Set the root password for the management console VM. Setting the root password for the VM is mandatory.
   * Optionally uncheck the **Permit Root Login** check box.
-  
+
     <p class="note"><strong>Note</strong>: If you uncheck the check box, you can permit root login later by editing the settings of the management console VM.
-    
+
     The root password is the only mandatory option. If you want to use auto-generated certificates, DHCP networking, and you do not want to integrate with VMware vRealize Log Insight, click **Next** to start the OVA deployment. Otherwise, complete the remaining steps in this procedure.
 
 1. Configure the management console VM certificate, that is used by all of the services that run in the management console VM to authenticate connections.
-    
+
     To use auto-generated, self-signed certificates, leave the **Appliance TLS Certificate**, **Appliance TLS Certificate Key**, and **Certificate Authority Certificate** text boxes blank.
-    
+
     To use a custom certificate:
-    
+
     Paste the contents of the server certificate PEM file in the **Appliance TLS Certificate** text box.
-    
+
     ```
     -----BEGIN CERTIFICATE-----
     appliance_certificate_contents
     -----END CERTIFICATE-----
     ```
-    
+
     Paste the contents of the certificate key in the **Appliance TLS Certificate Key** text box. The management console VM supports unencrypted PEM encoded formats for TLS private keys.
-    
+
     ```
     -----BEGIN PRIVATE KEY-----
     appliance_private_key_contents
     -----END PRIVATE KEY-----
     ```
-    
+
     Paste the contents of the Certificate Authority (CA) file in the **Certificate Authority Certificate** text box.
-    
+
     ```
-    -----BEGIN CERTIFICATE----- 
-    root_CA_certificate_contents 
-    -----END CERTIFICATE----- 
+    -----BEGIN CERTIFICATE-----
+    root_CA_certificate_contents
+    -----END CERTIFICATE-----
     ```
-    
+
     To use a certificate that uses a chain of intermediate CAs, paste into the **Certificate Authority Certificate** text box the contents of a certificate chain PEM file. The PEM file must include a chain of the intermediate CAs all the way down to the root CA.
-    
+
     ```
     -----BEGIN CERTIFICATE-----
     intermediate_CA_certificate_contents
@@ -90,21 +90,21 @@ To deploy the Tanzu Kubernetes Grid Integrated Edition Management Console to vSp
     -----BEGIN CERTIFICATE-----
     root_CA_certificate_contents
     -----END CERTIFICATE-----
-    ```        
+    ```
 1. Expand **Networking Properties** and optionally configure the networking for the management console VM.
 <br>
- To use DHCP, leave these properties blank.   
+ To use DHCP, leave these properties blank.
    * To set a static IP address on the management console VM, set the **Network IP Address**, **Network Netmask**, and **Default Gateway** settings.
-   * To configure DNS servers, set the **Domain Name Servers**, and **Domain Search Path** settings. 
+   * To configure DNS servers, set the **Domain Name Servers**, and **Domain Search Path** settings.
    * To specify a fully qualified domain name (FQDN) for the management console VM, set the **FQDN** setting.
-   * If necessary, update **Docker Container Network Subnet** and **Docker Container Network Gateway**. 
-   
+   * If necessary, update **Docker Container Network Subnet** and **Docker Container Network Gateway**.
+
       Services in the management console VM are deployed as Docker containers on a Docker bridge network.
       <p class="note warning"><strong> Warning:</strong> If the default subnet CIDR 172.18.0.0/16 and gateway address 172.18.0.1 for this bridge network conflict with existing networks, you must update these values.</p>
 1. (Optional) Enter the host name and port for VMware vRealize Log Insight in the **Log Insight Server Host/IP** and **Log Insight Server Port** text boxes.
-<br>vRealize Log Insight gathers logs from the Tanzu Kubernetes Grid Integrated Edition Management Console VM itself. For vRealize Log Insight to gather logs from your Tanzu Kubernetes Grid Integrated Edition deployments, you must configure the connection when you deploy Tanzu Kubernetes Grid Integrated Edition from Tanzu Kubernetes Grid Integrated Edition Management Console.
+<br>vRealize Log Insight gathers logs from the {{  vars.product }} Management Console VM itself. For vRealize Log Insight to gather logs from your {{  vars.product }} deployments, you must configure the connection when you deploy {{  vars.product }} from {{  vars.product }} Management Console.
 1. Click **Next** to review the settings that you have made.
-1. Click **Finish** to deploy the Tanzu Kubernetes Grid Integrated Edition Management Console.
+1. Click **Finish** to deploy the {{  vars.product }} Management Console.
 
 Use the Recent Tasks panel at the bottom of the vSphere Client to check the status of the OVA import and deployment of the management console VM. The management console VM takes a few minutes to deploy.
 
@@ -113,20 +113,20 @@ If the management console VM fails to deploy, see [Troubleshooting](console-trou
 
 ## <a id='access-console'></a>Step 2: Log In to TKGI Management Console
 
-When the OVA deployment has completed successfully, you can access the TKGI Management Console.  
+When the OVA deployment has completed successfully, you can access the TKGI Management Console.
 
-To start and access the TKGI Management Console:  
+To start and access the TKGI Management Console:
 
 1. In the vSphere Client, right-click the management console VM and select **Power** > **Power On**.
 1. When the management console VM has booted, go to the **Summary** tab for the VM and  copy its IP address.
 1. Enter the management console VM IP address in a browser.
-1. At the VMware Tanzu Kubernetes Grid Integrated Edition log in page, enter user name `root` and the root password that you set when you deployed the OVA template. 
+1. At the {{  vars.product_full }} log in page, enter user name `root` and the root password that you set when you deployed the OVA template.
 
 
 ## <a id='next-steps'></a> Next Steps
 
-You can now use Tanzu Kubernetes Grid Integrated Edition Management Console to deploy or upgrade Tanzu Kubernetes Grid Integrated Edition instances, either by using the configuration wizard or by importing an existing YAML configuration file.
+You can now use {{  vars.product }} Management Console to deploy or upgrade {{  vars.product }} instances, either by using the configuration wizard or by importing an existing YAML configuration file.
 
-- [Deploy Tanzu Kubernetes Grid Integrated Edition from the management console](console-deploy.html)
-- [Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console](console-upgrade.html)
+- [Deploy {{  vars.product }} from the management console](console-deploy.html)
+- [Upgrade {{  vars.product }} Management Console](console-upgrade.html)
 

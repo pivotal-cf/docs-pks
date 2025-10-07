@@ -1,32 +1,32 @@
 ---
 title: Configure Cluster Proxies
-owner: TKGI
+
 topic: proxies-cluster
 ---
 
-This topic describes how to customize HTTP/HTTPS proxies for individual 
-VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned clusters.  
+This topic describes how to customize HTTP/HTTPS proxies for individual
+{{  vars.product_full }} ({{ vars.product_short }}) provisioned clusters.
 
 ##<a id='overview'></a>Overview
 
-TKGI applies your HTTP/HTTPS cluster proxies to traffic from the cluster's Kubernetes 
+TKGI applies your HTTP/HTTPS cluster proxies to traffic from the cluster's Kubernetes
 and containerd processes, such as the Kubernetes API server, Kube Controller, Kubelet, and containerd daemon.
 
-To create or change a cluster's proxy configuration, see:  
+To create or change a cluster's proxy configuration, see:
 
-* [Create a Cluster with a Custom Proxy Configuration](#create)  
-* [Change a Cluster's Proxy Configuration](#change)  
+* [Create a Cluster with a Custom Proxy Configuration](#create)
+* [Change a Cluster's Proxy Configuration](#change)
 
 <br>
-To view a cluster's proxy configuration, see:  
+To view a cluster's proxy configuration, see:
 
-* [View a Cluster's Proxy Configuration](#list)  
+* [View a Cluster's Proxy Configuration](#list)
 
 <br>
 To configure global HTTP/HTTPS proxies for TKGI on vSphere or AWS, see:
 
-- **vSphere**: [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on NSX](proxies.html), or
-- **AWS**: [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on AWS](proxies-aws.html)
+- **vSphere**: [Using Proxies with {{  vars.product }} on NSX](proxies.html), or
+- **AWS**: [Using Proxies with {{  vars.product }} on AWS](proxies-aws.html)
 
 These two topics also cover how the proxies work, and how they can be useful.
 
@@ -50,9 +50,9 @@ To change a cluster's proxy configuration:
 
 <p class="note"><strong>Note</strong>: When you when you use <code>tkgi update-cluster</code> to update an existing cluster, the attached network-profile must consist of only updatable settings.</p>
 
-1. If you are updating a cluster that uses a public cloud CSI driver, 
-see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
-in _Release Notes_ for additional requirements.  
+1. If you are updating a cluster that uses a public cloud CSI driver,
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits)
+in _Release Notes_ for additional requirements.
 
 1. Run the following command to update the cluster with the configuration file:
 
@@ -60,12 +60,12 @@ in _Release Notes_ for additional requirements.
     tkgi update-cluster CLUSTER-NAME --config-file CONFIG-FILE-NAME
     ```
 
-    Where:  
+    Where:
 
-    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster.  
-    * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.  
+    * `CLUSTER-NAME` is the name of the existing Kubernetes cluster.
+    * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About Tanzu Kubernetes Grid Integrated Edition Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ##<a id='settings'></a>Proxy Configuration Settings
@@ -82,25 +82,25 @@ Proxy settings that you can configure are:
   </tr>
   <tr>
     <td><code>http_proxy</code></td>
-    <td>HTTP proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings 
+    <td>HTTP proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings
       in the TKGI tile > <strong>Networking</strong> pane.</td>
   </tr>
   <tr>
     <td><code>https_proxy</code></td>
-    <td>HTTPS proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings 
+    <td>HTTPS proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings
       in the TKGI tile.</td>
   </tr>
   <tr>
     <td><code>no_proxy</code></td>
-    <td>Comma-separated list of IP addresses that bypass the proxy for internal communication. 
-      This interacts with the tile's global <strong>No Proxy</strong> setting based on the 
+    <td>Comma-separated list of IP addresses that bypass the proxy for internal communication.
+      This interacts with the tile's global <strong>No Proxy</strong> setting based on the
       <code>global_no_proxy_merge</code> setting, below.</td>
   </tr>
   <tr>
     <td><code>global_no_proxy_merge</code></td>
-    <td>Boolean value. 
-      The default <code>false</code> setting merges the <code>no_proxy</code> setting above with the global 
-      <strong>No Proxy</strong> list set in the tile. Setting this to <code>true</code> overrides the global 
+    <td>Boolean value.
+      The default <code>false</code> setting merges the <code>no_proxy</code> setting above with the global
+      <strong>No Proxy</strong> list set in the tile. Setting this to <code>true</code> overrides the global
       <strong>No Proxy</strong> list.</td>
   </tr>
 </table>
@@ -145,11 +145,11 @@ You can see a cluster's current proxy configuration by viewing its BOSH manifest
     ```
     bosh -d DEPLOYMENT-NAME manifest > /tmp/YOUR-DEPLOYMENT-MANIFEST.yml
     ```
-    
-    Where:  
 
-    * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.  
-    * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.  
+    Where:
+
+    * `DEPLOYMENT-NAME` is the name of your Kubernetes cluster deployment.
+    * `YOUR-DEPLOYMENT-MANIFEST` is the name of your Kubernetes cluster deployment manifest.
 
 1. Search the manifest for `proxy` to see its proxy settings under `jobs.properties.env`, for example:
 

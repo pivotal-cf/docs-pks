@@ -1,9 +1,9 @@
 ---
 title: Monitoring TKGI and TKGI-Provisioned Clusters on Linux
-owner: TKGI
+
 ---
 
-This topic describes the components and integrations you can use with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) to capture logs and metrics on Linux.  
+This topic describes the components and integrations you can use with {{  vars.product_full }} ({{ vars.product_short }}) to capture logs and metrics on Linux.
 
 
 ## <a id='overview'></a>Overview
@@ -37,9 +37,9 @@ more of the following components and integrations:
   </tr>
 </table>
 
-Syslog, Telegraf, and VMware vRealize Log Insight integrations are enabled in the 
-**Tanzu Kubernetes Grid Integrated Edition** tile > **Host Monitoring** section. 
-Healthwatch is deployed to VMware Tanzu Operations Manager (Ops Manager) as the Healthwatch Exporter for TKGI tile.   
+Syslog, Telegraf, and VMware vRealize Log Insight integrations are enabled in the
+**{{  vars.product }}** tile > **Host Monitoring** section.
+Healthwatch is deployed to {{ vars.platform_name }} as the Healthwatch Exporter for TKGI tile.
 
 These components and
 integrations are visible only to TKGI admins.
@@ -49,7 +49,7 @@ For information about monitoring Kubernetes workloads on Linux,
 see [Monitoring Workers and Workloads](in-cluster-monitoring.html).
 
 For information about logging and monitoring Kubernetes clusters, workers and workloads on Windows,
-see:  
+see:
 
 * [Monitoring Windows Worker Clusters and Workers](windows-monitoring.html)
 * [Logging Windows Worker Clusters and Workers](windows-logging.html)
@@ -64,7 +64,7 @@ You might need to inspect Syslog or vRealize Log Insight (vRLI) logs when troubl
 auditing your TKGI environment.
 For information about key
 TKGI events and the log entries they generate, see
-[Auditing Tanzu Kubernetes Grid Integrated Edition Logs](monitor-audit-logs.html).
+[Auditing {{  vars.product }} Logs](monitor-audit-logs.html).
 
 ### <a id='syslog'></a>Syslog
 
@@ -99,7 +99,7 @@ see [vRealize Log Insight](https://www.vmware.com/products/vrealize-log-insight.
 Telegraf sends metrics from TKGI API, control plane node, and worker
 node VMs to a monitoring service, such as Wavefront or Datadog.
 
-In the **Tanzu Kubernetes Grid Integrated Edition** tile > **Host Monitoring**, you can
+In the **{{  vars.product }}** tile > **Host Monitoring**, you can
 configure Telegraf to collect metrics from one or more the following sources:
 
 <table class="nice">
@@ -152,13 +152,13 @@ To configure Telegraf, see
 [Configuring Telegraf in TKGI](monitor-etcd.html).
 
 For more information about Node Exporter,
-see [About Node Exporter](#node-exporter) below.  
+see [About Node Exporter](#node-exporter) below.
 
 ### <a name="node-exporter"></a>About Node Exporter
 
 Node Exporter exports hardware and operating system metrics in Prometheus format.
 
-In the **Host Monitoring** pane of the Tanzu Kubernetes Grid Integrated Edition tile, you can
+In the **Host Monitoring** pane of the {{  vars.product }} tile, you can
 enable the Node Exporter BOSH job separately on control plane nodes, worker nodes,
 and the TKGI API VM.
 
@@ -175,7 +175,7 @@ to monitor the health of the TKGI Control Plane
 and your Linux and Windows cluster control plane nodes.
 
 Healthwatch enables you to monitor the functionality of your TKGI environment
-and can be configured to expose metrics to a service or database external to your Ops Manager foundation.
+and can be configured to expose metrics to a service or database external to your {{ vars.platform_name }} foundation.
 For more information, see [Overview of the Healthwatch Exporter for TKGI Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
 
 To configure cluster discovery in Healthwatch, see

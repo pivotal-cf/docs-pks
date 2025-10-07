@@ -1,32 +1,32 @@
 ---
 title: Viewing Usage Quotas
-owner: TKGI
+
 ---
 
 {{> beta-component }}
 
 
-This topic describes how to review your resource usage 
-and quotas in VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) using 
-the TKGI API.  
+This topic describes how to review your resource usage
+and quotas in {{  vars.product_full }} ({{ vars.product_short }}) using
+the TKGI API.
 
 ## <a id="overview"></a> Overview
 
-Your Tanzu Kubernetes Grid Integrated Edition administrator might set a limit on
-the number of clusters you can provision and  
-the resources, such as amount of memory and number of CPUs, 
-that are allocated in total to any clusters you create and workloads you deploy. 
+Your {{  vars.product }} administrator might set a limit on
+the number of clusters you can provision and
+the resources, such as amount of memory and number of CPUs,
+that are allocated in total to any clusters you create and workloads you deploy.
 
-The resource quota limitations are based on the total allocated size 
-of the VM instances you create, not their actual utilization. 
+The resource quota limitations are based on the total allocated size
+of the VM instances you create, not their actual utilization.
 
-By using the TKGI API, you can check the resource and cluster 
-limitations that the administrator has assigned to you as well as 
+By using the TKGI API, you can check the resource and cluster
+limitations that the administrator has assigned to you as well as
 review your current usage.
-    
+
 ## <a id='set-token'></a> Set up Your API Access Token
 
-The curl commands in this topic use an access token environment variable to 
+The curl commands in this topic use an access token environment variable to
 authenticate to the TKGI API endpoints.
 
 {{> create-auth-token-var }}
@@ -43,18 +43,18 @@ curl -k -H "Authorization: Bearer $YOUR-ACCESS-TOKEN" \
 https://TKGI-API:9021/v1/quotas/USER-ID
 ```
 
-Where:  
+Where:
 
-* `YOUR-ACCESS-TOKEN` is your access token environment variable.  
-* `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.  
-* `USER-ID` is your Tanzu Kubernetes Grid Integrated Edition user ID.  
+* `YOUR-ACCESS-TOKEN` is your access token environment variable.
+* `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
+* `USER-ID` is your {{  vars.product }} user ID.
 
-For example:  
+For example:
 ```console
 $ user=exampleuser
 $ tkgi login -a tkgi.my.lab -u $user -p 'psswrdabc123...!' -k; export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
 $ curl -k -H "Authorization: Bearer $TOKEN" \
-https://example.com:9021/v1/quotas/$user 
+https://example.com:9021/v1/quotas/$user
 {
   "owner":"cody",
   "limit":{
@@ -76,13 +76,13 @@ curl -k -H "Authorization: Bearer $YOUR-ACCESS-TOKEN" \
 https://TKGI-API:9021/v1/usages/USER-ID
 ```
 
-Where:  
+Where:
 
-* `YOUR-ACCESS-TOKEN` is your access token environment variable.  
-* `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.  
-* `USER-ID` is your Tanzu Kubernetes Grid Integrated Edition user ID.  
+* `YOUR-ACCESS-TOKEN` is your access token environment variable.
+* `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
+* `USER-ID` is your {{  vars.product }} user ID.
 
-For example:  
+For example:
 ```console
 $ user=exampleuser
 $ tkgi login -a tkgi.my.lab -u $user -p 'psswrdabc123...!' -k; export TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
@@ -102,11 +102,11 @@ https://example.com:9021/v1/usages
 
 ## <a id="error"></a> Error Message When You Exceed Cluster Quota
 
-If you exceed your set cluster creation quota, then 
-the following error message 
+If you exceed your set cluster creation quota, then
+the following error message
 appears when you attempt to create a cluster.
 
 ```console
-Error: You do not have enough privileges to perform this action. 
+Error: You do not have enough privileges to perform this action.
 Please contact the TKGI administrator.
 ```

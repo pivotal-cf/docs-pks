@@ -1,15 +1,15 @@
 ---
 title: Getting Started with VMware Harbor Registry
-owner: TKGI
+
 ---
 
-This topic describes how to set up the VMware Harbor Registry (Harbor) image registry for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+This topic describes how to set up the VMware Harbor Registry (Harbor) image registry for {{  vars.product_full }} ({{ vars.product_short }}).
 
 
 ## <a id="overview"></a>Overview
 
 VMware Harbor Registry is an enterprise-class image registry
-server that stores and distributes container images for VMware Tanzu Kubernetes Grid Integrated Edition.  
+server that stores and distributes container images for {{  vars.product_full }}.
 
 Harbor allows you to store and manage container images for your TKGI
 deployment. Deploying an image registry alongside TKGI improves
@@ -21,20 +21,20 @@ apply enterprise features to your image registry, such as security, identity, an
 management.
 
 You can install Harbor alongside TKGI on vSphere, Amazon
-Web Services (AWS), and Microsoft Azure.  
+Web Services (AWS), and Microsoft Azure.
 
-To use the VMware Harbor Registry with Tanzu Kubernetes Grid Integrated Edition:  
+To use the VMware Harbor Registry with {{  vars.product }}:
 
-* [Install Harbor](#installing)  
-* [Use Harbor](#using)  
-* [Manage Harbor](#managing)  
+* [Install Harbor](#installing)
+* [Use Harbor](#using)
+* [Manage Harbor](#managing)
 
 
 ## <a id="installing"></a>Install Harbor
 
 To install Harbor, do the following:
 
-1. Install Tanzu Kubernetes Grid Integrated Edition. For more information, see the _Installing Tanzu Kubernetes Grid Integrated Edition_
+1. Install {{  vars.product }}. For more information, see the _Installing {{  vars.product }}_
 topic for your cloud provider.
 1. Install Harbor. For more information, see [Installing and Configuring VMware Harbor Registry](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/installing.html).
 
@@ -45,25 +45,25 @@ Before you can push images to Harbor, you must do the following:
 
 1. Configure authentication and role-based access control (RBAC) for Harbor.
 For more information, see [Create Projects](https://goharbor.io/docs/1.10/working-with-projects/create-projects/) in the Harbor documentation.
-1. Create a Harbor project that contains all repositories for your app. 
+1. Create a Harbor project that contains all repositories for your app.
 For more information, see [Create Projects](https://goharbor.io/docs/1.10/working-with-projects/create-projects/) in the Harbor documentation.
 
 After you configure Harbor, you can do the following:
 
 - Push or pull Docker images to your Harbor project using the Docker command-line
-interface (CLI). For more information, see 
-[Pulling and Pushing Images in the Docker Client](https://goharbor.io/docs/1.10/working-with-projects/working-with-images/pulling-pushing-images/) 
+interface (CLI). For more information, see
+[Pulling and Pushing Images in the Docker Client](https://goharbor.io/docs/1.10/working-with-projects/working-with-images/pulling-pushing-images/)
 in the Harbor documentation.
 - Manage Helm charts in your Harbor project using either the Harbor portal or the
-Helm CLI. For more information, see 
-[Managing Helm Charts](https://goharbor.io/docs/1.10/working-with-projects/working-with-images/managing-helm-charts/) 
+Helm CLI. For more information, see
+[Managing Helm Charts](https://goharbor.io/docs/1.10/working-with-projects/working-with-images/managing-helm-charts/)
 in the Harbor documentation.
 - Install Trivy to activate vulnerability scanning for images stored in Harbor.
-For more information, see 
+For more information, see
 [Configure Image Scanner](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/installing.html#configure-image-scanner-17)
 in _Installing and Configuring VMware Harbor Registry_.
 
-For more information about managing images in Harbor, see the 
+For more information about managing images in Harbor, see the
 [Working with Images, Tags, and Helm Charts](https://goharbor.io/docs/1.10/working-with-projects/working-with-images/)
 in the Harbor documentation.
 
@@ -82,5 +82,5 @@ you can activate or deactivate user self-registration.
 - **Endpoints**: Add and remove image registry endpoints.
 - **Replication policies**: Add and remove rules for replication jobs.
 
-For more information about managing Harbor as an administrator, see 
+For more information about managing Harbor as an administrator, see
 [Harbor Administration](https://goharbor.io/docs/1.10/administration/) in the Harbor documentation.
