@@ -5,14 +5,6 @@ title: Supporting Windows Clusters
 
 The following topics describe how to support Windows worker-based Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}):
 
-<ul>
-  <li>
-    <a href="windows-workers.html">Configuring Windows Worker-Based Kubernetes Clusters</a>
-  </li>
-  <li>
-    <a href="create-vsphere-stemcell.html">Creating a Windows Stemcell for vSphere Using Stembuild</a>
-  </li>
-  <li>
-    <a href="windows-pause-internetless.html">Using a Windows Pause Image for an Air-Gapped Environment</a>
-  </li>
-</ul>
+* [Configuring Windows Worker-Based Kubernetes Clusters](windows-workers.html)
+* [Creating a Windows Stemcell for vSphere Using Stembuild](create-vsphere-stemcell.html)
+* [Using a Windows Pause Image for an Air-Gapped Environment](windows-pause-internetless.html)

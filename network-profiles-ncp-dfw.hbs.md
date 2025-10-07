@@ -6,6 +6,11 @@ title: Defining DFW Section Markers
 This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) administrators
 can define network profiles to create markers for NSX distributed firewall (DFW).
 
+* [Overview](#overview)
+* [About DFW Section Markers](#shared-t1-about)
+* [Create a Top Firewall Section Marker](#top_firewall_section_marker)
+* [Create a Bottom Firewall Section Marker](#bottom_firewall_section_marker)
+
 <p class="note"><strong>Note:</strong> The NSX Policy API features a tiered policy model using categories
   and does not support prioritizing operational rules using the procedure below.
 </p>

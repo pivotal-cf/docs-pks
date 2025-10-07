@@ -9,19 +9,19 @@ to upgrade TKGI-provisioned Kubernetes clusters.
 * [Overview](#overview)
 * [Prerequisites](#prerequisites)
 * [Upgrade Clusters](#upgrade-clusters)
-  * [Upgrade a Single Cluster](#upgrade-cluster)
-    * [Upgrade Cluster Validation](#upgrade-cluster-pre-check)
-    * [Upgrade Cluster Worker Nodes in Parallel](#upgrade-nodes-in-parallel)
-  * [Upgrade Multiple Clusters](#upgrade-clusters-multi)
-    * [Upgrade Clusters in Parallel](#upgrade-clusters-parallel)
-    * [Upgrade Clusters With Canaries](#upgrade-clusters-errors)
-* [Manage Your Cluster Upgrade Job](#manage-upgrade)
-  * [Monitor Your Clusters](#monitor-upgrades)
-  * [Monitor Your Cluster Upgrade Job](#monitor-upgrade-job)
-  * [Stop Your Cluster Upgrade Job](#stop-upgrade-job)
+  * [Upgrade a Single Cluster](#upgrade-single-cluster)
+    * [Upgrade Cluster Validation](#upgrade-cluster-validation)
+    * [Upgrade Cluster Worker Nodes in Parallel](#upgrade-worker-nodes-in-parallel)
+  * [Upgrade Multiple Clusters](#upgrade-multiple-clusters)
+    * [Upgrade Clusters in Parallel](#upgrade-multiple-clusters-in-parallel)
+    * [Upgrade Clusters With Canaries](#upgrade-clusters-with-canaries)
+* [Manage Your Cluster Upgrade Job](#manage-cluster-upgrade-job)
+  * [Monitor Your Clusters](#monitor-your-clusters)
+  * [Monitor Your Cluster Upgrade Job](#monitor-your-cluster-upgrade-job-section)
+  * [Stop Your Cluster Upgrade Job](#stop-your-cluster-upgrade-job-section)
 * [After Upgrading Clusters](#after-upgrade-clusters)
-  * [Upgrade Velero](#upgrade-velero)
-  * [(Optional) Restore Cluster Sizing](#restore-cluster-sizing)
+  * [Upgrade Velero](#upgrade-velero-section)
+  * [(Optional) Restore Cluster Sizing](#restore-cluster-sizing-section)
 
 For information about how to upgrade TKGI-provisioned clusters
 through the {{  vars.product }} tile,
@@ -86,15 +86,15 @@ To upgrade a cluster's TKGI version:
 
 1. Use the TKGI CLI to upgrade the TKGI version on individual or multiple clusters:
 
-    * [Upgrade a Single Kubernetes Cluster](#upgrade-cluster)
-    * [Upgrade Multiple Kubernetes Clusters](#upgrade-clusters-multi)
+    * [Upgrade a Single Kubernetes Cluster](#upgrade-single-cluster)
+    * [Upgrade Multiple Kubernetes Clusters](#upgrade-multiple-clusters)
 
 1. To monitor or stop a cluster upgrade, follow the procedures in
-[Manage Your Kubernetes Cluster Upgrade Job](#manage-upgrade) below.
+[Manage Your Kubernetes Cluster Upgrade Job](#manage-cluster-upgrade-job) below.
 
 1. Complete the steps in [After Upgrading Clusters](#after-upgrade-clusters) below.
 
-### <a id='upgrade-cluster'></a>Upgrade a Single Cluster
+### <a id='upgrade-single-cluster'></a>Upgrade a Single Cluster
 
 The {{  vars.product }} CLI provides `upgrade-cluster` for upgrading an individual {{  vars.product }}-provisioned
 Kubernetes cluster.
@@ -110,15 +110,15 @@ To upgrade an individual Kubernetes cluster:
 
     * `CLUSTER-NAME` is the name of the Kubernetes cluster you want to upgrade.
     * (Optional) Include `--pre-check` to initially perform an automated cluster pre-check. `upgrade-cluster` will validate the cluster and display a status report after performing the pre-check. You must verify that you want the upgrade to proceed after the pre-check completes.
-    For more information, see [Upgrade Cluster Validation](#upgrade-cluster-pre-check) below.
-    * (Optional) Include `--nodes-parallel` to specify `PARALLEL-COUNT`, the number of worker nodes to upgrade in parallel. For more information, see [Upgrade Cluster Worker Nodes in Parallel](#upgrade-nodes-in-parallel) below.
+    For more information, see [Upgrade Cluster Validation](#upgrade-cluster-validation) below.
+    * (Optional) Include `--nodes-parallel` to specify `PARALLEL-COUNT`, the number of worker nodes to upgrade in parallel. For more information, see [Upgrade Cluster Worker Nodes in Parallel](#upgrade-worker-nodes-in-parallel) below.
 
 For more information about the `tkgi upgrade-cluster` command,
 see [tkgi upgrade-cluster](cli/index.html#upgrade-cluster) in the _TKGI CLI_ documentation.
 
-To upgrade multiple clusters, see [Upgrade Multiple Kubernetes Clusters](#upgrade-clusters-multi) below.
+To upgrade multiple clusters, see [Upgrade Multiple Kubernetes Clusters](#upgrade-multiple-clusters) below.
 
-#### <a id='upgrade-cluster-pre-check'></a>Upgrade Cluster Validation
+#### <a id='upgrade-cluster-validation'></a>Upgrade Cluster Validation
 
 You can request for `upgrade-cluster` to validate the cluster before upgrading.
 
@@ -158,7 +158,7 @@ To upgrade a cluster with pre-upgrade validation:
     Error: upgrade pre-check failure: VM storage status​
     ```
 
-#### <a id='upgrade-nodes-in-parallel'></a>Upgrade Cluster Worker Nodes in Parallel
+#### <a id='upgrade-worker-nodes-in-parallel'></a>Upgrade Cluster Worker Nodes in Parallel
 
 You can request for `upgrade-cluster` to upgrade multiple cluster worker nodes in parallel.
 
@@ -186,7 +186,7 @@ Accepts `1` or `2`. When configured as `1`, the default, parallel upgrading is d
     ```
 
 
-### <a id='upgrade-clusters-multi'></a>Upgrade Multiple Clusters
+### <a id='upgrade-multiple-clusters'></a>Upgrade Multiple Clusters
 
 The {{  vars.product }} CLI provides `upgrade-clusters` for upgrading multiple {{  vars.product }}-provisioned
 Kubernetes clusters.
@@ -207,11 +207,11 @@ To upgrade multiple Kubernetes clusters:
 For more information about the `tkgi upgrade-clusters` command,
 see [tkgi upgrade-clusters](cli/index.html#upgrade-clusters) in the _TKGI CLI_ documentation.
 
-To upgrade a single cluster, see [Upgrade a Single Kubernetes Cluster](#upgrade-cluster) above.
+To upgrade a single cluster, see [Upgrade a Single Kubernetes Cluster](#upgrade-single-cluster) above.
 
 
 
-#### <a id='upgrade-clusters-parallel'></a> Upgrade Clusters in Parallel
+#### <a id='upgrade-multiple-clusters-in-parallel'></a> Upgrade Clusters in Parallel
 
 To upgrade multiple Kubernetes clusters:
 
@@ -260,7 +260,7 @@ Finished upgrading cluster: k8-cluster-002
 Upgrade task d772aba0-2670-4fba-b26c-044b19d6ab60 is done.
 ```
 
-#### <a id='upgrade-clusters-errors'></a> Upgrade Clusters With Canaries
+#### <a id='upgrade-clusters-with-canaries'></a> Upgrade Clusters With Canaries
 
 To upgrade multiple clusters and automatically stop upgrading clusters if a cluster upgrade fails,
 specify your cluster list as canary clusters.
@@ -292,7 +292,7 @@ Considerations when running `tkgi upgrade-clusters` with a `--canaries` list:
     specify only one cluster in your <code>--clusters</code> list and
     the remaining clusters in your <code>--canaries</code> list.
 * Canary clusters are always upgraded serially.
-    To upgrade clusters in the `--clusters` list in parallel, see [Upgrade Clusters in Parallel](#upgrade-clusters-parallel) above.
+    To upgrade clusters in the `--clusters` list in parallel, see [Upgrade Clusters in Parallel](#upgrade-multiple-clusters-in-parallel) above.
 * To run the cluster upgrade job as a background task, remove the `--wait` argument.
 
 For example:
@@ -316,17 +316,17 @@ Upgrade task ce31a1bb-380a-453f-afa0-835ffa1ce6ac is done.
 
 
 
-## <a id='manage-upgrade'></a> Manage Your Cluster Upgrade Job
+## <a id='manage-cluster-upgrade-job'></a> Manage Your Cluster Upgrade Job
 
 You can use the TKGI CLI to monitor and manage your {{  vars.product }}-provisioned Kubernetes cluster
 upgrade jobs:
 
-* [Monitor Your Clusters](#monitor-upgrades)
-* [Monitor Your Cluster Upgrade Job](#monitor-upgrade-job)
-* [Stop Your Cluster Upgrade Job](#stop-upgrade-job)
+* [Monitor Your Clusters](#monitor-your-clusters)
+* [Monitor Your Cluster Upgrade Job](#monitor-your-cluster-upgrade-job-section)
+* [Stop Your Cluster Upgrade Job](#stop-your-cluster-upgrade-job-section)
 
 
-### <a id='monitor-upgrades'></a> Monitor Your Clusters
+### <a id='monitor-your-clusters'></a> Monitor Your Clusters
 
 To review the status of the actions being performed on your clusters,
 run the following command:
@@ -348,7 +348,7 @@ TKGI Version     Name               k8s Version  Plan Name  UUID                
 1.9.0-build.1   k8-cluster-003     1.18.8       small      9527ebaa-e2fa-422f-a52b-de3c3f0e39a4  queued       UPGRADE
 ```
 
-### <a id='monitor-upgrade-job'></a> Monitor Your Cluster Upgrade Job
+### <a id='monitor-your-cluster-upgrade-job-section'></a> Monitor Your Cluster Upgrade Job
 
 To review the status of your `upgrade-clusters` job, run the following command:
 
@@ -369,7 +369,7 @@ k8-cluster-000 succeeded  Mon, 14 Oct 2019 12:00:00 PDT  Mon, 14 Oct 2019 12:19:
 k8-cluster-001 failed     Mon, 14 Oct 2019 12:20:00 PDT  ---                                 true
 ```
 
-### <a id='stop-upgrade-job'></a> Stop Your Cluster Upgrade Job
+### <a id='stop-your-cluster-upgrade-job-section'></a> Stop Your Cluster Upgrade Job
 
 To cancel a running `upgrade-clusters` job, run the following TKGI CLI command:
 
@@ -388,12 +388,12 @@ Where `TASKID` is the ID of the task that was returned when you ran `tkgi upgrad
 Complete the following optional procedures after you have upgraded your cluster:
 
 {{# evalExpression "vars.velero_version_prev != vars.velero_version "}}
-* [Upgrade Velero](#upgrade-velero)
+* [Upgrade Velero](#upgrade-velero-section)
 {{/ evalExpression }}
-* [Restore Cluster Sizing](#restore-cluster-sizing)
+* [Restore Cluster Sizing](#restore-cluster-sizing-section)
 
 {{# evalExpression "vars.velero_version_prev != vars.velero_version "}}
-### <a id='upgrade-velero'></a>Upgrade Velero
+### <a id='upgrade-velero-section'></a>Upgrade Velero
 
 TKGI {{{ vars.product_version }}} uses Velero {{{ vars.velero_version }}}. You must upgrade Velero to {{{ vars.velero_version }}} on all of your existing clusters.
 
@@ -408,7 +408,7 @@ To upgrade Velero:
 </p>
 {{/ evalExpression }}
 
-### <a id='restore-cluster-sizing'></a>(Optional) Restore Cluster Sizing
+### <a id='restore-cluster-sizing-section'></a>(Optional) Restore Cluster Sizing
 
 If you scaled your cluster up for the upgrade and you prefer to restore your cluster to its original sizing,
 you can now scale the cluster back down to its previous configuration.

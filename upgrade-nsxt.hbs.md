@@ -9,6 +9,25 @@ This topic describes how to upgrade {{  vars.product_full }} ({{ vars.product_sh
 from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
 on vSphere with NSX networking.
 
+* [Overview](#overview)
+* [Prerequisites](#prerequisites)
+* [Prepare to Upgrade](#prepare)
+  * [Prepare to Upgrade with Multiple Datacenters](#prepare-multi-dc)
+* [Perform the Upgrade](#upgrade)
+  * [Upgrade NSX](#upgrade-nsxt)
+  * [Upgrade NSX-T v3.2 to NSX v4.0 or Later](#upgrade-nsxt-v32-to-v40)
+  * [Upgrade {{ vars.platform_name }}](#upgrade-opsman)
+  * [Download and Import TKGI {{{ vars.product_version }}}](#stage-tkgi)
+  * [Download and Import Stemcells](#stemcell)
+  * [Upgrade the TKGI Tile](#upgrade-tkgi)
+* [After the Upgrade](#after-upgrade)
+  * [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
+  * [Upgrade Kubernetes Clusters If Needed](#upgrade-k8s)
+  * [Verify TKGI Upgrade](#verify-upgrade)
+* [Upgrade NSX Data Center to NSX v3.2.3 or Later](#upgrade-nsxt-again)
+* [(Optional) Upgrade to vSphere 8](#upgrade-vsphere-section)
+* [Troubleshoot the Upgrade](#troubleshoot)
+
 For instructions on upgrading TKGI with Antrea networking,
 see [Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html).
 
@@ -108,7 +127,7 @@ update the BOSH Director and TKGI tiles with the new or updated IP addresses:
       1. Ensure that the **Upgrade all clusters errand** is selected.
       1. Click **Apply Changes**.
 
-#### <a id="upgrade-nsx"></a>Upgrade NSX-T v3.2 to NSX v4.0 or Later
+#### <a id="upgrade-nsxt-v32-to-v40"></a>Upgrade NSX-T v3.2 to NSX v4.0 or Later
 
 To upgrade an NSX-T v3.2 deployment to NSX v4.0 or later:
 
@@ -264,8 +283,8 @@ complete the following verifications and upgrades:
 1. [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
 1. [Upgrade Kubernetes Clusters if Needed](#upgrade-k8s)
 1. [Verify TKGI Upgrade](#verify-upgrade)
-1. [Upgrade NSX Data Center to NSX v3.2.3 or Later](#upgrade-nsxt)
-1. [(Optional) Upgrade to vSphere 8](#upgrade-vsphere)
+1. [Upgrade NSX Data Center to NSX v3.2.3 or Later](#upgrade-nsxt-again)
+1. [(Optional) Upgrade to vSphere 8](#upgrade-vsphere-section)
 
 
 ### <a id="upgrade-clis"></a>Upgrade the TKGI and Kubernetes CLIs
@@ -312,7 +331,7 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
     1.22.2        tkgi-cluster-3-large   1.31.9       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
 
-###<a id='verify'></a>Verify TKGI Upgrade
+###<a id='verify-upgrade'></a>Verify TKGI Upgrade
 
 1. To verify successful upgrade, create a test cluster:
 
@@ -333,7 +352,21 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
     1.22.2        tkgi-cluster-3-large   1.31.9       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
 
-##<a id='upgrade-vsphere'></a> (Optional) Upgrade to vSphere 8
+##<a id='upgrade-nsxt-again'></a> Upgrade NSX Data Center to NSX v3.2.3 or Later
+
+After upgrading TKGI and its Kubernetes clusters to {{{ vars.product_version }}}, you can upgrade vSphere to v8.
+This upgrade includes upgrading the vCenter Server Appliance and each ESXi host, in that order.
+
+1. Upgrade vCenter. Refer to [Upgrading the vCenter Server Appliance](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-server-upgrade-7-0/upgrading-and-updating-the-vcenter-server-appliance.html) in the vCenter documentation.
+1. Upgrade each ESXi host, one at a time.
+  1. Put the ESXi host into maintenance mode.
+  1. Upgrade the ESXi host. Refer to [Upgrading ESXi hosts](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/8-0/upgrading-esxi-hosts.html) in the vSphere documentation.
+  1. Using the NSX Manager web interface for Transport Nodes, install the vSphere 8.0 VIBS onto the ESXi host.
+  1. Using the NSX Manage web interface, verify that the ESXi host is in a "Success" state. If it is not, click the **Resolve** button.
+  1. Remove the ESXi host from maintenance mode.
+  1. Repeat the process for each ESXi host in your vCenter cluster that is part of your TKGI domain.
+
+##<a id='upgrade-vsphere-section'></a> (Optional) Upgrade to vSphere 8
 
 After upgrading TKGI and its Kubernetes clusters to {{{ vars.product_version }}}, you can upgrade vSphere to v8.
 This upgrade includes upgrading the vCenter Server Appliance and each ESXi host, in that order.

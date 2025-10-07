@@ -8,8 +8,8 @@ This topic describes how to use Velero to back up and restore a stateless applic
 * [Overview](#overview)
 * [Prerequisites](#prereqs)
 * [Deploy Guestbook App](#guestbook-deploy)
-* [Back Up the Guestbook App using Namespace](#guestbook-br-ns)
-* [Restore the Guestbook App](#guestbook-br-ns)
+* [Back Up the Guestbook App using Namespace](#guestbook-backup-ns)
+* [Restore the Guestbook App](#guestbook-restore-ns)
 * [Conclusions](#guestbook-conclusions-ns)
 
 ##<a id="overview"></a> Overview
@@ -76,7 +76,7 @@ Access the Guestbook app at <http://10.199.41.10/>.
 
   <img src="images/backup-restore/guestbook-01.png" alt="Guestbook App" width="538">
 
-## <a id='guestbook-br-ns'></a> Back Up the Guestbook App using Namespace
+## <a id='guestbook-backup-ns'></a> Back Up the Guestbook App using Namespace
 
 This example shows how to back up and restore the Guestbook app using the `--include namespace` tag.
 
@@ -229,7 +229,7 @@ Status:
 Events:               <none>
 ```
 
-## <a id='guestbook-br-ns'></a> Restore the Guestbook App
+## <a id='guestbook-restore-ns'></a> Restore the Guestbook App
 
 To test the restoration of the Guestbook app, delete it.
 

@@ -7,6 +7,17 @@ This topic describes options for configuring {{  vars.product_full }} ({{ vars.p
 
 <p class="note"><strong>Note</strong>: This topic assumes that you have strong familiarity with PVs and workloads in Kubernetes.</p>
 
+* [Considerations for Running Stateful Apps in Kubernetes](#pv-kubernetes)
+* [Persistent Volume Provisioning, Static and Dynamic](#vsphere-pv-support)
+  * [Migrating Persistent Volumes Between Datastores Provisioning Support in Kubernetes](#vsphere-pv-migration)
+* [Storage Scenarios for Compute Clusters and File Systems](#vsphere-pv-scenarios)
+  * [Single vSphere Compute Cluster with vSAN Datastore](#single-vsan)
+  * [Single vSphere Compute Cluster with File System Datastore](#single-vmfs)
+  * [Multiple vSphere Compute Clusters Each with vSAN Datastore](#multiple-vsan)
+  * [Multiple vSphere Compute Clusters Each with File System Datastore](#multiple-vmfs)
+  * [Multiple vSphere Compute Clusters with Local vSAN and Shared File System Datastore](#multiple-shared-vsan)
+  * [Multiple vSphere Compute Clusters with Shared File System Datastore](#multiple-shared-vmfs)
+
 For procedural information about configuring PVs, see [Configuring and Using PersistentVolumes](volumes.html).
 
 For information about which vSphere CSI Driver features are supported by TKGI,

@@ -5,13 +5,15 @@ title: UAA Scopes for {{  vars.product }} Users
 
 This topic describes User Account and Authentication (UAA) scopes that a UAA admin can assign to {{  vars.product_full }} ({{ vars.product_short }}) users.
 
+* [Overview](#overview)
+* [UAA Scopes](#uaa-scopes)
+
 ## <a id="overview"></a> Overview
 
 UAA is the identity management service for {{  vars.product }}.
 {{> uaa-scopes }}
 
-
-##<a id='uaa-scopes'></a> UAA Scopes
+##<a id='uaa-scopes-details'></a> UAA Scopes
 
 Each UAA scope grants {{  vars.product }} users a set of permissions
 for creating, managing, and auditing {{  vars.product }}-provisioned Kubernetes clusters.

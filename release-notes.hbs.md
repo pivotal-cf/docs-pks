@@ -7,6 +7,14 @@ topictype: releasenotes
 
 This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.product_version }}}.
 
+* [TKGI {{{ vars.product_version }}}.0](#1-23-0)
+  * [Product Snapshot](#product-snapshot)
+  * [Upgrade Path](#1-23-0-upgrade)
+  * [Breaking Changes](#1-23-0-breaking-changes)
+  * [Features and Enhancements](#1-23-0-features)
+  * [Resolved Issues](#1-23-0-bug-fixes)
+  * [Known Issues](#1-23-0-known-issues)
+
 ## <a id="1-23-0"></a>TKGI {{{ vars.product_version }}}.0
 
 **Release Date**: October 15, 2025

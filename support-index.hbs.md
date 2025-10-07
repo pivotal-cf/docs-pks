@@ -5,28 +5,12 @@ title: Supporting Clusters
 
 The following topics describe how to support Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}):
 
-<ul>
-  <li>
-    <a href="cluster-credentials.html">Retrieving Cluster Credentials and Configuration</a>
-  </li>
-  <li>
-    <a href="manage-cluster-permissions.html">Managing Cluster Access and Permissions</a>
-  </li>
-  <li>
-    <a href="admission-plugins.html">Using Admission Control Plugins for {{  vars.product }} Clusters</a>
-  </li>
-  <li>
-    <a href="harbor.html">Getting Started with VMware Harbor Registry</a>
-  </li>
-  <li>
-    <a href="docker-custom-ca-certs.html">Configuring Cluster Access to Private Registries</a>
-  </li>
-  <li>
-    <a href="vsphere-persistent-storage.html">PersistentVolume Storage Options on vSphere</a>
-  </li>
-  <li>
-    <a href="volumes.html">Configuring and Using PersistentVolumes</a>
-  </li>
-</ul>
+* [Retrieving Cluster Credentials and Configuration](cluster-credentials.html)
+* [Managing Cluster Access and Permissions](manage-cluster-permissions.html)
+* [Using Admission Control Plugins for {{  vars.product }} Clusters](admission-plugins.html)
+* [Getting Started with VMware Harbor Registry](harbor.html)
+* [Configuring Cluster Access to Private Registries](docker-custom-ca-certs.html)
+* [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html)
+* [Configuring and Using PersistentVolumes](volumes.html)
 
 <p class="note"><strong>Note:</strong> {{  vars.product }} does not currently support the Kubernetes Service Catalog.</p>

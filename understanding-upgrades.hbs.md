@@ -117,11 +117,11 @@ on the {{ vars.platform_name }} Installation Dashboard,
 
 You can perform a full TKGI upgrade or a TKGI control plane only upgrade:
 
-* [Full TKGI Upgrades](#full-upgrades)
-* [TKGI Control Plane Only Upgrades](#control-plane-upgrades)
+* [Full TKGI Upgrades](#full-tkgi-upgrades)
+* [TKGI Control Plane Only Upgrades](#control-plane-only-upgrades)
 
 
-### <a name="full-upgrades"></a>Full TKGI Upgrades
+### <a id="full-tkgi-upgrades"></a>Full TKGI Upgrades
 
 During a **full TKGI upgrade**,
 the {{  vars.product }} tile does the following:
@@ -135,7 +135,7 @@ the {{  vars.product }} tile does the following:
     * Requires the **Upgrade all clusters errand** check box is activated in the **Errands** pane on the {{  vars.product }} tile.
     * For more information, see [What Happens During Cluster Upgrades](#cluster-upgrades) below.
 
-### <a name="control-plane-upgrades"></a>TKGI Control Plane Only Upgrades
+### <a id="control-plane-only-upgrades"></a>TKGI Control Plane Only Upgrades
 
 During a **TKGI control plane only** upgrade,
 the {{  vars.product }} tile does the following:
@@ -161,11 +161,11 @@ Note the following when upgrading the TKGI control plane:
 
 * Upgrading the TKGI control plane includes upgrading the
 TKGI API server, UAA server, and the TKGI database.
-* If the TKGI installation is not scaled for high availability (beta), the control plane upgrade causes temporary outages as described in [Control Plane Outages](#outages) below.
+* If the TKGI installation is not scaled for high availability (beta), the control plane upgrade causes temporary outages as described in [Control Plane Outages](#control-plane-outages) below.
 * The control plane upgrade will halt if a control plane canary instance encounters an error.
-For more information, see [Canary Instances](#canary) below.
+For more information, see [Canary Instances](#canary-instances) below.
 
-### <a name="outages"></a> Control Plane Outages
+### <a id="control-plane-outages"></a> Control Plane Outages
 
 When the TKGI control plane is not scaled for high availability (beta), upgrading the control plane temporarily interrupts the following:
 
@@ -179,7 +179,7 @@ During a TKGI control plane upgrade, you can still interact with clusters and th
 
 For more information about the TKGI control plane and high availability (beta), see [TKGI Control Plane Overview](control-plane.html#control-plane) in _{{  vars.product }} Architecture_.
 
-### <a name="canary"></a>Canary Instances
+### <a id="canary-instances"></a>Canary Instances
 
 The {{  vars.product }} tile is a BOSH deployment.
 
@@ -333,7 +333,7 @@ This includes the following stages for each cluster you upgrade:
 1. Worker nodes are recreated.
 
 Depending on your cluster configuration,
-these recreations might cause [Cluster Control Plane Nodes Outage](#master) or [Worker Nodes Outage](#worker)
+these recreations might cause [Cluster Control Plane Nodes Outage](#cluster-control-plane-nodes-outage) or [Worker Nodes Outage](#worker-nodes-outage)
 as described below.
 
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
@@ -343,8 +343,8 @@ is enabled in the {{  vars.product }} tile, updating the tile with
 a new Linux or Windows stemcell rolls every Linux or Windows VM in each Kubernetes cluster.
 This automatic rolling ensures that all your VMs are patched.
 To avoid workload downtime, use the resource configuration recommended
-in <a href="#master">Control Plane Nodes Outage</a>
-and <a href="#worker">Worker Nodes Outage</a> below and
+in <a href="#cluster-control-plane-nodes-outage">Control Plane Nodes Outage</a>
+and <a href="#worker-nodes-outage">Worker Nodes Outage</a> below and
 in <a href="./maintain-uptime.html">Maintaining Workload Uptime</a>.
 </p>
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
@@ -376,7 +376,7 @@ or the TKGI CLI. See the table below.
 
 
 
-###<a name="master"></a>Cluster Control Plane Nodes Outage
+###<a id="cluster-control-plane-nodes-outage"></a>Cluster Control Plane Nodes Outage
 
 When TKGI upgrades a single-control plane node cluster,
 you cannot interact with your cluster, use `kubectl`, or push new workloads.
@@ -384,7 +384,7 @@ you cannot interact with your cluster, use `kubectl`, or push new workloads.
 To avoid this loss of functionality,
 {{{ vars.recommended_by }}} recommends using multi-control plane node clusters.
 
-###<a name="worker"></a>Worker Nodes Outage
+###<a id="worker-nodes-outage"></a>Worker Nodes Outage
 
 When TKGI upgrades a worker node,
 the node stops running containers.

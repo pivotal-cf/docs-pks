@@ -14,16 +14,16 @@ on vSphere, Amazon Web Services (AWS), and Azure.
 * [Prepare to Upgrade](#prepare)
   * [Prepare to Upgrade with Multiple Datacenters](#prepare-multi-dc)
 * [Perform the Upgrade](#upgrade)
-  * [Upgrade {{ vars.platform_name }}](#upgrade-opsman)
-  * [Download and Import {{  vars.product }} {{{ vars.product_version }}}](#upgrade-tile)
-  * [Download and Import Stemcells](#stemcell)
-  * [Modify Container Network Interface Configuration](#modify-cni)
-  * [Verify Errand Configuration](#errands)
-  * [Verify Other Configurations](#final-review)
-  * [Apply Changes to the {{  vars.product }} Tile](#apply-changes)
+  * [Upgrade {{ vars.platform_name }}](#upgrade-opsman-section)
+  * [Download and Import {{  vars.product }} {{{ vars.product_version }}}](#upgrade-tile-section)
+  * [Download and Import Stemcells](#stemcell-section)
+  * [Modify Container Network Interface Configuration](#modify-cni-section)
+  * [Verify Errand Configuration](#errands-section)
+  * [Verify Other Configurations](#final-review-section)
+  * [Apply Changes to the {{  vars.product }} Tile](#apply-changes-section)
 * [After the Upgrade](#after-upgrade)
-  * [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
-  * [Verify the Upgrade](#verify-upgrade)
+  * [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis-section)
+  * [Verify the Upgrade](#verify-upgrade-section)
 
 For instructions on upgrading {{  vars.product }}
 on vSphere with NSX networking,
@@ -65,16 +65,16 @@ to verify that your upgraded {{  vars.product }} deployment is running properly.
 
 This section describes the steps required to upgrade to {{  vars.product }} {{{ vars.product_version }}}:
 
-1. [Upgrade {{ vars.platform_name }}](#upgrade-opsman)
-1. [Download and Import {{  vars.product }} {{{ vars.product_version }}}](#upgrade-tile)
-1. [Download and Import Stemcells](#stemcell)
-1. [Modify Plan CNI Configuration](#modify-cni)
-1. [Verify Errand Configuration](#errands)
-1. [Verify Other Configurations](#final-review)
-1. [Apply Changes to the {{  vars.product }} Tile](#apply-changes)
+1. [Upgrade {{ vars.platform_name }}](#upgrade-opsman-section)
+1. [Download and Import {{  vars.product }} {{{ vars.product_version }}}](#upgrade-tile-section)
+1. [Download and Import Stemcells](#stemcell-section)
+1. [Modify Plan CNI Configuration](#modify-cni-section)
+1. [Verify Errand Configuration](#errands-section)
+1. [Verify Other Configurations](#final-review-section)
+1. [Apply Changes to the {{  vars.product }} Tile](#apply-changes-section)
 
 
-### <a id="upgrade-opsman"></a>Upgrade {{ vars.platform_name }}
+### <a id="upgrade-opsman-section"></a>Upgrade {{ vars.platform_name }}
 
 Each version of {{  vars.product }} is compatible with multiple versions of {{ vars.platform_name }}.
 
@@ -103,7 +103,7 @@ in _Upgrading {{ vars.platform_name }}_ in the {{ vars.platform_name }} document
     <br>
 {{{{raw}}}} <!--  when editing this edit the other duplicate BELOW in this topic < %= partial 'add-clusters-workloads' % >  # --> {{{{/raw}}}}
 
-### <a id="upgrade-tile"></a> Download and Import {{  vars.product }} {{{ vars.product_version }}}
+### <a id="upgrade-tile-section"></a> Download and Import {{  vars.product }} {{{ vars.product_version }}}
 
 When you upgrade {{  vars.product }},
 your configuration settings typically migrate to the new version automatically.
@@ -118,7 +118,7 @@ to upload the product file.
 1. Under the **Import a Product** button, click **+** next to **{{  vars.product }}**.
 This adds the tile to your staging area.
 
-### <a id="stemcell"></a> Download and Import Stemcells
+### <a id="stemcell-section"></a> Download and Import Stemcells
 
 TKGI requires an Ubuntu Jammy Stemcell for VMware Tanzu.
 A Windows 2019 Windows Stemcell for VMware Tanzu is also required if you intend to create Windows worker-based clusters.
@@ -153,7 +153,7 @@ and download the required stemcell version for your IaaS.
 
 1. Return to the **Installation Dashboard**.
 
-### <a id="modify-cni"></a>Modify Container Network Interface Configuration
+### <a id="modify-cni-section"></a>Modify Container Network Interface Configuration
 
 {{  vars.product }} supports using the Antrea Container Network Interface (CNI) as
 the CNI for new TKGI-provisioned clusters.
@@ -165,7 +165,7 @@ To configure {{  vars.product }} to use Antrea as the CNI for new clusters:
 1. Confirm the remaining Container Networking Interface settings.
 1. Click **Save**.
 
-### <a id="errands"></a>Verify Errand Configuration
+### <a id="errands-section"></a>Verify Errand Configuration
 
 To verify your **Errands** pane is correctly configured, do the following:
 
@@ -197,7 +197,7 @@ To verify your **Errands** pane is correctly configured, do the following:
 
 1. Click **Save**.
 
-### <a id="final-review"></a>Verify Other Configurations
+### <a id="final-review-section"></a>Verify Other Configurations
 To confirm your other **{{  vars.product }}** tile panes are correctly configured, do the following:
 
 1. Review the **Assign AZs and Networks** pane.
@@ -211,7 +211,7 @@ with existing clusters.
 </p>
 1. Click **Save** on any panes where you make changes.
 
-### <a id="apply-changes"></a>Apply Changes to the {{  vars.product }} Tile
+### <a id="apply-changes-section"></a>Apply Changes to the {{  vars.product }} Tile
 
 To complete the upgrade of the {{  vars.product }} tile:
 
@@ -234,11 +234,11 @@ To complete the upgrade of the {{  vars.product }} tile:
 After you complete the upgrade to {{  vars.product }} {{{ vars.product_version }}},
 complete the following verifications and upgrades:
 
-- [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
-- [Verify the Upgrade](#verify-upgrade)
+- [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis-section)
+- [Verify the Upgrade](#verify-upgrade-section)
 
 
-### <a id="upgrade-clis"></a>Upgrade the TKGI and Kubernetes CLIs
+### <a id="upgrade-clis-section"></a>Upgrade the TKGI and Kubernetes CLIs
 
 Upgrade the TKGI and Kubernetes CLIs on any local machine
 where you run commands that interact with your upgraded version of {{  vars.product }}.
@@ -252,7 +252,7 @@ For more information about installing the CLIs, see the following topics:
 
 * [Installing the Kubernetes CLI](installing-kubectl-cli.html)
 
-### <a id="verify-upgrade"></a>Verify the Upgrade
+### <a id="verify-upgrade-section"></a>Verify the Upgrade
 
 After you apply changes to the {{  vars.product }} tile and the upgrade is complete,
 do the following:

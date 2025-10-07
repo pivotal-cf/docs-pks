@@ -6,6 +6,13 @@ title: Adding Infrastructure Password Changes to the {{  vars.product }} Tile
 This topic describes how to manage {{  vars.product_full }} ({{ vars.product_short }}) after changing a BOSH Director
 or TKGI service account password.
 
+* [Manage Your Service Account Passwords](#vcenter-pw-change)
+  * [Step 1: Update Your Service Account Passwords](#configure-passwords)
+  * [Step 2: Deploy Your New Service Account Passwords](#deploy-tkgi)
+* [Manage Your NSX Manager Password (vSphere and vSphere with NSX only)](#nsx-pw-change)
+* [Troubleshooting](#troubleshooting)
+  * ['Failed to authenticate user' Error When Cluster Service Account Authenticates](#user-authentication-failure)
+
 ## <a id='vcenter-pw-change'></a> Manage Your Service Account Passwords
 When you installed {{  vars.product }} you created two service accounts:
 

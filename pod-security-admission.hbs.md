@@ -5,6 +5,11 @@ title: Pod Security Admission in {{  vars.product }}
 
 This topic describes how to use Kubernetes Pod Security Admission (PSA) with {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [About Pod Security Admission](#psa-about)
+* [Pod Security Admission in a TKGI Cluster](#psa-cluster)
+* [Pod Security Admission in TKGI System Namespaces](#psa-interaction)
+* [Migrate from PSP to PSA Controller](#psa-migration)
+
 > **Note** Support for Kubernetes Pod Security Policy (PSP) has been removed in Kubernetes v1.25.
 
 ##<a id='psa-about'></a> About Pod Security Admission

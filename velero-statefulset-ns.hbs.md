@@ -5,6 +5,17 @@ title: Back Up and Restore StatefulSet App with Namespace
 
 This topic describes how to use Velero to back up and restore a StatefulSet application with namespace.
 
+---
+
+* [Overview](#overview)
+* [Prerequisites](#prereqs)
+* [Create the Storage Class](#storage-class)
+* [Deploy Cassandra Database App](#cassandra-deploy)
+* [Create and Populate a Database and Table in Cassandra](#create-populate-cassandra-db)
+* [Add Annotations](#cassandra-annotations)
+* [Back Up the Cassandra Database App using Namespace](#cassandra-backup-ns)
+* [Restore the Cassandra Database App](#cassandra-restore-ns)
+
 ##<a id="overview"></a> Overview
 
 This example demonstrates Velero back up and restore for a StatefulSet application with namespace. The Cassandra database app is used for demonstrating back up and restore with Velero.
@@ -125,7 +136,7 @@ UN  172.16.1.3  75.87 KiB  32           60.8%             d4c65f54-6ba0-4caa-8b0
 UN  172.16.1.4  81.09 KiB  32           70.1%             fb0cca97-eb35-4e69-ad87-09ab18f739b2  Demo-Rack
 ```
 
-## <a id='guestbook-br-ns'></a> Create and Populate a Database and Table in Cassandra
+## <a id='create-populate-cassandra-db'></a> Create and Populate a Database and Table in Cassandra
 
 
 Create the DB:
@@ -242,7 +253,7 @@ kubectl -n cassandra describe pod/cassandra-2 | grep Annotations
 Annotations:  backup.velero.io/backup-volumes: cassandra-data
 ```
 
-## <a id='cassandra-backup'></a> Back Up the Cassandra Database App using Namespace
+## <a id='cassandra-backup-ns'></a> Back Up the Cassandra Database App using Namespace
 
 Perform the Velero back up:
 
@@ -310,7 +321,7 @@ cassandra-backup   94s
 kubectl describe backups.velero.io cassandra-backup -n velero
 ```
 
-## <a id='cassandra-restore'></a> Restore the Cassandra Database App
+## <a id='cassandra-restore-ns'></a> Restore the Cassandra Database App
 
 Restore the Cassandra database app from the Velero backup. Note the following about the restore operation:
 

@@ -8,9 +8,9 @@ This topic describes how to use Velero to back up and restore a stateless applic
 * [Overview](#overview)
 * [Prerequisites](#prereqs)
 * [Deploy Guestbook App](#guestbook-deploy)
-* [Apply a Common Label to all App Objects](#guestbook-br-ns)
-* [Back Up the Guestbook App Using Label (1)](#guestbook-br-ns)
-* [Restore the Guestbook App Using Label (2)](#guestbook-br-ns)
+* [Apply a Common Label to all App Objects](#guestbook-apply-label)
+* [Back Up the Guestbook App Using Label](#guestbook-backup-label)
+* [Restore the Guestbook App Using Label](#guestbook-restore-label)
 * [Conclusions](#conclusions-label)
 
 ##<a id="overview"></a> Overview
@@ -86,7 +86,7 @@ Access the Guestbook app at <http://10.199.41.15/>.
 
   <img src="images/backup-restore/guestbook-03.png" alt="Guestbook App" width="538">
 
-## <a id='guestbook-br-ns'></a> Apply a Common Label to all App Objects
+## <a id='guestbook-apply-label'></a> Apply a Common Label to all App Objects
 
 By default, there is no common label that encompasses all the Kubernetes objects in the namespace `guestbook` for the application. Here you apply a common label, `application=guestbook`, to these objects.
 
@@ -112,7 +112,7 @@ Verify: you should see all pods in the application with the same `guestbook` lab
 kubectl get all -n guestbook --show-labels
 ```
 
-## <a id='guestbook-br-ns'></a> Back Up the Guestbook App Using Label
+## <a id='guestbook-backup-label'></a> Back Up the Guestbook App Using Label
 
 When backing up an application using Velero with the `label` option, only one label can be specified in the `--selector` field. This means the label must be present on all the Kubernetes objects that belong to the application.
 
@@ -267,7 +267,7 @@ Status:
 Events:               <none>
 ```
 
-## <a id='guestbook-br-ns'></a> Restore the Guestbook App Using Label
+## <a id='guestbook-restore-label'></a> Restore the Guestbook App Using Label
 
 To test the restoration of the Guestbook app, delete the namespace:
 

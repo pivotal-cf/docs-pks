@@ -5,6 +5,20 @@ title: Tagging Clusters
 
 This topic describes how to tag new and existing clusters using the {{  vars.product_full }} Command Line Interface (TKGI CLI).
 
+* [Overview](#overview)
+* [Tag Your Clusters as They Are Created](#tagging-cli)
+* [Tag Your Existing Clusters](#tagging-cli-existing)
+  * [Modify Cluster Tags](#modify-existing-tags-section)
+  * [Modify Your Existing Tags](#modify-existing-tags)
+  * [Remove All Tags From Your Cluster](#modify-existing-tags-remove)
+* [Review Your Tags](#tagging-review)
+* [Tagging Rules](#tagging-rules)
+* [Tagging Limitations](#tagging-limitations)
+  * [Tags Reserved for BOSH](#tagging-limitations-bosh)
+  * [AWS-Specific Tagging Limitations](#tagging-limitations-aws)
+  * [Azure-Specific Tagging Limitations](#tagging-limitations-azure)
+  * [vSphere-Specific Tagging Limitations](#tagging-limitations-vsphere)
+
 ## <a id='overview'></a>Overview
 IaaSes provide the ability for customers to "tag" VMs, databases, and other resources with custom labels and metadata values.
 Apply one or more tags to your clusters to simplify organizing, managing, searching for, and filtering resources within your IaaS-provided management console and other tools:
@@ -74,7 +88,7 @@ and specify the `--tags` parameter and a comma-delimited list of `key:value` pai
 <p class="note warning"><strong>WARNING</strong>: Update a cluster with a revised <code>tags</code> only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
-### <a id='modify-tags'></a>Modify Cluster Tags
+### <a id='modify-existing-tags-section'></a>Modify Cluster Tags
 
 You can also use `tkgi update-cluster` to modify your cluster's existing tags.
 When you modify cluster tags you completely replace all of the

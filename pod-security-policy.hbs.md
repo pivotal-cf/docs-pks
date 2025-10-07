@@ -5,6 +5,22 @@ title: Enabling and Configuring Pod Security Policies
 
 This topic describes how to enable and use Pod Security Policies in {{  vars.product_full }} ({{ vars.product_short }}).
 
+* [About Pod Security Policies](#psp-about)
+* [Default Pod Security Policies in TKGI](#psp-default)
+* [Enabling Pod Security Policies in TKGI](#psp-enable)
+  * [New Installations of TKGI: PSPs Are Not Enabled for Any Plan](#psp-new-installs)
+  * [Upgrade of TKGI: PSPs Must Be Enabled per Plan](#psp-upgrades)
+  * [Workflow for Enabling PSPs](#psp-enable-workflow)
+* [Configuring the pks-restricted PSP for Developers to Use with TKGI](#psp-config)
+  * [Step 1: Define the PSP](#psp-define)
+  * [Step 2: Create the Role](#psp-role)
+  * [Step 3: Create the Role Binding](#psp-binding)
+* [Administering PSPs, Roles, and RoleBindings](#psp-admin)
+* [Troubleshooting PSP Configuration](#psp-troubleshooting)
+  * [Verify Policy Order](#psp-troubleshooting-policy-order)
+  * [Verify Use Permission Grants](#psp-troubleshooting-use-permits)
+* [PSP Files and Demo](#psp-demo-files)
+
 <p class="note"><strong>Note</strong>: In Kubernetes v1.25, Pod Security Admission (PSA) is now stable and support for Kubernetes Pod Security Policy (PSP) has been removed.
 For more information, see [Pod Security Admission in {{  vars.product }}](pod-security-admission.html)</a>.
 </p>

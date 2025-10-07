@@ -6,6 +6,11 @@ title: Customizing Pod Networks (NSX Only)
 This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) administrators
 can define TKGI network profiles for pod networks on vSphere with NSX integration.
 
+* [Custom Pod Networks](#custom-pods)
+* [Pod Subnet Prefix](#pod-prefix)
+* [Routable Pod Networks](#routable-pods)
+* [Add Pod IPs](#pods-ips-add)
+
 TKGI supports network profiles on TKGI on vSphere with NSX only.
 
 To create or delete a network profile, you must be a cluster administrator, `pks.clusters.admin`.

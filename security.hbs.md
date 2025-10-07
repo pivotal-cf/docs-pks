@@ -4,9 +4,9 @@ title: Security
 
 The following topics describe {{  vars.product_full }} ({{ vars.product_short }}) security and security procedures:
 
-* **Security Disclosure and Release Process**: See <a href="./security-process.html">{{  vars.product }} Security Disclosure and Release Process</a>
-* **Certificates**: See <a href="./certificate-concepts.html">{{  vars.product }} Certificates</a>
-* **Benchmarks**: See [TKGI Cluster Benchmarks](#benchmarks), below.
+* [Security Disclosure and Release Process: {{  vars.product }} Security Disclosure and Release Process](security-process.html)
+* [Certificates: {{  vars.product }} Certificates](certificate-concepts.html)
+* [CIS Kubernetes Benchmarks](#benchmarks)
 
 ##<a id='benchmarks'></a> CIS Kubernetes Benchmarks
 

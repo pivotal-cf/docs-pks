@@ -5,6 +5,16 @@ title: Back Up and Restore All Cluster Workloads
 
 This topic describes how to use Velero to back up and restore all workloads on a Kubernetes cluster.
 
+* [Overview](#overview)
+* [Prerequisites](#prereqs)
+* [Deploy Stateless Guestbook App](#guestbook-deploy)
+* [Deploy StatefulSet Cassandra Database App](#cassandra-deploy)
+* [Create and Populate Cassandra Database](#cassandra-db)
+* [Add Annotations](#annotations)
+* [Perform Velero Back Up of the Cluster](#velero-backup)
+* [Restore All Cluster Workloads](#velero-restore)
+* [Conclusions](#conclusions)
+
 ##<a id="overview"></a> Overview
 
 This example demonstrates how to use Velero to perform a full cluster back up and restore. This example uses the stateless Guestbook app with namespace and the StatefulSet Cassandra database app with namespace to perform cluster back up and restore.

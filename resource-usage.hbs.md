@@ -11,7 +11,7 @@ This topic describes how to review and restrict the usage of
 
 * [Overview](#overview)
 * [Set up Your API Access Token](#quota-admin)
-* [Manage Quotas](#quota-admin-1)
+* [Manage Quotas](#manage-quotas)
   * [Add a Quota](#quota-add)
   * [Modify an Existing Quota](#quota-modify)
   * [Delete a Quota](#quota-delete)

@@ -10,8 +10,8 @@ This topic describes how to configure {{  vars.product_full }} ({{ vars.product_
   * [SSL CA Certificate Formats](#certificate-formats)
 * [Use the TKGI API to Configure Private Registry Access (Deprecated)](#api)
   * [Prerequisites](#prerequisites)
-  * [Set up Your API Access Token](#set-token-deprecated)
-  * [Create a Cluster with Private Registry Access](#create-cluster-deprecated)
+  * [Set up Your API Access Token](#set-token)
+  * [Create a Cluster with Private Registry Access](#create-cluster)
   * [Update a Cluster with Private Registry Access](#update-cluster)
 
 * **Secure private registries** that use `HTTPS` protocol and require an SSL Certificate Authority (CA) certificate for access.
