@@ -175,7 +175,19 @@ The supported upgrade paths to {{  vars.product }} v1.23.0 is from TKGI v1.22.x.
 
 ### <a id="1-23-0-breaking-changes"></a>Breaking Changes
 
-TKGI v1.23.0 has no breaking changes.
+**Support for Wavefront is removed in TKGI v1.23.0**. If you are upgrading from previous TKGI versions to v1.23, you might have pods that are running Wavefront images. Currently, clusters use `projects.registry.vmware.com/tanzu_observability` as the URL for Wavefront images. To enable Wavefront to continue to function after upgrading clusters, you must update these clusters so that they load Wavefront images from Docker.
+
+1. Edit the cluster to fetch images from the following Docker URLs.
+
+   - `docker.io/caapm/kubernetes-operator:2.17.2`
+   - `docker.io/kubernetes-collector:1.29.2`
+   - `docker.io/caapm/proxy:13.4`
+
+2. Verify that the clusters are still up and running.
+
+3. Upgrade the clusters.
+
+The clusters will continue to run smoothly, after upgrading TKGI.
 
 ### <a id="1-23-0-features"></a>Features and Enhancements
 
