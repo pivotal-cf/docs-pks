@@ -152,7 +152,7 @@ For more information, see the [Grant {{  vars.product }} Access to an Individual
         ```
         bosh tasks
         ```
-    For more information, see [Advanced Troubleshooting with the BOSH CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html).
+    For more information, see [Advanced Troubleshooting with the BOSH CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html).
 
 1. Depending on your deployment:
   * For **vSphere with NSX**, choose one of the following:
@@ -227,7 +227,7 @@ To locate the IP addresses and VM IDs for the control plane VMs of an existing c
     1. SSH into the {{ vars.platform_name }} VM.
     1. Log in to the BOSH Director by using the BOSH CLI from the {{ vars.platform_name }} VM.
 
-    For information on how to complete these steps, see [Advanced Troubleshooting with the BOSH CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html)
+    For information on how to complete these steps, see [Advanced Troubleshooting with the BOSH CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html)
     .
 1. To identify the name of your cluster deployment, run the following command:
 

@@ -29,7 +29,7 @@ and log in to the BOSH Director VM, follow the steps below:
 
 1. Gather your credential and IP address information for the BOSH Director and SSH
 into the {{ vars.platform_name }} VM. For instructions, see [Advanced Troubleshooting with the BOSH
-CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html).
+CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html).
 1. To create a BOSH alias for your TKGI environment, run the following command:
 
     ```
@@ -59,7 +59,7 @@ CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-
     $ bosh -e tkgi login
     ```
     Alternatively, you can set the BOSH environment variables on the {{ vars.platform_name }} VM to authenticate with the BOSH Director VM.
-    For more information, see [Authenticate with the BOSH Director VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#log-in) in
+    For more information, see [Authenticate with the BOSH Director VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html#log-in) in
     _Advanced Troubleshooting with the BOSH CLI_ in the {{ vars.platform_name }} documentation.
 
 

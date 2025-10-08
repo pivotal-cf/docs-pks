@@ -4,7 +4,7 @@
 
 ## <a id='overview'></a>Overview
 
-{{  vars.product }} deploys Kubernetes to [BOSH](https://bosh.io) and [{{ vars.platform_name }}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/index.html),
+{{  vars.product }} deploys Kubernetes to [BOSH](https://bosh.io) and [{{ vars.platform_name }}](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/index.html),
 and uses the [On-Demand Broker](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/on-demand-services-sdk-for-tanzu/0-42.html) to dynamically
 instantiate, deploy, and manage highly-available Kubernetes clusters on-premises or on a public cloud.
 

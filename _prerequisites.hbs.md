@@ -4,5 +4,5 @@ If you use an instance of {{ vars.platform_name }} that you configured previousl
 1. Open the **Director Config** pane.
 1. Select the **Enable Post Deploy Scripts** check box.
 1. Click the **Installation Dashboard** link to return to the Installation Dashboard.
-1. Click **Review Pending Changes**. Select all products you intend to deploy and review the changes. For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+1. Click **Review Pending Changes**. Select all products you intend to deploy and review the changes. For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 1. Click **Apply Changes**.

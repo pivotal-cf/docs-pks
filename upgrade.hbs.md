@@ -75,7 +75,7 @@ to determine if your {{ vars.platform_name }} version is compatible with {{  var
 1. If your {{ vars.platform_name }} version is not compatible with {{  vars.product }} {{{ vars.product_version }}},
 follow the steps below.
 1. Upgrade {{ vars.platform_name }}. For instructions, see
-[Import Installation to {{ vars.platform_name }} v3.0 VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-upgrading-pcf.html#upgrade)
+[Import Installation to {{ vars.platform_name }} v3.0 VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-upgrading-pcf.html#upgrade)
 in _Upgrading {{ vars.platform_name }}_ in the {{ vars.platform_name }} documentation.
 {{{{raw}}}} <!--  when editing this edit the other duplicate BELOW in this topic < %= partial 'add-clusters-workloads' % >  # --> {{{{/raw}}}}
 1. Verify that the {{  vars.product }} control plane remains functional by performing the following steps:
@@ -204,7 +204,7 @@ To complete the upgrade of the {{  vars.product }} tile:
 
 1. Click **Review Pending Changes**.
      For more information about this {{ vars.platform_name }} page, see
-    [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+    [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 
 1. Click **Apply Changes**.
 

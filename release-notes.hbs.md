@@ -147,7 +147,7 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     <tr>
         <td>Installed {{ vars.platform_name }} version</td>
         <td>v3.0.37&#42;</td>
-        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html#3-0-37" target="_blank">Release Notes</a></td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html#3-0-37" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
         <td>Installed Harbor Registry version</td>

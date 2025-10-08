@@ -35,7 +35,7 @@ To deactivate an orphaned Admission control Plugin, complete the following workf
 
 1. Obtain the FQDN, user name, and password of your {{ vars.platform_name }}.
 1. Authenticate into the {{ vars.platform_name }} API and retrieve a UAA access token to access {{ vars.platform_name }}.
-    For more information, see [Using the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).
+    For more information, see [Using the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-ops-man-api.html).
 1. Obtain the BOSH deployment name for the {{  vars.product }} tile by doing one of the following options:
     1. Option 1: Use the {{ vars.platform_name }} API:
         1. In a terminal, run the following command:

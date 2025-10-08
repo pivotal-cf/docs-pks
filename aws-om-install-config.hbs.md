@@ -42,8 +42,8 @@ see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
         <td>{{ vars.platform_name }} v3.0</td>
         <td>
           <ol>
-            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/aws-deploy-manual.html">Deploying {{ vars.platform_name }} on AWS</a></li>
-            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/aws-config-manual.html">Configuring BOSH Director on AWS</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/aws-deploy-manual.html">Deploying {{ vars.platform_name }} on AWS</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/aws-config-manual.html">Configuring BOSH Director on AWS</a></li>
           </ol>
         </td>
       </tr>

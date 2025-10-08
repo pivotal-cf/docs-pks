@@ -54,7 +54,7 @@ To connect to your jump box with SSH, do one of the following:
 
 * To use the {{ vars.platform_name }} VM as your jump box:
     1. Log in to the {{ vars.platform_name }} VM. For more information, see
-    [Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
+    [Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html#ssh)
     in _Advanced Troubleshooting with the BOSH CLI_.
 
 * To connect to your jump box using the command line:
@@ -265,7 +265,7 @@ Locate and record your {{  vars.product }} BOSH deployment name as follows:
 
 1. Open an SSH connection to either your jump box, as described in the previous section, or the {{ vars.platform_name }} VM.
 For instructions on how to SSH into the {{ vars.platform_name }} VM, see
-[Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
+[Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html#ssh)
 in _Advanced Troubleshooting with the BOSH CLI_.
 1. On the command line, run the following command to retrieve your {{  vars.product }} BOSH deployment name.
 

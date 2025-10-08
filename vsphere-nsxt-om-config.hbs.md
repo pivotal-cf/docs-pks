@@ -120,8 +120,8 @@ To configure BOSH Director settings:
 
 1. Select **Recreate VMs deployed by the BOSH Director** to force BOSH to recreate all BOSH-managed VMs on the next deploy. This process does not destroy any persistent disk data.
 
-1. For typical {{  vars.product }} deployments, the default settings for all other BOSH Director configuration parameters are suitable. Optionally you can apply additional configurations to BOSH Director. See [Director Config Pane](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#dir-config) in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.
-<p class="note"><strong>Note</strong>: If you need to be able to remotely access the BOSH Director VM using the BOSH CLI, and you are deploying {{  vars.product }} with NSX in a NAT topology, you must provide the <strong>Director Hostname</strong> for BOSH at the time of installation. See <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#dir-config">Director Config Pane</a> in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.</p>
+1. For typical {{  vars.product }} deployments, the default settings for all other BOSH Director configuration parameters are suitable. Optionally you can apply additional configurations to BOSH Director. See [Director Config Pane](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html#dir-config) in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.
+<p class="note"><strong>Note</strong>: If you need to be able to remotely access the BOSH Director VM using the BOSH CLI, and you are deploying {{  vars.product }} with NSX in a NAT topology, you must provide the <strong>Director Hostname</strong> for BOSH at the time of installation. See <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html#dir-config">Director Config Pane</a> in <em>Configuring BOSH Director on vSphere</em> in the {{ vars.platform_name }} documentation for details.</p>
 
 1. Click **Save**.
 
@@ -178,9 +178,9 @@ You must configure and create BOSH Director networking.
 
 <p class="note"><strong>Note</strong>: If you are using <a href="nsxt-topologies.html#topology-no-nat-virtual-switch">No-NAT with Virtual Switch (VSS/VDS) Topology</a>,
     create the infrastructure network and optionally the TKGI network by
-    following the instructions in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#create-networks">Create Networks Pane</a> in
+    following the instructions in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html#create-networks">Create Networks Pane</a> in
     <i>Configuring BOSH Director on vSphere</i> in the {{ vars.platform_name }} documentation.
-    While completing the steps in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html#create-networks">Create Networks Pane</a>,
+    While completing the steps in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html#create-networks">Create Networks Pane</a>,
     do not create the <code>services</code> network. With TKGI on NSX, NSX manages the dynamically created networks.
 </p>
 
@@ -330,7 +330,7 @@ choose **Automatic** from the drop-down menu to allocate the recommended resourc
 
 Use the {{ vars.platform_name }} API to add custom properties to your VMs such as associated security groups and load balancers.
 
-For more information, see [Managing Custom VM Extensions](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-custom-vm-extensions.html).
+For more information, see [Managing Custom VM Extensions](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-custom-vm-extensions.html).
 
 ## <a id='deploy-bosh'></a>Step 12: Deploy BOSH
 

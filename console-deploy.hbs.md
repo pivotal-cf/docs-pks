@@ -22,7 +22,7 @@ and which you can apply to your TKGI deployment.
 You can use the {{ vars.platform_name }} UI to configure the following,
 and the management console will not override their values:
 
-* **BOSH Director** tile fields, described in [Configuring BOSH Director on vSphere](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html) in the _{{ vars.platform_name }} Documentation_:
+* **BOSH Director** tile fields, described in [Configuring BOSH Director on vSphere](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html) in the _{{ vars.platform_name }} Documentation_:
   * **Director Config** pane:
       * **Custom SSH Banner**
       * **Identification Tags**
