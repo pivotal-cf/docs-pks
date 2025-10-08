@@ -14,7 +14,6 @@ You can use any of the following monitoring tools to capture
 metrics from TKGI Windows worker-based Kubernetes clusters:
 
 * [Healthwatch](#healthwatch)
-* [Wavefront](#wavefront)
 * [Prometheus with Grafana](#prometheus)
 
 
@@ -32,34 +31,6 @@ For more information, see [Overview of the Healthwatch Exporter for TKGI Tile](h
 To configure cluster discovery in Healthwatch, see
 [Configuring TKGI Cluster Discovery](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/configuring-optional-config-configuring-cluster-discovery.html)
 in the Healthwatch documentation.
-
-
-## <a id='wavefront'></a> Wavefront
-
-Wavefront runs as an external service that you set up to monitor Windows worker-based clusters the same way that you set it up to monitor clusters running Linux worker nodes:
-
-1. Install Helm on your local machine, if you do not already have it, by following [Install and Configure Helm](./helm.html#install-helm) in the topic _Using Helm with {{  vars.product }}_.
-
-1. Use the Helm CLI to deploy Wavefront to the target cluster:
-
-    ```
-    helm install wavefront wavefront/wavefront --namespace wavefront \
-    --set clusterName=CLUSTER-NAME \
-    --set wavefront.url=https://INSTANCE-NAME.wavefront.com \
-    --set wavefront.token=API-TOKEN \
-    --set collector.usePKSPrefix=true \
-    --set collector.useDaemonset=false
-    ```
-
-    Where:
-
-    * `CLUSTER-NAME` is the name of your Kubernetes cluster.
-    * `INSTANCE-NAME` is the subdomain name for your Wavefront instance.
-    * `API-TOKEN` is the Wavefront API token for your Wavefront subscription.
-
-1. Do one of the following:
-  - Configure Wavefront Integration in {{ vars.platform_name }} using the [{{  vars.product_full }} Integration](https://docs.wavefront.com/tkgi.html) procedure in the Wavefront documentation.
-  - Set up a metric sink to send metrics to Wavefront following the instructions in [Creating and Managing Sink Resources](./create-sinks.html).
 
 
 ## <a id='prometheus'></a> Prometheus with Grafana

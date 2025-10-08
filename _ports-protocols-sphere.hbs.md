@@ -8,73 +8,73 @@ The following tables list ports and protocols required for network communication
 
 The following table lists ports and protocols used for network communication between VMware virtual infrastructure components.
 
-| Source Component | Destination Component | Destination Protocol | Destination Port | Service| 
+| Source Component | Destination Component | Destination Protocol | Destination Port | Service|
 | --- | --- | --- | --- | --- |
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| vCenter Server | NSX Manager/Controller Node | TCP | 8080 | HTTP alt| 
+| vCenter Server | NSX Manager/Controller Node | TCP | 8080 | HTTP alt|
 {{ else }}
 {{/ evalExpression }}
-| vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS| 
-| vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 8080 | HTTP alt| 
-| vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 9080 | io filter storage| 
+| vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS|
+| vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 8080 | HTTP alt|
+| vCenter Server | vSphere ESXI Hosts Mgmt. vmknic | TCP | 9080 | io filter storage|
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 443 | HTTPS| 
-| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 1235 | netcpa| 
-| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 5671 | AMQP traffic| 
-| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 8080 | HTTP alt|   
+| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 443 | HTTPS|
+| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 1235 | netcpa|
+| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 5671 | AMQP traffic|
+| vSphere ESXI Hosts Mgmt. vmknic | NSX Manager/Controller Node | TCP | 8080 | HTTP alt|
 {{ else }}
 {{/ evalExpression }}
-| vSphere ESXI Hosts Mgmt. vmknic | vCenter Server | UDP | 902 | ideafarm-door| 
-| vSphere ESXI Hosts Mgmt. vmknic | vCenter Server | TCP | 9084 | update manager| 
-| vSphere ESXI Hosts Mgmt. vmknic | vSphere ESXI Hosts Mgmt. vmknic | TCP | 8182 | vSphere ha| 
-| vSphere ESXI Hosts Mgmt. vmknic | vSphere ESXI Hosts Mgmt. vmknic | UDP | 8182 | vSphere ha| 
-| vSphere ESXI Hosts vMotion vmknic | vSphere ESXI Hosts vMotion vmknic | TCP | 8000 | vmotion| 
-| vSphere ESXI Hosts IP Storage vmknic | IP NAS Storage Array | TCP | 111 | NFS RPC portmapper| 
-| vSphere ESXI Hosts IP Storage vmknic | IP NAS Storage Array | TCP | 2049 | NFS| 
-| vSphere ESXI Hosts IP Storage vmknic | IP NAS Storage Array | TCP | 3260 | iscsi| 
-| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | TCP | 2233 | vSAN transport| 
-| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | UDP | 12321 | unicast agent| 
-| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | UDP | 12345 | vSAN cluster svc| 
-| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | UDP | 23451 | vSAN cluster svc| 
-| vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 3784 | bfd| 
-| vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 3785 | bfd| 
-| vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 6081 | geneve| 
+| vSphere ESXI Hosts Mgmt. vmknic | vCenter Server | UDP | 902 | ideafarm-door|
+| vSphere ESXI Hosts Mgmt. vmknic | vCenter Server | TCP | 9084 | update manager|
+| vSphere ESXI Hosts Mgmt. vmknic | vSphere ESXI Hosts Mgmt. vmknic | TCP | 8182 | vSphere ha|
+| vSphere ESXI Hosts Mgmt. vmknic | vSphere ESXI Hosts Mgmt. vmknic | UDP | 8182 | vSphere ha|
+| vSphere ESXI Hosts vMotion vmknic | vSphere ESXI Hosts vMotion vmknic | TCP | 8000 | vmotion|
+| vSphere ESXI Hosts IP Storage vmknic | IP NAS Storage Array | TCP | 111 | NFS RPC portmapper|
+| vSphere ESXI Hosts IP Storage vmknic | IP NAS Storage Array | TCP | 2049 | NFS|
+| vSphere ESXI Hosts IP Storage vmknic | IP NAS Storage Array | TCP | 3260 | iscsi|
+| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | TCP | 2233 | vSAN transport|
+| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | UDP | 12321 | unicast agent|
+| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | UDP | 12345 | vSAN cluster svc|
+| vSphere ESXI Hosts vSAN vmknic | vSphere ESXI Hosts vSAN vmknic | UDP | 23451 | vSAN cluster svc|
+| vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 3784 | bfd|
+| vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 3785 | bfd|
+| vSphere ESXI Hosts TEP vmknic | vSphere ESXI Hosts TEP vmknic | UDP | 6081 | geneve|
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| vSphere ESXI Hosts TEP vmknic | NSX Edge TEP vNIC | UDP | 3784 | bfd| 
-| vSphere ESXI Hosts TEP vmknic | NSX Edge TEP vNIC | UDP | 3785 | bfd| 
+| vSphere ESXI Hosts TEP vmknic | NSX Edge TEP vNIC | UDP | 3784 | bfd|
+| vSphere ESXI Hosts TEP vmknic | NSX Edge TEP vNIC | UDP | 3785 | bfd|
 | vSphere ESXI Hosts TEP vmknic | NSX Edge TEP vNIC | UDP | 6081 | geneve|
 | vSphere ESXI Hosts TEP vmknic | NSX Manager/Controller | TCP | 1234 | NSX messaging |
-| NSX Manager/Controller Node | NSX API VIP | TCP | 443 | HTTPS| 
-| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 443 | HTTPS| 
-| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 5671 | AMQP traffic| 
-| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 8080 | HTTP alt| 
-| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 9000 | loginsight ingestion api| 
-| NSX Manager/Controller Node | Traceroute Destination | UDP | 33434-33523 | traceroute| 
-| NSX Manager/Controller Node | vCenter Server | TCP | 80 | HTTP| 
-| NSX Manager/Controller Node | vCenter Server | TCP | 443 | HTTPS| 
-| NSX Manager/Controller Node | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS| 
-| NSX Edge Management | NSX Edge Management | TCP | 1167 | DHCP backend| 
-| NSX Edge Management | NSX Edge Management | TCP | 2480 | Nestdb| 
-| NSX Edge Management | NSX Edge Management | UDP | 3784 | bfd| 
-| NSX Edge Management | NSX Edge Management | UDP | 50263 | high-availability| 
-| NSX Edge Management | NSX Manager/Controller Node | TCP | 443 | HTTPS| 
-| NSX Edge Management | NSX Manager/Controller Node | TCP | 1235 | netcpa| 
-| NSX Edge Management | NSX Manager/Controller Node | TCP | 5671 | AMQP traffic| 
-| NSX Edge Management | NSX Manager/Controller Node | TCP | 8080 | HTTP alt| 
-| NSX Edge Management | Traceroute Destination | UDP | 33434-33523 | traceroute| 
-| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 3784 | bfd| 
-| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 3785 | bfd| 
-| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 6081 | geneve| 
-| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 50263 | high-availability| 
-| NSX Edge TEP vNIC | vSphere ESXI Hosts TEP vmknic | UDP | 3784 | bfd| 
-| NSX Edge TEP vNIC | vSphere ESXI Hosts TEP vmknic | UDP | 3785 | bfd| 
-| NSX Edge TEP vNIC | vSphere ESXI Hosts TEP vmknic | UDP | 6081 | geneve| 
+| NSX Manager/Controller Node | NSX API VIP | TCP | 443 | HTTPS|
+| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 443 | HTTPS|
+| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 5671 | AMQP traffic|
+| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 8080 | HTTP alt|
+| NSX Manager/Controller Node | NSX Manager/Controller Node | TCP | 9000 | loginsight ingestion api|
+| NSX Manager/Controller Node | Traceroute Destination | UDP | 33434-33523 | traceroute|
+| NSX Manager/Controller Node | vCenter Server | TCP | 80 | HTTP|
+| NSX Manager/Controller Node | vCenter Server | TCP | 443 | HTTPS|
+| NSX Manager/Controller Node | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS|
+| NSX Edge Management | NSX Edge Management | TCP | 1167 | DHCP backend|
+| NSX Edge Management | NSX Edge Management | TCP | 2480 | Nestdb|
+| NSX Edge Management | NSX Edge Management | UDP | 3784 | bfd|
+| NSX Edge Management | NSX Edge Management | UDP | 50263 | high-availability|
+| NSX Edge Management | NSX Manager/Controller Node | TCP | 443 | HTTPS|
+| NSX Edge Management | NSX Manager/Controller Node | TCP | 1235 | netcpa|
+| NSX Edge Management | NSX Manager/Controller Node | TCP | 5671 | AMQP traffic|
+| NSX Edge Management | NSX Manager/Controller Node | TCP | 8080 | HTTP alt|
+| NSX Edge Management | Traceroute Destination | UDP | 33434-33523 | traceroute|
+| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 3784 | bfd|
+| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 3785 | bfd|
+| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 6081 | geneve|
+| NSX Edge TEP vNIC | NSX Edge TEP vNIC | UDP | 50263 | high-availability|
+| NSX Edge TEP vNIC | vSphere ESXI Hosts TEP vmknic | UDP | 3784 | bfd|
+| NSX Edge TEP vNIC | vSphere ESXI Hosts TEP vmknic | UDP | 3785 | bfd|
+| NSX Edge TEP vNIC | vSphere ESXI Hosts TEP vmknic | UDP | 6081 | geneve|
 | NSX Edge Tier-0 Uplink IP(s) / HA VIP | Physical Network Router | TCP | 179 | bgp|
 | NSX Edge TEP vNIC | NSX Manager/Controller | TCP | 1234 | NSX messaging |
 | NSX Tier-1 Router | Kubernetes cluster Pods and Worker Nodes | TCP | 80 | HTTP  |
 | NSX Tier-1 Router | Kubernetes cluster Pods and Worker Nodes | TCP | 443 | HTTPS |
 | NSX Tier-1 Router | Kubernetes cluster Pods and Worker Nodes | TCP | 8443 | HTTPSCA |
-| Physical Network Router | NSX Edge Tier-0 Uplink IP(s) / HA VIP | TCP | 179 | bgp| 
+| Physical Network Router | NSX Edge Tier-0 Uplink IP(s) / HA VIP | TCP | 179 | bgp|
 {{ else }}
 {{/ evalExpression }}
 
@@ -82,38 +82,34 @@ The following table lists ports and protocols used for network communication bet
 
 The following table lists ports and protocols used for network communication between optional VMware integrations.
 
-| Source Component | Destination Component | Destination Protocol | Destination Port | Service| 
+| Source Component | Destination Component | Destination Protocol | Destination Port | Service|
 | --- | --- | --- | --- | --- |
-| Admin/Operator Console | vRealize Operations Manager | TCP | 443 | HTTPS| 
-| vRealize Operations Manager | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA| 
+| Admin/Operator Console | vRealize Operations Manager | TCP | 443 | HTTPS|
+| vRealize Operations Manager | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA|
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| vRealize Operations Manager | NSX API VIP | TCP | 443 | HTTPS| 
+| vRealize Operations Manager | NSX API VIP | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
-| vRealize Operations Manager | TKGI Controller | TCP | 8443 | HTTPSCA| 
-| vRealize Operations Manager | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA| 
-| Admin/Operator Console | vRealize LogInsight | TCP | 443 | HTTPS| 
-| Kubernetes Cluster Ingress Controller | vRealize LogInsight | TCP | 9000 | ingestion api| 
-| Kubernetes Cluster Control Plane/Etcd Node | vRealize LogInsight | TCP | 9000 | ingestion api| 
-| Kubernetes Cluster Control Plane/Etcd Node | vRealize LogInsight | TCP | 9543 | ingestion api -tls| 
-| Kubernetes Cluster Worker Node | vRealize LogInsight | TCP | 9000 | ingestion api| 
-| Kubernetes Cluster Worker Node | vRealize LogInsight | TCP | 9543 | ingestion api -tls| 
+| vRealize Operations Manager | TKGI Controller | TCP | 8443 | HTTPSCA|
+| vRealize Operations Manager | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA|
+| Admin/Operator Console | vRealize LogInsight | TCP | 443 | HTTPS|
+| Kubernetes Cluster Ingress Controller | vRealize LogInsight | TCP | 9000 | ingestion api|
+| Kubernetes Cluster Control Plane/Etcd Node | vRealize LogInsight | TCP | 9000 | ingestion api|
+| Kubernetes Cluster Control Plane/Etcd Node | vRealize LogInsight | TCP | 9543 | ingestion api -tls|
+| Kubernetes Cluster Worker Node | vRealize LogInsight | TCP | 9000 | ingestion api|
+| Kubernetes Cluster Worker Node | vRealize LogInsight | TCP | 9543 | ingestion api -tls|
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| NSX Manager/Controller Node | vRealize LogInsight | TCP | 9000 | ingestion api| 
+| NSX Manager/Controller Node | vRealize LogInsight | TCP | 9000 | ingestion api|
 {{ else }}
 {{/ evalExpression }}
-| TKGI Controller | vRealize LogInsight | TCP | 9000 | ingestion api| 
-| Admin/Operator and Developer Consoles | Wavefront SaaS APM | TCP | 443 | HTTPS| 
-| kube-system pod/wavefront-proxy | Wavefront SaaS APM | TCP | 443 | HTTPS| 
-| kube-system pod/wavefront-proxy | Wavefront SaaS APM | TCP | 8443 | HTTPSCA| 
-| pks-system pod/wavefront-collector | TKGI Controller | TCP | 24224 | Fluentd out_forward| 
-| Admin/Operator Console | vRealize Network Insight Platform | TCP | 443 | HTTPS| 
-| Admin/Operator Console | vRealize Network Insight Proxy | TCP | 22 | SSH| 
-| vRealize Network Insight Proxy | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA| 
+| TKGI Controller | vRealize LogInsight | TCP | 9000 | ingestion api|
+| Admin/Operator Console | vRealize Network Insight Platform | TCP | 443 | HTTPS|
+| Admin/Operator Console | vRealize Network Insight Proxy | TCP | 22 | SSH|
+| vRealize Network Insight Proxy | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA|
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| vRealize Network Insight Proxy | NSX API VIP | TCP | 22 | SSH| 
-| vRealize Network Insight Proxy | NSX API VIP | TCP | 443 | HTTPS| 
+| vRealize Network Insight Proxy | NSX API VIP | TCP | 22 | SSH|
+| vRealize Network Insight Proxy | NSX API VIP | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
-| vRealize Network Insight Proxy | TKGI Controller | TCP | 8443 | HTTPSCA| 
+| vRealize Network Insight Proxy | TKGI Controller | TCP | 8443 | HTTPSCA|
 | vRealize Network Insight Proxy | TKGI Controller | TCP | 9021 | TKGI API server|

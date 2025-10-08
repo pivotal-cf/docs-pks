@@ -207,26 +207,6 @@ TKGI v1.23.0 resolves the following issues:
 
 TKGI v1.23.0 has the following known issues:
 
-<hr>
-
-#### <a id="1-23-0-wavefront-ns"></a>Manually created Wavefront operator and namespace are deleted during cluster upgrade
-
-**Symptom**
-
-If you install TKGi v1.20+ and disable Wavefront, create a cluster and install the [Wavefront operator](https://github.com/wavefrontHQ/observability-for-kubernetes) manually, then upgrade the cluster, the Wavefront operator and the `observability-system` namespace get deleted.
-
-**Explanation**
-
-This happens because of a `wavefront-proxy-errand`.
-
-**Workaround**
-
-When you install the Wavefront operator, specify a custom namespace rather than the default `observability-system` namespace.
-
-If the Wavefront operator is already installed in the `observability-system` namespace, see [KB 405433](https://knowledge.broadcom.com/external/article/405433) for steps to take to avoid encountering this issue during cluster upgrades.
-
-<hr>
-
 #### <a id="1-23-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
 
 TKGI supports using a public cloud CSI Driver on a TKGI-provisioned cluster.

@@ -520,12 +520,11 @@ Consider the following when configuring plans for Windows worker nodes:
 
 ## <a id='integrations'></a>Step 7: Configure Integrations
 
-If your infrastructure includes existing deployments of VMware Tanzu Mission Control, Wavefront by VMware, VMware vRealize Operations Management Pack for Container Monitoring, or VMware vRealize Log Insight, you can configure TKGI to connect to those services. You can also configure TKGI to forward logs to a Syslog server.
+If your infrastructure includes existing deployments of VMware Tanzu Mission Control, VMware vRealize Operations Management Pack for Container Monitoring, or VMware vRealize Log Insight, you can configure TKGI to connect to those services. You can also configure TKGI to forward logs to a Syslog server.
 
 To configure TKGI integration with other products:
 
 * [Configure a Connection to VMware Tanzu Mission Control](#integrations-tanzumc)
-* [Configure a Connection to Wavefront](#integrations-wavefront)
 * [Configure a Connection to VMware vRealize Operations Management Pack for Container Monitoring](#integrations-vrops)
 * [Configure a Connection to VMware vRealize Log Insight](#integrations-vfli)
 * [Configure a Connection to Syslog](#integrations-syslog)
@@ -556,25 +555,6 @@ For more information about Tanzu Mission Control, see the [Tanzu Mission Control
     ![Configure integration with Tanzu Mission Control](images/console/tanzu-mission-control.png)
 1. Click **Save**.
 1. Configure integrations with other applications, or click **Next** to install Harbor.
-
-
-### <a id='integrations-wavefront'></a>Configure a Connection to Wavefront
-
-> **Note** Wavefront integration in TKGI has been deprecated.
-
-By connecting your {{  vars.product }} deployment to an existing deployment of Wavefront by VMware, you can obtain detailed metrics about Kubernetes clusters and pods.
-
-To configure Wavefront integration:
-
-1. Ensure you have an active Wavefront account and access to a Wavefront instance.
-    To configure Wavefront integration, you must have an active Wavefront account and access to a Wavefront instance. For more information, including about how to generate a Wavefront access token, see [VMware TKGI Integration](https://docs.wavefront.com/tkgi.html) and [VMware TKGI Integration Details](https://docs.wavefront.com/integrations_tkgi.html) in the Wavefront by VMware documentation.
-1. Select the **Enable** toggle to activate a connection to Wavefront.
-1. Enter the address of your Wavefront instance in the **Wavefront URL** text box.
-1. Enter the Wavefront API token in the **Wavefront Access Token** text box.
-1. In the **HTTP Proxy for TKGI** text box, enter the address of the proxy server to use when it is not possible for the {{  vars.product }} Wavefront component to connect to an outside address over HTTP. For example, http://your.proxy.com:8080 or https://your.proxy.com:443.
-1. Click **Save**.
-1. Configure integrations with other applications, or click **Next** to install Harbor.
-
 
 ### <a id='integrations-vrops'></a>Configure a Connection to VMware vRealize Operations Management Pack for Container Monitoring
 

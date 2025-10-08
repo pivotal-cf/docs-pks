@@ -83,7 +83,6 @@ Verify the health of your Kubernetes clusters by following the steps below:
                                                            sink-resources-release/0.1.15
                                                            syslog/11.4.0
                                                            uaa/64.0
-                                                           wavefront-proxy/0.9.0
     service-instance_8de000ff-a87a-4930-81ba-106d42c2471e  bosh-dns/1.10.0                          bosh-vsphere-esxi-ubuntu-jammy-go_agent/170.15  pivotal-container-service-7e64d53fc570503b5690
                                                            bpm/0.13.0
                                                            cfcr-etcd/1.8.0
@@ -96,7 +95,6 @@ Verify the health of your Kubernetes clusters by following the steps below:
                                                            pks-vrli/0.7.0
                                                            sink-resources-release/0.1.15
                                                            syslog/11.4.0
-                                                           wavefront-proxy/0.9.0
 
     3 deployments
     ```
