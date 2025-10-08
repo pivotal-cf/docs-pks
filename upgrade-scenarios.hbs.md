@@ -92,7 +92,7 @@ For a list of NSX and vSphere versions compatible with
 {{  vars.product }} {{{ vars.product_version }}}, see:
 
 * [Product Snapshot](release-notes.html) in _Release Notes_
-* [VMware Product Interoperability Matrices](https://interopmatrix.vmware.com/Interoperability?col=644&row=0,)
+* [VMware Product Interoperability Matrices](https://interopmatrix.broadcom.com/Interoperability?col=644&row=0,)
 
 ### <a id="tkgi-only"></a>Scenario 1: Upgrading to TKGI {{{ vars.product_version }}}
 

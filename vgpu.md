@@ -25,8 +25,8 @@ NVIDIA vGPU is enabled by the following drivers:
 * ESXi hosts running vSphere 7.0 Update 3 or later
   * For ESXi I/O requirements, see [vSphere VMDirectPath I/O and Dynamic DirectPath I/O: Requirements for Platforms and Devices](https://knowledge.broadcom.com/external/article/312208/) in the Broadcom Support Knowledge Base.
   * Listed below are the builds for 7.0u3, which is the minimum required to support GPU clusters.
-      * [VMware vCenter Server 7.0 Update 3 | ISO Build 18700403](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-vcenter-server-703-release-notes.html).
-      * [VMware ESXi 7.0 Update 3c | ISO Build 19193900](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-esxi-70u3c-release-notes.html)
+      * VMware vCenter Server 7.0 Update 3 | ISO Build 18700403
+      * VMware ESXi 7.0 Update 3c | ISO Build 19193900
 * NVIDIA license server and software, installed as described below:
   * NVIDIA license server
   * NVIDIA AI Enterprise Software
