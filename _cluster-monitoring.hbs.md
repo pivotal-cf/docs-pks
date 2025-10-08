@@ -15,6 +15,7 @@ For more information, see
 
 To configure in-cluster monitoring:
 
+{{# evalExpression "current_page.data.iaas == 'vSphere' || current_page.data.iaas == 'vSphere-NSX-T'"}}
 * To configure cAdvisor, see
 [VMware vRealize Operations Management Pack for Container Monitoring](#realize).
 {{ else }}
