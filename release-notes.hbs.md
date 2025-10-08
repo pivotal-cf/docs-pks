@@ -1,6 +1,5 @@
 ---
 title: Release Notes
-
 topictype: releasenotes
 ---
 
@@ -23,15 +22,15 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Release date</td>
-        <td colspan=2>March 14, 2025</td>
+        <td colspan=2>October 15, 2025</td>
     </tr>
     <tr>
         <th colspan=3><h4>Internal Component Versions</h4></th>
     </tr>
     <tr>
-        <td>Antrea</td>
-        <td>v1.10.0</td>
-        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/container-networking/1-x/release-notes.html" target="_blank">Release Notes</a></td>
+        <td>Antrea0&#42;</td>
+        <td>v1.11.0</td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/container-networking/1-x/release-notes/vmware-container-networking-with-antrea-1110-release-notes.html" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
         <td>cAdvisor</td>
@@ -39,24 +38,24 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Cloud Providers</td>
-        <td>AWS: v1.31.5&#42;<br>Azure: v1.31.0&#42;<br>vSphere: v1.31.1&#42;</td>
+        <td>AWS: v1.31.7&#42;<br>Azure: v1.31.8&#42;<br>vSphere: v1.31.1</td>
         <td style="text-align: center;">Release Notes:
-          <br><a href="https://github.com/kubernetes/cloud-provider-aws/releases/tag/v1.31.5">AWS</a>
-          <br><a href="https://github.com/kubernetes-sigs/cloud-provider-azure/releases/tag/v1.31.0">Azure</a>
+          <br><a href="https://github.com/kubernetes/cloud-provider-aws/releases/tag/v1.31.7">AWS</a>
+          <br><a href="https://github.com/kubernetes-sigs/cloud-provider-azure/releases/tag/v1.31.8">Azure</a>
           <br><a href="https://github.com/kubernetes/cloud-provider-vsphere/releases/tag/v1.31.1">vSphere</a>
         </td>
     </tr>
     <tr>
         <td>Containerd</td>
-        <td colspan=2>Linux: v1.7.23<br>Windows: v1.7.23</td>
+        <td colspan=2>Linux: v1.7.27&#42;<br>Windows: v1.7.27&#42;</td>
     </tr>
     <tr>
         <td>CoreDNS</td>
-        <td colspan=2>v1.11.3+vmware.2&#42;</td>
+        <td colspan=2>v1.11.3+vmware.2</td>
     </tr>
     <tr>
         <td>CSI Driver for vSphere</td>
-        <td>v3.3.1</td>
+        <td>v3.5.0&#42;</td>
         <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/container-storage-plugin/3-0/release-notes/vmware-vsphere-container-storage-plugin-30-release-notes.html#vSphere%20Container%20Storage%20Plug-in%203.3.1" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
@@ -65,13 +64,13 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Harbor</td>
-        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.11.0&os=&servicePk=&language=EN" target="_blank">v2.11.0</a></td>
-        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/release-notes.html#v2110-0" target="_blank">Release Notes</a></td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.11.0&os=&servicePk=&language=EN" target="_blank">v2.13.2&#42;</a></td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/release-notes.html#v2.13.2" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
         <td>Kubernetes</td>
-        <td>v1.31.5&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md#changelog-since-v1315" target="_blank">Release Notes</a></td>
+        <td>v1.32.8&#42;</td>
+        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.32.md#v1328" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
         <td>Metrics Server</td>
@@ -88,15 +87,15 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
         <td>Percona XtraDB Cluster (PXC)
         <br>(in BOSH&nbsp;pxc-release)</td>
         <td>v8.0.39-30
-        <br>pxc-release: v1.0.34</td>
+        <br>pxc-release: v1.0.42&#42;</td>
         <td style="text-align: center;">Release Notes:
         <br><a href="https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/8.0.39-30.html">PXC</a>
-        <br><a href="https://github.com/cloudfoundry/pxc-release/releases/tag/v1.0.34">pxc-release</a>
+        <br><a href="https://github.com/cloudfoundry/pxc-release/releases/tag/v1.0.42">pxc-release</a>
         </td>
     </tr>
     <tr>
         <td>UAA</td>
-        <td colspan=2>v77.26.0&#42;</td>
+        <td colspan=2>v77.20.8&#42;</td>
     </tr>
     <tr>
         <td>Velero</td>
@@ -108,7 +107,7 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Ubuntu Jammy stemcells</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.23</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>Windows stemcells</td>
@@ -119,7 +118,7 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>{{ vars.platform_name }}</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.23</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>VMware Aria Operations Management Pack for Kubernetes</td>
@@ -152,13 +151,13 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Installed Harbor Registry version</td>
-        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.11.0&os=&servicePk=&language=EN" target="_blank">v2.11.0</a></td>
-        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/release-notes.html#v2110-0">Release Notes</a></td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.11.0&os=&servicePk=&language=EN" target="_blank">v2.13.2</a></td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/release-notes.html#v2.13.2">Release Notes</a></td>
     </tr>
     <tr>
         <td>Ubuntu Jammy stemcell</td>
-        <td>v1.775&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.775" target="_blank">Release Notes</a></td>
+        <td>v1.906&#42;</td>
+        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.906" target="_blank">Release Notes</a></td>
     </tr>
 </table>
 
