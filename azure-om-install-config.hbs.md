@@ -37,8 +37,8 @@ see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
         <th>Version</th>
         <th>Instructions</th>
       </tr>
-      <tr>
-        <td>{{ vars.platform_name }} v3.0</td>
+        <tr>
+        <td>{{ vars.platform_name }} v3.1</td>
         <td>
           <ol>
             <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/azure-prepare-env-manual.html">Preparing to Deploy {{ vars.platform_name }} on Azure</a></li>
@@ -48,12 +48,12 @@ see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
         </td>
       </tr>
       <tr>
-        <td>{{ vars.platform_name }} v2.10</td>
+        <td>{{ vars.platform_name }} v3.0</td>
         <td>
           <ol>
-            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/azure-prepare-env-manual.html">Preparing to Deploy {{ vars.platform_name }} on Azure</a></li>
-            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/azure-deploy-manual.html">Deploying {{ vars.platform_name }} on Azure</a></li>
-            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/azure-config-manual.html">Configuring BOSH Director on Azure</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-prepare-env-manual.html">Preparing to Deploy {{ vars.platform_name }} on Azure</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-deploy-manual.html">Deploying {{ vars.platform_name }} on Azure</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-config-manual.html">Configuring BOSH Director on Azure</a></li>
           </ol>
         </td>
       </tr>

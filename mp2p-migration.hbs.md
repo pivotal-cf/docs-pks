@@ -382,47 +382,18 @@ To clean up after promoting all clusters:
 
 1. If your NSX Manager cluster was configured with VIP before you started MP2P Migration, restore your VIP configuration.
 
-1. To switch BOSH to Policy API mode:
-
-    * If you are using {{ vars.platform_name }} v3.0.0 or later:
+2. To switch BOSH to Policy API mode:
 
         1. Open your {{ vars.platform_name }} BOSH Director for vSphere tile to the **vCenter Config** pane.
 
-        1. Deactivate **Use NSX Policy API Migration Mode**.
+        2. Deactivate **Use NSX Policy API Migration Mode**.
 
-        1. Activate **Use NSX Policy API**.
+        3. Activate **Use NSX Policy API**.
 
-        1. Click **Save**.
+        4. Click **Save**.
 
-        1. On the {{ vars.platform_name }} **Installation Dashboard**, select **Review Pending Changes**.
+        5. On the {{ vars.platform_name }} **Installation Dashboard**, select **Review Pending Changes**.
 
-        1. Ensure that **BOSH Director** is the only product selected.
+        6. Ensure that **BOSH Director** is the only product selected.
 
-        1. Select **Apply Changes**.
-
-    * If you are using {{ vars.platform_name }} v2.10.45 or later:
-
-        1. Access the virtual machine where you ran the BOSH Migration Mode script when you prepared {{ vars.platform_name }} and BOSH for MP2P Migration.
-
-        1. Export the `BOSH_CLIENT`, `BOSH_CLIENT_SECRET`, `BOSH_ENVIRONMENT`, and `BOSH_CA_CERT`
-        environment variables. For more information, see
-        [Set the BOSH Environment Variables on the {{ vars.platform_name }} VM](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/install-trouble-advanced.html#export-bosh-envs)
-        in _Advanced Troubleshooting with the BOSH CLI_.
-
-            For example:
-
-            ```console
-            export BOSH_CLIENT=ops_manager  BOSH_CLIENT_SECRET=FHoiRmt3qq1LfbPncF4vAyxZWUSpqbZ-  BOSH_ENVIRONMENT=88.0.0.3 bosh  BOSH_CA_CERT=/var/tempest/workspaces/default/root_ca_certificate
-            ```
-
-        1. Run the following BOSH Migration Mode script command:
-
-            ```
-            ./bosh_migration_mode disable OPSMAN-IP USERNAME PASSWORD
-            ```
-
-            Where:
-
-            * `OPSMAN-IP` is the IP address for the {{ vars.platform_name }}.
-            * `USERNAME` is the account to use to run {{ vars.platform_name }} API commands.
-            * `PASSWORD` is the password for the account.
+        7. Select **Apply Changes**.

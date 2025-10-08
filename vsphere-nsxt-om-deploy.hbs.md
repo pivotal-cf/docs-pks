@@ -24,8 +24,8 @@ See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
 
 Review the known issues for your version of {{ vars.platform_name }}. See one of the following:
 
-* [{{ vars.platform_name }} v3.0 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html)
-* [{{ vars.platform_name }} v2.10 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/release-notes.html)
+* [{{ vars.platform_name }} v3.1 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html)
+* [{{ vars.platform_name }} v3.0 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html)
 
 ##<a id='ssh-key'></a>Step 1: Generate SSH Key Pair
 
@@ -42,7 +42,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAnZBapWsER/EO1hLYvV/rkZe78mUBueZGHx1kw+ByfNbL
 ## <a id="deploy-om"></a>Step 2: Deploy {{ vars.platform_name }} for {{  vars.product }}
 
 1. Before starting, refer to the [{{  vars.product }} Release Notes](release-notes.html) for supported {{ vars.platform_name }} versions for {{  vars.product }}.
-1. Before starting, refer to the known issues in the [{{ vars.platform_name }} v3.0 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html) or [{{ vars.platform_name }} Release v2.10 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/release-notes.html).
+1. Before starting, refer to the known issues in the [{{ vars.platform_name }} v3.1 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html) or [{{ vars.platform_name }} v3.0 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html).
 1. Download the [{{ vars.platform_name }} for vSphere](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Tanzu%20Operations%20Manager) installation
 file from the [Broadcom Support](https://support.broadcom.com).
     1. Open a browser to the [{{ vars.platform_name }}](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Tanzu%20Operations%20Manager) download page on the Broadcom Support.
