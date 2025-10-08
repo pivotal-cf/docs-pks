@@ -5,9 +5,6 @@ Applications hosted on GPU clusters access GPU functionality via Compute Unified
 
 To run NVIDIA vGPU worker nodes, see [Create vGPU Clusters](vgpu.html).
 
-VMware ESXi hosts let VMs directly access plugged-in GPU hardware via PCI passthrough as described in [GPU Device in PCI Passthrough](https://docs.vmware.com/en/VMware-Edge-Compute-Stack/3.0/ecs-enterprise-edge-ref-arch/GUID-412AD9B3-6B9B-4BE0-B833-9205ACBCF956.html) in the VMware Edge documentation.
-
-
 ## <a id="overview"></a> Overview
 
 To create a CUDA-enabled GPU cluster with TKGI on vSphere, you:
@@ -29,8 +26,8 @@ To create a CUDA-enabled GPU cluster with TKGI on vSphere, you:
 * ESXi hosts running vSphere 7.0 Update 3 or later
   * For ESXi I/O requirements, see [vSphere VMDirectPath I/O and Dynamic DirectPath I/O: Requirements for Platforms and Devices](https://knowledge.broadcom.com/external/article/312208/) in the Broadcom Support Knowledge Base.
   * Listed below are the builds for 7.0u3, which is the minimum required to support GPU clusters.
-      * [VMware vCenter Server 7.0 Update 3 | ISO Build 18700403](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-vcenter-server-703-release-notes.html).
-      * [VMware ESXi 7.0 Update 3c | ISO Build 19193900](https://docs.vmware.com/en/VMware-vSphere/7.0/rn/vsphere-esxi-70u3c-release-notes.html)
+      * VMware vCenter Server 7.0 Update 3 | ISO Build 18700403.
+      * VMware ESXi 7.0 Update 3c | ISO Build 19193900
 
 
 ## <a id="hardware"></a> Prepare the Hardware
@@ -146,7 +143,7 @@ For example, if you have two GPUs on every ESXi host that is hosting GPU workers
 ```
     pci_passthroughs:
     - vendor_id: 0x10de
-      device_id: 0x1db6 
+      device_id: 0x1db6
     - vendor_id: 0x10de
       device_id: 0x1db6
 ```

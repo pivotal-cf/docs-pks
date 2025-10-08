@@ -64,7 +64,7 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Harbor</td>
-        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.11.0&os=&servicePk=&language=EN" target="_blank">v2.13.2&#42;</a></td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.13.2&os=&servicePk=&language=EN" target="_blank">v2.13.2&#42;</a></td>
         <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/release-notes.html#v2.13.2" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
@@ -129,13 +129,13 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
         <td>VMware Cloud Foundation (VCF)</td>
         <td>v5.1.1, v5.1, v4.5.2</td>
         <td style="text-align: center;">Release Notes:
-            <a href="https://docs.vmware.com/en/VMware-Cloud-Foundation/5.1.1/rn/vmware-cloud-foundation-511-release-notes/index.html" target="_blank">v5.1.1</a>, <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2/vcf-release-notes/vmware-cloud-foundation-521-release-notes.html" target="_blank">v5.1</a>,
-            <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2/vcf-release-notes/vmware-cloud-foundation-521-release-notes.html" target="_blank">v4.5.2</a>
+            <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-1/vcf-release-notes/vmware-cloud-foundation-511-release-notes.html" target="_blank">v5.1.1</a>, <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-1/vcf-release-notes/vmware-cloud-foundation-51-release-notes.html" target="_blank">v5.1</a>,
+            <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/4-5/vcf-release-notes/vmware-cloud-foundation-452-release-notes.html" target="_blank">v4.5.2</a>
         </td>
     </tr>
     <tr>
         <td>VMware NSX&#42;&#42;</td>
-        <td rowspan=2 colspan=2>See <a href="https://interopmatrix.vmware.com/Interoperability?col=644&row=0," target="_blank">VMware Product Interoperability Matrices</a>&#42;&#42;&#42;.</td>
+        <td rowspan=2 colspan=2>See <a href="https://interopmatrix.broadcom.com/Interoperability?col=644,&row=912," target="_blank">VMware Product Interoperability Matrices</a>&#42;&#42;&#42;.</td>
     </tr>
     <tr>
         <th colspan=3><h4>Management Console (vSphere)</h4></th>
@@ -151,7 +151,7 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Installed Harbor Registry version</td>
-        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.11.0&os=&servicePk=&language=EN" target="_blank">v2.13.2</a></td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.13.2&os=&servicePk=&language=EN" target="_blank">v2.13.2</a></td>
         <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/release-notes.html#v2.13.2">Release Notes</a></td>
     </tr>
     <tr>

@@ -62,7 +62,7 @@ With {{  vars.product }} on vSphere, you can choose one of two storage options t
 * vSAN datastores
 * Network File Share (NFS) or VMFS over Internet Small Computer Systems Interface (iSCSI), or fiber channel (FC) datastores
 
-Refer to the [vSAN documentation](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.virtualsan.doc/GUID-AEF15062-1ED9-4E2B-BA12-A5CE0932B976.html) and the [VMFS documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/6-7/vsphere-storage-6-7/working-with-datastores-in-vsphere-storage-environment/vsphere-vmfs-datastore-concepts-and-operations.html) for more information about these storage options.
+Refer to the [vSphere Storage](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-storage-8-0.html) for more information about these storage options.
 
 <p class="note"><strong>Note</strong>: This topic assumes that you have strong familiarity vSAN and VMFS storage technologies on the vSphere platform.</p>
 
