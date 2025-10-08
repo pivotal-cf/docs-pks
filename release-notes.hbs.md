@@ -28,8 +28,8 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
         <th colspan=3><h4>Internal Component Versions</h4></th>
     </tr>
     <tr>
-        <td>Antrea0&#42;</td>
-        <td>v1.11.0</td>
+        <td>Antrea</td>
+        <td>v1.11.0&#42;</td>
         <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/container-networking/1-x/release-notes/vmware-container-networking-with-antrea-1110-release-notes.html" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
