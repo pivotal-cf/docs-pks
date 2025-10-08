@@ -316,7 +316,7 @@ It might take approximately 90 minutes for BOSH to start properly.
 To speed up the BOSH startup process:
 
 1. Obtain the BOSH Director VM Credentials from {{ vars.platform_name }}. For information about doing this, see
-[Retrieving Credentials from Your Deployment](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-credentials.html) in the {{ vars.platform_name }} documentation.
+[Retrieving Credentials from Your Deployment](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-credentials.html) in the {{ vars.platform_name }} documentation.
 1. SSH to the BOSH Director VM.
 1. On the BOSH Director VM, run the following commands:
 

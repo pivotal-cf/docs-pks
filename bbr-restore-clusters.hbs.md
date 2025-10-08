@@ -104,7 +104,7 @@ To redeploy all clusters:
 This errand redeploys all your TKGI-provisioned clusters.
 1. Return to the **Installation Dashboard**.
 1. Click **Review Pending Changes**, review your changes, and then click **Apply Changes**.
-For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 
 #### <a id='redeploy-single-cluster'></a> Redeploy a Single Kubernetes Cluster
 

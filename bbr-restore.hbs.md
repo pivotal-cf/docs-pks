@@ -136,7 +136,7 @@ You can import installation settings in two ways:
 
         * `OPS-MAN-FQDN` is the fully-qualified domain name (FQDN) for your {{ vars.platform_name }} deployment.
         * `UAA-ACCESS-TOKEN` is the UAA access token. For more information about how to retrieve this token,
-        see [Using the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html).
+        see [Using the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-ops-man-api.html).
         * `DECRYPTION-PASSPHRASE` is the decryption passphrase in use when you exported the installation
         settings from {{ vars.platform_name }}.
 
@@ -173,7 +173,7 @@ restore data, as long as adequate storage space to restore the data exists.
 ### <a id="bosh-state"></a> Remove BOSH State File
 
 1. SSH into your {{ vars.platform_name }} VM. For more information, see the
-[Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh)
+[Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html#ssh)
 section of the _Advanced Troubleshooting with the BOSH CLI_ topic.
 
 1. To delete the `/var/tempest/workspaces/default/deployments/bosh-state.json` file, run the following on the {{ vars.platform_name }} VM:
@@ -317,7 +317,7 @@ Do either the following procedures to determine the stemcell that TKGI uses:
     stemcells, where one stemcell is Linux and the other stemcell is Windows.
 </p>
 
-For more information about stemcells in {{ vars.platform_name }}, see [Importing and Managing Stemcells](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/opsguide-managing-stemcells.html).
+For more information about stemcells in {{ vars.platform_name }}, see [Importing and Managing Stemcells](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/opsguide-managing-stemcells.html).
 
 ### <a id='upload-stemcell'></a> Upload Stemcells
 
@@ -362,7 +362,7 @@ when the backup you are restoring was created.
 
 1. Click **Review Pending Changes**.
 
-1. Review your changes. For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+1. Review your changes. For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 
 1. Click **Apply Changes** to redeploy the control plane.
 
@@ -447,7 +447,7 @@ To redeploy all clusters:
 This errand redeploys all your TKGI-provisioned clusters.
 1. Return to the **Installation Dashboard**.
 1. Click **Review Pending Changes**, review your changes, and then click **Apply Changes**.
-For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 
 #### <a id='redeploy-single-cluster'></a> Redeploy a Single Cluster
 

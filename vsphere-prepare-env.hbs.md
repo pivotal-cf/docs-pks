@@ -312,7 +312,7 @@ you have one account for {{ vars.app_runtime }} and a separate account for TKGI.
 There are two options for granting permissions to the BOSH/{{ vars.platform_name }} Service Accounts:
 
 * Grant minimal permissions. Grant each BOSH/{{ vars.platform_name }} User Account the minimum required permissions as described in
-[vSphere Service Account Requirements](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-vsphere-service-account.html).
+[vSphere Service Account Requirements](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-vsphere-service-account.html).
 * Grant Administrator Role permissions. Apply the default VMware Administrator Role to each BOSH/{{ vars.platform_name }} Service Account as described in
 [vCenter Server System Roles](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/vcenter-server-system-roles.html)
 .

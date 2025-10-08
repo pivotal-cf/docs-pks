@@ -24,8 +24,8 @@ See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
 
 Review the known issues for your version of {{ vars.platform_name }}. See one of the following:
 
+* [{{ vars.platform_name }} v3.1 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html)
 * [{{ vars.platform_name }} v3.0 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html)
-* [{{ vars.platform_name }} v2.10 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/release-notes.html)
 
 ##<a id='ssh-key'></a>Step 1: Generate SSH Key Pair
 
@@ -42,7 +42,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAnZBapWsER/EO1hLYvV/rkZe78mUBueZGHx1kw+ByfNbL
 ## <a id="deploy-om"></a>Step 2: Deploy {{ vars.platform_name }} for {{  vars.product }}
 
 1. Before starting, refer to the [{{  vars.product }} Release Notes](release-notes.html) for supported {{ vars.platform_name }} versions for {{  vars.product }}.
-1. Before starting, refer to the known issues in the [{{ vars.platform_name }} v3.0 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html) or [{{ vars.platform_name }} Release v2.10 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/release-notes.html).
+1. Before starting, refer to the known issues in the [{{ vars.platform_name }} v3.1 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html) or [{{ vars.platform_name }} v3.0 Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html).
 1. Download the [{{ vars.platform_name }} for vSphere](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Tanzu%20Operations%20Manager) installation
 file from the [Broadcom Support](https://support.broadcom.com).
     1. Open a browser to the [{{ vars.platform_name }}](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Tanzu%20Operations%20Manager) download page on the Broadcom Support.
@@ -115,13 +115,13 @@ After the OVA deployment completes successfully, right-click the {{ vars.platfor
 
 ## <a id="config-om"></a>Step 3: Configure {{ vars.platform_name }} for {{  vars.product }}
 
-The first time that you start {{ vars.platform_name }}, you must select an authentication system. These instructions use <strong>Internal Authentication</strong>. For configuration details for the <strong>SAML</strong> and <strong>LDAP</strong> options, see [Logging Into {{ vars.platform_name }} with Auth](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/login.html#internal) in the {{ vars.platform_name }} documentation.
+The first time that you start {{ vars.platform_name }}, you must select an authentication system. These instructions use <strong>Internal Authentication</strong>. For configuration details for the <strong>SAML</strong> and <strong>LDAP</strong> options, see [Logging Into {{ vars.platform_name }} with Auth](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/login.html#internal) in the {{ vars.platform_name }} documentation.
 
 1. If you are using the <a href="nsxt-topologies.html#topology-nat">NAT deployment topology</a>, create a DNAT rule that maps the {{ vars.platform_name }} private IP to a routable IP. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_
  for instructions.</p>
 
 1. If you are using the <a href="nsxt-topologies.html">No-NAT deployment topology</a>, create a DNS entry for the routable IP address that you set for {{ vars.platform_name }}. Use FQDN to log into {{ vars.platform_name }}.
-  <p class="note"><strong>Note</strong>: {{ vars.platform_name }} security features require you to create a fully qualified domain name to access {{ vars.platform_name }}. See <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-vsphere.html">Installing {{ vars.platform_name }} on vSphere</a>.</p>
+  <p class="note"><strong>Note</strong>: {{ vars.platform_name }} security features require you to create a fully qualified domain name to access {{ vars.platform_name }}. See <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-vsphere.html">Installing {{ vars.platform_name }} on vSphere</a>.</p>
 
 1. Navigate to the IP address (NAT mode) or FQDN (No-NAT mode) of your {{ vars.platform_name }} VM in a web browser. Confirm the "Welcome to {{ vars.platform_name }}" page displays.
   <p class="note"><strong>Note</strong>: It is normal to experience a brief delay before the interface is accessible while the web server and VM start up.</p>
@@ -130,7 +130,7 @@ The first time that you start {{ vars.platform_name }}, you must select an authe
 1. Select **Internal Authentication** and provide the following information:
    * **Username**, **Password**, and **Password confirmation** to create a user with administrative privileges.
    * **Decryption passphrase** and the **Decryption passphrase confirmation**. This passphrase encrypts the {{ vars.platform_name }} datastore, and is not recoverable.
-   * **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-pcf-director-proxy-settings.html).
+   * **HTTP proxy** or **HTTPS proxy**, follow the instructions in [Configuring Proxy Settings for the BOSH CPI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-pcf-director-proxy-settings.html).
 
 1. Read the **End User License Agreement**, and select the check box to accept the terms.
 

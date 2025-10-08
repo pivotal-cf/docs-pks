@@ -16,7 +16,7 @@ Before running BBR, verify that the installed version of BBR is compatible with 
 your TKGI tile is on:
 
 1. To determine the {{ vars.platform_name }} BBR version requirements,
-see the [{{ vars.platform_name }} Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html)
+see the [{{ vars.platform_name }} Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html)
 for the version of {{ vars.platform_name }} you are using.
 
 1. To verify the currently installed BBR version, run the following command:
@@ -52,7 +52,7 @@ To retrieve your BBR SSH Credentials using the {{ vars.platform_name }} Installa
 To retrieve your BBR SSH Credentials using the {{ vars.platform_name }} API:
 
 1. Obtain your UAA access token. For more information,
-see [Access the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html#access).
+see [Access the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-ops-man-api.html#access).
 1. Retrieve the **Bbr Ssh Credentials** by running the following command:
 
     ```
@@ -110,7 +110,7 @@ To retrieve your BOSH Director credentials using the {{ vars.platform_name }} In
 To retrieve your BOSH Director credentials using the {{ vars.platform_name }} API, perform the following steps:
 
 1. Obtain your UAA access token. For more information, see
-[Access the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-ops-man-api.html#access).
+[Access the {{ vars.platform_name }} API](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-ops-man-api.html#access).
 1. Retrieve the **Director Credentials** by running the following command:
 
     ```

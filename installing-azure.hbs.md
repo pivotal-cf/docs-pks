@@ -96,7 +96,7 @@ To configure your Kubernetes cloud provider settings, follow the procedures belo
 1. Enter **Location**. This is the location of the resource group that the cluster is deployed in.
 
     1. If you do not already know the valid location value for your resource group, determine it:
-        1. You set the location name in [Step 1: Create Network Resources](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/azure-deploy-manual.html#network)
+        1. You set the location name in [Step 1: Create Network Resources](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/azure-deploy-manual.html#network)
         in _Deploying {{ vars.platform_name }} on Azure Manually_.
         1. The location name property is a lower-case string without spaces.
         For example, if your resource group location is `Central US`,

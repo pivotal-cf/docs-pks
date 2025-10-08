@@ -52,7 +52,7 @@ For general information about the jump box, see [Installing BOSH Backup and Rest
 To connect to your jump box with SSH, do one of the following:
 
 + **If you are using the {{ vars.platform_name }} VM as your jump box, log in to the {{ vars.platform_name }} VM.** See
-    [Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
+    [Log in to the {{ vars.platform_name }} VM with SSH](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html#ssh) in _Advanced Troubleshooting with the BOSH CLI_.
     <br><br>
 + **If you want to connect to your jump box using the command line, run the following
  command:**

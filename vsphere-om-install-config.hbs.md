@@ -44,20 +44,20 @@ see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/produc
         <th>Instructions</th>
       </tr>
       <tr>
+        <td>{{ vars.platform_name }} v3.1</td>
+        <td>
+          <ol>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-deploy.html">Deploying {{ vars.platform_name }} on vSphere</a></li>
+            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html">Configuring BOSH Director on vSphere</a></li>
+          </ol>
+        </td>
+      </tr>
+      <tr>
         <td>{{ vars.platform_name }} v3.0</td>
         <td>
           <ol>
             <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-deploy.html">Deploying {{ vars.platform_name }} on vSphere</a></li>
             <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-config.html">Configuring BOSH Director on vSphere</a></li>
-          </ol>
-        </td>
-      </tr>
-      <tr>
-        <td>{{ vars.platform_name }} v2.10</td>
-        <td>
-          <ol>
-            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/vsphere-deploy.html">Deploying {{ vars.platform_name }} on vSphere</a></li>
-            <li><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/2-10/tanzu-ops-manager/vsphere-config.html">Configuring BOSH Director on vSphere</a></li>
           </ol>
         </td>
       </tr>

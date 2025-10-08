@@ -77,7 +77,7 @@ The TKGI API VM requires more resources.
 1. Click the **Installation Dashboard** link to return to the Installation Dashboard.
 
 1. Click **Review Pending Changes**. Review the changes that you made. For more
-information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 1. Click **Apply Changes**.
 
 <hr>
@@ -361,7 +361,7 @@ Perform the following steps to configure {{ vars.platform_name }} to run post-de
 1. Click the **Installation Dashboard** link to return to the Installation Dashboard.
 
 1. Click **Review Pending Changes**. Review the changes that you made. For more
-information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 
 1. Click **Apply Changes**.
 
@@ -635,7 +635,7 @@ Perform the following steps to configure {{ vars.platform_name }} to run post-de
 1. Click the **Installation Dashboard** link to return to the Installation Dashboard.
 
 1. Click **Review Pending Changes**. Review the changes that you made. For more
-information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-review-pending-changes.html).
 
 1. Click **Apply Changes**.
 

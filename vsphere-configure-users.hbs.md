@@ -36,7 +36,7 @@ To SSH into the {{ vars.platform_name }} VM on vSphere, do the following:
 
 1. Locate the credentials that were used to import the {{ vars.platform_name }} `.ova` or `.ovf` file into your virtualization system.
 You configured these credentials when you installed {{ vars.platform_name }} and used them to complete the
-[Prepare vSphere](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/vsphere-deploy.html#prepare-vsphere)
+[Prepare vSphere](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-deploy.html#prepare-vsphere)
 steps in _Deploying {{ vars.platform_name }} on vSphere_.
 
 1. Change the permissions for your private SSH key by running the following command:
