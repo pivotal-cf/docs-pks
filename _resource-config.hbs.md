@@ -1,11 +1,11 @@
 For each job, review the **Automatic** values in the following fields:
   * **INSTANCES**: {{  vars.product }} defaults to the minimum configuration.
-  If you want a highly available configuration (beta), scale the number of VM instances as follows:
-      1. To configure your {{  vars.product }} database for high availability (beta),
+  If you want a highly available configuration, scale the number of VM instances as follows:
+      1. To configure your {{  vars.product }} database for high availability,
       increase the **INSTANCES** value for **TKGI Database** to `3`.
-      1. To configure your {{  vars.product }} API and UAA for high availability (beta),
+      2. To configure your {{  vars.product }} API and UAA for high availability,
       increase the **INSTANCES** value for **TKGI API** to `2` or more.
-      <p class="note warning"><strong>Warning:</strong> High availability mode is a beta feature. Do not scale your <strong>TKGI API</strong> or <strong>TKGI Database</strong> to more than one instance in production environments.</p>
+
       {{# evalExpression "current_page.data.iaas == 'Azure'"}}
         <p class="note"><strong>Note</strong>: On Azure, you must reconfigure your
         TKGI API load balancer backend pool
