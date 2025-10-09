@@ -8,7 +8,7 @@ This topic lists all of the Common Vulnerabilities and Exposures (CVE) fixed in{
 
 <!-- - [v1.23.0 Security Fixes](#1-23-0) -->
 
-## <a id="1-23-0"></a> v{{{ vars.product_version }}}.0 Security Fixes
+## <a id="1-23-0"></a> {{{ vars.product_version }}}.0 Security Fixes
 
 <!-- The following table lists CVEs that were fixed in each TKGI component since the previous {{{ vars.product_version }}} patch version.-->
 
