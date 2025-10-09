@@ -195,6 +195,8 @@ TKGI v1.23.0 includes the following new features and enhancements:
 
 - Added support for {{ vars.platform_name }} 3.1.
 - Added support for customizing etcd `quota-backend-bytes` parameter through Kubernetes profiles. For information, see [Set etcd Quota Backend Bytes](./k8s-profiles.hbs.md#etcd-quota).
+- Resolved CVEs listed in [Security Fixes](./cve.hbs.md).
+- Bugs fixes listed in Resolved Issues below.
 
 ### <a id="1-23-0-bug-fixes"></a>Resolved Issues
 
