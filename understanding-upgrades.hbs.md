@@ -161,13 +161,13 @@ Note the following when upgrading the TKGI control plane:
 
 * Upgrading the TKGI control plane includes upgrading the
 TKGI API server, UAA server, and the TKGI database.
-* If the TKGI installation is not scaled for high availability (beta), the control plane upgrade causes temporary outages as described in [Control Plane Outages](#outages) below.
+* If the TKGI installation is not scaled for high availability, the control plane upgrade causes temporary outages as described in [Control Plane Outages](#outages) below.
 * The control plane upgrade will halt if a control plane canary instance encounters an error.
 For more information, see [Canary Instances](#canary) below.
 
 ### <a name="outages"></a> Control Plane Outages
 
-When the TKGI control plane is not scaled for high availability (beta), upgrading the control plane temporarily interrupts the following:
+When the TKGI control plane is not scaled for high availability, upgrading the control plane temporarily interrupts the following:
 
 * Logging in to the TKGI CLI and using all `tkgi` commands.
 * Using the TKGI API to retrieve information about clusters.
@@ -177,7 +177,7 @@ When the TKGI control plane is not scaled for high availability (beta), upgradin
 These outages do not affect the Kubernetes clusters themselves.
 During a TKGI control plane upgrade, you can still interact with clusters and their workloads using the Kubernetes Command Line Interface, `kubectl`.
 
-For more information about the TKGI control plane and high availability (beta), see [TKGI Control Plane Overview](control-plane.html#control-plane) in _{{  vars.product }} Architecture_.
+For more information about the TKGI control plane and high availability, see [TKGI Control Plane Overview](control-plane.html#control-plane) in _{{  vars.product }} Architecture_.
 
 ### <a name="canary"></a>Canary Instances
 

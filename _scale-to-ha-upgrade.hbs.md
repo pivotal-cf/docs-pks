@@ -1,12 +1,3 @@
-<div class="note warning"><strong>Warning:</strong><br><br>
-    <ul>
-        <li>High availability mode is a beta feature.
-        Do not scale your <strong>TKGI API</strong> or <strong>TKGI Database</strong> to more than one instance in production environments.</li>
-        <li>Configure {{  vars.product }} for high availability
-        only after completing the {{  vars.product }} v1.7 upgrade.</p>
-        </li>
-    </ul>
-</div>
 
 1. In the **{{  vars.product }}** tile, click **Resource Config**.
 
