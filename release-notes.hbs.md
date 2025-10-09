@@ -205,6 +205,8 @@ TKGI v1.23.0 resolves the following issues:
 * <a id="TKGI-8202"></a> Increased the permitted length of CN names for Server Name Indication (SNI) certificates for NSX.
 * <a id="TKGI-8095"></a> Fixed issue in which backups fail when using Velero 1.15.2 with the AWS plugin v1.11.1.
 * <a id="TKGI-8285"></a> Fixed issue in which NAT mode and Policy API are enabled, but NAT rules in NSX are created with Manager API only, not with Policy.
+* <a id="TKGI-7840"></a> Kubernetes pod fails to start with a `failed to setup network for sandbox` error. This was due to a rotation issue with the certificate that NCP uses to communicate with NSX. Now you can update clusters and fix certificate issues later.
+* <a id="TKGI-8268"></a> Increased the client side timeout for NSX API calls. This resolves an issue in which cluster upgrades failed to upgrade with the following error on the master node: `pks-nsx-t-prepare-master-vm job has failed with context deadline exceeded`.
 
 <hr>
 
