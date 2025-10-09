@@ -204,6 +204,7 @@ TKGI v1.23.0 resolves the following issues:
 
 * <a id="TKGI-8202"></a> Increased the permitted length of CN names for Server Name Indication (SNI) certificates for NSX.
 * <a id="TKGI-8095"></a> Fixed issue in which backups fail when using Velero 1.15.2 with the AWS plugin v1.11.1.
+* <a id="TKGI-8285"></a> Fixed issue in which NAT mode and Policy API are enabled, but NAT rules in NSX are created with Manager API only, not with Policy.
 
 <hr>
 
