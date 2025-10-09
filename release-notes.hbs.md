@@ -195,12 +195,16 @@ TKGI v1.23.0 includes the following new features and enhancements:
 
 - Added support for {{ vars.platform_name }} 3.1.
 - Added support for customizing etcd `quota-backend-bytes` parameter through Kubernetes profiles. For information, see [Set etcd Quota Backend Bytes](./k8s-profiles.hbs.md#etcd-quota).
+- Resolved CVEs listed in [Security Fixes](./cve.hbs.md).
+- Bugs fixes listed in Resolved Issues below.
 
 ### <a id="1-23-0-bug-fixes"></a>Resolved Issues
 
 TKGI v1.23.0 resolves the following issues:
 
-* <a id="TKGI-1234"></a> Description.
+* <a id="TKGI-8202"></a> Increased the permitted length of CN names for Server Name Indication (SNI) certificates for NSX.
+* <a id="TKGI-8095"></a> Fixed issue in which backups fail when using Velero 1.15.2 with the AWS plugin v1.11.1.
+* <a id="TKGI-8285"></a> Fixed issue in which NAT mode and Policy API are enabled, but NAT rules in NSX are created with Manager API only, not with Policy.
 
 <hr>
 

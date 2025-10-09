@@ -1,5 +1,6 @@
 *   [{{  vars.product_full }}](./index.html)
 *   [Release Notes](./release-notes.html)
+    *   [Security Fixes](./cve.hbs.md)
 *   [TKGI Concepts](./concepts.html)
     *   [Architecture](./control-plane.html)
     *   [About Upgrades](./understanding-upgrades.html)
