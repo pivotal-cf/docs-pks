@@ -14,7 +14,7 @@ To enable an HTTP proxy for outgoing HTTP/HTTPS traffic from {{ vars.platform_na
 1. Under **No Proxy**, include the hosts that must bypass the proxy. This is required.
 	<br><br>
 	In addition to `127.0.0.1` and `localhost`, include the BOSH Director IP, {{ vars.platform_name }} IP, TKGI API VM IP, and the TKGI Database VM IP.
-	If the TKGI Database is in HA mode (beta), enter all your database IPs in the **No Proxy** field.
+	If the TKGI Database is in HA mode, enter all your database IPs in the **No Proxy** field.
 
 	```
 	127.0.0.1,localhost,BOSH-DIRECTOR-IP,TKGI-API-IP,OPS-MANAGER-IP,TKGI-DATABASE-IP
@@ -23,8 +23,8 @@ To enable an HTTP proxy for outgoing HTTP/HTTPS traffic from {{ vars.platform_na
 	<p class="note"><strong>Note</strong>: {{ vars.platform_name }} does not allow the use of a CIDR range in the <strong>No Proxy</strong> field. You must specify each individual IP address to bypass the proxy.<br><br>
 	The <strong>No Proxy</strong> field does not accept wildcard domain notation, such as <code>*.docker.io</code> and <code>*.docker.com</code>. You must specify the exact IP or FQDN to bypass the proxy, such as <code>registry-1.docker.io</code>.</p>
 
-1. Click **Save**.
+2. Click **Save**.
 
-1. Return to the {{ vars.platform_name }} Installation Dashboard and click **Review Pending Changes**.
+3. Return to the {{ vars.platform_name }} Installation Dashboard and click **Review Pending Changes**.
 
-1. Click **Apply Changes** to deploy {{ vars.platform_name }} and the BOSH Director with the updated proxy settings.
+4. Click **Apply Changes** to deploy {{ vars.platform_name }} and the BOSH Director with the updated proxy settings.

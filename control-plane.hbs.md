@@ -122,20 +122,16 @@ These data-related functions persist TKGI Control Plane data for the the followi
 
 {{  vars.product }} can be configured for TKGI Control Plane and workload high availability.
 
-####<a id="control-plane-ha"></a>TKGI Control Plane High Availability Mode (Beta)
+####<a id="control-plane-ha"></a>TKGI Control Plane High Availability Mode
 
-The TKGI Control Plane can be configured in either standard or high availability (beta) modes.
+The TKGI Control Plane can be configured in either standard or high availability modes.
 
 * In standard mode:
     * The TKGI API is hosted on the `pivotal-container-service` VM.
     * The TKGI Database is hosted on the `pks-db` VM.
-* In high availability mode (beta):
+* In high availability mode:
     * The TKGI API is hosted on multiple `pivotal-container-service` VMs.
     * The TKGI Database is hosted on three `pks-db` VMs.
-<p class="note warning"><strong>Warning:</strong> High availability mode is a beta feature.
-	Do not scale your <strong>TKGI API</strong> or <strong>TKGI Database</strong>
-	to more than one instance in production environments.
-</p>
 
 The following illustrates the interaction between {{  vars.product }} components in high availability mode:
 <br>
