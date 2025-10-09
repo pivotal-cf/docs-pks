@@ -91,7 +91,7 @@ Perform the following steps to rename a vSphere cluster:
 
    ![Pending BOSH changes](./images/pending-changes-bosh.png)
 
-   ~[Pending BOSH changes](./images/pending-changes-tkgi.png)
+   ![Pending BOSH changes](./images/pending-changes-tkgi.png)
 
    Similar pending changes can be seen by running `watch -n 5 bosh tasks --recent -a` again, or in the {{ vars.platform_name }} change log.
 
