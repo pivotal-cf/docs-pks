@@ -202,7 +202,7 @@ TKGI v1.23.0 includes the following new features and enhancements:
 
 TKGI v1.23.0 resolves the following issues:
 
-* <a id="TKGI-1234"></a> Description.
+* <a id="TKGI-8202"></a> Increased the permitted length of CN names for Server Name Indication (SNI) certificates for NSX.
 
 <hr>
 
