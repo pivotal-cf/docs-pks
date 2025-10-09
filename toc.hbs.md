@@ -138,6 +138,7 @@
             *   [Using Compute Profiles](./compute-profiles-use.html)
             *   [Using vSphere Host Groups](./vsphere-host-group.html)
     *   [Changing Infrastructure Passwords](./password-management.html)
+    *   [Updating TKGi and BOSH After Renaming a vSphere Cluster](./rename-vsphere-cluster.hbs.md)
     *   [Configuring VMware Tanzu Service Mesh by VMware NSX](./nsxt-service-mesh.html)
     *   [Migrating to a New Datastore](./move-cp.html)
     *   [Shutting Down and Restarting](./shutdown-startup.html)

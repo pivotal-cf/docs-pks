@@ -196,6 +196,7 @@ TKGI v1.23.0 includes the following new features and enhancements:
 - Full support for using the TKGI API and TKGI Database in High Availability mode. Both were previously beta features.
 - Support for {{ vars.platform_name }} 3.1.
 - Support for customizing etcd `quota-backend-bytes` parameter through Kubernetes profiles. For information, see [Set etcd Quota Backend Bytes](./k8s-profiles.hbs.md#etcd-quota).
+- Validated the procedure to update TKGI after renaming a vSphere cluster. For information, see [Updating TKGi and BOSH After Renaming a vSphere Cluster](./rename-vsphere-cluster.hbs.md).
 - Resolved CVEs listed in [Security Fixes](./cve.hbs.md).
 - Bugs fixes listed in Resolved Issues below.
 
