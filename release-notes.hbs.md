@@ -203,6 +203,7 @@ TKGI v1.23.0 includes the following new features and enhancements:
 TKGI v1.23.0 resolves the following issues:
 
 * <a id="TKGI-8202"></a> Increased the permitted length of CN names for Server Name Indication (SNI) certificates for NSX.
+* <a id="TKGI-8095"></a> Fixed issue in which backups fail when using Velero 1.15.2 with the AWS plugin v1.11.1.
 
 <hr>
 
