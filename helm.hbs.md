@@ -9,8 +9,7 @@ and use Helm with {{  vars.product_full }} ({{ vars.product_short }}) and TKGI-p
 
 ## <a id='overview'></a> Overview
 
-Helm is a package manager you can use to deploy TKGI components, such as Wavefront,
-and your TKGI Kubernetes apps.
+Helm is a package manager you can use to deploy TKGI components and your TKGI Kubernetes apps.
 
 You can use Helm to install software to Kubernetes clusters deployed by TKGI.
 
@@ -123,9 +122,6 @@ To deploy a third-party component on Artifact HUB to a TKGI cluster:
 [Artifact HUB](https://artifacthub.io/packages/search?page=1&official=true).
 
 1. Complete the deployment instructions for the component.
-
-For specific instructions on deploying Wavefront, which you might need to do for Windows worker-based clusters,
-see the [Wavefront](windows-monitoring.html#wavefront) section of the _Monitoring Windows Worker Clusters and Nodes_ topic.
 
 ### <a id='helm-diy'></a> Deploy Your Own Apps
 

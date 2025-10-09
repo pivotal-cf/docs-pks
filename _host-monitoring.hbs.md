@@ -24,7 +24,7 @@ You can configure one or more of the following:
 * **VMware vRealize Log Insight (vRLI) Integration**: To configure VMware vRealize Log Insight (vRLI) Integration, see [VMware vRealize Log Insight Integration](#vrealize-logs) below.
 The vRLI integration pulls logs from all BOSH jobs and containers running in the cluster, including node logs from core Kubernetes and BOSH processes, Kubernetes event logs, and pod `stdout` and `stderr`.
 {{/ evalExpression }}
-* **Telegraf**: To configure Telegraf, see [Configuring Telegraf in TKGI](monitor-etcd.html). The Telegraf agent sends metrics from TKGI API, control plane node, and worker node VMs to a monitoring service, such as Wavefront or Datadog.
+* **Telegraf**: To configure Telegraf, see [Configuring Telegraf in TKGI](monitor-etcd.html). The Telegraf agent sends metrics from TKGI API, control plane node, and worker node VMs to a monitoring service, such as Datadog.
 
 For more information about these components, see
 [Monitoring TKGI and TKGI-Provisioned Clusters](host-monitoring.html).

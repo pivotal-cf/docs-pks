@@ -34,7 +34,7 @@ TKGI deployment:
 1. Enable one or more supported components and integrations in the **{{  vars.product }}** tile >
 **In-Cluster Monitoring**. For more information about supported components and integrations, see [Monitoring Components and Integrations](#integrations) below.
 
-1. To activate TKGI sink resources, Wavefront, or vRealize Operations integration,
+1. To activate TKGI sink resources or vRealize Operations integration,
 follow the instructions in _In-Cluster Monitoring_ for your IaaS:
 
     * [Installing {{  vars.product }} on vSphere](installing-vsphere.html#cluster-monitoring)
@@ -45,9 +45,6 @@ follow the instructions in _In-Cluster Monitoring_ for your IaaS:
 1. To configure a monitoring integration:
 
     * **Sink Resources**: [Sink Resources](#sinks)
-    * **Wavefront**:
-        * [{{  vars.product_full }} Integration](https://docs.wavefront.com/tkgi.html)
-        * [Creating and Managing Sink Resources](create-sinks.html)
     * **VMware vRealize Operations Management Pack for Container Monitoring**:
         * [cAdvisor](https://github.com/google/cadvisor)
         * [VMware vRealize Operations Management Pack for Container Monitoring](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations-for-integrations/2-2/vrealize--operations-management-pack--for-pack-for-kubernetes-2-2/getting-started-with-vmware-aria-operations-management-pack-for-kubernetes.html)
@@ -82,12 +79,6 @@ TKGI deployment:
     <td>Sink resources</td>
     <td>TKGI component</td>
     <td>See <a href="#sinks">Sink Resources</a>, below.</td>
-  </tr>
-  <tr>
-    <td>Wavefront</td>
-    <td>External integration</td>
-    <td>See <a href="https://docs.wavefront.com/tkgi.html">{{  vars.product_full }} Integration</a> in the Wavefront documentation.<br /><br />
-    Or send metrics to Wavefront with a <a href="create-sinks.html">metric sink</a>.</td>
   </tr>
   <tr>
     <td>VMware Aria Operations Management Pack for Kubernetes</td>

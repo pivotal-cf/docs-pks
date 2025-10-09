@@ -10,7 +10,7 @@ This topic describes how to configure Telegraf in
 
 You can configure Telegraf to collect metrics from TKGI API,
 control plane node, and worker node VMs and send the metrics to a monitoring service,
-such as Wavefront or Datadog.
+such as Datadog.
 
 For more information about collected metrics, see
 [Metrics: Telegraf](host-monitoring.html#telegraf) in

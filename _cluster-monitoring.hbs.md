@@ -15,7 +15,6 @@ For more information, see
 
 To configure in-cluster monitoring:
 
-* To configure Wavefront, see [Wavefront](#wavefront).
 {{# evalExpression "current_page.data.iaas == 'vSphere' || current_page.data.iaas == 'vSphere-NSX-T'"}}
 * To configure cAdvisor, see
 [VMware vRealize Operations Management Pack for Container Monitoring](#realize).
@@ -27,35 +26,6 @@ To configure in-cluster monitoring:
   * [Log Sink Resources](#log-sinks)
 
     You can enable both log and metric sink resources or only one of them.
-
-####<a id='wavefront'></a> Wavefront
-
-You can monitor Kubernetes clusters and pods metrics externally using the integration with <a href="https://docs.wavefront.com">Wavefront by VMware</a>.
-
-> **Note** Wavefront integration in TKGI has been deprecated.
-
-**Prerequisites**
-
-Before you configure Wavefront integration, you must have an active Wavefront account and access to a Wavefront instance. You provide your Wavefront access token during configuration.
-For additional information, see the [Wavefront documentation](https://docs.wavefront.com/integrations_tkgi.html).
-
-To use Wavefront with Windows worker-based clusters, developers must install Wavefront to their clusters manually, using Helm.
-
-**Procedure**
-
-To enable and configure Wavefront monitoring:
-
-1. In the {{  vars.product }} tile, select **In-Cluster Monitoring**.
-1. Under **Wavefront Integration**, select **Yes**.
-1. Under **Wavefront URL**, enter the URL of your Wavefront subscription. For example:
-    ```console
-    https://try.wavefront.com/api
-    ```
-1. Under **Wavefront Access Token**, enter the API token for your Wavefront subscription.
-1. (Optional) For installations that require a proxy server for outbound Internet access, enable access by entering values for **HTTP Proxy Host**, **HTTP Proxy Port**, **Proxy username**, and **Proxy password**.
-1. Click **Save**.
-
-The {{  vars.product }} tile does not validate your Wavefront configuration settings. To verify your setup, look for cluster and pod metrics in Wavefront.
 
 {{# evalExpression "current_page.data.iaas == 'vSphere' || current_page.data.iaas == 'vSphere-NSX-T'"}}
 ####<a id='realize'></a> VMware vRealize Operations Management Pack for Container Monitoring

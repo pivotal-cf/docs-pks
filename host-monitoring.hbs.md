@@ -97,7 +97,7 @@ see [vRealize Log Insight](https://www.vmware.com/products/vrealize-log-insight.
 ## <a id='telegraf'></a>Metrics&#58; Telegraf
 
 Telegraf sends metrics from TKGI API, control plane node, and worker
-node VMs to a monitoring service, such as Wavefront or Datadog.
+node VMs to a monitoring service, such as Datadog.
 
 In the **{{  vars.product }}** tile > **Host Monitoring**, you can
 configure Telegraf to collect metrics from one or more the following sources:

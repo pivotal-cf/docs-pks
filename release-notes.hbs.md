@@ -175,7 +175,19 @@ The supported upgrade paths to {{  vars.product }} v1.23.0 is from TKGI v1.22.x.
 
 ### <a id="1-23-0-breaking-changes"></a>Breaking Changes
 
-TKGI v1.23.0 has no breaking changes.
+**Support for Wavefront is removed in TKGI v1.23.0**. If you are upgrading from previous TKGI versions to v1.23, you might have pods that are running Wavefront images. Currently, clusters use `projects.registry.vmware.com/tanzu_observability` as the URL for Wavefront images. To enable Wavefront to continue to function after upgrading clusters, you must update these clusters so that they load Wavefront images from Docker.
+
+1. Edit the cluster to fetch images from the following Docker URLs.
+
+   - `docker.io/caapm/kubernetes-operator:2.17.2`
+   - `docker.io/kubernetes-collector:1.29.2`
+   - `docker.io/caapm/proxy:13.4`
+
+2. Verify that the clusters are still up and running.
+
+3. Upgrade the clusters.
+
+The clusters will continue to run smoothly, after upgrading TKGI.
 
 ### <a id="1-23-0-features"></a>Features and Enhancements
 
@@ -195,26 +207,6 @@ TKGI v1.23.0 resolves the following issues:
 ###<a id="1-23-0-known-issues"></a>Known Issues
 
 TKGI v1.23.0 has the following known issues:
-
-<hr>
-
-#### <a id="1-23-0-wavefront-ns"></a>Manually created Wavefront operator and namespace are deleted during cluster upgrade
-
-**Symptom**
-
-If you install TKGi v1.20+ and disable Wavefront, create a cluster and install the [Wavefront operator](https://github.com/wavefrontHQ/observability-for-kubernetes) manually, then upgrade the cluster, the Wavefront operator and the `observability-system` namespace get deleted.
-
-**Explanation**
-
-This happens because of a `wavefront-proxy-errand`.
-
-**Workaround**
-
-When you install the Wavefront operator, specify a custom namespace rather than the default `observability-system` namespace.
-
-If the Wavefront operator is already installed in the `observability-system` namespace, see [KB 405433](https://knowledge.broadcom.com/external/article/405433) for steps to take to avoid encountering this issue during cluster upgrades.
-
-<hr>
 
 #### <a id="1-23-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
 
