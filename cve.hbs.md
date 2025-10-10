@@ -10,7 +10,7 @@ This topic lists all of the Common Vulnerabilities and Exposures (CVE) fixed in{
 
 ## <a id="1-23-0"></a> {{{ vars.product_version }}}.0 Security Fixes
 
-The following table lists CVEs that were fixed in each TKGI component since the {{{ vars.product_version }}} v1.22.2.
+The following table lists CVEs that were fixed in each TKGI component since v1.22.2.
 
 | Component | Vulnerabilities Resolved |
 | --- | --- |
