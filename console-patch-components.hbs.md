@@ -7,7 +7,7 @@ You can use {{  vars.product_full }} Management Console on vSphere to update som
 
 1. In {{  vars.product }} Management Console, go to **Configuration** &gt; **TKGI Component Patch** to view the list of components that are ready for patching.
 1. Obtain the patch installers.
-  - In air-gapped environments, download the patch installer from https://downloads.vmware.com/ to a local location. Click the **Import Patch** button to upload the installer to the management console.
+  - In air-gapped environments, download the patch installer from https://support.broadcom.com/group/ecx/downloads/ to a local location. Click the **Import Patch** button to upload the installer to the management console.
   - In environments with access to the internet, click the **Download** button next to the relevant components to import the patch installers directly.
     ![Import patches](images/console/import-patches.png)
 1. When the patch imports are complete, select **Install Patch** to patch a component.

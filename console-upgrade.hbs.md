@@ -12,7 +12,7 @@ You can only use the management console to upgrade an {{  vars.product }} instal
 ## <a id='prereqs'></a>Prerequisites
 
 - You have deployed and configured an older version of {{  vars.product }} Management Console.
-- Download the new version of the {{  vars.product }} Management Console OVA template from https://downloads.vmware.com.
+- Download the new version of the {{  vars.product }} Management Console OVA template from https://support.broadcom.com/group/ecx/downloads.
 - Use an account with vSphere administrator privileges to log in to vSphere using the vSphere Client.
 - (Optional) If you deployed the old version of the {{  vars.product }} Management Console with a static IP address, and you want the new version to retain the same IP address after the upgrade, reconfigure the old Management Console VM to use a temporary IP address before you start the upgrade procedure:
   1.  Shut down the previous version of the management console VM by selecting **Shut Down Guest OS**.

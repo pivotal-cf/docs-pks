@@ -22,7 +22,7 @@ To deploy the TKGI Management Console:
 
 Complete the following before deploying the TKGI Management Console:
 
-- Download the OVA template from https://downloads.vmware.com.
+- Download the OVA template from https://support.broadcom.com/group/ecx/downloads.
 - Use an account with vSphere administrator privileges to log in to vSphere using the vSphere Client.
 - The vCenter Server instance must be correctly configured for {{  vars.product }} Management Console deployment. For information about the vCenter Server requirements, see [Virtual Infrastructure Prerequisites](console-prereqs-vsphere.html).
 

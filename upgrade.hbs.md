@@ -70,7 +70,7 @@ Ubuntu Jammy Stemcell for VMware Tanzu Downloading</a> in <em>Configuring the Up
 
 To determine {{ vars.platform_name }} compatibility and, if necessary, upgrade {{ vars.platform_name }}:
 
-1. See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN)
+1. See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=&language=EN)
 to determine if your {{ vars.platform_name }} version is compatible with {{  vars.product }} {{{ vars.product_version }}}.
 1. If your {{ vars.platform_name }} version is not compatible with {{  vars.product }} {{{ vars.product_version }}},
 follow the steps below.
