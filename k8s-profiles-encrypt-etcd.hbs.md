@@ -125,7 +125,7 @@ To create a Kubernetes cluster based on a Kubernetes profile:
 
     ```console
     $ tkgi create-cluster cluster1 -e cluster1-internal.com -p small -n 1 --kubernetes-profile profile1
-    TKGI Version:             1.22.2-build.14
+    TKGI Version:             1.23.0-build.33
     Name:                     cluster1
     K8s Version:              1.31.9
     Plan Name:                small
