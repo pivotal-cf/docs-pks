@@ -20,7 +20,7 @@ Before deploying {{ vars.platform_name }} with NSX for {{  vars.product }}, you 
 </ul>
 
 In addition, review the supported {{ vars.platform_name }} versions for {{  vars.product }}.
-See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=&language=EN).
+See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0).
 
 Review the known issues for your version of {{ vars.platform_name }}. See one of the following:
 

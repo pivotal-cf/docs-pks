@@ -503,7 +503,7 @@ When you authenticate to an OpenID Connect-enabled cluster using an existing kub
 
 1. Upgrade the TKGI CLI to v1.2.0 or later.
 <br>
-    To download the TKGI CLI, navigate to [Broadcom Support](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=&language=EN).
+    To download the TKGI CLI, navigate to [Broadcom Support](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0).
     For more information, see [Installing the TKGI CLI](installing-cli.html).
 
 1. Obtain a kubeconfig file that contains the new tokens by running the following command:

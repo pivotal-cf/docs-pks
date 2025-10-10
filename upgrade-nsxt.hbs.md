@@ -122,7 +122,7 @@ To upgrade an NSX-T v3.2 deployment to NSX v4.0 or later:
 ### <a id="upgrade-opsman"></a>Upgrade {{ vars.platform_name }}
 
 Each version of TKGI is compatible with multiple versions of {{ vars.platform_name }}.
-See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=&language=EN)
+See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0)
 to determine if your {{ vars.platform_name }} version is compatible with TKGI {{{ vars.product_version }}}.
 
 <p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
@@ -170,7 +170,7 @@ your configuration settings typically migrate to the new version automatically.
 To download and import a TKGI version:
 
 1. Download the target version of the product
-from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=&language=EN).
+from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0).
 
 1. Import the target version of the TKGI tile to the {{ vars.platform_name }} Installation Dashboard.
   <img src="images/nsxt/nsxt-30/upgrade-05.png" alt="The {{ vars.platform_name }} Installation Dashboard page after importing and applying the TKGI tile.">
