@@ -38,11 +38,11 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Cloud Providers</td>
-        <td>AWS: v1.31.7&#42;<br>Azure: v1.31.8&#42;<br>vSphere: v1.31.1</td>
+        <td>AWS: v1.32.3&#42;<br>Azure: v1.32.5&#42;<br>vSphere: v1.32.2&#42;</td>
         <td style="text-align: center;">Release Notes:
-          <br><a href="https://github.com/kubernetes/cloud-provider-aws/releases/tag/v1.31.7">AWS</a>
-          <br><a href="https://github.com/kubernetes-sigs/cloud-provider-azure/releases/tag/v1.31.8">Azure</a>
-          <br><a href="https://github.com/kubernetes/cloud-provider-vsphere/releases/tag/v1.31.1">vSphere</a>
+          <br><a href="https://github.com/kubernetes/cloud-provider-aws/releases/tag/v1.32.3">AWS</a>
+          <br><a href="https://github.com/kubernetes-sigs/cloud-provider-azure/releases/tag/v1.32.5">Azure</a>
+          <br><a href="https://github.com/kubernetes/cloud-provider-vsphere/releases/tag/v1.32.2">vSphere</a>
         </td>
     </tr>
     <tr>
@@ -111,7 +111,7 @@ This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.produc
     </tr>
     <tr>
         <td>Windows stemcells</td>
-        <td colspan=2>v2019.78 or later</td>
+        <td colspan=2>v2019.88 or later&#42;</td>
     </tr>
     <tr>
         <th colspan=3><h4>Interoperability</h4></th>
@@ -379,14 +379,6 @@ will not recognize the restored {{ vars.platform_name }} and cannot manage it.
 
 VMware vRealize Operations (vROPs) does not support Windows worker-based Kubernetes clusters and
 cannot be used to manage TKGI-provisioned Windows workers.
-
-<hr>
-
-#### <a id="1-23-0-wavefront-no-win"></a>TKGI Wavefront Requires Manual Installation for Windows Workers
-
-To monitor Windows-based worker node clusters with a Wavefront collector and proxy, you must first install Wavefront on the clusters manually, using Helm.
-For instructions, see the [Wavefront](windows-monitoring.html#wavefront) section of the
-_Monitoring Windows Worker Clusters and Nodes_ topic.
 
 <hr>
 
