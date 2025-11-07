@@ -11,16 +11,16 @@ This topic describes how to generate and register the NSX Manager superuser prin
 You must generate and register the NSX Manager superuser principal identity certificate and key for two situations:
 
 - You are preparing to install  {{  vars.product }} on vSphere with NSX.  For instructions, see [Generating the Certificate and Key for Installation](#certificates-nsx-pid-install).
-- You need to rotate the NSX Manager certificate and key for an existing TKGI installation.  For instructions, see [Rotate the Principal Identity Certificate and Key](#certificates-nsx-pid-rotate).
+- You need to rotate the NSX Manager certificate and key for an existing {{ vars.product_short }} installation.  For instructions, see [Rotate the Principal Identity Certificate and Key](#certificates-nsx-pid-rotate).
 
-The NSX Manager superuser for TKGI has the Enterprise Administrator role and permissions.
+The NSX Manager superuser for {{ vars.product_short }} has the Enterprise Administrator role and permissions.
 See [Role-Based Access Control](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/3-2/administration-guide/authentication-and-authorization/role-based-access-control.html) in the VMware documentation for more information.
 
 ##<a id='prerequisites'></a>Installation Prerequisites
 
-Review these prerequisites if you are installing TKGI on vSphere with NSX for the first time.
+Review these prerequisites if you are installing {{ vars.product_short }} on vSphere with NSX for the first time.
 
-If you are rotating the NSX Manager certificate for an existing TKGI installation, see [Rotate the Principal Identity Certificate and Key](#certificates-nsx-pid-rotate), below.
+If you are rotating the NSX Manager certificate for an existing {{ vars.product_short }} installation, see [Rotate the Principal Identity Certificate and Key](#certificates-nsx-pid-rotate), below.
 
 <ul>
   <li>
@@ -37,7 +37,7 @@ If you are rotating the NSX Manager certificate for an existing TKGI installatio
     <a href="./vsphere-nsxt-om-deploy.html">Deploying {{ vars.platform_name }} with NSX-T for {{  vars.product }}</a>
   </li>
   <li>
-    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>
+    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}</em>
   </li>
   <li>
     <a href="./vsphere-nsxt-om-config.html">Configuring BOSH Director with NSX for {{  vars.product }}</a>
@@ -50,8 +50,8 @@ If you are rotating the NSX Manager certificate for an existing TKGI installatio
 
 ###<a id='certificates-nsx-pid-about'></a> About the NSX Manager Super User Principal Identity
 
-The TKGI API accesses the NSX Manager through an Enterprise Administrator account.
-This superuser account lets TKGI use NSX to create, delete, and modify networking resources for Kubernetes cluster nodes.
+The {{ vars.product_short }} API accesses the NSX Manager through an Enterprise Administrator account.
+This superuser account lets {{ vars.product_short }} use NSX to create, delete, and modify networking resources for Kubernetes cluster nodes.
 
 When you configure {{  vars.product }} with NSX as the container networking interface, you must provide the certificate and private key for the NSX Manager Enterprise Administrator account in the **Networking** pane of the {{  vars.product }} tile.
 
@@ -76,9 +76,9 @@ After you have generated the principal identity certificate and key, you must re
 
 ###<a id='certificate-super-user-script'></a> Option A: Generate and Register the Certificate and Key Using a Script
 
-This option uses a Bash shell script to generate and register the NSX Manager superuser principal identity certificate and key. When you configure TKGI for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the {{  vars.product }} tile.
+This option uses a Bash shell script to generate and register the NSX Manager superuser principal identity certificate and key. When you configure {{ vars.product_short }} for deployment, copy and paste the contents of `pks-nsx-t-superuser.crt` and `pks-nsx-t-superuser.key` to the **NSX Manager Super User Principal Identity Certificate** field in the **Networking** pane of the {{  vars.product }} tile.
 
-<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the TKGI client VM where you install the TKGI CLI.</p>
+<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the {{ vars.product_short }} client VM where you install the {{ vars.product_short }} CLI.</p>
 
 ####<a id='script-generate'></a> Step 1: Generate and Register the Certificate and Key
 
@@ -178,7 +178,7 @@ To generate the certificate and key automatically in the **Networking** pane in 
 ####<a id='copy-pi-cert'></a> Step 2: Copy the Certificate and Key to the Linux VM
 
 To copy the certificate and key you generated to a Linux VM, follow the steps below:
-<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the TKGI client VM where you install the TKGI CLI.</p>
+<p class="note"><strong>Note</strong>: The Linux VM must have OpenSSL installed and have network access to the NSX Manager. For example, you can use the {{ vars.product_short }} client VM where you install the {{ vars.product_short }} CLI.</p>
 
 1. On the Linux VM you want to use to register the certificate, create a file named `pks-nsx-t-superuser.crt`. Copy the generated certificate into the file.
 1. On the Linux VM you want to use to register the key, create a file named `pks-nsx-t-superuser.key`. Copy the generated private key into the file.
@@ -241,5 +241,5 @@ To rotate the NSX Principal Identity super user certificate, see
 
 ##<a id='next'></a> Next Installation Step
 
-If you have completed this procedure as part of installing TKGI for the first time,
-proceed to <a href="./installing-nsx-t.html">Installing TKGI on vSphere with NSX</a>.
+If you have completed this procedure as part of installing {{ vars.product_short }} for the first time,
+proceed to <a href="./installing-nsx-t.html">Installing {{ vars.product_short }} on vSphere with NSX</a>.

@@ -203,4 +203,4 @@ Create an uplink Logical Switch to be used for the Tier-0 Router.
 
 ##<a id='next'></a> Next Steps
 
-[Create NSX Objects for Kubernetes Clusters Provisioned by TKGI](./nsxt-install-objects-k8s.html).
+[Create NSX Objects for Kubernetes Clusters Provisioned by {{ vars.product_short }}](./nsxt-install-objects-k8s.html).

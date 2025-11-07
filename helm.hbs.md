@@ -4,14 +4,14 @@ title: Using Helm with {{  vars.product }}
 ---
 
 This topic describes how to install the Helm package manager
-and use Helm with {{  vars.product_full }} and TKGI-provisioned Kubernetes clusters.
+and use Helm with {{  vars.product_full }} and {{ vars.product_short }}-provisioned Kubernetes clusters.
 
 
 ## <a id='overview'></a> Overview
 
-Helm is a package manager you can use to deploy TKGI components and your TKGI Kubernetes apps.
+Helm is a package manager you can use to deploy {{ vars.product_short }} components and your {{ vars.product_short }} Kubernetes apps.
 
-You can use Helm to install software to Kubernetes clusters deployed by TKGI.
+You can use Helm to install software to Kubernetes clusters deployed by {{ vars.product_short }}.
 
 Helm includes the following components:
 
@@ -35,28 +35,28 @@ Helm includes the following components:
 <br>
 To install Helm, see [Install and Configure Helm](#install-helm).
 
-To use Helm to deploy components or your apps to TKGI clusters,
+To use Helm to deploy components or your apps to {{ vars.product_short }} clusters,
 see [Deploy Apps and Components Using Helm](#deploy-using-helm).
 
 
 ## <a id='install-helm'></a> Install and Configure Helm
 
 You can use either [Helm 3](https://helm.sh/)
-or its predecessor [Helm 2](https://v2.helm.sh/) as your TKGI Helm package manager.
+or its predecessor [Helm 2](https://v2.helm.sh/) as your {{ vars.product_short }} Helm package manager.
 Helm 3 is more easily installed than Helm 2 and requires less configuration.
 
-To install and configure Helm 3 for TKGI, see
+To install and configure Helm 3 for {{ vars.product_short }}, see
 [Install and Configure Helm 3](#helm-3) below.
 To install Helm 2, see [Install and Configure Helm 2](#helm-2) below.
 
 ### <a id='helm-3'></a> Install and Configure Helm 3
 
 To install and configure Helm 3, follow the [Step 1: Install And Configure Helm](
-https://docs.bitnami.com/kubernetes/get-started-charts-pks/#step-1-install-and-configure-helm) instructions in the Bitnami TKGI documentation.
+https://docs.bitnami.com/kubernetes/get-started-charts-pks/#step-1-install-and-configure-helm) instructions in the Bitnami {{ vars.product_short }} documentation.
 
 ### <a id='helm-2'></a> Install and Configure Helm 2
 
-To use Helm 2 with TKGI, you must first configure the Tiller component to give it access to the Kubernetes API.
+To use Helm 2 with {{ vars.product_short }}, you must first configure the Tiller component to give it access to the Kubernetes API.
 Tiller runs inside the Kubernetes cluster.
 
 To grant API access to Tiller and install Helm 2:
@@ -112,11 +112,11 @@ For more information about securing Helm 2, see the Bitnami article [Exploring t
 
 ## <a id='deploy-using-helm'></a> Deploy Components and Apps Using Helm
 
-You can use Helm to deploy third-party components or your own apps to TKGI clusters.
+You can use Helm to deploy third-party components or your own apps to {{ vars.product_short }} clusters.
 
 ### <a id='helm-artifacthub'></a> Deploy Apps Listed in Artifact HUB
 
-To deploy a third-party component on Artifact HUB to a TKGI cluster:
+To deploy a third-party component on Artifact HUB to a {{ vars.product_short }} cluster:
 
 1. Download the component's Helm chart from the official repositories in the
 [Artifact HUB](https://artifacthub.io/packages/search?page=1&official=true).
@@ -125,7 +125,7 @@ To deploy a third-party component on Artifact HUB to a TKGI cluster:
 
 ### <a id='helm-diy'></a> Deploy Your Own Apps
 
-To deploy your app to a TKGI cluster using Helm:
+To deploy your app to a {{ vars.product_short }} cluster using Helm:
 
 1. Package the app as a _Helm chart_, the package format that the `helm install` command uses.
   - For example Helm charts, see [Concourse Helm Chart](https://github.com/concourse/concourse-chart), [DataDog Helm Chart](https://github.com/DataDog/helm-charts), or the charts archived in [Helm Charts](https://github.com/kubernetes/charts) on GitHub.

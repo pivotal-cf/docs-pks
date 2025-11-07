@@ -11,16 +11,16 @@ This topic describes how to set up the VMware Harbor Registry (Harbor) image reg
 VMware Harbor Registry is an enterprise-class image registry
 server that stores and distributes container images for {{  vars.product_full }}.
 
-Harbor allows you to store and manage container images for your TKGI
-deployment. Deploying an image registry alongside TKGI improves
+Harbor allows you to store and manage container images for your {{ vars.product_short }}
+deployment. Deploying an image registry alongside {{ vars.product_short }} improves
 image transfer speed.
 
 As an enterprise private registry, Harbor also offers enhanced performance and
-improved security. By configuring Harbor with TKGI, you can
+improved security. By configuring Harbor with {{ vars.product_short }}, you can
 apply enterprise features to your image registry, such as security, identity, and
 management.
 
-You can install Harbor alongside TKGI on vSphere, Amazon
+You can install Harbor alongside {{ vars.product_short }} on vSphere, Amazon
 Web Services (AWS), and Microsoft Azure.
 
 To use the VMware Harbor Registry with {{  vars.product }}:

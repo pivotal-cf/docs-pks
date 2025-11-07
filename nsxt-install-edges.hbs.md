@@ -34,13 +34,13 @@ Before completing this section, make sure you have completed the following secti
 
 In this section you deploy two NSX Edge Nodes.
 
-NSX Edge Nodes provide the bridge between the virtual network environment implemented using NSX and the physical network. Edge Nodes for {{  vars.product }} run load balancers for TKGI API traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in {{  vars.product }}](./about-lb.html) for more information.
+NSX Edge Nodes provide the bridge between the virtual network environment implemented using NSX and the physical network. Edge Nodes for {{  vars.product }} run load balancers for {{ vars.product_short }} API traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in {{  vars.product }}](./about-lb.html) for more information.
 
 In NSX, a load balancer is deployed on the Edge Nodes as a virtual server. The following virtual servers are required for {{  vars.product }}:
 
 - 1 TCP Layer 4 virtual server for each Kubernetes service of type:`LoadBalancer`
 - 2 Layer 7 global virtual servers for Kubernetes pod ingress resources (HTTP and HTTPS)
-- 1 global virtual server for the TKGI API
+- 1 global virtual server for the {{ vars.product_short }} API
 
 The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node.
 
@@ -91,7 +91,7 @@ Deploy the Edge Node 1 VM using the NSX Manager interface.
 
 ####<a id='nsxt30-edge-node-1-nvds'></a> Configure the N-VDS Switch or Switches for Edge Node 1
 
-The next step is to configure the N-VDS switch and Transport Zones for NSX Edge Node 1. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html).
+The next step is to configure the N-VDS switch and Transport Zones for NSX Edge Node 1. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for {{ vars.product_short }}](nsxt-3-1-install-delta.html).
 
 ####<a id='nsxt30-edge-node-1-complete'></a> Complete the Edge Node 1 Installation
 
@@ -142,7 +142,7 @@ Deploy the Edge Node 2 VM using the NSX Manager interface.
 
 ####<a id='nsxt30-edge-node-2-nvds'></a> Configure the N-VDS Switch or Switches for Edge Node 2
 
-The next step is to configure the N-VDS switch and transport zones for NSX Edge Node 2. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html).
+The next step is to configure the N-VDS switch and transport zones for NSX Edge Node 2. How you do this differs depending on if you are using the default Transport Zones, which requires a single N-VDS switch, or custom Transport Zones, which require multiple N-VDS switches. Refer to [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for {{ vars.product_short }}](nsxt-3-1-install-delta.html).
 
 ####<a id='nsxt30-edge-node-2-complete'></a> Complete the Installation of Edge Node 2
 
