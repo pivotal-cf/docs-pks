@@ -1,4 +1,4 @@
-# Updating {{ vars.product_short }} and BOSH After Renaming a vSphere Cluster
+# Updating TKGI and BOSH After Renaming a vSphere Cluster
 
 Renaming a vSphere cluster where {{ vars.product_full }} is deployed involves several steps due to how BOSH manages its deployments. If a cluster is renamed within vSphere, since {{ vars.platform_name }} does not permit direct editing of existing Availability Zones (AZs), the `installation.yml` file on the {{ vars.platform_name }} VM must be decrypted, edited to reflect the new cluster name, and then re-encrypted. This modification allows BOSH to recognize the cluster name change as a property update. Upon the next application of changes, all virtual machines within that deployment, including the BOSH Director VM if it resides on the renamed cluster, will undergo a complete drain, stop, and start cycle.
 

@@ -4,14 +4,14 @@ title: Using Network Profiles (NSX Only)
 ---
 
 This topic describes how {{  vars.product_full }} cluster managers
-can manage and use network profiles to customize NSX configuration parameters for Kubernetes clusters provisioned by {{ vars.product_short }} on vSphere with NSX integration.
+can manage and use network profiles to customize NSX configuration parameters for Kubernetes clusters provisioned by TKGI on vSphere with NSX integration.
 
 
 ## <a id='prerequisites'></a> Prerequisite
 
-{{ vars.product_short }} supports network profiles on {{ vars.product_short }} on vSphere with NSX only.
+TKGI supports network profiles on TKGI on vSphere with NSX only.
 
-To work with {{ vars.product_short }} network profiles you must be either a cluster manager or cluster administrator:
+To work with TKGI network profiles you must be either a cluster manager or cluster administrator:
 
 * To create or delete a network profile, you must be a cluster administrator: `pks.clusters.admin`.
 
@@ -20,10 +20,10 @@ To work with {{ vars.product_short }} network profiles you must be either a clus
 
 ## <a id="overview"></a> Overview
 
-You can use network profiles to customize your {{ vars.product_short }} Kubernetes clusters on vSphere with NSX.
+You can use network profiles to customize your TKGI Kubernetes clusters on vSphere with NSX.
 For information on when to use network profiles, see [Network Profile Use Cases](#use-cases) below.
 
-{{ vars.product_short }} cluster managers can apply network profiles to clusters:
+TKGI cluster managers can apply network profiles to clusters:
 
 To list the available network profiles:
 
@@ -37,7 +37,7 @@ To apply a network profile to a cluster:
 * [Assign a Network Profile to an Existing Cluster](#assign-profile)
 * [Update an Existing Network Profile](#update-profile)
 
-{{ vars.product_short }} cluster administrators can create and manage network profiles.
+TKGI cluster administrators can create and manage network profiles.
 To create or manage network profiles see the following in [Creating and Managing Network Profiles](./network-profiles-define.html):
 
 * [Create a Network Profile](network-profiles-define.html#create)
@@ -67,7 +67,7 @@ To list available network profiles:
 
 ## <a id='create-new'></a> Create a Cluster with a Network Profile
 
-You can assign a network profile to a {{ vars.product_short }}-provisioned Kubernetes cluster at the time of cluster creation.
+You can assign a network profile to a TKGI-provisioned Kubernetes cluster at the time of cluster creation.
 
 To create a Kubernetes cluster with a network profile:
 
@@ -89,20 +89,20 @@ For more information, see [Create a Network Profile](./network-profiles.html#cre
         if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
         </p>
     * `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
-    * `PLAN-NAME` is the name of the {{ vars.product_short }} plan you want to use for your cluster.
+    * `PLAN-NAME` is the name of the TKGI plan you want to use for your cluster.
     * `NETWORK-PROFILE-NAME` is the name of the network profile you want to use for your cluster.
 
 ## <a id="assign-profile"></a> Assign a Network Profile to an Existing Cluster
 
-{{ vars.product_short }} supports assigning a network profile to an existing cluster.
+TKGI supports assigning a network profile to an existing cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Update the network profile only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the network profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 To assign a network profile to a cluster that does not have a network profile already applied:
 
 1. If you do not have a network profile with the desired configuration,
-have a {{ vars.product_short }} cluster administrator define and create a new network profile.
+have a TKGI cluster administrator define and create a new network profile.
 For more information, see [Create a Network Profile](./network-profiles.html#create-profile) in _Creating and Managing Network Profiles_.
 1. Choose a network profile for the cluster.
     See [List Network Profiles](#list-profiles).
@@ -127,7 +127,7 @@ in _Release Notes_ for additional requirements.
 The use cases for updating an existing network profile are limited to adding to or changing the order of Pod IP Blocks on your existing cluster.
 For more information, see [Customizing Pod Networks](./network-profiles-pods.html).
 
-Only {{ vars.product_short }} cluster administrators can modify an existing network profile.
+Only TKGI cluster administrators can modify an existing network profile.
 For information on updating an existing network profile, see
 [Update an Existing Network Profile](./network-profiles-define.html#change-pod-ips)
 in _Creating and Deleting Network Profiles_.
@@ -135,7 +135,7 @@ in _Creating and Deleting Network Profiles_.
 ## <a id='use-cases'></a> Network Profile Use Cases
 
 Network profiles let you customize configuration parameters for
-Kubernetes clusters provisioned by {{ vars.product_short }} on vSphere with NSX.
+Kubernetes clusters provisioned by TKGI on vSphere with NSX.
 
 You can apply a network profile to a Kubernetes cluster for the following scenarios:
 

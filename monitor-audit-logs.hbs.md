@@ -3,7 +3,7 @@ title: Auditing {{  vars.product }} Logs
 
 ---
 
-This topic describes key {{ vars.product_short }} auditable events and the log entries they generate.
+This topic describes key TKGI auditable events and the log entries they generate.
 
 Operators can use this information to audit event logs to see
 what users took what actions at what times.
@@ -12,10 +12,10 @@ for security, compliance, and troubleshooting.
 
 Log content can either be [downloaded](./download-logs.html) or configured to be transported via syslog.
 
-## <a id='overview'></a>{{ vars.product_short }} API events
+## <a id='overview'></a>TKGI API events
 
-The following log entry examples are produced by {{ vars.product_short }} API events and correspond to key
-actions taken by a user logged into the {{ vars.product_short }} CLI.
+The following log entry examples are produced by TKGI API events and correspond to key
+actions taken by a user logged into the TKGI CLI.
 
 ### <a id="cluster-creation"></a>Cluster Creation
 
@@ -273,5 +273,5 @@ Event Log format see the [Kubernetes documentation](https://kubernetes.io/docs/t
 ## <a id="related-links"></a>Related Links
 
 * For information about configuring syslog log transport, see [Installing {{  vars.product }}](./installing.html).
-* For information about downloading {{ vars.product_short }} logs, see [Downloading Logs from VMs](./download-logs.html).
+* For information about downloading TKGI logs, see [Downloading Logs from VMs](./download-logs.html).
 * For information about Kubernetes Audit Log format, see [Kubernetes documentation](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/)

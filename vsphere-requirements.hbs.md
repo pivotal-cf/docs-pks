@@ -6,7 +6,7 @@ topictype: vsphere
 
 This topic describes the prerequisites and resource requirements for installing {{ vars.product_full }} on vSphere.
 
-For prerequisites and resource requirements for installing {{ vars.product_short }} on vSphere with NSX integration,
+For prerequisites and resource requirements for installing TKGI on vSphere with NSX integration,
 see [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and
 [Hardware Requirements for {{ vars.product }} on vSphere with NSX](./vsphere-nsxt-rpd-mpd.html).
 
@@ -47,20 +47,20 @@ Installing {{ vars.platform_name }} and {{ vars.product }} requires the followin
     <td>160</td>
   </tr>
   <tr>
-    <td>{{ vars.product_short }} API</td>
+    <td>TKGI API</td>
     <td>2</td>
     <td>8</td>
     <td>64</td>
   </tr>
   <tr>
-    <td>{{ vars.product_short }} Database</td>
+    <td>TKGI Database</td>
     <td>2</td>
     <td>8</td>
     <td>64</td>
   </tr>
 </table>
 
-<p class="note"><strong>NOTE:</strong> VMware recommends deploying {{ vars.product_short }} on its own dedicated {{ vars.platform_name }} instance, rather than on a shared {{ vars.platform_name }} that also hosts other runtimes such as {{ vars.app_runtime }}.</p>
+<p class="note"><strong>NOTE:</strong> VMware recommends deploying TKGI on its own dedicated {{ vars.platform_name }} instance, rather than on a shared {{ vars.platform_name }} that also hosts other runtimes such as {{ vars.app_runtime }}.</p>
 
 {{> _increase_persistent_disk }}
 

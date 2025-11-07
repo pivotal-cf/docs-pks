@@ -3,7 +3,7 @@ title: Managing {{  vars.product }} Users
 
 ---
 
-The following topics describe how to use either {{  vars.product_full }} Management Console ({{ vars.product_short }} MC) or {{ vars.platform_name }} to manage users:
+The following topics describe how to use either {{  vars.product_full }} Management Console (TKGI MC) or {{ vars.platform_name }} to manage users:
 
 <ul>
   <li>

@@ -8,7 +8,7 @@ This topic describes how to install Velero for backing up and restoring
 
 ##<a id="prereqs"></a> Prerequisites
 
-Ensure the following before installing Velero for backing up and restoring {{ vars.product_short }} on vSphere:
+Ensure the following before installing Velero for backing up and restoring TKGI on vSphere:
 
 * Your clusters use the automatically installed vSphere CSI Driver. For more information,
 see [Deploying and Managing Cloud Native Storage (CNS) on vSphere](vsphere-cns.html).
@@ -20,7 +20,7 @@ in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero_.
 * You have a Linux VM with sufficient storage to store several workload backups.
 You will install MinIO on this VM. For more information, see
 [Quick start evaluation install with MinIO](https://velero.io/docs/v1.8/contributions/minio/) in the Velero documentation.
-* You have a {{ vars.product_short }} Client VM (Linux) where CLI tools are installed, such as the {{ vars.product_short }} CLI, kubectl, and others.
+* You have a TKGI Client VM (Linux) where CLI tools are installed, such as the TKGI CLI, kubectl, and others.
 You will install the Velero CLI on this client VM.
 If you do not have such a VM, you can install the Velero CLI locally
 but adjust the following installation steps to match your configuration.
@@ -44,8 +44,8 @@ To install the Velero CLI on your workstation:
 
 To download the Velero CLI Binary:
 
-1. Download the supported version of the signed Velero binary for your version of {{ vars.product_short }}
-from the {{ vars.product_short }} product downloads page at myVMware.
+1. Download the supported version of the signed Velero binary for your version of TKGI
+from the TKGI product downloads page at myVMware.
 For more information about the currently supported Velero versions,
 see the _Product Snapshot_ section of the [Release Notes](release-notes.html).
 
@@ -53,7 +53,7 @@ see the _Product Snapshot_ section of the [Release Notes](release-notes.html).
 
 ### <a id='velero-cli-install'></a> Install the Velero CLI
 
-To install the Velero CLI on the {{ vars.product_short }} client or on your local machine:
+To install the Velero CLI on the TKGI client or on your local machine:
 
 1. Open a command line and change directory to the Velero CLI download.
 1. Unzip the download file:
@@ -415,15 +415,15 @@ Ensure the following before installing Velero in an air-gapped environment:
 
 * A private container registry is installed and configured.
 The procedure below uses a VMware Harbor Container Registry.
-* Docker is installed on the workstation or {{ vars.product_short }} jump host.
+* Docker is installed on the workstation or TKGI jump host.
 * kubectl context has been set and the MinIO `credentials-minio` file exists.
 For more information, see [Set Up the kubectl Context ](#velero-cluster-setup) above.
 
 ###<a id='velero-cluster-install-airgapped-procedure'></a> Procedure
 
-1. Open the VMware Velero downloads page for your version of {{ vars.product_short }}
+1. Open the VMware Velero downloads page for your version of TKGI
 linked to from the _Product Snapshot_ of the [Release Notes](release-notes.html).
-1. Download the Velero CLI and Velero Plugin for vSphere images for your version of {{ vars.product_short }}:
+1. Download the Velero CLI and Velero Plugin for vSphere images for your version of TKGI:
 
     ```
     backup-driver-{{{ vars.velero_version_backup }}}_vmware.1.tar.gz

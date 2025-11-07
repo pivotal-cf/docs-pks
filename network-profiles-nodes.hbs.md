@@ -13,7 +13,7 @@ see [Creating and Managing Network Profiles (NSX Only)](network-profiles-define.
 
 You can use Network Profiles to configure a Kubernetes cluster with a custom Node Network IP Block.
 
-A Network Profile **Node IP Block** is used by {{ vars.product_short }} to assign address space to Kubernetes nodes
+A Network Profile **Node IP Block** is used by TKGI to assign address space to Kubernetes nodes
 when new clusters are deployed or a cluster increases its scale.
 
 Your Network Profile Node IP Block configuration can define one or more custom Node IP Block networks,
@@ -66,7 +66,7 @@ nodes-network.json
 
 The network profile `node_ip_block_ids` parameter allows you to specify one or more Kubernetes node network Node IP Blocks for your clusters.
 
-When a network profile is applied to a Kubernetes cluster, {{ vars.product_short }} automatically creates a node subnet from one of the available IP blocks in the `node_ip_block_ids` configuration.
+When a network profile is applied to a Kubernetes cluster, TKGI automatically creates a node subnet from one of the available IP blocks in the `node_ip_block_ids` configuration.
 
 If the IP block is exhausted, the cluster uses one of the alternate IP blocks specified in the `node_ip_block_ids` configuration to create the node subnet.
 
@@ -79,10 +79,10 @@ If you apply a new network profile to an existing cluster, the <code>node_ip_blo
 must include all of the Node IP Blocks specified in the cluster’s original network profile.
 </p>
 
-If your network profile does not include a `node_ip_block_ids` configuration, {{ vars.product_short }} creates a node subnet from one of the available IP blocks in the Node IP Blocks specified on the {{ vars.product_short }} tile.
+If your network profile does not include a `node_ip_block_ids` configuration, TKGI creates a node subnet from one of the available IP blocks in the Node IP Blocks specified on the TKGI tile.
 
 <p class="note"><strong>Note</strong>:
-When replacing a network profile that does not explicitly specify a <code>node_ip_block_ids</code> configuration, the replacement network profile must include the Node IP Blocks specified on the {{ vars.product_short }} tile.
+When replacing a network profile that does not explicitly specify a <code>node_ip_block_ids</code> configuration, the replacement network profile must include the Node IP Blocks specified on the TKGI tile.
 </p>
 
 
@@ -90,29 +90,29 @@ When replacing a network profile that does not explicitly specify a <code>node_i
 ### <a id='nodes-node-routbale'></a> Node Routable
 
 The `node_routable` Boolean lets you specify if the node network is routable or non-routable.
-    This is the equivalent of enabling or deactivating NAT mode in the {{ vars.product_short }} tile.
+    This is the equivalent of enabling or deactivating NAT mode in the TKGI tile.
 
 If the node network is configured as non-routable, `"node_routable":false`, the node network uses NAT mode. In this case, you must make sure that Kubernetes nodes
-    have access to BOSH and other {{ vars.product_short }} Management Plane components.
-    See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_
+    have access to BOSH and other TKGI Management Plane components.
+    See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_
     for more information.
 
 If the node network is configured as routable, `"node_routable":true`, the IP address space must be an externally routable address block.
 
 The `node_routable` configuration on an existing cluster cannot be updated.
 
-<p class="note"><strong>Note:</strong> The default routable setting for the node network is determined based on the selection made in the {{ vars.product_short }} tile. If <strong>NAT mode</strong> is selected, the node network is non-routable. To override the default selection, provide the <code>node_routable</code> parameter in the network profile.</p>
+<p class="note"><strong>Note:</strong> The default routable setting for the node network is determined based on the selection made in the TKGI tile. If <strong>NAT mode</strong> is selected, the node network is non-routable. To override the default selection, provide the <code>node_routable</code> parameter in the network profile.</p>
 
 ### <a id='nodes-subnet-size'></a> Node Subnet Prefix
 
 Configure the Node IP Block `node_subnet_prefix` parameter to specify a subnet size
     that optimizes the use of network address space for the number of nodes in your Kubernetes cluster.
 
-For example, if the {{ vars.product_short }} administrator has configured the default in the {{ vars.product_short }} tile
+For example, if the TKGI administrator has configured the default in the TKGI tile
 	to be a routable network for the Node IP Block, the Kubernetes cluster administrator can deploy the cluster in the NAT'ed mode (non-routable)
 	by specifying a network profile with an IP block that supports the NAT'ed address range.
 
-By default, each Kubernetes cluster deployed by {{ vars.product_short }} is allocated a /24 subnet,
+By default, each Kubernetes cluster deployed by TKGI is allocated a /24 subnet,
     which allows up to 256 IP addresses to be assigned.
 
 The `node_subnet_prefix` configuration on an existing cluster cannot be updated.
