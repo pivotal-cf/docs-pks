@@ -53,7 +53,7 @@ You must activate and configure either **Plan 11**, **Plan 12**, or **Plan 13** 
 {{/ evalExpression }}
 1. Under **Name**, provide a unique name for the plan.
 1. Under **Description**, edit the description as needed.
-The plan description appears in the Services Marketplace, which developers can access by using the TKGI CLI.
+The plan description appears in the Services Marketplace, which developers can access by using the {{ vars.product_short }} CLI.
 {{# evalExpression "current_page.data.windowsclusters == true"}}
 1. Select **Enable HA Linux workers** to activate high availability Linux worker clusters.
 A high availability Linux worker cluster consists of three Linux worker nodes.
@@ -64,7 +64,7 @@ A high availability Linux worker cluster consists of three Linux worker nodes.
   You can enter <code>1</code>, <code>3</code>, or <code>5</code>.
   <p class="note"><strong>Note</strong>: If you deploy a cluster with multiple control plane/etcd node VMs,
     confirm that you have sufficient hardware to handle the increased load on disk write and network traffic. For more information, see <a href="https://github.com/etcd-io/etcd/blob/master/Documentation/op-guide/hardware.md#example-hardware-configurations">Hardware recommendations</a> in the etcd documentation.<br><br>
-    In addition to meeting the hardware requirements for a multi-control plane node cluster, we recommend configuring monitoring for etcd to monitor disk latency, network latency, and other indicators for the health of the cluster. For more information, see <a href="monitor-etcd.html">Configuring Telegraf in TKGI</a>.</p>
+    In addition to meeting the hardware requirements for a multi-control plane node cluster, we recommend configuring monitoring for etcd to monitor disk latency, network latency, and other indicators for the health of the cluster. For more information, see <a href="monitor-etcd.html">Configuring Telegraf in {{ vars.product_short }}</a>.</p>
   <p class="note warning"><strong>WARNING</strong>: To change the number of control plane/etcd nodes for a plan, you must ensure that no existing clusters use the plan. {{  vars.product }} does not support changing the number of control plane/etcd nodes for plans with existing clusters.
   </p>
 1. Under **Master/ETCD VM Type**, select the type of VM to use for Kubernetes control plane/etcd nodes. For more information, including control plane node VM customization options, see the [Control Plane Node VM Size](vm-sizing.html#master-sizing) section of _VM Sizing for {{  vars.product }} Clusters_.
@@ -85,7 +85,7 @@ Kubernetes worker node VMs that {{  vars.product }} can deploy for each cluster.
   ![Plan pane configuration, part two](images/plan2.png)
 {{/ evalExpression }}
 <br>
-1. Under **Worker Node Instances**, specify the default number of Kubernetes worker nodes the TKGI CLI provisions for each cluster.
+1. Under **Worker Node Instances**, specify the default number of Kubernetes worker nodes the {{ vars.product_short }} CLI provisions for each cluster.
   The **Worker Node Instances** setting must be less than, or equal to, the **Maximum number of workers on a cluster** setting.
   <br>
   For high availability, create clusters with a minimum of three worker nodes, or two per AZ if you intend to use PersistentVolumes (PVs). For example, if you deploy across three AZs, you must have six worker nodes. For more information about PVs, see [PersistentVolumes](maintain-uptime.html#persistent-volumes) in *Maintaining Workload Uptime*. Provisioning a minimum of three worker nodes, or two nodes per AZ is also recommended for stateless workloads.
@@ -94,7 +94,7 @@ Kubernetes worker node VMs that {{  vars.product }} can deploy for each cluster.
     <p class="note"><strong>Note</strong>: Changing a plan's <strong>Worker Node Instances</strong>
     setting does not alter the number of worker nodes on existing clusters.
     For information about scaling an existing cluster, see
-    [Scale Horizontally by Changing the Number of Worker Nodes Using the TKGI CLI](scale-clusters.html#scale-horizontal)
+    [Scale Horizontally by Changing the Number of Worker Nodes Using the {{ vars.product_short }} CLI](scale-clusters.html#scale-horizontal)
     in _Scaling Existing Clusters_.
     </p>
 1. Under **Worker VM Type**, select the type of VM to use for Kubernetes worker node VMs.
@@ -123,7 +123,7 @@ see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-c
 ![Plan pane configuration, part two](images/plan2b.png)
 {{/ evalExpression }}
 1. Under **Kubelet customization - eviction-hard**, enter threshold limits that Kubelet can use to evict pods when they exceed the limit. Enter limits in the format `EVICTION-SIGNAL=QUANTITY`. For example, `memory.available=100Mi, nodefs.available=10%, nodefs.inodesFree=5%`.
-  - In offline environments, include `imagefs.available=15%` to prevent the Kubelet garbage collector from deleting images when disk usage is high, as described in [Core Images Deleted by Garbage Collector Are Not Reloaded in TKGI Air-Gapped Environment](https://knowledge.broadcom.com/external/article?articleNumber=380917) in the Broadcom Support Knowledge Base.
+  - In offline environments, include `imagefs.available=15%` to prevent the Kubelet garbage collector from deleting images when disk usage is high, as described in [Core Images Deleted by Garbage Collector Are Not Reloaded in {{ vars.product_short }} Air-Gapped Environment](https://knowledge.broadcom.com/external/article?articleNumber=380917) in the Broadcom Support Knowledge Base.
   - For more information about eviction thresholds, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/administer-cluster/out-of-resource/#hard-eviction-thresholds).
   <p class="note warning"><strong>WARNING</strong>: Use the Kubelet customization fields with caution. If you enter values that are invalid or that exceed the limits the system supports, Kubelet might fail to start. If Kubelet fails to start, you cannot create clusters.</p>
 {{# evalExpression "current_page.data.windowsclusters == true"}}

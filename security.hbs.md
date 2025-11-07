@@ -6,13 +6,13 @@ The following topics describe {{  vars.product_full }} security and security pro
 
 * **Security Disclosure and Release Process**: See <a href="./security-process.html">{{  vars.product }} Security Disclosure and Release Process</a>
 * **Certificates**: See <a href="./certificate-concepts.html">{{  vars.product }} Certificates</a>
-* **Benchmarks**: See [TKGI Cluster Benchmarks](#benchmarks), below.
+* **Benchmarks**: See [{{ vars.product_short }} Cluster Benchmarks](#benchmarks), below.
 
 ##<a id='benchmarks'></a> CIS Kubernetes Benchmarks
 
 For security compliance assessments, you can use
 [Compliance Scanner for VMware Tanzu](https://techdocs.broadcom.com/us/en/vmware-tanzu/compliance/compliance-scanner-for-tanzu/1-3/compliance-tanzu/index.htmlindex.html)
-to benchmark TKGI clusters against the Center for Internet Security
+to benchmark {{ vars.product_short }} clusters against the Center for Internet Security
 [CIS Kubernetes Benchmark](https://www.cisecurity.org/benchmark/kubernetes/) v1.6.1.
 
 Complete the following procedures in [Installing and Configuring Compliance Scanner](https://techdocs.broadcom.com/us/en/vmware-tanzu/compliance/compliance-scanner-for-tanzu/1-3/compliance-tanzu/index.htmlinstalling.html):
@@ -27,7 +27,7 @@ Complete the following procedures in [Installing and Configuring Compliance Scan
     * Any other procedures preceding [Configure scans](https://techdocs.broadcom.com/us/en/vmware-tanzu/compliance/compliance-scanner-for-tanzu/1-3/compliance-tanzu/index.htmlinstalling.html#scans)
 1. Complete the [Configure scans](https://techdocs.broadcom.com/us/en/vmware-tanzu/compliance/compliance-scanner-for-tanzu/1-3/compliance-tanzu/index.htmlinstalling.html#scans) procedure:
     * Activate the following in the **Scan Configuration** pane, under **Benchmarks**:
-        * **TKGI Master Node - Level 1 and Level 2**
-        * **TKGI Worker Node - Level 1 and Level 2**
+        * **{{ vars.product_short }} Master Node - Level 1 and Level 2**
+        * **{{ vars.product_short }} Worker Node - Level 1 and Level 2**
 1. Complete all remaining steps in [Installing and Configuring Compliance Scanner](https://techdocs.broadcom.com/us/en/vmware-tanzu/compliance/compliance-scanner-for-tanzu/1-3/compliance-tanzu/index.htmlinstalling.html).
 

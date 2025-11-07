@@ -1,5 +1,5 @@
 ---
-title: Restoring TKGI Management Plane Components
+title: Restoring {{ vars.product_short }} Management Plane Components
 
 ---
 
@@ -203,7 +203,7 @@ To restore the BOSH Director:
 
 1. Ensure the {{  vars.product }} BOSH Director backup artifact is in the folder from which you run BBR.
 
-1. Run the BBR restore command to restore the TKGI BOSH Director:
+1. Run the BBR restore command to restore the {{ vars.product_short }} BOSH Director:
 
     ```
     nohup bbr director  --host BOSH-DIRECTOR-IP \
@@ -219,7 +219,7 @@ To restore the BOSH Director:
     retrieve as shown in [Retrieve the BOSH Director Address](#bosh-address).
     * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` as shown in
     [Download the BBR SSH Credentials](#bbr-ssh-creds).
-    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the TKGI BOSH Director backup that you want to restore.
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the {{ vars.product_short }} BOSH Director backup that you want to restore.
 
     For example:
 
@@ -278,16 +278,16 @@ To redeploy the {{  vars.product }} tile, do the following:
 * [Determine the Required Stemcell](#determine-stemcell) needed by the tile.
 * Upload that stemcell as described in [Upload Stemcells](#upload-stemcell).
 * [Redeploy the {{  vars.product }} Control Plane](#redeploy-control-plane).
-* [Restore the TKGI Control Plane](#restore-control-plane) from a BBR backup on top of the deployment.
+* [Restore the {{ vars.product_short }} Control Plane](#restore-control-plane) from a BBR backup on top of the deployment.
 
 ### <a id='determine-stemcell'></a> Determine the Required Stemcell
 
-Do either of the following procedures to determine the stemcell that TKGI uses:
+Do either of the following procedures to determine the stemcell that {{ vars.product_short }} uses:
 
 * Review the Stemcell Library:
     1. Open {{ vars.platform_name }}.
     1. Click **Stemcell Library**.
-    1. Record the TKGI stemcell release number from the **Staged** column.
+    1. Record the {{ vars.product_short }} stemcell release number from the **Staged** column.
 
 * Review a Stemcell List Using BOSH CLI:
     1. To retrieve the stemcell release using the BOSH CLI, run the following command:
@@ -306,7 +306,7 @@ Do either of the following procedures to determine the stemcell that TKGI uses:
         ...
         ```
 
-<p class="note"><strong>Note:</strong> At most, the TKGI tile can have two
+<p class="note"><strong>Note:</strong> At most, the {{ vars.product_short }} tile can have two
     stemcells, where one stemcell is Linux and the other stemcell is Windows.
 </p>
 
@@ -317,7 +317,7 @@ For more information about stemcells in {{ vars.platform_name }}, see [Importing
 To upload the stemcell used by your {{  vars.product }} tile:
 
 1. Download the stemcell from [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Ubuntu%20Xenial)).
-1. Run the following command to upload the stemcell used by TKGI:
+1. Run the following command to upload the stemcell used by {{ vars.product_short }}:
 
     ```
     BOSH-CLI-CREDENTIALS  bosh -d DEPLOYMENT-NAME \
@@ -335,7 +335,7 @@ To upload the stemcell used by your {{  vars.product }} tile:
 
 1. To ensure the stemcells for all of your other installed tiles have been uploaded,
 repeat the last step, running the `bosh upload-stemcell --fix PATH-TO-STEMCELL` command,
-for each required stemcell that is different from the already uploaded TKGI stemcell.
+for each required stemcell that is different from the already uploaded {{ vars.product_short }} stemcell.
 
 ### <a id='redeploy-control-plane'></a> Redeploy the {{  vars.product }} Control Plane
 
@@ -355,7 +355,7 @@ To redeploy your {{  vars.product }} tile's control plane:
 
 1. Click **Apply Changes** to redeploy the control plane.
 
-### <a id='restore-control-plane'></a> Restore the TKGI Control Plane
+### <a id='restore-control-plane'></a> Restore the {{ vars.product_short }} Control Plane
 
 Restore the {{  vars.product }} control plane by running BBR commands on your jump box.
 
@@ -363,7 +363,7 @@ To restore the {{  vars.product }} control plane:
 
 1. Ensure the {{  vars.product }} deployment backup artifact is in the folder from which you run BBR.
 
-1. Run the BBR restore command to restore the TKGI control plane:
+1. Run the BBR restore command to restore the {{ vars.product_short }} control plane:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
@@ -386,7 +386,7 @@ To restore the {{  vars.product }} control plane:
     [Locate the {{  vars.product }} Deployment Name](#locate-deploy-name).
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in
     [Download the Root CA Certificate](#root-ca-cert).
-    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the TKGI control plane backup that you want to restore.
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to the {{ vars.product_short }} control plane backup that you want to restore.
 
     For example:
     ```console

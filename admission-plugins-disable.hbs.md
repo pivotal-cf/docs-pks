@@ -21,7 +21,7 @@ To deactivate a single admission control plugin, do the following:
 1. Click **Apply Changes**.
 
 Alternatively, instead of enabling **Upgrade all clusters errand**,
-you can upgrade individual Kubernetes clusters through the TKGI Command Line Interface (TKGI CLI).
+you can upgrade individual Kubernetes clusters through the {{ vars.product_short }} Command Line Interface ({{ vars.product_short }} CLI).
 For instructions on upgrading individual Kubernetes clusters, see [Upgrading Clusters](upgrade-clusters.html).
 
 ##<a id='admission-plugin-disable'></a> Deactivating an Orphaned Admission Control Plugin
@@ -49,7 +49,7 @@ To deactivate an orphaned Admission control Plugin, complete the following workf
         1. In {{ vars.platform_name }}, click the {{  vars.product }} tile.
         1. Copy the BOSH deployment name including the GUID from the URL:
 
-            <img src="images/pks-guid.png" alt="TKGI GUID">
+            <img src="images/pks-guid.png" alt="{{ vars.product_short }} GUID">
             <br/><br/>
             The deployment name contains "pivotal-container-service" and a unique GUID string. For example, `pivotal-container-service-4b48fc5b704d54c6c7de`.
 1. To deactivate the orphaned admission control plugin, run the following {{ vars.platform_name }} API command:

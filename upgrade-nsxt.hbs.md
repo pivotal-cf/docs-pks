@@ -9,13 +9,13 @@ This topic describes how to upgrade {{  vars.product_full }}
 from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
 on vSphere with NSX networking.
 
-For instructions on upgrading TKGI with Antrea networking,
+For instructions on upgrading {{ vars.product_short }} with Antrea networking,
 see [Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html).
 
-<p class="note"><strong>Note:</strong> You cannot directly upgrade to TKGI v1.22 from older build versions of the TKGI MC v1.21. See <a href="release-notes.html#1-22-0-no-upgrade-ova">Cannot upgrade to TKGI v1.22 from the TKGI MC v1.21 OVA</a> for workarounds.</p>
+<p class="note"><strong>Note:</strong> You cannot directly upgrade to {{ vars.product_short }} v1.22 from older build versions of the {{ vars.product_short }} MC v1.21. See <a href="release-notes.html#1-22-0-no-upgrade-ova">Cannot upgrade to {{ vars.product_short }} v1.22 from the {{ vars.product_short }} MC v1.21 OVA</a> for workarounds.</p>
 
 <p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version.
-TKGI includes the compatible Kubernetes version.
+{{ vars.product_short }} includes the compatible Kubernetes version.
 </p>
 
 ## <a id="overview"></a>Overview
@@ -25,23 +25,23 @@ to plan and prepare your upgrade.
 
 After you complete the preparation steps,
 continue to the procedures in [Perform the Upgrade](#upgrade) below.
-These steps guide you through the process of upgrading {{ vars.platform_name }} and the TKGI tile,
+These steps guide you through the process of upgrading {{ vars.platform_name }} and the {{ vars.product_short }} tile,
 importing a new stemcell, and applying the changes to your deployment.
 
 After you complete the upgrade, follow the procedures
 in [After the Upgrade](#after-upgrade) below
-to verify that your upgraded TKGI deployment is running properly
+to verify that your upgraded {{ vars.product_short }} deployment is running properly
 and to optionally upgrade NSX and vSphere.
 
 ## <a id="prerequisites"></a>Prerequisites
 
-To see a list of NSX versions compatible with TKGI {{{ vars.product_version }}},
-consult [Product Snapshot](release-notes.html) in _Release Notes_ for TKGI {{{ vars.product_version }}}.
+To see a list of NSX versions compatible with {{ vars.product_short }} {{{ vars.product_version }}},
+consult [Product Snapshot](release-notes.html) in _Release Notes_ for {{ vars.product_short }} {{{ vars.product_version }}}.
 
 ## <a id="prepare"></a>Prepare to Upgrade
 
 To prepare for upgrading {{  vars.product }}
-from TKGI {{{ vars.product_version_prev }}} to TKGI {{{ vars.product_version }}}:
+from {{ vars.product_short }} {{{ vars.product_version_prev }}} to {{ vars.product_short }} {{{ vars.product_version }}}:
 
 * Complete all of the steps in
 [Upgrade Preparation Checklist for {{{ vars.product_short }}}](checklist.html).
@@ -56,13 +56,13 @@ from TKGI {{{ vars.product_version_prev }}} to TKGI {{{ vars.product_version }}}
 
 ## <a id="upgrade"></a>Perform the Upgrade
 
-This section describes the steps required to upgrade to TKGI {{{ vars.product_version }}}:
+This section describes the steps required to upgrade to {{ vars.product_short }} {{{ vars.product_version }}}:
 
 1. [Upgrade NSX](#upgrade-nsxt)
 1. [Upgrade {{ vars.platform_name }}](#upgrade-opsman)
-1. [Download and Import TKGI {{{ vars.product_version }}}](#stage-tkgi)
+1. [Download and Import {{ vars.product_short }} {{{ vars.product_version }}}](#stage-tkgi)
 1. [Download and Import Stemcells](#stemcell)
-1. [Upgrade the TKGI Tile](#upgrade-tkgi)
+1. [Upgrade the {{ vars.product_short }} Tile](#upgrade-tkgi)
 
 ### <a id="upgrade-nsxt"></a>Upgrade NSX
 
@@ -77,11 +77,11 @@ You cannot upgrade directly from NSX-T v3.2.2 and earlier to NSX v4.0+, but you 
 To upgrade NSX to NSX-T v3.2.3 or later:
 
 1. Confirm that you are upgrading NSX to a version compatible with
-TKGI {{{ vars.product_version }}}.
+{{ vars.product_short }} {{{ vars.product_version }}}.
 For a list of NSX versions compatible with
-TKGI {{{ vars.product_version }}},
+{{ vars.product_short }} {{{ vars.product_version }}},
 see [Product Snapshot](release-notes.html) in _Release Notes_ for
-TKGI {{{ vars.product_version }}}.
+{{ vars.product_short }} {{{ vars.product_version }}}.
   <p class="note warning">
   <strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.</p>
 
@@ -95,16 +95,16 @@ TKGI {{{ vars.product_version }}}.
 
     For more information, refer to the [Upgrading VMware NSX](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-1/upgrade-guide.html) documentation.
 
-1. If you made architectural changes to your NSX environment that affect TKGI,
+1. If you made architectural changes to your NSX environment that affect {{ vars.product_short }},
 such as adding or changing a [VIP address](./nsxt-3-0-install.html#nsxt30-t0-router-config), or
 a [load balancer](./nsxt-3-0-install.html#nsxt30-edge-nodes) for the NSX Management Cluster,
-update the BOSH Director and TKGI tiles with the new or updated IP addresses:
+update the BOSH Director and {{ vars.product_short }} tiles with the new or updated IP addresses:
   1. In the BOSH Director tile > **vCenter Configuration** pane, update **NSX Address** and **NSX CA Cert**.
-  1. In the TKGI tile > **Networking** pane, update **NSX Manager hostname** and **NSX Manager CA Cert**.
-  1. After making changes to the BOSH Director or TKGI tiles:
+  1. In the {{ vars.product_short }} tile > **Networking** pane, update **NSX Manager hostname** and **NSX Manager CA Cert**.
+  1. After making changes to the BOSH Director or {{ vars.product_short }} tiles:
       1. On the **Installation Dashboard** in {{ vars.platform_name }},
       click **Review Pending Changes**.
-      1. Expand the **Errands** list for TKGI.
+      1. Expand the **Errands** list for {{ vars.product_short }}.
       1. Ensure that the **Upgrade all clusters errand** is selected.
       1. Click **Apply Changes**.
 
@@ -121,11 +121,11 @@ To upgrade an NSX-T v3.2 deployment to NSX v4.0 or later:
 
 ### <a id="upgrade-opsman"></a>Upgrade {{ vars.platform_name }}
 
-Each version of TKGI is compatible with multiple versions of {{ vars.platform_name }}.
+Each version of {{ vars.product_short }} is compatible with multiple versions of {{ vars.platform_name }}.
 See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0)
-to determine if your {{ vars.platform_name }} version is compatible with TKGI {{{ vars.product_version }}}.
+to determine if your {{ vars.platform_name }} version is compatible with {{ vars.product_short }} {{{ vars.product_version }}}.
 
-<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
+<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade {{ vars.product_short }},
 see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{ vars.platform_name }} and Ubuntu Jammy Stemcell for Tanzu Downloading</a> in <em>Configuring the Upgrade Pipeline</em>.
 </p>
 
@@ -144,7 +144,7 @@ To upgrade {{ vars.platform_name }}:
 
 1. Shut down the {{ vars.platform_name }} VM.
 
-1. Deploy the upgraded {{ vars.platform_name }} VM by following the first two steps of [Deploying {{ vars.platform_name }} with NSX for TKGI](vsphere-nsxt-om-deploy.html):
+1. Deploy the upgraded {{ vars.platform_name }} VM by following the first two steps of [Deploying {{ vars.platform_name }} with NSX for {{ vars.product_short }}](vsphere-nsxt-om-deploy.html):
   1. [Step 1: Generate SSH Key Pair](vsphere-nsxt-om-deploy.html#ssh-key)
   1. [Step 2: Deploy {{ vars.platform_name }} for {{  vars.product }}](vsphere-nsxt-om-deploy.html#deploy-om)
 
@@ -163,63 +163,63 @@ To upgrade {{ vars.platform_name }}:
 1. Verify that the BOSH Director for vSphere tile shows the upgrade version.
   <img src="images/nsxt/nsxt-30/upgrade-04.png" alt="The {{ vars.platform_name }} Installation Dashboard page with the BOSH Director and tiles.">
 
-### <a id="stage-tkgi"></a> Download and Import TKGI {{{ vars.product_version }}}
+### <a id="stage-tkgi"></a> Download and Import {{ vars.product_short }} {{{ vars.product_version }}}
 
-When you upgrade TKGI,
+When you upgrade {{ vars.product_short }},
 your configuration settings typically migrate to the new version automatically.
-To download and import a TKGI version:
+To download and import a {{ vars.product_short }} version:
 
 1. Download the target version of the product
 from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0).
 
-1. Import the target version of the TKGI tile to the {{ vars.platform_name }} Installation Dashboard.
-  <img src="images/nsxt/nsxt-30/upgrade-05.png" alt="The {{ vars.platform_name }} Installation Dashboard page after importing and applying the TKGI tile.">
+1. Import the target version of the {{ vars.product_short }} tile to the {{ vars.platform_name }} Installation Dashboard.
+  <img src="images/nsxt/nsxt-30/upgrade-05.png" alt="The {{ vars.platform_name }} Installation Dashboard page after importing and applying the {{ vars.product_short }} tile.">
 
 1. Click **Review Pending Changes**.
 
 1. Expand the **Errands** dropdown and activate or deactivate **Upgrade all clusters errand**
-  - See [Deciding Between Full and Two-Phase Upgrade](./understanding-upgrades.html#decide) to decide whether to upgrade TKGI-provisioned Kubernetes clusters along with TKGI, or upgrade them later.
-  - {{{ vars.recommended_by }}} recommends that you upgrade Kubernetes clusters along with TKGI if possible.
-  - Activate the **Upgrade all clusters errand** to upgrade clusters along with TKGI.
+  - See [Deciding Between Full and Two-Phase Upgrade](./understanding-upgrades.html#decide) to decide whether to upgrade {{ vars.product_short }}-provisioned Kubernetes clusters along with {{ vars.product_short }}, or upgrade them later.
+  - {{{ vars.recommended_by }}} recommends that you upgrade Kubernetes clusters along with {{ vars.product_short }} if possible.
+  - Activate the **Upgrade all clusters errand** to upgrade clusters along with {{ vars.product_short }}.
   <p class="note warning"><strong>Warning:</strong> Deactivating the <strong>Upgrade all clusters errand</strong>
-  causes the TKGI version tagged in your Kubernetes clusters to fall behind
-  the TKGI tile version.
+  causes the {{ vars.product_short }} version tagged in your Kubernetes clusters to fall behind
+  the {{ vars.product_short }} tile version.
   If you deactivate the <strong>Upgrade all clusters errand</strong>
-  when upgrading the TKGI tile,
-  you must upgrade all your Kubernetes clusters before the next TKGI
+  when upgrading the {{ vars.product_short }} tile,
+  you must upgrade all your Kubernetes clusters before the next {{ vars.product_short }}
   upgrade.</p>
 
 1. Set the **Run smoke tests** errand to **On**.
-The Smoke Test errand smoke tests the TKGI upgrade
+The Smoke Test errand smoke tests the {{ vars.product_short }} upgrade
 by creating and deleting a test Kubernetes cluster.
 For more information, see [Errands](installing-nsx-t.html#errands)
 in _Installing {{  vars.product }} on vSphere with VMware NSX_.
 
-1. (Optional) Configure the Smoke Test errand to use a network profile instead of the default configuration settings on the TKGI tile.
+1. (Optional) Configure the Smoke Test errand to use a network profile instead of the default configuration settings on the {{ vars.product_short }} tile.
 For more information, see [Errands](installing-nsx-t.html#errands)
 in _Installing {{  vars.product }} on vSphere with VMware NSX_.
 
 ### <a id="stemcell"></a>Download and Import Stemcells
 
-TKGI requires an Ubuntu Jammy Stemcell for VMware Tanzu.
+{{ vars.product_short }} requires an Ubuntu Jammy Stemcell for VMware Tanzu.
 A Windows 2019 Windows Stemcell for VMware Tanzu is also required if you intend to create Windows worker-based clusters.
 For information about Windows stemcells, see
 [Configuring Windows Worker-Based Clusters](windows-workers.html).
 
-<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
+<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade {{ vars.product_short }},
 see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{ vars.platform_name }} and Ubuntu Jammy Stemcell for Tanzu Downloading</a>
 in <em>Configuring the Upgrade Pipeline</em>.
 </p>
 
-If {{ vars.platform_name }} does not have the Ubuntu Jammy Stemcell for VMware Tanzu required for TKGI {{{ vars.product_version }}},
-the TKGI tile displays the message **Missing stemcell**.
+If {{ vars.platform_name }} does not have the Ubuntu Jammy Stemcell for VMware Tanzu required for {{ vars.product_short }} {{{ vars.product_version }}},
+the {{ vars.product_short }} tile displays the message **Missing stemcell**.
 To download and import a new Ubuntu Jammy Stemcell for VMware Tanzu, follow the steps below:
 
-1. On the TKGI tile, click the **Missing stemcell** link.
+1. On the {{ vars.product_short }} tile, click the **Missing stemcell** link.
 
     <img src="images/missing_stemcell.png" alt="Verify stemcell assignment">
 
-1. In the **Stemcell Library**, locate the **TKGI** tile and note the required stemcell version.
+1. In the **Stemcell Library**, locate the **{{ vars.product_short }}** tile and note the required stemcell version.
 
 1. Navigate to the [Stemcells (Ubuntu Jammy)](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Stemcells%20(Ubuntu%20Jammy)) page on {{{ vars.product_network }}}
 and download the required Stemcell for VMware Tanzu version for your IaaS.
@@ -228,15 +228,15 @@ and download the required Stemcell for VMware Tanzu version for your IaaS.
 
 1. On the **Stemcell Library** page, click **Import Stemcell** and select the stemcell file you downloaded from {{{ vars.product_network }}}.
 
-1. Select the TKGI tile and click **Apply Stemcell to Products**.
+1. Select the {{ vars.product_short }} tile and click **Apply Stemcell to Products**.
 
-1. Verify that {{ vars.platform_name }} successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for TKGI.
+1. Verify that {{ vars.platform_name }} successfully applied the stemcell. The stemcell version you imported and applied appears in the **Staged** column for {{ vars.product_short }}.
 
 1. Return to the **Installation Dashboard**.
 
-### <a id="upgrade-tkgi"></a>Upgrade the TKGI Tile
+### <a id="upgrade-tkgi"></a>Upgrade the {{ vars.product_short }} Tile
 
-To complete the upgrade of the TKGI tile:
+To complete the upgrade of the {{ vars.product_short }} tile:
 
 1. Return to the **Installation Dashboard** in {{ vars.platform_name }}.
 
@@ -248,46 +248,46 @@ To complete the upgrade of the TKGI tile:
   <img src="images/nsxt/nsxt-30/upgrade-06.png" alt="The {{ vars.platform_name }} Review Pending Changes page, with options to select which product updates to apply, and the Apply Changes button.">
 
 1. (Optional) If you activated the **Upgrade all clusters errand**, you can use the BOSH CLI to monitor its progress:
-      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your TKGI deployment. For more information, see [Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html).
+      1. Log in to the BOSH Director by running `bosh -e MY-ENVIRONMENT log-in` from a VM that can access your {{ vars.product_short }} deployment. For more information, see [Using BOSH Diagnostic Commands in {{  vars.product }}](diagnostic-tools.html).
       1. Run `bosh -e MY-ENVIRONMENT tasks`.
       1. Locate the task number for the errand in the <strong>&#35;</strong> column of the BOSH output.
       1. Run `bosh task TASK-NUMBER`, replacing `TASK-NUMBER` with the task number you located in the previous step.
 
-1. Verify that the TKGI tile shows the target version.
-  <img src="images/nsxt/nsxt-30/upgrade-07.png"  alt="The {{ vars.platform_name }} Installation Dashboard page after upgrading the TKGI tile.">
+1. Verify that the {{ vars.product_short }} tile shows the target version.
+  <img src="images/nsxt/nsxt-30/upgrade-07.png"  alt="The {{ vars.platform_name }} Installation Dashboard page after upgrading the {{ vars.product_short }} tile.">
 
 ## <a id="after-upgrade"></a>After the Upgrade
 
-After you complete the upgrade to TKGI {{{ vars.product_version }}},
+After you complete the upgrade to {{ vars.product_short }} {{{ vars.product_version }}},
 complete the following verifications and upgrades:
 
-1. [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
+1. [Upgrade the {{ vars.product_short }} and Kubernetes CLIs](#upgrade-clis)
 1. [Upgrade Kubernetes Clusters if Needed](#upgrade-k8s)
-1. [Verify TKGI Upgrade](#verify-upgrade)
+1. [Verify {{ vars.product_short }} Upgrade](#verify-upgrade)
 1. [Upgrade NSX Data Center to NSX v3.2.3 or Later](#upgrade-nsxt)
 1. [(Optional) Upgrade to vSphere 8](#upgrade-vsphere)
 
 
-### <a id="upgrade-clis"></a>Upgrade the TKGI and Kubernetes CLIs
+### <a id="upgrade-clis"></a>Upgrade the {{ vars.product_short }} and Kubernetes CLIs
 
-Upgrade the TKGI and Kubernetes CLIs on any local machine
-where you run commands that interact with your upgraded version of TKGI.
+Upgrade the {{ vars.product_short }} and Kubernetes CLIs on any local machine
+where you run commands that interact with your upgraded version of {{ vars.product_short }}.
 
-To upgrade the CLIs, download and re-install the TKGI and Kubernetes CLI distributions
-that are provided with TKGI on {{{ vars.product_network }}}.
+To upgrade the CLIs, download and re-install the {{ vars.product_short }} and Kubernetes CLI distributions
+that are provided with {{ vars.product_short }} on {{{ vars.product_network }}}.
 
 For more information about installing the CLIs, see the following topics:
 
-* [Installing the TKGI CLI](installing-cli.html)
+* [Installing the {{ vars.product_short }} CLI](installing-cli.html)
 
 * [Installing the Kubernetes CLI](installing-kubectl-cli.html)
 
 ###<a id='upgrade-k8s'></a>Upgrade Kubernetes Clusters If Needed
 
-If you upgraded TKGI with the **Upgrade all clusters errand** deactivated,
-the next step is to upgrade the Kubernetes clusters individually using the TKGI CLI.
+If you upgraded {{ vars.product_short }} with the **Upgrade all clusters errand** deactivated,
+the next step is to upgrade the Kubernetes clusters individually using the {{ vars.product_short }} CLI.
 
-1. Log in to the TKGI environment using the [TKGI CLI](./cli/index.html).
+1. Log in to the {{ vars.product_short }} environment using the [{{ vars.product_short }} CLI](./cli/index.html).
 
 1. Run the command `tkgi clusters` to list all Kubernetes clusters with their current versions and status:
 
@@ -312,7 +312,7 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
     1.22.2        tkgi-cluster-3-large   1.31.9       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
 
-###<a id='verify'></a>Verify TKGI Upgrade
+###<a id='verify'></a>Verify {{ vars.product_short }} Upgrade
 
 1. To verify successful upgrade, create a test cluster:
 
@@ -322,7 +322,7 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
     <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster
     if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
     </p>
-1. Run `tkgi clusters` to verify that the new cluster is created with the appropriate version of TKGI and Kubernetes:
+1. Run `tkgi clusters` to verify that the new cluster is created with the appropriate version of {{ vars.product_short }} and Kubernetes:
 
     ```
     $ tkgi clusters
@@ -335,7 +335,7 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
 
 ##<a id='upgrade-vsphere'></a> (Optional) Upgrade to vSphere 8
 
-After upgrading TKGI and its Kubernetes clusters to {{{ vars.product_version }}}, you can upgrade vSphere to v8.
+After upgrading {{ vars.product_short }} and its Kubernetes clusters to {{{ vars.product_version }}}, you can upgrade vSphere to v8.
 This upgrade includes upgrading the vCenter Server Appliance and each ESXi host, in that order.
 
 1. Upgrade vCenter. Refer to [Upgrading the vCenter Server Appliance](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vcenter-server-upgrade-7-0/upgrading-and-updating-the-vcenter-server-appliance.html) in the vCenter documentation.
@@ -345,10 +345,10 @@ This upgrade includes upgrading the vCenter Server Appliance and each ESXi host,
   1. Using the NSX Manager web interface for Transport Nodes, install the vSphere 8.0 VIBS onto the ESXi host.
   1. Using the NSX Manage web interface, verify that the ESXi host is in a "Success" state. If it is not, click the **Resolve** button.
   1. Remove the ESXi host from maintenance mode.
-  1. Repeat the process for each ESXi host in your vCenter cluster that is part of your TKGI domain.
+  1. Repeat the process for each ESXi host in your vCenter cluster that is part of your {{ vars.product_short }} domain.
 
 ##<a id='troubleshoot'></a>Troubleshoot the Upgrade
 
-See [Verifying Deployment Health](verify-health.html) for how to verify the health of your TKGI environment
+See [Verifying Deployment Health](verify-health.html) for how to verify the health of your {{ vars.product_short }} environment
 and gather information for troubleshooting cluster upgrades.
 

@@ -27,7 +27,7 @@ To install {{  vars.product }} on vSphere with Antrea networking follow the inst
     <a href="./installing-vsphere.html">Installing {{  vars.product }} on vSphere</a>
   </li>
   <li>
-    <a href="./vsphere-configure-api.html">Configuring a TKGI API Load Balancer</a>
+    <a href="./vsphere-configure-api.html">Configuring a {{ vars.product_short }} API Load Balancer</a>
   </li>
   <li>
     <a href="./vsphere-configure-users.html">Setting Up {{  vars.product }} Admin Users on vSphere</a>
@@ -42,15 +42,15 @@ container images. For more information, see
 <a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/index.html">VMware Harbor Registry</a> in the
 <em>VMware Partner documentation</em>.</p>
 
-## Install the TKGI and Kubernetes CLIs
+## Install the {{ vars.product_short }} and Kubernetes CLIs
 
-The TKGI CLI and Kubernetes CLI help you interact with your {{  vars.product }}-provisioned Kubernetes clusters and Kubernetes workloads.
+The {{ vars.product_short }} CLI and Kubernetes CLI help you interact with your {{  vars.product }}-provisioned Kubernetes clusters and Kubernetes workloads.
 
 To install the CLIs, follow the instructions below:
 
 <ul>
   <li>
-    <a href="installing-cli.html">Installing the TKGI CLI</a>
+    <a href="installing-cli.html">Installing the {{ vars.product_short }} CLI</a>
   </li>
   <li>
     <a href="installing-kubectl-cli.html">Installing the Kubernetes CLI</a>

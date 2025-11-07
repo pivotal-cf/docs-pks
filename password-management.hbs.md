@@ -4,7 +4,7 @@ title: Adding Infrastructure Password Changes to the {{  vars.product }} Tile
 ---
 
 This topic describes how to manage {{  vars.product_full }} after changing a BOSH Director
-or TKGI service account password.
+or {{ vars.product_short }} service account password.
 
 ## <a id='vcenter-pw-change'></a> Manage Your Service Account Passwords
 When you installed {{  vars.product }} you created two service accounts:
@@ -32,7 +32,7 @@ To update {{  vars.product }} with a new **Master Node Service Account** passwor
 1. Select the {{  vars.product }} tile.
 1. Select the **Kubernetes Cloud Provider** tab.
 1. Click **Change**, the link beneath your IaaS' **Master Credentials** field, to modify the password.
-    <img src="images/vsphere/pw-change-pks-vc.png" alt="vCenter Password Update in TKGI">
+    <img src="images/vsphere/pw-change-pks-vc.png" alt="vCenter Password Update in {{ vars.product_short }}">
 1. Enter the new control plane node service account password.
 1. Click **Save** to save the new password to the {{  vars.product }} tile.
 
@@ -81,7 +81,7 @@ file includes the correct vCenter credentials.
 
 You see errors similar to the following in your logs:
 
-* Service account errors in the TKGI logs:
+* Service account errors in the {{ vars.product_short }} logs:
 
     ```
     error ... Failed to authenticate user ...

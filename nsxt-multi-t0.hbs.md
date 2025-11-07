@@ -17,7 +17,7 @@ You can isolate a cluster and its workloads using NSX Tier-0 (T0) logical router
 
 {{  vars.product }} multi-T0 lets you provision, manage, and secure Kubernetes cluster deployments on isolated tenant networks.
 As shown in the diagram below, instead of having a single T0 router, there are multiple T0 routers.
-The Shared Tier-0 router handles traffic between the TKGI management network and the vSphere standard network
+The Shared Tier-0 router handles traffic between the {{ vars.product_short }} management network and the vSphere standard network
 where vCenter and NSX Manager are deployed.
 There are two Tenant Tier-0 routers that connect to the Shared Tier-0 over an NSX logical switch using a virtual LAN (VLAN) or Overlay transport zone.
 Using each dedicated T0, Kubernetes clusters are deployed in complete isolation on each tenant network.
@@ -37,7 +37,7 @@ To isolate a cluster and its workloads behind T0 routers:
 {{  vars.product }} on vSphere with NSX Policy API also supports provisioning, managing, and securing Kubernetes cluster deployments using a VRF gateway.
 
 As shown in the diagram below, instead of using one or more T0 routers, clusters are isolated behind a VRF gateway.
-The Shared Tier-0 router handles traffic between the TKGI management network and the
+The Shared Tier-0 router handles traffic between the {{ vars.product_short }} management network and the
 vSphere standard network where vCenter and NSX Manager are deployed.
 Using Tenant VRF Tier-0 gateways to connect to the Shared Tier-0, Kubernetes clusters are deployed in complete isolation on tenant networks.
 
@@ -70,7 +70,7 @@ To implement Multi-T0-based tenant isolation, verify the following prerequisites
 
 To implement VRF Tier-0 Gateway-based tenant isolation:
 
-* TKGI on vSphere with NSX Policy API.
+* {{ vars.product_short }} on vSphere with NSX Policy API.
 * Three VLANs for the VRF Tier-0 gateway.
 
 
@@ -94,7 +94,7 @@ To isolate tenants using a multi-T0 router-based configuration:
 
 ### <a id="edge-nodes"></a>Step 1: Plan and Provision Additional NSX Edge Nodes for Each Multi-T0 Router
 
-Multi-T0 requires a minimum of four NSX Edge Nodes: Configure two nodes per T0. Use the T0 attached to the TKGI management plane as the Shared Tier-0 router that connects all T0 routers. In addition, deploy an additional T0 router for each tenant you want to isolate.
+Multi-T0 requires a minimum of four NSX Edge Nodes: Configure two nodes per T0. Use the T0 attached to the {{ vars.product_short }} management plane as the Shared Tier-0 router that connects all T0 routers. In addition, deploy an additional T0 router for each tenant you want to isolate.
 
   <img src="images/nsxt/mt0/mt0-02.png" alt="Multi-T0 Router">
 
@@ -118,7 +118,7 @@ To isolate ten tenants, use the following calculation:
 2 + (10 x 2) = 22 NSX Edge Nodes
 ```
 
-Using the NSX Manager interface, deploy at least the minimum number of Edge Nodes you need for each Tenant Tier-0 and join these Edge Nodes to an Edge Cluster. For more information, see [Installing and Configuring NSX-T Data Center v3.0 for TKGI](./nsxt-3-0-install.html).
+Using the NSX Manager interface, deploy at least the minimum number of Edge Nodes you need for each Tenant Tier-0 and join these Edge Nodes to an Edge Cluster. For more information, see [Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}](./nsxt-3-0-install.html).
 
 <p class="note"><strong>Note</strong>: An Edge Cluster can have a maximum of 10 Edge Nodes. If the provisioning requires more Edge Nodes than what a single Edge Cluster can support, multiple Edge Clusters must be deployed.</p>
 
@@ -135,11 +135,11 @@ To define a logical switch based on an Overlay or VLAN transport zone, follow th
 1. In NSX Manager, go to **Networking** > **Switching** > **Switches**.
 1. Click **Add** and create a logical switch (LS).
 1. Name the switch descriptively, such as `inter-t0-logical-switch`.
-1. Connect the logical switch to the transport zone defined when deploying NSX. See [Installing and Configuring NSX-T Data Center v3.0 for TKGI](./nsxt-3-0-install.html).
+1. Connect the logical switch to the transport zone defined when deploying NSX. See [Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}](./nsxt-3-0-install.html).
 
 ### <a id="router-port"></a>Step 3: Configure a New Uplink Interface on the Shared Tier-0 Router
 
-The Shared Tier-0 router already has an uplink interface to the external (physical) network that was configured when it was created. For more information, see [Installing and Configuring NSX-T Data Center v3.0 for TKGI](./nsxt-3-0-install.html).
+The Shared Tier-0 router already has an uplink interface to the external (physical) network that was configured when it was created. For more information, see [Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}](./nsxt-3-0-install.html).
 
 To enable Multi-T0, you must configure a second uplink interface on the Shared Tier-0 router that connects to the inter-T0 network (`inter-t0-logical-switch`, for example). To do this, complete the following steps:
 
@@ -206,17 +206,17 @@ Existing {{  vars.product }} deployments where NAT mode is configured on the Sha
 
 ### <a id="consider-nat-tenant"></a>Step 9: Considerations for NAT Topology on Tenant Tier-0
 
-<p class="note"><strong>Note</strong>: This step only applies to NAT topologies on the Tenant Tier-0 router. For more information on NAT mode, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for TKGI</a>.</p>
+<p class="note"><strong>Note</strong>: This step only applies to NAT topologies on the Tenant Tier-0 router. For more information on NAT mode, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for {{ vars.product_short }}</a>.</p>
 
 <p class="note"><strong>Note</strong>: NAT mode for Tenant Tier-0 routers is enabled by defining a non-routable custom Pods IP Block using a Network Profile. For more information, see <a href="./network-profiles-define.html">Defining Network Profiles</a>.</p>
 
-In a Multi-T0 environment with NAT mode, traffic on the Tenant Tier-0 network going from Kubernetes cluster nodes to TKGI management components residing on the Shared Tier-0 router must bypass NAT rules. This is required because TKGI-managed components such as BOSH Director connect to Kubernetes nodes based on routable connectivity without NAT.
+In a Multi-T0 environment with NAT mode, traffic on the Tenant Tier-0 network going from Kubernetes cluster nodes to {{ vars.product_short }} management components residing on the Shared Tier-0 router must bypass NAT rules. This is required because {{ vars.product_short }}-managed components such as BOSH Director connect to Kubernetes nodes based on routable connectivity without NAT.
 
-To avoid NAT rules being applied to this class of traffic, you need to create two high-priority **NO_SNAT** rules on each Tenant Tier-0 router. These NO_SNAT rules allow "selective" bypass of NAT for the relevant class of traffic, which in this case is connectivity from Kubernetes node networks to TKGI management components such as the TKGI API, {{ vars.platform_name }}, and BOSH Director, as well as to infrastructure components such as vCenter and NSX Manager.
+To avoid NAT rules being applied to this class of traffic, you need to create two high-priority **NO_SNAT** rules on each Tenant Tier-0 router. These NO_SNAT rules allow "selective" bypass of NAT for the relevant class of traffic, which in this case is connectivity from Kubernetes node networks to {{ vars.product_short }} management components such as the {{ vars.product_short }} API, {{ vars.platform_name }}, and BOSH Director, as well as to infrastructure components such as vCenter and NSX Manager.
 
-For each Tenant Tier-0 router, define two NO_SNAT rules to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the TKGI Management network where TKGI, {{ vars.platform_name }}, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
+For each Tenant Tier-0 router, define two NO_SNAT rules to classify traffic. The source for both rules is the [Nodes IP Block](./nsxt-prepare-env.html#plan-ip-blocks) CIDR. The destination for one rule is the {{ vars.product_short }} Management network where {{ vars.product_short }}, {{ vars.platform_name }}, and BOSH Director are deployed. The destination for the other rule is the external network where NSX Manager and vCenter are deployed.
 
-For example, the following image shows two NO_SNAT rules created on a Tenant Tier-0 router. The first rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the TKGI management network (`30.0.0.0/24`). The second rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the external network (`192.168.201.0/24`).
+For example, the following image shows two NO_SNAT rules created on a Tenant Tier-0 router. The first rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the {{ vars.product_short }} management network (`30.0.0.0/24`). The second rule un-NATs traffic from Kubernetes nodes (`30.0.128.0/17`) to the external network (`192.168.201.0/24`).
 
 ![NO_SNAT Example 1](images/nsxt/mt0/no-snat-01.png)
 
@@ -249,7 +249,7 @@ In a Multi-T0 deployment, special consideration must be given to the network des
 
 Failover of a logical router is triggered when the router is losing all of its BGP sessions. If multiple BGP sessions are established across different uplink interfaces of a Tier-0 router, failover will only occur if **all** such sessions are lost. Thus, to ensure high availability on the Shared and Tenant Tier-0 routers, BGP can only be configured on uplink interfaces facing the Inter-Tier-0 network. This configuration is shown in the diagram below.
 
-<p class="note"><strong>Note</strong>: In a Multi-T0 deployment, BGP cannot be configured on external uplink interfaces. Uplink external connectivity must use VIP-HA with NSX to provide high availability for external interfaces. For more information, see <a href="./nsxt-3-0-install.html#nsxt30-edge-nodes">Deploy NSX Edge Nodes</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>.</p>
+<p class="note"><strong>Note</strong>: In a Multi-T0 deployment, BGP cannot be configured on external uplink interfaces. Uplink external connectivity must use VIP-HA with NSX to provide high availability for external interfaces. For more information, see <a href="./nsxt-3-0-install.html#nsxt30-edge-nodes">Deploy NSX Edge Nodes</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}</em>.</p>
 
 ![Tier-0 HA](images/nsxt/mt0/Tier-0-HA.png)
 
@@ -317,7 +317,7 @@ To configure BGP peering for each Tenant Tier-0 router, follow the steps below:
 
 ### <a id="bgp-shared"></a>Step 11: Configure BGP on the Shared Tier-0 Router
 
-The configuration of BGP on the Shared Tier-0 is similar to the BGP configuration each Tenant Tier-0, with the exception of the IP Prefix list that permits traffic to the TKGI management network where TKGI, BOSH, and {{ vars.platform_name }} are located.
+The configuration of BGP on the Shared Tier-0 is similar to the BGP configuration each Tenant Tier-0, with the exception of the IP Prefix list that permits traffic to the {{ vars.product_short }} management network where {{ vars.product_short }}, BOSH, and {{ vars.platform_name }} are located.
 
 As with each Tenant Tier-0 router, you will need to assign a unique private AS number within the private range `64512-65534` to the Shared Tier-0 router. Once the AS number is assigned, use NSX Manager to configure the following BGP rules for the Shared Tier-0 router.
 
@@ -338,7 +338,7 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 1. Click **Add** and configure as follows:
 	1. **Name**: Enter a descriptive name.
 	1. Click **Add** and create a **Permit** rule for the infrastructure components vCenter and NSX Manager.
-	1. Click **Add** and create a **Permit** rule for the TKGI management components (TKGI, {{ vars.platform_name }}, and BOSH).
+	1. Click **Add** and create a **Permit** rule for the {{ vars.product_short }} management components ({{ vars.product_short }}, {{ vars.platform_name }}, and BOSH).
 	1. Click **Add** and create a **Deny** rule that denies everything else on the network `0.0.0.0/0`.
   ![IP Prefix Lists](images/nsxt/mt0/ip-prefix-03.png)
 
@@ -352,7 +352,7 @@ To configure IP prefix lists for each Tenant Tier-0 router, follow the steps bel
 	1. **Address Families**: Click **Add** and configure as follows:
 		1. **Type**: IPV4_UNICAST
 		1. **State**: Enabled
-		1. **Out Filter**: Select the IP Prefix List that includes the network where vCenter and NSX Manager are deployed, as well as the network where the TKGI management plane is deployed.
+		1. **Out Filter**: Select the IP Prefix List that includes the network where vCenter and NSX Manager are deployed, as well as the network where the {{ vars.product_short }} management plane is deployed.
 		1. Click **Add**.
 	1. Back at the **Routing** > **BGP** screen:
 		1. Enter the Tenant Tier-0 AS number.
@@ -397,13 +397,13 @@ To verify BGP Peering:
 1. Repeat for all other Tenant Tier-0 routers.
 
 Verify that the T0 routing table for each Tenant Tier-0 includes all BGP routes to reach vCenter,
-NSX Manager, and the TKGI management network:
+NSX Manager, and the {{ vars.product_short }} management network:
 
 1. In NSX Manager, select **Networking** > **Routers** > **Routing**.
 1. Select the T0 router and choose **Actions** > **Download Routing Table**.
 1. Download the routing table for each of the Tenant Tier-0 routers.
 
-<p class="note"><strong>Note</strong>: At this point, the Shared Tier-0 has no BGP routes because you have not deployed any Kubernetes clusters. The Shared Tier-0 will show BGP routes when you deploy Kubernetes clusters to the Tenant Tier-0 routers. Each Tenant Tier-0 router shows a BGP exported route that makes each Tenant Tier-0 router aware of the TKGI management network and other external networks where NSX and vCenter are deployed.</p>
+<p class="note"><strong>Note</strong>: At this point, the Shared Tier-0 has no BGP routes because you have not deployed any Kubernetes clusters. The Shared Tier-0 will show BGP routes when you deploy Kubernetes clusters to the Tenant Tier-0 routers. Each Tenant Tier-0 router shows a BGP exported route that makes each Tenant Tier-0 router aware of the {{ vars.product_short }} management network and other external networks where NSX and vCenter are deployed.</p>
 
 
 ## <a id="security-config"></a> Configure Multi-T0 Security
@@ -437,13 +437,13 @@ First, define an IP Set that includes the IP addresses for the NSX Manager and v
 
 ![NSX and VC IP Set](images/nsxt/mt0/ip-set-01.png)
 
-Next, define an IP Set that includes the network CIDR for TKGI management components. In the following IP Set example, `30.0.0.0/24` is the CIDR block for the TKGI Management network.
+Next, define an IP Set that includes the network CIDR for {{ vars.product_short }} management components. In the following IP Set example, `30.0.0.0/24` is the CIDR block for the {{ vars.product_short }} Management network.
 
-![TKGI Admin CIDR IP Set](images/nsxt/mt0/ip-set-02.png)
+![{{ vars.product_short }} Admin CIDR IP Set](images/nsxt/mt0/ip-set-02.png)
 
 Lastly, define an IP Set for the Inter-T0 CIDR created during the base configuration.
 
-![TKGI Admin CIDR IP Set](images/nsxt/mt0/ip-set-08.png)
+![{{ vars.product_short }} Admin CIDR IP Set](images/nsxt/mt0/ip-set-08.png)
 
 <p class="note"><strong>Note</strong>: These are the minimum IP Sets you need to create. You might want to define additional IP Sets for convenience.</p>
 
@@ -509,24 +509,24 @@ Once you have defined the NSGroup, configure the firewall rule as follows.
 
 ##### <a id="nodes-firewall-rule"></a>Node Network to Management Firewall Rule
 
-This firewall rule allows Kubernetes node traffic to reach TKGI management VMs and the standard network.
+This firewall rule allows Kubernetes node traffic to reach {{ vars.product_short }} management VMs and the standard network.
 
 - **Name**: `Node-Network-to-Management`
 - **Direction**: out
 - **Source**: IP Set defined for the Nodes IP Block network
-- **Destination**: IP Sets defined for vCenter, NSX Manager, and TKGI management plane components
+- **Destination**: IP Sets defined for vCenter, NSX Manager, and {{ vars.product_short }} management plane components
 - **Service**: Any
 - **Action**: Allow
 - Apply the rule to the Inter-T0-Uplink interface.
 - Save the firewall rule.
 
-##### <a id="tkgi-firewall-rule"></a>TKGI Firewall Rule
+##### <a id="tkgi-firewall-rule"></a>{{ vars.product_short }} Firewall Rule
 
-This firewall rule allows TKGI management plane components to talk to Kubernetes nodes.
+This firewall rule allows {{ vars.product_short }} management plane components to talk to Kubernetes nodes.
 
 - **Name**: `TKGI-to-Node-Network`
 - **Direction**: ingress
-- **Source**: IP Set defined for the TKGI management network
+- **Source**: IP Set defined for the {{ vars.product_short }} management network
 - **Destination**: IP Set defined for the Nodes IP Block network
 - **Service**: Any
 - **Action**: Allow
@@ -572,7 +572,7 @@ Those rules will apply to any cluster created after you define the DFW section f
 ### <a id="secure-intra-tenant"></a> Secure Intra-Tenant Communications
 
 To secure communication between clusters in the same tenancy, you must disallow any form of communication between
-Kubernetes clusters created by TKGI.
+Kubernetes clusters created by {{ vars.product_short }}.
 Securing inter-cluster communications is achieved by provisioning security groups and DFW rules.
 
 <p class="note"><strong>Note</strong>: You must perform the global procedures, the first three steps described below, before you deploy a Kubernetes cluster to the target tenant Tier-0 router.</p>
@@ -615,7 +615,7 @@ To create a DFW section, follow the instructions in [Create DFW Section](#dfw-se
 
 Before creating NSGroups, retrieve the UUID of the cluster that you want to secure.
 To retrieve the cluster UUID, run the `tkgi cluster YOUR-CLUSTER-NAME` command.
-For more information about the TKGI CLI, see [TKGI CLI](./cli/index.html).
+For more information about the {{ vars.product_short }} CLI, see [{{ vars.product_short }} CLI](./cli/index.html).
 
 ##### Create NSGroup for Cluster Nodes
 

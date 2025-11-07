@@ -5,7 +5,7 @@ title: Deploying and Managing Cloud Native Storage (CNS) on vSphere
 
 This topic describes how to use and configure the vSphere Container Storage Interface (CSI) Driver
 to enable {{  vars.product_full }} provisioned clusters on vSphere to use external container storage.
-On vSphere, TKGI automatically installs the vSphere CSI Driver to all TKGI-provisioned clusters.
+On vSphere, {{ vars.product_short }} automatically installs the vSphere CSI Driver to all {{ vars.product_short }}-provisioned clusters.
 
 
 ## <a id='overview'></a>Overview
@@ -15,10 +15,10 @@ enabling apps to survive restarts and outages.
 Stateful containers can use vSphere storage primitives such as standard volume, persistent volume, and dynamic provisioning,
 independent of VM and container lifecycle.
 
-You can install vSphere CNS on TKGI-provisioned clusters by configuring TKGI
+You can install vSphere CNS on {{ vars.product_short }}-provisioned clusters by configuring {{ vars.product_short }}
 to automatically install a vSphere CSI Driver.
 To enable automatic CSI driver installation on your clusters,
-see [Storage](installing-vsphere.html#storage-config) in _Installing TKGI on vSphere_.
+see [Storage](installing-vsphere.html#storage-config) in _Installing {{ vars.product_short }} on vSphere_.
 
 When automatic vSphere CSI Driver installation is enabled, your clusters
 use your tile **Kubernetes Cloud Provider** storage settings as the default vSphere CNS configuration.
@@ -36,7 +36,7 @@ For more information about using the Kubernetes CSI Driver, see
 [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
 
-In TKGI, you can configure the vSphere CSI Driver to:
+In {{ vars.product_short }}, you can configure the vSphere CSI Driver to:
 
 * Customize, deploy and manage vSphere CNS volumes:
     * To customize file volumes, see [Customize vSphere File Volumes](#create-file-volumes) below.
@@ -67,7 +67,7 @@ For information about the supported features and the known limitations of the vS
 
 The vSphere CSI Driver supports different features depending on driver version, environment and storage type.
 
-TKGI supports only the following vSphere CSI Driver features:
+{{ vars.product_short }} supports only the following vSphere CSI Driver features:
 
 * Dynamic Block PV support
 * Dynamic File PV support
@@ -97,7 +97,7 @@ in _Compatibility Matrices for vSphere Container Storage Plug-in_.
 ### <a id='unsupported-features'></a> Unsupported Features and Limitations
 
 vSphere Storage DRS, Manual Storage vMotion, and other VMware vSphere features are not supported by the vSphere Container Storage Plug-in
-and cannot be used by the TKGI clusters that use or migrate to the vSphere CSI Driver.
+and cannot be used by the {{ vars.product_short }} clusters that use or migrate to the vSphere CSI Driver.
 
 For more information on the limitations of the VMware vSphere Container Storage Plug-in, see
 [vSphere Functionality Supported by vSphere Container Storage Plug-in](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/container-storage-plugin/3-0/getting-started-with-vmware-vsphere-container-storage-plug-in-3-0/vsphere-container-storage-plug-in-concepts/vsphere-functionality-supported-by-vsphere-container-storage-plug-in.html)
@@ -191,7 +191,7 @@ To modify an existing cluster with a vSphere file volume:
     * `CLUSTER-NAME` is the name of your cluster.
     * `CONFIG-FILE` is the name of your configuration file.
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ### <a id='file-volumes-remove'></a>Remove File Volume Parameters from a Cluster
@@ -216,7 +216,7 @@ parameters set to `true` to deactivate an existing file volume parameter.
 
 {{{{raw}}}} <!--  Examples: https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=PKS&title=Detailed+design+document+for+supporting+file+volume+specific+configurations # --> {{{{/raw}}}}
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
@@ -478,7 +478,7 @@ in [vsphere-csi-driver](https://github.com/kubernetes-sigs/vsphere-csi-driver/) 
 
 ## <a id='vsphere-topology-provisioning'></a>Customize a Cluster with vSphere Topology-Aware Volume Provisioning
 
-TKGI supports the vSphere Container Storage Plug-in's topology-aware volume provisioning features.
+{{ vars.product_short }} supports the vSphere Container Storage Plug-in's topology-aware volume provisioning features.
 
 For more information on volume provisioning features, see [Allowed Topologies](https://kubernetes.io/docs/concepts/storage/storage-classes/#allowed-topologies) in the Kubernetes documentation
 and [Topology-Aware Volume Provisioning](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/container-storage-plugin/2-0/using-vsphere-container-storage-plug-in/topology-aware-volume-provisioning.html)
@@ -486,7 +486,7 @@ in the VMware vSphere Container Storage Plug-in documentation.
 
 ### <a id='overview-topology'></a>Topology Overview
 
-TKGI supports clusters with topology-aware volume provisioning.
+{{ vars.product_short }} supports clusters with topology-aware volume provisioning.
 
 To create a cluster with topology-aware volume provisioning:
 
@@ -504,7 +504,7 @@ To manage a cluster configured with topology-aware volume provisioning:
 1. [Manage Clusters with Topology-Aware Volumes](#manage-topology)
 
 
-<p class="note"><strong>Note</strong>: You cannot add topology-aware volume provisioning to an existing cluster within TKGI.
+<p class="note"><strong>Note</strong>: You cannot add topology-aware volume provisioning to an existing cluster within {{ vars.product_short }}.
 </p>
 
 ### <a id='prepare-for-topology'></a>Prepare for Topology
@@ -527,13 +527,13 @@ in the VMware vSphere documentation.
 
 ### <a id='prereqs-topology'></a>Topology Limitations and Prerequisites
 
-In TKGI you can create a new cluster with topology-aware volume provisioning enabled.
+In {{ vars.product_short }} you can create a new cluster with topology-aware volume provisioning enabled.
 You cannot add topology-aware volume provisioning to an existing cluster.
 
-TKGI support for Topology-aware volume provisioning requires:
+{{ vars.product_short }} support for Topology-aware volume provisioning requires:
 
-* The **vSphere CSI Driver Integration** option must be enabled on the TKGI tile.
-For more information, see [Storage](installing-vsphere.html#storage-config) in installing TKGI on vSphere.
+* The **vSphere CSI Driver Integration** option must be enabled on the {{ vars.product_short }} tile.
+For more information, see [Storage](installing-vsphere.html#storage-config) in installing {{ vars.product_short }} on vSphere.
 
 * You have created vSphere CSI topology categories and tags in your vSphere environment.
 For more information, see [Prepare for Topology](#prepare-for-topology) below.
@@ -611,14 +611,14 @@ When running `tkgi update-cluster` on a cluster created with a topology-aware vo
 
 ## <a id='windows-configure-csi'></a>Configure vSphere CSI for Windows
 
-You can use the vSphere CSI Driver with TKGI Windows worker nodes.
+You can use the vSphere CSI Driver with {{ vars.product_short }} Windows worker nodes.
 
 <p class="note"><strong>Note</strong>: vSphere CSI driver support for Windows worker nodes is in Alpha.
 </p>
 
 ### <a id='windows-overview'></a>Overview
 
-Before using the vSphere CSI Driver with a TKGI Windows worker node:
+Before using the vSphere CSI Driver with a {{ vars.product_short }} Windows worker node:
 
 * Verify that your environment meets the [Prerequisites](#windowsfile-volumes-prereqs).
 * Verify that the [Limitations of the vSphere CSI Driver](#windows-concerns) meet your requirements.
@@ -706,7 +706,7 @@ To test your Windows stemcell:
 
 ### <a id='windows-prepare-windows-cluster'></a>Prepare vSphere CSI for a Windows Cluster
 
-To use vSphere CSI with a TKGI Windows worker:
+To use vSphere CSI with a {{ vars.product_short }} Windows worker:
 
 1. [Apply a CSI Manifest to a Windows Cluster](#windows-apply-csi-manifest)
 1. [Provision a Windows Persistent Volume](#windows-create-pv)
@@ -746,7 +746,7 @@ To configure or manage vSphere CSI on a Windows cluster:
 You can limit the number of persistent volumes attached to a Linux cluster node on vSphere.
 You can configure the maximum number of node persistent volumes on an existing cluster and during cluster creation.
 
-By default, TKGI configures Linux clusters on vSphere with a maximum of 45 attached persistent volumes.
+By default, {{ vars.product_short }} configures Linux clusters on vSphere with a maximum of 45 attached persistent volumes.
 You can decrease the maximum number of attached persistent volumes from 45 down to a minimum of 1.
 On vSphere 8 you can also increase the maximum number of attached persistent volumes.
 Contact VMware Support to determine the maximum number of attached persistent volumes supported by your vSphere environment.
@@ -879,7 +879,7 @@ To create a new cluster or update an existing cluster with the new snapshot conf
     ```console
     tkgi update-cluster demo --config-file ./snapshot.json
     ```
-    <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
 For more information on volume snapshots, see
@@ -909,7 +909,7 @@ To configure CNS data centers for a multi-data center environment:
     Where:
 
     * `DATA-CENTER-LIST` is a comma-separated list of vCenter data centers that must mount your CNS storage.
-    The default data center for a cluster is the data center defined on the TKGI tile
+    The default data center for a cluster is the data center defined on the {{ vars.product_short }} tile
     in **Kubernetes Cloud Provider** > **Datacenter Name**.
 
     For example:
@@ -955,11 +955,11 @@ To configure CNS data centers for a multi-data center environment:
         * `CLUSTER-NAME` is the name of your cluster.
         * `CONFIG-FILE` is the name of your configuration file.
 
-        <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+        <p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
         </p>
 ### <a id='uninstall-csi-after-topology'></a>Manage Topology After Switching to the Automatically Deployed vSphere CSI Driver
 
-After switching from a manually installed vSphere CSI Driver to the TKGI automatically deployed CSI Driver,
+After switching from a manually installed vSphere CSI Driver to the {{ vars.product_short }} automatically deployed CSI Driver,
 the topology configuration must not be changed.
 
 Configure topology based on the manually installed vSphere CSI Driver configuration:

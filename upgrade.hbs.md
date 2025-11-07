@@ -14,7 +14,7 @@ For instructions on upgrading {{  vars.product }}
 on vSphere with NSX networking,
 see [Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html).
 
-<p class="note"><strong>Note:</strong> You cannot directly upgrade to TKGI v1.22 from older build versions of the TKGI MC v1.21. See <a href="release-notes.html#1-22-0-no-upgrade-ova">Cannot upgrade to TKGI v1.22 from the TKGI MC v1.21 OVA</a> for workarounds.</p>
+<p class="note"><strong>Note:</strong> You cannot directly upgrade to {{ vars.product_short }} v1.22 from older build versions of the {{ vars.product_short }} MC v1.21. See <a href="release-notes.html#1-22-0-no-upgrade-ova">Cannot upgrade to {{ vars.product_short }} v1.22 from the {{ vars.product_short }} MC v1.21 OVA</a> for workarounds.</p>
 
 <p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version.
 {{  vars.product }} includes the compatible Kubernetes version.
@@ -63,7 +63,7 @@ This section describes the steps required to upgrade to {{  vars.product }} {{{ 
 
 Each version of {{  vars.product }} is compatible with multiple versions of {{ vars.platform_name }}.
 
-<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
+<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade {{ vars.product_short }},
 see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{ vars.platform_name }} and
 Ubuntu Jammy Stemcell for VMware Tanzu Downloading</a> in <em>Configuring the Upgrade Pipeline</em>.
 </p>
@@ -83,7 +83,7 @@ in _Upgrading {{ vars.platform_name }}_ in the {{ vars.platform_name }} document
 <a href="maintain-uptime.html#upgrades">About Cluster Upgrades</a> in _Maintaining Workload Uptime_ and
 <a href="create-cluster.html">Creating Clusters</a>.
     1. Monitor the {{  vars.product }} control plane in the <strong>{{  vars.product }}</strong> tile > <strong>Status</strong> tab.
-    Review the load and resource usage data for the TKGI API and TKGI Database VMs.
+    Review the load and resource usage data for the {{ vars.product_short }} API and {{ vars.product_short }} Database VMs.
     If any levels are at capacity, scale up the VMs.
     <br>
 {{{{raw}}}} <!--  when editing this edit the other duplicate BELOW in this topic < %= partial 'add-clusters-workloads' % >  # --> {{{{/raw}}}}
@@ -105,12 +105,12 @@ This adds the tile to your staging area.
 
 ### <a id="stemcell"></a> Download and Import Stemcells
 
-TKGI requires an Ubuntu Jammy Stemcell for VMware Tanzu.
+{{ vars.product_short }} requires an Ubuntu Jammy Stemcell for VMware Tanzu.
 A Windows 2019 Windows Stemcell for VMware Tanzu is also required if you intend to create Windows worker-based clusters.
 For information about Windows stemcells, see
 [Configuring Windows Worker-Based Clusters](windows-workers.html).
 
-<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
+<p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade {{ vars.product_short }},
 see <a href="upgrade-pipeline.html#configure-pipeline">Configure Automated {{ vars.platform_name }}
 and Ubuntu Jammy Stemcell Downloading</a> in <em>Configuring the Upgrade Pipeline</em>.
 </p>
@@ -141,7 +141,7 @@ and download the required stemcell version for your IaaS.
 ### <a id="modify-cni"></a>Modify Container Network Interface Configuration
 
 {{  vars.product }} supports using the Antrea Container Network Interface (CNI) as
-the CNI for new TKGI-provisioned clusters.
+the CNI for new {{ vars.product_short }}-provisioned clusters.
 
 To configure {{  vars.product }} to use Antrea as the CNI for new clusters:
 
@@ -167,7 +167,7 @@ To verify your **Errands** pane is correctly configured, do the following:
         then upgrade your existing Kubernetes clusters separately, deactivate **Upgrade all clusters errand**.
         For more information, see [Upgrading Clusters](upgrade-clusters.html).
         <p class="note warning"><strong>Warning:</strong> Deactivating the <strong>Upgrade all clusters errand</strong>
-        causes the TKGI version tagged in your Kubernetes clusters to fall behind
+        causes the {{ vars.product_short }} version tagged in your Kubernetes clusters to fall behind
         the {{  vars.product }} tile version.
         If you deactivate the <strong>Upgrade all clusters errand</strong>
         when upgrading the {{  vars.product }} tile,
@@ -176,7 +176,7 @@ To verify your **Errands** pane is correctly configured, do the following:
     * Configure the **Run smoke tests** errand:
 
         * Set the **Run smoke tests** errand to **On**.
-        The errand uses the {{  vars.product }} Command Line Interface (TKGI CLI) to create a
+        The errand uses the {{  vars.product }} Command Line Interface ({{ vars.product_short }} CLI) to create a
         Kubernetes cluster and then delete it. If the creation or deletion fails, the errand fails and
         the installation of the {{  vars.product }} tile is aborted.
 
@@ -219,21 +219,21 @@ To complete the upgrade of the {{  vars.product }} tile:
 After you complete the upgrade to {{  vars.product }} {{{ vars.product_version }}},
 complete the following verifications and upgrades:
 
-- [Upgrade the TKGI and Kubernetes CLIs](#upgrade-clis)
+- [Upgrade the {{ vars.product_short }} and Kubernetes CLIs](#upgrade-clis)
 - [Verify the Upgrade](#verify-upgrade)
 
 
-### <a id="upgrade-clis"></a>Upgrade the TKGI and Kubernetes CLIs
+### <a id="upgrade-clis"></a>Upgrade the {{ vars.product_short }} and Kubernetes CLIs
 
-Upgrade the TKGI and Kubernetes CLIs on any local machine
+Upgrade the {{ vars.product_short }} and Kubernetes CLIs on any local machine
 where you run commands that interact with your upgraded version of {{  vars.product }}.
 
-To upgrade the CLIs, download and re-install the TKGI and Kubernetes CLI distributions
+To upgrade the CLIs, download and re-install the {{ vars.product_short }} and Kubernetes CLI distributions
 that are provided with {{  vars.product }} on {{{ vars.product_network }}}.
 
 For more information about installing the CLIs, see the following topics:
 
-* [Installing the TKGI CLI](installing-cli.html)
+* [Installing the {{ vars.product_short }} CLI](installing-cli.html)
 
 * [Installing the Kubernetes CLI](installing-kubectl-cli.html)
 
@@ -255,7 +255,7 @@ Deployment Health](./verify-health.html).
 <a href="maintain-uptime.html#upgrades">About Cluster Upgrades</a> in _Maintaining Workload Uptime_ and
 <a href="create-cluster.html">Creating Clusters</a>.
     1. Monitor the {{  vars.product }} control plane in the <strong>{{  vars.product }}</strong> tile > <strong>Status</strong> tab.
-    Review the load and resource usage data for the TKGI API and TKGI Database VMs.
+    Review the load and resource usage data for the {{ vars.product_short }} API and {{ vars.product_short }} Database VMs.
     If any levels are at capacity, scale up the VMs.
     <br>
 {{{{raw}}}} <!--  when editing this edit the other duplicate ABOVE in this topic < %= partial 'add-clusters-workloads' % >  # --> {{{{/raw}}}}

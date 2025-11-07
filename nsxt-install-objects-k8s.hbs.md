@@ -1,5 +1,5 @@
 ---
-title: Create the VMware NSX Objects for Kubernetes Clusters Provisioned by TKGI
+title: Create the VMware NSX Objects for Kubernetes Clusters Provisioned by {{ vars.product_short }}
  -NSXT
 ---
 
@@ -38,16 +38,16 @@ Before completing this section, make sure you have completed the following secti
 
 ##<a id='nsxt-control-plane-reqs'></a> Required NSX Objects for the {{  vars.product }} Control Plane
 
-To install TKGI on vSphere with NSX, you need to create the following NSX objects:
+To install {{ vars.product_short }} on vSphere with NSX, you need to create the following NSX objects:
 
 - Tier-0 Gateway (also known as a Router)
 - Pods IP Block
 - Nodes IP Block
 - Floating IP Pool
 
-For more information, see [Network Planning for TKGI](./nsxt-prepare-env.html).
+For more information, see [Network Planning for {{ vars.product_short }}](./nsxt-prepare-env.html).
 
-When you configure the TKGI tile, you specify the object IDs:
+When you configure the {{ vars.product_short }} tile, you specify the object IDs:
 
   <img src="images/nsxt-objects-k8s.png">
 

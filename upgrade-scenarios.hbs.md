@@ -9,32 +9,32 @@ This topic describes upgrade scenarios for
 
 ## <a id="overview"></a>Overview
 
-When you upgrade TKGI on vSphere, you might also upgrade
+When you upgrade {{ vars.product_short }} on vSphere, you might also upgrade
 vSphere and, if you are using it, NSX.
 
-TKGI, NSX, and vSphere upgrades depend on each other.
+{{ vars.product_short }}, NSX, and vSphere upgrades depend on each other.
 Some combinations also require upgrading {{ vars.platform_name }} or
-TKGI-provisioned Kubernetes clusters.
+{{ vars.product_short }}-provisioned Kubernetes clusters.
 
 For any combination of upgrades that you perform, you must follow the upgrade
 order described in this topic.
 
 * If your environment is on vSphere with NSX networking,
-see [TKGI on vSphere with NSX Networking](#nsxt) below.
+see [{{ vars.product_short }} on vSphere with NSX Networking](#nsxt) below.
 * If your environment is on vSphere with Antrea networking,
 see
-[TKGI on vSphere (Antrea Networking)](#antrea)
+[{{ vars.product_short }} on vSphere (Antrea Networking)](#antrea)
 below.
 
-## <a id="nsxt"></a>TKGI on vSphere with NSX Networking
+## <a id="nsxt"></a>{{ vars.product_short }} on vSphere with NSX Networking
 
-When upgrading a TKGI
+When upgrading a {{ vars.product_short }}
 environment on vSphere with NSX networking, you can choose to upgrade any
 of the following:
 
-* TKGI only, optionally including Kubernetes clusters
-* TKGI, Kubernetes clusters, and NSX
-* TKGI, Kubernetes clusters, NSX, and vSphere
+* {{ vars.product_short }} only, optionally including Kubernetes clusters
+* {{ vars.product_short }}, Kubernetes clusters, and NSX
+* {{ vars.product_short }}, Kubernetes clusters, NSX, and vSphere
 
 
 For more information, see below:
@@ -47,40 +47,40 @@ For more information, see below:
     <th>Use this order...</th>
     <th>For more information, see...</th>
     <tr>
-        <td>TKGI</td>
+        <td>{{ vars.product_short }}</td>
         <td>
             <ol>
               <li>Upgrade {{ vars.platform_name }} if necessary.</li>
-              <li>Upgrade TKGI.</li>
+              <li>Upgrade {{ vars.product_short }}.</li>
               <li>(Recommended) Upgrade Kubernetes clusters.</li>
             </ol>
         </td>
-        <td><a href="#tkgi-only">Upgrading to TKGI {{{ vars.product_version }}}</a></td>
+        <td><a href="#tkgi-only">Upgrading to {{ vars.product_short }} {{{ vars.product_version }}}</a></td>
     </tr>
     <tr>
-        <td>TKGI and NSX</td>
+        <td>{{ vars.product_short }} and NSX</td>
         <td>
             <ol>
               <li>Upgrade NSX.</li>
               <li>Upgrade {{ vars.platform_name }} if necessary.</li>
-              <li>Upgrade TKGI.</li>
+              <li>Upgrade {{ vars.product_short }}.</li>
               <li>Upgrade Kubernetes clusters.</li>
             </ol>
         </td>
-        <td><a href="#tkgi-nsxt">Upgrading to TKGI {{{ vars.product_version }}} and NSX v4.0</a></td>
+        <td><a href="#tkgi-nsxt">Upgrading to {{ vars.product_short }} {{{ vars.product_version }}} and NSX v4.0</a></td>
     </tr>
     <tr>
-        <td>TKGI, NSX, and vSphere</td>
+        <td>{{ vars.product_short }}, NSX, and vSphere</td>
         <td>
             <ol>
               <li>Upgrade NSX.</li>
               <li>Upgrade {{ vars.platform_name }} if necessary.</li>
-              <li>Upgrade TKGI.</li>
+              <li>Upgrade {{ vars.product_short }}.</li>
               <li>Upgrade Kubernetes clusters.</li>
               <li>Upgrade vSphere.</li>
             </ol>
         </td>
-        <td><a href="#tkgi-nsxt-vsphere">Upgrading to TKGI {{{ vars.product_version }}}, NSX, and vSphere v8.0</a></td>
+        <td><a href="#tkgi-nsxt-vsphere">Upgrading to {{ vars.product_short }} {{{ vars.product_version }}}, NSX, and vSphere v8.0</a></td>
     </tr>
 </table>
 
@@ -94,7 +94,7 @@ For a list of NSX and vSphere versions compatible with
 * [Product Snapshot](release-notes.html) in _Release Notes_
 * [VMware Product Interoperability Matrices](https://interopmatrix.broadcom.com/Interoperability?col=644&row=0,)
 
-### <a id="tkgi-only"></a>Scenario 1: Upgrading to TKGI {{{ vars.product_version }}}
+### <a id="tkgi-only"></a>Scenario 1: Upgrading to {{ vars.product_short }} {{{ vars.product_version }}}
 
 In this upgrade scenario, you upgrade {{  vars.product }}
 from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} and do not upgrade your NSX or vSphere infrastructure.
@@ -126,7 +126,7 @@ upgrade scenario:
     <th>Post-upgrade version</th>
     <th>Instructions</th>
     <tr>
-        <td>TKGI</td>
+        <td>{{ vars.product_short }}</td>
         <td><strong>{{{ vars.product_version_prev }}}</strong></td>
         <td><strong>{{{ vars.product_version }}}</strong></td>
         <td>See <a href="upgrade-nsxt.html">Upgrading {{  vars.product }} (NSX Networking)</a>.</td>
@@ -139,7 +139,7 @@ upgrade scenario:
     </tr>
 </table>
 
-### <a id="tkgi-nsxt"></a>Scenario 2: Upgrading to TKGI {{{ vars.product_version }}} and NSX v4.0
+### <a id="tkgi-nsxt"></a>Scenario 2: Upgrading to {{ vars.product_short }} {{{ vars.product_version }}} and NSX v4.0
 
 <p class="note warning">
 <strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.
@@ -178,7 +178,7 @@ upgrade scenario:
     <th>Post-upgrade version</th>
     <th>Instructions</th>
     <tr>
-        <td>TKGI</td>
+        <td>{{ vars.product_short }}</td>
         <td><strong>{{{ vars.product_version_prev }}}</strong></td>
         <td><strong>{{{ vars.product_version }}}</strong></td>
         <td>See <a href="upgrade-nsxt.html">Upgrading {{  vars.product }} (NSX Networking)</a>.</td>
@@ -204,7 +204,7 @@ upgrade scenario:
     </tr>
 </table>
 
-### <a id="tkgi-nsxt-vsphere"></a>Scenario 3: Upgrading to TKGI {{{ vars.product_version }}}, NSX v4.0, and vSphere v8.0
+### <a id="tkgi-nsxt-vsphere"></a>Scenario 3: Upgrading to {{ vars.product_short }} {{{ vars.product_version }}}, NSX v4.0, and vSphere v8.0
 
 <p class="note warning">
 <strong>Warning:</strong> Refer to the <a href="release-notes.html">Release Notes</a> for current version support, known issues, and other important information.
@@ -246,7 +246,7 @@ upgrade scenario:
     <th>Post-upgrade version</th>
     <th>Instructions</th>
     <tr>
-        <td>TKGI</td>
+        <td>{{ vars.product_short }}</td>
         <td><strong>{{{ vars.product_version_prev }}}</strong></td>
         <td><strong>{{{ vars.product_version }}}</strong></td>
         <td>See <a href="upgrade-nsxt.html">Upgrading {{  vars.product }} (NSX Networking)</a>.</td>
@@ -287,13 +287,13 @@ upgrade scenario:
 </table>
 
 
-## <a id="antrea"></a>TKGI on vSphere (Antrea Networking)
+## <a id="antrea"></a>{{ vars.product_short }} on vSphere (Antrea Networking)
 
 When upgrading a {{  vars.product }} environment on vSphere with Antrea
 networking, you can choose to upgrade any of the following:
 
-* TKGI only, optionally including Kubernetes clusters
-* TKGI, Kubernetes clusters, and vSphere
+* {{ vars.product_short }} only, optionally including Kubernetes clusters
+* {{ vars.product_short }}, Kubernetes clusters, and vSphere
 
 
 For more information, see below:
@@ -306,34 +306,34 @@ For more information, see below:
     <th>Use this order...</th>
     <th>For more information, see...</th>
     <tr>
-        <td>TKGI</td>
+        <td>{{ vars.product_short }}</td>
         <td>
             <ol>
               <li>Upgrade {{ vars.platform_name }} if necessary.</li>
-              <li>Upgrade TKGI.</li>
+              <li>Upgrade {{ vars.product_short }}.</li>
               <li>(Recommended) Upgrade Kubernetes clusters.</li>
             </ol>
         </td>
-        <td><a href="#tkgi-only-antrea">Upgrading to TKGI {{{ vars.product_version }}}</a></td>
+        <td><a href="#tkgi-only-antrea">Upgrading to {{ vars.product_short }} {{{ vars.product_version }}}</a></td>
     </tr>
     <tr>
-        <td>TKGI and vSphere</td>
+        <td>{{ vars.product_short }} and vSphere</td>
         <td>
             <ol>
               <li>Upgrade {{ vars.platform_name }} if necessary.</li>
-              <li>Upgrade TKGI.</li>
+              <li>Upgrade {{ vars.product_short }}.</li>
               <li>Upgrade Kubernetes clusters.</li>
               <li>Upgrade vSphere.</li>
             </ol>
         </td>
-        <td><a href="#tkgi-vsphere">Upgrading to TKGI {{{ vars.product_version }}} and vSphere v7.0</a></td>
+        <td><a href="#tkgi-vsphere">Upgrading to {{ vars.product_short }} {{{ vars.product_version }}} and vSphere v7.0</a></td>
     </tr>
 </table>
 
 For a list of vSphere versions compatible with
 {{  vars.product }} {{{ vars.product_version }}}, see [VMware Product Interoperability Matrices](https://interopmatrix.vmware.com/Interoperability?col=644&row=0,).
 
-### <a id="tkgi-only-antrea"></a>Scenario 1: Upgrading to TKGI {{{ vars.product_version }}}
+### <a id="tkgi-only-antrea"></a>Scenario 1: Upgrading to {{ vars.product_short }} {{{ vars.product_version }}}
 
 In this upgrade scenario, you upgrade {{  vars.product }}
 from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} and do not upgrade your vSphere infrastructure.
@@ -365,7 +365,7 @@ upgrade scenario:
     <th>Post-upgrade version</th>
     <th>Instructions</th>
     <tr>
-        <td>TKGI</td>
+        <td>{{ vars.product_short }}</td>
         <td><strong>{{{ vars.product_version_prev }}}</strong></td>
         <td><strong>{{{ vars.product_version }}}</strong></td>
         <td>See <a href="upgrade.html">Upgrading {{  vars.product }} (Antrea Networking)</a>.</td>
@@ -385,7 +385,7 @@ upgrade scenario:
 </table>
 
 
-### <a id="tkgi-vsphere"></a>Scenario 2: Upgrading to TKGI {{{ vars.product_version }}} and vSphere v8.0
+### <a id="tkgi-vsphere"></a>Scenario 2: Upgrading to {{ vars.product_short }} {{{ vars.product_version }}} and vSphere v8.0
 
 In this upgrade scenario, you upgrade {{  vars.product }} from {{{ vars.product_version_prev }}} to
 {{{ vars.product_version }}} and vSphere from v7.0 to v8.0.
@@ -415,7 +415,7 @@ upgrade scenario:
     <th>Post-upgrade version</th>
     <th>Instructions</th>
     <tr>
-        <td>TKGI</td>
+        <td>{{ vars.product_short }}</td>
         <td><strong>{{{ vars.product_version_prev }}}</strong></td>
         <td><strong>{{{ vars.product_version }}}</strong></td>
         <td>See <a href="upgrade.html">Upgrading {{  vars.product }} (Antrea Networking)</a>.</td>

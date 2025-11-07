@@ -36,10 +36,10 @@ To install NSX on vSphere for {{  vars.product }}, complete the following sectio
     <a href="./nsxt-install-transports.html">Deploy NSX Transport Nodes</a>
   </li>
   <li>
-    <a href="./nsxt-install-objects-k8s.html">Create NSX Objects for Kubernetes Clusters Provisioned by TKGI</a>
+    <a href="./nsxt-install-objects-k8s.html">Create NSX Objects for Kubernetes Clusters Provisioned by {{ vars.product_short }}</a>
   </li>
   <li>
-    <a href="./nsxt-install-objects-mgmt.html">Create NSX Objects for TKGI Management Plane Components</a>
+    <a href="./nsxt-install-objects-mgmt.html">Create NSX Objects for {{ vars.product_short }} Management Plane Components</a>
   </li>
   <li>
     <a href="./nsxt-install-password.html">Configure NSX Passwords</a>

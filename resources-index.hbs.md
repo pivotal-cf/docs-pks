@@ -3,7 +3,7 @@ title: Managing Kubernetes Cluster Options
 
 ---
 
-The following topics describe how an {{  vars.product_full }} administrator can create and manage options for the Kubernetes clusters that TKGI users provision:
+The following topics describe how an {{  vars.product_full }} administrator can create and manage options for the Kubernetes clusters that {{ vars.product_short }} users provision:
 
 <ul>
   <li>

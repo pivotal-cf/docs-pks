@@ -9,7 +9,7 @@ This topic describes options for configuring {{  vars.product_full }} on vSphere
 
 For procedural information about configuring PVs, see [Configuring and Using PersistentVolumes](volumes.html).
 
-For information about which vSphere CSI Driver features are supported by TKGI,
+For information about which vSphere CSI Driver features are supported by {{ vars.product_short }},
 see [vSphere CSI Driver Supported Features and Requirements](vsphere-cns.html#supported-feature)
 in _Deploying and Managing Cloud Native Storage (CNS) on vSphere_.
 
@@ -38,13 +38,13 @@ PVs can be used with two types of Kubernetes workloads:
 
 ### <a id='vsphere-pv-migration'></a>Migrating Persistent Volumes Between Datastores Provisioning Support in Kubernetes
 
-On vSphere 8U2+ and 73o+, Kubernetes CSI PersistentVolumes (PVs) used by TKGI clusters can be migrated between datastores.
+On vSphere 8U2+ and 73o+, Kubernetes CSI PersistentVolumes (PVs) used by {{ vars.product_short }} clusters can be migrated between datastores.
 
 Migration is supported for all vSphere CSI-managed block PVs, including PVs created by CSI and migrated from in-tree storage to CSI.
 
 **Requirements**:
 
-* TKGI 1.16 and later
+* {{ vars.product_short }} 1.16 and later
 * vSphere 8.0 Update 2 and later or 7.0 Update 3o and later
 * Source and target datastores must have the same host accessibility, especially if you have the CSI zoning feature enabled as described in [Deploying vSphere Container Storage Plug-in with Topology](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/container-storage-plugin/3-0/getting-started-with-vmware-vsphere-container-storage-plug-in-3-0/vsphere-container-storage-plug-in-deployment/deploying-vsphere-container-storage-plug-in-with-topology.html)
 

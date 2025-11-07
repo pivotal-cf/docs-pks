@@ -1,8 +1,8 @@
 <br>
 ### <a id='storage-req-large'></a> Storage Requirements for Large Numbers of Pods
 
-If you expect the cluster workload to run a large number of pods continuously, 
-then increase the size of persistent disk storage allocated to the TKGI Database VM as follows:
+If you expect the cluster workload to run a large number of pods continuously,
+then increase the size of persistent disk storage allocated to the {{ vars.product_short }} Database VM as follows:
 
  <table>
   <tr>

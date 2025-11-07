@@ -1,5 +1,5 @@
 ---
-title: Considerations for Using the VMware NSX Policy API with TKGI
+title: Considerations for Using the VMware NSX Policy API with {{ vars.product_short }}
 
 topic: nsx-t-policy
 ---
@@ -17,15 +17,15 @@ This topic provides considerations for using the NSX Policy API with {{  vars.pr
 
 The NSX Policy API is the next-generation interface for integrating with the NSX networking and security framework.
 
-In addition to supporting the NSX Management API, TKGI supports using the NSX Policy API to deploy {{  vars.product }} on vSphere.
+In addition to supporting the NSX Management API, {{ vars.product_short }} supports using the NSX Policy API to deploy {{  vars.product }} on vSphere.
 
-If you are planning on using the NSX Policy API, keep in mind that only new deployments of TKGI are supported. You cannot configure an existing installation of TKGI to use the NSX Policy API.
+If you are planning on using the NSX Policy API, keep in mind that only new deployments of {{ vars.product_short }} are supported. You cannot configure an existing installation of {{ vars.product_short }} to use the NSX Policy API.
 
-In addition, while all TKGI functionality is supported in both NSX modes, Policy and Management, there are some differences to be aware of when configuring NSX objects for TKGI, and when configuring the BOSH and TKGI tiles. These differences are described in more detail below.
+In addition, while all {{ vars.product_short }} functionality is supported in both NSX modes, Policy and Management, there are some differences to be aware of when configuring NSX objects for {{ vars.product_short }}, and when configuring the BOSH and {{ vars.product_short }} tiles. These differences are described in more detail below.
 
 ## <a id='nsxt-policy-versions'></a>NSX Versions
 
-To use the NSX Policy API with your TKGI installation, you must use a supported NSX version. Refer to the [Release Notes](./release-notes.html).
+To use the NSX Policy API with your {{ vars.product_short }} installation, you must use a supported NSX version. Refer to the [Release Notes](./release-notes.html).
 
 ## <a id='nsxt-policy-toplogy'></a>NSX Deployment Topologies
 
@@ -43,21 +43,21 @@ For installation instructions, see [Installing {{  vars.product }} on vSphere wi
 
 To use the NSX Policy API, you must configure the required NSX control plane objects using the NSX Policy API or UI. Specifically, you must configure the Tier-0 Router (called Gateway in the Policy terminology), the Nodes IP Block, the Pods IP Block, and the Floating IP Pool need to be created using the Policy API or UI.
 
-For specific instructions on creating the required objects, see [Create the NSX Objects for Kubernetes Clusters Provisioned by TKGI](nsxt-install-objects-k8s.html).
+For specific instructions on creating the required objects, see [Create the NSX Objects for Kubernetes Clusters Provisioned by {{ vars.product_short }}](nsxt-install-objects-k8s.html).
 
-## <a id='nsxt-policy-config'></a>TKGI Configuration
+## <a id='nsxt-policy-config'></a>{{ vars.product_short }} Configuration
 
 When you configure the BOSH Director tile for {{  vars.product }}, you must enable the option vCenter Config > NSX Networking > **Use NSX Policy API**. See [Configure NSX Networking](./vsphere-nsxt-om-config.html#vcenter-config).
 
-Also, when you configure the TKGI tile in {{ vars.platform_name }}, you must enabled Settings > Networking > NSX > **Policy API mode**. See [Configure TKGI Networking](./installing-nsx-t.html#networking).
+Also, when you configure the {{ vars.product_short }} tile in {{ vars.platform_name }}, you must enabled Settings > Networking > NSX > **Policy API mode**. See [Configure {{ vars.product_short }} Networking](./installing-nsx-t.html#networking).
 
 ## <a id='nsxt-policy-mgmt-console'></a>Management Console
 
-If you are using the TKGI Management Console, you need to select the Policy API in the TKGI configuration section.
+If you are using the {{ vars.product_short }} Management Console, you need to select the Policy API in the {{ vars.product_short }} configuration section.
 
 ## <a id='nsxt-policy-runtime'></a>Network Profile
 
-{{  vars.product }} on vSphere with NSX supports the use of [Network Profile](./network-profiles-index.html) for modifying specific NSX settings post-installation. A limited number of network profile use cases are not supported when using TKGI with the NSX Policy API.
+{{  vars.product }} on vSphere with NSX supports the use of [Network Profile](./network-profiles-index.html) for modifying specific NSX settings post-installation. A limited number of network profile use cases are not supported when using {{ vars.product_short }} with the NSX Policy API.
 
 The {{  vars.product }} on vSphere with NSX Policy API does not support either the "Top Firewall" or the "Bottom Firewall" DFW Section Markers. For more information, see [DFW Section Markers](./network-profiles-ncp-dfw.html).
 

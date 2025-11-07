@@ -1,5 +1,5 @@
 ---
-title: Configuring Telegraf in TKGI
+title: Configuring Telegraf in {{ vars.product_short }}
 
 ---
 
@@ -8,14 +8,14 @@ This topic describes how to configure Telegraf in
 
 ## <a id="overview"></a>Overview
 
-You can configure Telegraf to collect metrics from TKGI API,
+You can configure Telegraf to collect metrics from {{ vars.product_short }} API,
 control plane node, and worker node VMs and send the metrics to a monitoring service,
 such as Datadog.
 
 For more information about collected metrics, see
 [Metrics: Telegraf](host-monitoring.html#telegraf) in
-_Monitoring TKGI and
-TKGI-Provisioned Clusters_.
+_Monitoring {{ vars.product_short }} and
+{{ vars.product_short }}-Provisioned Clusters_.
 
 ## <a id="collect"></a>Collect Metrics Using Telegraf
 
@@ -28,7 +28,7 @@ See [Configure Telegraf in the Tile](#connect) below.
 
 ### <a id="toml"></a> Create a Configuration File
 
-To connect a monitoring service to TKGI, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the {{  vars.product }} tile to connect the service.
+To connect a monitoring service to {{ vars.product_short }}, you must create a configuration file for the service. The configuration file is written in a TOML format and consists of key-value pairs. After you create your configuration file, you can enter the file into the {{  vars.product }} tile to connect the service.
 
 To create a configuration file for your monitoring service:
 
@@ -51,7 +51,7 @@ For example, if you want to create a configuration file for an HTTP output plugi
 
 ### <a id="connect"></a> Configure Telegraf in the Tile
 
-To configure TKGI to use Telegraf for metric collection:
+To configure {{ vars.product_short }} to use Telegraf for metric collection:
 
 1. Navigate to the **{{  vars.product }}** tile > **Settings** > **Host Monitoring**.
 
@@ -83,10 +83,10 @@ To configure TKGI to use Telegraf for metric collection:
       </tr>
       <tr>
         <td>
-          <strong>Enable node exporter on TKGI API</strong>
+          <strong>Enable node exporter on {{ vars.product_short }} API</strong>
         </td>
         <td>
-          Enable to send Node Exporter metrics from the TKGI API VM.
+          Enable to send Node Exporter metrics from the {{ vars.product_short }} API VM.
         </td>
       </tr>
       <tr>
@@ -162,10 +162,10 @@ To configure TKGI to use Telegraf for metric collection:
     </table>
 
     <p class="note"><strong>Note:</strong>
-      The Telegraf output configuration options are visible to TKGI admins only.
+      The Telegraf output configuration options are visible to {{ vars.product_short }} admins only.
     </p>
 
-    Components you enable in this step will be visible to TKGI admins only.
+    Components you enable in this step will be visible to {{ vars.product_short }} admins only.
 
 1. In **Setup Telegraf Outputs**, replace the default value `[[outputs.discard]]` with the contents of the configuration file
 that you created in [Create a Configuration File](#toml) above.

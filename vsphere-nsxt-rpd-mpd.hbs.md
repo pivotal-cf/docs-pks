@@ -22,14 +22,14 @@ The {{  vars.product }} Management Cluster on vSphere comprises the following co
 - vCenter Server
 - NSX-T Manager v3.0 or later (quantity 3)
 
-For more information, see [Installing and Configuring NSX-T Data Center v3.0 for TKGI](./nsxt-3-0-install.html).
+For more information, see [Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}](./nsxt-3-0-install.html).
 
 ###<a id='tkgi-edge-cluster'></a> Edge Cluster
 
-A TKGI Edge Cluster on vSphere with NSX is comprised of two or more NSX Edge Nodes.
-The maximum supported number of Edge Nodes per TKGI Edge Cluster is 10.
+A {{ vars.product_short }} Edge Cluster on vSphere with NSX is comprised of two or more NSX Edge Nodes.
+The maximum supported number of Edge Nodes per {{ vars.product_short }} Edge Cluster is 10.
 
-For more information, see [Installing and Configuring NSX-T Data Center v3.0 for TKGI](./nsxt-3-0-install.html).
+For more information, see [Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}](./nsxt-3-0-install.html).
 
 ###<a id='tkgi-compute-cluster'></a> Compute Cluster
 
@@ -38,7 +38,7 @@ The {{  vars.product }} Compute Cluster on vSphere comprises the following compo
 - Kubernetes control plane nodes (quantity 3)
 - Kubernetes worker nodes
 
-For more information, see [Installing and Configuring NSX-T Data Center v3.0 for TKGI](./nsxt-3-0-install.html).
+For more information, see [Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}](./nsxt-3-0-install.html).
 
 ###<a id='tkgi-cluster-consids'></a> Management Plane Placement
 
@@ -46,16 +46,16 @@ The {{  vars.product }} Management Plane comprises the following components:
 
 - {{ vars.platform_name }}
 - BOSH Director
-- TKGI Control Plane
+- {{ vars.product_short }} Control Plane
 - VMware Harbor Registry
 
-Depending on your design choice, TKGI management components can be deployed in the {{  vars.product }} Management Cluster on the standard vSphere network or in the {{  vars.product }} Compute Cluster on the NSX-defined virtual network. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for {{  vars.product }}</a>.</p>
+Depending on your design choice, {{ vars.product_short }} management components can be deployed in the {{  vars.product }} Management Cluster on the standard vSphere network or in the {{  vars.product }} Compute Cluster on the NSX-defined virtual network. For more information, see <a href="./nsxt-topologies.html">NSX Deployment Topologies for {{  vars.product }}</a>.</p>
 
 ###<a id='tkgi-cluster-reqs'></a> vSphere Cluster Configuration Requirements
 
 For each vSphere cluster defined for {{  vars.product }}, the following configurations are required to support production workloads:
 
-- All vSphere clusters are managed by the same vCenter server. TKGI does not support workload clusters in multiple vCenter server inventories.
+- All vSphere clusters are managed by the same vCenter server. {{ vars.product_short }} does not support workload clusters in multiple vCenter server inventories.
 
 - The vSphere Distributed Resource Scheduler (DRS) is enabled. For more information, see <a href="https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-automation/8-17/creating-a-drs-cluster.html">Creating a DRS Cluster</a> in the vSphere documentation.</p>
 
@@ -77,7 +77,7 @@ The recommended production deployment (RPD) topology represents the VMware-recom
 
 The RPD for {{  vars.product }} with vSAN storage requires 12 ESXi hosts. The diagram below shows the topology for this deployment.
 
-<img src="images/nsxt/pks-vs-nsxt-rpd-vsan.png" alt="RPD for TKGI with vSAN">
+<img src="images/nsxt/pks-vs-nsxt-rpd-vsan.png" alt="RPD for {{ vars.product_short }} with vSAN">
 
 The following subsections describe configuration details for the RPD with vSAN topology.
 
@@ -120,7 +120,7 @@ The RPD with vSAN topology can be scaled as follows to accommodate future growth
 
 The RPD for {{  vars.product }} without vSAN storage requires nine ESXi hosts. The diagram below shows the topology for this deployment.
 
-<img src="images/nsxt/pks-vs-nsxt-rpd.png" alt="RPD for TKGI without vSAN">
+<img src="images/nsxt/pks-vs-nsxt-rpd.png" alt="RPD for {{ vars.product_short }} without vSAN">
 
 The following subsections describe configuration details for the RPD of {{  vars.product }} without vSAN.
 
@@ -164,7 +164,7 @@ The minimum production deployment (MPD) topology represents the baseline require
 
 The diagram below shows the topology for this deployment.
 
-<img src="images/nsxt/pks-vs-nsxt-mpd.png" alt="MPD for TKGI">
+<img src="images/nsxt/pks-vs-nsxt-mpd.png" alt="MPD for {{ vars.product_short }}">
 
 The following subsections describe configuration details for an MPD of {{  vars.product }}.
 
@@ -235,13 +235,13 @@ The following table lists the resource requirements for NSX infrastructure and {
     <td>160</td>
   </tr>
   <tr>
-    <td>TKGI API</td>
+    <td>{{ vars.product_short }} API</td>
     <td>2</td>
     <td>8</td>
     <td>64</td>
   </tr>
   <tr>
-    <td>TKGI Database</td>
+    <td>{{ vars.product_short }} Database</td>
     <td>2</td>
     <td>8</td>
     <td>64</td>

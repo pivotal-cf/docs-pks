@@ -1,4 +1,4 @@
-{{  vars.product }}-provisioned clusters send usage data to the TKGI control plane for storage.
+{{  vars.product }}-provisioned clusters send usage data to the {{ vars.product_short }} control plane for storage.
 The VMware Customer Experience Improvement Program (CEIP) provides the option to also
 send the cluster usage data to VMware to improve customer experience.
 
@@ -18,7 +18,7 @@ To configure {{  vars.product }} CEIP Program settings:
   * (Optional) Enter your entitlement account number or Tanzu customer number.
   If you are a VMware customer, you can find your entitlement account number in your **Account Summary** on [my.vmware.com](https://my.vmware.com).
   If you are a Pivotal customer, you can find your Pivotal Customer Number in your Pivotal Order Confirmation email.
-  * (Optional) Enter a descriptive name for your TKGI installation.
+  * (Optional) Enter a descriptive name for your {{ vars.product_short }} installation.
   The label you assign to this installation will be used in CEIP reports to identify the environment.
 1. To provide information about the purpose for this installation, select an option.
   ![CEIP installation type](./images/ceip-telemetry-type.png)

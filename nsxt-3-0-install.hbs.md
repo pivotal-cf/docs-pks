@@ -9,11 +9,11 @@ This topic describes how to install and configure NSX-T Data Center v3.0 for use
 
 To perform a new installation of NSX-T Data Center for {{  vars.product }}, complete the following steps in the order presented.
 
-1. Verify NSX-T v3.0 support for your TKGI version. For more information, see the [Release Notes](./release-notes.html) for the TKGI version you are installing.
+1. Verify NSX-T v3.0 support for your {{ vars.product_short }} version. For more information, see the [Release Notes](./release-notes.html) for the {{ vars.product_short }} version you are installing.
 
 1. Read the topics in the [Preparing to Install {{  vars.product }} on vSphere with NSX-T Data Center](./vsphere-nsxt-index-prepare.html) section of the documentation.
 
-1. Read the [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html) topic.
+1. Read the [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for {{ vars.product_short }}](nsxt-3-1-install-delta.html) topic.
 
 ##<a id='nsxt30-mgmt-hosts'></a> Install the NSX-T Management Hosts
 

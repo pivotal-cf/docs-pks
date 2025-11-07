@@ -9,7 +9,7 @@ This topic describes how to back up and restore the vCenter Server for a {{  var
 
 ## vCenter Cluster Configuration
 
-To support highly available clusters, configure the vCenter clusters for TKGI with HA and DRS enabled. For more information, see [vSphere Availability](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/7-0/vsphere-availability.html) in the VMware vSphere documentation.
+To support highly available clusters, configure the vCenter clusters for {{ vars.product_short }} with HA and DRS enabled. For more information, see [vSphere Availability](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/7-0/vsphere-availability.html) in the VMware vSphere documentation.
 
 ## vCenter Server Back Up and Recover
 

@@ -1,4 +1,4 @@
-Before creating TKGI users, you must log in to the UAA server as a UAA admin. To log in to the UAA server, do the following:
+Before creating {{ vars.product_short }} users, you must log in to the UAA server as a UAA admin. To log in to the UAA server, do the following:
 
 1. Retrieve the UAA management admin client secret:
 
@@ -16,8 +16,8 @@ Before creating TKGI users, you must log in to the UAA server as a UAA admin. To
 
     Where:
 
-    * `TKGI-API` is the domain name of your TKGI API server. You entered this domain name in the **{{  vars.product }}** tile > **TKGI API** > **API Hostname (FQDN)**.
-    * `CERTIFICATE-PATH` is the path to your {{ vars.platform_name }} root CA certificate. Provide this certificate to validate the TKGI API certificate with SSL.
+    * `TKGI-API` is the domain name of your {{ vars.product_short }} API server. You entered this domain name in the **{{  vars.product }}** tile > **{{ vars.product_short }} API** > **API Hostname (FQDN)**.
+    * `CERTIFICATE-PATH` is the path to your {{ vars.platform_name }} root CA certificate. Provide this certificate to validate the {{ vars.product_short }} API certificate with SSL.
         * If you are logged in to the {{ vars.platform_name }} VM, specify `/var/tempest/workspaces/default/root_ca_certificate` as the path. This is the default location of the root certificate on the {{ vars.platform_name }} VM.
         * If you downloaded the {{ vars.platform_name }} root CA certificate to your machine, specify the path where you stored the certificate.
 

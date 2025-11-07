@@ -52,7 +52,7 @@ file from the [Broadcom Support](https://support.broadcom.com).
 
 1. Log into vCenter using the vSphere Client (HTML5) to deploy the {{ vars.platform_name }} OVA.
 
-1. Select the Resource Pool defined for the {{  vars.product }} Management Plane. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_
+1. Select the Resource Pool defined for the {{  vars.product }} Management Plane. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_
  if you have not defined the {{  vars.product }} Management Resource Pool.
 
 1. Right click the {{  vars.product }} Management Plane Resource Pool and select **Deploy OVF Template.**
@@ -110,7 +110,7 @@ If you are using vSphere 6.5, at the **Select Networks** screen, select a vSS or
 
 Complete the remaining deployment steps as described above.
 
-After the OVA deployment completes successfully, right-click the {{ vars.platform_name }} VM and select **Edit Settings**. Change the vNIC connection to use the `nsx.LogicalSwitch` that is defined for the TKGI Management Plane, for example, `LS-MGMT-TKGI`.
+After the OVA deployment completes successfully, right-click the {{ vars.platform_name }} VM and select **Edit Settings**. Change the vNIC connection to use the `nsx.LogicalSwitch` that is defined for the {{ vars.product_short }} Management Plane, for example, `LS-MGMT-TKGI`.
     {{ image_tag src="images/nsxt/om/deploy-om-15.png" alt="vCenter UI {{ vars.platform_name }} VM Edit Settings Virtual Hardware tab Network adapter 1 configuration" }}
 
 ## <a id="config-om"></a>Step 3: Configure {{ vars.platform_name }} for {{  vars.product }}

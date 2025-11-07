@@ -20,7 +20,7 @@ For more information, see [Prepare the Working Environment](#prep-windows-nodes)
 ## <a id='overview'></a> Overview
 
 This procedure describes how to send logs to vRLI
-from Windows workers on TKGI-provisioned Windows clusters
+from Windows workers on {{ vars.product_short }}-provisioned Windows clusters
 using Fluent Bit.
 
 To use Fluent Bit to send Windows worker logs to vRLI:
@@ -34,7 +34,7 @@ To use Fluent Bit to send Windows worker logs to vRLI:
 To prepare your working environment:
 
 1. Install `docker` on the local machine you are working from.
-If you are working from a TKGI-provisioned Windows worker node, Docker is already installed.
+If you are working from a {{ vars.product_short }}-provisioned Windows worker node, Docker is already installed.
 1. Follow the steps in
 [Configure Docker for Creating Windows Containers](#configure-docker) below.
 

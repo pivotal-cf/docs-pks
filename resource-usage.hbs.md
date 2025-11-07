@@ -7,7 +7,7 @@ title: Managing Resource Usage with Quotas
 
 
 This topic describes how to review and restrict the usage of
-{{  vars.product_full }} resources by TKGI users.
+{{  vars.product_full }} resources by {{ vars.product_short }} users.
 
 ## <a id="overview"></a> Overview
 
@@ -16,7 +16,7 @@ you can set a limit on each user's total resource allocation
 within {{  vars.product }}.
 
 You manage resources in {{  vars.product }}
-by defining quotas for individual users with the TKGI API.
+by defining quotas for individual users with the {{ vars.product_short }} API.
 
 The `quotas` API endpoint allows you to restrict
 the total amount of memory and number of CPUs
@@ -26,7 +26,7 @@ In addition, you can limit the total number of clusters
 a user can provision within {{  vars.product }}.
 
 To review overall resource usage and for individual users,
-you access the TKGI API `usages` endpoint.
+you access the {{ vars.product_short }} API `usages` endpoint.
 
 <p class="note"><strong>Note</strong>:
 Quota settings affect only non-admin user accounts.
@@ -35,7 +35,7 @@ A quota applied to an admin user account is ignored.</p>
 ## <a id='quota-admin'></a> Set up Your API Access Token
 
 The curl commands in this topic use an access token environment variable to
-authenticate into the TKGI API.
+authenticate into the {{ vars.product_short }} API.
 
 {{> create-auth-token-var }}
 
@@ -168,7 +168,7 @@ https://example.com:9021/v1/quotas/$user
 
 ## <a id='quota-view-admin'></a> View Quotas
 
-The TKGI API `quotas` endpoint reports on resource usage quotas in the JSON format.
+The {{ vars.product_short }} API `quotas` endpoint reports on resource usage quotas in the JSON format.
 
 ### <a id='view-quotas-by-user'></a> View Quotas for a Single User
 
@@ -241,12 +241,12 @@ appears when the user attempts to create a cluster.
 
 ```console
 Error: You do not have enough privileges to perform this action.
-Please contact the TKGI administrator.
+Please contact the {{ vars.product_short }} administrator.
 ```
 
 ## <a id='usage-view-admin'></a> View Usage
 
-The TKGI API `usages` endpoint returns resource usage per user in the JSON format.
+The {{ vars.product_short }} API `usages` endpoint returns resource usage per user in the JSON format.
 
 ### <a id='view-single-user'></a> View Resource Usage by User
 

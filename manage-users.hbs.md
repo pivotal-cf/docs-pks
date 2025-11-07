@@ -9,7 +9,7 @@ with User Account and Authentication (UAA).
 ## <a id='overview'></a> Overview
 
 UAA is the identity management service for {{  vars.product }}.
-{{  vars.product }} includes a UAA server, which is hosted on the TKGI API VM.
+{{  vars.product }} includes a UAA server, which is hosted on the {{ vars.product_short }} API VM.
 
 To interact with the UAA server, you can use the UAA Command Line Interface (UAAC).
 You can either run UAAC commands from the {{ vars.platform_name }} VM or install UAAC on your local workstation.
@@ -24,14 +24,14 @@ For more information about UAA scopes in {{  vars.product }}, see
 
 ##<a id='prerequisites'></a> Prerequisites
 
-Before managing users for {{  vars.product }}, you must connect to the TKGI API VM.
-To connect to the TKGI API VM, you need one of the following:
+Before managing users for {{  vars.product }}, you must connect to the {{ vars.product_short }} API VM.
+To connect to the {{ vars.product_short }} API VM, you need one of the following:
 
 * SSH access to the {{ vars.platform_name }} VM
-* A machine that can connect to your TKGI API VM
+* A machine that can connect to your {{ vars.product_short }} API VM
 
-For instructions on how to connect to the TKGI control plane,
-see [Connect to the TKGI API VM](vsphere-configure-users.html#connect) for your IaaS.
+For instructions on how to connect to the {{ vars.product_short }} control plane,
+see [Connect to the {{ vars.product_short }} API VM](vsphere-configure-users.html#connect) for your IaaS.
 
 ##<a id='uaa-admin-login'></a> Log In as a UAA Admin
 

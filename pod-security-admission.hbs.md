@@ -9,17 +9,17 @@ This topic describes how to use Kubernetes Pod Security Admission (PSA) with {{ 
 
 ##<a id='psa-about'></a> About Pod Security Admission
 
-PSA is the Kubernetes-recommended way to implement security standards. TKGI supports the built-in PSA in Kubernetes.
-PSA is enabled in TKGI, by default.
+PSA is the Kubernetes-recommended way to implement security standards. {{ vars.product_short }} supports the built-in PSA in Kubernetes.
+PSA is enabled in {{ vars.product_short }}, by default.
 
-In TKGI, you can configure PSA in a cluster or in a custom namespace.
+In {{ vars.product_short }}, you can configure PSA in a cluster or in a custom namespace.
 
 For more information on PSA, see [Pod Security Admission](https://kubernetes.io/docs/concepts/security/pod-security-admission/)
 in the Kubernetes documentation.
 
-##<a id='psa-cluster'></a> Pod Security Admission in a TKGI Cluster
+##<a id='psa-cluster'></a> Pod Security Admission in a {{ vars.product_short }} Cluster
 
-You can configure cluster-specific PSA in TKGI by using a Kubernetes profile.
+You can configure cluster-specific PSA in {{ vars.product_short }} by using a Kubernetes profile.
 
 1. Create the `psa-cluster` yaml file containing the following information:
 
@@ -52,10 +52,10 @@ You can configure cluster-specific PSA in TKGI by using a Kubernetes profile.
     - `AUDIT-VERSION` is the version for auditing a possible security policy violation. VMware strongly recommends using `latest` for the audit version.
     - `WARN-LEVEL` is the level for triggering a warning for a security policy violation. Use a level that is accepted by Kubernetes, for example, `privileged`, `baseline`, or `restricted`.
     - `WARN-VERSION` is the version for the warning that is triggered for a security policy violation. VMware strongly recommends using `latest` for the warn version.
-    - `CUSTOM-NAMESPACES` is the TKGI custom namespaces that you want to exclude.
+    - `CUSTOM-NAMESPACES` is the {{ vars.product_short }} custom namespaces that you want to exclude.
 
     <p class="note"><strong>Note</strong>: If you had configured any experimental admission control features by using a Kubernetes profile in the previous version
-    of TKGI, you must append it under the `plugin` field in the `psa-cluster` yaml file.
+    of {{ vars.product_short }}, you must append it under the `plugin` field in the `psa-cluster` yaml file.
     </p>
 
 1. Create the `config-psa-custom` json file containing the following information:
@@ -81,25 +81,25 @@ You can configure cluster-specific PSA in TKGI by using a Kubernetes profile.
 
 1. Assign the profile to the cluster. For more iformation, see [Assign a Kubernetes Profile to an Existing Cluster](k8s-profiles.html#update).
 
-For more information about configuring and using Kubernetes Profiles with TKGI, see [Using Kubernetes Profiles](k8s-profiles.html).
+For more information about configuring and using Kubernetes Profiles with {{ vars.product_short }}, see [Using Kubernetes Profiles](k8s-profiles.html).
 
 For more information about configuring cluster-level PSA, see [Enforce Pod Security Standards by Configuring the Built-in Admission Controller](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/#configure-the-admission-controller)
 in the Kubernetes documentation.
 
-##<a id='psa-interaction'></a> Pod Security Admission in TKGI System Namespaces
+##<a id='psa-interaction'></a> Pod Security Admission in {{ vars.product_short }} System Namespaces
 
-To allow for different customer scenarios and requirements, TKGI does not set default PSA policies for TKGI system namespaces.
+To allow for different customer scenarios and requirements, {{ vars.product_short }} does not set default PSA policies for {{ vars.product_short }} system namespaces.
 
-To ensure system integrity, {{{ vars.recommended_by }}} recommends securing TKGI system namespaces with PSA policies that are based on the PSA levels listed in the table below.
+To ensure system integrity, {{{ vars.recommended_by }}} recommends securing {{ vars.product_short }} system namespaces with PSA policies that are based on the PSA levels listed in the table below.
 
-> **Note** To control the PSA security permissions in a TKGI namespace, you must have the privileges to create, update, or patch the namespace.
+> **Note** To control the PSA security permissions in a {{ vars.product_short }} namespace, you must have the privileges to create, update, or patch the namespace.
 To ensure security of the system, restrict namespace permissions to trusted user accounts.
 
-The following table lists recommended PSA levels for TKGI system namespaces:
+The following table lists recommended PSA levels for {{ vars.product_short }} system namespaces:
 
 <table>
   <tr>
-    <th>TKGI System Namespace</th>
+    <th>{{ vars.product_short }} System Namespace</th>
     <th>PSA Level</th>
   </tr>
   <tr>
@@ -124,10 +124,10 @@ The following table lists recommended PSA levels for TKGI system namespaces:
   </tr>
 </table>
 
-Customer-defined PSA policies do not change during TKGI cluster upgrade.
+Customer-defined PSA policies do not change during {{ vars.product_short }} cluster upgrade.
 
 The guide [Enforce Pod Security Standards with Namespace Labels](https://kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-namespace-labels/) in the Kubernetes documentation explains how to set PSA polices for namespaces.
-For example, to enforce the recommended PSA levels for TKGI system namespaces as listed above, run:
+For example, to enforce the recommended PSA levels for {{ vars.product_short }} system namespaces as listed above, run:
 
   ```
   kubectl label ns kube-system pod-security.kubernetes.io/enforce=privileged

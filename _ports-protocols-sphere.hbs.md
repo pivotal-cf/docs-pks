@@ -90,7 +90,7 @@ The following table lists ports and protocols used for network communication bet
 | vRealize Operations Manager | NSX API VIP | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
-| vRealize Operations Manager | TKGI Controller | TCP | 8443 | HTTPSCA|
+| vRealize Operations Manager | {{ vars.product_short }} Controller | TCP | 8443 | HTTPSCA|
 | vRealize Operations Manager | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA|
 | Admin/Operator Console | vRealize LogInsight | TCP | 443 | HTTPS|
 | Kubernetes Cluster Ingress Controller | vRealize LogInsight | TCP | 9000 | ingestion api|
@@ -102,7 +102,7 @@ The following table lists ports and protocols used for network communication bet
 | NSX Manager/Controller Node | vRealize LogInsight | TCP | 9000 | ingestion api|
 {{ else }}
 {{/ evalExpression }}
-| TKGI Controller | vRealize LogInsight | TCP | 9000 | ingestion api|
+| {{ vars.product_short }} Controller | vRealize LogInsight | TCP | 9000 | ingestion api|
 | Admin/Operator Console | vRealize Network Insight Platform | TCP | 443 | HTTPS|
 | Admin/Operator Console | vRealize Network Insight Proxy | TCP | 22 | SSH|
 | vRealize Network Insight Proxy | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA|
@@ -111,5 +111,5 @@ The following table lists ports and protocols used for network communication bet
 | vRealize Network Insight Proxy | NSX API VIP | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
-| vRealize Network Insight Proxy | TKGI Controller | TCP | 8443 | HTTPSCA|
-| vRealize Network Insight Proxy | TKGI Controller | TCP | 9021 | TKGI API server|
+| vRealize Network Insight Proxy | {{ vars.product_short }} Controller | TCP | 8443 | HTTPSCA|
+| vRealize Network Insight Proxy | {{ vars.product_short }} Controller | TCP | 9021 | {{ vars.product_short }} API server|

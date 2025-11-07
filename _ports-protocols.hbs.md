@@ -1,5 +1,5 @@
 
-## <a id="enterprise"></a> TKGI Ports and Protocols
+## <a id="enterprise"></a> {{ vars.product_short }} Ports and Protocols
 
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
 The following tables list ports and protocols required for network communications between {{  vars.product }} v1.5.0
@@ -15,9 +15,9 @@ The following tables list ports and protocols required for network communication
 and later, and other components.
 {{/ evalExpression }}
 
-### <a id="users"></a> TKGI Users Ports and Protocols
+### <a id="users"></a> {{ vars.product_short }} Users Ports and Protocols
 
-The following table lists ports and protocols used for network communication between TKGI user interface components.
+The following table lists ports and protocols used for network communication between {{ vars.product_short }} user interface components.
 
 | Source Component | Destination Component | Destination Protocol | Destination Port | Service |
 | --- | --- | --- | --- | --- |
@@ -31,7 +31,7 @@ The following table lists ports and protocols used for network communication bet
 {{/ evalExpression }}
 | Admin/Operator Console | {{ vars.platform_name }} | TCP | 22 | SSH |
 | Admin/Operator Console | {{ vars.platform_name }} | TCP | 443 | HTTPS |
-| Admin/Operator Console | TKGI Controller | TCP | 9021 | TKGI API Server |
+| Admin/Operator Console | {{ vars.product_short }} Controller | TCP | 9021 | {{ vars.product_short }} API Server |
 {{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
 | Admin/Operator Console | vCenter Server | TCP | 443 | HTTPS |
 | Admin/Operator Console | vCenter Server | TCP | 5480 | vami |
@@ -45,21 +45,21 @@ The following table lists ports and protocols used for network communication bet
 | Admin/Operator and Developer Consoles | Kubernetes Cluster Ingress Controller | TCP | 80 | HTTP |
 | Admin/Operator and Developer Consoles | Kubernetes Cluster Ingress Controller | TCP | 443 | HTTPS |
 | Admin/Operator and Developer Consoles | Kubernetes Cluster Worker Node | TCP/UDP | 30000-32767 | Kubernetes NodePort |
-| Admin/Operator and Developer Consoles | TKGI Controller | TCP | 8443 | HTTPSCA |
+| Admin/Operator and Developer Consoles | {{ vars.product_short }} Controller | TCP | 8443 | HTTPSCA |
 | All User Consoles (Operator, Developer, Consumer) | Kubernetes App Load-Balancer Svc | TCP/UDP | Varies | varies with apps |
 | All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Ingress Controller | TCP | 80 | HTTP |
 | All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Ingress Controller | TCP | 443 | HTTPS |
 | All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Worker Node | TCP/UDP | 30000-32767 | Kubernetes NodePort |
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
 
-<p class="note"><strong>Note</strong>: The <code>type:NodePort</code> Service type is not supported for TKGI deployments on vSphere with NSX.
+<p class="note"><strong>Note</strong>: The <code>type:NodePort</code> Service type is not supported for {{ vars.product_short }} deployments on vSphere with NSX.
  Only <code>type:LoadBalancer</code> and Services associated with Ingress rules are supported on vSphere with NSX.</p>
 {{ else }}
 {{/ evalExpression }}
 
-### <a id="core"></a> TKGI Core Ports and Protocols
+### <a id="core"></a> {{ vars.product_short }} Core Ports and Protocols
 
-The following table lists ports and protocols used for network communication between core TKGI components.
+The following table lists ports and protocols used for network communication between core {{ vars.product_short }} components.
 
 | Source Component | Destination Component | Destination Protocol | Destination Port | Service|
 | --- | --- | --- | --- | --- |
@@ -84,8 +84,8 @@ The following table lists ports and protocols used for network communication bet
 | {{ vars.platform_name }} | NSX Manager/Controller Node | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
-| {{ vars.platform_name }} | TKGI Controller | TCP | 22 | SSH|
-| {{ vars.platform_name }} | TKGI Controller | TCP | 8443 | HTTPSCA|
+| {{ vars.platform_name }} | {{ vars.product_short }} Controller | TCP | 22 | SSH|
+| {{ vars.platform_name }} | {{ vars.product_short }} Controller | TCP | 8443 | HTTPSCA|
 {{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
 | {{ vars.platform_name }} | vCenter Server | TCP | 443 | HTTPS|
 | {{ vars.platform_name }} | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS|
@@ -105,19 +105,19 @@ The following table lists ports and protocols used for network communication bet
 | BOSH Compilation Job VM | BOSH Director | TCP | 25923 | health monitor daemon|
 | BOSH Compilation Job VM | Harbor Private Image Registry | TCP | 443 | HTTPS|
 | BOSH Compilation Job VM | Harbor Private Image Registry | TCP | 8853 | BOSH DNS health|
-| TKGI Controller | BOSH Director | TCP | 4222 | BOSH nats server|
-| TKGI Controller | BOSH Director | TCP | 8443 | HTTPSCA|
-| TKGI Controller | BOSH Director | TCP | 25250 | BOSH BlobStore|
-| TKGI Controller | BOSH Director | TCP | 25555 | BOSH director rest api|
-| TKGI Controller | BOSH Director | TCP | 25923 | health monitor daemon|
-| TKGI Controller | Kubernetes Cluster Control Plane/etcd Node | TCP | 8443 | HTTPSCA|
-| TKGI Controller | TKGI Database VM | TCP | 3306 | tkgi db proxy |
+| {{ vars.product_short }} Controller | BOSH Director | TCP | 4222 | BOSH nats server|
+| {{ vars.product_short }} Controller | BOSH Director | TCP | 8443 | HTTPSCA|
+| {{ vars.product_short }} Controller | BOSH Director | TCP | 25250 | BOSH BlobStore|
+| {{ vars.product_short }} Controller | BOSH Director | TCP | 25555 | BOSH director rest api|
+| {{ vars.product_short }} Controller | BOSH Director | TCP | 25923 | health monitor daemon|
+| {{ vars.product_short }} Controller | Kubernetes Cluster Control Plane/etcd Node | TCP | 8443 | HTTPSCA|
+| {{ vars.product_short }} Controller | {{ vars.product_short }} Database VM | TCP | 3306 | tkgi db proxy |
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
-| TKGI Controller | NSX API VIP | TCP | 443 | HTTPS|
+| {{ vars.product_short }} Controller | NSX API VIP | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
 {{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
-| TKGI Controller | vCenter Server | TCP | 443 | HTTPS|
+| {{ vars.product_short }} Controller | vCenter Server | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
 | Harbor Private Image Registry | BOSH Director | TCP | 4222 | BOSH nats server|
@@ -126,7 +126,7 @@ The following table lists ports and protocols used for network communication bet
 | Harbor Private Image Registry | IP NAS Storage Array | TCP | 111 | NFS RPC portmapper|
 | Harbor Private Image Registry | IP NAS Storage Array | TCP | 2049 | NFS |
 | Harbor Private Image Registry | Public CVE Source Database | TCP | 443 | HTTPS|
-| kube-system pod/telemetry-agent | TKGI Controller | TCP | 24224 | Fluentd out_forward|
+| kube-system pod/telemetry-agent | {{ vars.product_short }} Controller | TCP | 24224 | Fluentd out_forward|
 {{# evalExpression "current_page.data.netenv == 'nsxt'"}}
 | Kubernetes Cluster Ingress Controller | NSX API VIP | TCP | 443 | HTTPS|
 {{ else }}
@@ -145,8 +145,8 @@ The following table lists ports and protocols used for network communication bet
 | Kubernetes Cluster Control Plane/etcd Node | NSX API VIP | TCP | 443 | HTTPS|
 {{ else }}
 {{/ evalExpression }}
-| Kubernetes Cluster Control Plane/etcd Node | TKGI Controller | TCP | 8443 | HTTPSCA|
-| Kubernetes Cluster Control Plane/etcd Node | TKGI Controller | TCP | 8853 | BOSH DNS health|
+| Kubernetes Cluster Control Plane/etcd Node | {{ vars.product_short }} Controller | TCP | 8443 | HTTPSCA|
+| Kubernetes Cluster Control Plane/etcd Node | {{ vars.product_short }} Controller | TCP | 8853 | BOSH DNS health|
 {{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
 | Kubernetes Cluster Control Plane/etcd Node | vCenter Server | TCP | 443 | HTTPS|
 {{ else }}
@@ -161,8 +161,8 @@ The following table lists ports and protocols used for network communication bet
 | Kubernetes Cluster Worker Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 8443 | HTTPSCA|
 | Kubernetes Cluster Worker Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 8853 | BOSH DNS health|
 | Kubernetes Cluster Worker Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 10250 | kubelet API |
-| pks-system pod/cert-generator | TKGI Controller | TCP | 24224 | Fluentd out_forward|
-| pks-system pod/fluent-bit | TKGI Controller | TCP | 24224 | Fluentd out_forward|
+| pks-system pod/cert-generator | {{ vars.product_short }} Controller | TCP | 24224 | Fluentd out_forward|
+| pks-system pod/fluent-bit | {{ vars.product_short }} Controller | TCP | 24224 | Fluentd out_forward|
 {{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
 {{ else }}
 

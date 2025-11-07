@@ -10,45 +10,45 @@ for {{  vars.product_full }} provisioned Kubernetes clusters.
 
 ## <a id="overview"></a> Overview
 
-Kubernetes profiles enable TKGI cluster administrators and cluster managers to customize Kubernetes component settings for their TKGI-provisioned Kubernetes clusters.
+Kubernetes profiles enable {{ vars.product_short }} cluster administrators and cluster managers to customize Kubernetes component settings for their {{ vars.product_short }}-provisioned Kubernetes clusters.
 
-You can use a TKGI Kubernetes profile to configure Kubernetes components, such as `kube-apiserver` on the control plane or the `kubelet` on each node. Uses for Kubernetes profiles include encrypting secrets in an etcd database, adding an OIDC provider, and using a `ResourceQuota` admission control plugin. For more information about supported configurations, see [TKGI Kubernetes Profile Use Cases](#use-cases) below.
+You can use a {{ vars.product_short }} Kubernetes profile to configure Kubernetes components, such as `kube-apiserver` on the control plane or the `kubelet` on each node. Uses for Kubernetes profiles include encrypting secrets in an etcd database, adding an OIDC provider, and using a `ResourceQuota` admission control plugin. For more information about supported configurations, see [{{ vars.product_short }} Kubernetes Profile Use Cases](#use-cases) below.
 
-To create a TKGI Kubernetes profile:
+To create a {{ vars.product_short }} Kubernetes profile:
 
-* [Create a TKGI Kubernetes Profile](#create)
+* [Create a {{ vars.product_short }} Kubernetes Profile](#create)
 
 To manage Kubernetes profiles:
 
-* [Manage TKGI Kubernetes Profiles](#manage)
+* [Manage {{ vars.product_short }} Kubernetes Profiles](#manage)
 
 To use a Kubernetes profile:
 
-* [Use a TKGI Kubernetes Profile](#use-k8s-profiles)
+* [Use a {{ vars.product_short }} Kubernetes Profile](#use-k8s-profiles)
 
-Only TKGI cluster administrators and TKGI cluster managers can work with Kubernetes profiles:
+Only {{ vars.product_short }} cluster administrators and {{ vars.product_short }} cluster managers can work with Kubernetes profiles:
 
-* A cluster administrator defines a Kubernetes profile using a JSON configuration file and uses the TKGI CLI to create the Kubernetes profile from the definition.
+* A cluster administrator defines a Kubernetes profile using a JSON configuration file and uses the {{ vars.product_short }} CLI to create the Kubernetes profile from the definition.
 * A cluster manager applies existing Kubernetes profiles to their clusters.
 
-For information about the permissions required to create or use a Kubernetes profile, see [Who Creates and Manages TKGI Kubernetes Profiles](#who) below.
+For information about the permissions required to create or use a Kubernetes profile, see [Who Creates and Manages {{ vars.product_short }} Kubernetes Profiles](#who) below.
 
 
 
-### <a id="who"></a> Who Creates and Manages TKGI Kubernetes Profiles
+### <a id="who"></a> Who Creates and Manages {{ vars.product_short }} Kubernetes Profiles
 
 To create and use a Kubernetes profile, you must have the either the `pks.clusters.admin` or `pks.clusters.manage` role.
 
 If a user with the `pks.clusters.admin-read-only` role attempts to create a Kubernetes profile, they see the following error:
 
 ```
-You do not have enough privileges to perform this action. Please contact the TKGI administrator.
+You do not have enough privileges to perform this action. Please contact the {{ vars.product_short }} administrator.
 ```
 
 
-### <a id="alias"></a> "k8s" to "kubernetes" Alias in TKGI CLI
+### <a id="alias"></a> "k8s" to "kubernetes" Alias in {{ vars.product_short }} CLI
 
-In the TKGI CLI, all commands that include `k8s-profile` are aliased to also use `kubernetes-profile`.
+In the {{ vars.product_short }} CLI, all commands that include `k8s-profile` are aliased to also use `kubernetes-profile`.
 For example, the `tkgi k8s-profiles` and `tkgi kubernetes-profiles` commands are equivalent.
 
 For brevity, this documentation uses the `k8s-` versions.

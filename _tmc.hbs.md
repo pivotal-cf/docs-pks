@@ -5,7 +5,7 @@ for all Kubernetes clusters. For more information about Tanzu Mission Control, t
 
 To integrate {{  vars.product }} with Tanzu Mission Control:
 
-1. Confirm that the TKGI API VM has internet access and
+1. Confirm that the {{ vars.product_short }} API VM has internet access and
 can connect to `cna.tmc.tanzu.broadcom.com` and the other outbound URLs listed in
 the [What Happens When You Attach a Cluster](https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-mission-control/1-4/tanzu-mission-control-documentation/tanzumc-concepts-GUID-147472ED-16BB-4AAA-9C35-A951C5ADA88A.html) section of the Tanzu Mission Control Product
 documentation.

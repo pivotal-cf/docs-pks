@@ -9,7 +9,7 @@ This topic describes how to customize HTTP/HTTPS proxies for individual
 
 ##<a id='overview'></a>Overview
 
-TKGI applies your HTTP/HTTPS cluster proxies to traffic from the cluster's Kubernetes
+{{ vars.product_short }} applies your HTTP/HTTPS cluster proxies to traffic from the cluster's Kubernetes
 and containerd processes, such as the Kubernetes API server, Kube Controller, Kubelet, and containerd daemon.
 
 To create or change a cluster's proxy configuration, see:
@@ -23,7 +23,7 @@ To view a cluster's proxy configuration, see:
 * [View a Cluster's Proxy Configuration](#list)
 
 <br>
-To configure global HTTP/HTTPS proxies for TKGI on vSphere or AWS, see:
+To configure global HTTP/HTTPS proxies for {{ vars.product_short }} on vSphere or AWS, see:
 
 - **vSphere**: [Using Proxies with {{  vars.product }} on NSX](proxies.html), or
 - **AWS**: [Using Proxies with {{  vars.product }} on AWS](proxies-aws.html)
@@ -65,12 +65,12 @@ in _Release Notes_ for additional requirements.
     * `CLUSTER-NAME` is the name of the existing Kubernetes cluster.
     * `CONFIG-FILE-NAME` is the path and filename of the configuration file you want to apply to the cluster.
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 ##<a id='settings'></a>Proxy Configuration Settings
 
-To configure HTTP/HTTPS settings for a TKGI cluster, you first define them
+To configure HTTP/HTTPS settings for a {{ vars.product_short }} cluster, you first define them
 in a cluster configuration JSON file on your local filesystem.
 
 Proxy settings that you can configure are:
@@ -83,12 +83,12 @@ Proxy settings that you can configure are:
   <tr>
     <td><code>http_proxy</code></td>
     <td>HTTP proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings
-      in the TKGI tile > <strong>Networking</strong> pane.</td>
+      in the {{ vars.product_short }} tile > <strong>Networking</strong> pane.</td>
   </tr>
   <tr>
     <td><code>https_proxy</code></td>
     <td>HTTPS proxy URL and credentials. This overrides the global <strong>HTTP Proxy</strong> settings
-      in the TKGI tile.</td>
+      in the {{ vars.product_short }} tile.</td>
   </tr>
   <tr>
     <td><code>no_proxy</code></td>

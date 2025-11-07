@@ -9,7 +9,7 @@ before deploying {{  vars.product_full }} on VMware vSphere.
 
 ## <a id='overview'></a> Overview
 
-Use {{ vars.platform_name }} to install and configure TKGI.
+Use {{ vars.platform_name }} to install and configure {{ vars.product_short }}.
 
 {{ vars.platform_name }} provides a dashboard UI for installing applications and components.
 {{ vars.platform_name }} and the installed components include an interface for configuring the {{ vars.platform_name }} environment, component settings, and cluster configurations.
@@ -32,8 +32,8 @@ on the VMware site.
 
 To install {{ vars.platform_name }}:
 
-1. Determine the most recent version of {{ vars.platform_name }} that is compatible with the TKGI version you are deploying.
-For information on {{ vars.platform_name }} compatibility with TKGI,
+1. Determine the most recent version of {{ vars.platform_name }} that is compatible with the {{ vars.product_short }} version you are deploying.
+For information on {{ vars.platform_name }} compatibility with {{ vars.product_short }},
 see [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0).
 
 1. To install and configure {{ vars.platform_name }}, follow the installation instructions for your selected {{ vars.platform_name }} version:

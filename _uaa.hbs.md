@@ -1,16 +1,16 @@
 To configure the UAA server:
 
 1. Click **UAA**.
-1. Under **TKGI API Access Token Lifetime**, enter a time in seconds for the
-TKGI API access token lifetime. This field defaults to `600`.
+1. Under **{{ vars.product_short }} API Access Token Lifetime**, enter a time in seconds for the
+{{ vars.product_short }} API access token lifetime. This field defaults to `600`.
 
     <img src="images/uaa.png" alt="UAA pane configuration">
 
-1. Under **TKGI API Refresh Token Lifetime**, enter a time in seconds for the
-TKGI API refresh token lifetime. This field defaults to `21600`.
-1. Under **TKGI Cluster Access Token Lifetime**, enter a time in seconds for the
+1. Under **{{ vars.product_short }} API Refresh Token Lifetime**, enter a time in seconds for the
+{{ vars.product_short }} API refresh token lifetime. This field defaults to `21600`.
+1. Under **{{ vars.product_short }} Cluster Access Token Lifetime**, enter a time in seconds for the
 cluster access token lifetime. This field defaults to `600`.
-1. Under **TKGI Cluster Refresh Token Lifetime**, enter a time in seconds for the
+1. Under **{{ vars.product_short }} Cluster Refresh Token Lifetime**, enter a time in seconds for the
 cluster refresh token lifetime. This field defaults to `21600`.
 <p class="note"><strong>Note:</strong> {{{ vars.recommended_by }}} recommends
 using the default UAA token timeout values.
@@ -19,7 +19,7 @@ after six hours.
 </p>
 1. Under **Configure created clusters to use UAA as the OIDC provider**,
 select **Enabled** or **Disabled**. This is a global default setting for
-TKGI-provisioned clusters. For more information, see
+{{ vars.product_short }}-provisioned clusters. For more information, see
 [OIDC Provider for Kubernetes Clusters](oidc-provider.html).
 <br><br>
   To configure {{  vars.product }} to use UAA as the OIDC provider:
@@ -48,9 +48,9 @@ TKGI-provisioned clusters. For more information, see
     existing role bindings that bind to a user name or group. If you do not
     change your role bindings, developers cannot access Kubernetes clusters.
     For instructions, see <a href="./manage-cluster-permissions.html">Managing Cluster Access and Permissions</a>.</p>
-1. (Optional) For **TKGI cluster client redirect URIs**, enter one or more comma-delimited UAA redirect URIs.
-Configure **TKGI cluster client redirect URIs** to assign persistent UAA `cluster_client` `redirect_uri` URIs to your clusters.
-UAA redirect URIs configured in the **TKGI cluster client redirect URIs** field persist through cluster updates and TKGI upgrades.
+1. (Optional) For **{{ vars.product_short }} cluster client redirect URIs**, enter one or more comma-delimited UAA redirect URIs.
+Configure **{{ vars.product_short }} cluster client redirect URIs** to assign persistent UAA `cluster_client` `redirect_uri` URIs to your clusters.
+UAA redirect URIs configured in the **{{ vars.product_short }} cluster client redirect URIs** field persist through cluster updates and {{ vars.product_short }} upgrades.
 1. Select one of the following options:
   * To use an internal user account store for UAA, select **Internal UAA**.
   Click **Save** and continue to [(Optional) Host Monitoring](#syslog).

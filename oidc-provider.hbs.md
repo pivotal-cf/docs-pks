@@ -9,7 +9,7 @@ and how to override the default configuration for individual clusters.
 
 ## <a id='overview'></a>Overview
 
-Configuring an OIDC provider for TKGI-provisioned clusters
+Configuring an OIDC provider for {{ vars.product_short }}-provisioned clusters
 enables Kubernetes to verify end-user identities based
 on the authentication performed by UAA or a custom OIDC provider.
 
@@ -21,14 +21,14 @@ You can use the following methods to configure an OIDC provider in
 see [UAA as the Default OIDC Provider](#uaa-oidc)
 below.
 * Configure a custom OIDC provider by applying a Kubernetes profile
-to one or more TKGI-provisioned clusters. For more information, see
+to one or more {{ vars.product_short }}-provisioned clusters. For more information, see
 [Custom OIDC Provider](#custom) below.
 
 ## <a id='uaa-oidc'></a> UAA as the Default OIDC Provider
 
 The **{{  vars.product }}** tile > **UAA** > **Configure created clusters
 to use UAA as the OIDC provider** is a global setting for
-TKGI-provisioned clusters, described in the table below:
+{{ vars.product_short }}-provisioned clusters, described in the table below:
 
 <table class="nice">
   <tr>
@@ -56,7 +56,7 @@ TKGI-provisioned clusters, described in the table below:
   </tr>
 </table>
 
-When you activate UAA as your OIDC provider, existing TKGI-provisioned clusters are
+When you activate UAA as your OIDC provider, existing {{ vars.product_short }}-provisioned clusters are
 upgraded to use OIDC. This invalidates your kubeconfig files. You must
 regenerate the files for all existing clusters.
 
@@ -73,7 +73,7 @@ For instructions, see
 ## <a id='after'></a>After You Configure Your OIDC Provider
 
 If you want to give Kubernetes end users, such as developers, access to
-TKGI-provisioned clusters after you configure your OIDC provider,
+{{ vars.product_short }}-provisioned clusters after you configure your OIDC provider,
 you must create Kubernetes role bindings for them.
 
 For instructions, see

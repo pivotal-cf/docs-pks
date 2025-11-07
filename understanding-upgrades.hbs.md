@@ -3,10 +3,10 @@ title: About {{  vars.product }} Upgrades
 
 ---
 
-This topic provides conceptual information about upgrading {{  vars.product_full }} and TKGI-provisioned Kubernetes clusters.
+This topic provides conceptual information about upgrading {{  vars.product_full }} and {{ vars.product_short }}-provisioned Kubernetes clusters.
 
-For step-by-step instructions on upgrading TKGI
-and TKGI-provisioned Kubernetes clusters, see:
+For step-by-step instructions on upgrading {{ vars.product_short }}
+and {{ vars.product_short }}-provisioned Kubernetes clusters, see:
 
 * [Upgrading {{  vars.product }} (Antrea Networking)](upgrade.html)
 * [Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html)
@@ -15,39 +15,39 @@ and TKGI-provisioned Kubernetes clusters, see:
 
 ## <a id="overview"></a>Overview
 
-An {{  vars.product }} upgrade modifies the TKGI version,
-for example, upgrading TKGI from {{{ vars.product_version_prev }}}.x to {{{ vars.product_version }}}.0 or from {{{ vars.product_version }}}.0 to {{{ vars.product_version }}}.1.
+An {{  vars.product }} upgrade modifies the {{ vars.product_short }} version,
+for example, upgrading {{ vars.product_short }} from {{{ vars.product_version_prev }}}.x to {{{ vars.product_version }}}.0 or from {{{ vars.product_version }}}.0 to {{{ vars.product_version }}}.1.
 
-There are two ways you can upgrade TKGI:
+There are two ways you can upgrade {{ vars.product_short }}:
 
-* **Full Upgrade**: By default, TKGI is set to perform a full upgrade,
-which upgrades both the TKGI control plane and all TKGI-provisioned Kubernetes clusters.
+* **Full Upgrade**: By default, {{ vars.product_short }} is set to perform a full upgrade,
+which upgrades both the {{ vars.product_short }} control plane and all {{ vars.product_short }}-provisioned Kubernetes clusters.
 
-* **Control Plane Only Upgrade**: You can choose to upgrade TKGI in two phases
-by upgrading the TKGI control plane first and
-then upgrading your TKGI-provisioned Kubernetes clusters later.
+* **Control Plane Only Upgrade**: You can choose to upgrade {{ vars.product_short }} in two phases
+by upgrading the {{ vars.product_short }} control plane first and
+then upgrading your {{ vars.product_short }}-provisioned Kubernetes clusters later.
 
 ### <a id="decide"></a> Deciding Between Full and Two-Phase Upgrade
 
 When deciding whether to perform the default full upgrade or
-to upgrade the TKGI control plane and TKGI-provisioned Kubernetes clusters separately,
+to upgrade the {{ vars.product_short }} control plane and {{ vars.product_short }}-provisioned Kubernetes clusters separately,
 consider your organization's needs.
 
-You might prefer to upgrade TKGI in two phases because of the advantages it provides:
+You might prefer to upgrade {{ vars.product_short }} in two phases because of the advantages it provides:
 
-* If your organization runs TKGI-provisioned Kubernetes clusters
+* If your organization runs {{ vars.product_short }}-provisioned Kubernetes clusters
 in both development and production environments and you want to upgrade
 only one environment first, you can achieve your goal by
-upgrading the TKGI control plane and TKGI-provisioned Kubernetes separately.
+upgrading the {{ vars.product_short }} control plane and {{ vars.product_short }}-provisioned Kubernetes separately.
 
 * Faster {{  vars.product }} tile upgrades.
-If you have a large number of clusters in your TKGI deployment,
+If you have a large number of clusters in your {{ vars.product_short }} deployment,
 performing a full upgrade can significantly increase the amount of time required to
 upgrade the {{  vars.product }} tile.
 
 * More granular control over cluster upgrades.
 In addition to enabling you to upgrade subsets of clusters,
-the TKGI CLI supports upgrading each cluster individually.
+the {{ vars.product_short }} CLI supports upgrading each cluster individually.
 
 * Not a monolithic upgrade.
 This helps isolate the root cause of an error when troubleshooting upgrades.
@@ -57,24 +57,24 @@ the entire {{  vars.product }} tile upgrade might fail.
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
 <p class="note warning">
 <strong>Warning:</strong> If you deactivate the default full upgrade
-and upgrade only the TKGI control plane,
-you must upgrade all your TKGI-provisioned Kubernetes clusters before the next {{  vars.product }} tile
+and upgrade only the {{ vars.product_short }} control plane,
+you must upgrade all your {{ vars.product_short }}-provisioned Kubernetes clusters before the next {{  vars.product }} tile
 upgrade. Deactivating the default full upgrade
-and upgrading only the TKGI control plane cause the TKGI version
+and upgrading only the {{ vars.product_short }} control plane cause the {{ vars.product_short }} version
 tagged in your Kubernetes clusters to fall behind the {{  vars.product }} tile version.
-If your TKGI-provisioned Kubernetes clusters fall more than one version behind the tile,
-TKGI cannot upgrade the clusters.
+If your {{ vars.product_short }}-provisioned Kubernetes clusters fall more than one version behind the tile,
+{{ vars.product_short }} cannot upgrade the clusters.
 </p>
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
 
 ### <a id="decide-method"></a> Deciding Between Tile or CLI Upgrade
 
-You can use either the {{  vars.product }} tile or the TKGI CLI to perform TKGI upgrades:
+You can use either the {{  vars.product }} tile or the {{ vars.product_short }} CLI to perform {{ vars.product_short }} upgrades:
 
-* To perform a full upgrade of the TKGI control plane and
-TKGI-provisioned Kubernetes clusters, use the {{  vars.product }} tile .
-* To upgrade the TKGI control plane only, use the {{  vars.product }} tile.
-* To upgrade TKGI-provisioned Kubernetes clusters, use either the TKGI CLI
+* To perform a full upgrade of the {{ vars.product_short }} control plane and
+{{ vars.product_short }}-provisioned Kubernetes clusters, use the {{  vars.product }} tile .
+* To upgrade the {{ vars.product_short }} control plane only, use the {{  vars.product }} tile.
+* To upgrade {{ vars.product_short }}-provisioned Kubernetes clusters, use either the {{ vars.product_short }} CLI
 or the {{  vars.product }} tile.
 
 <table>
@@ -87,97 +87,97 @@ or the {{  vars.product }} tile.
     <th colspan=3 style="text-align:center">Supported Upgrade Types</th>
   </tr>
   <tr>
-    <th>Full TKGI upgrade</th>
-    <th>TKGI control plane only</th>
+    <th>Full {{ vars.product_short }} upgrade</th>
+    <th>{{ vars.product_short }} control plane only</th>
     <th>Kubernetes clusters only</th>
   </tr>
   <tr>
-    <td>TKGI Tile</td>
+    <td>{{ vars.product_short }} Tile</td>
     <td style="text-align:center">&#10004;</td>
     <td style="text-align:center">&#10004;</td>
     <td style="text-align:center">&#10004;</td>
   </tr>
   <tr>
-    <td>TKGI CLI</td>
+    <td>{{ vars.product_short }} CLI</td>
     <td style="text-align:center">&#10006;</td>
     <td style="text-align:center">&#10006;</td>
     <td style="text-align:center">&#10004;</td>
   </tr>
 </table>
 
-Typically, if you choose to upgrade TKGI-provisioned Kubernetes clusters only,
-you will upgrade them through the TKGI CLI.
+Typically, if you choose to upgrade {{ vars.product_short }}-provisioned Kubernetes clusters only,
+you will upgrade them through the {{ vars.product_short }} CLI.
 
 
-## <a id="what-happens"></a> What Happens During Full TKGI and TKGI Control Plane Only Upgrades
+## <a id="what-happens"></a> What Happens During Full {{ vars.product_short }} and {{ vars.product_short }} Control Plane Only Upgrades
 
 After you add a new {{  vars.product }} tile version to your staging area
 on the {{ vars.platform_name }} Installation Dashboard,
 {{ vars.platform_name }} automatically migrates your configuration settings into the new tile version.
 
-You can perform a full TKGI upgrade or a TKGI control plane only upgrade:
+You can perform a full {{ vars.product_short }} upgrade or a {{ vars.product_short }} control plane only upgrade:
 
-* [Full TKGI Upgrades](#full-upgrades)
-* [TKGI Control Plane Only Upgrades](#control-plane-upgrades)
+* [Full {{ vars.product_short }} Upgrades](#full-upgrades)
+* [{{ vars.product_short }} Control Plane Only Upgrades](#control-plane-upgrades)
 
 
-### <a name="full-upgrades"></a>Full TKGI Upgrades
+### <a name="full-upgrades"></a>Full {{ vars.product_short }} Upgrades
 
-During a **full TKGI upgrade**,
+During a **full {{ vars.product_short }} upgrade**,
 the {{  vars.product }} tile does the following:
 
 1. **Recreates the Control Plane VMs**:
-    * Upgrades the TKGI version on the TKGI control plane.
+    * Upgrades the {{ vars.product_short }} version on the {{ vars.product_short }} control plane.
     * For more information, see [What Happens During Control Plane Upgrades](#control-plane-upgrades-details) below.
 
 1. **Upgrades Clusters**:
-    * Upgrades all of the TKGI-provisioned Kubernetes clusters.
+    * Upgrades all of the {{ vars.product_short }}-provisioned Kubernetes clusters.
     * Requires the **Upgrade all clusters errand** check box is activated in the **Errands** pane on the {{  vars.product }} tile.
     * For more information, see [What Happens During Cluster Upgrades](#cluster-upgrades) below.
 
-### <a name="control-plane-upgrades"></a>TKGI Control Plane Only Upgrades
+### <a name="control-plane-upgrades"></a>{{ vars.product_short }} Control Plane Only Upgrades
 
-During a **TKGI control plane only** upgrade,
+During a **{{ vars.product_short }} control plane only** upgrade,
 the {{  vars.product }} tile does the following:
 
 1. **Recreates the Control Plane VMs**:
-    * Upgrades the TKGI version on the TKGI control plane.
+    * Upgrades the {{ vars.product_short }} version on the {{ vars.product_short }} control plane.
     * For more information, see [What Happens During Control Plane Upgrades](#control-plane-upgrades-details) below.
 
 1. **Does Not Upgrade Clusters**:
-    * Does not automatically upgrade TKGI-provisioned Kubernetes clusters after upgrading the TKGI control plane.
+    * Does not automatically upgrade {{ vars.product_short }}-provisioned Kubernetes clusters after upgrading the {{ vars.product_short }} control plane.
     * Requires the **Upgrade all clusters errand** check box is deactivated in the **Errands** pane on the {{  vars.product }} tile.
-    * The TKGI-provisioned Kubernetes clusters remain on the previous TKGI version until you manually upgrade them.
+    * The {{ vars.product_short }}-provisioned Kubernetes clusters remain on the previous {{ vars.product_short }} version until you manually upgrade them.
     For more information, see [What Happens During Cluster Upgrades](#cluster-upgrades) below, and [Upgrading Clusters](upgrade-clusters.html).
-    * Some cluster management tasks are not supported for clusters that are running the previous TKGI version.
-    For more information, see [Tasks Supported Following a TKGI Control Plane Only Upgrade](#control-plane-upgrades-supported-tasks) below.
+    * Some cluster management tasks are not supported for clusters that are running the previous {{ vars.product_short }} version.
+    For more information, see [Tasks Supported Following a {{ vars.product_short }} Control Plane Only Upgrade](#control-plane-upgrades-supported-tasks) below.
 
 
 
 
 ## <a id="control-plane-upgrades-details"></a>What Happens During Control Plane Upgrades
 
-Note the following when upgrading the TKGI control plane:
+Note the following when upgrading the {{ vars.product_short }} control plane:
 
-* Upgrading the TKGI control plane includes upgrading the
-TKGI API server, UAA server, and the TKGI database.
-* If the TKGI installation is not scaled for high availability, the control plane upgrade causes temporary outages as described in [Control Plane Outages](#outages) below.
+* Upgrading the {{ vars.product_short }} control plane includes upgrading the
+{{ vars.product_short }} API server, UAA server, and the {{ vars.product_short }} database.
+* If the {{ vars.product_short }} installation is not scaled for high availability, the control plane upgrade causes temporary outages as described in [Control Plane Outages](#outages) below.
 * The control plane upgrade will halt if a control plane canary instance encounters an error.
 For more information, see [Canary Instances](#canary) below.
 
 ### <a name="outages"></a> Control Plane Outages
 
-When the TKGI control plane is not scaled for high availability, upgrading the control plane temporarily interrupts the following:
+When the {{ vars.product_short }} control plane is not scaled for high availability, upgrading the control plane temporarily interrupts the following:
 
-* Logging in to the TKGI CLI and using all `tkgi` commands.
-* Using the TKGI API to retrieve information about clusters.
-* Using the TKGI API to create and delete clusters.
-* Using the TKGI API to resize clusters.
+* Logging in to the {{ vars.product_short }} CLI and using all `tkgi` commands.
+* Using the {{ vars.product_short }} API to retrieve information about clusters.
+* Using the {{ vars.product_short }} API to create and delete clusters.
+* Using the {{ vars.product_short }} API to resize clusters.
 
 These outages do not affect the Kubernetes clusters themselves.
-During a TKGI control plane upgrade, you can still interact with clusters and their workloads using the Kubernetes Command Line Interface, `kubectl`.
+During a {{ vars.product_short }} control plane upgrade, you can still interact with clusters and their workloads using the Kubernetes Command Line Interface, `kubectl`.
 
-For more information about the TKGI control plane and high availability, see [TKGI Control Plane Overview](control-plane.html#control-plane) in _{{  vars.product }} Architecture_.
+For more information about the {{ vars.product_short }} control plane and high availability, see [{{ vars.product_short }} Control Plane Overview](control-plane.html#control-plane) in _{{  vars.product }} Architecture_.
 
 ### <a name="canary"></a>Canary Instances
 
@@ -189,24 +189,24 @@ If the canary instance encounters an error, the upgrade stops running and other 
 
 The {{  vars.product }} tile uses one canary instance when deploying or upgrading {{  vars.product }}.
 
-### <a name="control-plane-upgrades-supported-tasks"></a>Tasks Supported Following a TKGI Control Plane Only Upgrade
+### <a name="control-plane-upgrades-supported-tasks"></a>Tasks Supported Following a {{ vars.product_short }} Control Plane Only Upgrade
 
-TKGI allows an admin to upgrade the TKGI control plane without upgrading the TKGI-provisioned Kubernetes clusters. These clusters continue running the previous TKGI version.
+{{ vars.product_short }} allows an admin to upgrade the {{ vars.product_short }} control plane without upgrading the {{ vars.product_short }}-provisioned Kubernetes clusters. These clusters continue running the previous {{ vars.product_short }} version.
 
-Although the TKGI CLI generally supports these clusters, there are CLI commands that are not supported.
+Although the {{ vars.product_short }} CLI generally supports these clusters, there are CLI commands that are not supported.
 
-The following tables summarize which TKGI CLI commands are supported on clusters running the previous TKGI version:
+The following tables summarize which {{ vars.product_short }} CLI commands are supported on clusters running the previous {{ vars.product_short }} version:
 
-* [TKGI CLI Utility Commands](#control-plane-upgrades-supported-tasks-utility)
-* [TKGI CLI Cluster Management Commands](#control-plane-upgrades-supported-tasks-management)
+* [{{ vars.product_short }} CLI Utility Commands](#control-plane-upgrades-supported-tasks-utility)
+* [{{ vars.product_short }} CLI Cluster Management Commands](#control-plane-upgrades-supported-tasks-management)
 
-<p class="note"><strong>Note</strong>: {{{ vars.recommended_by }}} recommends you do not run TKGI CLI cluster management commands on clusters running the previous TKGI version.
+<p class="note"><strong>Note</strong>: {{{ vars.recommended_by }}} recommends you do not run {{ vars.product_short }} CLI cluster management commands on clusters running the previous {{ vars.product_short }} version.
 </p>
 
 
-#### <a name="control-plane-upgrades-supported-tasks-utility"></a>TKGI CLI Utility Commands
+#### <a name="control-plane-upgrades-supported-tasks-utility"></a>{{ vars.product_short }} CLI Utility Commands
 
-The following summarizes the TKGI CLI utility commands that are supported for clusters running the previous TKGI version.
+The following summarizes the {{ vars.product_short }} CLI utility commands that are supported for clusters running the previous {{ vars.product_short }} version.
 
 <table style="width:100%">
   <tr>
@@ -244,11 +244,11 @@ The following summarizes the TKGI CLI utility commands that are supported for cl
   </tr>
 </table>
 
-#### <a name="control-plane-upgrades-supported-tasks-management"></a>TKGI CLI Cluster Management Commands
+#### <a name="control-plane-upgrades-supported-tasks-management"></a>{{ vars.product_short }} CLI Cluster Management Commands
 
-The following summarizes the TKGI CLI cluster management commands that are supported for clusters running the previous TKGI version.
+The following summarizes the {{ vars.product_short }} CLI cluster management commands that are supported for clusters running the previous {{ vars.product_short }} version.
 
-<p class="note"><strong>Note</strong>: {{{ vars.recommended_by }}} recommends you do not run TKGI CLI cluster management commands on clusters running the previous TKGI version.
+<p class="note"><strong>Note</strong>: {{{ vars.recommended_by }}} recommends you do not run {{ vars.product_short }} CLI cluster management commands on clusters running the previous {{ vars.product_short }} version.
 </p>
 
 <table style="width:100%">
@@ -301,7 +301,7 @@ The following summarizes the TKGI CLI cluster management commands that are suppo
         <li><code>&#8209;&#8209;tags []ClusterTag</code> &#42;</li>
         <li><code>&#8209;&#8209;config-file</code></li>
       </ul>
-      <br>&#42; Clusters running the previous TKGI version
+      <br>&#42; Clusters running the previous {{ vars.product_short }} version
       and configured with <code>&#8209;&#8209;tags</code> do not support any <code>tkgi&nbsp;update-cluster</code> operations.
     </td>
   </tr>
@@ -320,13 +320,13 @@ The following summarizes the TKGI CLI cluster management commands that are suppo
 
 ## <a id="cluster-upgrades"></a>What Happens During Cluster Upgrades
 
-Upgrading a TKGI-provisioned Kubernetes cluster upgrades the cluster to the TKGI version of the TKGI control plane and tags the cluster with the upgrade version.
+Upgrading a {{ vars.product_short }}-provisioned Kubernetes cluster upgrades the cluster to the {{ vars.product_short }} version of the {{ vars.product_short }} control plane and tags the cluster with the upgrade version.
 
 Upgrading the cluster also upgrades the cluster's Kubernetes version to the version
 included with the {{  vars.product }} tile.
 
-During an upgrade of TKGI-provisioned clusters,
-TKGI recreates your clusters.
+During an upgrade of {{ vars.product_short }}-provisioned clusters,
+{{ vars.product_short }} recreates your clusters.
 This includes the following stages for each cluster you upgrade:
 
 1. Control Plane nodes are recreated.
@@ -349,8 +349,8 @@ in <a href="./maintain-uptime.html">Maintaining Workload Uptime</a>.
 </p>
 {{{{raw}}}} <!--  Note: The formatting on this page breaks when notes are configured the normal way. --> {{{{/raw}}}}
 
-You can upgrade TKGI-provisioned Kubernetes clusters either through the {{  vars.product }} tile
-or the TKGI CLI. See the table below.
+You can upgrade {{ vars.product_short }}-provisioned Kubernetes clusters either through the {{  vars.product }} tile
+or the {{ vars.product_short }} CLI. See the table below.
 
 <table>
 <col width="50%">
@@ -378,7 +378,7 @@ or the TKGI CLI. See the table below.
 
 ###<a name="master"></a>Cluster Control Plane Nodes Outage
 
-When TKGI upgrades a single-control plane node cluster,
+When {{ vars.product_short }} upgrades a single-control plane node cluster,
 you cannot interact with your cluster, use `kubectl`, or push new workloads.
 
 To avoid this loss of functionality,
@@ -386,7 +386,7 @@ To avoid this loss of functionality,
 
 ###<a name="worker"></a>Worker Nodes Outage
 
-When TKGI upgrades a worker node,
+When {{ vars.product_short }} upgrades a worker node,
 the node stops running containers.
 If your workloads run on a single node, they will experience downtime.
 

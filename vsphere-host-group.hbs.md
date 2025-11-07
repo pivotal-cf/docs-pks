@@ -11,7 +11,7 @@ In vSphere, a cluster is a collection of ESXi servers that run virtual machines 
 
 Another way to segment resources within a cluster is using host groups. This means that within a cluster object you can specify certain ESXi hosts to be part of a host group.
 
-{{  vars.product }} users can define host groups in vSphere, then in the TKGI tile can specify the host group. Host groups align with the Availability Zone (AZ) construct in BOSH.
+{{  vars.product }} users can define host groups in vSphere, then in the {{ vars.product_short }} tile can specify the host group. Host groups align with the Availability Zone (AZ) construct in BOSH.
 
 For more information on vSphere host groups, refer to the [vSphere documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vsan/vsan/8-0/vsan-planning/designing-and-sizing-a-virtual-san-cluster/designing-and-sizing-virtual-san-fault-domains.html).
 
@@ -24,11 +24,11 @@ This subsection describes use cases for using host groups with {{  vars.product 
 The vSAN fault domains feature instructs vSAN to spread redundancy components across the servers in separate computing racks. In this way, you can protect the environment from a rack-level failure such as loss of power or connectivity. For more information, see [Designing and Sizing vSAN Fault Domains
 ](https://techdocs.broadcom.com/us/en/vmware-cis/vsan/vsan/8-0/vsan-planning/designing-and-sizing-a-virtual-san-cluster/designing-and-sizing-virtual-san-fault-domains.html) in the VMware documentation.
 
-Fault domains map to host groups. If you have set up fault domains in your vSAN architecture, you can now leverage host groups with TKGI.
+Fault domains map to host groups. If you have set up fault domains in your vSAN architecture, you can now leverage host groups with {{ vars.product_short }}.
 
 ### Using Host Group as a New AZ in BOSH
 
-Previously, the two types of AZs available with TKGI on vSphere were Datacenter and Datacenter plus Resource Pool. Host groups gives you a third option: Datacenter plus HostGroups.
+Previously, the two types of AZs available with {{ vars.product_short }} on vSphere were Datacenter and Datacenter plus Resource Pool. Host groups gives you a third option: Datacenter plus HostGroups.
 
 In the case of multi-control plane node Kubernetes clusters, with the Datacenter and Datacenter plus Resource Pool AZs, there is no guarantee that control plane nodes will reside on separate ESXi hosts. With the Datacenter plus HostGroups AZ you can guarantee that Kubernetes control plane nodes will reside on separate ESXi hosts.
 
@@ -60,7 +60,7 @@ Once the host group is defined in vSphere, the next step is to declare this host
 1. In the **Clusters** section, enter the name of the **Host Group**.
 1. (Optional) If you are using a host group with vSAN Stretched Clusters,
     set the **VM-Host Affinity Rule** dropdown to `SHOULD`. This setting maintains high availability
-    by letting TKGI restart VMs in another host group if their AZ fails.
-    TKGI ignores this setting if the vSAN cluster has no host group configured.
+    by letting {{ vars.product_short }} restart VMs in another host group if their AZ fails.
+    {{ vars.product_short }} ignores this setting if the vSAN cluster has no host group configured.
 1. Click **Save**.
-  <img src="images/nsxt/bosh/config-bosh-29-host-group.png" alt="TKGI tile Create Availability Zones PKS-AZ1-HostGroup1 configuration.">
+  <img src="images/nsxt/bosh/config-bosh-29-host-group.png" alt="{{ vars.product_short }} tile Create Availability Zones PKS-AZ1-HostGroup1 configuration.">

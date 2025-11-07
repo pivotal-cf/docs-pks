@@ -8,7 +8,7 @@ from Kubernetes clusters created with {{  vars.product_full }}.
 
 ## <a id='overview'></a> Overview
 
-For Pods on TKGI clusters deployed on AWS,
+For Pods on {{ vars.product_short }} clusters deployed on AWS,
 you can manage access to the AWS instance metadata service using a Kubernetes Network Policy:
 
 * You can block app access to the instance metadata service for apps in either all cluster namespaces or specific namespaces.
