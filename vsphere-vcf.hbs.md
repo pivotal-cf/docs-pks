@@ -16,7 +16,7 @@ VCF 5.0 is supported with TKGI {{{ vars.product_version }}}, but has not been te
 VMware Cloud Foundation (VCF) is a unified SDDC platform that brings together vSphere, vSAN, NSX, and vRealize components into an integrated stack to deliver enterprise-ready infrastructure for private and public clouds. For more information,
 see the [VCF Documentation](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2.html).
 
-You can install {{  vars.product }} (TKGI) on VCF. You can use either the [TKGI Management Console](console-install-vsphere.html) or [{{ vars.platform_name }}](vsphere-nsxt-index.html) to install TKGI on VCF. The installation procedure on the VCF platform is generally the same as the installation procedure without VCF.
+You can install {{  vars.product }} on VCF. You can use either the [TKGI Management Console](console-install-vsphere.html) or [{{ vars.platform_name }}](vsphere-nsxt-index.html) to install TKGI on VCF. The installation procedure on the VCF platform is generally the same as the installation procedure without VCF.
 
 For more information, see:
 

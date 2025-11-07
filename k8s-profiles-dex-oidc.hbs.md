@@ -3,7 +3,7 @@ title: Adding an OIDC Provider
 
 ---
 
-This topic explains how you can use a Kubernetes profile in {{  vars.product }} (TKGI) to override the default Identity Provider (IDP).
+This topic explains how you can use a Kubernetes profile in {{  vars.product }} to override the default Identity Provider (IDP).
 
 ## <a id='overview'></a>Overview
 

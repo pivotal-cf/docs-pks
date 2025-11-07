@@ -3,7 +3,7 @@ title: About {{  vars.product }} Certificates
 
 ---
 
-This topic summarizes {{  vars.product }} (TKGI) certificates
+This topic summarizes {{  vars.product }} certificates
 and how to rotate them.
 
 

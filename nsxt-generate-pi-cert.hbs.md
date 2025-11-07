@@ -10,7 +10,7 @@ This topic describes how to generate and register the NSX Manager superuser prin
 
 You must generate and register the NSX Manager superuser principal identity certificate and key for two situations:
 
-- You are preparing to install  {{  vars.product }} (TKGI) on vSphere with NSX.  For instructions, see [Generating the Certificate and Key for Installation](#certificates-nsx-pid-install).
+- You are preparing to install  {{  vars.product }} on vSphere with NSX.  For instructions, see [Generating the Certificate and Key for Installation](#certificates-nsx-pid-install).
 - You need to rotate the NSX Manager certificate and key for an existing TKGI installation.  For instructions, see [Rotate the Principal Identity Certificate and Key](#certificates-nsx-pid-rotate).
 
 The NSX Manager superuser for TKGI has the Enterprise Administrator role and permissions.

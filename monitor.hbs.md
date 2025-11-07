@@ -4,7 +4,7 @@ title: Logging and Monitoring {{  vars.product }}
 ---
 
 The following topics describe how to monitor {{  vars.product_full }}
-(TKGI) Linux and Windows environments.
+Linux and Windows environments.
 
 To monitor Linux clusters and workloads, see:
 

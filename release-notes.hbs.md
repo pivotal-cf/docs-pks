@@ -4,7 +4,7 @@ topictype: releasenotes
 ---
 
 
-This topic contains release notes for {{  vars.product }} (TKGI) {{{ vars.product_version }}}.
+This topic contains release notes for {{  vars.product }} {{{ vars.product_version }}}.
 
 ## <a id="1-23-0"></a>TKGI {{{ vars.product_version }}}.0
 

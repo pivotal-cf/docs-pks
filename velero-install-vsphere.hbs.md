@@ -4,7 +4,7 @@ title: Installing Velero vSphere Plugin
 ---
 
 This topic describes how to install Velero for backing up and restoring
-{{  vars.product }} (TKGI)-provisioned Kubernetes workloads on vSphere.
+{{  vars.product }}-provisioned Kubernetes workloads on vSphere.
 
 ##<a id="prereqs"></a> Prerequisites
 
