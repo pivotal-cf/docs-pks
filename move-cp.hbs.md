@@ -4,29 +4,29 @@ title: Migrating to a New Datastore
 iaas: vsphere-nsxt
 ---
 
-This topic explains how to migrate a TKGI control plane and cluster container volumes to a new vSphere datastore without impacting workload cluster functioning.
+This topic explains how to migrate a {{ vars.product_short }} control plane and cluster container volumes to a new vSphere datastore without impacting workload cluster functioning.
 
-For prerequisites and notes, see [How to migrate TKGI environment from one datastore to another datastore](https://knowledge.broadcom.com/external/article?legacyId=67277) in the Broadcom Support KB.
+For prerequisites and notes, see [How to migrate {{ vars.product_short }} environment from one datastore to another datastore](https://knowledge.broadcom.com/external/article?legacyId=67277) in the Broadcom Support KB.
 
 ## <a id="overview"></a> Overview
 
-A growing TKGI environment may outgrow its host vSphere datastore.
-To avoid this, you can move TKGI to a new datastore by migrating its components in the following order:
+A growing {{ vars.product_short }} environment may outgrow its host vSphere datastore.
+To avoid this, you can move {{ vars.product_short }} to a new datastore by migrating its components in the following order:
 
 1. Datastore for container volumes
 2. {{ vars.platform_name }} and the BOSH Director
-3. TKGI Tile
-4. TKGI-managed clusters
+3. {{ vars.product_short }} Tile
+4. {{ vars.product_short }}-managed clusters
 
 The following sections explain how to perform these migration steps.
 
 ## <a id="volumes"></a> Step 1: Change the Datastore for Container Volumes
 
-1. Log in to your vCenter and navigate to the datacenter, datastore, or vSphere cluster that hosts your TKGI infrastructure.
+1. Log in to your vCenter and navigate to the datacenter, datastore, or vSphere cluster that hosts your {{ vars.product_short }} infrastructure.
 
 2. In the **Monitor** tab, select **Cloud Native Storage** > **Container Volumes**.
 
-3. Select the volumes used by TKGI and click **Migrate**.
+3. Select the volumes used by {{ vars.product_short }} and click **Migrate**.
 
 4. On the **Migrate Volume** page, select the target datastore to migrate to.
 
@@ -61,7 +61,7 @@ For limitations and considerations, see:
 
     1. Review the BOSH Director VM's **Related Objects** to verify its storage location has updated to the new datastore.
 
-## <a id="tile"></a> Step 3: Change the Datastore for the TKGI Tile
+## <a id="tile"></a> Step 3: Change the Datastore for the {{ vars.product_short }} Tile
 
 1. Log in to the Tanzu Operations Manager Installation Dashboard.
 
@@ -76,28 +76,28 @@ For limitations and considerations, see:
 
 6. Click **Apply Changes**.
 
-7. Confirm that the TKGI VMs are on the new datastore:
+7. Confirm that the {{ vars.product_short }} VMs are on the new datastore:
 
-    - From the vCenter, find the TKGI VM.
+    - From the vCenter, find the {{ vars.product_short }} VM.
 
     - In the **Related Objects** section, verify the storage has been
       > updated to the new datastore.
 
-## <a id="clusters"></a> Step 4: Change the Datastore for TKGI-managed Clusters
+## <a id="clusters"></a> Step 4: Change the Datastore for {{ vars.product_short }}-managed Clusters
 
-1. Go to the **TKGI** tile and select **Kubernetes Cloud Provider**.
+1. Go to the **{{ vars.product_short }}** tile and select **Kubernetes Cloud Provider**.
 
 2. Change the datastore to the new datastore.
 
 3. Click **Apply Changes**.
 
-4. Get deployment IDs for all TKGI clusters:
+4. Get deployment IDs for all {{ vars.product_short }} clusters:
 
   ```
   bosh deployments --column=name | grep service-instance_
   ```
 
-5. Run `bosh recreate` for each `service-instance` deployment re-create each TKGI cluster:
+5. Run `bosh recreate` for each `service-instance` deployment re-create each {{ vars.product_short }} cluster:
 
   ```
   bosh -d service-instance_CLUSTER-ID

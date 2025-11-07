@@ -7,7 +7,7 @@ This topic explains how you can use a Kubernetes profile in {{  vars.product }} 
 
 ## <a id='overview'></a>Overview
 
-The TKGI **UAA** pane configures a default IDP for all the clusters that TKGI creates.
+The {{ vars.product_short }} **UAA** pane configures a default IDP for all the clusters that {{ vars.product_short }} creates.
 You can use a Kubernetes profile to override this default IDP.
 
 The Kubernetes profile applies a custom OIDC-compatible IDP to a cluster by deploying an OIDC connector as a service pod on the cluster.
@@ -31,15 +31,15 @@ For more information and other uses of Kubernetes profiles, see [Using Kubernete
 
 ## <a id='prerequisites'></a>Prerequisites
 
-To use UAA as your OIDC provider, the TKGI API **Certificate to secure the TKGI API** field
-on the TKGI tile must be a proper certificate chain and have a SAN field.
-For more information, see configuring [TKGI API](installing-vsphere.html#tkgi-api)
-in the _Installing TKGI_ topic for your IaaS.
+To use UAA as your OIDC provider, the {{ vars.product_short }} API **Certificate to secure the {{ vars.product_short }} API** field
+on the {{ vars.product_short }} tile must be a proper certificate chain and have a SAN field.
+For more information, see configuring [{{ vars.product_short }} API](installing-vsphere.html#tkgi-api)
+in the _Installing {{ vars.product_short }}_ topic for your IaaS.
 
 
 ## <a id='process'></a>Configure a Custom OIDC Provider
 
-To configure a custom OIDC provider for TKGI clusters, complete the following:
+To configure a custom OIDC provider for {{ vars.product_short }} clusters, complete the following:
 
 1. [Set Up Dex Workload](#dex)
 1. [Set Up Communication Path](#paths)
@@ -52,7 +52,7 @@ To configure a custom OIDC provider for TKGI clusters, complete the following:
 
 To configure [dex](https://github.com/dexidp/dex) as an OIDC provider for an LDAP directory:
 
-1. Create a cluster in TKGI for installing dex as a pod:
+1. Create a cluster in {{ vars.product_short }} for installing dex as a pod:
 
     ```
     tkgi create-cluster dex -p small -e dex-host.example.com

@@ -3,7 +3,7 @@ title: Viewing Cluster Details
 
 ---
 
-This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) to view details of an individual TKGI cluster.
+This topic describes how to use the {{  vars.product_full }} Command Line Interface ({{ vars.product_short }} CLI) to view details of an individual {{ vars.product_short }} cluster.
 
 1. {{> login-api }}
 

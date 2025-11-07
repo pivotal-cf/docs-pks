@@ -4,23 +4,23 @@ title: Customizing Pod Networks (NSX Only)
 ---
 
 This topic describes how {{  vars.product_full }} administrators
-can define TKGI network profiles for pod networks on vSphere with NSX integration.
+can define {{ vars.product_short }} network profiles for pod networks on vSphere with NSX integration.
 
-TKGI supports network profiles on TKGI on vSphere with NSX only.
+{{ vars.product_short }} supports network profiles on {{ vars.product_short }} on vSphere with NSX only.
 
 To create or delete a network profile, you must be a cluster administrator, `pks.clusters.admin`.
 
 
 ##<a name='custom-pods'></a> Custom Pod Networks
 
-When you configure your NSX infrastructure for TKGI, you must create a **Pods IP Block**.
+When you configure your NSX infrastructure for {{ vars.product_short }}, you must create a **Pods IP Block**.
 For more information, see the [Plan IP Blocks](nsxt-prepare-env.html#plan-ip-blocks) section of _Planning, Preparing, and Configuring NSX for {{  vars.product }}_.
 
 By default, this subnet is non-routable. When a Kubernetes cluster is deployed, each pod receives an IP address from the **Pods IP Block** you created. Because the pod IP addresses are non-routable, NSX creates a SNAT rule on the Tier-0 router to allow network egress from the pods. This configuration is shown in the diagram below:
 
   <img src="images/nsxt/non-routable-pods.png" alt="Non-routable pod network with SNAT">
 
-You can use a network profile to override the global **Pods IP Block** that you specify in the {{  vars.product }} tile with a custom IP block. To use a custom pods network, do the following after you deploy TKGI:
+You can use a network profile to override the global **Pods IP Block** that you specify in the {{  vars.product }} tile with a custom IP block. To use a custom pods network, do the following after you deploy {{ vars.product_short }}:
 
 1. Define a custom IP block in NSX.
 For more information, see [Creating NSX Objects for {{  vars.product }}](nsxt-create-objects.html).
@@ -42,7 +42,7 @@ For more information, see [Creating NSX Objects for {{  vars.product }}](nsxt-cr
     }
     ```
 
-<p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the TKGI Tile. Create a new Pod IP Block ID (UUID) that is not referenced in the TKGI Tile and use it to define a network profile.</p>
+<p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the {{ vars.product_short }} Tile. Create a new Pod IP Block ID (UUID) that is not referenced in the {{ vars.product_short }} Tile and use it to define a network profile.</p>
 
 You can add pod addresses to an existing cluster. You cannot remove any pod addresses.
 For more information, see [Add Pod IPs](#pods-ips-add) below.
@@ -70,21 +70,21 @@ For example, the following network profile specifies /27 for the size of the two
 }
 ```
 
-<p class="note"><strong>Note:</strong> You cannot customize the size of the Pod IP Block ID (UUID) that is specified in the TKGI Tile. To customize the size of the Pod subnet block you must create a new Pod IP Block ID (UUID) that is not referenced in TKGI Tile and use it to define a network profile. </p>
+<p class="note"><strong>Note:</strong> You cannot customize the size of the Pod IP Block ID (UUID) that is specified in the {{ vars.product_short }} Tile. To customize the size of the Pod subnet block you must create a new Pod IP Block ID (UUID) that is not referenced in {{ vars.product_short }} Tile and use it to define a network profile. </p>
 
 <p class="note"><strong>Note:</strong> The subnet size for a Pods IP Block must be consistent across all Network Profiles.
-TKGI does not support variable subnet sizes for a given IP Block.</p>
+{{ vars.product_short }} does not support variable subnet sizes for a given IP Block.</p>
 
 You cannot modify the size of the pod subnet configuration on an existing cluster.
 
 
 ##<a id='routable-pods'></a> Routable Pod Networks
 
-Using a network profile, you can assign routable IP addresses from a dedicated routable IP block to pods in your Kubernetes cluster. When a cluster is deployed using that network profile, the routable IP block overrides the default non-routable IP block described created for deploying TKGI. When you deploy a Kubernetes cluster using that network profile, each pod receives a routable IP address. This configuration is shown in the diagram below. If you use routable pods, the SNAT rule is not created.
+Using a network profile, you can assign routable IP addresses from a dedicated routable IP block to pods in your Kubernetes cluster. When a cluster is deployed using that network profile, the routable IP block overrides the default non-routable IP block described created for deploying {{ vars.product_short }}. When you deploy a Kubernetes cluster using that network profile, each pod receives a routable IP address. This configuration is shown in the diagram below. If you use routable pods, the SNAT rule is not created.
 
   <img src="images/nsxt/routable-pods.png" alt="Routable pod network using network profiles">
 
-To use routable pods, do the following after you deploy TKGI:
+To use routable pods, do the following after you deploy {{ vars.product_short }}:
 
 1. Define a routable IP block in NSX. For more information, see [Creating NSX Objects for {{  vars.product }}](nsxt-create-objects.html).
 
@@ -107,7 +107,7 @@ To use routable pods, do the following after you deploy TKGI:
     }
     ```
 
-<p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the TKGI Tile. Create a new Pod IP Block ID (UUID) that is not referenced in TKGI Tile and use it to define a network profile.</p>
+<p class="note"><strong>Note:</strong> You cannot use the same Pod IP Block ID (UUID) that is specified in the {{ vars.product_short }} Tile. Create a new Pod IP Block ID (UUID) that is not referenced in {{ vars.product_short }} Tile and use it to define a network profile.</p>
 
 You can add pod addresses to an existing cluster.
 You cannot remove any pod addresses or modify the size of the pod subnet configuration on an existing cluster.

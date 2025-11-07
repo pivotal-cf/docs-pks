@@ -8,14 +8,14 @@ This topic also describes how to install MinIO for Velero.
 
 ##<a id="prereqs"></a> Prerequisites
 
-Ensure the following before installing Velero for backing up and restoring TKGI:
+Ensure the following before installing Velero for backing up and restoring {{ vars.product_short }}:
 
 * You have read: [Tanzu Kubernetes Workload Back Up and Restore Requirements](./backup-and-restore-work.html#requirements)
 in _Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero_.
 * You have a Linux VM with sufficient storage to store several workload backups.
 You will install MinIO on this VM. For more information, see
 [Quick start evaluation install with MinIO](https://velero.io/docs/v1.8/contributions/minio/) in the Velero documentation.
-* You have a TKGI Client VM (Linux) where CLI tools are installed, such as the TKGI CLI, kubectl, and others.
+* You have a {{ vars.product_short }} Client VM (Linux) where CLI tools are installed, such as the {{ vars.product_short }} CLI, kubectl, and others.
 You will install the Velero CLI on this client VM.
 If you do not have such a VM, you can install the Velero CLI locally
 but adjust the following installation steps to match your configuration.
@@ -100,7 +100,7 @@ To enable MinIO as a service, configure MinIO for automatic startup:
 
 ### <a id='minio-create'></a> Create MinIO Bucket
 
-To create a MinIO bucket for TKGI workload back up and restore:
+To create a MinIO bucket for {{ vars.product_short }} workload back up and restore:
 
 
 1. Browse to the MinIO datastore by opening a browser to the MinIO server endpoint URL recorded from the `minio server` output.
@@ -130,15 +130,15 @@ To install the Velero CLI on your workstation:
 
 To download the Velero CLI Binary:
 
-1. Download the supported version of the signed Velero binary for your version of TKGI from the
-TKGI Management Console product downloads page at [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console).
+1. Download the supported version of the signed Velero binary for your version of {{ vars.product_short }} from the
+{{ vars.product_short }} Management Console product downloads page at [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console).
 For more information about the currently supported Velero versions, see the _Product Snapshot_ section of the [Release Notes](release-notes.html).
 
     <p class="note"><strong>Note</strong>: You must use the Velero binary signed by VMware to be eligible for support from VMware.</p>
 
 ### <a id='velero-cli-install'></a> Install the Velero CLI
 
-To install the Velero CLI on the TKGI client or on your local machine:
+To install the Velero CLI on the {{ vars.product_short }} client or on your local machine:
 
 1. Open a command line and change directory to the Velero CLI download.
 1. Unzip the download file:
@@ -353,7 +353,7 @@ To install Velero:
 
 ###<a id='velero-privileged'></a> Modify the Host Path
 
-To run the three-pod node-agent DaemonSet on a Kubernetes cluster in TKGI,
+To run the three-pod node-agent DaemonSet on a Kubernetes cluster in {{ vars.product_short }},
 you must modify the node-agent DaemonSet spec and modify the `hostpath` property.
 
 To modify the node-agent DaemonSet:
@@ -453,13 +453,13 @@ in the Velero documentation.
 
 - A private container registry is installed and configured.
 The instructions use Harbor.
-- Docker is installed on the workstation or TKGI jump host.
+- Docker is installed on the workstation or {{ vars.product_short }} jump host.
 - kubectl context has been set and the MinIO `credentials-minio` file exists. For more information, see [Set Up the kubectl Context ](#velero-cluster-setup) above.
 
 ###<a id='velero-cluster-install-airgapped-procedure'></a> Procedure
 
-1. Browse to the TKGI Management Console product downloads page at [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console) for your version of TKGI.
-1. Download the Velero CLI and Velero with restic Docker images for your version of TKGI:
+1. Browse to the {{ vars.product_short }} Management Console product downloads page at [Broadcom Support](https://support.broadcom.com/group/ecx/productdownloads?subfamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console) for your version of {{ vars.product_short }}.
+1. Download the Velero CLI and Velero with restic Docker images for your version of {{ vars.product_short }}:
   - velero-{{{ vars.velero_version }}}+vmware.1.gz
   - velero-plugin-for-aws-{{{ vars.velero_version_aws }}}_vmware.1.tar.gz
   - velero-restore-helper-{{{ vars.velero_version }}}+vmware.1.tar.gz

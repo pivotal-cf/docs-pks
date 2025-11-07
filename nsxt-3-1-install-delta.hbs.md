@@ -12,7 +12,7 @@ title: Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches
 **This topic has been superseded. Do not use.**
 
 For instructions on how to configure NSX Data Center Transport Zones,
-see [Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for TKGI](nsxt-install-tzs.html).
+see [Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for {{ vars.product_short }}](nsxt-install-tzs.html).
 <br>
 <br>
 <br>
@@ -21,11 +21,11 @@ see [Configuring NSX-T Data Center v3 Transport Zones and Edge Node Switches for
 
 This topic provides instructions for configuring NSX-T Data Center v3.1 Transport Zones and N-VDS switches on NSX-T Edge Nodes for use with {{  vars.product_full }} on vSphere.
 
-TKGI requires two Transport Zones for TKGI: an Overlay Transport Zone for the ESXi Transport Nodes
+{{ vars.product_short }} requires two Transport Zones for {{ vars.product_short }}: an Overlay Transport Zone for the ESXi Transport Nodes
 and a VLAN Transport Zone for Edge Nodes.
 
-TKGI requires that the host switch name associated with the Transport Zones
-match exactly the **Edge Switch Name** value that you specify when you configure an NSX-T Edge Node for use with TKGI.
+{{ vars.product_short }} requires that the host switch name associated with the Transport Zones
+match exactly the **Edge Switch Name** value that you specify when you configure an NSX-T Edge Node for use with {{ vars.product_short }}.
 
 You can configure your Transport Zones in three ways.
 The three configuration options require different levels of customization to complete:
@@ -58,11 +58,11 @@ The three configuration options require different levels of customization to com
 
 
 <p class="note"><strong>Note:</strong> In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI.
-  For more information, see <a href="#nsxt31-edge-config">TKGI NSX-T Edge Switch and Transport Zone Host Switch Name Requirements</a>.</p>
+  For more information, see <a href="#nsxt31-edge-config">{{ vars.product_short }} NSX-T Edge Switch and Transport Zone Host Switch Name Requirements</a>.</p>
 
-##<a id='option1'></a> Configure Your NSX-T Transport Zones for TKGI
+##<a id='option1'></a> Configure Your NSX-T Transport Zones for {{ vars.product_short }}
 
-TKGI requires the NSX-T **Edge Switch Name** and the Transport Zone host switch name to be identical.
+{{ vars.product_short }} requires the NSX-T **Edge Switch Name** and the Transport Zone host switch name to be identical.
 You can configure identical Edge Switch and Transport Zone host switch names using the following methods:
 
 * [Option 1: Use the Default Transport Zones with a Single N-VDS Switch](#option1) (recommended)
@@ -113,7 +113,7 @@ To use this option:
       </tr>
     </table>
 
-    <p class="note"><strong>Note:</strong> If you use the default Transport Zones, but do not use the exact name <code>nsxHostSwitch</code> when configuring NSX on the Edge Node, you will receive the  <code>pks-nsx-t-osb-proxy</code> BOSH error when you try to deploy TKGI.</p>
+    <p class="note"><strong>Note:</strong> If you use the default Transport Zones, but do not use the exact name <code>nsxHostSwitch</code> when configuring NSX on the Edge Node, you will receive the  <code>pks-nsx-t-osb-proxy</code> BOSH error when you try to deploy {{ vars.product_short }}.</p>
 
 ###<a id='option2'></a> Option 2: Create Custom Transport Zones and Use the NSX-T API to Get the Host Switch Names
 
@@ -338,20 +338,20 @@ To create custom Transport Zones and NSX-T Switches:
     ```
 1. Use the retrieved values to configure NSX-T as described in the **Configure NSX-T for the Edge Node** step in [Option 2: Create Custom Transport Zones and Use the NSX-T API to Get the Host Switch Names](#option2) above.
 
-##<a id='nsxt31-edge-config'></a> TKGI NSX-T Edge Switch and Transport Zone Host Switch Name Requirements
+##<a id='nsxt31-edge-config'></a> {{ vars.product_short }} NSX-T Edge Switch and Transport Zone Host Switch Name Requirements
 
 In NSX-T 3.1 and later, the Transport Zone Host Switch Name has been deprecated and removed from the NSX-T configuration UI.
 
-For TKGI, the NSX-T **Edge Switch Name** and the Transport Zone host switch name must be identical.
+For {{ vars.product_short }}, the NSX-T **Edge Switch Name** and the Transport Zone host switch name must be identical.
 When configuring NSX-T, configure the **Edge Switch Name** to be the same as the Transport Zone host switch name.
 
 <p class="note"><strong>Note:</strong> The NSX-T 3.x Edge Node configuration displays the following message
   beside the <strong>Edge Switch Name</strong> field:
   "<em>The switch name value need not be identical to host switch name associated with the Transport Zone.</em>"
-  This message does not apply to TKGI.</p>
+  This message does not apply to {{ vars.product_short }}.</p>
 
 If there is a mismatch between the the host switch name associated with the Transport Zone and the **Edge Switch Name**,
-TKGI installation fails with the following error:
+{{ vars.product_short }} installation fails with the following error:
 
 ```
 Failed to get NSX provisioning properties: No transport zone with overlay type found in transport node as switch name is not same across the TZ and ESXI TN

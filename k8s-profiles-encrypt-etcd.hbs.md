@@ -3,7 +3,7 @@ title: Encrypt Secrets in an etcd Database
 
 ---
 
-This topic describes how to create and use a Kubernetes profile to encrypt a cluster's etcd database with the {{  vars.product }} Command Line Interface (TKGI CLI).
+This topic describes how to create and use a Kubernetes profile to encrypt a cluster's etcd database with the {{  vars.product }} Command Line Interface ({{ vars.product_short }} CLI).
 
 For more information and other uses of Kubernetes profiles, see [Using Kubernetes Profiles](./k8s-profiles.html).
 
@@ -82,7 +82,7 @@ your encryption provider configuration file, create a JSON file containing the f
 	* `LOCAL-DIR` is the directory containing your encryption provider configuration file.
 
 1. To create a Kubernetes profile based on your profile configuration file,
-use the TKGI CLI:
+use the {{ vars.product_short }} CLI:
 
     ```
     tkgi create-k8s-profile PROFILE-PATH
@@ -102,7 +102,7 @@ use the TKGI CLI:
 
 To create a Kubernetes cluster based on a Kubernetes profile:
 
-1. To create a cluster based on a Kubernetes profile, use the TKGI CLI:
+1. To create a cluster based on a Kubernetes profile, use the {{ vars.product_short }} CLI:
 
     ```
     tkgi create-cluster CLUSTER-NAME -e EXTERNAL-HOSTNAME -p small -n 1 --kubernetes-profile K8S-PROFILE
@@ -116,7 +116,7 @@ To create a Kubernetes cluster based on a Kubernetes profile:
         </p>
     * `EXTERNAL-HOSTNAME` is the address to use to access Kubernetes API.
     * `K8S-PROFILE` is the Kubernetes profile name.
-    For more information, see [`tkgi create-cluster`](./cli/index.html#create-cluster) in _TKGI CLI_.
+    For more information, see [`tkgi create-cluster`](./cli/index.html#create-cluster) in _{{ vars.product_short }} CLI_.
 
     Running this command restarts your kube-apiserver with your encryption provider configuration file
     set as the `--encryption-provider-config` parameter.
@@ -267,7 +267,7 @@ This section describes how to use `encryption provider config` to rotate a key.
 For highly-available deployments running multiple kube-apiserver processes, changing a secret
 without incurring downtime requires a multi-step process.
 
-<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 To rotate an encryption key for a secret in an etcd database:
@@ -319,7 +319,7 @@ current provider in your encryption-provider-config.yml `keys:` list.
     For information about creating a Kubernetes profile configuration file,
     see [Create Kubernetes Profile](#profile) above.
 
-1. Use the TKGI CLI to create a profile based on the configuration file.
+1. Use the {{ vars.product_short }} CLI to create a profile based on the configuration file.
 
     For example:
 
@@ -327,7 +327,7 @@ current provider in your encryption-provider-config.yml `keys:` list.
 	$ tkgi create-k8s-profile /tmp/profile2.json
 	Kubernetes profile profile2 successfully created
     ```
-    For information about using the TKGI CLI to create a Kubernetes profile,
+    For information about using the {{ vars.product_short }} CLI to create a Kubernetes profile,
     see [Create Kubernetes Profile](#profile) above.
 
 1. If you are updating a cluster that uses a public cloud CSI driver,
@@ -401,7 +401,7 @@ as the first entry in the `keys:` property, swapping its position with the old k
 	}
 	```
 
-1. Use the TKGI CLI to create a profile based on
+1. Use the {{ vars.product_short }} CLI to create a profile based on
 the new Kubernetes profile configuration file.
 
     For example:
@@ -476,7 +476,7 @@ the new Kubernetes profile configuration file.
     For information about creating a Kubernetes profile configuration file,
     see [Create Kubernetes Profile](#profile) above.
 
-1. Use the TKGI CLI to create a profile based on
+1. Use the {{ vars.product_short }} CLI to create a profile based on
 the new Kubernetes profile configuration file.
 
     For example:
@@ -566,7 +566,7 @@ in the encryption provider configuration file.
     For information about creating a Kubernetes profile configuration file,
     see [Create Kubernetes Profile](#profile) above.
 
-1. Use the TKGI CLI to create a profile based
+1. Use the {{ vars.product_short }} CLI to create a profile based
 on the modified Kubernetes profile configuration file.
 
     For example:
@@ -591,7 +591,7 @@ on the modified Kubernetes profile configuration file.
 
     For information about using `update-cluster`, see [Rotate Encryption Key for Secrets in etcd Database](#rotate) above.
 
-    <p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
 1. To force all secrets to be decrypted:

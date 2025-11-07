@@ -3,7 +3,7 @@ title: Viewing Cluster Lists
 
 ---
 
-This topic describes how to use the {{  vars.product_full }} Command Line Interface (TKGI CLI) to view a list of deployed TKGI Kubernetes clusters.
+This topic describes how to use the {{  vars.product_full }} Command Line Interface ({{ vars.product_short }} CLI) to view a list of deployed {{ vars.product_short }} Kubernetes clusters.
 
 
 1. {{> login-api }}
