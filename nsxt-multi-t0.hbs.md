@@ -524,7 +524,7 @@ This firewall rule allows Kubernetes node traffic to reach {{ vars.product_short
 
 This firewall rule allows {{ vars.product_short }} management plane components to talk to Kubernetes nodes.
 
-- **Name**: `TKGI-to-Node-Network`
+- **Name**: `{{ vars.product_short | downcase }}-to-Node-Network`
 - **Direction**: ingress
 - **Source**: IP Set defined for the {{ vars.product_short }} management network
 - **Destination**: IP Set defined for the Nodes IP Block network
@@ -926,5 +926,5 @@ To configure a cluster to use a VRF gateway, assign the Network Profile to the c
 * Update an existing cluster using the VRF gateway Network Profile.
 
     For more information on updating existing clusters with a Network Profile,
-    see [Assign a Network Profile to an Existing Cluster](network-profiles.html#assign-profile)
+    see [Assign a Network Profile to an Existing Cluster](network-profiles.html##assign-profile)
     in _Using Network Profiles_.
