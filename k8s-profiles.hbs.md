@@ -4,7 +4,7 @@ title: Using Kubernetes Profiles
 ---
 
 This topic describes how to create and use Kubernetes profiles
-for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
+for {{  vars.product_full }} provisioned Kubernetes clusters.
 
 
 

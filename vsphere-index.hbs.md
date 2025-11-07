@@ -4,7 +4,7 @@ title: Installing {{  vars.product }} on vSphere
 iaas: vSphere
 ---
 
-This topic describes options for installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
+This topic describes options for installing {{  vars.product_full }} on vSphere.
 
 ## <a id='overview'></a>Overview
 

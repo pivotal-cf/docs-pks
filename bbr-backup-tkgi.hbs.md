@@ -3,7 +3,7 @@ title: Backing Up TKGI Management Plane Components
 
 ---
 
-This topic describes how to use BOSH Backup and Restore (BBR) to back up {{  vars.product_full }} ({{ vars.product_short }}) Managment Plane components.
+This topic describes how to use BOSH Backup and Restore (BBR) to back up {{  vars.product_full }} Managment Plane components.
 
 ##<a id="overview"></a> Overview
 

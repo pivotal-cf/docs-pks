@@ -3,7 +3,7 @@ title: NSX Deployment Topologies for {{  vars.product }}
 
 ---
 
-This topic describes the topologies supported for deploying {{  vars.product_full }} ({{ vars.product_short }}) with NSX.
+This topic describes the topologies supported for deploying {{  vars.product_full }} with NSX.
 
 ##<a id='topology-nat'></a> NAT Topology
 

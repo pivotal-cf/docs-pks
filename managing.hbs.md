@@ -3,7 +3,7 @@ title: Managing {{  vars.product }}
 
 ---
 
-The following topics describe how to manage {{  vars.product_full }} ({{ vars.product_short }}):
+The following topics describe how to manage {{  vars.product_full }}:
 
 <ul>
   <li><a href="console-monitor-manage.html">Monitor and Manage {{  vars.product }} in the Management Console</a></li>

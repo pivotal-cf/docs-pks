@@ -4,7 +4,7 @@ title: Installing {{  vars.product }} on vSphere with VMware NSX
 iaas: vsphere-nsxt
 ---
 
-The following topics describe how to install NSX Data Center on vSphere for use with {{  vars.product_full }} ({{ vars.product_short }}).
+The following topics describe how to install NSX Data Center on vSphere for use with {{  vars.product_full }}.
 
 ## Install NSX on vSphere
 

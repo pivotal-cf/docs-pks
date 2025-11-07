@@ -3,7 +3,7 @@ title: Installing {{  vars.product }}
 
 ---
 
-This topics below describe how to install and configure {{  vars.product_full }} ({{ vars.product_short }}).
+This topics below describe how to install and configure {{  vars.product_full }}.
 
 
 

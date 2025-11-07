@@ -4,7 +4,7 @@ title: Monitoring Ingress Resources
 lbtype: monitor
 ---
 
-This topic describes how to monitor the health status of the NSX ingress load balancer resources for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to monitor the health status of the NSX ingress load balancer resources for {{  vars.product_full }}.
 
 <p class="note"><strong>Note:</strong> This feature requires NCP v2.5.1 or later.</p>
 

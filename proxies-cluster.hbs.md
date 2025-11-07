@@ -5,7 +5,7 @@ topic: proxies-cluster
 ---
 
 This topic describes how to customize HTTP/HTTPS proxies for individual
-{{  vars.product_full }} ({{ vars.product_short }}) provisioned clusters.
+{{  vars.product_full }} provisioned clusters.
 
 ##<a id='overview'></a>Overview
 

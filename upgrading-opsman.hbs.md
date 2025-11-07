@@ -3,7 +3,7 @@ title: Upgrading {{  vars.product }} with {{ vars.platform_name }}
 
 ---
 
-The following topics describe how to upgrade the {{  vars.product_full }} ({{ vars.product_short }}) tile:
+The following topics describe how to upgrade the {{  vars.product_full }} tile:
 
 <ul>
   <li>

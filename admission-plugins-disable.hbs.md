@@ -3,7 +3,7 @@ title: Deactivating Admission Control Plugins for {{  vars.product }} Clusters
 
 ---
 
-This topic describes how to deactivate {{  vars.product_full }} ({{ vars.product_short }}) cluster admission control plugins.
+This topic describes how to deactivate {{  vars.product_full }} cluster admission control plugins.
 
 For more information about Admission Control Plugins, see [Using Admission Control Plugins for {{  vars.product }} Clusters](./admission-plugins.html).
 

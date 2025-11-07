@@ -3,7 +3,7 @@ title: Logging in to {{  vars.product }}
 
 ---
 
-This topic describes how to log in to {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to log in to {{  vars.product_full }}.
 
 ## <a id='overview'></a>Overview
 

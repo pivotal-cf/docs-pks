@@ -4,7 +4,7 @@ owner: PKS
 ---
 
 This topic describes how to use a Kubernetes Network Policy to secure access to the AWS instance metadata service
-from Kubernetes clusters created with {{  vars.product_full }} ({{ vars.product_short }}).
+from Kubernetes clusters created with {{  vars.product_full }}.
 
 ## <a id='overview'></a> Overview
 

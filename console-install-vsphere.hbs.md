@@ -4,7 +4,7 @@ title: Install {{  vars.product }} on vSphere with the Management Console
 ---
 
 {{  vars.product_full }} Management Console provides a unified installation experience for
-deploying {{  vars.product_full }} ({{ vars.product_short }}) to vSphere.
+deploying {{  vars.product_full }} to vSphere.
 
 
 ## <a id='overview'></a>Overview

@@ -3,7 +3,7 @@ title: Monitoring Linux Workers and Workloads
 owner: PKS
 ---
 
-This topic describes the components and integrations you can use to capture Kubernetes workload and worker node logs and metrics on {{  vars.product_full }} ({{ vars.product_short }}) Linux clusters.
+This topic describes the components and integrations you can use to capture Kubernetes workload and worker node logs and metrics on {{  vars.product_full }} Linux clusters.
 
 For information about logging and monitoring Kubernetes clusters, workers and workloads on Windows,
 see [Monitoring Windows Worker Clusters and Workers](windows-monitoring.html) or [Logging Windows Worker Clusters and Workers](windows-logging.html).

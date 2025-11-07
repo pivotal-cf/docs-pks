@@ -3,7 +3,7 @@ title: Configuring Azure Active Directory as a SAML Identity Provider
 owner: Identity
 ---
 
-This topic describes how to configure single sign-on (SSO) between Microsoft Azure Active Directory (Azure AD) and {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to configure single sign-on (SSO) between Microsoft Azure Active Directory (Azure AD) and {{  vars.product_full }}.
 
 ## <a id='prerequisites'></a> Prerequisites
 

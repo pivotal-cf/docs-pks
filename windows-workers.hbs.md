@@ -7,7 +7,7 @@ topic: #Empty var to prevent build breaking
 thistopic: #Empty var to prevent build breaking
 ---
 
-This topic describes how to configure Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to configure Windows worker-based Kubernetes clusters in {{  vars.product_full }}.
 
 
 ## <a id='overview'></a>Overview

@@ -7,7 +7,7 @@ topic: #Empty var to prevent build breaking
 thistopic: #Empty var to prevent build breaking
 ---
 
-This topic explains how to upgrade {{  vars.product_full }} ({{ vars.product_short }}) in Antrea Networking environments from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
+This topic explains how to upgrade {{  vars.product_full }} in Antrea Networking environments from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
 on vSphere, Amazon Web Services (AWS), and Azure.
 
 For instructions on upgrading {{  vars.product }}

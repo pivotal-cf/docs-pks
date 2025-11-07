@@ -4,7 +4,7 @@ title: Firewall Ports and Protocols Requirements (Antrea Networking)
 netenv: antrea
 ---
 
-This topic describes the firewall ports and protocols requirements for using {{  vars.product_full }} ({{ vars.product_short }})
+This topic describes the firewall ports and protocols requirements for using {{  vars.product_full }}
 with Antrea container networking.
 
 If you are using TKGI on vSphere, see one of the follow topics instead:

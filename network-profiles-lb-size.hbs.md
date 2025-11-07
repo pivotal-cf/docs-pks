@@ -3,7 +3,7 @@ title: Size a Load Balancer
 
 ---
 
-This topic describes how to size a load balancer using a network profile for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
+This topic describes how to size a load balancer using a network profile for {{  vars.product_full }} provisioned Kubernetes clusters.
 
 ## <a id='lb-size'></a> Load Balancer Sizing
 

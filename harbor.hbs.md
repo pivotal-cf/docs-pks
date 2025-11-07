@@ -3,7 +3,7 @@ title: Getting Started with VMware Harbor Registry
 
 ---
 
-This topic describes how to set up the VMware Harbor Registry (Harbor) image registry for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to set up the VMware Harbor Registry (Harbor) image registry for {{  vars.product_full }}.
 
 
 ## <a id="overview"></a>Overview

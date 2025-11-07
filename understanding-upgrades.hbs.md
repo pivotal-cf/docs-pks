@@ -3,7 +3,7 @@ title: About {{  vars.product }} Upgrades
 
 ---
 
-This topic provides conceptual information about upgrading {{  vars.product_full }} ({{ vars.product_short }}) and TKGI-provisioned Kubernetes clusters.
+This topic provides conceptual information about upgrading {{  vars.product_full }} and TKGI-provisioned Kubernetes clusters.
 
 For step-by-step instructions on upgrading TKGI
 and TKGI-provisioned Kubernetes clusters, see:

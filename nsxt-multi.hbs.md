@@ -3,7 +3,7 @@ title: Implementing a Multi-Foundation {{  vars.product }} Deployment
 
 ---
 
-This topic describes how to deploy multiple instances of {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX infrastructure.
+This topic describes how to deploy multiple instances of {{  vars.product_full }} on vSphere with NSX infrastructure.
 
 ## <a id='about'></a> About Multi-Foundation {{  vars.product }}
 

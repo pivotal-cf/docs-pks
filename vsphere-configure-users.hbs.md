@@ -4,7 +4,7 @@ title: Setting Up {{  vars.product }} Admin Users on vSphere
 iaas: vSphere
 ---
 
-This topic describes how to create admin users in {{  vars.product_full }} ({{ vars.product_short }}) with User Account and Authentication (UAA).
+This topic describes how to create admin users in {{  vars.product_full }} with User Account and Authentication (UAA).
 
 ## <a id='overview'></a> Overview
 

@@ -3,7 +3,7 @@ title: Load Balancing and Ingress
 
 ---
 
-This topic lists topics that describe how to create and configure load balancers for {{  vars.product_full }} ({{ vars.product_short }}) clusters.
+This topic lists topics that describe how to create and configure load balancers for {{  vars.product_full }} clusters.
 
 See the following topics to create or configure load balancers:
 

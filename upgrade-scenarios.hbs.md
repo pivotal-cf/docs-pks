@@ -4,7 +4,7 @@ title: Upgrade Order for {{  vars.product }} Environments on vSphere
 ---
 
 This topic describes upgrade scenarios for
-{{  vars.product_full }} ({{ vars.product_short }}) environments that are upgraded from
+{{  vars.product_full }} environments that are upgraded from
 {{{ vars.product_version_prev }}} to {{{ vars.product_version }}} on vSphere.
 
 ## <a id="overview"></a>Overview

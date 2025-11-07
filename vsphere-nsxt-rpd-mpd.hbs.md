@@ -3,7 +3,7 @@ title: Hardware Requirements for {{  vars.product }} on vSphere with NSX
   with NSX
 ---
 
-This topic describes the hardware requirements for production deployments of {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX.
+This topic describes the hardware requirements for production deployments of {{  vars.product_full }} on vSphere with NSX.
 
 ##<a id='tkgi-cluster-chars'></a> vSphere Cluster Requirements
 

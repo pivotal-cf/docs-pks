@@ -3,7 +3,7 @@ title: Load Balancers in {{  vars.product }}
 
 ---
 
-This topic describes the {{  vars.product_full }} ({{ vars.product_short }}) load balancers for the TKGI API and TKGI clusters and workloads.
+This topic describes the {{  vars.product_full }} load balancers for the TKGI API and TKGI clusters and workloads.
 
 
 ## <a id='overview'></a>Overview

@@ -7,7 +7,7 @@ title: Viewing Usage Quotas
 
 
 This topic describes how to review your resource usage
-and quotas in {{  vars.product_full }} ({{ vars.product_short }}) using
+and quotas in {{  vars.product_full }} using
 the TKGI API.
 
 ## <a id="overview"></a> Overview

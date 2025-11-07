@@ -3,7 +3,7 @@ title: Backing Up and Restoring the TKGI Management Plane
 
 ---
 
-This topic describes how to back up and restore the {{  vars.product_full }} ({{ vars.product_short }}) Management Plane.
+This topic describes how to back up and restore the {{  vars.product_full }} Management Plane.
 
 ## Overview
 

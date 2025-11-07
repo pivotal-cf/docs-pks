@@ -7,7 +7,7 @@ title: Managing Resource Usage with Quotas
 
 
 This topic describes how to review and restrict the usage of
-{{  vars.product_full }} ({{ vars.product_short }}) resources by TKGI users.
+{{  vars.product_full }} resources by TKGI users.
 
 ## <a id="overview"></a> Overview
 

@@ -3,7 +3,7 @@ title: Managing {{  vars.product }} Users in {{ vars.platform_name }}
 
 ---
 
-The following topics describe how to connect User Account and Authentication (UAA) to external user stores when using {{ vars.platform_name }} to configure {{  vars.product_full }} ({{ vars.product_short }}) and how to manage users with UAA:
+The following topics describe how to connect User Account and Authentication (UAA) to external user stores when using {{ vars.platform_name }} to configure {{  vars.product_full }} and how to manage users with UAA:
 
 <ul>
   <li>

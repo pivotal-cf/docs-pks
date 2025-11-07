@@ -3,7 +3,7 @@ title: Managing Cluster Access and Permissions
 
 ---
 
-This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in {{  vars.product_full }}.
 
 ## <a id='overview'></a> Overview
 

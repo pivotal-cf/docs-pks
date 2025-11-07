@@ -5,7 +5,7 @@ owner: PKS
 
 This topic describes how to install and configure
 components and integrations to capture logs from
-{{  vars.product_full }} ({{ vars.product_short }})
+{{  vars.product_full }}
 provisioned Windows Worker Kubernetes clusters and worker nodes.
 
 ## <a id='logging-prerequisites'></a> Prerequisites

@@ -4,7 +4,7 @@ title: Considerations for Using the VMware NSX Policy API with TKGI
 topic: nsx-t-policy
 ---
 
-This topic provides considerations for using the NSX Policy API with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
+This topic provides considerations for using the NSX Policy API with {{  vars.product_full }} on vSphere.
 
 <p class="note warning"><strong>Warning:</strong>
     The NSX Policy API feature is available at only 50% of NSX Management Plane API scale with VMware NSX v4.0.1.1.

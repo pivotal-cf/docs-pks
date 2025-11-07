@@ -3,7 +3,7 @@ title: Install {{  vars.product }} on VMware Cloud Foundation
 
 ---
 
-This topic describes how to install and operate {{  vars.product_full }} ({{ vars.product_short }})
+This topic describes how to install and operate {{  vars.product_full }}
 on the VMware Cloud Foundation (VCF) platform.
 
 <p class="note warning"><strong>Warning:</strong>

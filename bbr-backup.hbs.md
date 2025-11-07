@@ -3,7 +3,7 @@ title: Backing Up {{  vars.product }}
 
 ---
 
-This topic describes how to use BOSH Backup and Restore (BBR) to back up the {{  vars.product_full }} ({{ vars.product_short }}) Control Plane and its cluster deployments.
+This topic describes how to use BOSH Backup and Restore (BBR) to back up the {{  vars.product_full }} Control Plane and its cluster deployments.
 
 ##<a id="overview"></a> Overview
 

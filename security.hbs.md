@@ -2,7 +2,7 @@
 title: Security
 ---
 
-The following topics describe {{  vars.product_full }} ({{ vars.product_short }}) security and security procedures:
+The following topics describe {{  vars.product_full }} security and security procedures:
 
 * **Security Disclosure and Release Process**: See <a href="./security-process.html">{{  vars.product }} Security Disclosure and Release Process</a>
 * **Certificates**: See <a href="./certificate-concepts.html">{{  vars.product }} Certificates</a>

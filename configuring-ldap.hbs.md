@@ -3,7 +3,7 @@ title: Connecting {{  vars.product }} to an LDAP Server
 
 ---
 
-This topic describes how to connect {{  vars.product_full }} ({{ vars.product_short }})
+This topic describes how to connect {{  vars.product_full }}
 to an external LDAP server.
 
 

@@ -3,7 +3,7 @@ title: Monitoring TKGI and TKGI-Provisioned Clusters on Linux
 
 ---
 
-This topic describes the components and integrations you can use with {{  vars.product_full }} ({{ vars.product_short }}) to capture logs and metrics on Linux.
+This topic describes the components and integrations you can use with {{  vars.product_full }} to capture logs and metrics on Linux.
 
 
 ## <a id='overview'></a>Overview

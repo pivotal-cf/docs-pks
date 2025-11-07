@@ -4,7 +4,7 @@ title: Scaling Existing Clusters
 pkscommand: update
 ---
 
-This topic describes how to scale an existing {{  vars.product_full }} ({{ vars.product_short }}) provisioned cluster.
+This topic describes how to scale an existing {{  vars.product_full }} provisioned cluster.
 You can scale TKGI-provisioned clusters horizontally by adding worker nodes or vertically by changing the size of the node VMs.
 
 To change the default number of worker nodes created in new clusters,

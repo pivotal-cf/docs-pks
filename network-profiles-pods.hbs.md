@@ -3,7 +3,7 @@ title: Customizing Pod Networks (NSX Only)
 
 ---
 
-This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) administrators
+This topic describes how {{  vars.product_full }} administrators
 can define TKGI network profiles for pod networks on vSphere with NSX integration.
 
 TKGI supports network profiles on TKGI on vSphere with NSX only.

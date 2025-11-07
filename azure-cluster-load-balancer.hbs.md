@@ -3,7 +3,7 @@ title: Creating and Configuring an Azure Load Balancer for {{  vars.product }} C
 
 ---
 
-This topic describes how to create and configure a Microsoft Azure load balancer for your {{  vars.product_full }} ({{ vars.product_short }}) cluster.
+This topic describes how to create and configure a Microsoft Azure load balancer for your {{  vars.product_full }} cluster.
 
 
 ##<a id='overview'></a> Overview

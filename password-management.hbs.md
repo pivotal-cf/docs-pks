@@ -3,7 +3,7 @@ title: Adding Infrastructure Password Changes to the {{  vars.product }} Tile
 
 ---
 
-This topic describes how to manage {{  vars.product_full }} ({{ vars.product_short }}) after changing a BOSH Director
+This topic describes how to manage {{  vars.product_full }} after changing a BOSH Director
 or TKGI service account password.
 
 ## <a id='vcenter-pw-change'></a> Manage Your Service Account Passwords

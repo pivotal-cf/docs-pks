@@ -4,7 +4,7 @@ title: Deploying and Managing Cloud Native Storage (CNS) on vSphere
 ---
 
 This topic describes how to use and configure the vSphere Container Storage Interface (CSI) Driver
-to enable {{  vars.product_full }} ({{ vars.product_short }}) provisioned clusters on vSphere to use external container storage.
+to enable {{  vars.product_full }} provisioned clusters on vSphere to use external container storage.
 On vSphere, TKGI automatically installs the vSphere CSI Driver to all TKGI-provisioned clusters.
 
 

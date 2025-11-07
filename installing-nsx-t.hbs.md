@@ -6,7 +6,7 @@ topic: #Empty var to prevent build breaking
 thistopic: #Empty var to prevent build breaking
 ---
 
-This topic describes how to install and configure {{  vars.product_full }} ({{ vars.product_short }})
+This topic describes how to install and configure {{  vars.product_full }}
 on vSphere with NSX integration as a {{ vars.platform_name }} tile.
 
 

@@ -3,7 +3,7 @@ title: Enabling and Configuring Pod Security Policies
 
 ---
 
-This topic describes how to enable and use Pod Security Policies in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to enable and use Pod Security Policies in {{  vars.product_full }}.
 
 <p class="note"><strong>Note</strong>: In Kubernetes v1.25, Pod Security Admission (PSA) is now stable and support for Kubernetes Pod Security Policy (PSP) has been removed.
 For more information, see [Pod Security Admission in {{  vars.product }}](pod-security-admission.html)</a>.

@@ -3,7 +3,7 @@ title: Creating VMware NSX Objects for {{  vars.product }}
 
 ---
 
-This topic describes how to create VMware NSX Objects for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to create VMware NSX Objects for {{  vars.product_full }}.
 
 ##<a id='overview'></a>Overview
 

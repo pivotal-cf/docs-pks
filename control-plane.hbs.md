@@ -3,7 +3,7 @@ title: Overview of {{  vars.product }} Architecture
 
 ---
 
-This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) deploys and manages Kubernetes clusters.
+This topic describes how {{  vars.product_full }} deploys and manages Kubernetes clusters.
 
 
 ## <a id="overview"></a>{{  vars.product }} Overview

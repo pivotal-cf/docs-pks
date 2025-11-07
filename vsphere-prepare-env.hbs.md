@@ -3,7 +3,7 @@ title: Creating Dedicated Users and Roles for vSphere (Optional)
 owner: {{ vars.platform_name }}
 ---
 
-This topic describes how to create dedicated users and roles for your vSphere environment before deploying {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to create dedicated users and roles for your vSphere environment before deploying {{  vars.product_full }}.
 
 <p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by {{  vars.product }}. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the {{  vars.product }} and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the TKGI and Kubernetes cluster VMs, skip this topic.</p>
 

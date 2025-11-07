@@ -4,7 +4,7 @@ title: Scaling the HTTP/S Layer 7 Ingress Load Balancers Using the LoadBalancer 
 lbtype: layer7
 ---
 
-This topic describes how to scale ingress resources for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to scale ingress resources for {{  vars.product_full }}.
 
 <p class="note"><strong>Note:</strong> This feature requires NCP v2.5.1 or later.</p>
 

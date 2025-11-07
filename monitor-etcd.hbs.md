@@ -4,7 +4,7 @@ title: Configuring Telegraf in TKGI
 ---
 
 This topic describes how to configure Telegraf in
-{{  vars.product_full }} ({{ vars.product_short }}).
+{{  vars.product_full }}.
 
 ## <a id="overview"></a>Overview
 

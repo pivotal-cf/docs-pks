@@ -3,7 +3,7 @@ title: Downloading Logs from VMs
 
 ---
 
-This topic describes how to use the BOSH Command Line Interface (CLI) to download logs from the BOSH-deployed VMs in your {{  vars.product_full }} ({{ vars.product_short }}) environment.
+This topic describes how to use the BOSH Command Line Interface (CLI) to download logs from the BOSH-deployed VMs in your {{  vars.product_full }} environment.
 
 
 ## <a id="overview"></a>Overview

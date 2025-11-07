@@ -3,7 +3,7 @@ title: Managing {{  vars.product }} Users with UAA
 
 ---
 
-This topic describes how to manage users in {{  vars.product_full }} ({{ vars.product_short }})
+This topic describes how to manage users in {{  vars.product_full }}
 with User Account and Authentication (UAA).
 
 ## <a id='overview'></a> Overview

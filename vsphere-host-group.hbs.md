@@ -3,7 +3,7 @@ title: Using vSphere Host Groups with {{  vars.product }}
 owner: vsphere
 ---
 
-This topic describes how to use vSphere Host Groups with {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to use vSphere Host Groups with {{  vars.product_full }}.
 
 ## <a id="host-groups-about"></a>About vSphere Host Groups
 

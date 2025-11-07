@@ -3,7 +3,7 @@ title: Configuring VMware NSX v3 Transport Zones and Edge Node Switches for {{  
  -NSXT
 ---
 
-This topic describes how to configure NSX Data Center v3 Transport Zones and N-VDS switches on NSX Edge Nodes for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
+This topic describes how to configure NSX Data Center v3 Transport Zones and N-VDS switches on NSX Edge Nodes for use with {{  vars.product_full }} on vSphere.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

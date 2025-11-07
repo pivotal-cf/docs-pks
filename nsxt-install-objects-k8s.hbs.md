@@ -3,7 +3,7 @@ title: Create the VMware NSX Objects for Kubernetes Clusters Provisioned by TKGI
  -NSXT
 ---
 
-This topic describes how to create NSX objects for the {{  vars.product_full }} ({{ vars.product_short }}) control plane where Kubernetes clusters run.
+This topic describes how to create NSX objects for the {{  vars.product_full }} control plane where Kubernetes clusters run.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

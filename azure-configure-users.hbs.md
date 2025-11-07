@@ -4,7 +4,7 @@ title: Setting Up {{  vars.product }} Admin Users on Azure
 iaas: Azure
 ---
 
-This topic describes how to create {{  vars.product_full }} ({{ vars.product_short }}) admin users with User Account and Authentication (UAA) on Microsoft Azure.
+This topic describes how to create {{  vars.product_full }} admin users with User Account and Authentication (UAA) on Microsoft Azure.
 
 
 ## <a id='overview'></a> Overview

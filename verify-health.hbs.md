@@ -3,7 +3,7 @@ title: Verifying Deployment Health
 
 ---
 
-This topic describes how to check the health of your {{  vars.product_full }} ({{ vars.product_short }}) deployment and the nodes, pods, and clusters that it hosts.
+This topic describes how to check the health of your {{  vars.product_full }} deployment and the nodes, pods, and clusters that it hosts.
 
 ## <a id="nodes-pods"></a>Verify Kubernetes Node and Pod Health
 

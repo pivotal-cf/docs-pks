@@ -4,7 +4,7 @@ title: Install {{  vars.product }} on vSphere with VMware NSX Using {{ vars.plat
 iaas: vsphere-nsxt
 ---
 
-This topic lists the procedures to follow when installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX networking manually, using {{ vars.platform_name }}.
+This topic lists the procedures to follow when installing {{  vars.product_full }} on vSphere with NSX networking manually, using {{ vars.platform_name }}.
 
 <p class="note"><strong>Note</strong>: The recommended method for installing {{  vars.product }} on vSphere with NSX is to use the {{  vars.product }} Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 

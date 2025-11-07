@@ -4,7 +4,7 @@ title: Generating and Registering the VMware NSX Manager Superuser Principal Ide
 authenttype: pkstile
 ---
 
-This topic describes how to generate and register the NSX Manager superuser principal identity certificate and key for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to generate and register the NSX Manager superuser principal identity certificate and key for {{  vars.product_full }}.
 
 ##<a id='overview'></a>Overview
 

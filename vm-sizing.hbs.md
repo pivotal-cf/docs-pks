@@ -3,7 +3,7 @@ title: VM Sizing for {{  vars.product }} Clusters
 
 ---
 
-This topic describes the {{{ vars.recommended_by }}}-recommended procedure for sizing VMs for {{  vars.product_full }} ({{ vars.product_short }}) cluster components.
+This topic describes the {{{ vars.recommended_by }}}-recommended procedure for sizing VMs for {{  vars.product_full }} cluster components.
 
 ##<a id="overview"></a>Overview
 

@@ -3,7 +3,7 @@ title: Backing Up and Restoring the Data Center for TKGI
 
 ---
 
-This topic describes how to back up and restore the {{  vars.product_full }} ({{ vars.product_short }}) infrastructure.
+This topic describes how to back up and restore the {{  vars.product_full }} infrastructure.
 
 ## Overview
 

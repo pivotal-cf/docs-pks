@@ -4,7 +4,7 @@ title: Configure the TCP Layer 4 Load Balancer
 lbtype: layer4controller
 ---
 
-This topic describes how to define network profile to configure the NSX Load Balancer for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
+This topic describes how to define network profile to configure the NSX Load Balancer for {{  vars.product_full }} provisioned Kubernetes clusters.
 
 ## <a id='overview'></a><a id='nsx-lb-about'></a><a id='nsx-lb-about'></a> Overview
 

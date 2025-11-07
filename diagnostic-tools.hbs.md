@@ -3,7 +3,7 @@ title: Using BOSH Diagnostic Commands in {{  vars.product }}
 owner: {{ vars.platform_name }}
 ---
 
-This topic describes how to access information about your {{  vars.product_full }} ({{ vars.product_short }}) deployment
+This topic describes how to access information about your {{  vars.product_full }} deployment
 by using the BOSH Command Line Interface (BOSH CLI).
 
 

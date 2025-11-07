@@ -4,7 +4,7 @@ title: Rotating {{  vars.product }} Control Plane Certificates
 ---
 
 This topic describes how to rotate certificates used only by
-the {{  vars.product_full }} ({{ vars.product_short }}) control plane and tile.
+the {{  vars.product_full }} control plane and tile.
 
 This topic covers rotating TKGI control plane certificates only.
 For more information about certificates used by TKGI:

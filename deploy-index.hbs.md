@@ -3,7 +3,7 @@ title: Deploying Workloads
 
 ---
 
-The topics below describe how to deploy workloads to Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}):
+The topics below describe how to deploy workloads to Kubernetes clusters provisioned by {{  vars.product_full }}:
 
 <ul>
   <li>

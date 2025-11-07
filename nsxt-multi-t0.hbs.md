@@ -3,7 +3,7 @@ title: Isolating Tenants
 
 ---
 
-This topic describes how to isolate tenants in {{  vars.product_full }} ({{ vars.product_short }}) multi-tenant environments.
+This topic describes how to isolate tenants in {{  vars.product_full }} multi-tenant environments.
 
 
 ## <a id='about'></a> About Tenant Isolation

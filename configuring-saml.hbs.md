@@ -3,7 +3,7 @@ title: Connecting {{  vars.product }} to a SAML Identity Provider
 
 ---
 
-This topic describes how to connect {{  vars.product_full }} ({{ vars.product_short }})
+This topic describes how to connect {{  vars.product_full }}
 to a SAML identity provider (IdP).
 
 

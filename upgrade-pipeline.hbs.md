@@ -3,7 +3,7 @@ title: Configuring the Upgrade Pipeline
 
 ---
 
-This topic describes how to configure a Concourse pipeline to automatically upgrade a {{  vars.product_full }} ({{ vars.product_short }}) installation.
+This topic describes how to configure a Concourse pipeline to automatically upgrade a {{  vars.product_full }} installation.
 
 ## <a id="Overview"></a> Overview
 

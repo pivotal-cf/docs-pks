@@ -3,7 +3,7 @@ title: Deleting Clusters
 
 ---
 
-This topic describes how to delete a Kubernetes cluster deployed by {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to delete a Kubernetes cluster deployed by {{  vars.product_full }}.
 
 
 ## <a id='overview'></a>Overview

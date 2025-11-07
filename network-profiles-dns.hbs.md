@@ -3,7 +3,7 @@ title: Configure DNS for Pre-Provisioned IPs
 
 ---
 
-This topic describes how to define network profile for performing DNS lookup of the pre-provisioned IP addresses for the Kubernetes API load balancer and ingress controller for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
+This topic describes how to define network profile for performing DNS lookup of the pre-provisioned IP addresses for the Kubernetes API load balancer and ingress controller for {{  vars.product_full }} provisioned Kubernetes clusters.
 
 ## <a id='about'></a> About DNS Lookup of Pre-Provisioned IP Addresses
 

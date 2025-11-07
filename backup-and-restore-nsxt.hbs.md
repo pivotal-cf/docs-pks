@@ -3,7 +3,7 @@ title: Backing Up and Restoring VMware NSX Manager
 
 ---
 
-This topic describes how to back up and restore NSX Data Center for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to back up and restore NSX Data Center for {{  vars.product_full }}.
 
 ## NSX Data Center Back Up and Recover
 

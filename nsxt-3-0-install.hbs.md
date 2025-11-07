@@ -3,7 +3,7 @@ title: Installing and Configuring NSX-T Data Center v3.0 for {{  vars.product }}
  -NSXT
 ---
 
-This topic describes how to install and configure NSX-T Data Center v3.0 for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
+This topic describes how to install and configure NSX-T Data Center v3.0 for use with {{  vars.product_full }} on vSphere.
 
 ##<a id='nsxt30-prereqs'></a> Prerequisites for Installing NSX-T Data Center v3.0 for {{  vars.product }}
 

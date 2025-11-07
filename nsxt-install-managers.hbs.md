@@ -3,7 +3,7 @@ title: Installing and Configuring VMware NSX Managers
  -NSXT
 ---
 
-This topic describes how to install and configure NSX Managers on vSphere in a clustered arrangement for high-availability for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to install and configure NSX Managers on vSphere in a clustered arrangement for high-availability for {{  vars.product_full }}.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

@@ -3,7 +3,7 @@ title: Pod Security Admission in {{  vars.product }}
 
 ---
 
-This topic describes how to use Kubernetes Pod Security Admission (PSA) with {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to use Kubernetes Pod Security Admission (PSA) with {{  vars.product_full }}.
 
 > **Note** Support for Kubernetes Pod Security Policy (PSP) has been removed in Kubernetes v1.25.
 

@@ -3,7 +3,7 @@ title: VMware CEIP
 
 ---
 
-This topic describes the VMware Customer Experience Improvement Program (CEIP) used in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes the VMware Customer Experience Improvement Program (CEIP) used in {{  vars.product_full }}.
 
 ## <a id="overview"></a>Overview
 
