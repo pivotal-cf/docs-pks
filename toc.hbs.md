@@ -55,7 +55,7 @@
             *   [Installing VMware Harbor Registry](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/installing.html)
             *   [Setting Up Admin Users on vSphere](./vsphere-configure-users.html)
             *   [Post Installation Configurations on vSphere with VMware NSX](./vsphere-nsxt-index-adv.html)
-                *   [Provisioning an VMware NSX Load Balancer for the {{ vars.product_short }} API Server](./nsxt-lb-{{ vars.product_short }}-api.html)
+                *   [Provisioning an VMware NSX Load Balancer for the {{ vars.product_short }} API Server](./nsxt-lb-tkgi-api.html)
                 *   [Provisioning a Load Balancer for the VMware NSX Management Cluster](./nsxt-mgmt-lb.html)
                 *   [Using Proxies on VMware NSX](./proxies.html)
                 *   [Isolating Tenants](./nsxt-multi-t0.html)
