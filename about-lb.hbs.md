@@ -3,12 +3,12 @@ title: Load Balancers in {{  vars.product }}
 
 ---
 
-This topic describes the {{  vars.product_full }} load balancers for the {{ vars.product_short }} API and {{ vars.product_short }} clusters and workloads.
+This topic describes the {{  vars.product_full }} load balancers for the TKGI API and TKGI clusters and workloads.
 
 
 ## <a id='overview'></a>Overview
 
-Load balancers used with {{ vars.product_short }} differ by the type of deployment:
+Load balancers used with TKGI differ by the type of deployment:
 
 * [Load Balancers in {{  vars.product }} Deployments without NSX](#without-nsx-t)
 * [Load Balancers in {{  vars.product }} Deployments on vSphere with NSX](#with-nsx-t)
@@ -19,24 +19,24 @@ Load balancers used with {{ vars.product_short }} differ by the type of deployme
 
 For {{  vars.product }} deployments on AWS or vSphere without NSX, you can configure load balancers for the following:
 
-* **[{{ vars.product_short }} API Load Balancer](#tkgi-api)**: Configuring this load balancer enables you to run {{ vars.product_short }} Command Line Interface ({{ vars.product_short }} CLI) commands from your local workstation.
+* **[TKGI API Load Balancer](#tkgi-api)**: Configuring this load balancer enables you to run TKGI Command Line Interface (TKGI CLI) commands from your local workstation.
 * **[Kubernetes Cluster Load Balancers](#cluster)**: Configuring a load balancer for each new cluster enables you to run Kubernetes CLI (kubectl) commands on the cluster.
 * **[Workload Load Balancers)](#workload)**: Configuring a load balancer for your application workloads enables external access to the services that run on your cluster.
 
 The following diagram, applicable to AWS and vSphere without NSX, shows where each of the above load balancers can be used
 within your {{  vars.product }} deployment.
-{{ image_tag src="images/lb-diagram.png" alt="{{ vars.product_short }} load balancer diagram including all load balancer options for {{ vars.product_short }} deployments without NSX" }}
+{{ image_tag src="images/lb-diagram.png" alt="TKGI load balancer diagram including all load balancer options for TKGI deployments without NSX" }}
 {{{{raw}}}} <!-- = Image source: https://docs.google.com/drawings/d/17Zzznn0J8j3sEICByPnAF1mSKg0pisqtrZNWi8KbOh8/edit  --> {{{{/raw}}}}
 
 If you use vSphere without NSX, you are expected to create your own load balancers within your cloud provider console.
 If your cloud provider does not offer load balancing, you can use any external TCP or HTTPS load balancer of your choice.
 
-### <a id='tkgi-api'></a>{{ vars.product_short }} API Load Balancer
+### <a id='tkgi-api'></a>TKGI API Load Balancer
 
-The {{ vars.product_short }} API load balancer enables you to access the {{ vars.product_short }} API from outside the network on {{  vars.product }} deployments on AWS or vSphere without NSX.
-For example, configuring a load balancer for the {{ vars.product_short }} API enables you to run {{ vars.product_short }} CLI commands from your local workstation.
+The TKGI API load balancer enables you to access the TKGI API from outside the network on {{  vars.product }} deployments on AWS or vSphere without NSX.
+For example, configuring a load balancer for the TKGI API enables you to run TKGI CLI commands from your local workstation.
 
-For information about configuring the {{ vars.product_short }} API load balancer on vSphere without NSX, see [Configuring {{ vars.product_short }} API Load Balancer](./vsphere-configure-api.html).
+For information about configuring the TKGI API load balancer on vSphere without NSX, see [Configuring TKGI API Load Balancer](./vsphere-configure-api.html).
 
 ### <a id='cluster'></a>Kubernetes Cluster Load Balancers
 
@@ -75,7 +75,7 @@ If you add an ingress controller to your {{  vars.product }} deployment, traffic
 
 The following diagram shows how the ingress routing can be used
 within your {{  vars.product }} deployment.
-{{ image_tag src="images/ingress-routing.png" alt="{{ vars.product_short }} diagram that shows ingress routing for both Istio and NSX" }}
+{{ image_tag src="images/ingress-routing.png" alt="TKGI diagram that shows ingress routing for both Istio and NSX" }}
 {{{{raw}}}} <!-- = Image source: https://docs.google.com/drawings/d/1IB2juuTQlwJ4QpRaMmjFvGAC3cS7irFy3OII-pb6GGE/edit  --> {{{{/raw}}}}
 
 The load balancer on {{  vars.product }} on vSphere with NSX is automatically provisioned with Kubernetes ingress resources
@@ -87,11 +87,11 @@ For information about ingress routing on vSphere with NSX, see [Configuring Ingr
 
 ## <a id='with-nsx-t'></a>Load Balancers in {{  vars.product }} Deployments on vSphere with NSX
 
-{{  vars.product }} deployments on vSphere with NSX in high-availability mode require you configure a load balancer to access the {{ vars.product_short }} API.
-To configure an NSX load balancer for {{ vars.product_short }} API traffic, see [Provisioning an NSX Load Balancer for the {{ vars.product_short }} API Server](nsxt-lb-tkgi-api.html).
+{{  vars.product }} deployments on vSphere with NSX in high-availability mode require you configure a load balancer to access the TKGI API.
+To configure an NSX load balancer for TKGI API traffic, see [Provisioning an NSX Load Balancer for the TKGI API Server](nsxt-lb-tkgi-api.html).
 
-{{ vars.product_short }} deployments on vSphere with NSX in singleton mode require you configure only a DNAT rule so that the {{ vars.product_short }} API host is accessible.
-These {{ vars.product_short }} deployments do not require you to configure a load balancer to access the {{ vars.product_short }} API.
+TKGI deployments on vSphere with NSX in singleton mode require you configure only a DNAT rule so that the TKGI API host is accessible.
+These TKGI deployments do not require you to configure a load balancer to access the TKGI API.
 For more information, see [Share the {{  vars.product }} Endpoint](installing-nsx-t.html#retrieve-endpoint) in _Installing {{  vars.product }} on vSphere with NSX Integration_.
 
 At runtime, NSX automatically handles load balancer creation, configuration, and deletion as part of the Kubernetes cluster create, update, and delete process.
@@ -111,7 +111,7 @@ Load balancers are deployed in high-availability mode so that they are resilient
 
 ### <a id='resize-lb'></a> Resizing Load Balancers
 
-When a new Kubernetes cluster is provisioned using the {{ vars.product_short }} API, NSX creates a dedicated load balancer for that new cluster. By default, the size of the load balancer is set to Small.
+When a new Kubernetes cluster is provisioned using the TKGI API, NSX creates a dedicated load balancer for that new cluster. By default, the size of the load balancer is set to Small.
 
 With network profiles, you can change the size of the load balancer deployed by NSX at the time of cluster creation. For information about network profiles, see [Using Network Profiles (NSX Only)](network-profiles.html).
 

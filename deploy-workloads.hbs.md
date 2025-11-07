@@ -22,10 +22,10 @@ To create a dedicated load balancer for a workload:
     * [Deploy Workloads on AWS or Azure, Using a Public-Cloud External Load Balancer](#external-lb).
     * [Deploy AWS Workloads Using an Internal Load Balancer](#internal-lb).
 1. Expose the workload.
-Refer to the following {{ vars.product_short }} documentation topics for additional information
+Refer to the following TKGI documentation topics for additional information
 about deploying and exposing workloads:
 
-    * For the different types of load balancers used in a deployment, see [Load Balancers in {{ vars.product_short }}](about-lb.html).
+    * For the different types of load balancers used in a deployment, see [Load Balancers in TKGI](about-lb.html).
     * For ingress routing on AWS, Azure, or vSphere without NSX, see [Configuring Ingress Routing](configure-ingress.html).
     * For ingress routing on vSphere with NSX, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).
 
@@ -41,7 +41,7 @@ documentation before following the procedures below.
 
 ## <a id='prerequisites'></a> Prerequisites
 
-The prerequisites for using a load balancer with {{ vars.product_short }} vary depending on your environment:
+The prerequisites for using a load balancer with TKGI vary depending on your environment:
 
 * [vSphere without NSX Prerequisites](#nonsxt)
 * [AWS, Azure, and vSphere with NSX Prerequisites](#aws-az-nsx)

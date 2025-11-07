@@ -175,7 +175,7 @@ PING 10.173.62.52 (10.173.62.52): 56 data bytes
 
 ###<a id='nsxt3-nodes-ip-block'></a> Create the Nodes IP Block for Kubernetes Clusters Using the Management Interface
 
-{{ vars.product_short }} requires a dedicated IP Block for Kubernetes nodes. When you configure the {{ vars.product_short }} tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block).
+TKGI requires a dedicated IP Block for Kubernetes nodes. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block).
 
 In the example that follows, we create the following Nodes IP block: TKGI-NODES-IP-BLOCK: 172.23.0.0/16.
 
@@ -199,7 +199,7 @@ To create the required Nodes IP Block using the Management interface, complete t
 
 ###<a id='nsxt3-pods-ip-block'></a> Create the Pods IP Block for Kubernetes Clusters Using the Management Interface
 
-{{ vars.product_short }} requires a dedicated IP Block for Kubernetes pods. When you configure the {{ vars.product_short }} tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Pods IP Block](./nsxt-prepare-env.html#pods-ip-block).
+TKGI requires a dedicated IP Block for Kubernetes pods. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Pods IP Block](./nsxt-prepare-env.html#pods-ip-block).
 
 In the example that follows, we create the following Pods IP block: TKGI-PODS-IP-BLOCK: 172.16.0.0/16.
 
@@ -223,7 +223,7 @@ To create the required Pods IP Block using the Management interface, complete th
 
 ###<a id='nsxt3-floating-ip-pool'></a> Create the Floating IP Pool for Kubernetes Clusters Using the Management Interface
 
-{{ vars.product_short }} requires a floating IP pool for Kubernetes services such as load balancer instances. When you configure the {{ vars.product_short }} tile, you will need to provide the ID for this IP Pool. For more information, see [Plan Network CIDRs](./nsxt-prepare-env.html#plan-cidrs).
+TKGI requires a floating IP pool for Kubernetes services such as load balancer instances. When you configure the TKGI tile, you will need to provide the ID for this IP Pool. For more information, see [Plan Network CIDRs](./nsxt-prepare-env.html#plan-cidrs).
 
 To create the required Floating IP Pool using the Management interface, complete the following steps:
 
@@ -275,7 +275,7 @@ This section provides instructions for creating the required NSX objects for Kub
 
 ###<a id='nsxt3-t0-router-configure-policy'></a> Configure the Tier-0 Gateway Using the Policy Interface
 
-Now that the Tier-0 Gateway is created, you need to configure it for {{ vars.product_short }}. This requires configuring two interfaces, an HA VIP, and a static route.
+Now that the Tier-0 Gateway is created, you need to configure it for TKGI. This requires configuring two interfaces, an HA VIP, and a static route.
 
 1. **Edit** the **t0-shared** gateway you created.
 
@@ -359,7 +359,7 @@ PING 10.173.62.52 (10.173.62.52): 56 data bytes
 
 ###<a id='nsxt3-nodes-ip-block-policy'></a> Create the Nodes IP Block for Kubernetes Clusters Using the Policy Interface
 
-{{ vars.product_short }} requires a dedicated IP Block for Kubernetes nodes. When you configure the {{ vars.product_short }} tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block).
+TKGI requires a dedicated IP Block for Kubernetes nodes. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Nodes IP Block](./nsxt-prepare-env.html#nodes-ip-block).
 
 In the example that follows, we create the following Nodes IP block: TKGI-NODES-IP-BLOCK: 172.23.0.0/16.
 
@@ -381,7 +381,7 @@ To create the required Nodes IP Block using the Management interface, complete t
 
 ###<a id='nsxt3-pods-ip-block-policy'></a> Create the Pods IP Block for Kubernetes Clusters Using the Policy Interface
 
-{{ vars.product_short }} requires a dedicated IP Block for Kubernetes pods. When you configure the {{ vars.product_short }} tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Pods IP Block](./nsxt-prepare-env.html#pods-ip-block).
+TKGI requires a dedicated IP Block for Kubernetes pods. When you configure the TKGI tile, you will need to provide the ID for this IP Block. The recommended size for this IP Bock is /16. For more information, see [Pods IP Block](./nsxt-prepare-env.html#pods-ip-block).
 
 For example:
 
@@ -405,7 +405,7 @@ To create the required Pods IP Block using the Management interface, complete th
 
 ###<a id='nsxt3-floating-ip-pool-policy'></a> Create the Floating IP Pool for Kubernetes Clusters Using the Management Interface
 
-{{ vars.product_short }} requires a floating IP pool for Kubernetes services such as load balancer instances. When you configure the {{ vars.product_short }} tile, you will need to provide the ID for this IP Pool. For more information, see [Plan Network CIDRs](./nsxt-prepare-env.html#plan-cidrs).
+TKGI requires a floating IP pool for Kubernetes services such as load balancer instances. When you configure the TKGI tile, you will need to provide the ID for this IP Pool. For more information, see [Plan Network CIDRs](./nsxt-prepare-env.html#plan-cidrs).
 
 To create the required Floating IP Pool using the Management interface, complete the following steps:
 
@@ -426,4 +426,4 @@ To create the required Floating IP Pool using the Management interface, complete
 
 ##<a id='next'></a> Next Steps
 
-<a href="./nsxt-install-objects-mgmt.html">Create NSX Objects for {{ vars.product_short }} Management Plane Components</a>
+<a href="./nsxt-install-objects-mgmt.html">Create NSX Objects for TKGI Management Plane Components</a>

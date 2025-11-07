@@ -8,10 +8,10 @@ This topic describes how to use the BOSH Command Line Interface (CLI) to downloa
 
 ## <a id="overview"></a>Overview
 
-{{ vars.product_short }} uses BOSH to deploy the VMs in {{ vars.product_short }} environments. For example,
-the {{ vars.product_short }} API VM and the {{ vars.product_short }}-provisioned Kubernetes cluster VMs in your environment are BOSH-deployed VMs.
+TKGI uses BOSH to deploy the VMs in TKGI environments. For example,
+the TKGI API VM and the TKGI-provisioned Kubernetes cluster VMs in your environment are BOSH-deployed VMs.
 
-Use the BOSH CLI to download logs from the BOSH-deployed VMs in your environment when troubleshooting or auditing {{ vars.product_short }}:
+Use the BOSH CLI to download logs from the BOSH-deployed VMs in your environment when troubleshooting or auditing TKGI:
 
 * [Download Logs](#download-logs)
 

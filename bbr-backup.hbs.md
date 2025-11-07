@@ -233,7 +233,7 @@ To back up BOSH Director you will validate your current configuration, then exec
 
 #### <a id='back-up-director-back-up'></a> Back Up the {{  vars.product }} BOSH Director
 1. If the pre-backup check succeeds, run the BBR back up command from your jump box to back up the
-{{ vars.product_short }} BOSH Director:
+TKGI BOSH Director:
 
     ```
     bbr director --host BOSH-DIRECTOR-IP --username bbr \
@@ -302,7 +302,7 @@ in _Advanced Troubleshooting with the BOSH CLI_.
 
 #### <a id='back-up-control-plane-check'></a> Validate the {{  vars.product }} Control Plane
 
-1. To confirm that your {{ vars.product_short }} control plane is reachable and has a deployment that can be backed up, run the BBR pre-backup check command:
+1. To confirm that your TKGI control plane is reachable and has a deployment that can be backed up, run the BBR pre-backup check command:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET bbr deployment \
@@ -342,7 +342,7 @@ in _Advanced Troubleshooting with the BOSH CLI_.
 #### <a id='back-up-control-plane-backup'></a> Back Up the {{  vars.product }} Control Plane
 If the pre-backup check succeeds, run the BBR backup command.
 
-1. To back up the {{ vars.product_short }} control plane, run the following BBR backup command from your jump box:
+1. To back up the TKGI control plane, run the following BBR backup command from your jump box:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET nohup bbr deployment \
@@ -363,11 +363,11 @@ If the pre-backup check succeeds, run the BBR backup command.
     * `DEPLOYMENT-NAME` is the {{  vars.product }} BOSH deployment name that you located in
     the [Locate the {{  vars.product }} Deployment Name](#locate-deploy-name) section above.
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.
-    * `--with-manifest` is necessary in order to redeploy your {{ vars.product_short }} Control Plane in the case of its loss.
+    * `--with-manifest` is necessary in order to redeploy your TKGI Control Plane in the case of its loss.
     `--with-manifest` is an optional `backup` parameter to include the manifest in the backup artifact.
     * `--artifact-path` is an optional `backup` parameter to specify the output path for the backup artifact.</td>
 
-    <p class="note"><strong>Note</strong>: The <code>--with-manifest</code> flag is necessary in order to redeploy your {{ vars.product_short }} Control Plane in the case of its loss.
+    <p class="note"><strong>Note</strong>: The <code>--with-manifest</code> flag is necessary in order to redeploy your TKGI Control Plane in the case of its loss.
     Secure the backup artifact created by this process because it contains secret credentials.</p>
 
     For example:
@@ -393,10 +393,10 @@ If the pre-backup check succeeds, run the BBR backup command.
 
 ### <a id='back-up-clusters'></a> Back Up Cluster Deployments
 
-Before backing up your {{ vars.product_short }} cluster deployments, verify that they can be backed up.
+Before backing up your TKGI cluster deployments, verify that they can be backed up.
 
 #### <a id='verify-deployments'></a> Verify Your Cluster Deployments
-To verify that you can reach your {{ vars.product_short }} cluster deployments and that the deployments can be backed up, follow the steps below.
+To verify that you can reach your TKGI cluster deployments and that the deployments can be backed up, follow the steps below.
 
 1. SSH into your jump box. For more information about the jump box, see
 [Configure Your Jump Box](bbr-install.html#jumpbox-setup) in _Installing BOSH Backup and Restore_.
@@ -444,7 +444,7 @@ deployments that can be backed up.
     ```
 
      In the output above, `service-instance_abcdeg-1234-5678-hijk-90101112131415` is the
-     BOSH deployment name of a {{ vars.product_short }} cluster.
+     BOSH deployment name of a TKGI cluster.
 
 1. If the pre-backup-check command fails, do one or more of the following:
     * Make sure you are using the correct {{  vars.product }} credentials.
@@ -456,7 +456,7 @@ deployments that can be backed up.
 
 #### <a id='back-up-clusters-back-up'></a> Back Up Cluster Deployments
 
-When backing up your {{ vars.product_short }} cluster, you can choose to back up only one cluster or to back up all cluster deployments in scope.
+When backing up your TKGI cluster, you can choose to back up only one cluster or to back up all cluster deployments in scope.
 The procedures to do this are the following:
 
 * [Back up All Cluster Deployments](#back-up-all)
@@ -466,7 +466,7 @@ The procedures to do this are the following:
 
 The following procedure backs up all cluster deployments.
 
-Make sure you use the {{ vars.product_short }} UAA credentials that you recorded in
+Make sure you use the TKGI UAA credentials that you recorded in
 [Download the UAA Client Credentials](#cluster-creds).
 These credentials limit the scope of the back up to cluster deployments only.
 
@@ -659,7 +659,7 @@ failed BBR back up run. A failed back up run might leave the BBR back up directo
 causing any subsequent attempts to back up to fail. In addition, BBR might not have run the post-backup scripts,
 leaving the instance in a locked state.</p>
 
-* If the {{ vars.product_short }} BOSH Director back up failed, run the following BBR cleanup script command to clean up:
+* If the TKGI BOSH Director back up failed, run the following BBR cleanup script command to clean up:
 
     ```
     bbr director --host BOSH-DIRECTOR-IP \
@@ -684,7 +684,7 @@ leaving the instance in a locked state.</p>
     backup-cleanup
     ```
 
-* If the {{ vars.product_short }} control plane or {{ vars.product_short }} clusters back ups fail, run the following BBR cleanup script command to clean up:
+* If the TKGI control plane or TKGI clusters back ups fail, run the following BBR cleanup script command to clean up:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \

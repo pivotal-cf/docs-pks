@@ -66,7 +66,7 @@ Deploy the NSX-T Manager OVA in vSphere. Download the OVA from the VMware softwa
 
 ###<a id='nsxt30-compute-mgr'></a> Add vCenter as the Compute Manager
 
-A compute manager is required for NSX-T environments with multiple NSX-T Manager nodes. A compute manager is an application that manages resources such as hosts and VMs. For {{ vars.product_short }}, use the vCenter Server as the compute manager.
+A compute manager is required for NSX-T environments with multiple NSX-T Manager nodes. A compute manager is an application that manages resources such as hosts and VMs. For TKGI, use the vCenter Server as the compute manager.
 
 Complete the following steps to add vCenter as the Compute Manager. For more information, see the [NSX-T documentation](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-0/administration-guide/operations-and-management/add-a-compute-manager-1.html).
 
@@ -158,7 +158,7 @@ Complete the following instructions to create a VIP for the NSX Management Clust
 
 ###<a id='nsxt30-mgmt-enable-adv'></a> Enable the NSX-T Manager Interface
 
-The NSX Management Console provides two user interfaces: **Policy** and **Manager**. {{ vars.product_short }} requires the **Manager** interface for configuring networking and security objects. Do **NOT** use the **Policy** interface for {{ vars.product_short }} objects.
+The NSX Management Console provides two user interfaces: **Policy** and **Manager**. TKGI requires the **Manager** interface for configuring networking and security objects. Do **NOT** use the **Policy** interface for TKGI objects.
 
 1. In the NSX-T Manager console, navigate to **System** > **User Interface Settings**.
   <img src="images/nsxt/nsxt-30/nsx-manager-1-38.png">
@@ -205,7 +205,7 @@ Tunnel endpoints (TEPs) are the source and destination IP addresses used in the 
 
 ##<a id='nsxt30-tzs'></a> Configure Transport Zones
 
-See [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for {{ vars.product_short }}](nsxt-3-1-install-delta.html).
+See [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html).
 
 ##<a id='nsxt30-esxi-vswitch'></a> Configure vSphere Networking for ESXi Hosts
 
@@ -213,7 +213,7 @@ In this section, you configure the vSphere networking and port groups for ESXi h
 
 The following instructions describe how to configure a vSphere Virtual Standard vSwitch (VSS). For production environments, it is recommended that you configure a Virtual Distributed vSwitch (VDS). You configure the VDS from the vCenter **Networking** tab and then add the ESXi hosts to the VDS. The configuration settings for the VDS are similar to the VSS configuration described below. For instructions on configuring the VDS, see <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vsphere-networking-7-0/basic-networking-with-vnetwork-distributed-switches/create-a-vsphere-distributed-switch.html">Create a vSphere Distributed Switch</a> in the vSphere 7 documentation.
 
-For more information, see the [Release Notes](./release-notes.html) for details about {{ vars.product_short }} support for vSphere 7 VDS for NSX-T transport node traffic.
+For more information, see the [Release Notes](./release-notes.html) for details about TKGI support for vSphere 7 VDS for NSX-T transport node traffic.
 
 ###<a id='nsxt30-esxi-pgs'></a> Create vSwitch Port-Groups for Edge Nodes
 
@@ -264,13 +264,13 @@ For each ESXi host in the MANAGEMENT-cluster, or each ESXi host in the vCenter c
 
 In this section you deploy two NSX-T Edge Nodes.
 
-NSX-T Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for {{  vars.product }} run load balancers for {{ vars.product_short }} API traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in {{  vars.product }}](./about-lb.html) for more information.
+NSX-T Edge Nodes provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes for {{  vars.product }} run load balancers for TKGI API traffic, Kubernetes load balancer services, and ingress controllers. See [Load Balancers in {{  vars.product }}](./about-lb.html) for more information.
 
 In NSX-T, a load balancer is deployed on the Edge Nodes as a virtual server. The following virtual servers are required for {{  vars.product }}:
 
 - 1 TCP Layer 4 virtual server for each Kubernetes service of type:`LoadBalancer`
 - 2 Layer 7 global virtual servers for Kubernetes pod ingress resources (HTTP and HTTPS)
-- 1 global virtual server for the {{ vars.product_short }} API
+- 1 global virtual server for the TKGI API
 
 The number of virtual servers that can be run depends on the size of the load balancer which depends on the size of the Edge Node. {{  vars.product }} supports the `medium` and `large` VM Edge Node form factor, as well as the bare metal Edge Node. The default size of the load balancer deployed by NSX-T for a Kubernetes cluster is `small`. The size of the load balancer can be customized using <a href="./network-profiles-define.html">Network Profiles</a>.
 
@@ -323,7 +323,7 @@ To configure N-VDS the switch and transport zones:
   - If you are using the default Transport Zones, use a single N-VDS switch.
   - If you are using custom Transport Zones, use a multiple N-VDS switches.
 
-For more information, see [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for {{ vars.product_short }}](nsxt-3-1-install-delta.html).
+For more information, see [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html).
 
 ####<a id='nsxt30-edge-node-1-complete'></a> Complete the Edge Node 1 Installation
 
@@ -380,7 +380,7 @@ To configure N-VDS the switch and transport zones:
   - If you are using the default Transport Zones, use a single N-VDS switch.
   - If you are using custom Transport Zones, use a multiple N-VDS switches.
 
-For more information, see [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for {{ vars.product_short }}](nsxt-3-1-install-delta.html).
+For more information, see [Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for TKGI](nsxt-3-1-install-delta.html).
 
 ####<a id='nsxt30-edge-node-2-complete'></a> Complete the Installation of Edge Node 2
 
@@ -634,7 +634,7 @@ PING 10.173.62.52 (10.173.62.52): 56 data bytes
 
 ##<a id='nsxt30-ip-blocks-pool'></a> Create IP Blocks and Pool for Compute Plane
 
-{{ vars.product_short }} requires a Floating IP Pool for NSX-T load balancer assignment and the following two IP blocks for Kubernetes pods and nodes:
+TKGI requires a Floating IP Pool for NSX-T load balancer assignment and the following two IP blocks for Kubernetes pods and nodes:
 
 - TKGI-POD-IP-BLOCK: 172.16.0.0/16
 - TKGI-NODE-IP-BLOCK: 172.23.0.0/16
@@ -675,17 +675,17 @@ PING 10.173.62.52 (10.173.62.52): 56 data bytes
 
 ##<a id='nsxt30-mgmt-plane'></a> Create Management Plane
 
-Networking for the {{ vars.product_short }} Management Plane consists of a [Tier-1 Router and Switch](#nsxt30-t1-router) with [NAT Rules](#nsxt30-t0-nat) for the Management Plane VMs.
+Networking for the TKGI Management Plane consists of a [Tier-1 Router and Switch](#nsxt30-t1-router) with [NAT Rules](#nsxt30-t0-nat) for the Management Plane VMs.
 
 ###<a id='nsxt30-t1-router'></a> Create Tier-1 Router and Switch
 
-Create Tier-1 Logical Switch and Router for {{ vars.product_short }} Management Plane VMs. Complete the configuration by enabling Route Advertisement on the T1 router.
+Create Tier-1 Logical Switch and Router for TKGI Management Plane VMs. Complete the configuration by enabling Route Advertisement on the T1 router.
 
 1. In the NSX Management console, navigate to **Networking > Logical Switches**.
 
 1. Click **Add**.
 
-1. Create the LS for {{ vars.product_short }} Management plane VMs:
+1. Create the LS for TKGI Management plane VMs:
   - **Name**: LS-TKGI-MGMT
   - **Transport Zone**: tz-overlay
   <img src="images/nsxt/nsxt-30/tier-1-01.png">
@@ -735,15 +735,15 @@ Create Tier-1 Logical Switch and Router for {{ vars.product_short }} Management 
 
 ###<a id='nsxt30-t0-nat'></a> Create NAT Rules
 
-You need to create the following NAT rules on the Tier-0 router for the {{ vars.product_short }} Management Plane VMs.
+You need to create the following NAT rules on the Tier-0 router for the TKGI Management Plane VMs.
 
 - DNAT: `10.173.62.220` (for example) to access {{ vars.platform_name }}
 - DNAT: `10.173.62.221` (for example) to access Harbor
-- SNAT: `10.173.62.222` (for example) for all {{ vars.product_short }} management plane VM traffic destined to the outside world
+- SNAT: `10.173.62.222` (for example) for all TKGI management plane VM traffic destined to the outside world
 
 1. In the NSX Management console, navigate to **Networking** > **NAT**.
 
-1. In the Logical Router field, select the T0-router you defined for {{ vars.product_short }}.
+1. In the Logical Router field, select the T0-router you defined for TKGI.
   <img src="images/nsxt/nsxt-30/tier-0-nat-01.png">
 
 1. Click **Add**.
@@ -784,7 +784,7 @@ You need to create the following NAT rules on the Tier-0 router for the {{ vars.
 
 The default NSX-T password expiration interval is 90 days. After this period, the NSX-T passwords will expire on all NSX-T Manager Nodes and all NSX-T Edge Nodes. To avoid this, you can extend or remove the password expiration interval, or change the password if needed.
 
-<p class="note"><strong>Note:</strong> For existing {{  vars.product }} deployments, anytime the NSX-T password is changed you must update the BOSH and {{ vars.product_short }} tiles with the new passwords. See <a href="./password-management.html">Adding Infrastructure Password Changes to the {{  vars.product }} Tile</a> for more information.</p>
+<p class="note"><strong>Note:</strong> For existing {{  vars.product }} deployments, anytime the NSX-T password is changed you must update the BOSH and TKGI tiles with the new passwords. See <a href="./password-management.html">Adding Infrastructure Password Changes to the {{  vars.product }} Tile</a> for more information.</p>
 
 ###<a id='nsxt-manager-password'></a> Update the NSX-T Manager Password and Password Interval
 
@@ -926,4 +926,4 @@ Password expiration not configured for this user
 
 ##<a id='next'></a> Next Steps
 
-Once you have completed the installation of NSX-T v3.0, return to the {{ vars.product_short }} installation workflow and proceed with the next phase of the process. See [Install {{  vars.product }} on vSphere with NSX-T Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).
+Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install {{  vars.product }} on vSphere with NSX-T Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).

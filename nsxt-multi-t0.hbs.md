@@ -477,7 +477,7 @@ Select the Edge Firewall **Section** you just created, then select **Add Rule**.
 * [BGP Firewall Rule](#bgp-firewall-rule)
 * [Clusters Masters Firewall Rule](#masters-firewall-rule)
 * [Node Network to Management Firewall Rule](#nodes-firewall-rule)
-* [{{ vars.product_short }} Firewall Rule](#tkgi-firewall-rule)
+* [TKGI Firewall Rule](#tkgi-firewall-rule)
 * [Deny All Firewall Rule](#deny-all-firewall-rule)
 
 
@@ -524,7 +524,7 @@ This firewall rule allows Kubernetes node traffic to reach {{ vars.product_short
 
 This firewall rule allows {{ vars.product_short }} management plane components to talk to Kubernetes nodes.
 
-- **Name**: `{{ vars.product_short | downcase }}-to-Node-Network`
+- **Name**: `TKGI-to-Node-Network`
 - **Direction**: ingress
 - **Source**: IP Set defined for the {{ vars.product_short }} management network
 - **Destination**: IP Set defined for the Nodes IP Block network
@@ -589,20 +589,20 @@ To secure communication between clusters in the same tenancy:
 
 1. In NSX Manager, navigate to **Inventory > Groups > Groups** and **Add new group**.
 1. Configure the new NSGroup as follows:
-  1. In the **Name** field, enter `All-{{ vars.product_short }}-Clusters`.
+  1. In the **Name** field, enter `All-TKGI-Clusters`.
   1. In the **Membership Criteria** tab, add the following two criteria:
       1. For the first criterion, select **Logical switch**.
       1. For **Scope** > **Equals**, enter `pks/clusters`.
       1. For **Scope** > **Equals**, enter `pks/floating_ip`.
       1. For the second criterion, select **Logical switch**.
       1. For **Scope** > **Equals**, enter `ncp/cluster`.
-      ![NSGroup-All-{{ vars.product_short }}-Clusters](images/nsxt/mt0/nsgroup-for-all-pks-clusters.png)
+      ![NSGroup-All-TKGI-Clusters](images/nsxt/mt0/nsgroup-for-all-pks-clusters.png)
 
 <p class="note"><strong>Note</strong>: The <code>pks/clusters</code>, <code>pks/floating_ip</code>, or <code>ncp/cluster</code> values are the exact values you must enter when configuring <strong>Scope</strong> > <strong>Equals</strong>. They map to NSX objects.</p>
 
-After you configure the `All-{{ vars.product_short }}-Clusters` NSGroup, the **Membership Criteria** tab looks as follows:
+After you configure the `All-TKGI-Clusters` NSGroup, the **Membership Criteria** tab looks as follows:
 
-![NSGroup-All-{{ vars.product_short }}-Clusters](images/nsxt/mt0/nsgroup-all-pks-clusters.png)
+![NSGroup-All-TKGI-Clusters](images/nsxt/mt0/nsgroup-all-pks-clusters.png)
 
 #### <a id="dfw-section"></a>Step 2: Create DFW Section
 
@@ -685,8 +685,8 @@ This is a global deny rule. Configure the rule as follows:
 
 1. Click **Add Rule**.
 1. In the **Name** field, enter a name for your DFW rule.
-1. For **Source**, select the `All-{{ vars.product_short }}-Clusters` NSGroup.
-1. For **Destination**, select the `All-{{ vars.product_short }}-Clusters` NSGroup.
+1. For **Source**, select the `All-TKGI-Clusters` NSGroup.
+1. For **Destination**, select the `All-TKGI-Clusters` NSGroup.
 1. For **Service**, select **Any**.
 1. For **Apply To**, select the `YOUR-CLUSTER-UUID-nodes-pods` NSGroup.
 1. For **Action**, select **Drop**.

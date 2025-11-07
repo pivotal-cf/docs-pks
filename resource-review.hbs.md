@@ -46,7 +46,7 @@ https://TKGI-API:9021/v1/quotas/USER-ID
 Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API endpoint. For example, `api.tkgi.example.com`.
+* `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
 * `USER-ID` is your {{  vars.product }} user ID.
 
 For example:
@@ -79,7 +79,7 @@ https://TKGI-API:9021/v1/usages/USER-ID
 Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API endpoint. For example, `api.tkgi.example.com`.
+* `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
 * `USER-ID` is your {{  vars.product }} user ID.
 
 For example:

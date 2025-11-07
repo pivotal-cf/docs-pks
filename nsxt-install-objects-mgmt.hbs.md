@@ -51,7 +51,7 @@ Create Tier-1 Logical Switch and Router for {{ vars.product_short }} Management 
 
 1. Click **Add**.
 
-1. Create the LS for {{ vars.product_short }} Management plane VMs:
+1. Create the LS for TKGI Management plane VMs:
   - **Name**: LS-PKS-MGMT
   - **Transport Zone**: tz-overlay
   <img src="images/nsxt/nsxt-30/tier-1-01.png">
@@ -101,15 +101,15 @@ Create Tier-1 Logical Switch and Router for {{ vars.product_short }} Management 
 
 ###<a id='nsxt30-t0-nat'></a> Create NAT Rules
 
-You need to create the following NAT rules on the Tier-0 router for the {{ vars.product_short }} Management Plane VMs.
+You need to create the following NAT rules on the Tier-0 router for the TKGI Management Plane VMs.
 
 - DNAT: `10.173.62.220` (for example) to access {{ vars.platform_name }}
 - DNAT: `10.173.62.221` (for example) to access Harbor
-- SNAT: `10.173.62.222` (for example) for all {{ vars.product_short }} management plane VM traffic destined to the outside world
+- SNAT: `10.173.62.222` (for example) for all TKGI management plane VM traffic destined to the outside world
 
 1. In the NSX Management console, navigate to **Networking** > **NAT**.
 
-1. In the Logical Router field, select the T0-router you defined for {{ vars.product_short }}.
+1. In the Logical Router field, select the T0-router you defined for TKGI.
   <img src="images/nsxt/nsxt-30/tier-0-nat-01.png">
 
 1. Click **Add**.

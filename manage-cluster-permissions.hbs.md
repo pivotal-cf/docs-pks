@@ -200,7 +200,7 @@ To obtain access to a {{  vars.product }}-provisioned cluster, the end user must
 
 1. When prompted, enter your password.
 
-1. The {{ vars.product_short }} CLI generates a kubeconfig for the cluster you have access to.
+1. The TKGI CLI generates a kubeconfig for the cluster you have access to.
   Review the following example kubeconfig file:
 
     ```

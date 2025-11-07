@@ -71,7 +71,7 @@ Where:
 * `MAX-CPU` is the maximum total amount of CPU resources that the user can allocate to containers and pods. If `MAX-CPU` is set to `0`, the user cannot create clusters.
 * `MAX-MEM` is the maximum total amount of memory, in gigabytes, that the user can allocate to containers and pods. If `MAX-MEM` is set to `0`, the user cannot create clusters.
 * `MAX-CLUSTER` is the maximum number of clusters that the user can provision. This value must greater than or equal to `1`.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API server.
+* `TKGI-API` is the FQDN of your TKGI API server.
 
 For example:
 ```console
@@ -119,7 +119,7 @@ Where:
 * `MAX-CPU` is the maximum total amount of CPU resources that the user can allocate to containers and pods. If `MAX-CPU` is set to `0`, the user cannot create clusters.
 * `MAX-MEM` is the maximum total amount of memory, in gigabytes, that the user can allocate to containers and pods. If `MAX-MEM` is set to `0`, the user cannot create clusters.
 * `MAX-CLUSTER` is the maximum number of clusters that the user can provision. This value must greater than or equal to `1`.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API server. For example, `api.tkgi.example.com`.
+* `TKGI-API` is the FQDN of your TKGI API server. For example, `api.tkgi.example.com`.
 
 For example:
 ```console
@@ -152,7 +152,7 @@ https://TKGI-API:9021/v1/quotas/USER-ID
 Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API server.
+* `TKGI-API` is the FQDN of your TKGI API server.
 * `USER-ID` is the user account ID to enforce the quota restriction on.
 
 For example:
@@ -182,7 +182,7 @@ https://TKGI-API:9021/v1/quotas/USER-ID
 Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API server.
+* `TKGI-API` is the FQDN of your TKGI API server.
 * `USER-ID` is the user account ID to report on.
 
 For example:
@@ -213,7 +213,7 @@ https://TKGI-API:9021/v1/quotas
 Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API server.
+* `TKGI-API` is the FQDN of your TKGI API server.
 
 For example:
 ```console
@@ -259,7 +259,7 @@ curl -k -H "Authorization: Bearer $YOUR-ACCESS-TOKEN" https://TKGI-API:9021/v1/u
 Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API server.
+* `TKGI-API` is the FQDN of your TKGI API server.
 * `USER-ID` is the user account ID whose resource utilization you want to view.
 
 ### <a id='view-all-usage'></a> View All Resource Usage
@@ -274,7 +274,7 @@ https://TKGI-API:9021/v1/usages
 Where:
 
 * `YOUR-ACCESS-TOKEN` is your access token environment variable.
-* `TKGI-API` is the FQDN of your {{ vars.product_short }} API server.
+* `TKGI-API` is the FQDN of your TKGI API server.
 
 For example:
 ```console

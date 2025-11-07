@@ -54,17 +54,17 @@ For example, the `tkgi k8s-profiles` and `tkgi kubernetes-profiles` commands are
 For brevity, this documentation uses the `k8s-` versions.
 
 
-## <a id="create"></a> Create a {{ vars.product_short }} Kubernetes Profile
+## <a id="create"></a> Create a TKGI Kubernetes Profile
 
-To create a {{ vars.product_short }} Kubernetes profile:
+To create a TKGI Kubernetes profile:
 
-1. Create a JSON-formatted Kubernetes profile. For information on the supported Kubernetes profile format, see [{{ vars.product_short }} Kubernetes Profile Format](#format) below.
+1. Create a JSON-formatted Kubernetes profile. For information on the supported Kubernetes profile format, see [TKGI Kubernetes Profile Format](#format) below.
 
-1. Use the {{ vars.product_short }} CLI to define the Kubernetes profile within {{ vars.product_short }}. For information on creating the Kubernetes profile, see [The `tkgi create-k8s-profile` Command](#run-create), below.
+1. Use the TKGI CLI to define the Kubernetes profile within TKGI. For information on creating the Kubernetes profile, see [The `tkgi create-k8s-profile` Command](#run-create), below.
 
-### <a id="format"></a> {{ vars.product_short }} Kubernetes Profile Format
+### <a id="format"></a> TKGI Kubernetes Profile Format
 
-To create a Kubernetes profile, you must first define the profile configuration using a JSON-formatted file that specifies Kubernetes parameters. For information on the supported configurations, see [{{ vars.product_short }} Kubernetes Profile Parameters](#params) below.
+To create a Kubernetes profile, you must first define the profile configuration using a JSON-formatted file that specifies Kubernetes parameters. For information on the supported configurations, see [TKGI Kubernetes Profile Parameters](#params) below.
 
 The basic structure of a Kubernetes profile:
 
@@ -101,7 +101,7 @@ Where:
 
 
 
-### <a id="params"></a> {{ vars.product_short }} Kubernetes Profile Parameters
+### <a id="params"></a> TKGI Kubernetes Profile Parameters
 
 The Kubernetes profile JSON can include the following parameters:
 
@@ -154,11 +154,11 @@ The Kubernetes profile JSON can include the following parameters:
 
 ### <a id="run-create"></a> The `tkgi create-k8s-profile` Command
 
-After you have defined a Kubernetes profile configuration in a JSON file you can create the Kubernetes profile in {{ vars.product_short }}.
+After you have defined a Kubernetes profile configuration in a JSON file you can create the Kubernetes profile in TKGI.
 
-You must be either a {{ vars.product_short }} cluster administrator or cluster manager to create a Kubernetes profile in {{ vars.product_short }}.
+You must be either a TKGI cluster administrator or cluster manager to create a Kubernetes profile in TKGI.
 
-To create a Kubernetes profile in {{ vars.product_short }}, run the following {{ vars.product_short }} CLI command:
+To create a Kubernetes profile in TKGI, run the following TKGI CLI command:
 
 ```
 tkgi create-k8s-profile CONFIGURATION-FILE
@@ -197,16 +197,16 @@ Kubernetes profile my-profile3 successfully created
 ```
 
 
-## <a id="manage"></a> Manage {{ vars.product_short }} Kubernetes Profiles
+## <a id="manage"></a> Manage TKGI Kubernetes Profiles
 
 {{  vars.product }} cluster administrators and managers can perform the following operations on Kubernetes profiles and the clusters that use them:
 
-* [List {{ vars.product_short }} Kubernetes Profiles](#list)
-* [Delete a {{ vars.product_short }} Kubernetes Profile](#delete)
-* [View {{ vars.product_short }} Kubernetes Profile Details](#view)
+* [List TKGI Kubernetes Profiles](#list)
+* [Delete a TKGI Kubernetes Profile](#delete)
+* [View TKGI Kubernetes Profile Details](#view)
 
 
-### <a id="list"></a> List {{ vars.product_short }} Kubernetes Profiles
+### <a id="list"></a> List TKGI Kubernetes Profiles
 
 To list available Kubernetes profiles, run the following command:
 
@@ -226,7 +226,7 @@ The command output differs by user role:
 - `pks.cluster.admin` see a list of Kubernetes profiles that all users created.
 - `pks.cluster.manage` see a list of only the Kubernetes profiles that they created.
 
-### <a id="delete"></a> Delete a {{ vars.product_short }} Kubernetes Profile
+### <a id="delete"></a> Delete a TKGI Kubernetes Profile
 
 To delete a Kubernetes profile, run the following command:
 
@@ -253,12 +253,12 @@ If a `pks.clusters.admin-read-only` user attempts to delete
 a Kubernetes profile, they see the following error:
 
 ```
-You do not have enough privileges to perform this action. Please contact the {{ vars.product_short }} administrator.
+You do not have enough privileges to perform this action. Please contact the TKGI administrator.
 ```
 
-### <a id="view"></a> View {{ vars.product_short }} Kubernetes Profile Details
+### <a id="view"></a> View TKGI Kubernetes Profile Details
 
-To view details of a {{ vars.product_short }} Kubernetes profile, run the following command:
+To view details of a TKGI Kubernetes profile, run the following command:
 
 ```
 tkgi k8s-profile KUBERNETES-PROFILE-NAME
@@ -284,14 +284,14 @@ Because decryption is not straightforward, applying another profile can have non
 
 
 
-## <a id='use-k8s-profiles'></a> Use a {{ vars.product_short }} Kubernetes Profile
+## <a id='use-k8s-profiles'></a> Use a TKGI Kubernetes Profile
 
 Kubernetes profiles let you customize Kubernetes configuration parameters at the time of cluster creation. You can also assign a custom Kubernetes configuration to an existing cluster.
 
 For information on how to assign a Kubernetes Profile to a cluster:
 
-* [Create a {{ vars.product_short }} Cluster with a Kubernetes Profile](#new-cluster)
-* [Assign a Kubernetes Profile to an Existing {{ vars.product_short }} Cluster](#update)
+* [Create a TKGI Cluster with a Kubernetes Profile](#new-cluster)
+* [Assign a Kubernetes Profile to an Existing TKGI Cluster](#update)
 
 For information on the supported scenarios for using Kubernetes Profiles:
 
@@ -299,7 +299,7 @@ For information on the supported scenarios for using Kubernetes Profiles:
 * [Kubernetes Profile Use Cases](#use-cases)
 
 
-### <a id='new-cluster'></a> Create a {{ vars.product_short }} Cluster with a Kubernetes Profile
+### <a id='new-cluster'></a> Create a TKGI Cluster with a Kubernetes Profile
 
 You can assign a Kubernetes profile to a Kubernetes cluster at the time of cluster creation.
 
@@ -319,15 +319,15 @@ Where:
 * `PLAN-NAME` is the name of the {{  vars.product }} plan you want to use for your cluster.
 * `KUBERNETES-PROFILE-NAME` is the name of the Kubernetes profile you want to use for your cluster.
 
-### <a id="update"></a> Assign a Kubernetes Profile to an Existing {{ vars.product_short }} Cluster
+### <a id="update"></a> Assign a Kubernetes Profile to an Existing TKGI Cluster
 
-{{ vars.product_short }} supports changing the Kubernetes profile for an already created cluster.
+TKGI supports changing the Kubernetes profile for an already created cluster.
 You can use this procedure to:
 
 - assign a Kubernetes profile to a cluster that does not have one, or
 - change a cluster's existing profile to a new one
 
-<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the Kubernetes profile only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 This is the procedure to change a cluster's Kubernetes profile:
@@ -361,18 +361,18 @@ See [Kubernetes Profile Format](#format) for details.
 The code blocks differ as follows:
 
 * `customizations` block:
-  - {{ vars.product_short }} checks the validity of configurations in this block.
+  - TKGI checks the validity of configurations in this block.
 	If you run `tkgi create-k8s-profile` on a profile with invalid configurations in `customizations`, the command returns an error.
-	- The {{ vars.product_short }} team supports clusters configured with tested, validated parameters in this block.
+	- The TKGI team supports clusters configured with tested, validated parameters in this block.
 
 * `experimental_customizations` block:
     <p class="note warning"><strong>Warning:</strong> Experimental customizations are not validated or supported.</p>
-  - {{ vars.product_short }} imposes no restrictions on the contents of this block.
+  - TKGI imposes no restrictions on the contents of this block.
 	- Configurations in this block are neither tested nor supported.
-  - If a customer wants to use an unsupported configuration, contact the {{ vars.product_short }} team with the parameters that they want tested, validated, and supported.
+  - If a customer wants to use an unsupported configuration, contact the TKGI team with the parameters that they want tested, validated, and supported.
 
 <br>
-### <a id='use-cases'></a> {{ vars.product_short }} Kubernetes Profile Use Cases
+### <a id='use-cases'></a> TKGI Kubernetes Profile Use Cases
 
 Kubernetes profiles let you customize the Kubernetes configuration parameters on a cluster.
 
