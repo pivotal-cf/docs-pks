@@ -11,7 +11,7 @@ This topic describes how to add custom workloads to {{  vars.product_full }} clu
 
 Custom workloads define what a cluster includes out of the box. For example, you can use custom workloads to configure metrics or logging.
 
-To add custom workloads to a TKGI-provisioned Kubernetes cluster:
+To add custom workloads to a {{ vars.product_short }}-provisioned Kubernetes cluster:
 
 1. [Create YAML Configuration](#create)
 1. [Apply Custom Workloads](#apply)

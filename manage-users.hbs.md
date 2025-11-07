@@ -57,10 +57,10 @@ To create a new UAA user with {{  vars.product }} access, do the following:
     ```
 
     <p class="note"><strong>Note:</strong> If your operator has configured {{  vars.product }} to use a SAML identity provider,
-    you must add <code>--origin SAML-ORIGIN</code> to the above command.<code>SAML-ORIGIN</code> is the domain name for your SAML identity provider. To find <code>SAML-ORIGIN</code>, click the TKGI tile, select <strong>Settings</strong> > <strong>UAA</strong> > <strong>SAML</strong>, and locate the <code>Provider Name</code>. For information about configuring SAML,
+    you must add <code>--origin SAML-ORIGIN</code> to the above command.<code>SAML-ORIGIN</code> is the domain name for your SAML identity provider. To find <code>SAML-ORIGIN</code>, click the {{ vars.product_short }} tile, select <strong>Settings</strong> > <strong>UAA</strong> > <strong>SAML</strong>, and locate the <code>Provider Name</code>. For information about configuring SAML,
     see <a href="configuring-saml.html">Connecting {{  vars.product }} to a SAML Identity Provider</a>.</p>
 
-1. Assign a TKGI cluster scope to the new user by running the following command:
+1. Assign a {{ vars.product_short }} cluster scope to the new user by running the following command:
 
     ```
     uaac member add UAA-SCOPE USERNAME
@@ -100,7 +100,7 @@ To grant {{  vars.product }} access to an external LDAP group, do the following:
 
 1. If you are not logged in as the UAA admin, do the steps in [Log In as a UAA Admin](#uaa-admin-login).
 
-1. Assign a TKGI cluster scope to all users in an LDAP group by running the following command:
+1. Assign a {{ vars.product_short }} cluster scope to all users in an LDAP group by running the following command:
 
     ```
     uaac group map --name UAA-SCOPE GROUP-DISTINGUISHED-NAME
@@ -123,7 +123,7 @@ To grant {{  vars.product }} access to an external SAML group, do the following:
 
 1. If you are not logged in as the UAA admin, do the steps in [Log In as a UAA Admin](#uaa-admin-login).
 
-1. Assign a TKGI cluster scope to all users in a SAML group by running the following command:
+1. Assign a {{ vars.product_short }} cluster scope to all users in a SAML group by running the following command:
 
     ```
     uaac group map --name UAA-SCOPE SAML-GROUP --origin SAML-ORIGIN
@@ -132,7 +132,7 @@ To grant {{  vars.product }} access to an external SAML group, do the following:
 
     * `UAA-SCOPE` is one of the UAA scopes described in [UAA Scopes for {{  vars.product }} Users](#tkgi-uaa-scope).
     * `SAML-GROUP` is name of your SAML identity provider group.
-    * `SAML-ORIGIN` is the domain name for your SAML identity provider. To find `SAML-ORIGIN`, click the TKGI tile, select **Settings** > **UAA** > **SAML**, and locate the `Provider Name`.
+    * `SAML-ORIGIN` is the domain name for your SAML identity provider. To find `SAML-ORIGIN`, click the {{ vars.product_short }} tile, select **Settings** > **UAA** > **SAML**, and locate the `Provider Name`.
 
     For example:
     ```console

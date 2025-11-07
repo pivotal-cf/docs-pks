@@ -8,8 +8,8 @@ This topic describes how to use a custom certificate authority (CA) to secure {{
 
 ## <a id='custom-ca'></a> Custom CA Support
 
-By default TKGI creates a new per-cluster CA (`kubo_master_ca_2021`) for each Kubernetes cluster.
-TKGI manages the lifecycle of the per-cluster CA and the certificates it signs.
+By default {{ vars.product_short }} creates a new per-cluster CA (`kubo_master_ca_2021`) for each Kubernetes cluster.
+{{ vars.product_short }} manages the lifecycle of the per-cluster CA and the certificates it signs.
 For more information, see [Overview of Kubernetes Cluster Certificates](rotate-cluster-certificates.html#overview).
 
 For most use cases, the system-managed per-cluster CA is appropriate.
@@ -64,7 +64,7 @@ in _Release Notes_ for additional requirements.
 
 See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
@@ -93,7 +93,7 @@ in _Release Notes_ for additional requirements.
 
 See custom CA [requirements](#custom-ca-reqs) and [formats](#custom-ca-egs).
 
-<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Update the configuration file only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
@@ -137,7 +137,7 @@ The custom CA must satisfy following validation rules:
 
 ## <a id='custom-ca-egs'></a> Custom CA Formats
 
-TKGI supports both YAML (`*.yml` or `*.yaml`) and JSON (`*.json`) configuration file format for supplying the custom CA.
+{{ vars.product_short }} supports both YAML (`*.yml` or `*.yaml`) and JSON (`*.json`) configuration file format for supplying the custom CA.
 
 Below is an example configuration file in YAML format for a custom CA (`custom_ca.yaml`):
 

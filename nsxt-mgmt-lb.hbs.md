@@ -17,7 +17,7 @@ The diagram below shows an external load balancer fronting the NSX Manager nodes
 
 <p class="note"><strong>Note:</strong> The load balancer VIP load balances traffic to all NSX Manager instances in round robin fashion. A Cluster HA VIP, on the other hand, only sends traffic one of the NSX Manager instances that is mapped to the Cluster IP VIP; the other NSX Manager instances do not receive any traffic.</p>
 
-For scalability, deploy a load balancer in front of the NSX Manager nodes. When provisioning the load balancer, you configure a virtual server on the load balancer, and associate a virtual IP address with the virtual server. This load balancer VIP can be used as the entry-point for TKGI- and NCP-related API requests on the NSX Control Plane. The virtual server includes a member pool where all NSX Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX Management Cluster.
+For scalability, deploy a load balancer in front of the NSX Manager nodes. When provisioning the load balancer, you configure a virtual server on the load balancer, and associate a virtual IP address with the virtual server. This load balancer VIP can be used as the entry-point for {{ vars.product_short }}- and NCP-related API requests on the NSX Control Plane. The virtual server includes a member pool where all NSX Management Cluster nodes belong. Additionally, health monitoring is enabled for the member pool to quickly and efficiently address potential node failures detected among the NSX Management Cluster.
 
 ##<a id='provision'></a> Provision the NSX Load Balancer for the Management Cluster
 
@@ -151,7 +151,7 @@ Configure **Load Balancing Profiles** for the load balancer:
 - **Persistence Profile** > **Source IP**: Select `default-source-ip-lb-persistence-profile`.
 - Click **Finish**.
 
-<p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the TKGI Management Plane, do not configure a persistence profile.</p>
+<p class="note"><strong>Note:</strong> If a proxy is used between the NSX Management Cluster and the {{ vars.product_short }} Management Plane, do not configure a persistence profile.</p>
 
 ###<a id='s9'></a> Step 9: Attach the Virtual Server to the Load Balancer
 
@@ -246,7 +246,7 @@ Verify the load balancer and that traffic is load balanced.
 - Open an HTTPS session using multiple browser clients.
 - Confirm that traffic is load-balanced across different NSX Managers:
 
-    - You can use the NSX API to validate that secure HTTP requests against the new VIP address are associated with the load balancer's Virtual Server. Relying on the SuperUser Principal Identity created as part of TKGI provisioning steps, you can cURL the NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP. For example:
+    - You can use the NSX API to validate that secure HTTP requests against the new VIP address are associated with the load balancer's Virtual Server. Relying on the SuperUser Principal Identity created as part of {{ vars.product_short }} provisioning steps, you can cURL the NSX Management Cluster using the standard HA-VIP address or the newly-provisioned virtual server VIP. For example:
 
         - Before load balancer provisioning is completed:
 
@@ -265,5 +265,5 @@ Verify the load balancer and that traffic is load balanced.
         - The call made toward the HA VIP address ALWAYS selects the same member, the Active Member. of the NSX Management Cluster.
 
 - Residual configuration steps:
-    - Change TKGI Tile configuration for NSX Manager IP Address to use the newly-provisioned Virtual IP Address.
-    This configuration enables any component internal to TKGI, for example NCP, NSX OSB Proxy, BOSH CPI, etc., to use the new Load Balancer functionality.
+    - Change {{ vars.product_short }} Tile configuration for NSX Manager IP Address to use the newly-provisioned Virtual IP Address.
+    This configuration enables any component internal to {{ vars.product_short }}, for example NCP, NSX OSB Proxy, BOSH CPI, etc., to use the new Load Balancer functionality.

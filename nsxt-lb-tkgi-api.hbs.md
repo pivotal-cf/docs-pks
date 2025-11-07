@@ -63,7 +63,7 @@ If you deploy your {{  vars.product }} using [No-NAT with Virtual Switch (VSS/VD
 1. OPTION 2: Configure Pool Members for the Dynamic Server Pool:
   - Membership Type: **Dynamic**
   - Set NSGroup as the NSGroup name created in Step 1, such as **tkgi-api**
-  - Set Max Group IP Address List to 3, since we can only have up to 3 TKGI API instances
+  - Set Max Group IP Address List to 3, since we can only have up to 3 {{ vars.product_short }} API instances
   - Click **Next**
   For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias),
   - Membership Type: **Static**
@@ -171,7 +171,7 @@ Skip this if you deploy as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-
     <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-31.png">
 1. Click **Add**.
 1. Set the **Name**. For example `tkgi-api`.
-1. Choose the Load Balancer Size. The default SMALL is sufficient for most TKGI deployments.
+1. Choose the Load Balancer Size. The default SMALL is sufficient for most {{ vars.product_short }} deployments.
 For large-scale deployments, use are larger size load balancer.
     <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-32.png">
 1. Click **OK**.
@@ -185,7 +185,7 @@ For large-scale deployments, use are larger size load balancer.
     <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-33.png">
 1. Choose the `tkgs-api` load balancer you just created.
 1. Click the gear icon and select **Attach to a Logical Router**.
-1. Choose a Tier-1 logical router that is attached to TKGI API VMs.
+1. Choose a Tier-1 logical router that is attached to {{ vars.product_short }} API VMs.
     <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-34.png">
 1. Click **OK**.
 
@@ -243,16 +243,16 @@ To create and configure a new Tier-1 router:
 1. Click **Ok**.
   <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-45.png">
 
-##<a id='config-tile'></a> Step 6: Configure TKGI to Use the Load Balancer
+##<a id='config-tile'></a> Step 6: Configure {{ vars.product_short }} to Use the Load Balancer
 
 Skip this if you deployed as [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias)
 
-Now that the load balancer for the TKGI API control plane is configured, update the TKGI tile to point to the load balancer.
+Now that the load balancer for the {{ vars.product_short }} API control plane is configured, update the {{ vars.product_short }} tile to point to the load balancer.
 
 1. Log in to {{ vars.platform_name }}.
 1. Go to **{{  vars.product }} Tile Resource Config**.
-1. Click **TKGI API**. You will see a drop down for **TKGI API config**.
-1. Change the **TKGI API Instances Number** to `2` or `3`. We recommend `3` for quorum.
+1. Click **{{ vars.product_short }} API**. You will see a drop down for **{{ vars.product_short }} API config**.
+1. Change the **{{ vars.product_short }} API Instances Number** to `2` or `3`. We recommend `3` for quorum.
 1. Set the **NSGroup** if you configured **Dynamic Server Pool**. Otherwise leave it empty.
 1. Set **VIF Type** to `PARENT` or leave it empty.
 1. Set the **Logical Load Balancer** as follows:
@@ -290,7 +290,7 @@ To validate your Load Balancer configuration:
     <img src="images/nsxt/api-lb/nsxt-lb-tkgi-api-49.png">
 1. To test the load balancer:
 
-    1. Using your TKGI client jump host, change the TKGI API hostname to resolve to the Load Balancer IP.
+    1. Using your {{ vars.product_short }} client jump host, change the {{ vars.product_short }} API hostname to resolve to the Load Balancer IP.
 <br>
         For example, you can use `192.168.160.108` as the IP address of the load balancer:
 
@@ -308,7 +308,7 @@ To validate your Load Balancer configuration:
         192.168.160.108  tkgi.tkgi-api.cf-app.com
         ```
 
-    1. Log in to the TKGI API Server via the load balancer.
+    1. Log in to the {{ vars.product_short }} API Server via the load balancer.
 <br>
         For example:
 

@@ -10,27 +10,27 @@ by using the BOSH Command Line Interface (BOSH CLI).
 ## <a id='overview'></a>Overview
 
 BOSH diagnostic commands such as `bosh ssh` and `bosh vms` enable
-you to access information about your TKGI deployment.
-For example, you can access TKGI log files
-after SSHing into the TKGI API or a Kubernetes cluster VM:
+you to access information about your {{ vars.product_short }} deployment.
+For example, you can access {{ vars.product_short }} log files
+after SSHing into the {{ vars.product_short }} API or a Kubernetes cluster VM:
 
 1. [Log in to the BOSH Director VM](#alias)
 1. SSH into the environment:
-    * [SSH into the TKGI API VM](#tkgi-api)
-    * [SSH into the TKGI Database VM](#pks-db)
+    * [SSH into the {{ vars.product_short }} API VM](#tkgi-api)
+    * [SSH into the {{ vars.product_short }} Database VM](#pks-db)
     * [SSH into a Kubernetes Cluster VM](#cluster)
 1. [View Log Files](#bosh-tkgi-map)
 
 
 ## <a id='alias'></a> Log in to the BOSH Director VM
 
-To set a BOSH alias for your TKGI environment
+To set a BOSH alias for your {{ vars.product_short }} environment
 and log in to the BOSH Director VM, follow the steps below:
 
 1. Gather your credential and IP address information for the BOSH Director and SSH
 into the {{ vars.platform_name }} VM. For instructions, see [Advanced Troubleshooting with the BOSH
 CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/install-trouble-advanced.html).
-1. To create a BOSH alias for your TKGI environment, run the following command:
+1. To create a BOSH alias for your {{ vars.product_short }} environment, run the following command:
 
     ```
     bosh alias-env ENVIRONMENT \
@@ -63,17 +63,17 @@ CLI](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-
     _Advanced Troubleshooting with the BOSH CLI_ in the {{ vars.platform_name }} documentation.
 
 
-## <a id='tkgi-api'></a>SSH into the TKGI API VM
+## <a id='tkgi-api'></a>SSH into the {{ vars.product_short }} API VM
 
-To SSH into the TKGI API VM using the BOSH CLI, follow the steps below:
+To SSH into the {{ vars.product_short }} API VM using the BOSH CLI, follow the steps below:
 
 {{> bosh-ssh-api }}
 
 
 
-## <a id='pks-db'></a>SSH into the TKGI Database VM
+## <a id='pks-db'></a>SSH into the {{ vars.product_short }} Database VM
 
-To SSH into a TKGI Database VM using the BOSH CLI, follow the steps below:
+To SSH into a {{ vars.product_short }} Database VM using the BOSH CLI, follow the steps below:
 
 {{> bosh-ssh-db }}
 
@@ -82,7 +82,7 @@ To SSH into a TKGI Database VM using the BOSH CLI, follow the steps below:
 ## <a id='cluster'></a>SSH into a Kubernetes Cluster VM
 
 Each Kubernetes cluster corresponds to a BOSH deployment.
-To SSH into a TKGI-provisioned Kubernetes cluster VM using the BOSH CLI, follow the steps below:
+To SSH into a {{ vars.product_short }}-provisioned Kubernetes cluster VM using the BOSH CLI, follow the steps below:
 
 {{> ssh-cluster-master-node }}
 
@@ -91,9 +91,9 @@ To SSH into a TKGI-provisioned Kubernetes cluster VM using the BOSH CLI, follow 
 ## <a id='bosh-tkgi-map'></a>View Log Files
 
 Log files contain error messages and other information you can use to diagnose issues
-with your TKGI deployment.
-To access TKGI log files,
-SSH into the TKGI API VM, or a Kubernetes cluster VM, and then follow the steps below:
+with your {{ vars.product_short }} deployment.
+To access {{ vars.product_short }} log files,
+SSH into the {{ vars.product_short }} API VM, or a Kubernetes cluster VM, and then follow the steps below:
 
 1. To act as super user on your VM, run the following command:
 

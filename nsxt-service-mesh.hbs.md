@@ -5,7 +5,7 @@ title: Configuring VMware Tanzu Service Mesh by VMware NSX
 
 This topic describes how to integrate {{  vars.product_full }} with VMware Tanzu Service Mesh by VMware NSX.
 
-> **Note** Tanzu Service Mesh integration in TKGI has been deprecated and is slated for removal in the next minor release.
+> **Note** Tanzu Service Mesh integration in {{ vars.product_short }} has been deprecated and is slated for removal in the next minor release.
 
 Tanzu Service Mesh brings application-layer visibility, control, and security to microservices deployed on {{  vars.product_full }}-managed Kubernetes clusters.
 
@@ -49,7 +49,7 @@ Install VMware Tanzu Service Mesh in a cluster as follows:
 
 ### <a id='onboard-cluster'></a> Onboard a Kubernetes Cluster to Tanzu Service Mesh
 
-Complete the following steps to install Tanzu Service Mesh onto a TKGI-provisioned Kubernetes cluster.
+Complete the following steps to install Tanzu Service Mesh onto a {{ vars.product_short }}-provisioned Kubernetes cluster.
 
 1. Sign in to the VMware Tanzu Service Mesh by VMware NSX console.
 
@@ -60,7 +60,7 @@ finish signing up for Tanzu Service Mesh.
 
 1. In the **Onboard Clusters** panel, enter a name for Tanzu Service Mesh to use to identify the
 target cluster.
-  - VMware recommends that you enter the name of the cluster used in TKGI,
+  - VMware recommends that you enter the name of the cluster used in {{ vars.product_short }},
     but you can use a different name.
   - The cluster name must be unique within Tanzu Service Mesh.
 
@@ -69,7 +69,7 @@ target cluster.
 1. In the **Onboard Clusters** panel, click the copy icon to copy the `kubectl apply` command that
 applies the registration YAML file to the cluster.
 
-1. Log in to your TKGI-provisioned Kubernetes cluster.
+1. Log in to your {{ vars.product_short }}-provisioned Kubernetes cluster.
 
 1. Run the `kubectl apply` command that you copied in a previous step to apply the registration
 YAML to the cluster. For example:
