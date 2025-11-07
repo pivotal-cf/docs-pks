@@ -61,7 +61,7 @@ Deploy the NSX Manager OVA in vSphere. Download the OVA from the VMware software
 
 ##<a id='nsxt30-compute-mgr'></a> Add vCenter as the Compute Manager
 
-A compute manager is required for NSX environments with multiple NSX Manager nodes. A compute manager is an application that manages resources such as hosts and VMs. For {{ vars.product_short }} we use the vCenter Server as the compute manager.
+A compute manager is required for NSX environments with multiple NSX Manager nodes. A compute manager is an application that manages resources such as hosts and VMs. For TKGI we use the vCenter Server as the compute manager.
 
 Complete the following steps to add vCenter as the Compute Manager. For additional guidance, refer to the [NSX-T documentation](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-0/administration-guide/operations-and-management/add-a-compute-manager-1.html).
 
@@ -161,7 +161,7 @@ If you do not add the proper NSX license, you will receive an error when you try
 
 ##<a id='nsxt30-mgmt-enable-adv'></a> Enable the NSX Manager Interface (if necessary)
 
-The NSX Management Console provides two user interfaces: **Policy** and **Manager**. {{ vars.product_short }} supports both.
+The NSX Management Console provides two user interfaces: **Policy** and **Manager**. TKGI supports both.
 
 The **Policy** interface is the default. If you are using the **Manager** interface for configuring the networking and security objects, you need to enable the Manager interface.
 

@@ -25,14 +25,14 @@ For more information, see [Installing and Configuring {{ vars.platform_name }} o
 
 ## <a id='overview'></a>Overview
 
-To install and configure {{ vars.product_short }}:
+To install and configure TKGI:
 
 1. [Install {{  vars.product }}](#install)
 1. [Configure {{  vars.product }}](#configure)
 1. [Apply Changes](#apply-changes)
-1. [Retrieve the {{ vars.product_short }} API Endpoint](#retrieve-tkgi-api)
-1. [Configure an AWS Load Balancer for the {{ vars.product_short }} API](#lb-tkgi-api)
-1. [Install the {{ vars.product_short }} and Kubernetes CLIs](#clis)
+1. [Retrieve the TKGI API Endpoint](#retrieve-tkgi-api)
+1. [Configure an AWS Load Balancer for the TKGI API](#lb-tkgi-api)
+1. [Install the TKGI and Kubernetes CLIs](#clis)
 1. [Configure Authentication for {{  vars.product }}](#auth)
 
 
@@ -45,16 +45,16 @@ To install and configure {{ vars.product_short }}:
 
 ## <a id='configure'></a> Step 2: Configure {{  vars.product }}
 
-To configure {{ vars.product_short }}:
+To configure TKGI:
 
 1. Click the orange **{{  vars.product }}** tile to start the configuration process.
 
-    ![{{ vars.product_short }} tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
+    ![TKGI tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
     <p class="note warning"><strong>WARNING</strong>: When you configure the {{  vars.product }} tile,
     do not use spaces in any field entries. This includes spaces between characters as well as
     leading and trailing spaces. If you use a space in any field entry, the deployment of {{  vars.product }} fails.</p>
 1. [Assign AZs and Networks](#azs-networks)
-1. [{{ vars.product_short }} API](#tkgi-api)
+1. [TKGI API](#tkgi-api)
 1. [Plans](#plans)
 1. [Kubernetes Cloud Provider](#cloud-provider)
 1. [Networking](#networking)
@@ -71,7 +71,7 @@ To configure {{ vars.product_short }}:
 {{> azs-networks }}
 
 
-### <a id='tkgi-api'></a> {{ vars.product_short }} API
+### <a id='tkgi-api'></a> TKGI API
 
 {{> api }}
 
@@ -94,7 +94,7 @@ To configure your Kubernetes cloud provider settings, follow the procedures belo
 1. Enter your **AWS Master Instance Profile IAM**. This is the instance profile name associated with the control plane node.
 
 1. Enter your **AWS Worker Instance Profile IAM**. This is the instance profile name associated with the worker node.
-Your {{ vars.product_short }} worker nodes use the **AWS Worker Instance Profile IAM** to access the AWS API.
+Your TKGI worker nodes use the **AWS Worker Instance Profile IAM** to access the AWS API.
 
 1. Click **Save**.
 
@@ -112,15 +112,15 @@ To configure networking, do the following:
 1. Click **Networking**.
 1. Under **Container Networking Interface**, select **Antrea**.
     <img src="images/networking-antrea.png" alt="Networking pane configuration" width="425">
-    Antrea is the Container Networking Interface (CNI) for {{ vars.product_short }} {{{ vars.product_version }}}. Flannel CNI is no longer supported.
+    Antrea is the Container Networking Interface (CNI) for TKGI {{{ vars.product_version }}}. Flannel CNI is no longer supported.
     For more information about Flannel CNI removal, see
-    <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-kubernetes-grid-integrated-edition/1-18/tkgi/understanding-upgrades.html#upgrade-the-cni">About Switching from the Flannel CNI to the Antrea CNI</a> in the {{ vars.product_short }} 1.18 documentation.
+    <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-kubernetes-grid-integrated-edition/1-18/tkgi/understanding-upgrades.html#upgrade-the-cni">About Switching from the Flannel CNI to the Antrea CNI</a> in the TKGI 1.18 documentation.
 1. (Optional) Enter values for **Kubernetes Pod Network CIDR Range** and **Kubernetes Service Network CIDR Range**.
     * Ensure that the CIDR ranges do not overlap and have sufficient space for your deployed services.
     * Ensure that the CIDR range for the **Kubernetes Pod Network CIDR Range** is large enough to accommodate the expected maximum number of pods.
 <br>
 1. (Optional) Configure a global proxy for all outgoing HTTP and HTTPS traffic from your Kubernetes clusters and
-the {{ vars.product_short }} API server. See [Using Proxies with {{  vars.product }} on AWS](proxies-aws.html) for instructions to enable a proxy.
+the TKGI API server. See [Using Proxies with {{  vars.product }} on AWS](proxies-aws.html) for instructions to enable a proxy.
 1. (Optional) If you do not use a NAT instance, select **Allow outbound internet access from Kubernetes cluster vms (IaaS-dependent)**. Enabling this functionality assigns external IP addresses to VMs in clusters.
 
 1. Click **Save**.
@@ -155,19 +155,19 @@ the {{ vars.product_short }} API server. See [Using Proxies with {{  vars.produc
 
 ### <a id='resource-config'></a> Resource Config
 
-To modify the resource configuration of {{  vars.product }} and specify your {{ vars.product_short }} API load balancer, follow the steps below:
+To modify the resource configuration of {{  vars.product }} and specify your TKGI API load balancer, follow the steps below:
 
 1. Select **Resource Config**.
 
 1. {{> resource-config }}
 
 
-1. For the **{{ vars.product_short }} Database** job:
+1. For the **TKGI Database** job:
     * Leave the **LOAD BALANCERS** field blank.
     * (Optional) If you do not use a NAT instance, select **INTERNET CONNECTED**. This allows component instances direct access to the internet.
 
-1. For the **{{ vars.product_short }} API** job:
-    * Enter the name of your {{ vars.product_short }} API load balancer in the **LOAD BALANCERS** field. For more information, see [Define Load Balancer](aws-api-load-balancer.html#define-lb) in _Configuring an AWS Load Balancer for the {{ vars.product_short }} API_.
+1. For the **TKGI API** job:
+    * Enter the name of your TKGI API load balancer in the **LOAD BALANCERS** field. For more information, see [Define Load Balancer](aws-api-load-balancer.html#define-lb) in _Configuring an AWS Load Balancer for the TKGI API_.
     {{> lb-resource-config }}
 
     * (Optional) If you do not use a NAT instance, select **INTERNET CONNECTED**. This allows component instances direct access to the internet.
@@ -184,7 +184,7 @@ To modify the resource configuration of {{  vars.product }} and specify your {{ 
 
 
 
-## <a id='retrieve-tkgi-api'></a> Step 4: Retrieve the {{ vars.product_short }} API Endpoint
+## <a id='retrieve-tkgi-api'></a> Step 4: Retrieve the TKGI API Endpoint
 
 {{> share-endpoint }}
 
@@ -192,14 +192,14 @@ To modify the resource configuration of {{  vars.product }} and specify your {{ 
 <br>
 <br>
 
-## <a id='lb-tkgi-api'></a> Step 5: Configure an AWS Load Balancer for the {{ vars.product_short }} API
+## <a id='lb-tkgi-api'></a> Step 5: Configure an AWS Load Balancer for the TKGI API
 
-Follow the procedures in [Configuring an AWS Load Balancer for the {{ vars.product_short }} API](aws-api-load-balancer.html) to configure an AWS load balancer for the {{ vars.product_short }} API.
+Follow the procedures in [Configuring an AWS Load Balancer for the TKGI API](aws-api-load-balancer.html) to configure an AWS load balancer for the TKGI API.
 
 <br>
 <br>
 
-## <a id='clis'></a> Step 6: Install the {{ vars.product_short }} and Kubernetes CLIs
+## <a id='clis'></a> Step 6: Install the TKGI and Kubernetes CLIs
 
 {{> install-cli }}
 

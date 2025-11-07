@@ -35,10 +35,10 @@ Before completing this section, make sure you have completed the following secti
     <a href="./nsxt-install-transports.html">Deploy NSX Transport Nodes</a>
   </li>
   <li>
-    <a href="./nsxt-install-objects-k8s.html">Create NSX Objects for Kubernetes Clusters Provisioned by {{ vars.product_short }}</a>
+    <a href="./nsxt-install-objects-k8s.html">Create NSX Objects for Kubernetes Clusters Provisioned by TKGI</a>
   </li>
   <li>
-    <a href="./nsxt-install-objects-mgmt.html">Create NSX Objects for {{ vars.product_short }} Management Plane Components</a>
+    <a href="./nsxt-install-objects-mgmt.html">Create NSX Objects for TKGI Management Plane Components</a>
   </li>
 </ul>
 
@@ -188,4 +188,4 @@ Password expiration not configured for this user
 
 ##<a id='next'></a> Next Step
 
-Once you have completed the installation of NSX-T v3.0, return to the {{ vars.product_short }} installation workflow and proceed with the next phase of the process. See [Install {{  vars.product }} on vSphere with NSX Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).
+Once you have completed the installation of NSX-T v3.0, return to the TKGI installation workflow and proceed with the next phase of the process. See [Install {{  vars.product }} on vSphere with NSX Using {{ vars.platform_name }}](./vsphere-nsxt-index.html).

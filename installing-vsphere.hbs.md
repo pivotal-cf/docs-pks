@@ -19,7 +19,7 @@ For more information, see [vSphere Prerequisites and Resource Requirements](vsph
 
 ## <a id='overview'></a>Overview
 
-To install and configure {{ vars.product_short }}:
+To install and configure TKGI:
 
 1. [Install {{  vars.product }}](#install)
 1. [Configure {{  vars.product }}](#configure)
@@ -31,16 +31,16 @@ To install and configure {{ vars.product_short }}:
 
 ##<a id='configure'></a> Step 2: Configure {{  vars.product }}
 
-To configure {{ vars.product_short }}:
+To configure TKGI:
 
 1. Click the orange **{{  vars.product }}** tile to start the configuration process.
 
-    ![{{ vars.product_short }} tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
+    ![TKGI tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
 
     <p class="note warning"><strong>WARNING</strong>: When you configure the {{  vars.product }} tile, do not use spaces in any field entries. This includes spaces between characters as well as
     leading and trailing spaces. If you use a space in any field entry, the deployment of {{  vars.product }} fails.</p>
 1. [Assign AZs and Networks](#azs-networks)
-1. [{{ vars.product_short }} API](#tkgi-api)
+1. [TKGI API](#tkgi-api)
 1. [Plans](#plans)
 1. [Kubernetes Cloud Provider](#cloud-provider)
 1. [Networking](#networking)
@@ -71,7 +71,7 @@ used by the {{{ vars.product_short }}} control plane:
 1. Under **Service Network**, select the services subnet that you created for Kubernetes cluster VMs.
 1. Click **Save**.
 
-### <a id='tkgi-api'></a> {{ vars.product_short }} API
+### <a id='tkgi-api'></a> TKGI API
 
 {{> api }}
 
@@ -136,4 +136,4 @@ To modify the resource configuration of {{  vars.product }}, follow the steps be
 
 ## <a id='next-install-step'></a> Next Installation Step
 
-To configure the {{ vars.product_short }} API load balancer, follow the instructions in [Configure {{ vars.product_short }} API Load Balancer](vsphere-configure-api.html).
+To configure the TKGI API load balancer, follow the instructions in [Configure TKGI API Load Balancer](vsphere-configure-api.html).

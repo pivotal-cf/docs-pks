@@ -10,10 +10,10 @@ This topic describes how to configure {{  vars.product_full }} Kubernetes cluste
 
 You can store images in an insecure container registry. You can:
 
-* Enable your {{ vars.product_short }} Kubernetes clusters, which runs the Containerd runtime, to authenticate
+* Enable your TKGI Kubernetes clusters, which runs the Containerd runtime, to authenticate
 into an insecure Containerd registry.
 
-* Configure both new and existing {{ vars.product_short }} clusters, which runs the Containerd runtime, to authenticate
+* Configure both new and existing TKGI clusters, which runs the Containerd runtime, to authenticate
 into an insecure registry.
 
 **Note**: You can connect multiple hosts to an insecure registry.
@@ -33,21 +33,21 @@ To update an existing cluster configured to access insecure Containerd registrie
 
 ## <a id='prereq-sec-reg'></a> Prerequisites
 
-Before configuring {{ vars.product_short }} Kubernetes clusters to have access to an insecure Containerd registry, you must have the following:
+Before configuring TKGI Kubernetes clusters to have access to an insecure Containerd registry, you must have the following:
 
-- The FQDN of your {{ vars.product_short }} API endpoint. For example, `api.tkgi.example.com`.
+- The FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
 - Your {{  vars.product }} User ID and Password.
 - The names of the insecure registry servers and the hosts that you want to connect to them.
 
 <p class="note warning"><strong>Warning: </strong> The FQDN for the registry cannot contain a hyphen, dash, or semi-colon.
-  If such a character is included in the registry name the {{ vars.product_short }} API will reject it as not a valid character.
+  If such a character is included in the registry name the TKGI API will reject it as not a valid character.
 </p>
 
 
 ## <a id='set-token'></a> Set up Your API Access Token
 
 The curl commands in this topic use an access token environment variable to
-authenticate to the {{ vars.product_short }} API endpoints.
+authenticate to the TKGI API endpoints.
 
 1. To export your access token into an environment variable, run the following command:
 
@@ -57,7 +57,7 @@ authenticate to the {{ vars.product_short }} API endpoints.
     ```
     Where:
 
-    * `TKGI-API` is the FQDN of your {{ vars.product_short }} API endpoint. For example, `api.tkgi.example.com`.
+    * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
     * `USER-ID` is your {{  vars.product }} user ID.
     * `PASSWORD` is your {{  vars.product }} password.
     * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.
@@ -74,7 +74,7 @@ authenticate to the {{ vars.product_short }} API endpoints.
 
 ## <a id='create-cluster'></a> Create a Containerd Runtime Cluster with an Access to Insecure Registries
 
-You can create a new cluster configured to use a insecure registry by using the {{ vars.product_short }} API `create-cluster` endpoint.
+You can create a new cluster configured to use a insecure registry by using the TKGI API `create-cluster` endpoint.
 
 1. Create a `cluster.json` file as shown in the following example:
 
@@ -110,7 +110,7 @@ You can create a new cluster configured to use a insecure registry by using the 
 
 ## <a id='update-cluster'></a> Update a Containerd Runtime Cluster with an Access to Insecure Registries
 
-You can update an existing Containerd cluster with an access to insecure registries by using the {{ vars.product_short }} API `update-cluster` endpoint.
+You can update an existing Containerd cluster with an access to insecure registries by using the TKGI API `update-cluster` endpoint.
 
 1. Create a `cluster.json` file as shown in the following example:
 

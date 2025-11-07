@@ -8,14 +8,14 @@
 and uses the [On-Demand Broker](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/on-demand-services-sdk-for-tanzu/0-42.html) to dynamically
 instantiate, deploy, and manage highly-available Kubernetes clusters on-premises or on a public cloud.
 
-After operators install {{ vars.product_short }},
-developers can use the {{ vars.product_short }} Command Line Interface ({{ vars.product_short }} CLI) to provision Kubernetes clusters,
+After operators install TKGI,
+developers can use the TKGI Command Line Interface (TKGI CLI) to provision Kubernetes clusters,
 and run container-based workloads on the clusters with the Kubernetes CLI, [kubectl](installing-kubectl-cli.html).
 
-Operators install {{ vars.product_short }} as a tile on the {{ vars.platform_name }} Installation Dashboard,
-or from the {{ vars.product_short }} Management Console on vSphere.
+Operators install TKGI as a tile on the {{ vars.platform_name }} Installation Dashboard,
+or from the TKGI Management Console on vSphere.
 
-You can run {{ vars.product_short }} standalone or alongside {{{ vars.app_runtime_full }}}
+You can run TKGI standalone or alongside {{{ vars.app_runtime_full }}}
 on {{ vars.platform_name }}.
 
 ##<a id='tkgi-kubernetes'></a> What {{  vars.product }} Adds to Kubernetes
@@ -106,38 +106,38 @@ The following table details the features that {{  vars.product }} adds to the Ku
 
 ## <a id='docs-highlights'></a> Documentation Highlights
 
-**Concepts**: Learn the [basic concepts of {{ vars.product_short }}](concepts.html), information about the [different types of load balancers](about-lb.html) to use in {{ vars.product_short }} deployments, and how [{{ vars.product_short }} provisions and manages](control-plane.html) your Kubernetes clusters.
+**Concepts**: Learn the [basic concepts of TKGI](concepts.html), information about the [different types of load balancers](about-lb.html) to use in TKGI deployments, and how [TKGI provisions and manages](control-plane.html) your Kubernetes clusters.
 
-**Prerequisites**: Review the prerequisites for {{ vars.product_short }} and infrastructure that it works with:
+**Prerequisites**: Review the prerequisites for TKGI and infrastructure that it works with:
 
 - [vSphere Prerequisites and Resource Requirements](vsphere-requirements.html)
 - [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and [Hardware Requirements for {{  vars.product }} on vSphere with NSX](vsphere-nsxt-rpd-mpd.html)
 - [AWS Prerequisites and Resource Requirements](aws-requirements.html)
 - [Azure Prerequisites and Resource Requirements](azure-requirements.html)
 
-**Installation**: {{ vars.product_short }} integrates with VMware NSX Data Center to provide pod-level container networking, load balancing, and security policies. You can install {{ vars.product_short }} on vSphere with NSX Data Center in two ways:
+**Installation**: TKGI integrates with VMware NSX Data Center to provide pod-level container networking, load balancing, and security policies. You can install TKGI on vSphere with NSX Data Center in two ways:
 
--   The [{{  vars.product }} Management Console](console-install-vsphere.html) provides a graphical user interface that assists you with configuration when deploying {{ vars.product_short }} on vSphere. After you deploy {{ vars.product_short }} on vSphere, you can use the management console to [monitor and manage the operation of your deployments](console-monitor-manage-clusters.html) and perform upgrades.
+-   The [{{  vars.product }} Management Console](console-install-vsphere.html) provides a graphical user interface that assists you with configuration when deploying TKGI on vSphere. After you deploy TKGI on vSphere, you can use the management console to [monitor and manage the operation of your deployments](console-monitor-manage-clusters.html) and perform upgrades.
 
--   You can [install {{ vars.product_short }} using a more traditional approach](vsphere-nsxt-index.html) if you need more flexibility in configuring your deployment.
+-   You can [install TKGI using a more traditional approach](vsphere-nsxt-index.html) if you need more flexibility in configuring your deployment.
 
-You can install {{ vars.product_short }} on other IaaS platforms as well. Learn how to install {{ vars.product_short }} on [vSphere without NSX](vsphere-index.html), [Amazon Web Services \(AWS\)](aws-index.html), and [Microsoft Azure](azure-index.html).
+You can install TKGI on other IaaS platforms as well. Learn how to install TKGI on [vSphere without NSX](vsphere-index.html), [Amazon Web Services \(AWS\)](aws-index.html), and [Microsoft Azure](azure-index.html).
 
-**CLI**: Learn how to use the [{{ vars.product_short }} Command Line Interface \({{ vars.product_short }} CLI\)](managing-clusters.html) to provision Kubernetes clusters. You can use the {{ vars.product_short }} CLI to provision and manage Kubernetes clusters. You can create and delete clusters, view cluster state, and work with network profiles created with {{ vars.product_short }}.
+**CLI**: Learn how to use the [TKGI Command Line Interface \(TKGI CLI\)](managing-clusters.html) to provision Kubernetes clusters. You can use the TKGI CLI to provision and manage Kubernetes clusters. You can create and delete clusters, view cluster state, and work with network profiles created with TKGI.
 
-**Stateful Workloads**: You can [deploy stateful workloads](volumes.html) with {{ vars.product_short }} on vSphere on Kubernetes clusters. {{ vars.product_short }} supports the legacy vSphere Cloud Provider storage plugin for vSphere Volumes as well as supporting Cloud Native Storage \(CNS\) using the [vSphere Cloud Storage Interface \(CSI\) driver](vsphere-cns.html). This encompasses Kubernetes storage primitives for volumes, including Persistent Volumes \(PV\), Persistent Volume Claims \(PVC\), Storage Classes and Stateful Sets. It also provides enterprise-grade storage features such as Storage Policy Based Management \(SPBM\) with VMware vSAN to Kubernetes-based applications.
+**Stateful Workloads**: You can [deploy stateful workloads](volumes.html) with TKGI on vSphere on Kubernetes clusters. TKGI supports the legacy vSphere Cloud Provider storage plugin for vSphere Volumes as well as supporting Cloud Native Storage \(CNS\) using the [vSphere Cloud Storage Interface \(CSI\) driver](vsphere-cns.html). This encompasses Kubernetes storage primitives for volumes, including Persistent Volumes \(PV\), Persistent Volume Claims \(PVC\), Storage Classes and Stateful Sets. It also provides enterprise-grade storage features such as Storage Policy Based Management \(SPBM\) with VMware vSAN to Kubernetes-based applications.
 
-**Multi-tenant**: Learn how to [create a multi-tenant environment for each Kubernetes cluster](nsxt-multi-t0.html) when using {{ vars.product_short }} on vSphere with NSX. Also, with NSX micro-segmentation, Kubernetes namespaces can be secured for multiple teams using a shared cluster. You can create [NSX Network Profiles](network-profiles-index.html) to customize network resources such as load balancer size, node and pod networks, and DNS configuration.
+**Multi-tenant**: Learn how to [create a multi-tenant environment for each Kubernetes cluster](nsxt-multi-t0.html) when using TKGI on vSphere with NSX. Also, with NSX micro-segmentation, Kubernetes namespaces can be secured for multiple teams using a shared cluster. You can create [NSX Network Profiles](network-profiles-index.html) to customize network resources such as load balancer size, node and pod networks, and DNS configuration.
 
 **Private Registry**: Learn how to secure your container workload images using [VMware Harbor Registry](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/index.html), a private registry server that stores and distributes container images. In addition to providing RBAC \(Role-Based Access Control\) and LDAP/AD support, Harbor provides container [image vulnerability scanning, policy-based image replication, and notary and auditing services](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/using.html). Harbor is an [open-source project](https://goharbor.io/) that is part of the [Cloud Native Computing Foundation](https://www.cncf.io/projects/).
 
-**Backup and Restore**: You can safely [backup and restore all layers of the {{ vars.product_short }} stack](backup-and-restore.html), from your Kubernetes workloads and clusters to the {{ vars.product_short }} components and infrastructure.
+**Backup and Restore**: You can safely [backup and restore all layers of the TKGI stack](backup-and-restore.html), from your Kubernetes workloads and clusters to the TKGI components and infrastructure.
 
 
 ## <a id='more'></a> Learn More
 
-- Read the [{{  vars.product }} solution brief](https://d1fto35gcfffzn.cloudfront.net/tanzu/tkg/TKGI.pdf) to learn about key benefits and capabilities, architecture, and features of {{ vars.product_short }}.
+- Read the [{{  vars.product }} solution brief](https://d1fto35gcfffzn.cloudfront.net/tanzu/tkg/TKGI.pdf) to learn about key benefits and capabilities, architecture, and features of TKGI.
 
 - Explore videos on the [VMware Cloud Native Apps YouTube channel](https://www.youtube.com/channel/UCdkGV51Nu0unDNT58bHt9bg)
 
--  Follow [VMware Tanzu on Twitter](https://twitter.com/vmwaretanzu) and stay up-to-date with the latest news about running {{ vars.product_short }}, Kubernetes, and open source technology on VMware.
+-  Follow [VMware Tanzu on Twitter](https://twitter.com/vmwaretanzu) and stay up-to-date with the latest news about running TKGI, Kubernetes, and open source technology on VMware.

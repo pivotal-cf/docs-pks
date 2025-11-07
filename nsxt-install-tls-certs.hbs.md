@@ -70,7 +70,7 @@ Complete the following steps to generate and register a SSL certificate and priv
     * `NSX-VIP-FQDN` is your NSX VIP FQDN.
     * `VIP-ADDRESS` is the VIP address for the NSX Management cluster.
 
-    <p class="note"><strong>Note</strong>: At a minimum you must use the SAN field for identifying the NSX Management VIP. You can also use the CN field, as long as the SAN field is populated. If you use only the CN field, the certificate will not be valid for {{ vars.product_short }}.</p>
+    <p class="note"><strong>Note</strong>: At a minimum you must use the SAN field for identifying the NSX Management VIP. You can also use the CN field, as long as the SAN field is populated. If you use only the CN field, the certificate will not be valid for TKGI.</p>
 
 1. Copy the `nsx-cert.cnf` file to a machine with `openssl` if yours does not have it.
 
@@ -156,7 +156,7 @@ To register the imported VIP certificate with the NSX Management Cluster Certifi
     }
     ```
 
-1. (Optional) If you are running {{ vars.product_short }} in a test environment and you are not using a multi-node NSX Management cluster,
+1. (Optional) If you are running TKGI in a test environment and you are not using a multi-node NSX Management cluster,
 then you must also post the certificate to the Nodes API.
 
     ```

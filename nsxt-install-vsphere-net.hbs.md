@@ -31,11 +31,11 @@ Before completing this section, make sure you have completed the following secti
 
 ##<a id='nsxt30-esxi-vswitch'></a> Configure vSphere Networking for ESXi Hosts
 
-In this section of the [NSX-T installation for {{ vars.product_short }}](./nsxt-3-0-install.html), you configure the vSphere networking and port groups for ESXi hosts (the vSwitch). If you have created separate vSphere clusters for Management and Compute, perform this operation on each ESXi host in the Management cluster. If you have not created separate vSphere clusters, perform this operation on each ESXi host in the cluster.
+In this section of the [NSX-T installation for TKGI](./nsxt-3-0-install.html), you configure the vSphere networking and port groups for ESXi hosts (the vSwitch). If you have created separate vSphere clusters for Management and Compute, perform this operation on each ESXi host in the Management cluster. If you have not created separate vSphere clusters, perform this operation on each ESXi host in the cluster.
 
 The following instructions describe how to configure a vSphere Virtual Standard vSwitch (VSS). For production environments, it is recommended that you configure a Virtual Distributed vSwitch (VDS). You configure the VDS from the vCenter **Networking** tab and then add the ESXi hosts to the VDS. The configuration settings for the VDS are similar to the VSS configuration described below. For instructions on configuring the VDS, see <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/7-0/vsphere-networking-7-0/basic-networking-with-vnetwork-distributed-switches/create-a-vsphere-distributed-switch.html">Create a vSphere Distributed Switch</a> in the vSphere 7 documentation.
 
-Refer to the [Release Notes](./release-notes.html) for details on {{ vars.product_short }} support for vSphere 7 VDS for NSX transport node traffic.
+Refer to the [Release Notes](./release-notes.html) for details on TKGI support for vSphere 7 VDS for NSX transport node traffic.
 
 ##<a id='nsxt30-esxi-pgs'></a> Create vSwitch Port-Groups for Edge Nodes
 

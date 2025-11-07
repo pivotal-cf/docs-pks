@@ -5,15 +5,15 @@ owner: PKS-NSXT
 
 This topic describes how to list and rotate TLS certificates for Kubernetes clusters provisioned by {{  vars.product_full }}.
 
-##<a id='about'></a> About NSX Certificate Rotation for Kubernetes Clusters Provisioned by {{ vars.product_short }}
+##<a id='about'></a> About NSX Certificate Rotation for Kubernetes Clusters Provisioned by TKGI
 
-You can use the {{ vars.product_short }} CLI to rotate the certificates for the NSX load balancer and the certificate for the NSX Principal Identity for the NSX Manager for the specified Kubernetes cluster provisioned by {{ vars.product_short }}. To rotate other cluster certificates using the {{ vars.product_short }} CLI, see [Rotate Kubernetes Cluster Certificates](./rotate-cluster-certificates.html).
+You can use the TKGI CLI to rotate the certificates for the NSX load balancer and the certificate for the NSX Principal Identity for the NSX Manager for the specified Kubernetes cluster provisioned by TKGI. To rotate other cluster certificates using the TKGI CLI, see [Rotate Kubernetes Cluster Certificates](./rotate-cluster-certificates.html).
 
-<p class="note warning"><strong> WARNING:</strong> During NSX TLS certificate rotation, the system will update the Principal Identity certificate to access the NSX Manager API (for the specified {{ vars.product_short }} cluster instance). The rotation process will impact network related operations (for the specified {{ vars.product_short }} cluster instance), but will not impact existing cluster workloads.</p>
+<p class="note warning"><strong> WARNING:</strong> During NSX TLS certificate rotation, the system will update the Principal Identity certificate to access the NSX Manager API (for the specified TKGI cluster instance). The rotation process will impact network related operations (for the specified TKGI cluster instance), but will not impact existing cluster workloads.</p>
 
 ##<a id='certs-list'></a> List TLS Certificates Created for NSX
 
-To list the TLS certificates created for a {{ vars.product_short }}-provisioned Kubernetes cluster:
+To list the TLS certificates created for a TKGI-provisioned Kubernetes cluster:
 
 1. Run the following:
 
@@ -26,7 +26,7 @@ To list the TLS certificates created for a {{ vars.product_short }}-provisioned 
     * `CLUSTER-NAME` is the name of your cluster.
     * `EXPIRATION-WINDOW` is the expiration range for the listed certificates. The listed certificates will expire within the designated number of days.
 
-    The returned list of certificates includes TLS certificates used by {{ vars.product_short }} for the specified cluster
+    The returned list of certificates includes TLS certificates used by TKGI for the specified cluster
     and the certificates named `tls-nsx-lb` and `tls-nsx-t`, which are used for NSX.
 <br>
 
@@ -57,7 +57,7 @@ To list the TLS certificates created for a {{ vars.product_short }}-provisioned 
 
 To rotate the TLS certificates for NSX:
 
-1. To skip SSL verification during the certificate rotation, you must first deactivate SSL verification on the {{ vars.product_short }} tile.
+1. To skip SSL verification during the certificate rotation, you must first deactivate SSL verification on the TKGI tile.
 For more information, see the **Disable SSL certification verification** configuration instructions in [Networking](installing-nsx-t.html#networking).
 
 1. Run the following:
@@ -86,7 +86,7 @@ For more information, see the **Disable SSL certification verification** configu
 
     You are about to rotate nsx related certificates for cluster tkgi-cluster-01. This operation requires bosh deployment, and will take a significant time. Are you sure you want to continue? (y/n):
     ```
-    <p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a {{ vars.product_short }} cluster that has been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+    <p class="note warning"><strong>WARNING</strong>: Rotate cluster certificates only on a TKGI cluster that has been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
     </p>
 
 1. If running `tkgi rotate-certs` fails to rotate the certificates, you must manually rotate the certificates.
