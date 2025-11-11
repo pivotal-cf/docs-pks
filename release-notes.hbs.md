@@ -221,30 +221,30 @@ After you upgrade to TKGI v1.23, you encounter storage issues, causing disk pres
 
 **Workaround**
 
-If you have already upgraded to TKGI v1.23:
+- If you have already upgraded to TKGI v1.23:
 
-1. Confirm that the old directory is not being used:
+  1. Confirm that the old directory is not being used:
 
-   ```
-   sudo lsof +D /var/vcap/store/containerd
-   ```
+     ```
+     sudo lsof +D /var/vcap/store/containerd
+     ```
 
-   If there is no output it is safe to remove the `containerd` directory.
+     If there is no output it is safe to remove the `containerd` directory.
 
-1. Check disk usage:
+  2. Check disk usage:
 
-   ```
-   sudo du -sh /var/vcap/store/containerd*
-   7.1G    /var/vcap/store/containerd
-   ```
+     ```
+     sudo du -sh /var/vcap/store/containerd*
+     7.1G    /var/vcap/store/containerd
+     ```
 
-1. Clean up stale data:
+  3. Clean up stale data:
 
-   ```
-   sudo rm -rf  /var/vcap/store/containerd
-   ```
+     ```
+     sudo rm -rf  /var/vcap/store/containerd
+     ```
 
-If you have not yet upgraded to TKGI v1.23, apply the `os-conf` patch and then perform the upgrade.
+- If you have not yet upgraded to TKGI v1.23, apply the `os-conf` patch and then perform the upgrade.
 
 <hr>
 
