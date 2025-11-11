@@ -219,7 +219,7 @@ TKGI v1.23.0 has the following known issues:
 
 **Symptom**
 
-After you upgrade to TKGI v1.23, you encounter storage issues and pod eviction.
+A change in TKGI v1.23 led to a previously used value being set as the container root. As a consequence, during upgrade to v1.23 `containerd` copies images to this new path even though they already exist in another location. This causes increased disk pressure and eventually pod eviction.
 
 **Cause**
 
@@ -227,9 +227,18 @@ This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The o
 
 **Workaround**
 
+- If you have not yet upgraded to TKGI v1.23, wait for the TKGI v1.23.1 patch release before upgrading.
+
+   If you cannot wait to upgrade, upgrade the TKGI tile and follow the instructions in [KB 416041](https://knowledge.broadcom.com/external/article/416041/) to apply the `os-conf` patch before proceeding with cluster upgrades.
+
 - If you have already upgraded to TKGI v1.23:
 
-  1. Confirm that the old directory is not being used:
+  1. Follow the instructions in [KB 416041](https://knowledge.broadcom.com/external/article/416041/) to apply the `os-conf` patch.
+
+
+  2. Upgrade your clusters.
+
+  3. Confirm that the old directory is not being used on your worker nodes:
 
      ```
      sudo lsof +D /var/vcap/store/containerd
@@ -237,22 +246,18 @@ This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The o
 
      If there is no output it is safe to remove the `containerd` directory.
 
-  2. Check disk usage:
+  4. Check disk usage:
 
      ```
      sudo du -sh /var/vcap/store/containerd*
      7.1G    /var/vcap/store/containerd
      ```
 
-  3. Clean up stale data:
+  5. Clean up stale data:
 
      ```
      sudo rm -rf  /var/vcap/store/containerd
      ```
-
-- If you have not yet upgraded to TKGI v1.23, apply the `os-conf` patch and then perform the upgrade.
-
-   For information about how to apply the `os-conf` patch, see [KB 416041](https://knowledge.broadcom.com/external/article/416041/).
 
 <hr>
 
