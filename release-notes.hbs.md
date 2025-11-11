@@ -215,6 +215,39 @@ TKGI v1.23.0 resolves the following issues:
 
 TKGI v1.23.0 has the following known issues:
 
+#### <a id="TKGI-10604"></a> Change to imagefsinfo directory
+
+After you upgrade to TKGI v1.23, you encounter storage issues, causing disk pressure, and pod eviction. This is due to changes to the `imagefsinfo` directory in TKGI v1.23.
+
+**Workaround**
+
+If you have already upgraded to TKGI v1.23:
+
+1. Confirm that the old directory is not being used:
+
+   ```
+   sudo lsof +D /var/vcap/store/containerd
+   ```
+
+   If there is no output it is safe to remove the `containerd` directory.
+
+1. Check disk usage:
+
+   ```
+   sudo du -sh /var/vcap/store/containerd*
+   7.1G    /var/vcap/store/containerd
+   ```
+
+1. Clean up stale data:
+
+   ```
+   sudo rm -rf  /var/vcap/store/containerd
+   ```
+
+If you have not yet upgraded to TKGI v1.23, apply the `os-conf` patch and then perform the upgrade.
+
+<hr>
+
 #### <a id="1-23-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
 
 TKGI supports using a public cloud CSI Driver on a TKGI-provisioned cluster.
