@@ -217,7 +217,13 @@ TKGI v1.23.0 has the following known issues:
 
 #### <a id="TKGI-10604"></a> Change to imagefsinfo directory
 
-After you upgrade to TKGI v1.23, you encounter storage issues, causing disk pressure, and pod eviction. This is due to changes to the `imagefsinfo` directory in TKGI v1.23.
+**Symptom**
+
+After you upgrade to TKGI v1.23, you encounter storage issues and pod eviction.
+
+**Cause**
+
+This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The old directory is not cleaned up during the upgrade, so when the VM is upgraded and images are loaded into the new directory, this uses up space and causes disk pressure and pod eviction.
 
 **Workaround**
 
@@ -245,6 +251,8 @@ After you upgrade to TKGI v1.23, you encounter storage issues, causing disk pres
      ```
 
 - If you have not yet upgraded to TKGI v1.23, apply the `os-conf` patch and then perform the upgrade.
+
+   For information about how to apply the `os-conf` patch, see [KB 416041](https://knowledge.broadcom.com/external/article/416041/).
 
 <hr>
 
