@@ -252,7 +252,7 @@ This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The o
 
 - If you have not yet upgraded to TKGI v1.23, apply the `os-conf` patch and then perform the upgrade.
 
-   For information about how to apply the `os-conf` patch, see [KB 416041](https://knowledge.broadcom.com/external/article/416041/).
+   For information about how to apply the `os-conf` patch, see [KB 417891](https://knowledge.broadcom.com/external/article/417891).
 
 <hr>
 
