@@ -227,36 +227,12 @@ This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The o
 
 **Workaround**
 
-This issue significantly increases the usage of the persistent disks and could prevent upgrades from completing and prevent workloads from running due to lack of space to load the images. If you have not yet upgraded to TKGI v1.23, VMware Tanzu recommends that you wait for the TKGI v1.23.1 patch release before upgrading.
+This issue significantly increases the usage of the persistent disks and could prevent upgrades from completing and prevent workloads from running due to lack of space to load the images. If you have not yet upgraded to TKGI v1.23, VMware Tanzu recommends that you **wait for the TKGI v1.23.1 patch release** before upgrading.
 
-If you cannot wait to upgrade, upgrade the TKGI tile and follow the instructions in [KB 417891](https://knowledge.broadcom.com/external/article/417891) to apply the `os-conf` patch before proceeding with cluster upgrades.
+- If you cannot wait to upgrade, upgrade the TKGI tile and follow the instructions in [KB 417891](https://knowledge.broadcom.com/external/article/417891) to apply the `os-conf` patch before proceeding with cluster upgrades.
 
-If you have already upgraded to TKGI v1.23:
+- If you have already upgraded to TKGI v1.23, follow the instructions in [KB 417891](https://knowledge.broadcom.com/external/article/417891).
 
-1. Follow the instructions in [KB 417891](https://knowledge.broadcom.com/external/article/417891).
-
-2. Upgrade your clusters.
-
-3. Confirm that the old directory is not being used on your worker nodes:
-
-   ```
-   sudo lsof +D /var/vcap/store/containerd
-   ```
-
-   If there is no output it is safe to remove the `containerd` directory.
-
-4. Check disk usage:
-
-   ```
-   sudo du -sh /var/vcap/store/containerd*
-   7.1G    /var/vcap/store/containerd
-   ```
-
-5. Clean up stale data:
-
-   ```
-   sudo rm -rf  /var/vcap/store/containerd
-   ```
 <hr>
 
 #### <a id="1-23-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
