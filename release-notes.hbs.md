@@ -229,11 +229,11 @@ This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The o
 
 - If you have not yet upgraded to TKGI v1.23, wait for the TKGI v1.23.1 patch release before upgrading.
 
-   If you cannot wait to upgrade, upgrade the TKGI tile and follow the instructions in [KB 416041](https://knowledge.broadcom.com/external/article/416041/) to apply the `os-conf` patch before proceeding with cluster upgrades.
+   If you cannot wait to upgrade, upgrade the TKGI tile and follow the instructions in [KB 417891](https://knowledge.broadcom.com/external/article/417891) to apply the `os-conf` patch before proceeding with cluster upgrades.
 
 - If you have already upgraded to TKGI v1.23:
 
-  1. Follow the instructions in [KB 416041](https://knowledge.broadcom.com/external/article/416041/) to apply the `os-conf` patch.
+  1. Follow the instructions in[KB 417891](https://knowledge.broadcom.com/external/article/417891).
 
 
   2. Upgrade your clusters.
@@ -258,7 +258,6 @@ This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The o
      ```
      sudo rm -rf  /var/vcap/store/containerd
      ```
-
 <hr>
 
 #### <a id="1-23-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
