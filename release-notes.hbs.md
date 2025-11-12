@@ -219,7 +219,7 @@ TKGI v1.23.0 has the following known issues:
 
 **Symptom**
 
-A change in TKGI v1.23 led to a previously used value being set as the container root. As a consequence, during upgrade to v1.23 `containerd` copies images to this new path even though they already exist in another location. This causes increased disk pressure and eventually pod eviction.
+A change in TKGI v1.23 led to a previously used value being set as the container root. As a consequence, during upgrade to v1.23, `containerd` copies images to this new path even though they already exist in another location. This causes increased disk pressure and eventually pod eviction.
 
 **Cause**
 
@@ -227,13 +227,13 @@ This issue is due to changes to the `imagefsinfo` directory in TKGI v1.23. The o
 
 **Workaround**
 
-This issue significantly increases the usage of the persistent disks and could prevent upgrades from completing and prevent workloads from running due to lack of space to load the images. If you have not yet upgraded to TKGI v1.23, VMware Tanzu recommends that you wait for the TKGI v2.3.1 patch before upgrading.
+This issue significantly increases the usage of the persistent disks and could prevent upgrades from completing and prevent workloads from running due to lack of space to load the images. If you have not yet upgraded to TKGI v1.23, VMware Tanzu recommends that you wait for the TKGI v1.23.1 patch release before upgrading.
 
 If you cannot wait to upgrade, upgrade the TKGI tile and follow the instructions in [KB 417891](https://knowledge.broadcom.com/external/article/417891) to apply the `os-conf` patch before proceeding with cluster upgrades.
 
 If you have already upgraded to TKGI v1.23:
 
-1. Follow the instructions in[KB 417891](https://knowledge.broadcom.com/external/article/417891).
+1. Follow the instructions in [KB 417891](https://knowledge.broadcom.com/external/article/417891).
 
 2. Upgrade your clusters.
 
