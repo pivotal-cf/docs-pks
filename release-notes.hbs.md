@@ -194,7 +194,7 @@ TKGI v1.22.4 does not resolve any previously reported issues.
 
 ### <a id='1-22-4-security'></a> Security Fixes
 
-See [{{{ vars.product_version }}}.4 Security Fixes](cve.html.md.erb#1-22-4) for the list of CVEs fixed in this release.
+See [{{{ vars.product_version }}}.4 Security Fixes](cvs.hbs.md#1-22-4) for the list of CVEs fixed in this release.
 
 ###<a id="1-22-4-known-issues"></a>Known Issues
 
@@ -386,7 +386,7 @@ TKGI v1.22.3 does not resolve any previously reported issues.
 
 ### <a id='1-22-3-security'></a> Security Fixes
 
-See [{{{ vars.product_version }}}.3 Security Fixes](cve.html.md.erb#1-22-3) for the list of CVEs fixed in this release.
+See [{{{ vars.product_version }}}.3 Security Fixes](cvs.hbs.md#1-22-3) for the list of CVEs fixed in this release.
 
 ###<a id="1-22-3-known-issues"></a>Known Issues
 
@@ -591,7 +591,7 @@ TKGI v1.22.2 resolves the following issues:
 
 ### <a id='1-22-2-security'></a> Security Fixes
 
-See [{{{ vars.product_version }}}.2 Security Fixes](cve.html.md.erb#1-22-2) for the list of CVEs fixed in this release.
+See [{{{ vars.product_version }}}.2 Security Fixes](cvs.hbs.md#1-22-2) for the list of CVEs fixed in this release.
 
 ###<a id="1-22-2-known-issues"></a>Known Issues
 
@@ -783,7 +783,7 @@ TKGI v1.22.1 resolves the following issue in v1.22.0:
 
 The following table lists CVEs that were fixed in each TKGI component since the latest {{{ vars.product_version_prev }}} patch version, as of the release date above.
 
-See [{{{ vars.product_version }}}.1 Security Fixes](cve.html.md.erb#1-22-1) for the list of CVEs fixed in this release.
+See [{{{ vars.product_version }}}.1 Security Fixes](cvs.hbs.md#1-22-1) for the list of CVEs fixed in this release.
 
 ###<a id="1-22-1-known-issues"></a>Known Issues
 
