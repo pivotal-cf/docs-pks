@@ -1,0 +1,283 @@
+---
+title: Configuring Cluster Access to Private Registries
+owner: TKGI
+---
+
+This topic describes how to configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) Kubernetes clusters to access private Docker or containerd image registries, including:
+
+* **Secure private registries** that use `HTTPS` protocol and require an SSL Certificate Authority (CA) certificate for access.
+* **Insecure private registries** that use `HTTP` protocol.
+
+The ability to configure clusters to use private registries is enabled by default, but a platform admin can disable this ability from the TKGI Ops Manager tile > **TKGI API** pane > **Configure clusters to use private registries** option.
+
+For secure private registries, the procedures below configure an individual TKGI Kubernetes cluster with access certificates.
+To configure all of your TKGI clusters to share the same certificates for accessing secure Harbor registries, see [Import the CA Certificate Used to Sign the Harbor Certificate and Key to BOSH](https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html#provide-harbor-cert) in the Harbor documentation.
+
+You can configure private registry access by either running `tkgi` commands with the latest TKGI CLI and API or using an older API version, as described in the sections below.
+Older API versions are deprecated, and once you use the new CLI method, the old API method no longer works.
+
+>**Note** Only Linux clusters can be configured to use private registries.
+
+## <a id='cli'></a> Use the `tkgi` CLI to Configure Registry Access
+
+The easiest way to configure private registry access for a new or existing TKGI cluster is by passing a registry configuration file to the `--private-registries` option of the `tkgi create-cluster` or `tkgi update-cluster` command:
+
+>**Note** Once you configure registry access for a cluster using the `tkgi` CLI, you can no longer configure its registry access by using the [deprecated API method](#api).
+
+1. Create a registry configuration file formatted as follows for JSON, or else a YAML equivalent. To configure multiple registries or multiple hosts under a registry, include multiple blocks under `"servers"` or `"hosts"`:
+
+  ```
+  {
+    "servers": [
+      {
+        "url": REGISTRY-URL,
+        "hosts": [
+          {
+            "url": HOST-URL,
+            "capabilities": [
+              CAPABILITIES
+            ],
+            "ca_cert": "-----BEGIN CERTIFICATE-----\nMIIFizC[...]\n-----END CERTIFICATE-----\n",
+            "skip_verify": SKIP-VERIFY
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  Where:
+
+  - `REGISTRY-URL` is the URL of a private registry server to configure access to.
+  - `HOST-URL` is the URL of the registry host to configure access to, which starts with `https:` for secure registries and `http:` for insecure ones.
+  - A `ca_cert` value is required for secure registries unless `skip_verify` is `true`.
+      - The certificate value contains no newline characters; see [Prepare a Certificate String for Command Line Use](#preparing-certificate) below.
+  - `CAPABILITIES` is a list that can include `pull`, `resolve`, and `push`.  See [capabilities field](https://github.com/containerd/containerd/blob/main/docs/hosts.md#capabilities-field) in the containerd repository for more information.
+  - `SKIP-VERIFY` is `true` or `false` to skip verification for a secure registry.
+
+  For example, to configure two private image registries, each with one secure and one insecure host:
+
+    ```
+    {
+      "servers": [
+        {
+          "url": "https://reg1.example.com",
+          "hosts": [
+            {
+              "url": "https://reg1.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ],
+              "ca_cert": "-----BEGIN CERTIFICATE-----\nMIIFizC[...]\n-----END CERTIFICATE-----\n",
+              "skip_verify": false
+            },
+            {
+              "url": "http://reg2-insecure.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ]
+            }
+          ]
+        },
+        {
+          "url": "https://reg2.example.com",
+          "hosts": [
+            {
+              "url": "https://reg2.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ],
+              "ca_cert": "-----BEGIN CERTIFICATE-----\nMIIFizC[...]\n-----END CERTIFICATE-----\n",
+              "skip_verify": false
+            },
+            {
+              "url": "http://reg2-insecure.example.com",
+              "capabilities": [
+                "pull",
+                "resolve"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    ```
+
+1. Pass the registry configuration file to the `--private-registries` option of one of the following commands:
+
+  - `tkgi create-cluster`: create a new cluster with private registry access
+  - `tkgi update-cluster`: update an existing cluster to grant private registry access
+
+  For example:
+
+    ```
+    tkgi create-cluster --private-registries CONFIG-FILE
+    ```
+
+    Where `CONFIG-FILE` is a the registry configuration file.
+
+
+## <a id='preparing-certificate'></a> Prepare a Certificate String for Command Line Use
+
+When you include a certificate string in a TKGI CLI or API command, it cannot contain newline wrapping.
+
+To remove newline wrapping from a certificate string, run the following command:
+
+  ```
+  awk 'NF {sub(/\r/, ""); printf "%s\\\\n",$0;}'  CA-PEM
+  ```
+
+  Where `CA-PEM` is the filename of your PEM-formatted CA certificate file.
+
+### <a id='certificate-formats'></a> SSL CA Certificate Formats
+
+SSL CA certificates are unique CA-issued ASCII text strings.  
+
+The CAs issue most certificates as a PEM formatted ASCII text files. 
+PEM certificate files typically have the extensions `.pem`, `.crt`, `.cer`, or `.key`.  
+
+PEM files start with the string `-----BEGIN CERTIFICATE-----`, terminate with `-----END CERTIFICATE-----`, 
+and are Base64-encoded. 
+Certificate strings are long and are frequently stored within a certificate file with newline wrapping every 64 characters.
+
+
+## <a id='api'></a> Use the TKGI API to Configure Private Registry Access (Deprecated)
+
+In previous TKGI versions, the `tkgi` CLI did not support configuring private registry access, and you could only configure access as follows via the TKGI API.
+This method is deprecated:
+
+1. [Set up Your API Access Token](#set-token)
+1. [Create a Cluster with Private Registry Access](#create-cluster)
+
+To update an existing cluster to use private registries:
+
+1. [Set up Your API Access Token](#set-token)
+1. [Update a Cluster with Private Registry Access](#update-cluster)
+
+### <a id='prerequisites'></a> Prerequisites
+
+Before configuring TKGI Kubernetes clusters to access private registries, you must have the following:
+
+* A private registry secured with SSL CA certificates.
+For more information about securing a private Docker registry, see 
+[Use self-signed certificates](https://docs.docker.com/registry/insecure/#use-self-signed-certificates)
+in the _Docker Registry_ manual.
+
+<p class="note warning"><strong>Warning: </strong> The FQDN for the private registry cannot contain a hyphen, dash, or semicolon.
+  If such a character is included in the registry name the TKGI API will reject it as not a valid character.
+</p>
+
+### <a id='set-token'></a> Set up Your API Access Token
+
+The `curl` commands in this topic use an access token environment variable to
+authenticate to the TKGI API endpoints.
+
+{{> create-auth-token-var }}
+
+
+
+### <a id='create-cluster'></a> Create a Cluster with Private Registry Access
+
+You can create a new cluster configured with one or more SSL CA certificates by
+using the TKGI API `create-cluster` endpoint.
+
+1. To create a cluster configured with one or more SSL CA certificates, run the following command:
+
+    ```
+    curl -X POST \
+      https://TKGI-API:9021/v1/clusters \
+      -H 'Accept: application/json' \
+      -H "Authorization: Bearer $YOUR-ACCESS-TOKEN" \
+      -H 'Content-Type: application/json' \
+      -H 'Host: TKGI-API:9021' \
+      -d '{
+      "name": "CLUSTER-NAME",
+      "plan_name": "PLAN-NAME",
+      "parameters": {
+        "kubernetes_master_host": "KUBERNETES-CONTROLPLANE-HOST",
+        "k8s_customization_parameters": {
+          "insecure_registries": ["DOMAIN-NAME"],
+          "unset_http_proxy": ["runtime", "kube-apiserver"]
+        },
+        "custom_ca_certs": [
+          {
+            "domain_name": "DOMAIN-NAME",
+            "ca_cert": "CA-CERTIFICATE"
+          }
+        ]
+      }
+    }'
+    ```
+    Where:  
+
+    * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.  
+    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.  
+    * `CLUSTER-NAME` is the name of your cluster.  
+        <p class="note"><strong>Note</strong>: Use only lowercase characters when naming your cluster 
+        if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
+        </p>
+    * `PLAN-NAME` is the name of your plan.
+    * `KUBERNETES-CONTROLPLANE-HOST` is your Kubernetes control plane host.  
+    * `DOMAIN-NAME` is the address of the private registry, for example `registry.tkgi.local` or `10.148.253.20`.
+
+        - You cannot remove an existing Docker Registry URL from a cluster.
+        If you specify a URL that is already registered with your cluster, the cluster's existing CA certificate for that URL is overwritten.
+    * `CA-CERTIFICATE` is the CA certificate for the registry at `DOMAIN-NAME`.
+    For more information about including CA certificates in a TKGI API command, see
+    [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.  
+    <br>
+    To configure your cluster with additional registries, add them to the `insecure_registries` list and include their certificates in
+    the <code>custom_ca_certs</code> array as additional <code>domain_name</code>,
+    <code>ca_cert</code> pairs.
+    <p class="note"><strong>Note:</strong> You can include wildcard characters in your
+    <code>domain_name</code> URLs. For example, <code>*.docker.com</code>.
+    </p>
+
+### <a id='update-cluster'></a> Update a Cluster with Private Registry Access
+
+You can update an existing cluster with one or more SSL CA certificates by using the TKGI API `update-cluster` endpoint.
+
+1. To configure an existing cluster with one or more SSL CA certificates, run the following command:
+
+    ```
+    curl -X PATCH \
+      https://TKGI-API:9021/v1/clusters/CLUSTER-NAME \
+      -H 'Accept: application/json' \
+      -H "Authorization: Bearer $YOUR-ACCESS-TOKEN" \
+      -H 'Content-Type: application/json' \
+      -H 'Host: TKGI-API:9021' \
+      -d '{
+            "k8s_customization_parameters": {
+              "insecure_registries": ["DOMAIN-NAME"],
+              "unset_http_proxy": ["runtime", "kube-apiserver"]
+            },
+            "custom_ca_certs": [
+              {
+                "domain_name": "DOMAIN-NAME",
+                "ca_cert": "CA-CERTIFICATE"
+              }
+            ]
+          }'
+    ```
+    Where:  
+
+    * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.
+    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.  
+    * `CLUSTER-NAME` is the name of your cluster.
+    * `DOMAIN-NAME` is the address of the private registry, for example `registry.tkgi.local` or `10.148.253.20`.
+
+        - You cannot remove an existing Docker Registry URL from a cluster.
+        If you specify a URL that is already registered with your cluster, the cluster's existing CA certificate for that URL is overwritten.
+    * `CA-CERTIFICATE` is the CA certificate for the registry at `DOMAIN-NAME`.
+    For more information about including CA certificates in a TKGI API command, see
+    [Prepare a Certificate String for Command Line Use](#preparing-certificate), below.  
+    <br>
+    To configure your cluster with additional registries, add them to the `insecure_registries` list and include their certificates in
+    the <code>custom_ca_certs</code> array as additional <code>domain_name</code>,
+    <code>ca_cert</code> pairs.
+    <p class="note"><strong>Note:</strong> You can include wildcard characters in your
+    <code>domain_name</code> URLs. For example, <code>*.docker.com</code>.
+    </p>

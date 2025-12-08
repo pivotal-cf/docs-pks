@@ -1,0 +1,25 @@
+To create, delete, and modify NSX networking resources, {{{ vars.platform_name }}} tiles, and APIs use a VMware NSX Manager account with the Enterprise Administrator role and permissions.
+
+Users configure {{{ vars.platform_name }}} to authenticate to NSX Manager for different purposes in different tiles:
+
+* **Tanzu Kubernetes Grid Integrated Edition tile**<br>
+    The Tanzu Kubernetes Grid Integrated Edition tile uses NSX Manager to create load balancers,
+    providing a Kubernetes service described in the [Create an External Load Balancer](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/) section of the Kubernetes documentation.<br><br>
+{{# evalExpression "current_page.data.authenttype == 'pkstile'"}}
+    To configure the **Tanzu Kubernetes Grid Integrated Edition** tile's authentication to NSX Manager, see
+    [About the NSX Manager Superuser Principal Identity](#certificates-nsx-pid-about), below.<br><br>
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.authenttype == 'boshtile'"}}
+    To configure the **Tanzu Kubernetes Grid Integrated Edition** tile's authentication to NSX Manager, see
+    the topic [Generating and Registering the NSX Manager Superuser Principal Identity Certificate and Key](nsxt-generate-pi-cert.html).<br><br>
+{{/ evalExpression }}
+* **BOSH Director for vSphere tile**<br>
+    The **BOSH Director for vSphere** tile uses NSX Manager to configure networking and security for external-facing {{{ vars.platform_name }}} component VMs, such as {{{ vars.app_runtime_full }}} routers.<br><br>
+{{# evalExpression "current_page.data.authenttype == 'pkstile'"}}
+    To configure the **BOSH Director for vSphere** tile's authentication to NSX Manager, see
+    [Configure vCenter for Tanzu Kubernetes Grid Integrated Edition](vsphere-nsxt-om-config.html#vcenter-config) in _Configuring BOSH Director with NSX for Tanzu Kubernetes Grid Integrated Edition_.<br><br>
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.authenttype == 'boshtile'"}}
+    To configure the **BOSH Director for vSphere** tile's authentication to NSX Manager, see
+    [Configure vCenter for Tanzu Kubernetes Grid Integrated Edition](#vcenter-config), below.<br>
+{{/ evalExpression }}

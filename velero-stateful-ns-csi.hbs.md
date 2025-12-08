@@ -1,0 +1,269 @@
+---
+title: Back Up and Restore Stateful App with Namespace (CSI Edition)
+owner: TKGI
+---
+
+This topic describes how to use Velero to back up and restore a stateful application with namespace using the Container Storage Interface (CSI).  
+
+##<a id="overview"></a> Overview
+
+This topic describes how to use Velero to back up and restore a stateful application with namespace using the Container Storage Interface (CSI) instead of the proprietary VMware Cloud Provider (vCP).
+
+To test Velero back up and restore for stateful applications, use the [Guestbook application](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) with a persistent volume. 
+
+When restoring the stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster. If the PVC is using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
+
+##<a id="prereqs"></a> Prerequisites
+
+[Install and configure](./velero-install.html) Minio and Velero.
+
+Download the [Guestbook app YAML files](https://github.com/pivotal-cf/docs-pks/tree/{{{ vars.product_version_raw }}}/demos/guestbook-app/) to a local known directory:
+
+- redis-leader-deployment.yaml
+- redis-leader-service.yaml
+- redis-follower-deployment.yaml
+- redis-follower-service.yaml
+- frontend-deployment.yaml 
+- frontend-service.yaml
+
+## <a id='storage-class-csi'></a> Create CSI Storage Class
+
+Create the following storage class named `guestbook-storageclass.yaml`. Note that the generic CSI provisioner is used (`csi.vsphere.vmware.com`), as opposed to the proprietary vCP provisioner (`kubernetes.io/vsphere-volume`).
+
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: guestbook-sc-csi
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.vsphere.vmware.com
+parameters:
+  datastoreurl: "ds:///vmfs/volumes/vsan:52d8eb4842dbf493-41523be9cd4ff7b7/"
+```
+
+Apply the YAML file:
+
+```
+kubectl apply -f 0-guestbook-storageclass.yaml
+
+storageclass.storage.k8s.io/guestbook-sc-csi created
+```
+
+Verify:
+
+```
+kubectl get sc
+
+NAME                         PROVISIONER              RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+guestbook-sc-csi (default)   csi.vsphere.vmware.com   Delete          Immediate           false                  4s
+```
+
+## <a id='guestbook-deploy-csi'></a> Deploy Guestbook App
+
+Create Guestbook namespace:
+
+```
+kubectl create ns guestbook-csi
+
+namespace/guestbook-csi created
+```
+
+Deploy the Guestbook app:
+
+```
+kubectl apply -f . -n guestbook-csi
+
+storageclass.storage.k8s.io/guestbook-sc-csi unchanged
+persistentvolumeclaim/redis-leader-claim created
+persistentvolumeclaim/redis-follower-claim created
+service/redis-leader created
+deployment.apps/redis-leader created
+service/redis-follower created
+deployment.apps/redis-follower created
+service/frontend created
+deployment.apps/frontend created
+```
+
+Verify:
+
+```
+kubectl get all -n guestbook-csi
+```
+
+```
+kubectl get pvc,pv -n guestbook-csi
+```
+
+Access the Guestbook app at <http://10.199.41.14/>.
+
+  <img src="images/backup-restore/guestbook-04.png" alt="Guestbook App" width="538">
+
+Add many messages so they can be stored in the PV.
+
+  <img src="images/backup-restore/guestbook-05.png" alt="Guestbook App" width="538">
+
+## <a id='guestbook-backup-csi'></a> Back Up the Guestbook App Using Namespace
+
+Because this app is stateful, you need to add annotations for the stateful pods with the volume name. 
+
+Get the volume names:
+
+```
+kubectl get pod -n guestbook-csi
+```
+
+The volume name is `redis-leader-data` for pod `redis-leader-64fb8775bf-wg5tk`.
+
+The volume name is `redis-follower-data` for pod `redis-follower-779b6d8f79-mqcrx`.
+
+Annotate the pods:
+
+```
+kubectl -n guestbook-csi annotate pod redis-leader-64fb8775bf-wg5tk backup.velero.io/backup-volumes=redis-leader-data
+pod/redis-leader-64fb8775bf-wg5tk annotated
+
+kubectl -n guestbook-csi annotate pod redis-follower-779b6d8f79-mqcrx backup.velero.io/backup-volumes=redis-follower-data
+pod/redis-follower-779b6d8f79-mqcrx annotated
+```
+
+Verify:
+
+```
+kubectl -n guestbook-csi describe pod redis-leader-64fb8775bf-wg5tk | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: redis-leader-data
+
+kubectl -n guestbook-csi describe pod redis-follower-779b6d8f79-mqcrx | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: redis-follower-data
+```
+
+Perform the Velero back up:
+
+```
+velero backup create guestbook-csi-backup --include-namespaces guestbook-csi
+
+Backup request "guestbook-csi-backup" submitted successfully.
+Run `velero backup describe guestbook-csi-backup` or `velero backup logs guestbook-csi-backup` for more details.
+```
+
+Verify the backup that was created.
+
+```
+velero backup get
+
+NAME                   STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+guestbook-csi-backup   Completed   0        0          2020-07-30 13:36:13 -0700 PDT   29d       default            <none>
+```
+
+Verify backup details:
+
+```
+velero backup describe guestbook-csi-backup --details
+```
+
+Use Velero Kubernetes CustomResourceDefinition (CRD) commands to further verify:
+
+```
+kubectl get backups.velero.io -n velero
+
+NAME                    AGE
+guestbook-csi-backup    4m58s
+```
+
+```
+kubectl describe backups.velero.io guestbook-csi-backup -n velero
+```
+
+## <a id='guestbook-restore-csi'></a> Restore the Guestbook App
+
+To test the restoration of the Guestbook app, delete it.
+
+Delete the namespace:
+
+```
+kubectl delete ns guestbook-csi
+
+namespace "guestbook-csi" deleted
+```
+
+Verify namespace deletion:
+
+```
+kubectl get ns
+```
+
+```
+kubectl get pvc,pv --all-namespaces
+```
+
+Make sure the storage class used by the application is still present:
+
+```
+kubectl get sc
+
+NAME                         PROVISIONER              RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+guestbook-sc-csi (default)   csi.vsphere.vmware.com   Delete          Immediate           false                  11m
+```
+
+Restore the app:
+
+```
+velero restore create --from-backup guestbook-csi-backup
+
+Restore request "guestbook-csi-backup-20200730134254" submitted successfully.
+Run `velero restore describe guestbook-csi-backup-20200730134254` or `velero restore logs guestbook-csi-backup-20200730134254` for more details.
+```
+
+Verify that the app is restored:
+
+```
+velero restore describe guestbook-csi-backup-20200730134254
+
+```
+
+Run the following commands to verify:
+
+```
+velero restore get
+
+NAME                                  BACKUP                 STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+guestbook-csi-backup-20200730134254   guestbook-csi-backup   Completed   0        0          2020-07-30 13:42:54 -0700 PDT   <none>
+```
+
+```
+kubectl get ns
+
+NAME              STATUS   AGE
+default           Active   22d
+guestbook-csi     Active   71s
+kube-node-lease   Active   22d
+kube-public       Active   22d
+kube-system       Active   22d
+pks-system        Active   22d
+velero            Active   8d
+```
+
+```
+kubectl get all -n guestbook-csi
+```
+
+```
+kubectl get pvc,pv -n guestbook-csi
+```
+
+Access the Guestbook app at <http://10.199.41.10/>.
+
+  <img src="images/backup-restore/guestbook-08.png" alt="Guestbook App" width="538">
+
+## <a id='guestbook-conclusions-csi'></a> Conclusions
+
+The Velero restore might not show the saved messages. This is not a Velero issue. The Guestbook app is using some kind of RAM cache for the messages so if those messages are not flushed into disk, the data is not available in the PV.
+
+Key takeaways from the restore operation for this scenario:
+
+- Pod annotation is still required for Velero to back up a PV.
+- The namespace `guestbook-csi` was automatically re-created.
+- The Kubernetes service LB IP has changed, from `10.199.41.14` to `.16`.
+
+
+

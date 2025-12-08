@@ -1,0 +1,21 @@
+1. To export your access token into an environment variable, run the following command:
+
+    ```
+    tkgi login -a TKGI-API -u USER-ID -p 'PASSWORD' -k; \
+    export YOUR-ACCESS-TOKEN=$(bosh int ~/.pks/creds.yml --path /access_token)
+    ```
+    Where:  
+
+    * `TKGI-API` is the FQDN of your TKGI API endpoint. For example, `api.tkgi.example.com`.  
+    * `USER-ID` is your Tanzu Kubernetes Grid Integrated Edition user ID.  
+    * `PASSWORD` is your Tanzu Kubernetes Grid Integrated Edition password.  
+    * `YOUR-ACCESS-TOKEN` is the name of your access token environment variable.  
+
+    For example:
+    ```console
+    $ tkgi login -a tkgi.my.lab -u alana -p 'psswrdabc123...!' -k; \
+    export my_token=$(bosh int ~/.pks/creds.yml --path /access_token)
+    ```
+    
+    {{> saml-sso-login }}
+

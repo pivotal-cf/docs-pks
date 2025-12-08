@@ -1,0 +1,248 @@
+---
+title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX
+owner: TKGI
+iaas: vSphere-NSX
+---
+
+This topic describes how to install and configure VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) 
+on vSphere with NSX integration as a VMware Tanzu Operations Manager (Ops Manager) tile.  
+
+
+## <a id="prerequisites"></a>Prerequisites
+
+Before you begin this procedure, ensure that you have successfully completed all preceding steps for installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX, including:
+
+<ul>
+  <li>
+    <a href="./vsphere-nsxt-index-prepare.html">Preparing to Install Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX</a>
+  </li>
+  <li><a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition</a></li>
+  <li><a href="./nsxt-3-1-install-delta.html">Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for Tanzu Kubernetes Grid Integrated Edition</a></li>
+  <li>
+    <a href="./vsphere-nsxt-om-deploy.html">Deploying Ops Manager with NSX for Tanzu Kubernetes Grid Integrated Edition</a>
+  </li>
+  <li>
+    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>
+  </li>
+  <li>
+    <a href="./vsphere-nsxt-om-config.html">Configuring BOSH Director with NSX for Tanzu Kubernetes Grid Integrated Edition</a>
+  </li>
+  <li>
+    <a href="./nsxt-generate-pi-cert.html">Generating and Registering the NSX Manager Superuser Principal Identity Certificate and Key for Tanzu Kubernetes Grid Integrated Edition</a>
+  </li>
+</ul>
+
+
+
+## <a id='overview'></a>Overview
+
+To install and configure TKGI:  
+
+1. [Install Tanzu Kubernetes Grid Integrated Edition](#install)  
+1. [Configure Tanzu Kubernetes Grid Integrated Edition](#configure)  
+1. [Apply Changes](#apply-changes)  
+1. [Install the TKGI and Kubernetes CLIs](#clis)  
+1. [Verify NAT Rules](#retrieve-endpoint)  
+1. [Configure Authentication for Tanzu Kubernetes Grid Integrated Edition](#auth)  
+
+
+
+## <a id="install"></a> Step 1: Install Tanzu Kubernetes Grid Integrated Edition
+
+{{> install }}
+
+
+
+## <a id="configure"></a> Step 2: Configure Tanzu Kubernetes Grid Integrated Edition
+
+To configure TKGI:  
+
+1. Click the orange **Tanzu Kubernetes Grid Integrated Edition** tile to start the configuration process.  
+
+    <p class="note"><strong>Note</strong>: Configuration of NSX or Antrea <strong>cannot</strong> be changed after initial installation and configuration of Tanzu Kubernetes Grid Integrated Edition.</p>
+
+    ![TKGI tile on the Ops Manager installation dashboard](images/tkgi-tile-orange.png)
+
+    <p class="note warning"><strong>WARNING</strong>: When you configure the Tanzu Kubernetes Grid Integrated Edition tile,
+    do not use spaces in any field entries. This includes spaces between characters as well as
+    leading and trailing spaces. If you use a space in any field entry, the deployment of Tanzu Kubernetes Grid Integrated Edition fails.</p>
+1. [Assign AZs and Networks](#azs-networks)  
+1. [TKGI API](#tkgi-api)  
+1. [Plans](#plans)  
+1. [Kubernetes Cloud Provider](#cloud-provider)  
+1. [Networking](#networking)  
+1. [UAA](#uaa)  
+1. [(Optional) Host Monitoring](#syslog)  
+1. [(Optional) In-Cluster Monitoring](#cluster-monitoring)  
+1. [Tanzu Mission Control](#tmc)  
+1. [VMware CEIP](#telemetry)  
+1. [Storage](#storage-config)  
+1. [Errands](#errands)  
+1. [Resource Config](#resource-config)  
+
+### <a id="azs-networks"></a> Assign AZs and Networks
+
+To configure the availability zones (AZs) and networks 
+used by the Tanzu Kubernetes Grid Integrated Edition control plane:
+
+1. Click **Assign AZs and Networks**.
+
+1. Under **Place singleton jobs in**, select the availability zone (AZ) where you want to deploy 
+the TKGI API and TKGI Database VMs.
+
+    ![Assign AZs and Networks pane in Ops Manager](images/azs-networks.png)
+
+1. Under **Balance other jobs in**, select the AZ for balancing other Tanzu Kubernetes Grid Integrated Edition control plane jobs.  
+    <p class="note"><strong>Note</strong>: You must specify the <strong>Balance other jobs in</strong> AZ, but the selection has no effect in the current version of Tanzu Kubernetes Grid Integrated Edition.
+    </p>
+1. Under **Network**, select the TKGI Management Network linked to the `ls-tkgi-mgmt` NSX logical switch you created in the [Create Networks Page](vsphere-nsxt-om-config.html#create-networks) step of _Configuring BOSH Director with NSX for Tanzu Kubernetes Grid Integrated Edition_. This provides network placement for Tanzu Kubernetes Grid Integrated Edition component VMs, such as the TKGI API and TKGI Database VMs.
+1. Under **Service Network**, your selection depends on whether you are installing a new Tanzu Kubernetes Grid Integrated Edition deployment or upgrading from a previous version of Tanzu Kubernetes Grid Integrated Edition.
+  * If you are deploying Tanzu Kubernetes Grid Integrated Edition with NSX for the first time, select the TKGI Management Network that you specified in the **Network** field. 
+  You do not need to create or define a service network because Tanzu Kubernetes Grid Integrated Edition creates the service network for you during the installation process. 
+  * If you are upgrading from a previous version of Tanzu Kubernetes Grid Integrated Edition, then select the **Service Network** linked to the `ls-tkgi-service` NSX logical switch that Tanzu Kubernetes Grid Integrated Edition created for you during installation. The service network provides network placement for existing on-demand Kubernetes cluster service instances that were created by the Tanzu Kubernetes Grid Integrated Edition broker.
+1. Click **Save**.
+
+### <a id="tkgi-api"></a> TKGI API
+
+{{> api }}
+
+
+### <a id="plans"></a> Plans
+
+{{> plans }}
+
+
+### <a id="cloud-provider"></a> Kubernetes Cloud Provider
+
+{{> cloud-provider }}
+
+
+### <a id="networking"></a> Networking
+
+To configure networking, do the following:
+
+1. Click **Networking**.  
+1. Under **Container Networking Interface**, select **NSX**.  
+    ![NSX-T Networking configuration pane in TKGI tile](images/networking-nsx-t.png)  
+1. For **NSX Manager hostname**, enter the hostname or IP address of your NSX Manager.  
+1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Generating and Registering the NSX Manager Superuser Principal Identity Certificate and Key](nsxt-generate-pi-cert.html).  
+1. For **NSX Manager CA Cert**, copy and paste the contents of the NSX Manager CA certificate you created in [Generate and Register the NSX Management SSL Certificate and Private Key](./nsxt-3-0-install.html#nsxt30-mgmt-ssl). Use this certificate and key to connect to the NSX Manager.
+1. The **Disable SSL certificate verification** check box is **not** selected by default. In order to deactivate TLS verification, select the check box. 
+If you did not enter a CA certificate, or if your CA certificate is self-signed, you can deactivate TLS verification.  
+    <p class="note">
+    <strong>Note</strong>: The <strong>NSX Manager CA Cert</strong> field and the <strong>Disable SSL certificate verification</strong> option are intended to be mutually exclusive. If you deactivate SSL certificate verification, leave the CA certificate field blank. If you enter a certificate in the <strong>NSX Manager CA Cert</strong> field, do not deactivate SSL certificate verification. If you populate the certificate field and deactivate certificate validation, insecure mode takes precedence.
+    </p>  
+1. If you are using a NAT deployment topology, leave the **NAT mode** check box selected. If you are using a No-NAT topology, clear this check box. For more information, see [NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition](nsxt-topologies.html).
+1. If you are using the NSX Policy API, select **Policy API mode**.  
+1. Configure the NSX networking objects, including the **Pods IP Block ID**, **Nodes IP Bock ID**, **T0 Router ID**, **Floating IP Pool ID**, **Nodes DNS**, **vSphere Cluster Names**, and **Kubernetes Service Network CIDR Range**. Each of the these fields are described in more detail beneath the example screenshots. If you are using the NSX Policy API, you must have created the **Pods IP Block ID**, **Nodes IP Bock ID**, **T0 Router ID**, and **Floating IP Pool ID** objects using the NSX Policy API. See [Create NSX Objects for Kubernetes Clusters Using the Policy Interface](./nsxt-install-objects-k8s.html#nsxt3-k8s-objects-policy).  
+    ![NSX Networking configuration pane in Ops Manager](images/networking-nsx-t-3.png)  
+    [View a larger version of this image.](images/networking-nsx-t-3.png)  
+
+    * **Pods IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes pods. Tanzu Kubernetes Grid Integrated Edition allocates IP addresses for the pods when they are created in Kubernetes. Each time a namespace is created in Kubernetes, a subnet from this IP block is allocated. The current subnet size that is created is /24, which means a maximum of 256 pods can be created per namespace.  
+    * **Nodes IP Block ID**: Enter the UUID of the IP block to be used for Kubernetes nodes. Tanzu Kubernetes Grid Integrated Edition allocates IP addresses for the nodes when they are created in Kubernetes. The node networks are created on a separate IP address space from the pod networks. The current subnet size that is created is /24, which means a maximum of 256 nodes can be created per cluster.  
+    For more information, including sizes and the IP blocks to avoid using, see [Plan IP Blocks](nsxt-prepare-env.html#plan-ip-blocks) in _Preparing NSX Before Deploying Tanzu Kubernetes Grid Integrated Edition_.  
+    * **T0 Router ID**: Enter the `t0-tkgi` T0 router UUID. Locate this value in the NSX UI router overview.  
+    * **Floating IP Pool ID**: Enter the `ip-pool-vips` ID that you created for load balancer VIPs. For more information, see [Plan Network CIDRs](nsxt-prepare-env.html#plan-cidrs) in _Network Planning for Installing Tanzu Kubernetes Grid Integrated Edition with NSX_. Tanzu Kubernetes Grid Integrated Edition uses the floating IP pool to allocate IP addresses to the load balancers created for each of the clusters. The load balancer routes the API requests to the control plane nodes and the data plane.  
+    * **Nodes DNS**: Enter one or more Domain Name Servers used by the Kubernetes nodes.  
+    * **vSphere Cluster Names**: Enter a comma-separated list of the vSphere clusters where you will deploy Kubernetes clusters. The NSX pre-check errand uses this field to verify that the hosts from the specified clusters are available in NSX. You can specify clusters in this format: `cluster1,cluster2,cluster3`.
+        * If the clusters are under multiple different vSphere datacenters, specify them in this format: `dc1:cluster1,dc2:cluster2,dc-folder/dc3:cluster3`.
+
+    * **Kubernetes Service Network CIDR Range**: Specify an IP address and subnet size depending on the number of Kubernetes services that you plan to deploy within a single Kubernetes cluster, for example: `10.100.200.0/24`. The IP address used here is internal to the cluster and can be anything, such as `10.100.200.0`. A `/24` subnet provides 256 IPs. If you have a cluster that requires more than 256 IPs, define a larger subnet, such as `/20`.  
+    * Under **TKGI Operation Timeout**, enter the timeout for TKGI-API operation in milliseconds. 
+    Increase the timeout if you experience timeouts during cluster deletion in large-scale NSX environments. 
+    The default **TKGI Operation Timeout** value is `120000`, 120 seconds. 
+    To determine the optimal Operation Timeout setting, see [Cluster Deletion Fails](troubleshoot-issues.html#cluster-delete-fail) in _General Troubleshooting_.  
+      
+        <p class="note"><strong>Note:</strong> If you use the TKGI MC, the TKGI MC configuration YAML <code>nsx_feign_client_read_timeout</code> configuration overrides the TKGI tile <strong>TKGI Operation Timeout</strong> setting. For more information about configuring the Operation Timeout setting in TKGI MC, see <a href="console-deploy-wizard.html#deploy">Generate Configuration File and Deploy Tanzu Kubernetes Grid Integrated Edition</a> in <em>Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard</em>.</p>
+    
+1. (Optional) Configure a global proxy for all outgoing HTTP and HTTPS traffic from your Kubernetes clusters and the TKGI API server. See [Using Proxies with Tanzu Kubernetes Grid Integrated Edition on NSX](proxies.html) for instructions on how to enable a proxy.  
+1. Under **Allow outbound internet access from Kubernetes cluster vms (IaaS-dependent)**, ignore the **Enable outbound internet access** check box.  
+1. Click **Save**.
+
+### <a id="uaa"></a> UAA
+
+{{> uaa }}
+
+
+### <a id="syslog"></a> (Optional) Host Monitoring
+
+{{> host-monitoring }}
+
+
+### <a id="cluster-monitoring"></a> (Optional) In-Cluster Monitoring
+
+{{> cluster-monitoring }}
+
+
+### <a id="tmc"></a> Tanzu Mission Control
+
+{{> tmc }}
+
+
+### <a id="telemetry"></a> VMware CEIP
+
+{{> usage-data }}
+
+
+### <a id='storage-config'></a> Storage
+
+{{> storage-config }}
+
+
+### <a id="errands"></a> Errands
+{{> errands }}
+
+
+### <a id="resource-config"></a> Resource Config
+
+To modify the resource configuration of Tanzu Kubernetes Grid Integrated Edition, follow the steps below:
+
+1. Select **Resource Config**.
+
+1. {{> resource-config }}
+
+
+1. Under each job, leave **NSX CONFIGURATION** and **NSX-V CONFIGURATION** blank.
+
+  <p class="note warning"><strong>Warning:</strong> To avoid workload downtime, use the resource configuration recommended in 
+  <a href="understanding-upgrades.html">About Tanzu Kubernetes Grid Integrated Edition Upgrades</a> 
+  and <a href="maintain-uptime.html">Maintaining Workload Uptime</a>.
+  </p>
+
+
+## <a id="apply-changes"></a> Step 3: Apply Changes
+
+After configuring the Tanzu Kubernetes Grid Integrated Edition tile, follow the steps below to deploy the tile:
+
+{{> apply-changes }}
+
+
+
+## <a id="clis"></a> Step 4: Install the TKGI and Kubernetes CLIs
+
+{{> install-cli }}
+
+
+
+## <a id="retrieve-endpoint"></a>Step 5: Verify NAT Rules
+
+If you are using NAT mode, verify that you have created the required NAT rules for the Tanzu Kubernetes Grid Integrated Edition Management Plane. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_ for details.
+
+In addition, for NAT and No-NAT modes, verify that you created the required NAT rule for Kubernetes control plane nodes to access NSX-T Manager. For details, see [Create IP Blocks and Pool for Compute Plane](./nsxt-3-0-install.html#nsxt30-ip-blocks-pool) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
+
+If you want your developers to be able to access the TKGI CLI from their external workstations, create a DNAT rule that maps a routable IP address to the TKGI API VM. This must be done after Tanzu Kubernetes Grid Integrated Edition is successfully deployed and it has an IP address. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_ for details.
+
+
+## <a id="auth"></a> Step 6: Configure Authentication for Tanzu Kubernetes Grid Integrated Edition
+
+Follow the procedures in [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on vSphere](vsphere-configure-users.html) in *Installing Tanzu Kubernetes Grid Integrated Edition > vSphere*.
+
+
+## <a id="next-steps"></a> Next Steps
+
+After installing Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX integration, complete the following tasks:
+
+* {{> harbor }}
+
+* [Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on vSphere](./vsphere-configure-users.html).
+* [Creating an Tanzu Kubernetes Grid Integrated Edition Cluster](create-cluster.html).

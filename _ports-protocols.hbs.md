@@ -1,0 +1,188 @@
+
+## <a id="enterprise"></a> TKGI Ports and Protocols
+
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+The following tables list ports and protocols required for network communications between Tanzu Kubernetes Grid Integrated Edition v1.5.0 
+and later, and vSphere 6.7 and NSX-T or NSX 2.4.0.1 and later.
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.netenv == 'vsphere'"}}
+The following tables list ports and protocols required for network communications between Tanzu Kubernetes Grid Integrated Edition v1.5.0 
+and later, and vSphere 6.7 and later.
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.netenv == 'vsphere' || current_page.data.netenv == 'nsxt' "}}
+{{ else }}
+The following tables list ports and protocols required for network communications between Tanzu Kubernetes Grid Integrated Edition v1.5.0 
+and later, and other components.
+{{/ evalExpression }}
+
+### <a id="users"></a> TKGI Users Ports and Protocols
+
+The following table lists ports and protocols used for network communication between TKGI user interface components.
+
+| Source Component | Destination Component | Destination Protocol | Destination Port | Service |
+| --- | --- | --- | --- | --- |
+| Admin/Operator Console | All System Components | TCP | 22 | SSH |
+| Admin/Operator Console | All System Components | TCP | 80 | HTTP |
+| Admin/Operator Console | All System Components | TCP | 443 | HTTPS |
+| Admin/Operator Console | BOSH Director | TCP | 25555 | BOSH Director REST API |
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+| Admin/Operator Console | NSX API VIP | TCP | 443 | HTTPS |  
+{{ else }}
+{{/ evalExpression }}
+| Admin/Operator Console | Ops Manager | TCP | 22 | SSH |
+| Admin/Operator Console | Ops Manager | TCP | 443 | HTTPS |
+| Admin/Operator Console | TKGI Controller | TCP | 9021 | TKGI API Server |
+{{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
+| Admin/Operator Console | vCenter Server | TCP | 443 | HTTPS |
+| Admin/Operator Console | vCenter Server | TCP | 5480 | vami |
+| Admin/Operator Console | vSphere ESXI Hosts Mgmt. vmknic | TCP | 902 | ideafarm-door |
+{{ else }}
+{{/ evalExpression }}
+| Admin/Operator and Developer Consoles | Harbor Private Image Registry | TCP | 80 | HTTP |
+| Admin/Operator and Developer Consoles | Harbor Private Image Registry | TCP | 443 | HTTPS |
+| Admin/Operator and Developer Consoles | Kubernetes App Load-Balancer Svc | TCP/UDP | Varies | varies with apps |
+| Admin/Operator and Developer Consoles | Kubernetes Cluster API Server -LB VIP | TCP | 8443 | HTTPSCA |
+| Admin/Operator and Developer Consoles | Kubernetes Cluster Ingress Controller | TCP | 80 | HTTP |
+| Admin/Operator and Developer Consoles | Kubernetes Cluster Ingress Controller | TCP | 443 | HTTPS |
+| Admin/Operator and Developer Consoles | Kubernetes Cluster Worker Node | TCP/UDP | 30000-32767 | Kubernetes NodePort |
+| Admin/Operator and Developer Consoles | TKGI Controller | TCP | 8443 | HTTPSCA |
+| All User Consoles (Operator, Developer, Consumer) | Kubernetes App Load-Balancer Svc | TCP/UDP | Varies | varies with apps |
+| All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Ingress Controller | TCP | 80 | HTTP |
+| All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Ingress Controller | TCP | 443 | HTTPS |
+| All User Consoles (Operator, Developer, Consumer) | Kubernetes Cluster Worker Node | TCP/UDP | 30000-32767 | Kubernetes NodePort |
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+  
+<p class="note"><strong>Note</strong>: The <code>type:NodePort</code> Service type is not supported for TKGI deployments on vSphere with NSX. 
+ Only <code>type:LoadBalancer</code> and Services associated with Ingress rules are supported on vSphere with NSX.</p>  
+{{ else }}
+{{/ evalExpression }}
+
+### <a id="core"></a> TKGI Core Ports and Protocols
+
+The following table lists ports and protocols used for network communication between core TKGI components.
+
+| Source Component | Destination Component | Destination Protocol | Destination Port | Service| 
+| --- | --- | --- | --- | --- |
+| All System Components | Corporate Domain Name Server | TCP/UDP | 53 | DNS| 
+| All System Components | Network Time Server | UDP | 123 | NTP| 
+{{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
+| All System Components | vRealize LogInsight | TCP/UDP | 514/1514 | syslog/tls syslog| 
+{{ else }}
+{{/ evalExpression }}
+| All System Control Plane Components | AD/LDAP Directory Server | TCP/UDP | 389/636 | LDAP/LDAPS| 
+| Ops Manager | Admin/Operator Console | TCP | 22 | SSH|
+| Ops Manager | BOSH Director | TCP | 6868 | BOSH Agent HTTP|
+| Ops Manager | BOSH Director | TCP | 8443 | HTTPSCA|
+| Ops Manager | BOSH Director | TCP | 8844 | BOSH CredHub |
+| Ops Manager | BOSH Director | TCP | 25555 | BOSH Director REST API |
+| Ops Manager | Harbor Private Image Registry | TCP | 22 | SSH|
+| Ops Manager | Kubernetes Cluster Control Plane/etcd Node | TCP | 22 | SSH|
+| Ops Manager | Kubernetes Cluster Worker Node | TCP | 22 | SSH|
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+| Ops Manager | NSX API VIP | TCP | 443 | HTTPS|
+| Ops Manager | NSX Manager/Controller Node | TCP | 22 | SSH|
+| Ops Manager | NSX Manager/Controller Node | TCP | 443 | HTTPS|
+{{ else }}
+{{/ evalExpression }}
+| Ops Manager | TKGI Controller | TCP | 22 | SSH|
+| Ops Manager | TKGI Controller | TCP | 8443 | HTTPSCA|
+{{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
+| Ops Manager | vCenter Server | TCP | 443 | HTTPS|
+| Ops Manager | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS|
+{{ else }}
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+| BOSH Director | NSX API VIP | TCP | 443 | HTTPS|
+{{ else }}
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
+| BOSH Director | vCenter Server | TCP | 443 | HTTPS| 
+| BOSH Director | vSphere ESXI Hosts Mgmt. vmknic | TCP | 443 | HTTPS|
+{{ else }}
+{{/ evalExpression }}
+| BOSH Compilation Job VM | BOSH Director | TCP | 4222 | BOSH nats server| 
+| BOSH Compilation Job VM | BOSH Director | TCP | 25250 | BOSH BlobStore| 
+| BOSH Compilation Job VM | BOSH Director | TCP | 25923 | health monitor daemon| 
+| BOSH Compilation Job VM | Harbor Private Image Registry | TCP | 443 | HTTPS| 
+| BOSH Compilation Job VM | Harbor Private Image Registry | TCP | 8853 | BOSH DNS health| 
+| TKGI Controller | BOSH Director | TCP | 4222 | BOSH nats server| 
+| TKGI Controller | BOSH Director | TCP | 8443 | HTTPSCA| 
+| TKGI Controller | BOSH Director | TCP | 25250 | BOSH BlobStore| 
+| TKGI Controller | BOSH Director | TCP | 25555 | BOSH director rest api| 
+| TKGI Controller | BOSH Director | TCP | 25923 | health monitor daemon| 
+| TKGI Controller | Kubernetes Cluster Control Plane/etcd Node | TCP | 8443 | HTTPSCA| 
+| TKGI Controller | TKGI Database VM | TCP | 3306 | tkgi db proxy |
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+| TKGI Controller | NSX API VIP | TCP | 443 | HTTPS|   
+{{ else }}
+{{/ evalExpression }}
+{{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
+| TKGI Controller | vCenter Server | TCP | 443 | HTTPS| 
+{{ else }}
+{{/ evalExpression }}
+| Harbor Private Image Registry | BOSH Director | TCP | 4222 | BOSH nats server| 
+| Harbor Private Image Registry | BOSH Director | TCP | 25250 | BOSH BlobStore| 
+| Harbor Private Image Registry | BOSH Director | TCP | 25923 | health monitor daemon| 
+| Harbor Private Image Registry | IP NAS Storage Array | TCP | 111 | NFS RPC portmapper| 
+| Harbor Private Image Registry | IP NAS Storage Array | TCP | 2049 | NFS | 
+| Harbor Private Image Registry | Public CVE Source Database | TCP | 443 | HTTPS| 
+| kube-system pod/telemetry-agent | TKGI Controller | TCP | 24224 | Fluentd out_forward| 
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+| Kubernetes Cluster Ingress Controller | NSX API VIP | TCP | 443 | HTTPS|  
+{{ else }}
+{{/ evalExpression }}
+| Kubernetes Cluster Control Plane/etcd Node | BOSH Director | TCP | 4222 | BOSH NATS Server| 
+| Kubernetes Cluster Control Plane/etcd Node | BOSH Director | TCP | 25250 | BOSH BlobStore| 
+| Kubernetes Cluster Control Plane/etcd Node | BOSH Director | TCP | 25923 | health monitor daemon| 
+| Kubernetes Cluster Control Plane/etcd Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 2379 | etcd client| 
+| Kubernetes Cluster Control Plane/etcd Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 2380 | etcd server| 
+| Kubernetes Cluster Control Plane/etcd Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 8443 | HTTPSCA| 
+| Kubernetes Cluster Control Plane/etcd Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 8853 | BOSH DNS health| 
+| Kubernetes Cluster Control Plane/etcd Node | Kubernetes Cluster Worker Node | TCP | 4194 | cAdvisor| 
+| Kubernetes Cluster Control Plane/etcd Node | Kubernetes Cluster Worker Node | TCP | 10250 | kubelet API| 
+| Kubernetes Cluster Control Plane/etcd Node | Kubernetes Cluster Worker Node | TCP | 31194 | cAdvisor| 
+{{# evalExpression "current_page.data.netenv == 'nsxt'"}}
+| Kubernetes Cluster Control Plane/etcd Node | NSX API VIP | TCP | 443 | HTTPS| 
+{{ else }}
+{{/ evalExpression }}
+| Kubernetes Cluster Control Plane/etcd Node | TKGI Controller | TCP | 8443 | HTTPSCA| 
+| Kubernetes Cluster Control Plane/etcd Node | TKGI Controller | TCP | 8853 | BOSH DNS health| 
+{{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
+| Kubernetes Cluster Control Plane/etcd Node | vCenter Server | TCP | 443 | HTTPS| 
+{{ else }}
+{{/ evalExpression }}
+| Kubernetes Cluster Worker Node | BOSH Director | TCP | 4222 | BOSH NATS server| 
+| Kubernetes Cluster Worker Node | BOSH Director | TCP | 25250 | BOSH BlobStore| 
+| Kubernetes Cluster Worker Node | BOSH Director | TCP | 25923 | health monitor daemon| 
+| Kubernetes Cluster Worker Node | Harbor Private Image Registry | TCP | 443 | HTTPS| 
+| Kubernetes Cluster Worker Node | Harbor Private Image Registry | TCP | 8853 | BOSH DNS health| 
+| Kubernetes Cluster Worker Node | IP NAS Storage Array | TCP | 111 | nfs rpc portmapper| 
+| Kubernetes Cluster Worker Node | IP NAS Storage Array | TCP | 2049 | nfs| 
+| Kubernetes Cluster Worker Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 8443 | HTTPSCA| 
+| Kubernetes Cluster Worker Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 8853 | BOSH DNS health| 
+| Kubernetes Cluster Worker Node | Kubernetes Cluster Control Plane/etcd Node | TCP | 10250 | kubelet API | 
+| pks-system pod/cert-generator | TKGI Controller | TCP | 24224 | Fluentd out_forward| 
+| pks-system pod/fluent-bit | TKGI Controller | TCP | 24224 | Fluentd out_forward| 
+{{# evalExpression "current_page.data.netenv == 'nsxt' || current_page.data.netenv == 'vsphere' "}}
+{{ else }}
+
+
+## <a id="networking"></a> Networking Ports and Protocols
+
+The following tables list ports and protocols required for network communication. 
+
+### <a id="antrea"></a> Antrea Networking Ports and Protocols
+
+The following tables list ports and protocols required for network communication in Antrea environments. 
+
+| Source Component | Destination Component | Destination Protocol | Destination Port | Service| 
+| --- | --- | --- | --- | --- |
+| Worker Node VMs | Worker Node VMs | UDP | 6081 | Geneve | 
+| Control Plane Node VMs | Control Plane Node VMs | TCP | 8091 | TCP| 
+
+<p class="note"><strong>Note</strong>: Port 6081 must be open on all of the worker node VMs and 
+  port 8091 must be open on all control plane node VMs in the clusters you create in an Antrea networking environment.</p>
+  
+For more information, see [Network Requirements](HTTPS://github.com/antrea-io/antrea/blob/main/docs/network-requirements.md#network-requirements) 
+in the Antrea GitHub repository.  
+{{/ evalExpression }}

@@ -1,0 +1,90 @@
+---
+title: UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users
+owner: TKGI
+---
+
+This topic describes User Account and Authentication (UAA) scopes that a UAA admin can assign to VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) users.  
+
+## <a id="overview"></a> Overview
+
+UAA is the identity management service for Tanzu Kubernetes Grid Integrated Edition.
+{{> uaa-scopes }}
+
+
+##<a id='uaa-scopes'></a> UAA Scopes
+
+Each UAA scope grants Tanzu Kubernetes Grid Integrated Edition users a set of permissions
+for creating, managing, and auditing Tanzu Kubernetes Grid Integrated Edition-provisioned Kubernetes clusters.
+For information about the permissions, see the table below.
+
+<table>
+  <tr>
+    <th>Operation</th>
+    <th width="25%"><code style="font-size:11px">pks.clusters.<br>admin</code></th>
+    <th width="25%"><code style="font-size:11px">pks.clusters.<br>manage</code></th>
+    <th width="30%"><code style="font-size:11px">pks.clusters.<br>admin.read</code></th>
+  </tr>
+  <tr>
+    <td><strong>Create, update, resize, and delete a cluster</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can create, modify, and delete all clusters.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can create, modify, and delete only their own clusters.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create, modify, and delete clusters.</td>
+  </tr>
+  <tr>
+    <td><strong>Get cluster credentials</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can retrieve cluster credentials for all clusters.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can retrieve cluster credentials only for their own clusters.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot retrieve cluster credentials.</td>
+  </tr>
+  <tr>
+    <td><strong>Upgrade clusters</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can upgrade all clusters.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can upgrade only their own clusters.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot upgrade clusters.</td>
+  </tr>
+  <tr>
+    <td><strong>List clusters</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can list all clusters.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can list only their own clusters.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can list all clusters.</td>
+  </tr>
+  <tr>
+    <td><strong>View cluster details</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can view cluster details for all clusters.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can view cluster details only for their own clusters.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can view cluster details for all clusters.</td>
+  </tr>
+  <tr>
+    <td><strong>Create and delete a compute profile</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can create and delete compute profiles.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create and delete compute profiles.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create and delete compute profiles.</td>
+  </tr>
+  <tr>
+    <td><strong>Create and delete a network profile</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can create and delete network profiles.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create and delete network profiles.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create and delete network profiles.</td>
+  </tr>
+  <tr>
+    <td><strong>Create and delete a Kubernetes profile</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can create, modify, and delete all Kubernetes profiles.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can create, modify, and delete only their own Kubernetes profiles.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create and delete Kubernetes profiles.</td>
+  </tr>
+  <tr>
+    <td><strong>Create, update, and delete a quota</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can create, update, and delete quotas.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create, update, and delete quotas.</td>
+    <td class="cell light-red"><strong>No.</strong> Cannot create, update, and delete quotas.</td>
+  </tr>
+  <tr>
+    <td><strong>List Tanzu Kubernetes Grid Integrated Edition plans</strong></td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can list all available plans.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can list all available plans.</td>
+    <td class="cell light-teal"><strong>Yes.</strong> Can list all available plans.</td>
+  </tr>
+</table>
+
+To assign UAA scopes in Tanzu Kubernetes Grid Integrated Edition,
+follow the instructions in [Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA](manage-users.html).

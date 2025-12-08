@@ -1,0 +1,333 @@
+---
+title: Back Up and Restore Stateful App Using Namespace
+owner: TKGI
+---
+
+This topic describes how to use Velero to back up and restore a stateful application using the namespace feature with Velero.  
+
+##<a id="overview"></a> Overview
+
+This example demonstrates Velero back up and restore for a stateful application using namespace.
+
+To test Velero back up and restore for stateful applications, use the [Guestbook application](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/) with a persistent volume. 
+
+When restoring the stateful application using Velero, the Storage Class that was used by the PVC in the application must be present on the Kubernetes cluster. If the PVC is using the default storage class, then the default storage class must also be present prior to initiating the restore operation with Velero.
+
+##<a id="prereqs"></a> Prerequisites
+
+[Install and configure](./velero-install.html) Minio and Velero.
+
+Download the [Guestbook app YAML files](https://github.com/pivotal-cf/docs-pks/tree/{{{ vars.product_version_raw }}}/demos/guestbook-app/) to a local known directory:
+
+- redis-leader-deployment.yaml
+- redis-leader-service.yaml
+- redis-follower-deployment.yaml
+- redis-follower-service.yaml
+- frontend-deployment.yaml 
+- frontend-service.yaml
+
+## <a id='guestbook-deploy'></a> Deploy Guestbook App
+
+Create the default storage class named `redis-sc.yaml`:
+
+```
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: thin-disk
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/vsphere-volume
+parameters:
+    diskformat: thin
+```
+
+Apply the YAML file:
+
+```
+kubectl apply -f redis-sc.yaml
+storageclass.storage.k8s.io/thin-disk created
+```
+
+Verify the storage class:
+
+```
+kubectl get sc
+NAME                  PROVISIONER                    RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+thin-disk (default)   kubernetes.io/vsphere-volume   Delete          Immediate           false                  4s
+```
+
+Create Guestbook namespace:
+
+```
+kubectl create ns guestbook-pv
+namespace/guestbook-pv created
+```
+
+Deploy the Guestbook app:
+
+```
+kubectl apply -f . -n guestbook-pv
+
+storageclass.storage.k8s.io/thin-disk unchanged
+persistentvolumeclaim/redis-leader-claim created
+persistentvolumeclaim/redis-follower-claim created
+service/redis-leader created
+deployment.apps/redis-leader created
+service/redis-follower created
+deployment.apps/redis-follower created
+service/frontend created
+deployment.apps/frontend created
+```
+
+Verify:
+
+```
+kubectl get all -n guestbook-pv
+
+NAME                            READY   STATUS    RESTARTS   AGE
+frontend-6cb7f8bd65-kqbf6       1/1     Running   0          38s
+frontend-6cb7f8bd65-s7mk9       1/1     Running   0          38s
+frontend-6cb7f8bd65-vtz4k       1/1     Running   0          38s
+redis-leader-7b8487bf68-2mhcd   1/1     Running   0          38s
+redis-follower-5bdcfd74c7-4hhqs 1/1     Running   0          37s
+redis-follower-5bdcfd74c7-hl8hf 1/1     Running   0          37s
+```
+
+```
+kubectl get pvc,pv -n guestbook-pv
+
+NAME                                       STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/redis-leader-claim   Bound    pvc-e0f3b455-e66e-45e6-8f77-4ace5af0ce6a   2Gi        RWO            thin-disk      2m31s
+persistentvolumeclaim/redis-follower-claim Bound    pvc-672ab412-1167-4110-87cc-51c2bfedfa18   2Gi        RWO            thin-disk      2m31s
+
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                             STORAGECLASS   REASON   AGE
+persistentvolume/pvc-672ab412-1167-4110-87cc-51c2bfedfa18   2Gi        RWO            Delete           Bound    guestbook-pv/redis-follower-claim    thin-disk               2m30s
+persistentvolume/pvc-e0f3b455-e66e-45e6-8f77-4ace5af0ce6a   2Gi        RWO            Delete           Bound    guestbook-pv/redis-leader-claim   thin-disk               2m30s
+```
+
+Access the Guestbook app at <http://10.199.41.14/>.
+
+  <img src="images/backup-restore/guestbook-04.png" alt="Guestbook App" width="538">
+
+Add many messages so they can be stored in the PV.
+
+  <img src="images/backup-restore/guestbook-05.png" alt="Guestbook App" width="538">
+
+## <a id='guestbook-br-ns'></a> Back Up the Guestbook App Using Namespace
+
+This example shows how to back up and restore the Guestbook app using the `--include namespace` tag.
+
+Because this app is stateful, you need to add annotations for the stateful pods with the volume name. 
+
+Get the volume names:
+
+```
+kubectl get pod -n guestbook-pv
+
+NAME                            READY   STATUS    RESTARTS   AGE
+frontend-6cb7f8bd65-9cpdc       1/1     Running   0          6m27s
+frontend-6cb7f8bd65-h2pnb       1/1     Running   0          6m27s
+frontend-6cb7f8bd65-kwlpr       1/1     Running   0          6m27s
+frontend-6cb7f8bd65-snwl4       1/1     Running   0          6m27s
+redis-leader-64fb8775bf-kbs6s   1/1     Running   0          6m28s
+redis-follower-779b6d8f79-5dphr 1/1     Running   0          6m28s
+```
+
+The volume name is `redis-leader-data` for pod `redis-leader-64fb8775bf-kbs6s`.
+
+The volume name is `redis-follower-data` for pod `redis-follower-779b6d8f79-5dphr`.
+
+Annotate the pods:
+
+```
+kubectl -n guestbook-pv annotate pod redis-leader-64fb8775bf-kbs6s backup.velero.io/backup-volumes=redis-leader-data
+pod/redis-leader-64fb8775bf-kbs6s annotated
+
+kubectl -n guestbook-pv annotate pod redis-follower-779b6d8f79-5dphr backup.velero.io/backup-volumes=redis-follower-data
+pod/redis-follower-779b6d8f79-5dphr annotated
+```
+
+Verify:
+
+```
+kubectl -n guestbook-pv describe pod redis-leader-64fb8775bf-kbs6s | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: redis-leader-data
+
+kubectl -n guestbook-pv describe pod redis-follower-779b6d8f79-5dphr | grep Annotations
+Annotations:  backup.velero.io/backup-volumes: redis-follower-data
+velero backup create guestbook-backup --include-namespaces guestbook
+```
+
+Perform the Velero back up:
+
+```
+velero backup create guestbook-pv-backup --include-namespaces guestbook-pv
+Backup request "guestbook-pv-backup" submitted successfully.
+Run `velero backup describe guestbook-pv-backup` or `velero backup logs guestbook-pv-backup` for more details.
+```
+
+Verify the backup that was created.
+
+```
+velero backup get
+
+NAME                     STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+guestbook-pv-backup      Completed   0        0          2020-07-23 16:13:46 -0700 PDT   29d       default            <none>
+```
+
+Verify backup details:
+
+```
+velero backup describe guestbook-pv-backup --details
+```
+
+The Velero Kubernetes CustomResourceDefinitions (CRDs) let you run certain commands, such as the following:
+
+```
+kubectl get backups.velero.io -n velero
+
+NAME               AGE
+guestbook-backup   4m58s
+```
+
+```
+kubectl describe backups.velero.io guestbook-pv-backup -n velero
+```
+
+## <a id='guestbook-br-ns'></a> Restore the Guestbook App
+
+To test the restoration of the Guestbook app, delete it.
+
+Delete the namespace:
+
+```
+kubectl delete ns guestbook-pv
+namespace "guestbook-pv" deleted
+```
+
+Verify namespace deletion:
+
+```
+kubectl get ns
+```
+
+```
+kubectl get pvc,pv --all-namespaces
+```
+
+Make sure the storage class used by the application is still present:
+
+```
+kubectl get sc
+
+NAME                  PROVISIONER                    RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+thin-disk (default)   kubernetes.io/vsphere-volume   Delete          Immediate           false                  26m
+```
+
+Restore the app:
+
+```
+velero restore create --from-backup guestbook-pv-backup
+
+Restore request "guestbook-pv-backup-20200723161841" submitted successfully.
+Run `velero restore describe guestbook-pv-backup-20200723161841` or `velero restore logs guestbook-pv-backup-20200723161841` for more details.
+```
+
+Verify that the app is restored:
+
+```
+velero restore describe guestbook-pv-backup-20200723161841
+
+Name:         guestbook-pv-backup-20200723161841
+Namespace:    velero
+Labels:       <none>
+Annotations:  <none>
+
+Phase:  Completed
+
+Backup:  guestbook-pv-backup
+
+Namespaces:
+  Included:  all namespaces found in the backup
+  Excluded:  <none>
+
+Resources:
+  Included:        *
+  Excluded:        nodes, events, events.events.k8s.io, backups.velero.io, restores.velero.io, resticrepositories.velero.io
+  Cluster-scoped:  auto
+
+Namespace mappings:  <none>
+
+Label selector:  <none>
+
+Restore PVs:  auto
+
+Node-Agent Restores (specify --details for more information):
+  Completed:  2
+```
+
+Run the following commands to verify:
+
+```
+velero restore get
+
+NAME                                    BACKUP                   STATUS      ERRORS   WARNINGS   CREATED                         SELECTOR
+guestbook-pv-backup-20200723161841      guestbook-pv-backup      Completed   0        0          2020-07-23 16:18:41 -0700 PDT   <none>
+```
+
+```
+kubectl get ns
+
+NAME              STATUS   AGE
+default           Active   16d
+guestbook-pv      Active   76s
+kube-node-lease   Active   16d
+kube-public       Active   16d
+kube-system       Active   16d
+pks-system        Active   16d
+velero            Active   2d2h
+```
+
+```
+kubectl get all -n guestbook-pv
+
+NAME                                READY   STATUS    RESTARTS   AGE
+pod/frontend-6cb7f8bd65-9cpdc       1/1     Running   0          2m4s
+pod/frontend-6cb7f8bd65-h2pnb       1/1     Running   0          2m4s
+pod/frontend-6cb7f8bd65-kwlpr       1/1     Running   0          2m4s
+pod/frontend-6cb7f8bd65-snwl4       1/1     Running   0          2m4s
+pod/redis-leader-64fb8775bf-kbs6s   1/1     Running   0          2m4s
+pod/redis-follower-779b6d8f79-5dphr    1/1     Running   0          2m4s
+
+NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)        AGE
+service/frontend       LoadBalancer   10.100.200.144   10.199.41.16   80:30038/TCP   2m4s
+service/redis-leader   ClusterIP      10.100.200.156   <none>         6379/TCP       2m4s
+service/redis-follower    ClusterIP      10.100.200.231   <none>         6379/TCP       2m4s
+
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/frontend       4/4     4            4           2m4s
+deployment.apps/redis-leader   1/1     1            1           2m4s
+deployment.apps/redis-follower    1/1     1            1           2m4s
+
+NAME                                      DESIRED   CURRENT   READY   AGE
+replicaset.apps/frontend-6cb7f8bd65       4         4         4       2m4s
+replicaset.apps/redis-leader-64fb8775bf   1         1         1       2m4s
+replicaset.apps/redis-follower-779b6d8f79    1         1         1       2m4s
+```
+
+```
+kubectl get pvc,pv -n guestbook-pv
+
+NAME                                       STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/redis-leader-claim   Bound    pvc-a2f6e6d4-42db-4fb8-a198-5379a2552509   2Gi        RWO            thin-disk      2m40s
+persistentvolumeclaim/redis-follower-claim    Bound    pvc-55591938-921f-452a-b418-2cc680c0560b   2Gi        RWO            thin-disk      2m40s
+
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                             STORAGECLASS   REASON   AGE
+persistentvolume/pvc-55591938-921f-452a-b418-2cc680c0560b   2Gi        RWO            Delete           Bound    guestbook-pv/redis-follower-claim    thin-disk               2m40s
+persistentvolume/pvc-a2f6e6d4-42db-4fb8-a198-5379a2552509   2Gi        RWO            Delete           Bound    guestbook-pv/redis-leader-claim   thin-disk               2m40s
+```
+
+Access the Guestbook app at <http://10.199.41.16/>.
+
+  <img src="images/backup-restore/guestbook-06.png" alt="Guestbook App" width="538">

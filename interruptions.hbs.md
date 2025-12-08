@@ -1,0 +1,111 @@
+---
+title: Service Interruptions
+owner: TKGI
+---
+
+This topic describes events in the lifecycle of a Kubernetes cluster deployed by VMware Tanzu Kubernetes Grid Integrated Edition that can cause temporary service interruptions.
+
+## <a id='service-update'></a>Stemcell or Service Update
+
+An operator performs a stemcell version update or Tanzu Kubernetes Grid Integrated Edition version update.
+
+### Impact
+- **Workload**: If you use the recommended configuration, no workload downtime is expected since the VMs are upgraded one at a time.
+For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
+- **Kubernetes control plane**: The Kubernetes control plane VM is recreated during the upgrade, so `kubectl` and the Kubernetes control plane experience a short downtime.
+
+### Required Actions
+None. If the update deploys successfully, the Kubernetes control plane recovers automatically.
+
+## <a id='process-fail-master'></a>VM Process Failure on a Cluster Control Plane
+
+A process, such as the scheduler or the Kubernetes API server, crashes on the cluster control plane VM.
+
+### Impact
+- **Workload**: If the scheduler crashes, workloads that are in the process of being rescheduled might experience up to 120 seconds of downtime.
+- **Kubernetes control plane**: Depending on the process and what it was doing when it crashed, the Kubernetes control plane might experience 60-120 seconds of downtime.
+Until the process resumes, the following can occur:
+  - Developers might be unable to deploy workloads
+  - Metrics or logging might stop
+  - Other features might be interrupted
+
+### Required Actions
+None. BOSH brings the process back automatically using `monit`.
+If the process resumes cleanly and without manual intervention, the Kubernetes control plane recovers automatically.
+
+## <a id='process-fail-worker'></a>VM Process Failure on a Cluster Worker
+
+A process, such as Docker or `kube-proxy`, crashes on a cluster worker VM.
+
+###Impact
+- **Workload**: If the cluster and workloads follow the recommended configuration for the number of workers, replica sets, and pod anti-affinity rules, workloads will not experience downtime.
+The Kubernetes scheduler reschedules the affected pods on other workers.
+For more information, see [Maintaining Workload Uptime](maintain-uptime.html).
+
+### Required Actions
+None. BOSH brings the process back automatically using `monit`.
+If the process resumes cleanly and without manual intervention, the worker recovers automatically, and the scheduler resumes scheduling new pods on this worker.
+
+## <a id='process-fail-tkgi'></a>VM Process Failure on the TKGI API VM
+
+A process, such as the TKGI API server, crashes on the pivotal-container-service VM.
+
+### Impact
+- **TKGI control plane**: Depending on the process and what it was doing, the TKGI control plane might experience 60-120 seconds of downtime.
+Until the process resumes, the following can occur:
+  - The TKGI API or UAA might be inaccessible
+  - Use of the TKGI CLI is interrupted
+  - Metrics or logging might stop
+  - Other features might be interrupted
+
+### Required Actions
+None. BOSH brings the process back automatically using `monit`.
+If the process resumes cleanly, the TKGI control plane recovers automatically and the TKGI CLI resumes working.
+
+## <a id='vm-fail'></a>VM Failure
+
+An Tanzu Kubernetes Grid Integrated Edition VM fails and goes offline due to either a virtualization problem or a host hardware problem.
+
+### Impact
+
+- **If the BOSH Resurrector is enabled**, BOSH detects the failure, recreates the VM, and reattaches the same persistent disk and IP address.
+Downtime depends on which VM goes offline, how quickly the BOSH Resurrector notices, and how long it takes the IaaS to create a replacement VM. The BOSH Resurrector usually notices an offline VM within one to two minutes.
+For more information about the BOSH Resurrector, see the [BOSH documentation](https://bosh.io/docs/resurrector.html).
+
+- **If the BOSH Resurrector is not enabled**, some cloud providers, such as vSphere, have similar resurrection or high availability (HA) features.
+Depending on the VM, the impact can be similar to a key process on that VM going down as described in the previous sections, but the recovery time is longer while the replacement VM is created.
+See the documentation for process failures in the [cluster worker](#process-fail-worker), [cluster control plane](#process-fail-master), and [TKGI API VM](#process-fail-tkgi) sections for more information.
+
+### Required Actions
+When the VM comes back online, no further action is required for the developer to continue operations.
+
+## <a id='az-fail'></a>AZ Failure
+
+An availability zone (AZ) goes offline entirely or loses connectivity to other AZs (net split).
+
+### Impact
+The control plane and clusters are inaccessible.
+The extent of the downtime is unknown.
+
+### Required Actions
+When the AZ comes back online, the control plane recovers in one of the following ways:
+
+* **If BOSH is in a different AZ**, BOSH recreates the VMs with the last known persistent disks and IPs.
+If the persistent disks are gone, the disks can be restored from your last backup and reattached.
+{{{ vars.recommended_by }}} recommends manually checking the state of VMs and databases.
+
+* **If BOSH is in the same AZ**, follow the directions for [region failure](#region-fail).
+
+## <a id='region-fail'></a>Region Failure
+
+An entire region fails, bringing all Tanzu Kubernetes Grid Integrated Edition components offline.
+
+### Impact
+The entire Tanzu Kubernetes Grid Integrated Edition deployment and all services are unavailable.
+The extent of the downtime is unknown.
+
+### Required Actions
+The TKGI control plane can be restored using BOSH Backup and Restore (BBR).
+Each cluster might need to be restored manually from backups.
+
+For more information, see [Restore Tanzu Kubernetes Grid Integrated Edition Control Plane](bbr-restore.html#redeploy-restore-control-plane) in _Restoring Tanzu Kubernetes Grid Integrated Edition_.
