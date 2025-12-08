@@ -1,6 +1,9 @@
 ---
 title: Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)
 owner: TKGI
+windowsclusters: #Empty var to prevent build breaking
+topic: #Empty var to prevent build breaking
+thistopic: #Empty var to prevent build breaking
 ---
 
 This topic explains how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) in Antrea Networking environments from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
