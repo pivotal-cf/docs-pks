@@ -1,0 +1,361 @@
+---
+title: Restoring Kubernetes Clusters Provisioned Using the Tanzu Kubernetes Grid Integrated Edition
+owner: TKGI
+---
+
+This topic describes how to use BOSH Backup and Restore (BBR) to restore
+the BOSH Director, VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) control plane, and Kubernetes clusters.  
+
+##<a id="overview"></a> Overview
+
+In the event of a disaster, you might lose your environment's VMs, disks, and your IaaS network and load balancer resources as well.
+You can re-create your environment, configured with your saved Tanzu Kubernetes Grid Integrated Edition Ops Manager Installation settings,
+using your BBR backup artifacts.
+
+Before restoring using BBR:  
+
+* Review the requirements listed in [Compatibility of Restore](#compatibility)
+below.
+* Complete all of the steps documented in
+[Preparing to Restore a Backup](#preparing-backup) below.
+
+<br>
+Use BBR to restore the following:
+
+* The BOSH Director plane, see
+[Restore the BOSH Director](#redeploy-restore-director) below.
+* The Tanzu Kubernetes Grid Integrated Edition control plane, see
+[Restore Tanzu Kubernetes Grid Integrated Edition Control Plane](#redeploy-restore-control-plane)
+below.
+* The Tanzu Kubernetes Grid Integrated Edition clusters, see
+[Restore Tanzu Kubernetes Grid Integrated Edition Clusters](#redeploy-restore-clusters)
+below.
+
+## <a id="compatibility"></a> Compatibility of Restore  
+
+The following are the requirements for a backup artifact to be restorable to another environment:  
+
+* **Topology**: BBR requires the BOSH topology of a deployment to be the same in the restore 
+environment as it was in the back up environment.  
+* **Naming of instance groups and jobs**: For any deployment that implements the back up and restore 
+scripts, the instance groups and jobs must have the same names.  
+* **Number of instance groups and jobs**: For instance groups and jobs that have back up and restore scripts, the same number of instances must exist.  
+
+Additional considerations:  
+
+* **Limited validation**: BBR puts the backed up data into the corresponding instance groups and 
+jobs in the restored environment, but cannot validate the restore beyond that.  
+* **Same Cluster**: Currently, BBR supports the in-place restore of a cluster backup artifact onto the same cluster. 
+Migration from one cluster to another using a BBR backup artifact has not yet been validated.  
+
+<p class="note"><strong>Note:</strong> This section is for guidance only. Always validate your
+backups by using the backup artifacts in a restore.
+</p>
+
+## <a id="prepare"></a> Prepare to Restore a Backup
+
+{{> preparing-for-bbr }}
+  
+<p>
+</p>
+
+## <a id="artifacts-jumpbox"></a> Transfer Artifacts to Your Jump Box
+
+To restore BOSH director, Tanzu Kubernetes Grid Integrated Edition control plane or cluster you must transfer your BBR backup artifacts from your safe storage location to your jump box.
+
+1. To copy an artifact onto a jump box, run the following SCP command:
+
+    ```
+    scp -r LOCAL-PATH-TO-BACKUP-ARTIFACT JUMP-BOX-USER@JUMP-BOX-ADDRESS:
+    ```
+
+    Where:  
+
+    * `LOCAL-PATH-TO-BACKUP-ARTIFACT` is the path to your BBR backup artifact.
+    * `JUMP-BOX-USER` is the SSH user name of the jump box.
+    * `JUMP-BOX-ADDRESS` is the IP address, or hostname, of the jump box.
+
+1. (Optional) Decrypt your backup artifact if the artifact is encrypted.
+
+## <a id='redeploy-restore-clusters'></a> Restore Kubernetes Clusters Provisioned by TKGI
+
+Restoration of Kubernetes clusters provisioned by TKGI is a two step process: redeploy the clusters, then restore them.
+
+Perform the following steps to redeploy the TKGI-provisioned Kubernetes clusters
+and restore their state from backup.
+
+### <a id='redeploy-clusters'></a> Redeploy Clusters
+
+Before restoring your TKGI-provisioned clusters, you must redeploy them to BOSH.
+To redeploy TKGI-provisioned clusters:
+
+* If you want to redeploy all clusters simultaneously,
+see [Redeploy All Clusters](#redeploy-all-clusters).
+* If you want to redeploy one cluster at a time,
+see [Redeploy a Single Cluster](#redeploy-single-cluster).
+
+#### <a id='redeploy-all-clusters'></a> Redeploy All Kubernetes Clusters
+
+To redeploy all clusters:
+
+1. In Ops Manager, navigate to the **Tanzu Kubernetes Grid Integrated Edition** tile.
+1. Click **Errands**.
+1. Ensure the **Upgrade all clusters** errand is **On**.
+This errand redeploys all your TKGI-provisioned clusters.
+1. Return to the **Installation Dashboard**.
+1. Click **Review Pending Changes**, review your changes, and then click **Apply Changes**.
+For more information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/install-review-pending-changes.html).
+
+#### <a id='redeploy-single-cluster'></a> Redeploy a Single Kubernetes Cluster
+
+To redeploy a TKGI-provisioned cluster through the TKGI CLI:  
+
+1. Identify the names of your TKGI-provisioned clusters:
+
+    ```
+    tkgi clusters
+    ```
+1. For each cluster you want to redeploy, run the following command:
+
+    ```
+    tkgi upgrade-cluster CLUSTER-NAME
+    ```
+    Where `CLUSTER-NAME` is the name of your Kubernetes cluster.
+    For more information, see [Upgrade Clusters](upgrade-clusters.html#upgrade-clusters).
+
+### <a id='restore-clusters'></a> Restore Kubernetes Clusters
+
+After redeploying your TKGI-provisioned clusters, restore their stateless workloads and cluster state from backup by running the BOSH `restore` command from your jump box.
+Stateless workloads are tracked in the cluster etcd database, which BBR backs up.
+
+<p class="note warning">
+<strong>Warning:</strong> BBR does not back up persistent volumes, load balancers, or other IaaS resources.</p>
+
+<p class="note warning">
+<strong>Warning:</strong> When you restore a cluster, etcd is stopped in the API server.
+During this process, only currently-deployed clusters function, and you cannot create new workloads.
+</p>
+
+To restore a cluster:  
+
+1. Move the cluster backup artifact to a folder from which you will run the BBR restore process.
+
+1. SSH into your jump box. For more information about the jump box, see 
+[Configure Your Jump Box](bbr-install.html#jumpbox-setup) in _Installing BOSH Backup and Restore_.
+
+1. Run the following command:
+
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    nohup bbr deployment  --target BOSH-TARGET \
+    --username BOSH-CLIENT  --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-SERVER-CERT \
+    restore \
+    --artifact-path PATH-TO-DEPLOYMENT-BACKUP
+    ```
+    Where:  
+
+    * `BOSH-CLIENT-SECRET` is the `BOSH_CLIENT_SECRET` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.  
+    * `BOSH-TARGET` is the `BOSH_ENVIRONMENT` property.  This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**. 
+    You must be able to reach the target address from the workstation where you run `bbr` commands.  
+    * `BOSH-CLIENT` is the `BOSH_CLIENT` property. This value is in the BOSH Director tile under **Credentials > Bosh Commandline Credentials**.  
+    * `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in 
+    [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in the [Download the Root CA Certificate](#root-ca-cert) section above.  
+    * `PATH-TO-DEPLOYMENT-BACKUP` is the path to to your deployment backup. 
+    Make sure you have transfer your artifact into your jump box as described in [Transfer Artifacts to Jump Box](#artifacts-jumpbox) above.  
+
+    For example:
+    ```console
+    $ BOSH_CLIENT_SECRET=p455w0rd \
+    nohup bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment service-instance_3839394 \
+    --ca-cert bosh.ca.cert \
+    restore \
+    --artifact-path deployment-backup
+    ```
+    <p class="note">
+    <strong>Note</strong>: The BBR restore command can take a long time to complete. 
+    The BBR restore command above uses <code>nohup</code> and the restore process is run within your SSH session. 
+    If you instead run the BBR command in a <code>screen</code> or <code>tmux</code> session the task will 
+    run separately from your SSH session and will continue to run, even if your SSH connection to the jump box fails.
+</p>
+1. To cancel a running `bbr restore`, see [Cancel a Restore](#cancel-restore) below.
+1. After you restore a Kubernetes cluster, you must register its workers with their control plane nodes by following the [Register Restored Worker VMs](#register-nodes) steps below.
+1. If your Tanzu Kubernetes Grid Integrated Edition cluster restore fails, do one or more of the following:  
+    * Run the command again, adding the `--debug` flag to activate debug logs. For more information, 
+      see [BBR Logging](bbr-logging.html).  
+    * Follow the steps in [Resolve a Failing BBR Restore Command](#recover-from-failing-command) below.  
+
+    Be sure to complete the steps in [Clean Up After a Failed Restore](#manual-clean) below.  
+
+## <a id='register-nodes'></a> Register Restored Worker VMs
+
+After restoring a Kubernetes cluster, 
+you must register all of the cluster's worker nodes with their control plane nodes. 
+To register cluster worker nodes, complete the following:  
+
+1. [Delete Nodes](#delete-nodes)
+1. [Restart kubelet](#restart-kubelet)  
+
+### <a id='delete-nodes'></a> Delete Nodes
+
+To delete a cluster's restored nodes:  
+
+1. To determine your cluster's namespace, run the following command:
+
+    ```
+    kubectl get all --all-namespaces
+    ```
+
+1. To retrieve the list of worker nodes in the cluster, run the following command:  
+
+    ```
+    kubectl get nodes -o wide
+    ```
+    Document the worker node names listed in the `NAME` column. 
+    Confirm the worker nodes are all listed with a status of `NotReady`.  
+1. To delete a node, run the following:  
+
+    ```
+    kubectl delete node NODE-NAME
+    ```
+    Where `NODE-NAME` is a node `NAME` returned by the `kubectl get nodes` command.  
+
+1. Repeat the preceding `kubectl delete node` step for each of your cluster's nodes.
+
+### <a id='restart-kubelet'></a> Restart kubelet
+
+To restart `kubelet` on your worker node VMs:  
+
+1. To restart `kubelet` on all of your cluster's worker node VMs, run the following command:
+
+    ```
+    bosh ssh -d DEPLOYMENT-NAME worker -c 'sudo /var/vcap/bosh/bin/monit restart kubelet'
+    ```
+    Where `DEPLOYMENT-NAME` is the cluster BOSH deployment name that you recorded in 
+    [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.    
+
+1. To confirm all worker nodes in your cluster have been restored to a `Ready` state, 
+run the following command:
+
+    ```
+    kubectl get nodes -o wide
+    ```
+
+
+## <a id="recover-from-failing-command"></a>Resolve a Failing BBR Restore Command
+
+To resolve a failing BBR restore command:
+
+1. Ensure that you set all the parameters in the command.
+1. Ensure that the BOSH Director credentials are valid.
+1. Ensure that the specified BOSH deployment or Director exists.
+1. Ensure that the jump box can reach the BOSH Director.
+1. Ensure the source backup artifact is compatible with the target BOSH deployment or Director.
+1. If you see the error message `Directory /var/vcap/store/bbr-backup already exists on instance`,
+run the relevant commands from the [Clean up After Failed Restore](#manual-clean) section of this
+topic.
+1. See the [BBR Logging](bbr-logging.html) topic.
+
+## <a id='cancel-restore'></a>Cancel a Restore
+
+If you must cancel a restore, perform the following steps:
+
+1. Terminate the BBR process by pressing Ctrl-C and typing `yes` to confirm.
+1. Perform the procedures in the [Clean up After Failed Restore](#manual-clean) section to support future restores. Stopping a restore can leave the system in an unusable state and prevent future restores.
+
+## <a id="manual-clean"></a>Clean Up After a Failed Restore
+
+If a BBR restore process fails, BBR might not have run the post-restore scripts, potentially leaving the instance in a locked state. 
+Additionally, the BBR restore folder might remain on the target instance and subsequent restore attempts might also fail.  
+
+* To resolve issues following a failed BOSH Director restore, run the following BBR command:
+
+    ```
+    nohup bbr director \
+    --host BOSH-DIRECTOR-IP \
+    --username bbr \
+    --private-key-path PRIVATE-KEY-FILE \
+    restore-cleanup
+    ```
+
+    Where:  
+
+    * `BOSH-DIRECTOR-IP` is the address of the BOSH Director. If the BOSH Director is public, 
+    BOSH-DIRECTOR-IP is a URL, such as `https://my-bosh.xxx.cf-app.com`. Otherwise, this is the internal IP `BOSH-DIRECTOR-IP` 
+    which you can retrieve as show in [Retrieve the BOSH Director Address](#bosh-address) above.  
+    * `PRIVATE-KEY-FILE` is the path to the private key file that you can create from `Bbr Ssh Credentials` 
+    as shown in [Download the BBR SSH Credentials](#bbr-ssh-creds) above.  
+    For example:
+    ```console
+    $ nohup bbr director \
+    --target 10.0.0.5 \
+    --username bbr \
+    --private-key-path private.pem \
+    restore-cleanup
+    ```
+
+* To resolve issues following a failed control plane restore, run the following BBR command:
+
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    bbr deployment \
+    --target BOSH-TARGET \
+    --username BOSH-CLIENT \
+    --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-CA-CERT \
+    restore-cleanup
+    ```
+
+    Where:  
+
+    * `BOSH-CLIENT-SECRET` is the value for `BOSH_CLIENT_SECRET` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.
+    * `BOSH-TARGET` is the value for `BOSH_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.
+        You must be able to reach the target address from the workstation where you run `bbr` commands.
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds) above.  
+    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Name](#cluster-deployment-name) above.   
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.  
+    For example:
+    ```console
+    $ BOSH_CLIENT_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment pivotal-container-service-453f2f \
+    --ca-cert bosh.ca.crt \
+    restore-cleanup
+    ```
+
+* To resolve issues following a failed cluster restore, run the following BBR command:
+
+    ```
+    BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET \
+    bbr deployment \
+    --target BOSH-TARGET \
+    --username BOSH-CLIENT \
+    --deployment DEPLOYMENT-NAME \
+    --ca-cert PATH-TO-BOSH-CA-CERT \
+    restore-cleanup
+    ```
+
+    Where:  
+
+    * `BOSH-CLIENT-SECRET` is the value for `BOSH_CLIENT_SECRET` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
+    * `BOSH-TARGET` is the value for `BOSH_ENVIRONMENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).
+        You must be able to reach the target address from the workstation where you run `bbr` commands.
+    * `BOSH-CLIENT` is the value for `BOSH_CLIENT` retrieved in [Download the BOSH Commandline Credentials](#bosh-cli-creds).  
+    * `DEPLOYMENT-NAME` is the name retrieved in [Retrieve Your Cluster Deployment Names](#cluster-deployment-name) above.   
+    * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert).  
+    For example:
+    ```console
+    $ BOSH_CLIENT_SECRET=p455w0rd \
+    bbr deployment \
+    --target bosh.example.com \
+    --username admin \
+    --deployment pivotal-container-service-453f2f \
+    --ca-cert bosh.ca.crt \
+    restore-cleanup
+    ```

@@ -1,0 +1,238 @@
+---
+title: Configure the TCP Layer 4 Load Balancer
+owner: TKGI
+lbtype: layer4controller
+---
+
+This topic describes how to define network profile to configure the NSX Load Balancer for VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) provisioned Kubernetes clusters.  
+
+## <a id='overview'></a><a id='nsx-lb-about'></a><a id='nsx-lb-about'></a> Overview
+
+{{> nsx-t-ingress-lb-overview }}
+
+
+## <a id='nsx-lb-4-about'></a> Configure the TCP Ingress Controller Network Profile
+
+The TCP layer 4 virtual server provisioned for each Kubernetes service 
+is controlled by the parameters exposed in a network profile.  
+
+{{{{raw}}}} <!--  DO NOT WRAP THE CONTENT IN THE FOLLOWING NOTE  --> {{{{/raw}}}}
+<p class="note"><strong>Note:</strong> The TCP layer 4 virtual server that fronts the Kubernetes API server is always created, and it is not controlled by the parameters exposed in the network profile.</p>
+
+#### <a id='nsx-lb-params'></a> NSX TCP Ingress Controller Network Profile Configuration
+
+The NSX Ingress Controller is configured using the `ncp.ini` network profile configuration file.  
+
+The TCP Ingress Controller network profile has the following format:
+
+```
+{
+  "name": "network_profile",
+  "description": "DESCRIP",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "nsx_lb": NSX-LB,        
+           "x_forwarded_for": "FORWARD-TYPE",
+           "max_l4_lb_service": MAX-SERVERS,
+           "l4_persistence_type": "source_ip",
+           "l4_lb_algorithm": "LB-BEHAVIOR"
+           }
+       }
+    }
+}
+```
+
+Where: 
+
+* `DESCRIP` is your description for this network profile configuration.
+* `NSX-LB` is your preference for whether the NSX Load Balancer is used for your Kubernetes clusters. 
+For more information see [Configure Which NSX Load Balancer to Use](#nsx_lb), below.
+* `FORWARD-TYPE` (Optional) is your request header original client source IP. 
+For more information see the [Configure the Client Source IP Address](#x_forwarded_for), below.
+* `MAX-SERVERS` is your maximum number of layer 4 virtual servers per cluster. 
+For more information see the [Configure the Maximum Number of Layer 4 Load Balancer Virtual Servers](#max_l4_lb_service), below.
+* `LB-BEHAVIOR` (Optional) is your load balancer behavior. 
+For more information see the [Configure the Layer 4 Load Balancer Algorithm](#l4_lb_algorithm), below. 
+
+<a id='nsx-lb-example'></a>For example:
+
+```
+{
+  "name": "network_profile",
+  "description": "DESCRIP",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "nsx_lb": true,        
+           "x_forwarded_for": "replace",
+           "max_l4_lb_service": 10,
+           "l4_persistence_type": "source_ip",
+           "l4_lb_algorithm": "weighted_round_robin"
+           }
+       }
+    }
+}
+```
+
+{{> ic-network-profile }}
+ 
+
+#### <a id='nsx_lb'></a> Configure Which NSX Load Balancer to Use
+
+The `nsx_lb` flag controls whether to deploy either the NSX Load Balancer 
+or a third-party load balancer, such as Nginx.  
+The `nsx_lb` parameter accepts `true` or `false`. 
+The default setting is `true` and the NSX Load Balancer is deployed. 
+To use a third party load balancer, set this parameter to `false`.  
+
+For example:
+
+```
+{
+  "name": "example_network_profile",
+  "description": "nsx_lb is enabled",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+         "nsx_lb": false
+      }
+    }
+  }
+}
+```
+
+{{{{raw}}}} <!--  DO NOT WRAP THE CONTENT IN THE FOLLOWING NOTE  --> {{{{/raw}}}}
+<p class="note"><strong>Note:</strong> The <code>nsx_lb</code> parameter maps to 
+the <code>use_native_loadbalancer</code> parameter in NCP.ini.</p>
+
+For more information about configuring the NSX Ingress Controller component of the  NSX Load Balancer, 
+see [Defining Network Profiles for the HTTP/S Layer 7 Ingress Controller](./network-profiles-ncp-ingress.html). 
+
+#### <a id='x_forwarded_for'></a> Configure the Client Source IP Address
+
+The [X-Forwarded-For](https://en.wikipedia.org/wiki/X-Forwarded-For) HTTP header field is used to identify the originating IP address of a client connecting to a web server through an HTTP proxy or load balancer.
+
+In network profile, the `x_forwarded_for` parameter can be enabled to ensure that the client IP address will be set in the HTTP request header. The `x_forwarded_for` parameter is useful in situations where it is important to know the source IP address of the client request, such as for auditing purposes.
+
+<p class="note"><strong>Note:</strong> Enabling the network profile <code>x_forwarded_for</code> parameter automatically enables the 
+<code>x_forwarded_port</code> and <code>x_forward_protocol</code> parameters. This is supported with NSX v3.0.x and later.</p>
+
+The `x_forwarded_for` parameter type is String that accepts `"none"`, `"insert"`, and `"replace"`. Any other type will be rejected. Missing entry is accepted.
+
+If `x_forwarded_for` is set to "insert", the client source IP will be appended (comma separated) to the existing set of client source IP addresses. If `x_forwarded_for` is set to "replace", any existing client source IP address will be replaced with the current client source IP address. 
+
+For example, with the following network profile the source IP address of the client will be appended to the existing set of client source IP addresses:
+
+```
+{
+  "name": "example-network-profile",
+  "description": "x_forwarded_for insert",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "x_forwarded_for": "insert"
+      }
+    }
+  }
+}
+```
+
+For example, with the following network profile the existing source IP address of the client will replace all other client source IP entries:
+
+```
+{
+  "name": "example-network-profile",
+  "description": "x_forwarded_for replace",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "x_forwarded_for": "replace"
+      }
+    }
+  }
+}
+```
+
+#### <a id='max_l4_lb_service'></a> Configure the Maximum Number of Layer 4 Load Balancer Virtual Servers
+
+The default NSX Load Balancer behavior is that auto-scaling is unlimited. 
+This means that the number of layer 4 virtual servers that can be deployed is governed only by the capacity 
+of the Edge Cluster where the load balancer service is deployed. 
+As a result, in theory it is possible for a single Kubernetes cluster to use up all of 
+the layer 4 virtual servers that the Edge Cluster can support.
+
+The `max_l4_service` parameter sets the upper limit for the number of virtual servers that can be used by a Kubernetes cluster. You can use this parameter to limit the number of virtual servers that can be created per Kubernetes cluster.
+
+The `max_l4_lb_service` data type is an integer. The value must be larger or equal to 1. Missing entry is accepted.
+
+For example, the following network profile uses the `max_l4_lb_service` parameter to limit the number of layer 4 virtual servers to 100 per cluster:
+
+```
+{
+  "name": "example_network_profile",
+  "description": "max_l4_lb_service",
+  "parameters" : {
+     "cni_configurations": {
+         "type": "nsxt",
+         "parameters": {
+           "max_l4_lb_service": 100
+         }
+     }
+  }
+}
+```
+
+#### <a id='l4_persistence_type'></a> Configure the Layer 4 Persistence Type
+
+The `l4_persistence_type` is used to set connection stickiness based on `source_ip`.
+
+The `l4_persistence_type` data type is string. The only accepted value is `source_ip`.
+
+```
+{
+  "name": "example_network_profile",
+  "description": "l4_persistence_type",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+        "l4_persistence_type": "source_ip"
+      }
+    }
+  }
+}
+```
+
+#### <a id='l4_lb_algorithm'></a> Configure the Layer 4 Load Balancer Algorithm
+
+The `l4_lb_algorithm` is used to set the algorithm type for the layer 4 NSX Load Balancer service.
+
+The `l4_lb_algorithm` data type is string enumeration that accepts one of the following values:
+
+* `"round_robin"` (default)
+* `"least_connection"`
+* `"ip_hash"`
+* `"weighted_round_robin"`
+
+For example, the following network profile specifies the `weighted_round_robin` as the load balancer algorithm:
+
+```
+{
+  "name": "example_network_profile",
+  "description": "l4_lb_algorithm",
+  "parameters": {
+    "cni_configurations": {
+      "type": "nsxt",
+      "parameters": {
+        "l4_lb_algorithm": "weighted_round_robin"
+      }
+    }
+  }
+}
+```

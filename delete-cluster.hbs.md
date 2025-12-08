@@ -1,0 +1,104 @@
+---
+title: Deleting Clusters
+owner: TKGI
+---
+
+This topic describes how to delete a Kubernetes cluster deployed by VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+
+
+## <a id='overview'></a>Overview
+
+Run the `tkgi delete-cluster` command to delete a TKGI-provisioned Kubernetes cluster and all cluster objects.  
+
+To delete a cluster:  
+
+1. [Delete Cluster ](#delete).  
+1. [Verify Cluster Deletion](#verify).  
+
+If you are using TKGI with NSX, see [vSphere with NSX Cluster Objects](vsphere-nsxt-cluster-objects.html) for a list of vSphere and NSX objects that will be deleted as part of the cluster deletion process.
+
+
+## <a id='delete'></a>Delete Cluster 
+
+You can delete a cluster using the TKGI CLI.  
+
+To avoid an incomplete deletion, prepare the cluster for deletion before deleting it:  
+
+1. If the cluster is configured with a PodDisruptionBudget (PDB), remove the PDB from the cluster.  
+1. Remove all static and dynamic PVCs from the cluster.  
+1. Remove all PVs with a reclaimPolicy of `Retain` from the cluster.  
+1. If you are deleting a cluster that uses a public cloud CSI driver, 
+see [Limitations on Using a Public Cloud CSI Driver](release-notes.html#1-15-0-csi-driver-limits) 
+in _Release Notes_ for additional requirements.  
+
+    <p class="note"><strong>Note</strong>: Before deleting a cluster, 
+    remove the PVs and PVCs from the cluster to avoid making orphan disks of the cluster's attached disks.
+    </p>
+
+<br>
+To delete a cluster:
+
+1. {{> login-api }}
+
+
+1. Run `tkgi delete-cluster CLUSTER-NAME` to delete a cluster. Replace `CLUSTER-NAME` with the unique name for your cluster.  
+
+    For example:
+    ```console
+    $ tkgi delete-cluster my-cluster
+    ```
+    
+1. Confirm cluster deletion by entering `y`, or cancel cluster deletion by entering `n`.  
+
+    For example:
+    ```console
+    Are you sure you want to delete cluster my-cluster? (y/n)
+    ```
+
+
+## <a id='verify'></a>Verify Cluster Deletion
+
+To verify cluster deletion using the TKGI CLI:  
+
+1. To verify cluster deletion, run `tkgi cluster CLUSTER-NAME`. Replace `CLUSTER-NAME`
+with the unique name for your cluster.  
+<br>
+    For example:
+    ```console
+    $ tkgi cluster my-cluster  
+    Name:                     my-cluster  
+    Plan Name:                small  
+    UUID:                     106aabc7-5ecb-4c54-a800-a32eef57a593  
+    Last Action:              DELETE  
+    Last Action State:        in progress  
+    Last Action Description:  Instance deletion in progress  
+    Kubernetes Master Host:   my-cluster.tkgi.local  
+    Kubernetes Master Port:   8443  
+    Worker Nodes:             3  
+    Kubernetes Master IP(s):  10.196.219.88  
+    Network Profile Name:
+    Kubernetes Profile Name:
+    Compute Profile Name:
+    NSX Policy:               true
+    Private Registries:       true
+    ```
+    While Tanzu Kubernetes Grid Integrated Edition is deleting the cluster, the value for `Last Action Description` is
+    `Instance deletion in progress`.  
+
+1. Continue running the `tkgi cluster CLUSTER-NAME` command to track cluster deletion.
+The cluster is deleted when the CLI returns `Error: Cluster CLUSTER-NAME not found`.
+
+1. Run `tkgi clusters`. Confirm the cluster you deleted is not included in the list of Tanzu Kubernetes Grid Integrated Edition clusters.
+  <p class="note"><strong>Note</strong>: If the cluster is not deleted, see <a href="troubleshoot-issues.html#cluster-delete-fail">Cluster Deletion Fails</a> in <em>Troubleshooting</em>.</p>
+
+
+## <a id='non-interactive'></a>Delete Cluster without Prompt
+
+If you do not want the TKGI CLI to prompt you to confirm cluster deletion, use the `--non-interactive` flag.  
+
+    For example:  
+    ```console
+    $ tkgi delete-cluster my-cluster --non-interactive
+    ```
+
+<p class="note"><strong>Note</strong>: If you use the <code>--non-interactive</code> flag to delete multiple clusters, delete each cluster one by one. Do not create a script that deletes multiple clusters using the <code>--non-interactive</code> flag. If you do, the BOSH Director might hang and become unusable until you log in to BOSH and cancel each deletion task.</p>

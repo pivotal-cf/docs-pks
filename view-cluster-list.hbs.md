@@ -1,0 +1,26 @@
+---
+title: Viewing Cluster Lists
+owner: TKGI
+---
+
+This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edition Command Line Interface (TKGI CLI) to view a list of deployed TKGI Kubernetes clusters.  
+
+
+1. {{> login-api }}
+
+
+1. Run the following command to view the list of deployed clusters, including cluster names and status:  
+
+    ```
+    tkgi clusters
+    ```
+
+    For example:  
+
+    ```console
+    $ tkgi clusters
+
+    Name                Plan Name             UUID                                  Status     Action
+    cluster-one         small                 881543kd-64fg-7826-hea6-3h7g1o04kh0e  succeeded  CREATE
+    cluster-two         small                 951547dl-67kg-9631-bju8-7h9s3o98br0q  succeeded  CREATE
+    ```

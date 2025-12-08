@@ -1,0 +1,159 @@
+---
+title: Maintaining Workload Uptime
+owner: TKGI
+---
+
+This topic describes how you can maintain workload uptime for Kubernetes clusters deployed with VMware Tanzu Kubernetes Grid Integrated Edition (TKGI).  
+
+To maintain workload uptime, configure the following settings in your deployment manifest:
+
+1. Configure [workload replicas](#replicas) to handle traffic during rolling upgrades.
+1. Define an [anti-affinity rule](#anti-affinity) to evenly distribute workloads across the cluster.
+
+To increase uptime, you can also refer to the documentation for the services that run on your clusters, and configure your workload based on the recommendations of the software vendor.
+
+##<a id='upgrades'></a> About Cluster Upgrades
+
+The Tanzu Kubernetes Grid Integrated Edition tile contains an errand that upgrades all Kubernetes clusters. 
+Upgrades run on a single VM at a time:  
+
+* While a control plane VM is upgraded, the VM's workloads are distributed to the cluster's remaining control plane VMs. 
+* While a worker VM is upgraded, the workload on that VM goes down. 
+The cluster's additional worker VMs continue to run replicas of your workload, maintaining the uptime of your workload.  
+
+    <p class="note"><strong>Note</strong>: Ensure that your pods are bound to a <em>ReplicaSet</em> or <em>Deployment</em>. Naked pods are not rescheduled in the event of a node failure. For more information, see <a href="https://kubernetes.io/docs/concepts/configuration/overview/#naked-pods-vs-replicasets-deployments-and-jobs">Configuration Best Practices</a> in the Kubernetes documentation.</p>
+
+Upgrading a cluster with only a single control plane or worker VM results in a workload outage. 
+
+To prevent workload downtime during a cluster upgrade, {{{ vars.recommended_by }}} recommends the following:  
+
+* Ensure none of the control plane VMs being upgraded will become overloaded during the cluster upgrade. 
+See [Control Plane Node VM Size](vm-sizing.html#master-sizing) for more information. 
+* Run your workload on at least three worker VMs and using multiple replicas of your workloads spread across those VMs.
+You must edit your manifest to define the replica set and configure an anti-affinity rule to ensure that the replicas run on separate worker nodes.
+
+##<a id='replicas'></a> Set Workload Replicas
+
+Set the number of workload replicas to handle traffic during rolling upgrades.
+To replicate your workload on additional worker VMs, deploy the workload using a replica set.
+
+Edit the `spec.replicas` value in your deployment manifest:
+
+```yaml
+kind: Deployment
+metadata:
+  # ...
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: APP-NAME
+```
+
+See the following table for more information about this section of the manifest:
+
+<table>
+  <tr>
+    <th>Key-Value Pair</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><pre>spec:<br>  replicas: 3</pre></td>
+    <td> Set this value to at least 3 to have at least three instances of your workload running at any time.
+   </td>
+  </tr>
+  <tr>
+    <td><pre>app: APP-NAME</pre></td>
+    <td>Use this app name when you define the anti-affinity rule later in the spec.</td>
+  </tr>
+</table>
+
+##<a id='anti-affinity'></a> Define an Anti-Affinity Rule
+
+To distribute your workload across multiple worker VMs, you must use anti-affinity rules.
+If you do not define an anti-affinity rule, the replicated pods can be assigned to the same worker node.
+See the [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) for more information about anti-affinity rules.
+
+To define an anti-affinity rule, add the `spec.template.spec.affinity` section to your deployment manifest:
+
+
+```yaml
+kind: Deployment
+metadata:
+  # ...
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: APP-NAME
+    spec:
+      containers:
+      - name: MY-APP
+        image: MY-IMAGE
+        ports:
+        - containerPort: 12345
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - APP-NAME
+              topologyKey: "kubernetes.io/hostname"
+```
+
+See the following table for more information:
+
+<table>
+  <tr>
+    <th>Key-Value Pair</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><pre>podAntiAffinity: <br>requiredDuringSchedulingIgnoredDuringExecution</pre></td>
+    <td>
+      <ul>
+        <li>When you set <code>podAntiAffinity</code> to the <code>requiredDuringSchedulingIgnoredDuringExecution</code>
+        value, the pod is eligible to be scheduled only on worker nodes that are not running a replica of this pod.
+        If the requirement cannot be met, scheduling fails.</li>
+        <li>Alternatively, you can set <code>podAntiAffinity</code> to the <code>preferredDuringSchedulingIgnoredDuringExecution</code>
+        value. With this rule, the scheduler tries to schedule pod replicas on different worker nodes.
+        If it is not possible, the scheduler assigns more than one pod to the same worker node.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><pre>matchExpressions: <br>- key: "app"</pre></td>
+    <td>This value matches <code>spec.template.metadata.labels.app</code>.</td>
+  </tr>
+  <tr>
+    <td><pre>values: <br>- APP-NAME</pre></td>
+    <td>This value matches the <code>APP-NAME</code> you defined earlier in the spec.</td>
+  </tr>
+</table>
+
+
+##<a id='multi-az-worker'></a> Multi-AZ Worker
+
+Kubernetes evenly spreads pods in a replication controller over multiple Availability Zones (AZs).
+For more granular control over scheduling pods, add an `Anti-Affinity Rule` to the deployment spec by replacing `"kubernetes.io/hostname"` with `"failure-domain.beta.kubernetes.io/zone"`.
+
+For more information about scheduling pods, see [Advanced Scheduling in Kubernetes](https://kubernetes.io/blog/2017/03/advanced-scheduling-in-kubernetes/) on the Kubernetes Blog.
+
+
+##<a id='persistent-volumes'></a> PersistentVolumes
+
+If an AZ goes down, PersistentVolumes (PVs) and their data also go down and cannot be automatically re-attached. To preserve your PV data in the event of a fallen AZ, your persistent workload needs to have a failover mechanism in place.
+
+Depending on the underlying storage type, PVs are either completely free of zonal information or can have multiple AZ labels attached. Both options enable a PV to travel between AZs.
+
+To ensure the uptime of your PVs during a cluster upgrade, {{{ vars.recommended_by }}} recommends that you have at least two nodes per AZ.
+By configuring your workload as suggested, Kubernetes reschedules pods in the other node of the same AZ while BOSH is performing the upgrade.
+
+For information about configuring PVs in Tanzu Kubernetes Grid Integrated Edition, see [Configuring and Using PersistentVolumes](volumes.html).
+
+For information about the supported storage topologies for Tanzu Kubernetes Grid Integrated Edition on vSphere, see [PersistentVolume Storage Options on vSphere](vsphere-persistent-storage.html).
