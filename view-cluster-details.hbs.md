@@ -27,7 +27,7 @@ This topic describes how to use the VMware Tanzu Kubernetes Grid Integrated Edit
     $ tkgi cluster my-cluster --details
     TKGI Version:             1.22.3-build.6
     Name:                     my-cluster
-    K8s Version:              1.32.14
+    K8s Version:              1.31.14
     Plan Name:                small
     UUID:                     4b1a9b6d-3594-4cad-ad0f-22043fb26480
     Last Action:              CREATE
