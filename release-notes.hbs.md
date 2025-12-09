@@ -15,7 +15,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
 
 ## <a id="1-22-4"></a>TKGI {{{ vars.product_version }}}.4
 
-**Release Date**: TBD
+**Release Date**: December 16, 2025
 
 ### <a id="1-22-4-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
 
@@ -29,7 +29,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Release date</td>
-        <td colspan=2>TBD</td>
+        <td colspan=2>December 16, 2025</td>
     </tr>
     <tr>
         <th colspan=3><h4>Internal Component Versions</h4></th>
@@ -76,8 +76,8 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Kubernetes</td>
-        <td>v1.31.12</td>
-        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md#changelog-since-v13112" target="_blank">Release Notes</a></td>
+        <td>v1.31.14</td>
+        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
         <td>Metrics Server</td>
