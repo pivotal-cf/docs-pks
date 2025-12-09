@@ -20,7 +20,7 @@ Before deploying Ops Manager with NSX for Tanzu Kubernetes Grid Integrated Editi
 </ul>
 
 In addition, review the supported Ops Manager versions for Tanzu Kubernetes Grid Integrated Edition.
-See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
+See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN).
 
 Review the known issues for your version of Ops Manager. See one of the following:
 

@@ -21,7 +21,7 @@ To download and install kubectl, complete the steps in [Install the Kubernetes C
 
 To download and install the Kubernetes CLI:
 
-1. Log in to <a href="https://support.broadcom.com/">Broadcom Support</a> and navigate to **Software** > **Tanzu** > **My Downloads** > [Tanzu Kubernetes Grid Integrated Edition (TKGi) - CLI & Tile](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN)
+1. Log in to <a href="https://support.broadcom.com/">Broadcom Support</a> and navigate to **Software** > **Tanzu** > **My Downloads** > [Tanzu Kubernetes Grid Integrated Edition (TKGi) - CLI & Tile](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN)
 1. Click **Tanzu Kubernetes Grid Integrated Edition (TKGi) - CLI & Tile** and select your desired release version.
 1. Enable the **I agree to the Terms and Conditions** checkbox and click the **Kubectl** download link for your operating system:
 
