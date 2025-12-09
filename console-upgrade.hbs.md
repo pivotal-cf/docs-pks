@@ -7,8 +7,6 @@ To upgrade an existing installation of {{  vars.product }} Management Console, y
 
 You can only use the management console to upgrade an {{  vars.product }} installation that was deployed from a previous version of the management console. You cannot use the console to upgrade an instance of {{  vars.product }} that you installed manually.
 
-<p class="note"><strong>Note:</strong> You cannot directly upgrade to TKGI v1.22 from older build versions of the TKGI MC v1.21. See <a href="release-notes.html#1-22-0-no-upgrade-ova">Cannot upgrade to TKGI v1.22 from the TKGI MC v1.21 OVA</a> for workarounds.</p>
-
 ## <a id='prereqs'></a>Prerequisites
 
 - You have deployed and configured an older version of {{  vars.product }} Management Console.

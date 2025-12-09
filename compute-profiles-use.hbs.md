@@ -94,7 +94,7 @@ To create a cluster with a compute profile:
 
     TKGI Version:             1.23.0-build.33
     Name:                     test
-    K8s Version:              1.31.9
+    K8s Version:              1.32.10
     Plan Name:                small
     UUID:                     <UUID of deployment>1
     Last Action:              CREATE
