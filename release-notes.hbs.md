@@ -76,7 +76,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Kubernetes</td>
-        <td>v1.31.14</td>
+        <td>v1.32.14</td>
         <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
