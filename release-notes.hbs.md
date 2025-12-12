@@ -194,10 +194,11 @@ TKGI v1.22.4 resolves the following issues:
 
 #### <a id="1-22-3-TKGI-10593"></a>Snaphot-controller pod fails with `ImagePullBackOff`
 
-**Symptom**
-
 The snapshot-controller pod in the `kube-system` namespace fails with `ImagePullBackOff` in TKGI clusters.
 
+**Required Action**
+
+If you have upgraded clusters to TKGI v1.22.4, or before upgrading clusters from TKGI 1.22.3, manually update the image URL in the cluster deployment to `registry.k8s.io/sig-storage/snapshot-controller:v7.0.2`.
 
 ### <a id='1-22-4-security'></a> Security Fixes
 
