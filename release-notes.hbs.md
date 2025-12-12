@@ -190,7 +190,7 @@ TKGI v1.22.4 does not include any new features.
 
 ### <a id="1-22-4-bug-fixes"></a>Resolved Issues
 
-TKGI v1.22.4 resolves the following issues:
+TKGI v1.22.4 resolves the following issue:
 
 #### <a id="1-22-3-TKGI-10593"></a>Snaphot-controller pod fails with `ImagePullBackOff`
 
