@@ -190,7 +190,14 @@ TKGI v1.22.4 does not include any new features.
 
 ### <a id="1-22-4-bug-fixes"></a>Resolved Issues
 
-TKGI v1.22.4 does not resolve any previously reported issues.
+TKGI v1.22.4 resolves the following issues:
+
+#### <a id="1-22-3-TKGI-10593"></a>Snaphot-controller pod fails with `ImagePullBackOff`
+
+**Symptom**
+
+The snapshot-controller pod in the `kube-system` namespace fails with `ImagePullBackOff` in TKGI clusters.
+
 
 ### <a id='1-22-4-security'></a> Security Fixes
 
@@ -393,16 +400,6 @@ See [{{{ vars.product_version }}}.3 Security Fixes](cve.hbs.md#1-22-3) for the l
 Except where noted, the known issues in TKGI v1.22.0 are also in TKGI v1.22.3. For more information, see [TKGI v1.22.0 Known Issues](#1-22-0-known-issues) below.
 
 <hr>
-
-#### <a id="1-22-3-TKGI-10593"></a>Snaphot-controller pod fails with `ImagePullBackOff`
-
-**Symptom**
-
-The snapshot-controller pod in the `kube-system` namespace fails with `ImagePullBackOff` in TKGI clusters.
-
-**Workaround**
-
-See [KB 417007](https://knowledge.broadcom.com/external/article?articleNumber=417007) for more details.
 
 ## <a id="1-22-2"></a>TKGI {{{ vars.product_version }}}.2
 
