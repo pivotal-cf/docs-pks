@@ -6,11 +6,11 @@ Perform the following steps:
   <br>
   ![TKGI API pane configuration](images/tkgi-api.png)
   <br>
-  The certificate that you supply must cover the specific subdomain that routes to the TKGI API VM with TLS termination on the ingress.
+  The certificate that you supply must cover the specific subdomain that routes to the {{ vars.product_short }} API VM with TLS termination on the ingress.
   If you use UAA as your OIDC provider, this certificate must be a proper certificate chain and have a SAN field.
   <p class="note warning"><strong>Warning:</strong> TLS certificates generated for wildcard DNS records only work for a single domain level.
   For example, a certificate generated for <code>&#42;.tkgi.EXAMPLE.com</code> does not permit communication to <code>&#42;.api.tkgi.EXAMPLE.com</code>.
-  If the certificate does not contain the correct FQDN for the TKGI API, calls to the API will fail.</p>
+  If the certificate does not contain the correct FQDN for the {{ vars.product_short }} API, calls to the API will fail.</p>
   You can enter your own certificate and private key pair, or have {{ vars.platform_name }} generate one for you.
 <br>
   To generate a certificate using {{ vars.platform_name }}:
@@ -18,16 +18,16 @@ Perform the following steps:
     1. Enter the domain for your API hostname. This must match the domain you configure under **TKGI API** > **API Hostname (FQDN)** below, in the same pane. It can be a standard FQDN or a wildcard domain.
     1. Click **Generate**.<br>
     ![TKGI API certificate generation](images/tkgi-api-cert-gen.png)
-1. Under **API Hostname (FQDN)**, enter the FQDN that you registered to point to the TKGI API load balancer, such as `api.tkgi.example.com`.
-To retrieve the public IP address or FQDN of the TKGI API load balancer,
+1. Under **API Hostname (FQDN)**, enter the FQDN that you registered to point to the {{ vars.product_short }} API load balancer, such as `api.tkgi.example.com`.
+To retrieve the public IP address or FQDN of the {{ vars.product_short }} API load balancer,
 log in to your IaaS console.
-<p class="note"><strong>Note</strong>: The FQDN for the TKGI API must not contain uppercase letters or trailing whitespace.</p>
+<p class="note"><strong>Note</strong>: The FQDN for the {{ vars.product_short }} API must not contain uppercase letters or trailing whitespace.</p>
 1. Under **Worker VM Max in Flight**, enter the maximum number of non-canary worker instances to create, update or upgrade in parallel within an availability zone.
 	<br><br>
 	This field sets the `max_in_flight` variable value.
-  The `max_in_flight` setting limits the number of component instances the TKGI CLI creates or starts simultaneously
+  The `max_in_flight` setting limits the number of component instances the {{ vars.product_short }} CLI creates or starts simultaneously
   when running `tkgi create-cluster` or `tkgi update-cluster`. By default, `max_in_flight` is set to `4`,
-  limiting the TKGI CLI to creating or starting a maximum of four component instances in parallel.
+  limiting the {{ vars.product_short }} CLI to creating or starting a maximum of four component instances in parallel.
 1. Enable the **Automatic retry on cluster update operations failure** option to make `tkgi update-cluster` retry the cluster update process up to three times if it fails.
 1. Disable the **Configure clusters to use private registries** option to disable the `--private-registries` option of the `tkgi create-cluster` and `tkgi update-cluster` commands described in [Configuring Cluster Access to Private Registries](docker-custom-ca-certs.html). By default, the ability to configure clusters to use private registries is enabled.
 1. Click **Save**.
