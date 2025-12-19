@@ -15,7 +15,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
 
 ## <a id="1-22-4"></a>TKGI {{{ vars.product_version }}}.4
 
-**Release Date**: December 16, 2025
+**Release Date**: December 22, 2025
 
 ### <a id="1-22-4-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
 
@@ -29,7 +29,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Release date</td>
-        <td colspan=2>December 16, 2025</td>
+        <td colspan=2>December 22, 2025</td>
     </tr>
     <tr>
         <th colspan=3><h4>Internal Component Versions</h4></th>
@@ -45,20 +45,20 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Cloud Providers</td>
-        <td>AWS: v1.31.8<br>Azure: v1.31.9<br>vSphere: v1.31.1</td>
+        <td>AWS: v1.31.9&#42;<br>Azure: v1.31.12&#42;<br>vSphere: v1.31.1</td>
         <td style="text-align: center;">Release Notes:
-          <br><a href="https://github.com/kubernetes/cloud-provider-aws/releases/tag/v1.31.8">AWS</a>
-          <br><a href="https://github.com/kubernetes-sigs/cloud-provider-azure/releases/tag/v1.31.9">Azure</a>
+          <br><a href="https://github.com/kubernetes/cloud-provider-aws/releases/tag/v1.31.9">AWS</a>
+          <br><a href="https://github.com/kubernetes-sigs/cloud-provider-azure/releases/tag/v1.31.12">Azure</a>
           <br><a href="https://github.com/kubernetes/cloud-provider-vsphere/releases/tag/v1.31.1">vSphere</a>
         </td>
     </tr>
     <tr>
         <td>Containerd</td>
-        <td colspan=2>Linux: v1.7.27<br>Windows: v1.7.27</td>
+        <td colspan=2>Linux: v1.7.29&#42;<br>Windows: v1.7.29&#42;</td>
     </tr>
     <tr>
         <td>CoreDNS</td>
-        <td colspan=2>v1.11.3_vmware.2</td>
+        <td colspan=2>v1.11.3_vmware.3&#42;</td>
     </tr>
     <tr>
         <td>CSI Driver for vSphere</td>
@@ -67,7 +67,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>etcd</td>
-        <td colspan=2>v3.5.15</td>
+        <td colspan=2>v3.5.24&#42;</td>
     </tr>
     <tr>
         <td>Harbor</td>
@@ -76,7 +76,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Kubernetes</td>
-        <td>v1.31.14</td>
+        <td>v1.31.14&#42;</td>
         <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
@@ -163,8 +163,8 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Ubuntu Jammy stemcell</td>
-        <td>v1.906</td>
-        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.906" target="_blank">Release Notes</a></td>
+        <td>v1.954&#42;</td>
+        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.954" target="_blank">Release Notes</a></td>
     </tr>
 </table>
 
