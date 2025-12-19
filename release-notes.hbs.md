@@ -25,7 +25,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Version</td>
-        <td colspan=2><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">v1.22.4</a></td>
+        <td colspan=2><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">v1.22.4</a></td>\
     </tr>
     <tr>
         <td>Release date</td>
@@ -309,7 +309,7 @@ Except where noted, the known issues in TKGI v1.22.0 are also in TKGI v1.22.4. F
     </tr>
     <tr>
         <td>Ubuntu Jammy stemcells</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.3&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.23</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.3&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>Windows stemcells</td>
@@ -553,7 +553,7 @@ Except where noted, the known issues in TKGI v1.22.0 are also in TKGI v1.22.3. F
     <tr>
         <td>Ubuntu Jammy stemcell</td>
         <td>v1.866&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.803" target="_blank">Release Notes</a></td>
+        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.866" target="_blank">Release Notes</a></td>
     </tr>
 </table>
 
