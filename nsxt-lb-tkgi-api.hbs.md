@@ -320,5 +320,5 @@ To validate your Load Balancer configuration:
         Login successful.
 
         TKGI Version    Name        k8s Version  Plan Name  UUID                                  Status     Action
-        1.23.0-build.33  test_one  	{{ vars.k8s_version }}      Plan 1     33988550-...-28658fe51d8a  succeeded  UPDATE
+        {{ vars.build_number }}  test_one  	{{ vars.k8s_version }}      Plan 1     33988550-...-28658fe51d8a  succeeded  UPDATE
         ```
