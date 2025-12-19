@@ -14,8 +14,6 @@ For instructions on upgrading {{  vars.product }}
 on vSphere with NSX networking,
 see [Upgrading {{  vars.product }} (NSX Networking)](upgrade-nsxt.html).
 
-<p class="note"><strong>Note:</strong> You cannot directly upgrade to TKGI v1.22 from older build versions of the TKGI MC v1.21. See <a href="release-notes.html#1-22-0-no-upgrade-ova">Cannot upgrade to TKGI v1.22 from the TKGI MC v1.21 OVA</a> for workarounds.</p>
-
 <p class="note warning"><strong>Warning:</strong> Do not manually upgrade your Kubernetes version.
 {{  vars.product }} includes the compatible Kubernetes version.
 </p>
@@ -70,7 +68,7 @@ Ubuntu Jammy Stemcell for VMware Tanzu Downloading</a> in <em>Configuring the Up
 
 To determine {{ vars.platform_name }} compatibility and, if necessary, upgrade {{ vars.platform_name }}:
 
-1. See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0)
+1. See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.1)
 to determine if your {{ vars.platform_name }} version is compatible with {{  vars.product }} {{{ vars.product_version }}}.
 1. If your {{ vars.platform_name }} version is not compatible with {{  vars.product }} {{{ vars.product_version }}},
 follow the steps below.
