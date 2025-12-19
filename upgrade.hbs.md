@@ -1,6 +1,10 @@
 ---
 title: Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)
 owner: TKGI
+iaas: #Empty var to prevent build breaking
+windowsclusters: #Empty var to prevent build breaking
+topic: #Empty var to prevent build breaking
+thistopic: #Empty var to prevent build breaking
 ---
 
 This topic explains how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI) in Antrea Networking environments from {{{ vars.product_version_prev }}} to {{{ vars.product_version }}}
@@ -66,7 +70,7 @@ Ubuntu Jammy Stemcell for VMware Tanzu Downloading</a> in <em>Configuring the Up
 
 To determine Ops Manager compatibility and, if necessary, upgrade Ops Manager:
 
-1. See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN)
+1. See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN)
 to determine if your Ops Manager version is compatible with Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}}.
 1. If your Ops Manager version is not compatible with Tanzu Kubernetes Grid Integrated Edition {{{ vars.product_version }}},
 follow the steps below.

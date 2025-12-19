@@ -7,10 +7,206 @@ topictype: releasenotes
 
 This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (TKGI) {{{ vars.product_version }}}.
 
+- [TKGI {{{ vars.product_version }}}.4](#1-22-4)
 - [TKGI {{{ vars.product_version }}}.3](#1-22-3)
 - [TKGI {{{ vars.product_version }}}.2](#1-22-2)
 - [TKGI {{{ vars.product_version }}}.1](#1-22-1)
 - [TKGI {{{ vars.product_version }}}.0](#1-22-0)
+
+## <a id="1-22-4"></a>TKGI {{{ vars.product_version }}}.4
+
+**Release Date**: December 22, 2025
+
+### <a id="1-22-4-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
+
+<table class="nice">
+    <tr>
+        <th colspan=3><h4>Release Details</h4></th>
+    </tr>
+    <tr>
+        <td>Version</td>
+        <td colspan=2><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">v1.22.4</a></td>
+    </tr>
+    <tr>
+        <td>Release date</td>
+        <td colspan=2>December 22, 2025</td>
+    </tr>
+    <tr>
+        <th colspan=3><h4>Internal Component Versions</h4></th>
+    </tr>
+    <tr>
+        <td>Antrea</td>
+        <td>v1.10.0</td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/container-networking/1-x/release-notes.html" target="_blank">Release Notes</a></td>
+    </tr>
+    <tr>
+        <td>cAdvisor</td>
+        <td colspan=2>v0.47.2</td>
+    </tr>
+    <tr>
+        <td>Cloud Providers</td>
+        <td>AWS: v1.31.9&#42;<br>Azure: v1.31.12&#42;<br>vSphere: v1.31.1</td>
+        <td style="text-align: center;">Release Notes:
+          <br><a href="https://github.com/kubernetes/cloud-provider-aws/releases/tag/v1.31.9">AWS</a>
+          <br><a href="https://github.com/kubernetes-sigs/cloud-provider-azure/releases/tag/v1.31.12">Azure</a>
+          <br><a href="https://github.com/kubernetes/cloud-provider-vsphere/releases/tag/v1.31.1">vSphere</a>
+        </td>
+    </tr>
+    <tr>
+        <td>Containerd</td>
+        <td colspan=2>Linux: v1.7.29&#42;<br>Windows: v1.7.29&#42;</td>
+    </tr>
+    <tr>
+        <td>CoreDNS</td>
+        <td colspan=2>v1.11.3_vmware.3&#42;</td>
+    </tr>
+    <tr>
+        <td>CSI Driver for vSphere</td>
+        <td>v3.4.0</td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/container-storage-plugin/3-0/release-notes/vmware-vsphere-container-storage-plugin-30-release-notes.html#vSphere%20Container%20Storage%20Plug-in%203.4.0" target="_blank">Release Notes</a></td>
+    </tr>
+    <tr>
+        <td>etcd</td>
+        <td colspan=2>v3.5.24&#42;</td>
+    </tr>
+    <tr>
+        <td>Harbor</td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.13.2&os=&servicePk=&language=EN" target="_blank">v2.13.2</a></td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/harbor-registry/services/harbor/release-notes.html#v2.13.2" target="_blank">Release Notes</a></td>
+    </tr>
+    <tr>
+        <td>Kubernetes</td>
+        <td>v1.31.14&#42;</td>
+        <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.31.md" target="_blank">Release Notes</a></td>
+    </tr>
+    <tr>
+        <td>Metrics Server</td>
+        <td colspan=2>v0.7.2</td>
+    </tr>
+    <tr>
+        <td>NCP</td>
+        <td>v4.2.2.0</td>
+        <td style="text-align: center;">
+        <a href="https://techdocs.broadcom.com/us/en/vmware-cis/nsx/event-catalog/4-2/release-notes/vmware-nsx-container-plugin-4211-release-notes.html" target="_blank">Release Notes</a>
+        </td>
+    </tr>
+    <tr>
+        <td>Percona XtraDB Cluster (PXC)
+        <br>(in BOSH&nbsp;pxc-release)</td>
+        <td>v8.0.41-32
+        <br>pxc-release: v1.0.42</td>
+        <td style="text-align: center;">Release Notes:
+        <br><a href="https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/8.0.41-32.html">PXC</a>
+        <br><a href="https://github.com/cloudfoundry/pxc-release/releases/tag/v1.0.42">pxc-release</a>
+        </td>
+    </tr>
+    <tr>
+        <td>UAA</td>
+        <td colspan=2>v77.20.8</td>
+    </tr>
+    <tr>
+        <td>Velero</td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.22.4&os=&servicePk=&language=EN" target="_blank">1.15.2</a></td>
+        <td style="text-align: center;"><a href="https://github.com/vmware-tanzu/velero/releases/tag/v1.15.2" target="_blank">Release Notes</a></td>
+    </tr>
+    <tr>
+        <th colspan=3><h4>Stemcell Compatibility</h4></th>
+    </tr>
+    <tr>
+        <td>Ubuntu Jammy stemcells</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
+    </tr>
+    <tr>
+        <td>Windows stemcells</td>
+        <td colspan=2>v2019.88 or later</td>
+    </tr>
+    <tr>
+        <th colspan=3><h4>Interoperability</h4></th>
+    </tr>
+    <tr>
+        <td>Operations Manager</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
+    </tr>
+    <tr>
+        <td>VMware Aria Operations Management Pack for Kubernetes</td>
+        <td>v2.1</td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations-for-integrations/2-1/vrealize--operations-management-pack--for-pack-for-kubernetes-2-1/vrealize--operations-management-pack--for-kubernetes.html" target="_blank">v2.1 documentation</a></td>
+    </tr>
+    <tr>
+        <td>VMware Cloud Foundation (VCF)</td>
+        <td>v5.1.1, v5.1, v4.5.2</td>
+        <td style="text-align: center;">Release Notes:
+            <a href="https://docs.vmware.com/en/VMware-Cloud-Foundation/5.1.1/rn/vmware-cloud-foundation-511-release-notes/index.html" target="_blank">v5.1.1</a>, <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-1/vcf-release-notes/vmware-cloud-foundation-51-release-notes.html" target="_blank">v5.1</a>,
+            <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/4-5/vcf-release-notes/vmware-cloud-foundation-452-on-dell-emc-vxrail-release-notes.html" target="_blank">v4.5.2</a>
+        </td>
+    </tr>
+    <tr>
+        <td>VMware NSX&#42;&#42;</td>
+        <td rowspan=2 colspan=2>See <a href="https://interopmatrix.vmware.com/Interoperability?col=644&row=0," target="_blank">VMware Product Interoperability Matrices</a>&#42;&#42;&#42;.</td>
+    </tr>
+    <tr>
+        <th colspan=3><h4>Management Console (vSphere)</h4></th>
+    </tr>
+    <tr>
+        <td>TKGI Management Console</td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.22.0&os=&servicePk=&language=EN" target="_blank">v1.22.0</a></td><td><p class="note"><strong>Note</strong>: The component versions supported by TKGI Management Console might differ from or be more limited than the versions supported by TKGI.</p></td>
+    </tr>
+    <tr>
+        <td>Installed Ops Manager version</td>
+        <td>v3.0.41</td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-0/tanzu-ops-manager/release-notes.html#3-0-41" target="_blank">Release Notes</a></td>
+    </tr>
+    <tr>
+        <td>Installed Harbor Registry version</td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=VMware%20Harbor%20Registry&displayGroup=VMware%20Harbor%20Registry&release=2.13.2&os=&servicePk=&language=EN" target="_blank">v2.13.2</a></td>
+        <td style="text-align: center;"><a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/harbor-registry/services/harbor/release-notes.html#v2.13.2">Release Notes</a></td>
+    </tr>
+    <tr>
+        <td>Ubuntu Jammy stemcell</td>
+        <td>v1.954&#42;</td>
+        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.954" target="_blank">Release Notes</a></td>
+    </tr>
+</table>
+
+&#42; Components marked with an asterisk have been updated.
+
+&#42;&#42; As of May 7, 2024, NSX networking and firewall components are sold separately from TKGI.
+
+&#42;&#42;&#42; Migration from NSX Management Plane API to NSX Policy API requires VMware NSX v4.0.1.1 or later.
+NSX v4.0.1.1 supports only 50% of NSX Management Plane API scale.
+To use Policy API at 100% of Management Plane API scale, use NSX v4.1.1 or later.
+
+### <a id="1-22-4-upgrade"></a>Upgrade Path
+
+The supported upgrade paths to Tanzu Kubernetes Grid Integrated Edition v1.22.4 are from TKGI v1.22.2, v1.22.3, and from v1.21.x.
+
+### <a id="1-22-4-breaking-changes"></a>Breaking Changes
+
+TKGI v1.22.4 does not include any new breaking changes.
+
+### <a id="1-22-4-features"></a>Features and Enhancements
+
+TKGI v1.22.4 does not include any new features.
+
+### <a id="1-22-4-bug-fixes"></a>Resolved Issues
+
+TKGI v1.22.4 resolves the following issue:
+
+#### <a id="1-22-3-TKGI-10593"></a>Snaphot-controller pod fails with `ImagePullBackOff`
+
+The snapshot-controller pod in the `kube-system` namespace fails with `ImagePullBackOff` in TKGI clusters.
+
+**Required Action**
+
+If you have upgraded clusters to TKGI v1.22.4, or before upgrading clusters from TKGI 1.22.3, manually update the image URL in the cluster deployment to `registry.k8s.io/sig-storage/snapshot-controller:v7.0.2`.
+
+### <a id='1-22-4-security'></a> Security Fixes
+
+See [{{{ vars.product_version }}}.4 Security Fixes](cve.hbs.md#1-22-4) for the list of CVEs fixed in this release.
+
+###<a id="1-22-4-known-issues"></a>Known Issues
+
+Except where noted, the known issues in TKGI v1.22.0 are also in TKGI v1.22.4. For more information, see [TKGI v1.22.0 Known Issues](#1-22-0-known-issues) below.
 
 ## <a id="1-22-3"></a>TKGI {{{ vars.product_version }}}.3
 
@@ -113,7 +309,7 @@ This topic contains release notes for Tanzu Kubernetes Grid Integrated Edition (
     </tr>
     <tr>
         <td>Ubuntu Jammy stemcells</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.3&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.23</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.3&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>Windows stemcells</td>
@@ -198,23 +394,13 @@ TKGI v1.22.3 does not resolve any previously reported issues.
 
 ### <a id='1-22-3-security'></a> Security Fixes
 
-See [{{{ vars.product_version }}}.3 Security Fixes](cve.html.md.erb#1-22-3) for the list of CVEs fixed in this release.
+See [{{{ vars.product_version }}}.3 Security Fixes](cve.hbs.md#1-22-3) for the list of CVEs fixed in this release.
 
 ###<a id="1-22-3-known-issues"></a>Known Issues
 
 Except where noted, the known issues in TKGI v1.22.0 are also in TKGI v1.22.3. For more information, see [TKGI v1.22.0 Known Issues](#1-22-0-known-issues) below.
 
 <hr>
-
-#### <a id="1-22-3-TKGI-10593"></a>Snaphot-controller pod fails with `ImagePullBackOff`
-
-**Symptom**
-
-The snapshot-controller pod in the `kube-system` namespace fails with `ImagePullBackOff` in TKGI clusters.
-
-**Workaround**
-
-See [KB 417007](https://knowledge.broadcom.com/external/article?articleNumber=417007) for more details.
 
 ## <a id="1-22-2"></a>TKGI {{{ vars.product_version }}}.2
 
@@ -228,7 +414,7 @@ See [KB 417007](https://knowledge.broadcom.com/external/article?articleNumber=41
     </tr>
     <tr>
         <td>Version</td>
-        <td colspan=2><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN" target="_blank">v1.22.2</a></td>
+        <td colspan=2><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">v1.22.2</a></td>
     </tr>
     <tr>
         <td>Release date</td>
@@ -317,7 +503,7 @@ See [KB 417007](https://knowledge.broadcom.com/external/article?articleNumber=41
     </tr>
     <tr>
         <td>Ubuntu Jammy stemcells</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>Windows stemcells</td>
@@ -328,7 +514,7 @@ See [KB 417007](https://knowledge.broadcom.com/external/article?articleNumber=41
     </tr>
     <tr>
         <td>Operations Manager</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN" target="_blank">TKGi CLI & Tile v1.22</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>VMware Aria Operations Management Pack for Kubernetes</td>
@@ -367,7 +553,7 @@ See [KB 417007](https://knowledge.broadcom.com/external/article?articleNumber=41
     <tr>
         <td>Ubuntu Jammy stemcell</td>
         <td>v1.866&#42;</td>
-        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.803" target="_blank">Release Notes</a></td>
+        <td style="text-align: center;"><a href="https://github.com/cloudfoundry/bosh-linux-stemcell-builder/releases/tag/ubuntu-jammy%2Fv1.866" target="_blank">Release Notes</a></td>
     </tr>
 </table>
 
@@ -403,7 +589,7 @@ TKGI v1.22.2 resolves the following issues:
 
 ### <a id='1-22-2-security'></a> Security Fixes
 
-See [{{{ vars.product_version }}}.2 Security Fixes](cve.html.md.erb#1-22-2) for the list of CVEs fixed in this release.
+See [{{{ vars.product_version }}}.2 Security Fixes](cve.hbs.md#1-22-2) for the list of CVEs fixed in this release.
 
 ###<a id="1-22-2-known-issues"></a>Known Issues
 
@@ -595,7 +781,7 @@ TKGI v1.22.1 resolves the following issue in v1.22.0:
 
 The following table lists CVEs that were fixed in each TKGI component since the latest {{{ vars.product_version_prev }}} patch version, as of the release date above.
 
-See [{{{ vars.product_version }}}.1 Security Fixes](cve.html.md.erb#1-22-1) for the list of CVEs fixed in this release.
+See [{{{ vars.product_version }}}.1 Security Fixes](cve.hbs.md#1-22-1) for the list of CVEs fixed in this release.
 
 ###<a id="1-22-1-known-issues"></a>Known Issues
 

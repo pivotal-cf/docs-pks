@@ -1,6 +1,10 @@
 ---
 title: Upgrading Tanzu Kubernetes Grid Integrated Edition (VMware NSX Networking)
 owner: TKGI
+iaas: #Empty var to prevent build breaking
+windowsclusters: #Empty var to prevent build breaking
+topic: #Empty var to prevent build breaking
+thistopic: #Empty var to prevent build breaking
 ---
 
 This topic describes how to upgrade VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
@@ -120,7 +124,7 @@ To upgrade an NSX-T v3.2 deployment to NSX v4.0 or later:
 ### <a id="upgrade-opsman"></a>Upgrade Ops Manager
 
 Each version of TKGI is compatible with multiple versions of Ops Manager.
-See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN)
+See [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN)
 to determine if your Ops Manager version is compatible with TKGI {{{ vars.product_version }}}.
 
 <p class="note warning"><strong>Warning:</strong> If you use an automated pipeline to upgrade TKGI,
@@ -168,7 +172,7 @@ your configuration settings typically migrate to the new version automatically.
 To download and import a TKGI version:
 
 1. Download the target version of the product
-from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.2&os=&servicePk=&language=EN).
+from [{{{ vars.product_network }}}](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.22.4&os=&servicePk=&language=EN).
 
 1. Import the target version of the TKGI tile to the Ops Manager Installation Dashboard.
   <img src="images/nsxt/nsxt-30/upgrade-05.png" alt="The Ops Manager Installation Dashboard page after importing and applying the TKGI tile.">
@@ -305,9 +309,9 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
 
     ```
     TKGI Version  Name                   k8s Version  Plan Name  UUID                                  Status     Action
-    1.22.2        tkgi-cluster-1-small   1.31.9       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-2-medium  1.31.9       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-3-large   1.31.9       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
+    1.22.4        tkgi-cluster-1-small   1.31.14      small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
+    1.22.4        tkgi-cluster-2-medium  1.31.14      medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
+    1.22.4        tkgi-cluster-3-large   1.31.14      large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
 
 ###<a id='verify'></a>Verify TKGI Upgrade
@@ -325,10 +329,10 @@ the next step is to upgrade the Kubernetes clusters individually using the TKGI 
     ```
     $ tkgi clusters
     TKGI Version  Name                   k8s Version  Plan Name  UUID                                  Status     Action
-    1.22.2        tkgi-cluster-4-test    1.31.9       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  CREATE
-    1.22.2        tkgi-cluster-1-small   1.31.9       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-2-medium  1.31.9       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-3-large   1.31.9       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
+    1.22.4        tkgi-cluster-4-test    1.31.14      medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  CREATE
+    1.22.4        tkgi-cluster-1-small   1.31.14      small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
+    1.22.4        tkgi-cluster-2-medium  1.31.14      medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
+    1.22.4        tkgi-cluster-3-large   1.31.14      large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
 
 ##<a id='upgrade-vsphere'></a> (Optional) Upgrade to vSphere 8
