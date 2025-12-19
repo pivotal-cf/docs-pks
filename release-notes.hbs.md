@@ -6,11 +6,11 @@ topictype: releasenotes
 
 This topic contains release notes for {{  vars.product }} {{{ vars.product_version }}}.
 
-## <a id="1-23-0"></a>TKGI {{{ vars.product_version }}}.0
+## <a id="1-24-0"></a>TKGI {{{ vars.product_version }}}.0
 
-**Release Date**: October 15, 2025
+**Release Date**: January 20, 2026
 
-### <a id="1-23-0-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
+### <a id="1-24-0-snapshot"></a><a id="product-snapshot"></a>Product Snapshot
 
 <table class="nice">
     <tr>
@@ -18,11 +18,11 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
     </tr>
     <tr>
         <td>Version</td>
-        <td colspan=2><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">v1.23.0</a></td>
+        <td colspan=2><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.24.0&os=&servicePk=527514&language=EN" target="_blank">v1.24.0</a></td>
     </tr>
     <tr>
         <td>Release date</td>
-        <td colspan=2>October 15, 2025</td>
+        <td colspan=2>January 20, 2026</td>
     </tr>
     <tr>
         <th colspan=3><h4>Internal Component Versions</h4></th>
@@ -69,7 +69,7 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
     </tr>
     <tr>
         <td>Kubernetes</td>
-        <td>v1.32.8&#42;</td>
+        <td>v1.33.8&#42;</td>
         <td style="text-align: center;"><a href="https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.32.md#v1328" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
@@ -99,7 +99,7 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
     </tr>
     <tr>
         <td>Velero</td>
-        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.23.0&os=&servicePk=527446&language=EN" target="_blank">1.15.2&#42;</a></td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.24.0&os=&servicePk=527446&language=EN" target="_blank">1.15.2&#42;</a></td>
         <td style="text-align: center;"><a href="https://github.com/vmware-tanzu/velero/releases/tag/v1.15.2" target="_blank">Release Notes</a></td>
     </tr>
     <tr>
@@ -107,7 +107,7 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
     </tr>
     <tr>
         <td>Ubuntu Jammy stemcells</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.23</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.24.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.24</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>Windows stemcells</td>
@@ -118,7 +118,7 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
     </tr>
     <tr>
         <td>{{ vars.platform_name }}</td>
-        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.23</a> download page on Broadcom Support.</td>
+        <td colspan=2>See <strong>Upgrade/Dependency Information</strong> at the top right of the <a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.24.0&os=&servicePk=527514&language=EN" target="_blank">TKGi CLI & Tile v1.24</a> download page on Broadcom Support.</td>
     </tr>
     <tr>
         <td>VMware Aria Operations Management Pack for Kubernetes</td>
@@ -142,7 +142,7 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
     </tr>
     <tr>
         <td>TKGI Management Console</td>
-        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.23.0&os=&servicePk=527446&language=EN" target="_blank">v1.23.0</a></td><td><p class="note"><strong>Note</strong>: The component versions supported by TKGI Management Console might differ from or be more limited than the versions supported by TKGI.</p></td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.24.0&os=&servicePk=527446&language=EN" target="_blank">v1.24.0</a></td><td><p class="note"><strong>Note</strong>: The component versions supported by TKGI Management Console might differ from or be more limited than the versions supported by TKGI.</p></td>
     </tr>
     <tr>
         <td>Installed {{ vars.platform_name }} version</td>
@@ -169,13 +169,13 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
 NSX v4.0.1.1 supports only 50% of NSX Management Plane API scale.
 To use Policy API at 100% of Management Plane API scale, use NSX v4.1.1 or later.
 
-### <a id="1-23-0-upgrade"></a>Upgrade Path
+### <a id="1-24-0-upgrade"></a>Upgrade Path
 
-The supported upgrade paths to {{  vars.product }} v1.23.0 is from TKGI v1.22.x.
+The supported upgrade paths to {{  vars.product }} v1.24.0 is from TKGI v1.23.x.
 
-### <a id="1-23-0-breaking-changes"></a>Breaking Changes
+### <a id="1-24-0-breaking-changes"></a>Breaking Changes
 
-**Support for Wavefront is removed in TKGI v1.23.0**. If you are upgrading from previous TKGI versions to v1.23, you might have pods that are running Wavefront images. Currently, clusters use `projects.registry.vmware.com/tanzu_observability` as the URL for Wavefront images. To enable Wavefront to continue to function after upgrading clusters, you must update these clusters so that they load Wavefront images from Docker.
+TKGI v1.24.0
 
 1. Edit the cluster to fetch images from the following Docker URLs.
 
@@ -189,39 +189,34 @@ The supported upgrade paths to {{  vars.product }} v1.23.0 is from TKGI v1.22.x.
 
 The clusters will continue to run smoothly, after upgrading TKGI.
 
-### <a id="1-23-0-features"></a>Features and Enhancements
+### <a id="1-24-0-features"></a>Features and Enhancements
 
-TKGI v1.23.0 includes the following new features and enhancements:
+TKGI v1.24.0 includes the following new features and enhancements:
 
-- Full support for using the TKGI API and TKGI Database in High Availability mode. Both were previously beta features.
-- Support for {{ vars.platform_name }} 3.1.
-- Support for customizing etcd `quota-backend-bytes` parameter through Kubernetes profiles. For information, see [Set etcd Quota Backend Bytes](./k8s-profiles.hbs.md#etcd-quota).
-- Resolved CVEs listed in [Security Fixes](./cve.hbs.md).
+- TBD
 - Bugs fixes listed in Resolved Issues below.
 
-### <a id="1-23-0-bug-fixes"></a>Resolved Issues
+### <a id="1-24-0-bug-fixes"></a>Resolved Issues
 
-TKGI v1.23.0 resolves the following issues:
+TKGI v1.24.0 resolves the following issues:
 
-* <a id="TKGI-8202"></a> Increased the permitted length of CN names for Server Name Indication (SNI) certificates for NSX.
-* <a id="TKGI-8095"></a> Fixed issue in which backups fail when using Velero 1.15.2 with the AWS plugin v1.11.1.
-* <a id="TKGI-8285"></a> Fixed issue in which NAT mode and Policy API are enabled, but NAT rules in NSX are created with Manager API only, not with Policy.
-* <a id="TKGI-7840"></a> Kubernetes pod fails to start with a `failed to setup network for sandbox` error. This was due to a rotation issue with the certificate that NCP uses to communicate with NSX. Now you can update clusters and fix certificate issues later.
-* <a id="TKGI-8268"></a> Increased the client side timeout for NSX API calls. This resolves an issue in which cluster upgrades failed to upgrade with the following error on the master node: `pks-nsx-t-prepare-master-vm job has failed with context deadline exceeded`.
+* <a id="TKGI-TBD"></a> TBD
 
-<hr>
+### <a id='1-23-1-security'></a> Security Fixes
 
-###<a id="1-23-0-known-issues"></a>Known Issues
+See [{{{ vars.product_version }}}.0 Security Fixes](cve.hbs.md#1-24-0) for the list of CVEs fixed in this release.
 
-TKGI v1.23.0 has the following known issues:
+###<a id="1-24-0-known-issues"></a>Known Issues
 
-#### <a id="1-23-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
+TKGI v1.24.0 has the following known issues:
+
+#### <a id="1-24-0-csi-driver-limits-public-cloud"></a>Limitations on Using a Public Cloud CSI Driver
 
 TKGI supports using a public cloud CSI Driver on a TKGI-provisioned cluster.
 
 <hr>
 
-#### <a id="1-23-0-csi-driver-limits-public-cloud-installing"></a> Installing a Public Cloud CSI Driver on a TKGI Cluster
+#### <a id="1-24-0-csi-driver-limits-public-cloud-installing"></a> Installing a Public Cloud CSI Driver on a TKGI Cluster
 
 If you plan to use a public cloud CSI Driver on a TKGI-provisioned cluster,
 {{{ vars.recommended_by }}} recommends you take additional steps before installing the CSI Driver:
@@ -232,18 +227,18 @@ If you plan to use a public cloud CSI Driver on a TKGI-provisioned cluster,
 
 <hr>
 
-#### <a id="1-23-0-csi-driver-limits-public-cloud-managing"></a> Managing a TKGI Cluster That Uses a Public Cloud CSI Driver
+#### <a id="1-24-0-csi-driver-limits-public-cloud-managing"></a> Managing a TKGI Cluster That Uses a Public Cloud CSI Driver
 
 If you have enabled a public cloud CSI Driver on a TKGI cluster,
 you must take additional steps when deleting???upgrading, or updating the cluster:
 
-* [Updating a Cluster on a Public Cloud](#1-23-0-csi-driver-limits-public-cloud-updating)
-* [Upgrading a Cluster on a Public Cloud](#1-23-0-csi-driver-limits-public-cloud-upgrading)
-* [Deleting a Cluster on a Public Cloud](#1-23-0-csi-driver-limits-public-cloud-deleting)
+* [Updating a Cluster on a Public Cloud](#1-24-0-csi-driver-limits-public-cloud-updating)
+* [Upgrading a Cluster on a Public Cloud](#1-24-0-csi-driver-limits-public-cloud-upgrading)
+* [Deleting a Cluster on a Public Cloud](#1-24-0-csi-driver-limits-public-cloud-deleting)
 
 <hr>
 
-#### <a id="1-23-0-csi-driver-limits-public-cloud-updating"></a> Updating a Cluster on a Public Cloud
+#### <a id="1-24-0-csi-driver-limits-public-cloud-updating"></a> Updating a Cluster on a Public Cloud
 
 When updating a cluster that uses a public cloud CSI Driver:
 
@@ -256,7 +251,7 @@ When updating a cluster that uses a public cloud CSI Driver:
 
 <hr>
 
-#### <a id="1-23-0-csi-driver-limits-public-cloud-upgrading"></a> Upgrading a Cluster on a Public Cloud
+#### <a id="1-24-0-csi-driver-limits-public-cloud-upgrading"></a> Upgrading a Cluster on a Public Cloud
 
 When upgrading a cluster that uses a public cloud CSI Driver:
 
@@ -270,7 +265,7 @@ When upgrading a cluster that uses a public cloud CSI Driver:
 
 <hr>
 
-#### <a id="1-23-0-csi-driver-limits-public-cloud-deleting"></a> Deleting a Cluster on a Public Cloud
+#### <a id="1-24-0-csi-driver-limits-public-cloud-deleting"></a> Deleting a Cluster on a Public Cloud
 
 When deleting a cluster that uses a public cloud CSI Driver:
 
@@ -280,7 +275,7 @@ For  more information on deleting clusters, see [Deleting Clusters](delete-clust
 
 <hr>
 
-#### <a id="1-23-0-change-cp-azs"></a> You cannot change multiple control plane AZs at the same time.
+#### <a id="1-24-0-change-cp-azs"></a> You cannot change multiple control plane AZs at the same time.
 
 You can only change a cluster's control plane AZs, as described in [Using Compute Profiles (vSphere)](compute-profiles-use.html), under both of the following conditions:
 
@@ -292,7 +287,7 @@ Failure to meet these conditions can result in `etcd` data loss.
 
 <hr>
 
-#### <a id="1-23-0-containerd-istio"></a> TKGI version upgrade without new stemcell fails for Containerd runtime clusters with Istio CNI
+#### <a id="1-24-0-containerd-istio"></a> TKGI version upgrade without new stemcell fails for Containerd runtime clusters with Istio CNI
 
 **Symptom**
 
@@ -329,7 +324,7 @@ For clusters that use both Containerd and Istio CNI:
 
 <hr>
 
-#### <a id="1-23-0-profile-fields-antrea"></a> With Antrea, Cannot Fill In Compute Profile Fields
+#### <a id="1-24-0-profile-fields-antrea"></a> With Antrea, Cannot Fill In Compute Profile Fields
 
 **Symptom**
 
@@ -343,7 +338,7 @@ This issue does not apply to TKGI environments with NSX networking.
 
 <hr>
 
-#### <a id="1-23-0-tap-labels"></a> NSX pod creation fails when using Tanzu Application Platform
+#### <a id="1-24-0-tap-labels"></a> NSX pod creation fails when using Tanzu Application Platform
 
 **Symptom**
 
@@ -359,7 +354,7 @@ Create or update your network profile as described in [Creating and Managing Net
 
 <hr>
 
-#### <a id="1-23-0-renamed-ops-man"></a> TKGI MC Unable to Manage TKGI after Restoring the TKGI Control Plane from Backup
+#### <a id="1-24-0-renamed-ops-man"></a> TKGI MC Unable to Manage TKGI after Restoring the TKGI Control Plane from Backup
 
 **Symptom**
 
@@ -375,14 +370,14 @@ will not recognize the restored {{ vars.platform_name }} and cannot manage it.
 
 <hr>
 
-#### <a id="1-23-0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
+#### <a id="1-24-0-vrops-windows-clusters"></a> VMware vRealize Operations Does Not Support Windows Worker-Based Kubernetes Clusters
 
 VMware vRealize Operations (vROPs) does not support Windows worker-based Kubernetes clusters and
 cannot be used to manage TKGI-provisioned Windows workers.
 
 <hr>
 
-#### <a id="1-23-0-ping"></a>Pinging Windows Worker Kubernetes Clusters Does Not Work
+#### <a id="1-24-0-ping"></a>Pinging Windows Worker Kubernetes Clusters Does Not Work
 
 TKGI-provisioned Windows worker-based Kubernetes clusters inherit a Kubernetes limitation that prevents outbound ICMP communication from workers.
 As a result, pinging Windows workers does not work.
@@ -391,7 +386,7 @@ For information about this limitation, see [Limitations > Networking](https://ku
 
 <hr>
 
-#### <a id="1-23-0-no-uaa-backup"></a> BOSH Backup and Restore Does Not Restore UAA Database.
+#### <a id="1-24-0-no-uaa-backup"></a> BOSH Backup and Restore Does Not Restore UAA Database.
 
 When restoring the TKGI management plane from backup as described in [Restoring TKGI Management Plane Components](bbr-restore-tkgi.html), you may see an error like the following, along with errors for the `bbr-uaadb` and `pks-api` components:
 
@@ -403,7 +398,7 @@ With these errors, the User Account and Authentication (UAA) database fails to r
 
 <hr>
 
-#### <a id="1-23-0-windows-velero-limitations"></a> Velero Does Not Support Backing Up Stateful Windows Workloads
+#### <a id="1-24-0-windows-velero-limitations"></a> Velero Does Not Support Backing Up Stateful Windows Workloads
 
 You can use Velero to back up stateless TKGI-provisioned Windows workers only.
 You cannot use Velero to back up stateful Windows applications.
@@ -412,20 +407,20 @@ _Basic Install_ in the Velero documentation.
 
 <hr>
 
-#### <a id="1-23-0-tmc-restic"></a>TMC Data Protection Feature Requires Privileged TKGI Containers
+#### <a id="1-24-0-tmc-restic"></a>TMC Data Protection Feature Requires Privileged TKGI Containers
 
 TMC Data Protection feature supports privileged TKGI containers only.
 For more information, see [Plans](installing-vsphere.html#plans) in the _Installing TKGI_ topic for your IaaS.
 
 <hr>
 
-#### <a id="1-23-0-profile-no-win-gmsa"></a>Windows Worker Kubernetes Clusters with Group Managed Service Account Do Not Support Compute Profiles
+#### <a id="1-24-0-profile-no-win-gmsa"></a>Windows Worker Kubernetes Clusters with Group Managed Service Account Do Not Support Compute Profiles
 
 Windows worker-based Kubernetes clusters integrated with group Managed Service Account (gMSA) cannot be managed using compute profiles.
 
 <hr>
 
-#### <a id="1-23-0-profile-resize-down"></a>TKGI CLI Does Not Prevent Reducing the Control Plane Node Count
+#### <a id="1-24-0-profile-resize-down"></a>TKGI CLI Does Not Prevent Reducing the Control Plane Node Count
 
 TKGI CLI does not prevent accidentally reducing a cluster's control plane node count using a compute profile.
 
@@ -437,7 +432,7 @@ TKGI CLI does not prevent accidentally reducing a cluster's control plane node c
 
 <hr>
 
-#### <a id="1-23-0-in-windows-notready-nodes"></a> Windows Cluster Nodes Not Deleted After VM Deleted
+#### <a id="1-24-0-in-windows-notready-nodes"></a> Windows Cluster Nodes Not Deleted After VM Deleted
 
 **Symptom**
 
@@ -461,7 +456,7 @@ that had been on that VM is now in a `notReady` state.
 
 <hr>
 
-#### <a id="1-23-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login
+#### <a id="1-24-0-oidc-response-header"></a>502 Bad Gateway After OIDC Login
 
 **Symptom**
 
@@ -479,7 +474,7 @@ For information about configuring NSX default header sizes, see [OIDC Response H
 
 <hr>
 
-#### <a id="1-23-0-windows-proxy"></a> Difficulty Changing Proxy for Windows Workers
+#### <a id="1-24-0-windows-proxy"></a> Difficulty Changing Proxy for Windows Workers
 
 You must configure a global proxy in the {{  vars.product }} tile > **Networking** pane before you create any Windows workers that use the proxy.
 
@@ -487,13 +482,13 @@ You cannot change the proxy configuration for Windows workers in an existing clu
 
 <hr>
 
-#### <a id="1-23-0-http-proxy-password"></a> Character Limitations in HTTP Proxy Password
+#### <a id="1-24-0-http-proxy-password"></a> Character Limitations in HTTP Proxy Password
 
 For vSphere with NSX, the HTTP Proxy password field does not support the following special characters: `&` or `;`.
 
 <hr>
 
-#### <a id="1-23-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
+#### <a id="1-24-0-harbor-storage-config"></a> Error After Modifying Your Harbor Storage Configuration
 
 **Symptom**
 
@@ -514,7 +509,7 @@ re-install Harbor. Before starting Harbor, configure the new Harbor installation
 
 <hr>
 
-#### <a id="1-23-0-resizing-worker-nodes"></a> Ingress Controller Statefulset Fails to Start After Resizing Worker Nodes
+#### <a id="1-24-0-resizing-worker-nodes"></a> Ingress Controller Statefulset Fails to Start After Resizing Worker Nodes
 
 **Symptom**
 
@@ -535,7 +530,7 @@ in the Broadcom Support Knowledge Base.
 
 <hr>
 
-#### <a id="1-23-0-security-group"></a>Azure Default Security Group Is Not Automatically Assigned to Cluster VMs
+#### <a id="1-24-0-security-group"></a>Azure Default Security Group Is Not Automatically Assigned to Cluster VMs
 
 **Symptom**
 
@@ -557,7 +552,7 @@ If you experience this issue, manually assign the default security group to each
 
 <hr>
 
-#### <a id="1-23-0-uuid-length"></a> One Plan ID Longer than Other Plan IDs
+#### <a id="1-24-0-uuid-length"></a> One Plan ID Longer than Other Plan IDs
 
 **Symptom**
 
@@ -578,7 +573,7 @@ If you require all plan IDs to have identical length, do not activate or use **P
 
 <hr>
 
-#### <a id="1-23-0-db-down-after-vm-stopped"></a> Database Cluster Stops After a Database Instance is Stopped
+#### <a id="1-24-0-db-down-after-vm-stopped"></a> Database Cluster Stops After a Database Instance is Stopped
 
 **Symptom**
 
@@ -597,7 +592,7 @@ The database cluster is unable to recover automatically because a member is no l
 
 <hr>
 
-#### <a id="1-23-0-velero-vsphere-pvs"></a> Velero Back Up Fails for vSphere PVs Attached to Clusters on Kubernetes v1.20 and Later
+#### <a id="1-24-0-velero-vsphere-pvs"></a> Velero Back Up Fails for vSphere PVs Attached to Clusters on Kubernetes v1.20 and Later
 
 **Symptom**
 
@@ -620,7 +615,7 @@ in the Broadcom Support Knowledge Base.
 
 <hr>
 
-#### <a id="1-23-0-creating-two-windows-clusters-fails"></a> Creating Two Windows Clusters at the Same Time Fails
+#### <a id="1-24-0-creating-two-windows-clusters-fails"></a> Creating Two Windows Clusters at the Same Time Fails
 
 **Symptom**
 
@@ -650,7 +645,7 @@ clusters concurrently.
 
 <hr>
 
-#### <a id="1-23-0-delete-cluster-not-stopped"></a> Deleted Clusters are Listed in Cluster Lists
+#### <a id="1-24-0-delete-cluster-not-stopped"></a> Deleted Clusters are Listed in Cluster Lists
 
 **Symptom**
 
@@ -666,7 +661,7 @@ in the Broadcom Support Knowledge Base.
 
 <hr>
 
-#### <a id="1-23-0-errors-after-reinstall"></a> BOSH Director Logs the Error 'Duplicate vm extension name'
+#### <a id="1-24-0-errors-after-reinstall"></a> BOSH Director Logs the Error 'Duplicate vm extension name'
 
 **Symptom**
 
@@ -694,7 +689,7 @@ in the VMware Tanzu Community Knowledge Base.
 
 <hr>
 
-#### <a id="1-23-0-whitespace-pksapi"></a> The TKGI API FQDN Must Not Include Trailing Whitespace
+#### <a id="1-24-0-whitespace-pksapi"></a> The TKGI API FQDN Must Not Include Trailing Whitespace
 
 **Symptom**
 
@@ -714,7 +709,7 @@ Do not include whitespace in the TKGI tile **API Hostname (FQDN)** field.
 
 <hr>
 
-#### <a id="1-23-0-cannot-backup-with-tmc"></a> TMC Cluster Data Protection Backup Fails After Upgrading TKGI
+#### <a id="1-24-0-cannot-backup-with-tmc"></a> TMC Cluster Data Protection Backup Fails After Upgrading TKGI
 
 The TMC Cluster Data Protection Backup fails in TKGI environments upgraded from an earlier version.
 
@@ -732,7 +727,7 @@ Kubernetes v1.22 disallows the `spec.preserveUnknownFields: true` configuration 
 
 <hr>
 
-#### <a id="1-23-0-cannot-restore-with-tmc"></a> TMC Cluster Data Protection Restore Fails When Using Antrea CNI
+#### <a id="1-24-0-cannot-restore-with-tmc"></a> TMC Cluster Data Protection Restore Fails When Using Antrea CNI
 
 The TMC Cluster Data Protection Restore operation can fail when restoring multiple Antea resources.
 
@@ -749,7 +744,7 @@ in the Velero GitHub repository.
 
 <hr>
 
-#### <a id="1-23-0-cvds-with-nvds"></a> TKGI Does Not Support CVDS / NVDS Mixed Environments
+#### <a id="1-24-0-cvds-with-nvds"></a> TKGI Does Not Support CVDS / NVDS Mixed Environments
 
 TKGI does not support environments where there are multiple matching networks, such as a mixed CVDS/NVDS environment.
 
@@ -770,7 +765,7 @@ TKGI cannot identify which of the matching networks you intend to use and has se
 
 <hr>
 
-#### <a id="1-23-0-ovsdb-server-failure"></a> Occasionally update-cluster Does Not Complete for Windows Workers
+#### <a id="1-24-0-ovsdb-server-failure"></a> Occasionally update-cluster Does Not Complete for Windows Workers
 
 Occasionally, `tkgi update-cluster` hangs while updating a Windows worker node instance and the BOSH task cannot finish and exits.
 
@@ -833,7 +828,7 @@ To resolve this issue for a single Windows worker:
 
 <hr>
 
-#### <a id="1-23-0-harbor-241"></a> Harbor Private Projects Are Inaccessible after Upgrading to TKGI v1.13.0
+#### <a id="1-24-0-harbor-241"></a> Harbor Private Projects Are Inaccessible after Upgrading to TKGI v1.13.0
 
 If LDAP is enabled, Harbor private projects are inaccessible after upgrading to TKGI v1.13.0.
 For more information, see [Private projects become inaccessible after upgrading Harbor for TKGI to v2.4.x with LDAP feature enabled](https://knowledge.broadcom.com/external/article/298714/)
@@ -841,7 +836,7 @@ in the Broadcom Support Knowledge Base.
 
 <hr>
 
-#### <a id="1-23-0-stemcell-tar-support"></a> Deployments Fail on TKGI Windows Worker-based Kubernetes Clusters after the January 2022 Microsoft Windows Security Patch
+#### <a id="1-24-0-stemcell-tar-support"></a> Deployments Fail on TKGI Windows Worker-based Kubernetes Clusters after the January 2022 Microsoft Windows Security Patch
 
 Microsoft changed Microsoft Windows' support for tar file commands in the January 2022 Microsoft Windows security patch.
 
@@ -860,7 +855,7 @@ If you use vSphere stemcells, use stembuild 2019.44 or later to avoid the BOSH a
 
 <hr>
 
-#### <a id="1-23-0-nsx-upgrade-w-policy-resources"></a> TKGI Clusters Fail after NSX Upgrade If They Use NSGroup Policy API Resources
+#### <a id="1-24-0-nsx-upgrade-w-policy-resources"></a> TKGI Clusters Fail after NSX Upgrade If They Use NSGroup Policy API Resources
 
 TKGI supports clusters that use NSGroup Policy API resources, but Policy API NSGroups created in one NSX version will be empty after upgrading NSX to a newer version.
 
@@ -875,7 +870,7 @@ After upgrading NSX, redeploy affected deployments to reconfigure their NSGroup 
 
 <hr>
 
-#### <a id="1-23-0-pods-notready-from-dfw"></a> Pods on NSX v3.2.3 Can Enter a NotReady State
+#### <a id="1-24-0-pods-notready-from-dfw"></a> Pods on NSX v3.2.3 Can Enter a NotReady State
 
 When TKGI is deployed on NSX v3.2.3 and there are large numbers of pods with [liveness probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-liveness-command), the pods on TKGI-provisioned clusters can enter a `NotReady` state.
 

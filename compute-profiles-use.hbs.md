@@ -92,9 +92,9 @@ To create a cluster with a compute profile:
     ```
     tkgi create-cluster custom-node-pools -e test.tkgi.shep.api.com --compute-profile custom-node-pools-compute-profile -p "small" --node-pool-instances "tiny-1:3"
 
-    TKGI Version:             1.23.0-build.33
+    TKGI Version:             {{ vars.build_number }}
     Name:                     test
-    K8s Version:              1.31.9
+    K8s Version:              {{ vars.k8s_version }}
     Plan Name:                small
     UUID:                     <UUID of deployment>1
     Last Action:              CREATE

@@ -32,7 +32,7 @@ If you are using the `PKS CLI`:
 
 ## <a id="cli-commands"></a>TKGI CLI Commands
 
-**Current Version**: 1.23.0-build.33
+**Current Version**: {{ vars.build_number }}
 
 <br>
 <hr>

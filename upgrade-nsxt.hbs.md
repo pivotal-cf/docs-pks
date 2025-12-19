@@ -307,9 +307,9 @@ the next step is to upgrade the Kubernetes clusters individually using the {{ va
 
     ```
     TKGI Version  Name                   k8s Version  Plan Name  UUID                                  Status     Action
-    1.22.2        tkgi-cluster-1-small   1.31.9       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-2-medium  1.31.9       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-3-large   1.31.9       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
+    1.22.2        tkgi-cluster-1-small   {{ vars.k8s_version }}       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
+    1.22.2        tkgi-cluster-2-medium  {{ vars.k8s_version }}       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
+    1.22.2        tkgi-cluster-3-large   {{ vars.k8s_version }}       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
 
 ###<a id='verify'></a>Verify {{ vars.product_short }} Upgrade
@@ -327,10 +327,10 @@ the next step is to upgrade the Kubernetes clusters individually using the {{ va
     ```
     $ tkgi clusters
     TKGI Version  Name                   k8s Version  Plan Name  UUID                                  Status     Action
-    1.22.2        tkgi-cluster-4-test    1.31.9       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  CREATE
-    1.22.2        tkgi-cluster-1-small   1.31.9       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-2-medium  1.31.9       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
-    1.22.2        tkgi-cluster-3-large   1.31.9       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
+    1.22.2        tkgi-cluster-4-test    {{ vars.k8s_version }}       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  CREATE
+    1.22.2        tkgi-cluster-1-small   {{ vars.k8s_version }}       small      0bea03c8-af47-48e8-b249-814c0bc407b9  succeeded  UPGRADE
+    1.22.2        tkgi-cluster-2-medium  {{ vars.k8s_version }}       medium     5d9f4501-70cb-460b-9d78-0afbc074cb8c  succeeded  UPGRADE
+    1.22.2        tkgi-cluster-3-large   {{ vars.k8s_version }}       large      b448117a-bb6f-49de-bc9b-452588bd44ef  succeeded  UPGRADE
     ```
 
 ##<a id='upgrade-vsphere'></a> (Optional) Upgrade to vSphere 8
