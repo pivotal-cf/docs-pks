@@ -64,7 +64,7 @@ To configure [dex](https://github.com/dexidp/dex) as an OIDC provider for an LDA
 
     ```console
     $ tkgi cluster dex
-    TKGI Version:            1.22.3-build.6
+    TKGI Version:            {{ vars.build_number }}
     Name:                    dex
     K8s Version:             1.31.14
     Plan Name:               small
