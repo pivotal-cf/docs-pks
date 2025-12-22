@@ -142,7 +142,7 @@ This topic contains release notes for {{  vars.product }} {{{ vars.product_versi
     </tr>
     <tr>
         <td>TKGI Management Console</td>
-        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.24.0&os=&servicePk=527446&language=EN" target="_blank">v1.24.0</a></td><td><p class="note"><strong>Note</strong>: The component versions supported by TKGI Management Console might differ from or be more limited than the versions supported by TKGI.</p></td>
+        <td><a href="https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20Mgmt%20Console&release=1.24.0&os=&servicePk=527446&language=EN" target="_blank">v1.24.0</a></td><td><p class="note"><strong>Note</strong>: The component versions supported by {{ vars.product_short }} Management Console might differ from or be more limited than the versions supported by {{ vars.product_short }}.</p></td>
     </tr>
     <tr>
         <td>Installed {{ vars.platform_name }} version</td>
@@ -665,7 +665,7 @@ in the Broadcom Support Knowledge Base.
 
 **Symptom**
 
-After you uninstall TKGI, then reinstall TKGI in the same environment,
+After you uninstall {{ vars.product_short }}, then reinstall {{ vars.product_short }} in the same environment,
 BOSH Director logs errors similar to the following:
 
 ```
@@ -674,26 +674,26 @@ BOSH Director logs errors similar to the following:
 
 **Explanation**
 
-The `pivotal-container-service` cloud-config was not removed when you uninstalled the TKGI tile,
+The `pivotal-container-service` cloud-config was not removed when you uninstalled the {{ vars.product_short }} tile,
 and it remained active.
-When you reinstalled the TKGI tile, an additional `pivotal-container-service` cloud-config was created,
+When you reinstalled the {{ vars.product_short }} tile, an additional `pivotal-container-service` cloud-config was created,
 causing the metrics_server to fall into a crash-loop state.
 
 **Workaround**
 
-You must manually remove the `pivotal-container-service` cloud-config after removing your TKGI deployment,
-including after removing the TKGI tile from {{ vars.platform_name }}.
+You must manually remove the `pivotal-container-service` cloud-config after removing your {{ vars.product_short }} deployment,
+including after removing the {{ vars.product_short }} tile from {{ vars.platform_name }}.
 
 For more information, see ["Duplicate vm extension name" error when metrics_server runs on Director VM in {{  vars.product }}](https://knowledge.broadcom.com/external/article/298692/)
 in the VMware Tanzu Community Knowledge Base.
 
 <hr>
 
-#### <a id="1-24-0-whitespace-pksapi"></a> The TKGI API FQDN Must Not Include Trailing Whitespace
+#### <a id="1-24-0-whitespace-pksapi"></a> The {{ vars.product_short }} API FQDN Must Not Include Trailing Whitespace
 
 **Symptom**
 
-Your TKGI logs include the following error:
+Your {{ vars.product_short }} logs include the following error:
 
 ```
 'uaa'. Errors are:- Error filling in template 'uaa.yml.erb' (line 59: Client redirect-uri is invalid: uaa.clients.pks_cli.redirect-uri Client redirect-uri is invalid: uaa.clients.pks_cluster_client.redirect-uri)
@@ -701,17 +701,17 @@ Your TKGI logs include the following error:
 
 **Explanation**
 
-The TKGI API fully-qualified domain name (FQDN) for your cluster contains leading or trailing whitespace.
+The {{ vars.product_short }} API fully-qualified domain name (FQDN) for your cluster contains leading or trailing whitespace.
 
 **Workaround**
 
-Do not include whitespace in the TKGI tile **API Hostname (FQDN)** field.
+Do not include whitespace in the {{ vars.product_short }} tile **API Hostname (FQDN)** field.
 
 <hr>
 
-#### <a id="1-24-0-cannot-backup-with-tmc"></a> TMC Cluster Data Protection Backup Fails After Upgrading TKGI
+#### <a id="1-24-0-cannot-backup-with-tmc"></a> TMC Cluster Data Protection Backup Fails After Upgrading {{ vars.product_short }}
 
-The TMC Cluster Data Protection Backup fails in TKGI environments upgraded from an earlier version.
+The TMC Cluster Data Protection Backup fails in {{ vars.product_short }} environments upgraded from an earlier version.
 
 **Symptom**
 
@@ -744,13 +744,13 @@ in the Velero GitHub repository.
 
 <hr>
 
-#### <a id="1-24-0-cvds-with-nvds"></a> TKGI Does Not Support CVDS / NVDS Mixed Environments
+#### <a id="1-24-0-cvds-with-nvds"></a> {{ vars.product_short }} Does Not Support CVDS / NVDS Mixed Environments
 
-TKGI does not support environments where there are multiple matching networks, such as a mixed CVDS/NVDS environment.
+{{ vars.product_short }} does not support environments where there are multiple matching networks, such as a mixed CVDS/NVDS environment.
 
 **Symptom**
 
-TKGI logs errors similar to the following in an environment with multiple matching networks:
+{{ vars.product_short }} logs errors similar to the following in an environment with multiple matching networks:
 
 ```
 LastOperationstatus='failed', description='Instance provisioning failed:
@@ -761,7 +761,7 @@ error-message: Unknown CPI error 'Unknown' with message 'undefined method `mob' 
 
 **Explanation**
 
-TKGI cannot identify which of the matching networks you intend to use and has selected the wrong network.
+{{ vars.product_short }} cannot identify which of the matching networks you intend to use and has selected the wrong network.
 
 <hr>
 
@@ -828,15 +828,15 @@ To resolve this issue for a single Windows worker:
 
 <hr>
 
-#### <a id="1-24-0-harbor-241"></a> Harbor Private Projects Are Inaccessible after Upgrading to TKGI v1.13.0
+#### <a id="1-24-0-harbor-241"></a> Harbor Private Projects Are Inaccessible after Upgrading to {{ vars.product_short }} v1.13.0
 
-If LDAP is enabled, Harbor private projects are inaccessible after upgrading to TKGI v1.13.0.
-For more information, see [Private projects become inaccessible after upgrading Harbor for TKGI to v2.4.x with LDAP feature enabled](https://knowledge.broadcom.com/external/article/298714/)
+If LDAP is enabled, Harbor private projects are inaccessible after upgrading to {{ vars.product_short }} v1.13.0.
+For more information, see [Private projects become inaccessible after upgrading Harbor for {{ vars.product_short }} to v2.4.x with LDAP feature enabled](https://knowledge.broadcom.com/external/article/298714/)
 in the Broadcom Support Knowledge Base.
 
 <hr>
 
-#### <a id="1-24-0-stemcell-tar-support"></a> Deployments Fail on TKGI Windows Worker-based Kubernetes Clusters after the January 2022 Microsoft Windows Security Patch
+#### <a id="1-24-0-stemcell-tar-support"></a> Deployments Fail on {{ vars.product_short }} Windows Worker-based Kubernetes Clusters after the January 2022 Microsoft Windows Security Patch
 
 Microsoft changed Microsoft Windows' support for tar file commands in the January 2022 Microsoft Windows security patch.
 
@@ -855,9 +855,9 @@ If you use vSphere stemcells, use stembuild 2019.44 or later to avoid the BOSH a
 
 <hr>
 
-#### <a id="1-24-0-nsx-upgrade-w-policy-resources"></a> TKGI Clusters Fail after NSX Upgrade If They Use NSGroup Policy API Resources
+#### <a id="1-24-0-nsx-upgrade-w-policy-resources"></a> {{ vars.product_short }} Clusters Fail after NSX Upgrade If They Use NSGroup Policy API Resources
 
-TKGI supports clusters that use NSGroup Policy API resources, but Policy API NSGroups created in one NSX version will be empty after upgrading NSX to a newer version.
+{{ vars.product_short }} supports clusters that use NSGroup Policy API resources, but Policy API NSGroups created in one NSX version will be empty after upgrading NSX to a newer version.
 
 **Workaround**
 
@@ -865,14 +865,14 @@ BOSH reconfigures a deployment's NSGroup members if the deployment is redeployed
 
 After upgrading NSX, redeploy affected deployments to reconfigure their NSGroup members:
 
-1. Re-**Apply Changes** on the {{ vars.platform_name }} UI to redeploy TKGI tile deployments.
+1. Re-**Apply Changes** on the {{ vars.platform_name }} UI to redeploy {{ vars.product_short }} tile deployments.
 1. Re-deploy the affected cluster deployments.
 
 <hr>
 
 #### <a id="1-24-0-pods-notready-from-dfw"></a> Pods on NSX v3.2.3 Can Enter a NotReady State
 
-When TKGI is deployed on NSX v3.2.3 and there are large numbers of pods with [liveness probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-liveness-command), the pods on TKGI-provisioned clusters can enter a `NotReady` state.
+When {{ vars.product_short }} is deployed on NSX v3.2.3 and there are large numbers of pods with [liveness probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-liveness-command), the pods on {{ vars.product_short }}-provisioned clusters can enter a `NotReady` state.
 
 **Symptom**
 

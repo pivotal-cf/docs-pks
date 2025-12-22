@@ -63,7 +63,7 @@ If you deploy your {{  vars.product }} using [No-NAT with Virtual Switch (VSS/VD
 1. OPTION 2: Configure Pool Members for the Dynamic Server Pool:
   - Membership Type: **Dynamic**
   - Set NSGroup as the NSGroup name created in Step 1, such as **tkgi-api**
-  - Set Max Group IP Address List to 3, since we can only have up to 3 TKGI API instances
+  - Set Max Group IP Address List to 3, since we can only have up to 3 {{ vars.product_short }} API instances
   - Click **Next**
   For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias),
   - Membership Type: **Static**

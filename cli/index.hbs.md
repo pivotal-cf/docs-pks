@@ -1,26 +1,26 @@
 ---
-title: TKGI CLI Reference
+title: {{ vars.product_short }} CLI Reference
 
 ---
 
 {{{{raw}}}} <!--  NOTE: This page is automatically generated from the PKS CLI source. Do not manually edit this file.  --> {{{{/raw}}}}
 
-This topic lists {{  vars.product_full }} Command Line Interface (TKGI CLI) commands, used to interact with the TKGI API.
+This topic lists {{  vars.product_full }} Command Line Interface ({{ vars.product_short }} CLI) commands, used to interact with the {{ vars.product_short }} API.
 
 ## <a id="overview"></a>Overview
 
-The TKGI CLI is a command-line tool
+The {{ vars.product_short }} CLI is a command-line tool
 to manage {{  vars.product }} provisioned Kubernetes clusters.
-Use the TKGI CLI to create, manage, and delete Kubernetes clusters.
+Use the {{ vars.product_short }} CLI to create, manage, and delete Kubernetes clusters.
 
-To install the TKGI CLI, see [Installing the TKGI CLI](../installing-cli.html).
+To install the {{ vars.product_short }} CLI, see [Installing the {{ vars.product_short }} CLI](../installing-cli.html).
 
 To deploy workloads to a Kubernetes cluster, use [kubectl](../installing-kubectl-cli.html), the Kubernetes CLI.
 
 The `TKGI CLI` was previously named the `PKS CLI`, and both
 CLIs accept the same commands and arguments.
 
-This version of {{  vars.product }} is compatible with both the TKGI and the PKS CLIs.
+This version of {{  vars.product }} is compatible with both the {{ vars.product_short }} and the PKS CLIs.
 Enterprise PKS v1.7 and earlier versions are compatible with only the `PKS CLI`.
 
 If you are using the `PKS CLI`:
@@ -30,7 +30,7 @@ If you are using the `PKS CLI`:
     * New commands have been added to the `tkgi` CLI.
     * The `pks` CLI might eventually be deprecated.
 
-## <a id="cli-commands"></a>TKGI CLI Commands
+## <a id="cli-commands"></a>{{ vars.product_short }} CLI Commands
 
 **Current Version**: {{ vars.build_number }}
 
