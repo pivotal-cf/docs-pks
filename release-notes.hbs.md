@@ -194,7 +194,7 @@ TKGI v1.22.4 resolves the following issue:
 
 #### <a id="1-22-3-TKGI-10593"></a>Snaphot-controller pod fails with `ImagePullBackOff`
 
-The snapshot-controller pod in the `kube-system` namespace fails with `ImagePullBackOff` in TKGI clusters.
+The `snapshot-controller` pod in the `kube-system` namespace fails with `ImagePullBackOff` in TKGI clusters in air-gapped environments. The pod was fetching from `gcr.io`. It now fetches from `registry.k8s.io`, which is accessible to air-gapped environments.
 
 **Required Action**
 
