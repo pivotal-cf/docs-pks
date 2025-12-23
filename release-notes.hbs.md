@@ -200,7 +200,9 @@ The clusters will continue to run smoothly, after upgrading {{ vars.product_shor
 
 {{ vars.product_short }} v1.24.0 resolves the following issues:
 
-* <a id="TKGI-TBD"></a> TBD
+#### <a id="1-23-1-TKGI-10643"></a>Upgrade changes `imageinfofs` mount path
+
+During upgrade from v1.22, the `imageinfofs` mount path was changing, causing disk pressure and pod eviction. The path is now `/var/vcap/store/`.
 
 ### <a id='1-23-1-security'></a> Security Fixes
 
