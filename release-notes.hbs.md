@@ -186,7 +186,11 @@ TKGI v1.23.1 does not include any new features.
 
 ### <a id="1-23-1-bug-fixes"></a>Resolved Issues
 
-TKGI v1.23.1 does not resolve any previously reported issues.
+TKGI v1.23.1 resolves the following issue:
+
+#### <a id="1-23-1-TKGI-10643"></a>Upgrade to 1.23 changes `imageinfofs` mount path
+
+During upgrade from v1.22 to v1.23, the `imageinfofs` mount path was changing after upgrade, causing disk pressure and pod eviction. The path is now `/var/vcap/store/`.
 
 ### <a id='1-23-1-security'></a> Security Fixes
 
