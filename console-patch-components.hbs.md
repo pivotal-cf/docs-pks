@@ -1,5 +1,5 @@
 ---
-title: Patch {{  vars.product }} Management Console Components
+title: Patch Tanzu Kubernetes Grid Integrated Edition Management Console Components
 
 ---
 

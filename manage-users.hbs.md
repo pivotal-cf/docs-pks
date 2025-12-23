@@ -1,5 +1,5 @@
 ---
-title: Managing {{  vars.product }} Users with UAA
+title: Managing Tanzu Kubernetes Grid Integrated Edition Users with UAA
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Creating and Configuring an Azure Load Balancer for {{  vars.product }} Clusters
+title: Creating and Configuring an Azure Load Balancer for Tanzu Kubernetes Grid Integrated Edition Clusters
 
 ---
 

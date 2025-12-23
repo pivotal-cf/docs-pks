@@ -1,5 +1,5 @@
 ---
-title: Upgrade {{  vars.product }} Management Console
+title: Upgrade Tanzu Kubernetes Grid Integrated Edition Management Console
 
 ---
 

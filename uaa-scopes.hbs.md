@@ -1,5 +1,5 @@
 ---
-title: UAA Scopes for {{  vars.product }} Users
+title: UAA Scopes for Tanzu Kubernetes Grid Integrated Edition Users
 
 ---
 

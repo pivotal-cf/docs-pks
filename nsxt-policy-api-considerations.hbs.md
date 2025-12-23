@@ -1,5 +1,5 @@
 ---
-title: Considerations for Using the VMware NSX Policy API with {{ vars.product_short }}
+title: Considerations for Using the VMware NSX Policy API with TKGI
 
 topic: nsx-t-policy
 ---

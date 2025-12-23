@@ -1,5 +1,5 @@
 ---
-title: Install {{  vars.product }} with Antrea on vSphere Using {{ vars.platform_name }}
+title: Install Tanzu Kubernetes Grid Integrated Edition with Antrea on vSphere Using Tanzu Operations Manager
 
 iaas: vSphere
 ---

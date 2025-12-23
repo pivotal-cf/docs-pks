@@ -1,5 +1,5 @@
 ---
-title: Backing Up and Restoring the Data Center for {{ vars.product_short }}
+title: Backing Up and Restoring the Data Center for TKGI
 
 ---
 

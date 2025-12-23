@@ -1,5 +1,5 @@
 ---
-title: Logging and Monitoring {{  vars.product }}
+title: Logging and Monitoring Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

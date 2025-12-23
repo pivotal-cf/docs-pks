@@ -1,5 +1,5 @@
 ---
-title: Hardware Requirements for {{  vars.product }} on vSphere with NSX
+title: Hardware Requirements for Tanzu Kubernetes Grid Integrated Edition on vSphere with NSX
   with NSX
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: General {{  vars.product }} Concepts
+title: General Tanzu Kubernetes Grid Integrated Edition Concepts
 ---
 
 This topic describes conceptual and architectural information about {{  vars.product_full }} and its primary components.

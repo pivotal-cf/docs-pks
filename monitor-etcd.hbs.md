@@ -1,5 +1,5 @@
 ---
-title: Configuring Telegraf in {{ vars.product_short }}
+title: Configuring Telegraf in TKGI
 
 ---
 

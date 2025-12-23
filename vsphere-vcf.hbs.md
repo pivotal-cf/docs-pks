@@ -1,5 +1,5 @@
 ---
-title: Install {{  vars.product }} on VMware Cloud Foundation
+title: Install Tanzu Kubernetes Grid Integrated Edition on VMware Cloud Foundation
 
 ---
 

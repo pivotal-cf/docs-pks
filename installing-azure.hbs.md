@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }} on Azure (Antrea Networking)
+title: Installing Tanzu Kubernetes Grid Integrated Edition on Azure (Antrea Networking)
 
 iaas: Azure
 windowsclusters: #Empty var to prevent build breaking

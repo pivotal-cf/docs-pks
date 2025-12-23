@@ -1,5 +1,5 @@
 ---
-title: Restoring Kubernetes Clusters Provisioned Using the {{  vars.product }}
+title: Restoring Kubernetes Clusters Provisioned Using the Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

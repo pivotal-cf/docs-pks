@@ -1,5 +1,5 @@
 ---
-title: Overview of {{  vars.product }} Architecture
+title: Overview of Tanzu Kubernetes Grid Integrated Edition Architecture
 
 ---
 

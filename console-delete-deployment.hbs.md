@@ -1,5 +1,5 @@
 ---
-title: Delete Your {{  vars.product }} Deployment
+title: Delete Your Tanzu Kubernetes Grid Integrated Edition Deployment
 
 ---
 

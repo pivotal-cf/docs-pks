@@ -1,5 +1,5 @@
 ---
-title: Deploying {{ vars.platform_name }} with VMware NSX for {{  vars.product }}
+title: Deploying Tanzu Operations Manager with VMware NSX for Tanzu Kubernetes Grid Integrated Edition
 owner: {{ vars.platform_name }}
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Deploy {{  vars.product }} by Importing a YAML Configuration File
+title: Deploy Tanzu Kubernetes Grid Integrated Edition by Importing a YAML Configuration File
 
 ---
 

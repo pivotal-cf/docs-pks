@@ -1,5 +1,5 @@
 ---
-title: Reconfigure Your {{  vars.product }} Deployment
+title: Reconfigure Your Tanzu Kubernetes Grid Integrated Edition Deployment
 
 ---
 

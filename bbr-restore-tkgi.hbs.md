@@ -1,5 +1,5 @@
 ---
-title: Restoring {{ vars.product_short }} Management Plane Components
+title: Restoring TKGI Management Plane Components
 
 ---
 

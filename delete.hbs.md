@@ -1,5 +1,5 @@
 ---
-title: Deleting {{  vars.product }}
+title: Deleting Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Upgrading {{  vars.product }} with {{ vars.platform_name }}
+title: Upgrading Tanzu Kubernetes Grid Integrated Edition with Tanzu Operations Manager
 
 ---
 

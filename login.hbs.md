@@ -1,5 +1,5 @@
 ---
-title: Logging in to {{  vars.product }}
+title: Logging in to Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

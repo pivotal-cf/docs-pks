@@ -1,5 +1,5 @@
 ---
-title: Installing and Configuring NSX-T Data Center v3.0 for {{  vars.product }}
+title: Installing and Configuring NSX-T Data Center v3.0 for Tanzu Kubernetes Grid Integrated Edition
  -NSXT
 ---
 

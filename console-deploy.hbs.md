@@ -1,5 +1,5 @@
 ---
-title: Deploy {{  vars.product }} from the Management Console
+title: Deploy Tanzu Kubernetes Grid Integrated Edition from the Management Console
 
 ---
 

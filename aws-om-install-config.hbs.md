@@ -1,5 +1,5 @@
 ---
-title: Installing and Configuring {{ vars.platform_name }} on AWS
+title: Installing and Configuring Tanzu Operations Manager on AWS
 owner: {{ vars.platform_name }}
 ---
 

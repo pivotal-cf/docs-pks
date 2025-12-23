@@ -1,5 +1,5 @@
 ---
-title: Firewall Ports and Protocols Requirements for {{  vars.product }} Management Console
+title: Firewall Ports and Protocols Requirements for Tanzu Kubernetes Grid Integrated Edition Management Console
 
 ---
 Firewalls and security policies are used to filter traffic and limit access in environments with strict inter-network access control policies.

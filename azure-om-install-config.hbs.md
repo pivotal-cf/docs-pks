@@ -1,5 +1,5 @@
 ---
-title: Installing and Configuring {{ vars.platform_name }} on Azure
+title: Installing and Configuring Tanzu Operations Manager on Azure
 owner: {{ vars.platform_name }}
 ---
 

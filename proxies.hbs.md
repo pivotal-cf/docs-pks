@@ -1,5 +1,5 @@
 ---
-title: Using Proxies with {{  vars.product }} on VMware NSX
+title: Using Proxies with Tanzu Kubernetes Grid Integrated Edition on VMware NSX
 
 topic: proxies-nsx-t
 ---

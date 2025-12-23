@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }} on vSphere
+title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere
 
 iaas: vSphere
 ---

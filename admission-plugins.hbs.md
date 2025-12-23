@@ -1,5 +1,5 @@
 ---
-title: Using Admission Control Plugins for {{  vars.product }} Clusters
+title: Using Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Prerequisites for {{  vars.product }} Management Console Deployment
+title: Prerequisites for Tanzu Kubernetes Grid Integrated Edition Management Console Deployment
 
 ---
 

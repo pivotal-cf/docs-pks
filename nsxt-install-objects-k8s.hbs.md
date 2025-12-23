@@ -1,5 +1,5 @@
 ---
-title: Create the VMware NSX Objects for Kubernetes Clusters Provisioned by {{ vars.product_short }}
+title: Create the VMware NSX Objects for Kubernetes Clusters Provisioned by TKGI
  -NSXT
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Managing {{  vars.product }}
+title: Managing Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

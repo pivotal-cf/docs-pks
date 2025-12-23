@@ -1,5 +1,5 @@
 ---
-title: Upgrading {{  vars.product }} (Antrea Networking)
+title: Upgrading Tanzu Kubernetes Grid Integrated Edition (Antrea Networking)
 
 iaas: #Empty var to prevent build breaking
 windowsclusters: #Empty var to prevent build breaking

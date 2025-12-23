@@ -1,5 +1,5 @@
 ---
-title: Upgrade Preparation Checklist for {{  vars.product }}
+title: Upgrade Preparation Checklist for Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

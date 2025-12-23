@@ -1,5 +1,5 @@
 ---
-title: About {{  vars.product }} Certificates
+title: About Tanzu Kubernetes Grid Integrated Edition Certificates
 
 ---
 

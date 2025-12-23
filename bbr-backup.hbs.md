@@ -1,5 +1,5 @@
 ---
-title: Backing Up {{  vars.product }}
+title: Backing Up Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

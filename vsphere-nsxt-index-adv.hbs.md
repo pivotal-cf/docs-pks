@@ -1,5 +1,5 @@
 ---
-title: Advanced Configurations for {{  vars.product }} on vSphere with VMware NSX
+title: Advanced Configurations for Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX
 
 iaas: vsphere-nsxt
 ---
