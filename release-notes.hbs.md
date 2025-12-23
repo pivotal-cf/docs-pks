@@ -190,7 +190,7 @@ TKGI v1.23.1 resolves the following issue:
 
 #### <a id="1-23-1-TKGI-10643"></a>Upgrade to 1.23 changes `imageinfofs` mount path
 
-During upgrade from v1.22 to v1.23, the `imageinfofs` mount path was changing after upgrade, causing disk pressure and pod eviction. The path is now `/var/vcap/store/`.
+During upgrade from v1.22 to v1.23, the `imageinfofs` mount path was changing, causing disk pressure and pod eviction. The path is now `/var/vcap/store/`.
 
 ### <a id='1-23-1-security'></a> Security Fixes
 
