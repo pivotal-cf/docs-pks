@@ -3,33 +3,33 @@ title: Installing {{  vars.product }}
 
 ---
 
-This topics below describe how to install and configure {{  vars.product_full }} ({{ vars.product_short }}).
+This topics below describe how to install and configure {{  vars.product_full }}.
 
 
 
 ## <a id='overview'></a>Overview
 
-You can install TKGI manually as a {{ vars.platform_name }} tile or use the {{  vars.product }} Management Console which provides a graphical user interface to assist with
-configuring and deploying TKGI to vSphere.
+You can install {{ vars.product_short }} manually as a {{ vars.platform_name }} tile or use the {{  vars.product }} Management Console which provides a graphical user interface to assist with
+configuring and deploying {{ vars.product_short }} to vSphere.
 
-To install and configure TKGI:
+To install and configure {{ vars.product_short }}:
 
 * [{{  vars.product }} Management Console (vSphere Only)](#install-mc)
 * [{{  vars.product }} on {{ vars.platform_name }}](#install-manual)
 
 
-## <a id='install-mc'></a>TKGI Management Console (vSphere Only)
+## <a id='install-mc'></a>{{ vars.product_short }} Management Console (vSphere Only)
 
-See the following documentation for the TKGI Management Console, which is the recommended method for installing TKGI on vSphere:
+See the following documentation for the {{ vars.product_short }} Management Console, which is the recommended method for installing {{ vars.product_short }} on vSphere:
 
 * [Install {{  vars.product }} on vSphere with the Management Console](./console-install-vsphere.html)
 
 For more information, see [When Should I Use {{  vars.product }} Management Console?](./vsphere-index.html#when-to-use-console).
 
 
-## <a id='install-manual'></a>TKGI on {{ vars.platform_name }}
+## <a id='install-manual'></a>{{ vars.product_short }} on {{ vars.platform_name }}
 
-To manually install TKGI on {{ vars.platform_name }}:
+To manually install {{ vars.product_short }} on {{ vars.platform_name }}:
 
 <ul>
   <li>

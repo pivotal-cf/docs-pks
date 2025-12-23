@@ -4,7 +4,7 @@ owner: TKGI
 topictype: vsphere
 ---
 
-This topic describes the prerequisites and resource requirements for installing {{ vars.product_full }} (TKGI) on vSphere.
+This topic describes the prerequisites and resource requirements for installing {{ vars.product_full }} on vSphere.
 
 For prerequisites and resource requirements for installing TKGI on vSphere with NSX integration,
 see [vSphere with NSX Version Requirements](vsphere-nsxt-requirements.html) and

@@ -1,9 +1,9 @@
 ---
-title: Backing Up TKGI Management Plane Components
+title: Backing Up {{ vars.product_short }} Management Plane Components
 
 ---
 
-This topic describes how to use BOSH Backup and Restore (BBR) to back up {{  vars.product_full }} ({{ vars.product_short }}) Managment Plane components.
+This topic describes how to use BOSH Backup and Restore (BBR) to back up {{  vars.product_full }} Managment Plane components.
 
 ##<a id="overview"></a> Overview
 
@@ -14,7 +14,7 @@ BBR orchestrates running the back up and restore scripts and transferring the ge
 If configured correctly, BBR can use TLS to communicate securely with back up targets.
 
 * To perform a restore of the BOSH Director, see [Restore the BOSH Director](bbr-restore.html#redeploy-restore-director).
-* To perform a restore of the TKGI Control Plane, see [Restore the {{  vars.product }} Control Plane](bbr-restore.html#redeploy-restore-control-plane).
+* To perform a restore of the {{ vars.product_short }} Control Plane, see [Restore the {{  vars.product }} Control Plane](bbr-restore.html#redeploy-restore-control-plane).
 
 To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup and Restore Release Notes](https://docs.cloudfoundry.org/bbr/bbr-rn.html).
 
@@ -224,7 +224,7 @@ To back up BOSH Director you will validate your current configuration, then exec
 #### <a id='back-up-director-back-up'></a> Back Up the {{  vars.product }} BOSH Director
 
 1. If the pre-backup check succeeds, run the BBR back up command from your jump box to back up the
-TKGI BOSH Director:
+{{ vars.product_short }} BOSH Director:
 
     ```
     bbr director --host BOSH-DIRECTOR-IP --username bbr \
@@ -290,7 +290,7 @@ in _Advanced Troubleshooting with the BOSH CLI_.
 
 #### <a id='back-up-control-plane-check'></a> Validate the {{  vars.product }} Control Plane
 
-1. To confirm that your TKGI control plane is reachable and has a deployment that can be backed up, run the BBR pre-backup check command:
+1. To confirm that your {{ vars.product_short }} control plane is reachable and has a deployment that can be backed up, run the BBR pre-backup check command:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET bbr deployment \
@@ -330,7 +330,7 @@ in _Advanced Troubleshooting with the BOSH CLI_.
 
 If the pre-backup check succeeds, run the BBR back up command.
 
-1. To back up the TKGI control plane, run the following BBR back up command from your jump box:
+1. To back up the {{ vars.product_short }} control plane, run the following BBR back up command from your jump box:
 
     ```
     BOSH_CLIENT_SECRET=BOSH-CLIENT-SECRET nohup bbr deployment \
@@ -350,7 +350,7 @@ If the pre-backup check succeeds, run the BBR back up command.
     * `DEPLOYMENT-NAME` is the {{  vars.product }} BOSH deployment name that you located in
     the [Locate the {{  vars.product }} Deployment Name](#locate-deploy-name) section above.
     * `PATH-TO-BOSH-CA-CERT` is the path to the root CA certificate that you downloaded in [Download the Root CA Certificate](#root-ca-cert) above.
-    * `--with-manifest` is necessary in order to redeploy your TKGI Control Plane in the case of its loss.
+    * `--with-manifest` is necessary in order to redeploy your {{ vars.product_short }} Control Plane in the case of its loss.
     `--with-manifest` is an optional `backup` parameter to include the manifest in the backup artifact.
     * `--artifact-path` is an optional `backup` parameter to specify the output path for the backup artifact.
 
@@ -362,7 +362,7 @@ If the pre-backup check succeeds, run the BBR back up command.
     backup --with-manifest
     ```
 
-    <p class="note"><strong>Note</strong>: The <code>--with-manifest</code> flag is necessary in order to redeploy your TKGI Control Plane in the case of its loss.
+    <p class="note"><strong>Note</strong>: The <code>--with-manifest</code> flag is necessary in order to redeploy your {{ vars.product_short }} Control Plane in the case of its loss.
     Secure the backup artifact created by this process because it contains secret credentials.</p>
 
 1. Wait for the BBR back up command to complete:
@@ -443,7 +443,7 @@ failed BBR back up run. A failed back up run might leave the BBR backup director
 causing any subsequent attempts to back up to fail. In addition, BBR might not have run the post-backup scripts,
 leaving the instance in a locked state.</p>
 
-* If the TKGI BOSH Director back up failed:
+* If the {{ vars.product_short }} BOSH Director back up failed:
     1. Run the following BBR cleanup script command to clean up:
 
         ```
@@ -467,7 +467,7 @@ leaving the instance in a locked state.</p>
         backup-cleanup
         ```
 
-* If the TKGI control plane or TKGI clusters back ups fail:
+* If the {{ vars.product_short }} control plane or {{ vars.product_short }} clusters back ups fail:
     1. Run the following BBR cleanup script command to clean up:
 
         ```

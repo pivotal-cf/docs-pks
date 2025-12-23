@@ -3,7 +3,7 @@ title: Create VMware NSX Objects for the Management Plane
  -NSXT
 ---
 
-This topic describes how to create NSX objects for the {{  vars.product_full }} ({{ vars.product_short }}) Management Plane.
+This topic describes how to create NSX objects for the {{  vars.product_full }} Management Plane.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 
@@ -35,17 +35,17 @@ Before completing this section, make sure you have completed the following secti
     <a href="./nsxt-install-transports.html">Deploy NSX Transport Nodes</a>
   </li>
   <li>
-    <a href="./nsxt-install-objects-k8s.html">Create NSX Objects for Kubernetes Clusters Provisioned by TKGI</a>
+    <a href="./nsxt-install-objects-k8s.html">Create NSX Objects for Kubernetes Clusters Provisioned by {{ vars.product_short }}</a>
   </li>
 </ul>
 
 ##<a id='nsxt30-mgmt-plane'></a> Create Management Plane
 
-Networking for the TKGI Management Plane consists of a [Tier-1 Router and Switch](#nsxt30-t1-router) with [NAT Rules](#nsxt30-t0-nat) for the Management Plane VMs.
+Networking for the {{ vars.product_short }} Management Plane consists of a [Tier-1 Router and Switch](#nsxt30-t1-router) with [NAT Rules](#nsxt30-t0-nat) for the Management Plane VMs.
 
 ###<a id='nsxt30-t1-router'></a> Create Tier-1 Router and Switch
 
-Create Tier-1 Logical Switch and Router for TKGI Management Plane VMs. Complete the configuration by enabling Route Advertisement on the T1 router.
+Create Tier-1 Logical Switch and Router for {{ vars.product_short }} Management Plane VMs. Complete the configuration by enabling Route Advertisement on the T1 router.
 
 1. In the NSX Management console, navigate to **Networking > Logical Switches**.
 

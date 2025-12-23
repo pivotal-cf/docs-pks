@@ -3,7 +3,7 @@ title: Rotate VMware NSX Certificates for Kubernetes Clusters
 owner: PKS-NSXT
 ---
 
-This topic describes how to list and rotate TLS certificates for Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to list and rotate TLS certificates for Kubernetes clusters provisioned by {{  vars.product_full }}.
 
 ##<a id='about'></a> About NSX Certificate Rotation for Kubernetes Clusters Provisioned by TKGI
 

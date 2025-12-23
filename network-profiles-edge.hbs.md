@@ -3,7 +3,7 @@ title: Configure Edge Router Selection
 
 ---
 
-This topic describes how to define network profiles for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters on vSphere with NSX.
+This topic describes how to define network profiles for {{  vars.product_full }} provisioned Kubernetes clusters on vSphere with NSX.
 
 ## <a id='multi-t0'></a> Edge Router Selection
 

@@ -3,7 +3,7 @@ title: Using Ingress URL Rewrite
  -NSX
 ---
 
-This topic describes how to perform URL rewrite for Kubernetes ingress resources for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to perform URL rewrite for Kubernetes ingress resources for {{  vars.product_full }}.
 
 ## <a id='url-rewrite-about'></a>About Support for URL Rewrite for Ingress Resources
 

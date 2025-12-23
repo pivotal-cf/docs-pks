@@ -1,22 +1,22 @@
 ---
-title: Backing Up and Restoring the Data Center for TKGI
+title: Backing Up and Restoring the Data Center for {{ vars.product_short }}
 
 ---
 
-This topic describes how to back up and restore the {{  vars.product_full }} ({{ vars.product_short }}) infrastructure.
+This topic describes how to back up and restore the {{  vars.product_full }} infrastructure.
 
 ## Overview
 
-Backing up and restoring the TKGI infrastructure includes the following components:
+Backing up and restoring the {{ vars.product_short }} infrastructure includes the following components:
 
 - VMware NSX. See [Backing Up and Restoring NSX Manager](./backup-and-restore-nsxt.html).
 - vCenter Server. See [Backing Up and Restoring the vCenter Server](./backup-and-restore-vcenter.html).
 
-<p class="note"><strong>Note</strong>: In terms of TKGI, the primary focus is the back up and restore of VMware NSX. vCenter back up and restore is outside the scope of this documentation, but a mention of it is included to ensure it is part of your end-to-end back up and restore workflow.</p>
+<p class="note"><strong>Note</strong>: In terms of {{ vars.product_short }}, the primary focus is the back up and restore of VMware NSX. vCenter back up and restore is outside the scope of this documentation, but a mention of it is included to ensure it is part of your end-to-end back up and restore workflow.</p>
 
 ## Test Considerations
 
-As part of your TKGI back up and restore planning and testing, consider the following test scenarios for NSX.
+As part of your {{ vars.product_short }} back up and restore planning and testing, consider the following test scenarios for NSX.
 
 - Back up NSX.
 - Shut down (or delete) NSX Manager nodes.

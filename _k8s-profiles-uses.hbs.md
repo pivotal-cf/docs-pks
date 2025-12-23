@@ -31,7 +31,7 @@
   </tr>
   <tr>
     <td>Configure Pod Security Admission.</td>
-    <td>Configure cluster-specific PSA in TKGI. For more information, see <a href="./pod-security-admission.html#psa-cluster">Pod Security Admission in a TKGI Cluster</a> in <em>Pod Security Admission in TKGI</em>.</td>
+    <td>Configure cluster-specific PSA in {{ vars.product_short }}. For more information, see <a href="./pod-security-admission.html#psa-cluster">Pod Security Admission in a {{ vars.product_short }} Cluster</a> in <em>Pod Security Admission in {{ vars.product_short }}</em>.</td>
   </tr>
   <tr>
     <td>Customize <code>etcd</code> quota backend bytes.</td>

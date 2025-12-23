@@ -3,7 +3,7 @@ title: Creating and Configuring an AWS Load Balancer for {{  vars.product }} Clu
 
 ---
 
-This topic describes how to configure an Amazon Web Services (AWS) load balancer for your {{  vars.product_full }} ({{ vars.product_short }}) cluster.
+This topic describes how to configure an Amazon Web Services (AWS) load balancer for your {{  vars.product_full }} cluster.
 
 ## <a id='overview'></a>Overview
 

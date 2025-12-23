@@ -4,13 +4,13 @@ title: Scaling Existing Clusters
 pkscommand: update
 ---
 
-This topic describes how to scale an existing {{  vars.product_full }} ({{ vars.product_short }}) provisioned cluster.
-You can scale TKGI-provisioned clusters horizontally by adding worker nodes or vertically by changing the size of the node VMs.
+This topic describes how to scale an existing {{  vars.product_full }} provisioned cluster.
+You can scale {{ vars.product_short }}-provisioned clusters horizontally by adding worker nodes or vertically by changing the size of the node VMs.
 
 To change the default number of worker nodes created in new clusters,
   change your plan's **Worker Node Instances** setting.
   For more information, see [Plans](installing-azure.html#plans)
-  in the _Installing TKGI_ topic for your IaaS.
+  in the _Installing {{ vars.product_short }}_ topic for your IaaS.
 
 <p class="note warning"><strong>WARNING</strong>: Do not change the number of control plane/etcd nodes
 for any plan that was used to create currently-running clusters.
@@ -19,9 +19,9 @@ with existing clusters.
 </p>
 
 
-## <a id="scale-horizontal"></a>Scale Horizontally by Changing the Number of Worker Nodes Using the TKGI CLI
+## <a id="scale-horizontal"></a>Scale Horizontally by Changing the Number of Worker Nodes Using the {{ vars.product_short }} CLI
 
-You can use the TKGI CLI to scale an existing cluster by increasing or decreasing the number of worker nodes in the cluster.
+You can use the {{ vars.product_short }} CLI to scale an existing cluster by increasing or decreasing the number of worker nodes in the cluster.
 
 To increase or decrease the number of worker nodes on a cluster:
 
@@ -59,25 +59,25 @@ To increase or decrease the number of worker nodes on a cluster:
     <p class="note"><strong>Note:</strong> This command might roll additional virtual machines in the
     cluster, which can affect workloads if the worker nodes are at capacity.</p>
 
-## <a id="scale-vertical"></a>Scale Vertically by Changing Cluster Node VM Sizes in the TKGI Tile
+## <a id="scale-vertical"></a>Scale Vertically by Changing Cluster Node VM Sizes in the {{ vars.product_short }} Tile
 
 You can scale an existing cluster vertically by changing the size of the control plane or worker node VMs.
 When you do this, BOSH recreates the VMs sequentially, one cluster at a time, and one node after
 another within the cluster. For more information, see
-[VM Sizing for TKGI Clusters](vm-sizing.html).
+[VM Sizing for {{ vars.product_short }} Clusters](vm-sizing.html).
 
 To change the size of a Kubernetes cluster node VM, complete the following steps:
 
 1. Log in to {{ vars.platform_name }}.
-1. Select the TKGI tile.
+1. Select the {{ vars.product_short }} tile.
 1. Select the plan that is in use by the cluster(s) you want to resize.
 1. To change the VM size:
   - For Control Plane nodes, select the desired VM size from the **Master/ETCD VM Type** menu.
   - For Worker nodes, select the desired VM size from the **Worker VM Type** menu.
-<p class="note"><strong>Note:</strong> See <a href="vm-sizing.html#node-sizing-custom">Customize Control Plane and Worker Node VM Size and Type</a> for information on creating a custom VM size for use with a TKGI cluster.</p>
+<p class="note"><strong>Note:</strong> See <a href="vm-sizing.html#node-sizing-custom">Customize Control Plane and Worker Node VM Size and Type</a> for information on creating a custom VM size for use with a {{ vars.product_short }} cluster.</p>
 1. Click **Save** to preserve tile changes.
 1. At the **Installation Dashboard**, click **Review Pending Changes**.
-    <img src="images/pending-changes.png"  alt="The {{ vars.platform_name }} Review Pending Changes page, showing only the TKGI product with an Errands button.">
-1. For the TKGI tile, expand the **ERRANDS** list.
+    <img src="images/pending-changes.png"  alt="The {{ vars.platform_name }} Review Pending Changes page, showing only the {{ vars.product_short }} product with an Errands button.">
+1. For the {{ vars.product_short }} tile, expand the **ERRANDS** list.
 1. Select the **Update all clusters errand** if it is not already selected. You must ensure that **Update all clusters errand** is selected so that the cluster deployment manifest is regenerated after the plan is updated.
 1. Click **Apply Changes**.

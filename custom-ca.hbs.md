@@ -3,7 +3,7 @@ title: Use a Custom CA for Kubernetes Clusters
 owner: PKS-SECURITY
 ---
 
-This topic describes how to use a custom certificate authority (CA) to secure {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters.
+This topic describes how to use a custom certificate authority (CA) to secure {{  vars.product_full }} provisioned Kubernetes clusters.
 
 
 ## <a id='custom-ca'></a> Custom CA Support

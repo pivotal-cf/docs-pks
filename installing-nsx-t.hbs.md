@@ -6,7 +6,7 @@ topic: #Empty var to prevent build breaking
 thistopic: #Empty var to prevent build breaking
 ---
 
-This topic describes how to install and configure {{  vars.product_full }} ({{ vars.product_short }})
+This topic describes how to install and configure {{  vars.product_full }}
 on vSphere with NSX integration as a {{ vars.platform_name }} tile.
 
 
@@ -24,7 +24,7 @@ Before you begin this procedure, ensure that you have successfully completed all
     <a href="./vsphere-nsxt-om-deploy.html">Deploying {{ vars.platform_name }} with NSX for {{  vars.product }}</a>
   </li>
   <li>
-    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>
+    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}</em>
   </li>
   <li>
     <a href="./vsphere-nsxt-om-config.html">Configuring BOSH Director with NSX for {{  vars.product }}</a>
@@ -38,12 +38,12 @@ Before you begin this procedure, ensure that you have successfully completed all
 
 ## <a id='overview'></a>Overview
 
-To install and configure TKGI:
+To install and configure {{ vars.product_short }}:
 
 1. [Install {{  vars.product }}](#install)
 1. [Configure {{  vars.product }}](#configure)
 1. [Apply Changes](#apply-changes)
-1. [Install the TKGI and Kubernetes CLIs](#clis)
+1. [Install the {{ vars.product_short }} and Kubernetes CLIs](#clis)
 1. [Verify NAT Rules](#retrieve-endpoint)
 1. [Configure Authentication for {{  vars.product }}](#auth)
 
@@ -57,19 +57,19 @@ To install and configure TKGI:
 
 ## <a id="configure"></a> Step 2: Configure {{  vars.product }}
 
-To configure TKGI:
+To configure {{ vars.product_short }}:
 
 1. Click the orange **{{  vars.product }}** tile to start the configuration process.
 
     <p class="note"><strong>Note</strong>: Configuration of NSX or Antrea <strong>cannot</strong> be changed after initial installation and configuration of {{  vars.product }}.</p>
 
-    ![TKGI tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
+    ![{{ vars.product_short }} tile on the {{ vars.platform_name }} installation dashboard](images/tkgi-tile-orange.png)
 
     <p class="note warning"><strong>WARNING</strong>: When you configure the {{  vars.product }} tile,
     do not use spaces in any field entries. This includes spaces between characters as well as
     leading and trailing spaces. If you use a space in any field entry, the deployment of {{  vars.product }} fails.</p>
 1. [Assign AZs and Networks](#azs-networks)
-1. [TKGI API](#tkgi-api)
+1. [{{ vars.product_short }} API](#tkgi-api)
 1. [Plans](#plans)
 1. [Kubernetes Cloud Provider](#cloud-provider)
 1. [Networking](#networking)
@@ -90,21 +90,21 @@ used by the {{  vars.product }} control plane:
 1. Click **Assign AZs and Networks**.
 
 1. Under **Place singleton jobs in**, select the availability zone (AZ) where you want to deploy
-the TKGI API and TKGI Database VMs.
+the {{ vars.product_short }} API and {{ vars.product_short }} Database VMs.
 
     ![Assign AZs and Networks pane in {{ vars.platform_name }}](images/azs-networks.png)
 
 1. Under **Balance other jobs in**, select the AZ for balancing other {{  vars.product }} control plane jobs.
     <p class="note"><strong>Note</strong>: You must specify the <strong>Balance other jobs in</strong> AZ, but the selection has no effect in the current version of {{  vars.product }}.
     </p>
-1. Under **Network**, select the TKGI Management Network linked to the `ls-tkgi-mgmt` NSX logical switch you created in the [Create Networks Page](vsphere-nsxt-om-config.html#create-networks) step of _Configuring BOSH Director with NSX for {{  vars.product }}_. This provides network placement for {{  vars.product }} component VMs, such as the TKGI API and TKGI Database VMs.
+1. Under **Network**, select the {{ vars.product_short }} Management Network linked to the `ls-tkgi-mgmt` NSX logical switch you created in the [Create Networks Page](vsphere-nsxt-om-config.html#create-networks) step of _Configuring BOSH Director with NSX for {{  vars.product }}_. This provides network placement for {{  vars.product }} component VMs, such as the {{ vars.product_short }} API and {{ vars.product_short }} Database VMs.
 1. Under **Service Network**, your selection depends on whether you are installing a new {{  vars.product }} deployment or upgrading from a previous version of {{  vars.product }}.
-  * If you are deploying {{  vars.product }} with NSX for the first time, select the TKGI Management Network that you specified in the **Network** field.
+  * If you are deploying {{  vars.product }} with NSX for the first time, select the {{ vars.product_short }} Management Network that you specified in the **Network** field.
   You do not need to create or define a service network because {{  vars.product }} creates the service network for you during the installation process.
   * If you are upgrading from a previous version of {{  vars.product }}, then select the **Service Network** linked to the `ls-tkgi-service` NSX logical switch that {{  vars.product }} created for you during installation. The service network provides network placement for existing on-demand Kubernetes cluster service instances that were created by the {{  vars.product }} broker.
 1. Click **Save**.
 
-### <a id="tkgi-api"></a> TKGI API
+### <a id="tkgi-api"></a> {{ vars.product_short }} API
 
 {{> api }}
 
@@ -125,7 +125,7 @@ To configure networking, do the following:
 
 1. Click **Networking**.
 1. Under **Container Networking Interface**, select **NSX**.
-    ![NSX-T Networking configuration pane in TKGI tile](images/networking-nsx-t.png)
+    ![NSX-T Networking configuration pane in {{ vars.product_short }} tile](images/networking-nsx-t.png)
 1. For **NSX Manager hostname**, enter the hostname or IP address of your NSX Manager.
 1. For **NSX Manager Super User Principal Identify Certificate**, copy and paste the contents and private key of the Principal Identity certificate you created in [Generating and Registering the NSX Manager Superuser Principal Identity Certificate and Key](nsxt-generate-pi-cert.html).
 1. For **NSX Manager CA Cert**, copy and paste the contents of the NSX Manager CA certificate you created in [Generate and Register the NSX Management SSL Certificate and Private Key](./nsxt-3-0-install.html#nsxt30-mgmt-ssl). Use this certificate and key to connect to the NSX Manager.
@@ -150,14 +150,14 @@ If you did not enter a CA certificate, or if your CA certificate is self-signed,
         * If the clusters are under multiple different vSphere datacenters, specify them in this format: `dc1:cluster1,dc2:cluster2,dc-folder/dc3:cluster3`.
 
     * **Kubernetes Service Network CIDR Range**: Specify an IP address and subnet size depending on the number of Kubernetes services that you plan to deploy within a single Kubernetes cluster, for example: `10.100.200.0/24`. The IP address used here is internal to the cluster and can be anything, such as `10.100.200.0`. A `/24` subnet provides 256 IPs. If you have a cluster that requires more than 256 IPs, define a larger subnet, such as `/20`.
-    * Under **TKGI Operation Timeout**, enter the timeout for TKGI-API operation in milliseconds.
+    * Under **{{ vars.product_short }} Operation Timeout**, enter the timeout for {{ vars.product_short }}-API operation in milliseconds.
     Increase the timeout if you experience timeouts during cluster deletion in large-scale NSX environments.
-    The default **TKGI Operation Timeout** value is `120000`, 120 seconds.
+    The default **{{ vars.product_short }} Operation Timeout** value is `120000`, 120 seconds.
     To determine the optimal Operation Timeout setting, see [Cluster Deletion Fails](troubleshoot-issues.html#cluster-delete-fail) in _General Troubleshooting_.
 
-        <p class="note"><strong>Note:</strong> If you use the TKGI MC, the TKGI MC configuration YAML <code>nsx_feign_client_read_timeout</code> configuration overrides the TKGI tile <strong>TKGI Operation Timeout</strong> setting. For more information about configuring the Operation Timeout setting in TKGI MC, see <a href="console-deploy-wizard.html#deploy">Generate Configuration File and Deploy {{  vars.product }}</a> in <em>Deploy {{  vars.product }} by Using the Configuration Wizard</em>.</p>
+        <p class="note"><strong>Note:</strong> If you use the {{ vars.product_short }} MC, the {{ vars.product_short }} MC configuration YAML <code>nsx_feign_client_read_timeout</code> configuration overrides the {{ vars.product_short }} tile <strong>{{ vars.product_short }} Operation Timeout</strong> setting. For more information about configuring the Operation Timeout setting in {{ vars.product_short }} MC, see <a href="console-deploy-wizard.html#deploy">Generate Configuration File and Deploy {{  vars.product }}</a> in <em>Deploy {{  vars.product }} by Using the Configuration Wizard</em>.</p>
 
-1. (Optional) Configure a global proxy for all outgoing HTTP and HTTPS traffic from your Kubernetes clusters and the TKGI API server. See [Using Proxies with {{  vars.product }} on NSX](proxies.html) for instructions on how to enable a proxy.
+1. (Optional) Configure a global proxy for all outgoing HTTP and HTTPS traffic from your Kubernetes clusters and the {{ vars.product_short }} API server. See [Using Proxies with {{  vars.product }} on NSX](proxies.html) for instructions on how to enable a proxy.
 1. Under **Allow outbound internet access from Kubernetes cluster vms (IaaS-dependent)**, ignore the **Enable outbound internet access** check box.
 1. Click **Save**.
 
@@ -220,7 +220,7 @@ After configuring the {{  vars.product }} tile, follow the steps below to deploy
 
 
 
-## <a id="clis"></a> Step 4: Install the TKGI and Kubernetes CLIs
+## <a id="clis"></a> Step 4: Install the {{ vars.product_short }} and Kubernetes CLIs
 
 {{> install-cli }}
 
@@ -228,11 +228,11 @@ After configuring the {{  vars.product }} tile, follow the steps below to deploy
 
 ## <a id="retrieve-endpoint"></a>Step 5: Verify NAT Rules
 
-If you are using NAT mode, verify that you have created the required NAT rules for the {{  vars.product }} Management Plane. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_ for details.
+If you are using NAT mode, verify that you have created the required NAT rules for the {{  vars.product }} Management Plane. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_ for details.
 
-In addition, for NAT and No-NAT modes, verify that you created the required NAT rule for Kubernetes control plane nodes to access NSX-T Manager. For details, see [Create IP Blocks and Pool for Compute Plane](./nsxt-3-0-install.html#nsxt30-ip-blocks-pool) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
+In addition, for NAT and No-NAT modes, verify that you created the required NAT rule for Kubernetes control plane nodes to access NSX-T Manager. For details, see [Create IP Blocks and Pool for Compute Plane](./nsxt-3-0-install.html#nsxt30-ip-blocks-pool) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_.
 
-If you want your developers to be able to access the TKGI CLI from their external workstations, create a DNAT rule that maps a routable IP address to the TKGI API VM. This must be done after {{  vars.product }} is successfully deployed and it has an IP address. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_ for details.
+If you want your developers to be able to access the {{ vars.product_short }} CLI from their external workstations, create a DNAT rule that maps a routable IP address to the {{ vars.product_short }} API VM. This must be done after {{  vars.product }} is successfully deployed and it has an IP address. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_ for details.
 
 
 ## <a id="auth"></a> Step 6: Configure Authentication for {{  vars.product }}

@@ -3,7 +3,7 @@ title: Managing Cluster Access and Permissions
 
 ---
 
-This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to grant Kubernetes users access to Kubernetes clusters and configure namespace permissions in {{  vars.product_full }}.
 
 ## <a id='overview'></a> Overview
 
@@ -38,7 +38,7 @@ Before setting up cluster access for users in {{  vars.product }}, you must have
 
 * Access to an {{  vars.product }} admin user account. For information about how to create {{  vars.product }} admin users,
 see [Managing {{  vars.product }} Users with UAA](manage-users.html).
-* Fully qualified domain name (FQDN) of your TKGI deployment.
+* Fully qualified domain name (FQDN) of your {{ vars.product_short }} deployment.
 * OpenID Connect (OIDC) provider for your Kubernetes clusters, configured using one or both of the following:
     * Global OIDC provider configuration for all clusters in **{{ vars.platform_name }} Installation Dashboard** > **{{  vars.product }}** >
     **Settings** > **UAA** > **Configure created clusters to use UAA as the OIDC provider**.
@@ -59,9 +59,9 @@ To grant cluster access to a user, do the following:
 
     * `USERNAME` is your cluster admin user name.
     * `PASSWORD` is your cluster admin password.
-    * `TKGI-API` is the FQDN you use to access the TKGI API.
+    * `TKGI-API` is the FQDN you use to access the {{ vars.product_short }} API.
     * `CERT-PATH` is the path to your root CA certificate.
-    Provide the certificate to validate the TKGI API certificate with SSL.
+    Provide the certificate to validate the {{ vars.product_short }} API certificate with SSL.
 
     {{> saml-sso-login }}
 
@@ -157,7 +157,7 @@ in your YAML file by running following command:
     Where `ROLE-BINDING-CONFIGURATION.yml` is the YAML file you created in the above step.
 
 1. Share the following information with your Kubernetes end users:
-    * TKGI API FQDN
+    * {{ vars.product_short }} API FQDN
     * Cluster name
 
 ## <a id='obtain-cluster-access'></a> Obtain Cluster Access as a User
@@ -165,7 +165,7 @@ in your YAML file by running following command:
 To obtain access to a {{  vars.product }}-provisioned cluster, the end user must do the following:
 
 1. Fetch the kubeconfig file by running one of the following command:
-    * If you want to validate the TKGI API certificate with SSL, run the following command:
+    * If you want to validate the {{ vars.product_short }} API certificate with SSL, run the following command:
 
         ```
         tkgi get-kubeconfig CLUSTER-NAME -u USERNAME -a TKGI-API --ca-cert CERT-PATH
@@ -174,9 +174,9 @@ To obtain access to a {{  vars.product }}-provisioned cluster, the end user must
 
         * `CLUSTER-NAME` is the cluster name provided by the cluster admin.
         * `USERNAME` is the Kubernetes end user user name. This is the user name created for your organization's LDAP or SAML identity provider.
-        * `TKGI-API` is the FQDN you use to access the TKGI API.
+        * `TKGI-API` is the FQDN you use to access the {{ vars.product_short }} API.
         * `CERT-PATH` is the path to your root CA certificate.
-        Provide the certificate to validate the TKGI API certificate with SSL.
+        Provide the certificate to validate the {{ vars.product_short }} API certificate with SSL.
 
         For example:
         ```console

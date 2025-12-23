@@ -4,7 +4,7 @@ title: Advanced Configurations for {{  vars.product }} on vSphere with VMware NS
 iaas: vsphere-nsxt
 ---
 
-The following topics describe how to complete your installation of {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX Data Center.
+The following topics describe how to complete your installation of {{  vars.product_full }} on vSphere with NSX Data Center.
 
 ## Post-Installation NSX Configurations
 

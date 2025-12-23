@@ -3,7 +3,7 @@ title: Network Profiles (VMware NSX Only)
 
 ---
 
-The following topics describe how to define and use network profiles for {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters deployed on NSX with vSphere:
+The following topics describe how to define and use network profiles for {{  vars.product_full }} provisioned Kubernetes clusters deployed on NSX with vSphere:
 
 <ul>
   <li>

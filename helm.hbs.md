@@ -4,7 +4,7 @@ title: Using Helm with {{  vars.product }}
 ---
 
 This topic describes how to install the Helm package manager
-and use Helm with {{  vars.product_full }} ({{ vars.product_short }}) and TKGI-provisioned Kubernetes clusters.
+and use Helm with {{  vars.product_full }} and TKGI-provisioned Kubernetes clusters.
 
 
 ## <a id='overview'></a> Overview

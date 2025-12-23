@@ -3,7 +3,7 @@ title: Install and Configure the NSX Edge Nodes
  -NSXT
 ---
 
-This topic describes how to deploy and configure NSX-T Data Center v3.0 NSX-T Edge Nodes for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
+This topic describes how to deploy and configure NSX-T Data Center v3.0 NSX-T Edge Nodes for use with {{  vars.product_full }} on vSphere.
 
 ##<a id='nsxt-install-prereqs'></a> Prerequisites
 

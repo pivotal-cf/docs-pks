@@ -3,7 +3,7 @@ title: Provisioning a Load Balancer for the VMware NSX Management Cluster
 owner: PKS-NSXT
 ---
 
-This topic describes how to deploy a load balancer for the NSX Management Cluster for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to deploy a load balancer for the NSX Management Cluster for {{  vars.product_full }}.
 
 ##<a id='about'></a> About the NSX Management Cluster
 

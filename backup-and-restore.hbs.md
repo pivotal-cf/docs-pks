@@ -3,7 +3,7 @@ title: Backing Up and Restoring {{  vars.product }}
 
 ---
 
-The following topics describe how to back up and restore {{  vars.product_full }} ({{ vars.product_short }}):
+The following topics describe how to back up and restore {{  vars.product_full }}:
 
 * [Back Up and Restore Overview](./backup-and-restore-intro.html)
 * [Back Up and Restore Kubernetes Workloads](./backup-and-restore-work.html)

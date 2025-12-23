@@ -3,7 +3,7 @@ title: Migrating from NSX Management Plane API to Policy API Using {{ vars.platf
 
 ---
 
-This topic describes how to migrate {{  vars.product_full }} ({{ vars.product_short }}) from NSX Management Plane API to NSX Policy API (MP2P) using the TKGI tile in {{ vars.platform_name }}.
+This topic describes how to migrate {{  vars.product_full }} from NSX Management Plane API to NSX Policy API (MP2P) using the TKGI tile in {{ vars.platform_name }}.
 
 To migrate TKGI from NSX Management Plane API to NSX Policy API using the TKGI Management Console, see [Migrating from NSX Management Plane API to Policy API with the Management Console](mp2p-migration-mc.html).
 

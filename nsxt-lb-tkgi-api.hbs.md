@@ -1,15 +1,15 @@
 ---
-title: Provisioning a VMware NSX Load Balancer for the TKGI API Server
+title: Provisioning a VMware NSX Load Balancer for the {{ vars.product_short }} API Server
 owner: PKS-NSXT
 ---
 
-This topic describes how to deploy an NSX load balancer for the {{  vars.product_full }} ({{ vars.product_short }}) API Server.
+This topic describes how to deploy an NSX load balancer for the {{  vars.product_full }} API Server.
 
-##<a id='about'></a> About the NSX Load Balancer for the TKGI API Server
+##<a id='about'></a> About the NSX Load Balancer for the {{ vars.product_short }} API Server
 
-If you deploy {{  vars.product }} on vSphere with NSX with the TKGI API in high-availability mode, you must configure an NSX load balancer for the TKGI API traffic. For more information, see [Load Balancers in {{  vars.product }} Deployments on vSphere with NSX‑T](./about-lb.html#with-nsx-t).
+If you deploy {{  vars.product }} on vSphere with NSX with the {{ vars.product_short }} API in high-availability mode, you must configure an NSX load balancer for the {{ vars.product_short }} API traffic. For more information, see [Load Balancers in {{  vars.product }} Deployments on vSphere with NSX‑T](./about-lb.html#with-nsx-t).
 
-To provision an NSX load balancer for the TKGI API Server VM, complete the following steps.
+To provision an NSX load balancer for the {{ vars.product_short }} API Server VM, complete the following steps.
 
 ##<a id='create-nsgroup'></a> Step 1: Create NSGroup
 
@@ -29,11 +29,11 @@ If you are using a Dynamic Server Pool, create an NSGroup as described in this s
 
 ##<a id='create-virtual-servers'></a> Step 2: Create Two Virtual Servers
 
-The TKGI API Sever virtual machine hosts two server processes and exposes two ports: the TKGI API Server on port 9021, and the UAA server on port 8443. Each NSX Virtual Server listens on one port. Thus, you need two Virtual Servers, one for the TKGI API server and the other for UAA.
+The {{ vars.product_short }} API Sever virtual machine hosts two server processes and exposes two ports: the {{ vars.product_short }} API Server on port 9021, and the UAA server on port 8443. Each NSX Virtual Server listens on one port. Thus, you need two Virtual Servers, one for the {{ vars.product_short }} API server and the other for UAA.
 
 If you deploy your {{  vars.product }} using [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), You only need to deploy ONE virtual Server
 
-###<a id='create-vs-api'></a> Create a Virtual Server for the TKGI API Server
+###<a id='create-vs-api'></a> Create a Virtual Server for the {{ vars.product_short }} API Server
 
 1. In NSX Manager, select **Networking > Load Balancing > Virtual Servers**.
 1. Click Add.
@@ -46,7 +46,7 @@ If you deploy your {{  vars.product }} using [No-NAT with Virtual Switch (VSS/VD
   - Click **Next**
 1. Configure Virtual Server Identifiers.
   - IP Address: Enter an IP address from the floating pool, such as `192/168.160.108`
-  - Port: **9021** (for the TKGS API Server). For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), Set Port: **9021,8443***
+  - Port: **9021** (for the {{ vars.product_short }} API Server). For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias), Set Port: **9021,8443***
   - Click **Next**
 1. Configure Server Pool and Rules.
   - Click **Create a New Server Pool**
@@ -63,7 +63,7 @@ If you deploy your {{  vars.product }} using [No-NAT with Virtual Switch (VSS/VD
 1. OPTION 2: Configure Pool Members for the Dynamic Server Pool:
   - Membership Type: **Dynamic**
   - Set NSGroup as the NSGroup name created in Step 1, such as **tkgi-api**
-  - Set Max Group IP Address List to 3, since we can only have up to 3 TKGI API instances
+  - Set Max Group IP Address List to 3, since we can only have up to 3 {{ vars.product_short }} API instances
   - Click **Next**
   For [No-NAT with Virtual Switch (VSS/VDS) Topology](nsxt-topologies.html#alias),
   - Membership Type: **Static**
@@ -320,5 +320,5 @@ To validate your Load Balancer configuration:
         Login successful.
 
         TKGI Version    Name        k8s Version  Plan Name  UUID                                  Status     Action
-        1.23.0-build.33  test_one  	1.31.9       Plan 1     33988550-...-28658fe51d8a  succeeded  UPDATE
+        {{ vars.build_number }}  test_one  	{{ vars.k8s_version }}       Plan 1     33988550-...-28658fe51d8a  succeeded  UPDATE
         ```

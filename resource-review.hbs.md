@@ -7,8 +7,8 @@ title: Viewing Usage Quotas
 
 
 This topic describes how to review your resource usage
-and quotas in {{  vars.product_full }} ({{ vars.product_short }}) using
-the TKGI API.
+and quotas in {{  vars.product_full }} using
+the {{ vars.product_short }} API.
 
 ## <a id="overview"></a> Overview
 
@@ -20,21 +20,21 @@ that are allocated in total to any clusters you create and workloads you deploy.
 The resource quota limitations are based on the total allocated size
 of the VM instances you create, not their actual utilization.
 
-By using the TKGI API, you can check the resource and cluster
+By using the {{ vars.product_short }} API, you can check the resource and cluster
 limitations that the administrator has assigned to you as well as
 review your current usage.
 
 ## <a id='set-token'></a> Set up Your API Access Token
 
 The curl commands in this topic use an access token environment variable to
-authenticate to the TKGI API endpoints.
+authenticate to the {{ vars.product_short }} API endpoints.
 
 {{> create-auth-token-var }}
 
 
 ## <a id='quota-dev'></a> View Quotas
 
-The TKGI API `quotas` endpoint returns your resource usage and cluster quota in the JSON format.
+The {{ vars.product_short }} API `quotas` endpoint returns your resource usage and cluster quota in the JSON format.
 
 To view your resource and cluster quota, run the following command:
 
@@ -67,7 +67,7 @@ https://example.com:9021/v1/quotas/$user
 
 ## <a id='usage-dev'></a> View Usage
 
-The TKGI API `usages` endpoint reports your actual resource usage in the JSON format.
+The {{ vars.product_short }} API `usages` endpoint reports your actual resource usage in the JSON format.
 
 To view your current allocated resource usage, run the following command:
 
@@ -108,5 +108,5 @@ appears when you attempt to create a cluster.
 
 ```console
 Error: You do not have enough privileges to perform this action.
-Please contact the TKGI administrator.
+Please contact the {{ vars.product_short }} administrator.
 ```

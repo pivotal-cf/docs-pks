@@ -1,12 +1,12 @@
-To upgrade a TKGI installation that runs on multiple datacenters, include the following steps:
+To upgrade a {{ vars.product_short }} installation that runs on multiple datacenters, include the following steps:
 
-1. Upload to {{ vars.platform_name }} a TKGI tile version that supports multiple datacenters.
-    * Support for multiple datacenters varies between TKGI patch releases within the same minor release line, with later patch releases supporting the functionality while earlier ones do not.
-1. In the TKGI tile > **Kubernetes Cloud Profile** pane, set **vSphere Datacenter** to a comma-separated list of datacenters, for example `"DC1, DC2, folder-name/DC3"`. For datacenters that are under folders in your inventory, include the folder in the name.
+1. Upload to {{ vars.platform_name }} a {{ vars.product_short }} tile version that supports multiple datacenters.
+    * Support for multiple datacenters varies between {{ vars.product_short }} patch releases within the same minor release line, with later patch releases supporting the functionality while earlier ones do not.
+1. In the {{ vars.product_short }} tile > **Kubernetes Cloud Profile** pane, set **vSphere Datacenter** to a comma-separated list of datacenters, for example `"DC1, DC2, folder-name/DC3"`. For datacenters that are under folders in your inventory, include the folder in the name.
 {{# evalExpression "current_page.data.windowsclusters != true && current_page.data.iaas != 'vSphere' &&  current_page.data.iaas != 'vSphere-NSX-T'"}}
-1. If you are using NSX networking, update the TKGI tile > **Networking** pane > **vSphere Cluster** list to include the clusters' datacenters in their names, for example, `"DC1:cluster1, DC2:cluster2, DC-folder-name/DC3:cluster3"`.
+1. If you are using NSX networking, update the {{ vars.product_short }} tile > **Networking** pane > **vSphere Cluster** list to include the clusters' datacenters in their names, for example, `"DC1:cluster1, DC2:cluster2, DC-folder-name/DC3:cluster3"`.
 {{/ evalExpression }}
 
-    After upgrading TKGI with multiple datacenters, you can use the `tkgi` CLI to upgrade TKGI clusters.
+    After upgrading {{ vars.product_short }} with multiple datacenters, you can use the `tkgi` CLI to upgrade {{ vars.product_short }} clusters.
 
-    <p class="note"><strong>Note</strong>: The TKGI Management Console does not yet support upgrading TKGI running on multiple datacenters.
+    <p class="note"><strong>Note</strong>: The {{ vars.product_short }} Management Console does not yet support upgrading {{ vars.product_short }} running on multiple datacenters.

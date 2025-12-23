@@ -13,8 +13,8 @@ To enable an HTTP proxy for outgoing HTTP/HTTPS traffic from {{ vars.platform_na
 
 1. Under **No Proxy**, include the hosts that must bypass the proxy. This is required.
 	<br><br>
-	In addition to `127.0.0.1` and `localhost`, include the BOSH Director IP, {{ vars.platform_name }} IP, TKGI API VM IP, and the TKGI Database VM IP.
-	If the TKGI Database is in HA mode, enter all your database IPs in the **No Proxy** field.
+	In addition to `127.0.0.1` and `localhost`, include the BOSH Director IP, {{ vars.platform_name }} IP, {{ vars.product_short }} API VM IP, and the {{ vars.product_short }} Database VM IP.
+	If the {{ vars.product_short }} Database is in HA mode, enter all your database IPs in the **No Proxy** field.
 
 	```
 	127.0.0.1,localhost,BOSH-DIRECTOR-IP,TKGI-API-IP,OPS-MANAGER-IP,TKGI-DATABASE-IP

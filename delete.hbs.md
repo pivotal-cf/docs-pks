@@ -3,7 +3,7 @@ title: Deleting {{  vars.product }}
 
 ---
 
-This topic describes how to delete the {{  vars.product }} (TKGI) tile from the {{ vars.platform_name }} Installation Dashboard.
+This topic describes how to delete the {{  vars.product }} tile from the {{ vars.platform_name }} Installation Dashboard.
 
 <p class='note'><strong>Note</strong>:
 If you used the {{  vars.product_full }} Management Console to deploy TKGI, you must remove TKGI from the TKGI Management Console. For more information, see

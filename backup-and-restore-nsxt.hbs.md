@@ -3,7 +3,7 @@ title: Backing Up and Restoring VMware NSX Manager
 
 ---
 
-This topic describes how to back up and restore NSX Data Center for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to back up and restore NSX Data Center for {{  vars.product_full }}.
 
 ## NSX Data Center Back Up and Recover
 
@@ -13,7 +13,7 @@ NSX Data Center provides in-product back up and recovery that supports back up a
 
 To back up and restore NSX Data Center, it is assumed that 3 NSX Manager Nodes are deployed, and there is an HA VIP configured for access to the NSX Management Plane. In addition, there are at least 2 Edge Nodes deployed with an HA VIP for the Edge Nodes.
 
-For more information, refer the to the [NSX-T for TKGI installation instructions](./nsxt-3-0-install.html).
+For more information, refer the to the [NSX-T for {{ vars.product_short }} installation instructions](./nsxt-3-0-install.html).
 
 ## Back Up Procedure
 
@@ -39,11 +39,11 @@ https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-2/administration-gu
 
 ## Testing Procedure
 
-The following test scenario assumes TKGI is installed on vSphere with NSX-T 3.0, and that a full backup of NSX Manager has been performed. This scenario tests the restoration of NSX.
+The following test scenario assumes {{ vars.product_short }} is installed on vSphere with NSX-T 3.0, and that a full backup of NSX Manager has been performed. This scenario tests the restoration of NSX.
 
 1. Verify NSX connectivity by testing access to a deployed Kubernetes application that is fronted by a service of type LoadBalancer. This verifies that the NSX load balancer is functioning correctly.
 1. Shut down all 3 NSX Manager VMs, and delete them.
-1. Deploy a new NSX Manager node. For more information, refer to the [NSX for TKGI installation documentation](./nsxt-3-0-install.html).
+1. Deploy a new NSX Manager node. For more information, refer to the [NSX for {{ vars.product_short }} installation documentation](./nsxt-3-0-install.html).
 1. Restore the NSX Manager configuration from the backup. See See [Restore a Backup](
 https://techdocs.broadcom.com/us/en/vmware-cis/nsx/nsxt-dc/3-2/administration-guide/backing-up-and-restoring-the-nsx-manager/restore-a-backup.html) in the NSX-T documentation.
 1. Add 2 additional Managers.

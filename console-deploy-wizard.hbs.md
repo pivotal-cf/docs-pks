@@ -4,17 +4,17 @@ title: Deploy {{  vars.product }} by Using the Configuration Wizard
 thistopic: wizard
 ---
 
-This topic describes how to use the {{  vars.product_full }} Management Console (TKGI MC) Configuration Wizard to deploy TKGI on vSphere.
+This topic describes how to use the {{  vars.product_full }} Management Console ({{ vars.product_short }} MC) Configuration Wizard to deploy {{ vars.product_short }} on vSphere.
 
-To deploy TKGI from a YAML, see [Deploy {{  vars.product }} by Importing a YAML Configuration File](console-deploy-yaml.html).
+To deploy {{ vars.product_short }} from a YAML, see [Deploy {{  vars.product }} by Importing a YAML Configuration File](console-deploy-yaml.html).
 
-To upgrade an existing TKGI MC installation, see [Upgrade {{  vars.product }} Management Console](console-upgrade.html).
+To upgrade an existing {{ vars.product_short }} MC installation, see [Upgrade {{  vars.product }} Management Console](console-upgrade.html).
 
 
 
 ## <a id='overview'></a>Overview
 
-To deploy the TKGI using TKGI MC Configuration Wizard:
+To deploy the {{ vars.product_short }} using {{ vars.product_short }} MC Configuration Wizard:
 
 1. Review the [Prerequisites](#prereqs)
 1. [Launch the Configuration Wizard](#launch-wizard)
@@ -69,7 +69,7 @@ To connect to a  vCenter Server:
 1. Click **Connect**.
 1. Select the data center in which to deploy {{  vars.product }} from the drop-down menu.
 
-    <p class="note warning"><strong> WARNING:</strong> Ideally, do not deploy TKGI from the management console to a data center that also includes TKGI instances that you deployed manually. If deploying management console and manual instances of TKGI to the same data center cannot be avoided, make sure that the TKGI instances that you deployed manually do not use the folder names <code>BoshVMFolder: pks_vms</code>, <code>BoshTemplateFolder: pks_templates</code>, <code>BoshDiskPath: pks_disk</code>. If a manual installation uses these folder names, the VMs that they contain will be deleted when you delete a TKGI instance from the management console.</p>
+    <p class="note warning"><strong> WARNING:</strong> Ideally, do not deploy {{ vars.product_short }} from the management console to a data center that also includes {{ vars.product_short }} instances that you deployed manually. If deploying management console and manual instances of {{ vars.product_short }} to the same data center cannot be avoided, make sure that the {{ vars.product_short }} instances that you deployed manually do not use the folder names <code>BoshVMFolder: pks_vms</code>, <code>BoshTemplateFolder: pks_templates</code>, <code>BoshDiskPath: pks_disk</code>. If a manual installation uses these folder names, the VMs that they contain will be deleted when you delete a {{ vars.product_short }} instance from the management console.</p>
 1. Click **Next** to configure networking.
 
 
@@ -127,7 +127,7 @@ To provide information about an VMware NSX network:
     ![Automated NAT Deployment network resources configuration](images/console/automatednat-network-resources.png)
 1. Optionally activate **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
 
-    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, {{  vars.product }} Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
+    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, {{  vars.product }} Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed {{ vars.product_short }} instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
 
     Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
 
@@ -157,7 +157,7 @@ To provide information about an VMware NSX network:
 	* Enter the user name and password for an NSX administrator account.
 1. Click **Connect**.
 1. Use the drop-down menus to select existing network resources for each of the following items.
-	* **Network for TKGI Management Plane**: Select the name of an opaque network on an NSX Virtual Distributed Switch (N-VDS).
+	* **Network for {{ vars.product_short }} Management Plane**: Select the name of an opaque network on an NSX Virtual Distributed Switch (N-VDS).
 
          <p class="note warning"><strong>Important</strong>: Do not use the network on which you deployed the {{  vars.product }} Management Console VM as the network for the management plane. Using the same network for the management console VM and the management plane requires additional VMware NSX configuration and is not recommended.</p>
 	* **Pod IP Block ID**: Select the UUID for the IP block to use for Kubernetes pods.
@@ -166,12 +166,12 @@ To provide information about an VMware NSX network:
 	* **Floating IP Pool ID**: Select the UUID for the Floating IP Pool.
 1. Enter IP addresses for the following resources.
 	* **Nodes DNS**: Enter the IP address for the DNS server to use for Kubernetes nodes and pods.
-	* **Deployment DNS**: Enter the IP address for the DNS server to use for the TKGI control plane VMs, for example 192.168.111.155.
+	* **Deployment DNS**: Enter the IP address for the DNS server to use for the {{ vars.product_short }} control plane VMs, for example 192.168.111.155.
 	* **NTP Server**: Enter the IP address of an NTP server.
 	* **Deployment Network Reserved IP Range**: Optionally enter a range of IP addresses in the **From** and **To** text boxes. No VMs are deployed in this range. You cannot modify reserved IP ranges after the initial deployment.  You can specify additional reserved IP ranges by editing the YAML configuration for your deployment before you deploy it in [Step 10: Generate Configuration File and Deploy {{  vars.product }}](#deploy).
 
     ![Bring your own topology network configuration](images/console/byot-network.png)
-1. If you are using the NSX Policy API, select this option. See [Considerations for Using the NSX Policy API with TKGI](./nsxt-policy-api-considerations.html).
+1. If you are using the NSX Policy API, select this option. See [Considerations for Using the NSX Policy API with {{ vars.product_short }}](./nsxt-policy-api-considerations.html).
 1. Optionally deactivate **NAT Mode** to implement a routable (No-NAT) topology.
 
      {{  vars.product }} supports NAT topologies, No-NAT with logical switch (NSX) topologies, No-NAT with virtual switch (VSS/VDS) topologies, and multiple tier-0 routers for tenant isolation. For information about implementing a routable topology, see [No-NAT Topology](./nsxt-topologies.html#topology-no-nat) in *NSX Deployment Topologies for {{  vars.product }}*.
@@ -180,7 +180,7 @@ To provide information about an VMware NSX network:
 If you activate hybrid NAT mode, the {{  vars.product }} management plane runs on a routable subnet but the cluster node network uses a non-routable subnet.
 1. Optionally activate **Manage certificates manually for NSX** if NSX Manager uses a custom CA certificate.
 
-    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, {{  vars.product }} Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed TKGI instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
+    <p class="note"><strong>Important</strong>: If VMware NSX uses custom certificates and you do not provide the CA certificate for NSX Manager, {{  vars.product }} Management Console automatically generates one and registers it with NSX Manager. This can cause other services that are integrated with NSX Manager not to function correctly. If you have manually deployed {{ vars.product_short }} instances to the same data center as the one to which you are deploying this instance, you must select <b>Manage certificates manually for NSX</b> and enter the current NSX manager CA certificate.</p>
 
     Enter the contents of the CA certificate in the **NSX Manager CA Cert** text box:
 
@@ -249,8 +249,8 @@ To configure identity management:
 You can manage users by using a local database that is created during {{  vars.product }} deployment. After deployment, you can add users and groups to the database and assign roles to them in the Identity Management view of the {{  vars.product }} Management Console.
 
 1. Select the **Local user database** radio button.
-1. In the **TKGI API FQDN** text box, enter an address for the TKGI API Server VM, for example `api.tkgi.example.com`.
-  <p class="note"><strong>Note</strong>: The FQDN for the TKGI API cannot contain uppercase letters.</p>
+1. In the **{{ vars.product_short }} API FQDN** text box, enter an address for the {{ vars.product_short }} API Server VM, for example `api.tkgi.example.com`.
+  <p class="note"><strong>Note</strong>: The FQDN for the {{ vars.product_short }} API cannot contain uppercase letters.</p>
 
 ### <a id='identity-ldap'></a>Use an External LDAP Server
 
@@ -282,8 +282,8 @@ Provide information about an existing external Active Directory or LDAP server:
 	* **Last Name Attribute**: Optionally enter the attribute name in the AD/LDAP directory that contains user last names. for example `sn`.
 	* **Server SSL Certificate**: If you are using an LDAPS endpoint, paste the contents of the LDAP server certificate certificate into the text box.
 1. Optionally click the **Test LDAP Server** button to test the connection that you have configured.
-1. In the **TKGI API FQDN** text box, enter an address for the TKGI API Server VM, for example `api.tkgi.example.com`.
-<p class="note"><strong>Note</strong>: The FQDN for the TKGI API cannot contain uppercase letters.</p>
+1. In the **{{ vars.product_short }} API FQDN** text box, enter an address for the {{ vars.product_short }} API Server VM, for example `api.tkgi.example.com`.
+<p class="note"><strong>Note</strong>: The FQDN for the {{ vars.product_short }} API cannot contain uppercase letters.</p>
 
 ![LDAP configuration](images/console/identity-ldap.png)
 
@@ -313,7 +313,7 @@ The display name appears as a link on your login page.
 
 1. For **Name ID Format**, select the name identifier format for your SAML identity provider.
 <br>
-This translates to `username` on TKGI. The default is `Email Address`.
+This translates to `username` on {{ vars.product_short }}. The default is `Email Address`.
 
 1. For **First Name Attribute** and **Last Name Attribute**, enter the attribute names in your SAML database that correspond to the first and last names in each user record.
 <br>
@@ -339,8 +339,8 @@ If you activate this option, you must configure your Identity Provider to send s
 <br>
 The default value is SHA256.
 
-1. In the **TKGI API FQDN** text box, enter an address for the TKGI API Server VM, for example `api.tkgi.example.com`.
-<p class="note"><strong>Note</strong>: The FQDN for the TKGI API cannot contain uppercase letters.</p>
+1. In the **{{ vars.product_short }} API FQDN** text box, enter an address for the {{ vars.product_short }} API Server VM, for example `api.tkgi.example.com`.
+<p class="note"><strong>Note</strong>: The FQDN for the {{ vars.product_short }} API cannot contain uppercase letters.</p>
 
 ![SAML configuration](images/console/identity-saml.png)
 
@@ -360,11 +360,11 @@ To configure UAA to verify and authenticate end-user identities:
   - **UAA OIDC Username Prefix**: Sets the `--oidc-username-prefix` flag. Enter a prefix for your user name claim. This prevents conflicts with existing names. For example, if you enter the prefix `oidc:`, UAA creates a user name like `oidc:admin`.
 
     ![OIDC configuration](images/console/identity-oidc.png)
-1. (Optional) Select **Manage Certificates Manually for TKGI API** to generate and upload your own certificates for the TKGI API Server.
+1. (Optional) Select **Manage Certificates Manually for {{ vars.product_short }} API** to generate and upload your own certificates for the {{ vars.product_short }} API Server.
 <br><br>
 If you do not select this option, the management console creates auto-generated, self-signed certificates.
 <br><br>
-Enter the contents of the certificate in the **TKGI API Certificate** text box:
+Enter the contents of the certificate in the **{{ vars.product_short }} API Certificate** text box:
 
     ```
     -----BEGIN CERTIFICATE-----
@@ -394,7 +394,7 @@ To configure availability zones:
 1. In the **Name** field, enter a name for the availability zone.
 1. Optionally select **This is the management availability zone**.
 
-    The management availability zone is the availability zone in which to deploy the TKGI Management Plane. The management plane consists of the TKGI API VM, {{ vars.platform_name }}, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, {{  vars.product }} Management Console selects the first one.
+    The management availability zone is the availability zone in which to deploy the {{ vars.product_short }} Management Plane. The management plane consists of the {{ vars.product_short }} API VM, {{ vars.platform_name }}, BOSH Director, and Harbor Registry. You can only designate one availability zone as the management zone. If you do not designate an availability zone as the management zone, {{  vars.product }} Management Console selects the first one.
 1. In the **Compute Resource** tree, select clusters, host groups, or resource pools for this availability zone to use.
 1. Click **Save Availability Zone**.
 
@@ -408,7 +408,7 @@ To configure availability zones:
 
 ## <a id='storage'></a>Step 5: Configure Resources and Storage
 
-Resource Settings allow you to configure the resources that are allocated to the VM on which the {{  vars.product }} API and other component services, such as UAA, run. Allocate resources according to the workloads that TKGI will run. You can also activate High Availability for the TKGI Database and deploy multiple instances of the TKGI API VM.
+Resource Settings allow you to configure the resources that are allocated to the VM on which the {{  vars.product }} API and other component services, such as UAA, run. Allocate resources according to the workloads that {{ vars.product_short }} will run. You can also activate High Availability for the {{ vars.product_short }} Database and deploy multiple instances of the {{ vars.product_short }} API VM.
 
 {{  vars.product }}, the MySQL database runs on a separate VM to the {{  vars.product }} API and other components.
 
@@ -424,26 +424,26 @@ You can use VMware vSAN, Network File Share (NFS), or VMFS storage for ephemeral
 
 To configure the resources available on the {{  vars.product }} API VM:
 
-1. (Optional) Toggle **TKGI Database** to activate database HA mode.
-1. For **TKGI Database Persistent Disk Size**, select the size of the persistent disk for the {{  vars.product }} MySQL database VM.
+1. (Optional) Toggle **{{ vars.product_short }} Database** to activate database HA mode.
+1. For **{{ vars.product_short }} Database Persistent Disk Size**, select the size of the persistent disk for the {{  vars.product }} MySQL database VM.
 
-    * Set the TKGI Database Persistent Disk Size according to the amount of data that you expect the cluster workload to store.
-1. Use the **TKGI Database VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the {{  vars.product }} MySQL database VM.
+    * Set the {{ vars.product_short }} Database Persistent Disk Size according to the amount of data that you expect the cluster workload to store.
+1. Use the **{{ vars.product_short }} Database VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the {{  vars.product }} MySQL database VM.
 
-    * Choose the configuration for the TKGI Database VM depending on the volume of database operations that it will run.
-1. Use the **TKGI API Instances** drop-down menu to select 1, 2, or 3 instances of the TKGI API VM.
-1. For **TKGI API Persistent Disk Size**, select the size of the persistent disk for the {{  vars.product }} API VM.
+    * Choose the configuration for the {{ vars.product_short }} Database VM depending on the volume of database operations that it will run.
+1. Use the **{{ vars.product_short }} API Instances** drop-down menu to select 1, 2, or 3 instances of the {{ vars.product_short }} API VM.
+1. For **{{ vars.product_short }} API Persistent Disk Size**, select the size of the persistent disk for the {{  vars.product }} API VM.
 
-    Set the TKGI API Persistent Disk Size according to the number of pods that you expect the cluster workload to run continuously. It is recommended to allocate 10GB for every 500 pods. For example:
+    Set the {{ vars.product_short }} API Persistent Disk Size according to the number of pods that you expect the cluster workload to run continuously. It is recommended to allocate 10GB for every 500 pods. For example:
 
     * For 1000 pods, allocate `20GB`.
     * For 10,000 pods, allocate `200GB`.
     * For 50,000 pods, allocate `1TB`.
-1. Use the **TKGI API VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the {{  vars.product }} API VM.
+1. Use the **{{ vars.product_short }} API VM Type** drop-down menu to select from different combinations of CPU, RAM, and storage for the {{  vars.product }} API VM.
 
     Choose the configuration for the API VM depending on the expected CPU, memory, and storage consumption of the workloads that it will run. For example, some workloads might require a large compute capacity but relatively little storage, while others might require a large amount of storage and less compute capacity.
 
-    ![Configure TKGI API and database VMs](images/console/resources.png)
+    ![Configure {{ vars.product_short }} API and database VMs](images/console/resources.png)
 1. Under **Ephemeral Storage**, select one or more datastores for use as ephemeral storage, or use the search field on the right to find datastores by name.
     ![Select ephemeral storage](images/console/ephemeral-storage.png)
 1. (Optional) Activate **Specify Permanent Storage** to designate different datastores for ephemeral and permanent data.
@@ -458,7 +458,7 @@ To configure the resources available on the {{  vars.product }} API VM:
 
 A plan is a cluster configuration template that defines the set of resources for {{  vars.product }} to use when deploying Kubernetes clusters. A plan allows you to configure the numbers of control plane and worker nodes, select between Linux and Windows OS for worker nodes, specify the configuration of the control plane and worker VMs, set disk sizes, select availability zones for control plane and node VMs, and configure advanced settings.
 
-{{  vars.product }} Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can activate the plans as they are. You must activate at least one plan configuration because when you use the TKGI CLI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are activated, you cannot create Kubernetes clusters.
+{{  vars.product }} Management Console provides preconfigured default plans, for different sizes of Kubernetes clusters. You can change the default configurations, or you can activate the plans as they are. You must activate at least one plan configuration because when you use the {{ vars.product_short }} CLI to create a Kubernetes cluster, you must specify the plan on which you are basing the Kubernetes cluster. If no plans are activated, you cannot create Kubernetes clusters.
 
 {{  vars.product }} plans support privileged containers and three admission control plugins. For information about privileged containers and the supported admission plugins, see
 [Privileged mode for pods](https://kubernetes.io/docs/concepts/workloads/pods/pod/#privileged-mode-for-pod-containers)
@@ -520,9 +520,9 @@ Consider the following when configuring plans for Windows worker nodes:
 
 ## <a id='integrations'></a>Step 7: Configure Integrations
 
-If your infrastructure includes existing deployments of VMware Tanzu Mission Control, VMware vRealize Operations Management Pack for Container Monitoring, or VMware vRealize Log Insight, you can configure TKGI to connect to those services. You can also configure TKGI to forward logs to a Syslog server.
+If your infrastructure includes existing deployments of VMware Tanzu Mission Control, VMware vRealize Operations Management Pack for Container Monitoring, or VMware vRealize Log Insight, you can configure {{ vars.product_short }} to connect to those services. You can also configure {{ vars.product_short }} to forward logs to a Syslog server.
 
-To configure TKGI integration with other products:
+To configure {{ vars.product_short }} integration with other products:
 
 * [Configure a Connection to VMware Tanzu Mission Control](#integrations-tanzumc)
 * [Configure a Connection to VMware vRealize Operations Management Pack for Container Monitoring](#integrations-vrops)
@@ -546,10 +546,10 @@ For more information about Tanzu Mission Control, see the [Tanzu Mission Control
       - VMware cloud services `Org Owner` users have `organization.admin` permissions in Tanzu Mission Control. These users:
            - Can create cluster groups.
            - Can grant `clustergroup` roles to `service.admin` users through the Tanzu Mission Control Access Policy view.
-  - **Tanzu Mission Control Cluster Name Prefix**: Enter a name prefix for identifying the TKGI clusters in Tanzu Mission Control.
+  - **Tanzu Mission Control Cluster Name Prefix**: Enter a name prefix for identifying the {{ vars.product_short }} clusters in Tanzu Mission Control.
 1. For **API token**, Enter your API token to authenticate with VMware Cloud Services APIs.
    Retrieve this token by logging into [VMware Cloud Services](https://console.tanzu.broadcom.com) and viewing your account information.
-1. For **Cluster Name Prefix**, enter a name prefix for identifying the TKGI clusters in Tanzu Mission Control.
+1. For **Cluster Name Prefix**, enter a name prefix for identifying the {{ vars.product_short }} clusters in Tanzu Mission Control.
    This name prefix cannot contain uppercase letters.  For more information, see the see [Cluster Group Name Limitation for Tanzu Mission Control Integration](./release-notes.html#1-6-0-tmc-names) in the Release Notes.
 
     ![Configure integration with Tanzu Mission Control](images/console/tanzu-mission-control.png)
@@ -559,26 +559,26 @@ For more information about Tanzu Mission Control, see the [Tanzu Mission Control
 ### <a id='integrations-vrops'></a>Configure a Connection to VMware vRealize Operations Management Pack for Container Monitoring
 
 vRealize Operations Management Pack for Container Monitoring provides detailed monitoring of your Kubernetes clusters.
-You can connect your TKGI deployment to an existing instance of VMware vRealize Operations Management Pack for Container Monitoring.
+You can connect your {{ vars.product_short }} deployment to an existing instance of VMware vRealize Operations Management Pack for Container Monitoring.
 
-To connect a TKGI deployment to VMware vRealize Operations Management Pack for Container Monitoring:
+To connect a {{ vars.product_short }} deployment to VMware vRealize Operations Management Pack for Container Monitoring:
 
-1. Ensure vRealize Operations Management Pack for Container Monitoring is available in your environment. vRealize Operations Management Pack for Container Monitoring must be installed, licensed, running, and available before activating integration with a TKGI deployment.
+1. Ensure vRealize Operations Management Pack for Container Monitoring is available in your environment. vRealize Operations Management Pack for Container Monitoring must be installed, licensed, running, and available before activating integration with a {{ vars.product_short }} deployment.
     To install vRealize Operations Management Pack for Container Monitoring, see the [vRealize Operations Management Pack for Container Monitoring Documentation](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/Chunk1503020612.html).
 1. Select the **Enable** toggle to activate a connection to vRealize Operations Management Pack for Container Monitoring.
 1. Click **Save**.
 1. Configure integrations with other applications, or click **Next** to install Harbor.
 
-TKGI MC automatically creates a `cAdvisor` container in the TKGI deployment after TKGI integration with VMware vRealize Operations Management Pack for Container Monitoring has been activated.
+{{ vars.product_short }} MC automatically creates a `cAdvisor` container in the {{ vars.product_short }} deployment after {{ vars.product_short }} integration with VMware vRealize Operations Management Pack for Container Monitoring has been activated.
 
 ### <a id='integrations-vfli'></a>Configure a Connection to VMware vRealize Log Insight
 
-You can configure TKGI deployment so that an existing deployment of VMware vRealize Log Insight pulls logs from all BOSH jobs and containers running in the cluster, including node logs from core Kubernetes and BOSH processes, Kubernetes event logs, and POD stdout and stderr.
+You can configure {{ vars.product_short }} deployment so that an existing deployment of VMware vRealize Log Insight pulls logs from all BOSH jobs and containers running in the cluster, including node logs from core Kubernetes and BOSH processes, Kubernetes event logs, and POD stdout and stderr.
 
-To connect a TKGI deployment to VMware vRealize Log Insight:
+To connect a {{ vars.product_short }} deployment to VMware vRealize Log Insight:
 
 1. Ensure vRealize Log Insight is available in your environment.
-vRealize Log Insight must be installed, licensed, running, and available in your environment before you  activating integration with a TKGI deployment.
+vRealize Log Insight must be installed, licensed, running, and available in your environment before you  activating integration with a {{ vars.product_short }} deployment.
     To install and configure vRealize Log Insight, see the [vRealize Log Insight documentation](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-automation/all/getting-started-with-vrealize-log-insight.html).
 1. Select the **Enable** toggle to activate a connection to vRealize Log Insight.
 1. Enter the address of your vRealize Log Insight instance in the **Host** text box.
@@ -589,14 +589,14 @@ vRealize Log Insight must be installed, licensed, running, and available in your
 1. Click **Save**.
 1. Configure integrations with other applications, or click **Next** to install Harbor.
 
-<p class="note"><strong>Note</strong>: If you activate integration with vRealize Log Insight, {{  vars.product }} Management Console generates a unique vRealize Log Insight agent ID for the management console. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console VM. For information about how to obtain the agent ID, see <a href="console-troubleshooting.html#log-insight">Obtain the VMware vRealize Log Insight Agent ID for TKGI Management Console</a> in <i>Troubleshooting {{  vars.product }} Management Console</i>. </p>
+<p class="note"><strong>Note</strong>: If you activate integration with vRealize Log Insight, {{  vars.product }} Management Console generates a unique vRealize Log Insight agent ID for the management console. You must provide this agent ID to vRealize Log Insight so that it can pull the appropriate logs from the management console VM. For information about how to obtain the agent ID, see <a href="console-troubleshooting.html#log-insight">Obtain the VMware vRealize Log Insight Agent ID for {{ vars.product_short }} Management Console</a> in <i>Troubleshooting {{  vars.product }} Management Console</i>. </p>
 
 
 ### <a id='integrations-syslog'></a>Configure a Connection to Syslog
 
-You can configure your TKGI deployment so that it sends logs for BOSH-deployed VMs, Kubernetes clusters, and namespaces to an existing Syslog server.
+You can configure your {{ vars.product_short }} deployment so that it sends logs for BOSH-deployed VMs, Kubernetes clusters, and namespaces to an existing Syslog server.
 
-To connect your TKGI deployment with an existing Syslog server:
+To connect your {{ vars.product_short }} deployment with an existing Syslog server:
 
 1. Select the **Enable** toggle to activate a connection to Syslog.
 1. Enter the address of your Syslog server in the **Address and port** text boxes.
@@ -621,9 +621,9 @@ To deploy and configure Harbor registry:
 1. Select the **Enable** toggle to deploy Harbor when you deploy {{  vars.product }}.
 1. In the **Harbor FQDN** text box, enter a name for the Harbor VM, for example `harbor.tkgi.example.com`.
 
-    This is the address at which you access the Harbor administration UI and registry service. Before you set the host name, you must check for potential host name conflicts between TKGI and Harbor.
+    This is the address at which you access the Harbor administration UI and registry service. Before you set the host name, you must check for potential host name conflicts between {{ vars.product_short }} and Harbor.
     - If the host name might resolve to an IP address that is not one that you want it to, clear the DNS entry manually to avoid conflicts in subsequent use.
-    - If the host name can be resolved to an IP address that you have intentionally created beforehand, be aware that the IP address in the DNS entry might not be the same as the reachable IP address that TKGI Management Console uses, resulting in network issues. If you must use a pre-created DNS entry, after the TKGI deployment finishes, check the IP address that TKGI Management Console uses for Harbor and update the DNS entry accordingly.
+    - If the host name can be resolved to an IP address that you have intentionally created beforehand, be aware that the IP address in the DNS entry might not be the same as the reachable IP address that {{ vars.product_short }} Management Console uses, resulting in network issues. If you must use a pre-created DNS entry, after the {{ vars.product_short }} deployment finishes, check the IP address that {{ vars.product_short }} Management Console uses for Harbor and update the DNS entry accordingly.
 
 1. Enter and confirm a password for the Harbor VM.
 1. Select the method to use for authenticating connections to Harbor.
@@ -666,9 +666,9 @@ To deploy and configure Harbor registry:
         -----END CERTIFICATE-----
         ```
 
-    1. Apply the configuration to update the TKGI Management Console database with the revised Harbor certificates.
+    1. Apply the configuration to update the {{ vars.product_short }} Management Console database with the revised Harbor certificates.
 
-    <p class="note"><strong>Note:</strong> If you use the TKGI Management Console and Harbor and
+    <p class="note"><strong>Note:</strong> If you use the {{ vars.product_short }} Management Console and Harbor and
     	rotate Harbor certificates within the Harbor tile,
     	you must activate the <strong>Manage Certificates Manually For Harbor</strong> option
     	and configure the new Harbor certificates.
@@ -722,12 +722,12 @@ of {{  vars.product }} Management Console.
 
 ## <a id='deploy'></a>Step 10: Generate Configuration File and Deploy {{  vars.product }}
 
-When all of the sections of the wizard are green, you can generate a YAML configuration file and deploy TKGI.
+When all of the sections of the wizard are green, you can generate a YAML configuration file and deploy {{ vars.product_short }}.
 
-<p class="note"><strong>Note</strong>: If TKGI MC fails to deploy TKGI correctly, always use TKGI MC to cleanly remove the failed deployment.
+<p class="note"><strong>Note</strong>: If {{ vars.product_short }} MC fails to deploy {{ vars.product_short }} correctly, always use {{ vars.product_short }} MC to cleanly remove the failed deployment.
 For more information see <a href="console-delete-deployment.html">Delete Your {{  vars.product }} Deployment</a>.</p>
 
-To deploy TKGI:
+To deploy {{ vars.product_short }}:
 
 1. Click **Generate Configuration** to see the generated YAML file.
 
@@ -777,15 +777,15 @@ To deploy TKGI:
 	   - Deployment network: `additional_dep_reserved_ip_range: "172.16.100.2,172.16.100.3-172.16.100.10"`
 	   - Service network (vSphere without NSX only): `additional_svc_reserved_ip_range: ""`
 
-1. (Optional) Edit the YAML directly in the YAML editor to specify TKGI Operation Timeout. In large-scale NSX environments, increase the TKGI Operation Timeout to avoid timeouts during cluster deletion.
+1. (Optional) Edit the YAML directly in the YAML editor to specify {{ vars.product_short }} Operation Timeout. In large-scale NSX environments, increase the {{ vars.product_short }} Operation Timeout to avoid timeouts during cluster deletion.
 
-    The TKGI Operation Timeout value is independently configurable on the TKGI tile and TKGI MC configuration YAML.
-    If you use the TKGI MC,
-    the TKGI MC configuration overrides the TKGI tile configuration.
+    The {{ vars.product_short }} Operation Timeout value is independently configurable on the {{ vars.product_short }} tile and {{ vars.product_short }} MC configuration YAML.
+    If you use the {{ vars.product_short }} MC,
+    the {{ vars.product_short }} MC configuration overrides the {{ vars.product_short }} tile configuration.
 
-    The default TKGI Operation Timeout value is 120 seconds in both configuration settings.
+    The default {{ vars.product_short }} Operation Timeout value is 120 seconds in both configuration settings.
 
-    To specify the TKGI Operation Timeout:
+    To specify the {{ vars.product_short }} Operation Timeout:
 
 	1. Determine the optimal Operation Timeout setting for your environment.
     For more information, see [Cluster Deletion Fails](troubleshoot-issues.html#cluster-delete-fail) in _General Troubleshooting_.
@@ -795,7 +795,7 @@ To deploy TKGI:
 1. Click **Apply Configuration** then **Continue** to deploy {{  vars.product }}.
 
     ![Apply the generated YAML configuration](images/console/apply-yaml.png)
-1. On the TKGI Configuration page, follow the progress of the deployment.
+1. On the {{ vars.product_short }} Configuration page, follow the progress of the deployment.
 1. When the deployment has completed successfully, click **Continue** to monitor and manage your deployment.
 
     ![A successful {{  vars.product }} deployment](images/console/deployment-complete.png)

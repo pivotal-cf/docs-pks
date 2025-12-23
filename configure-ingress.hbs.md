@@ -3,7 +3,7 @@ title: Configuring Ingress Routing
 
 ---
 
-This topic describes how to configure an ingress controller on {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to configure an ingress controller on {{  vars.product_full }}.
 
 For information about configuring an ingress controller using NSX, see [Configuring Ingress Resources and Load Balancer Services](nsxt-ingress-srvc-lb.html).
 

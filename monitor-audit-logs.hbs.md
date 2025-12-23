@@ -3,7 +3,7 @@ title: Auditing {{  vars.product }} Logs
 
 ---
 
-This topic describes key TKGI (TKGI) auditable events and the log entries they generate.
+This topic describes key TKGI auditable events and the log entries they generate.
 
 Operators can use this information to audit event logs to see
 what users took what actions at what times.

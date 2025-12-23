@@ -3,7 +3,7 @@ title: Deploy {{  vars.product }} from the Management Console
 
 ---
 
-You can deploy a new {{  vars.product_full }} ({{ vars.product_short }}) instance on vSphere either by using the {{  vars.product_full }} Management Portal configuration wizard to guide you through the configuration process, or by importing an existing YAML configuration file into the YAML editor.
+You can deploy a new {{  vars.product_full }} instance on vSphere either by using the {{  vars.product_full }} Management Portal configuration wizard to guide you through the configuration process, or by importing an existing YAML configuration file into the YAML editor.
 
 - [Deploy {{  vars.product }} by Using the Configuration Wizard](console-deploy-wizard.html)
 - [Deploy {{  vars.product }} by Importing a YAML Configuration File](console-deploy-yaml.html)

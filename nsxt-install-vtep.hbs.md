@@ -3,7 +3,7 @@ title: Create an IP Pool for VTEP
  -NSXT
 ---
 
-This topic describes how to install and configure NSX Data Center v3.0 for use with {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
+This topic describes how to install and configure NSX Data Center v3.0 for use with {{  vars.product_full }} on vSphere.
 
 ##<a id='nsxt30-ip-pools'></a> Create an IP Pool for VTEP
 

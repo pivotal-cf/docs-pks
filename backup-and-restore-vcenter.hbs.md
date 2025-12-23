@@ -3,13 +3,13 @@ title: Backing Up and Restoring the vCenter Server
 
 ---
 
-This topic describes how to back up and restore the vCenter Server for a {{  vars.product_full }} ({{ vars.product_short }}) deployment.
+This topic describes how to back up and restore the vCenter Server for a {{  vars.product_full }} deployment.
 
 <p class="note"><strong>Note</strong>: Back up and restore of the vSphere SDDC is typically included as part of a site-wide disaster recovery plan. The information provided here is to be used as part of confirmation of such a plan.</p>
 
 ## vCenter Cluster Configuration
 
-To support highly available clusters, configure the vCenter clusters for TKGI with HA and DRS enabled. For more information, see [vSphere Availability](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/7-0/vsphere-availability.html) in the VMware vSphere documentation.
+To support highly available clusters, configure the vCenter clusters for {{ vars.product_short }} with HA and DRS enabled. For more information, see [vSphere Availability](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-supervisor/7-0/vsphere-availability.html) in the VMware vSphere documentation.
 
 ## vCenter Server Back Up and Recover
 

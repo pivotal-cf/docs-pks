@@ -3,7 +3,7 @@ title: Supporting Clusters
 
 ---
 
-The following topics describe how to support Kubernetes clusters provisioned by {{  vars.product_full }} ({{ vars.product_short }}):
+The following topics describe how to support Kubernetes clusters provisioned by {{  vars.product_full }}:
 
 <ul>
   <li>

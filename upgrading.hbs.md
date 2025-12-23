@@ -3,7 +3,7 @@ title: Upgrading {{  vars.product }}
 
 ---
 
-The following topics describe how to upgrade {{  vars.product_full }} ({{ vars.product_short }}):
+The following topics describe how to upgrade {{  vars.product_full }}:
 
 <ul>
   <li>

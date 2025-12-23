@@ -3,15 +3,15 @@ title: Overview of {{  vars.product }} Architecture
 
 ---
 
-This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) deploys and manages Kubernetes clusters.
+This topic describes how {{  vars.product_full }} deploys and manages Kubernetes clusters.
 
 
 ## <a id="overview"></a>{{  vars.product }} Overview
 
-A {{  vars.product }} environment consists of a TKGI Control Plane
+A {{  vars.product }} environment consists of a {{ vars.product_short }} Control Plane
 and one or more workload clusters.
 
-{{  vars.product }} administrators use the TKGI Control Plane to
+{{  vars.product }} administrators use the {{ vars.product_short }} Control Plane to
 deploy and manage Kubernetes clusters. The workload clusters run the apps pushed by developers.
 
 The following illustrates the interaction between {{  vars.product }} components:
@@ -19,12 +19,12 @@ The following illustrates the interaction between {{  vars.product }} components
 {{ image_tag src="images/tkgi-overview-ha.png" alt="HA TKGI Control Plane with HA TKGI API VM Group and HA DB VM cluster" }}
 {{{{raw}}}} <!--  Image source: https://docs.google.com/drawings/d/1TZkaTSCiddEE7mZtOTjTg6jBuDAy0D3CI9JY56HBIAY/edit  --> {{{{/raw}}}}
 
-Administrators access the TKGI Control Plane
-through the TKGI Command Line Interface (TKGI CLI) installed on their local workstations.
+Administrators access the {{ vars.product_short }} Control Plane
+through the {{ vars.product_short }} Command Line Interface ({{ vars.product_short }} CLI) installed on their local workstations.
 
-Within the TKGI Control Plane the TKGI API and TKGI Broker use BOSH to execute the requested cluster management functions.
-For information about the TKGI Control Plane, see [TKGI Control Plane Overview](#control-plane) below.
-For instructions on installing the TKGI CLI, see [Installing the TKGI CLI](installing-cli.html).
+Within the {{ vars.product_short }} Control Plane the {{ vars.product_short }} API and {{ vars.product_short }} Broker use BOSH to execute the requested cluster management functions.
+For information about the {{ vars.product_short }} Control Plane, see [{{ vars.product_short }} Control Plane Overview](#control-plane) below.
+For instructions on installing the {{ vars.product_short }} CLI, see [Installing the {{ vars.product_short }} CLI](installing-cli.html).
 
 Kubernetes deploys and manages workloads on Kubernetes clusters.
 Administrators use the  Kubernetes CLI, `kubectl`, to direct Kubernetes
@@ -32,7 +32,7 @@ from their local workstations.
 For information about `kubectl`, see [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) in the Kubernetes documentation.
 
 
-## <a id="cluster-management"></a><a id="control-plane"></a>TKGI Control Plane Overview
+## <a id="cluster-management"></a><a id="control-plane"></a>{{ vars.product_short }} Control Plane Overview
 
 The TKGI Control Plane manages the lifecycle of Kubernetes clusters deployed
 using {{  vars.product }}.

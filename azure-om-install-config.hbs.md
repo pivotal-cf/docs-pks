@@ -4,7 +4,7 @@ owner: {{ vars.platform_name }}
 ---
 
 This topic describes how to install and configure {{ vars.platform_name }} on Microsoft Azure
-before deploying {{  vars.product_full }} ({{ vars.product_short }}).
+before deploying {{  vars.product_full }}.
 
 ## <a id='overview'></a> Overview
 

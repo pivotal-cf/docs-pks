@@ -3,7 +3,7 @@ title: Prerequisites for Installing and Configuring VMware NSX v3 for TKGI
  -NSXT
 ---
 
-This topic describes the prerequisites for installing and configuring NSX Data Center v3 for {{  vars.product_full }} ({{ vars.product_short }}) on vSphere.
+This topic describes the prerequisites for installing and configuring NSX Data Center v3 for {{  vars.product_full }} on vSphere.
 
 ##<a id='nsxt30-prereqs'></a> Prerequisites for Installing VMware NSX
 

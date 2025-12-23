@@ -4,9 +4,9 @@ title: Preparing to Install {{  vars.product }} on vSphere with VMware NSX
 iaas: vsphere-nsxt
 ---
 
-The following topics describe how to prepare to install {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX Data Center.
+The following topics describe how to prepare to install {{  vars.product_full }} on vSphere with NSX Data Center.
 
-<p class="note warning"><strong>Important</strong>: As of May 7, 2024, NSX networking and firewall components are sold separately from TKGI.</p>
+<p class="note warning"><strong>Important</strong>: As of May 7, 2024, NSX networking and firewall components are sold separately from {{ vars.product_short }}.</p>
 
 ## Preparing to Install {{  vars.product }} on vSphere with NSX
 
@@ -32,6 +32,6 @@ In preparation for installing {{  vars.product }} on vSphere with NSX, review th
     <a href="./nsxt-prepare-env.html">Network Planning {{  vars.product }}</a>
   </li>
   <li>
-    <a href="./nsxt-policy-api-considerations.html">Considerations for Using the NSX Policy API with TKGI</a>
+    <a href="./nsxt-policy-api-considerations.html">Considerations for Using the NSX Policy API with {{ vars.product_short }}</a>
   </li>
 </ul>

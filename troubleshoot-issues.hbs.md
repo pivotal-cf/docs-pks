@@ -3,14 +3,14 @@ title: General Troubleshooting
 
 ---
 
-This topic assists with diagnosing and troubleshooting issues when installing or using {{  vars.product_full }} ({{ vars.product_short }}).
+This topic assists with diagnosing and troubleshooting issues when installing or using {{  vars.product_full }}.
 
 ##<a id='overview'></a>Overview
 
 Refer to the following for troubleshooting assistance:
 
 * [The Fluent Bit Pod Restarts Due to Out-of-Memory Issue](#fluent-bit-memory)
-* [TKGI API is Slow or Times Out](#api-timeout)
+* [{{ vars.product_short }} API is Slow or Times Out](#api-timeout)
 * [All Cluster Operations Fail](#cluster-operation-fails)
 * [Cluster Creation Fails](#cluster-create-fail)
 * [Cluster Deletion Fails](#cluster-delete-fail)
@@ -52,15 +52,15 @@ For more information, see [Log Sink Resources](installing-vsphere.html#log-sinks
 
 <hr>
 
-##<a id='api-timeout'></a>TKGI API is Slow or Times Out
+##<a id='api-timeout'></a>{{ vars.product_short }} API is Slow or Times Out
 
 **Symptom**
 
-When you run TKGI CLI commands, the TKGI API times out or is slow to respond.
+When you run {{ vars.product_short }} CLI commands, the {{ vars.product_short }} API times out or is slow to respond.
 
 **Explanation**
 
-The TKGI API VM requires more resources.
+The {{ vars.product_short }} API VM requires more resources.
 
 **Solution**
 
@@ -70,7 +70,7 @@ The TKGI API VM requires more resources.
 
 1. Select the **Resource Config** page.
 
-1. For the **TKGI API** job, select a **VM Type** with greater CPU and memory resources.
+1. For the **{{ vars.product_short }} API** job, select a **VM Type** with greater CPU and memory resources.
 
 1. Click **Save**.
 
@@ -86,7 +86,7 @@ information, see [Reviewing Pending Product Changes](https://techdocs.broadcom.c
 
 **Symptom**
 
-All TKGI CLI cluster operations fail including attempts to create or delete clusters
+All {{ vars.product_short }} CLI cluster operations fail including attempts to create or delete clusters
 with `tkgi create-cluster` and `tkgi delete-cluster`.
 
 The output of `tkgi cluster CLUSTER-NAME` contains `Last Action State: error`, and
@@ -149,7 +149,7 @@ look for any nodes that display `failing` as their `Process State`. For example:
 1. In the plan configuration, select a larger VM type for the plan's control plane or worker nodes or both.
 
     For more information about scaling existing clusters by changing the VM types, see
-[Scale Vertically by Changing Cluster Node VM Sizes in the TKGI Tile](scale-clusters.html#scale-vertical).
+[Scale Vertically by Changing Cluster Node VM Sizes in the {{ vars.product_short }} Tile](scale-clusters.html#scale-vertical).
 
 <hr>
 
@@ -197,24 +197,24 @@ For troubleshooting failed BOSH tasks, see the [BOSH documentation](https://bosh
 
 **Symptom**
 
-When deleting a cluster in a large-scale NSX environment, `TKGI delete-cluster` becomes stuck.
+When deleting a cluster in a large-scale NSX environment, `tkgi delete-cluster` becomes stuck.
 
 **Explanation**
 
-A TKGI-API process exceeded the TKGI Operation Timeout, timed out, and now cluster deletion is stuck.
+A {{ vars.product_short }}-API process exceeded the {{ vars.product_short }} Operation Timeout, timed out, and now cluster deletion is stuck.
 
 **Solution**
 
-To avoid the TKGI-API process timeout, you must increase the TKGI Operation Timeout.
-The default TKGI Operation Timeout value is `120000`, 120 seconds.
+To avoid the {{ vars.product_short }}-API process timeout, you must increase the {{ vars.product_short }} Operation Timeout.
+The default {{ vars.product_short }} Operation Timeout value is `120000`, 120 seconds.
 
-You can increase the TKGI Operation Timeout by increasing either the **TKGI Operation Timeout** field value on the TKGI tile, or if you use the TKGI MC, the `nsx_feign_client_read_timeout` property value in the TKGI MC configuration YAML. The TKGI MC `nsx_feign_client_read_timeout` setting overrides the TKGI tile Operation Timeout configuration.
+You can increase the {{ vars.product_short }} Operation Timeout by increasing either the **{{ vars.product_short }} Operation Timeout** field value on the {{ vars.product_short }} tile, or if you use the {{ vars.product_short }} MC, the `nsx_feign_client_read_timeout` property value in the {{ vars.product_short }} MC configuration YAML. The {{ vars.product_short }} MC `nsx_feign_client_read_timeout` setting overrides the {{ vars.product_short }} tile Operation Timeout configuration.
 
 To avoid the operation timeout:
 
 1. Determine the optimal operation time out value:
 
-    1. SSH to the TKGI Control Plane VM.
+    1. SSH to the {{ vars.product_short }} Control Plane VM.
     1. Change directory to `/var/vcap/jobs/pks-nsx-t-osb-proxy`.
     1. Run the following command:
 
@@ -236,23 +236,23 @@ To avoid the operation timeout:
     1. Add 30 seconds to the `real` value and convert the sum from minutes-seconds to seconds, rounding up.
     For example, sum, convert, and round `1m28.057s` to `120`.
     1. Convert the summed value to milliseconds. This is your calculated Operation Timeout value.
-1. Configure the TKGI Operation Timeout:
+1. Configure the {{ vars.product_short }} Operation Timeout:
 
-    * **TKGI Tile**:
-    Configure the **TKGI Operation Timeout** field on the TKGI tile
+    * **{{ vars.product_short }} Tile**:
+    Configure the **{{ vars.product_short }} Operation Timeout** field on the {{ vars.product_short }} tile
     with your calculated Operation Timeout value.
-    For more information on configuring the **TKGI Operation Timeout** field,
-    see [Networking](installing-nsx-t.html#networking) in _Installing TKGI on vSphere with NSX_.
+    For more information on configuring the **{{ vars.product_short }} Operation Timeout** field,
+    see [Networking](installing-nsx-t.html#networking) in _Installing {{ vars.product_short }} on vSphere with NSX_.
 
-    * **TKGI MC Configuration YAML**:
-    Configure the `nsx_feign_client_read_timeout` property value in the TKGI MC configuration YAML
+    * **{{ vars.product_short }} MC Configuration YAML**:
+    Configure the `nsx_feign_client_read_timeout` property value in the {{ vars.product_short }} MC configuration YAML
     with your calculated Operation Timeout value.
     For more information about configuring the `nsx_feign_client_read_timeout` property,
     see [Generate Configuration File and Deploy {{  vars.product }}](console-deploy-wizard.html#deploy)
     in _Deploy {{  vars.product }} by Using the Configuration Wizard_.
 
-    <p class="note"><strong>Note</strong>: If you use the TKGI MC, you must configure
-    the TKGI Operation Timeout in the TKGI MC configuration YAML.
+    <p class="note"><strong>Note</strong>: If you use the {{ vars.product_short }} MC, you must configure
+    the {{ vars.product_short }} Operation Timeout in the {{ vars.product_short }} MC configuration YAML.
     </p>
 
 <hr>
@@ -287,18 +287,18 @@ Log in to the BOSH Director and delete the BOSH deployment manually, then retry 
 
     <p class="note"><strong>Note</strong>: If necessary, you can append the <code>--force</code> flag to delete the deployment.</p>
 
-2. Run the following TKGI command:
+2. Run the following {{ vars.product_short }} command:
 
     ```
     tkgi delete-cluster CLUSTER-NAME
     ```
     Where `CLUSTER-NAME` is the name of your {{  vars.product }} cluster.
-    <p class="note"><strong>Note</strong>: Use only lowercase characters in your TKGI-provisioned
+    <p class="note"><strong>Note</strong>: Use only lowercase characters in your {{ vars.product_short }}-provisioned
     Kubernetes cluster names if you manage your clusters with Tanzu Mission Control (TMC).
     Clusters with names that include an uppercase character cannot be attached to TMC.
     </p>
 
-1. To re-create the cluster, run the following TKGI command:
+1. To re-create the cluster, run the following {{ vars.product_short }} command:
 
     ```
     tkgi create-cluster CLUSTER-NAME
@@ -407,7 +407,7 @@ The above command, when applied to each VM, gives your VMs the correct permissio
 **Symptoms**
 
 After making your selection in the **Upgrade all clusters errand** section, the worker node might hang indefinitely.
-For more information about monitoring the **Upgrade all clusters errand** using the BOSH CLI, see [Upgrade the TKGI Tile](upgrade.html#upgrade-tile) in _Upgrading {{  vars.product }} (Antrea Networking)_.
+For more information about monitoring the **Upgrade all clusters errand** using the BOSH CLI, see [Upgrade the {{ vars.product_short }} Tile](upgrade.html#upgrade-tile) in _Upgrading {{  vars.product }} (Antrea Networking)_.
 
 **Explanation**
 
@@ -479,8 +479,8 @@ To resolve this issue, do one of the following:
     3. Navigate to **{{ vars.platform_name }} Installation Dashboard** > **Review Pending Changes**, select **Upgrade all clusters errand**, and **Apply Changes**.
     The new behavior takes effect during the next upgrade, not immediately after applying your changes.
 
-    <p class='note'><strong>Note:</strong> You can also use the TKGI CLI to configure node drain behavior.
-    To configure the default node drain behavior with the TKGI CLI, run <code>tkgi update-cluster</code>
+    <p class='note'><strong>Note:</strong> You can also use the {{ vars.product_short }} CLI to configure node drain behavior.
+    To configure the default node drain behavior with the {{ vars.product_short }} CLI, run <code>tkgi update-cluster</code>
     with an action flag. You can view the current node drain behavior with <code>tkgi cluster --details</code>.
     For more information, see <a href="./checklist.html#configure-node-drain">Configure Node Drain Behavior</a>
     in <i> Upgrade Preparation Checklist for {{  vars.product }} v1.9</i>.
@@ -501,10 +501,10 @@ When you authenticate to an OpenID Connect-enabled cluster using an existing kub
 
 **Solution**
 
-1. Upgrade the TKGI CLI to v1.2.0 or later.
+1. Upgrade the {{ vars.product_short }} CLI to v1.2.0 or later.
 <br>
-    To download the TKGI CLI, navigate to [Broadcom Support](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0).
-    For more information, see [Installing the TKGI CLI](installing-cli.html).
+    To download the {{ vars.product_short }} CLI, navigate to [Broadcom Support](https://support.broadcom.com/group/ecx/productfiles?subFamily=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&displayGroup=Tanzu%20Kubernetes%20Grid%20Integrated%20Edition%20(TKGi)%20-%20CLI%20%26%20Tile&release=1.23.0).
+    For more information, see [Installing the {{ vars.product_short }} CLI](installing-cli.html).
 
 1. Obtain a kubeconfig file that contains the new tokens by running the following command:
 
@@ -561,18 +561,18 @@ Review your configuration for a source for the connectivity issues:
 
 **Symptom**
 
-TKGI login command fails with an error "Credentials were rejected, please try again."
+{{ vars.product_short }} login command fails with an error "Credentials were rejected, please try again."
 
 **Explanation**
 
 You might experience this issue when a large number of pods are running continuously in your {{  vars.product }} deployment.
-As a result, the persistent disk on the TKGI Database VM runs out of space.
+As a result, the persistent disk on the {{ vars.product_short }} Database VM runs out of space.
 
 **Solution**
 
 1. Check the total number of pods in your {{  vars.product }}  deployments.
-1. If there are a large number of pods such as over 1,000 pods, then check the amount of available persistent disk space on the TKGI Database VM.
-1. If available disk space is low, increase the amount of persistent disk storage on the TKGI Database VM depending on the number of pods in your {{  vars.product }} deployment. Refer to the table in the following section.
+1. If there are a large number of pods such as over 1,000 pods, then check the amount of available persistent disk space on the {{ vars.product_short }} Database VM.
+1. If available disk space is low, increase the amount of persistent disk storage on the {{ vars.product_short }} Database VM depending on the number of pods in your {{  vars.product }} deployment. Refer to the table in the following section.
 
 {{> increase_persistent_disk }}
 
@@ -671,7 +671,7 @@ Plan not found error when an active plan is deactivated.
 
 **Explanation**
 
-You might receive the error "plan UUID not found" if, after creating a cluster using a plan (such as Plan 1), you then deactivate the plan (Plan 1) from the TKGI Tile in {{ vars.platform_name }} and then **Save** and **Apply Changes** with the **Upgrade all clusters errand** selected.
+You might receive the error "plan UUID not found" if, after creating a cluster using a plan (such as Plan 1), you then deactivate the plan (Plan 1) from the {{ vars.product_short }} Tile in {{ vars.platform_name }} and then **Save** and **Apply Changes** with the **Upgrade all clusters errand** selected.
 
 {{ vars.platform_name }} does not have capability to check clusters that are using a particular plan. Only when user saves the plan, the deployment process will check whether a plan can be deactivated. The error message "plan is displayed in the {{ vars.platform_name }} logs.
 
@@ -698,12 +698,12 @@ Error: an error occurred during FIP allocation
 
 **Explanation**
 
-TKGI administrators can allocate floating IP pool IP addresses in a Network Profile configuration.
-The TKGI control plane allocates IP addresses from the floating IP pool without accounting for the IPs allocated using Network Profiles.
+{{ vars.product_short }} administrators can allocate floating IP pool IP addresses in a Network Profile configuration.
+The {{ vars.product_short }} control plane allocates IP addresses from the floating IP pool without accounting for the IPs allocated using Network Profiles.
 
 **Workaround**
 
-TKGI allocates IP addresses starting from the beginning of a floating IP pool range.
+{{ vars.product_short }} allocates IP addresses starting from the beginning of a floating IP pool range.
 When configuring a Network Profile, allocate IP addresses starting at the end of the floating IP pool range instead of those at the beginning.
 
 <hr>
@@ -742,7 +742,7 @@ in _Creating a Windows Stemcell for vSphere Using Stembuild_.
 
 **Symptom**
 
-In an AWS environment, you observe `You are not authorized to perform this operation` errors are logged after upgrading to TKGI v1.18 or later.
+In an AWS environment, you observe `You are not authorized to perform this operation` errors are logged after upgrading to {{ vars.product_short }} v1.18 or later.
 
 For example:
 
@@ -757,8 +757,8 @@ For example:
 
 **Explanation**
 
-In AWS environments, TKGI v1.18 and later integrate the out-of-tree AWS cloud provider for Kubernetes.
-The Kubernetes AWS out-of-tree cloud provider requires a different AWS configuration than was required by the in-tree Kubernetes AWS cloud provider used in TKGI v1.17 and earlier. Basic cloud provider functions are failing because these requirements are not met.
+In AWS environments, {{ vars.product_short }} v1.18 and later integrate the out-of-tree AWS cloud provider for Kubernetes.
+The Kubernetes AWS out-of-tree cloud provider requires a different AWS configuration than was required by the in-tree Kubernetes AWS cloud provider used in {{ vars.product_short }} v1.17 and earlier. Basic cloud provider functions are failing because these requirements are not met.
 
 
 **Workaround**
@@ -785,9 +785,9 @@ To use Antrea Egress with worker nodes, the worker instance profile must have th
 To ensure the worker instance profile has the required permissions:
 
 1. Confirm the **AWS Worker Instance Profile IAM** name in your
-TKGI tile **Kubernetes Cloud Provider** configuration.
+{{ vars.product_short }} tile **Kubernetes Cloud Provider** configuration.
 For more information, see [Kubernetes Cloud Provider](installing-aws.html#cloud-provider)
-in _Installing TKGI on AWS (Antrea Networking)_.
+in _Installing {{ vars.product_short }} on AWS (Antrea Networking)_.
 1. To ensure permissions from the AWS Management Console:
     1. Open the the AWS Management Console.
     1. Under **IAM** > **Roles**, search for and locate the role named with your worker instance profile name and confirm `AWS Service: ec2` is a **Trusted Entity**.

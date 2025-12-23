@@ -3,7 +3,7 @@ title: Kubernetes Profiles
 
 ---
 
-The topics below describe how to define and use Kubernetes profiles to customize Kubernetes settings for {{  vars.product_full }} ({{ vars.product_short }}) clusters.
+The topics below describe how to define and use Kubernetes profiles to customize Kubernetes settings for {{  vars.product_full }} clusters.
 
 See the following topics:
 

@@ -3,21 +3,21 @@ title: Creating Dedicated Users and Roles for vSphere (Optional)
 owner: {{ vars.platform_name }}
 ---
 
-This topic describes how to create dedicated users and roles for your vSphere environment before deploying {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to create dedicated users and roles for your vSphere environment before deploying {{  vars.product_full }}.
 
-<p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by {{  vars.product }}. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the {{  vars.product }} and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the TKGI and Kubernetes cluster VMs, skip this topic.</p>
+<p class="note"><strong>Note</strong>: This topic provides security considerations for defining dedicated vSphere user accounts for use with Kubernetes cluster VMs provisioned by {{  vars.product }}. The information in this topic is only relevant if you <strong>do not</strong> want to use the vSphere administrator account for the {{  vars.product }} and Kubernetes cluster VMs. If you are comfortable using the vSphere administrator account for the {{ vars.product_short }} and Kubernetes cluster VMs, skip this topic.</p>
 
 ## <a id='overview'></a>Overview
 
 Before you install {{  vars.product }} on vSphere, you can prepare your vSphere environment by creating the
-required user accounts and configuring DNS for the TKGI API endpoint.
+required user accounts and configuring DNS for the {{ vars.product_short }} API endpoint.
 
 You can create the following service accounts in vSphere:
 
 * **Master Node User Account** for the Kubernetes control plane node VMs.
 * **BOSH/{{ vars.platform_name }} User Account** for BOSH Director operations.
 
-<p class="note warning"><strong> WARNING:</strong> The TKGI <b>Master Node User Account</b> and
+<p class="note warning"><strong> WARNING:</strong> The {{ vars.product_short }} <b>Master Node User Account</b> and
 BOSH/{{ vars.platform_name }} service accounts must be two separate accounts.</p>
 
 After creating the Master Node and BOSH/{{ vars.platform_name }} service accounts you must grant
@@ -45,7 +45,7 @@ To prepare your vSphere environment, do the following:
 1. [Grant Storage Permissions](#addl-permissions)
 1. [Create the BOSH/{{ vars.platform_name }} Service Account](#create-bosh-ops-man)
 1. [Grant Permissions to the BOSH/{{ vars.platform_name }} Service Account](#grant-bosh-ops-man)
-1. [Configure DNS for the TKGI API](#dns)
+1. [Configure DNS for the {{ vars.product_short }} API](#dns)
 
 ## <a id='prerequisites'></a>Prerequisites
 
@@ -304,9 +304,9 @@ This role includes the following privileges at the **vCenter, Datacenter, Datast
 
 ## <a id='create-bosh-ops-man'></a>Create the BOSH/{{ vars.platform_name }} User Account
 1. From the vCenter console, create the BOSH/{{ vars.platform_name }} User Account.
-1. If you are deploying both {{ vars.app_runtime }} and TKGI
+1. If you are deploying both {{ vars.app_runtime }} and {{ vars.product_short }}
 within the same vSphere environment, create an additional BOSH/{{ vars.platform_name }} Service Account so that
-you have one account for {{ vars.app_runtime }} and a separate account for TKGI.
+you have one account for {{ vars.app_runtime }} and a separate account for {{ vars.product_short }}.
 
 ## <a id='grant-bosh-ops-man'></a>Grant Permissions to the BOSH/{{ vars.platform_name }} User Account
 There are two options for granting permissions to the BOSH/{{ vars.platform_name }} Service Accounts:
@@ -320,13 +320,13 @@ There are two options for granting permissions to the BOSH/{{ vars.platform_name
     <p class="note warning"><strong>Warning</strong>: Applying the VMware Administrator Role to the BOSH/{{ vars.platform_name }} Service Account grants the account more privileges than are required.
     For optimal security always use the least privileged account.</p>
 
-## <a id='dns'></a>Configure DNS for the TKGI API
+## <a id='dns'></a>Configure DNS for the {{ vars.product_short }} API
 
 Navigate to your DNS provider and create an entry for a fully qualified domain name (FQDN) within your system domain. For example, `api.tkgi.example.com`.
 
-When you configure the {{  vars.product }} tile, enter this FQDN in the **TKGI API** pane.
+When you configure the {{  vars.product }} tile, enter this FQDN in the **{{ vars.product_short }} API** pane.
 
-After you deploy {{  vars.product }}, you map the IP address of the TKGI API to this FQDN. You can then use this FQDN to access the TKGI API from your local system.
+After you deploy {{  vars.product }}, you map the IP address of the {{ vars.product_short }} API to this FQDN. You can then use this FQDN to access the {{ vars.product_short }} API from your local system.
 
 ## <a id="next-steps"></a>Next Installation Step
 

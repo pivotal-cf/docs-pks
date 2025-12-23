@@ -3,7 +3,7 @@ title: Compute Profiles and Host Groups (vSphere Only)
 
 ---
 
-The following topics describe how to configure and apply compute profiles and host groups to {{  vars.product_full }} ({{ vars.product_short }}) clusters on vSphere:
+The following topics describe how to configure and apply compute profiles and host groups to {{  vars.product_full }} clusters on vSphere:
 
 <ul>
   <li>

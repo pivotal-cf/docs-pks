@@ -4,7 +4,7 @@ title: Sink Architecture in {{  vars.product }}
 ---
 
 This topic describes how {{  vars.product_full }}
-(TKGI) implements sinks for collecting logs and
+implements sinks for collecting logs and
 metrics from Kubernetes worker nodes and workloads.
 
 For step-by-step instructions on creating sinks in TKGI,

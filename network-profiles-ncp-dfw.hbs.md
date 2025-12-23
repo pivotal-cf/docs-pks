@@ -3,7 +3,7 @@ title: Defining DFW Section Markers
 
 ---
 
-This topic describes how {{  vars.product_full }} ({{ vars.product_short }}) administrators
+This topic describes how {{  vars.product_full }} administrators
 can define network profiles to create markers for NSX distributed firewall (DFW).
 
 <p class="note"><strong>Note:</strong> The NSX Policy API features a tiered policy model using categories

@@ -1,15 +1,15 @@
 ---
-title: Monitoring TKGI and TKGI-Provisioned Clusters on Linux
+title: Monitoring {{ vars.product_short }} and {{ vars.product_short }}-Provisioned Clusters on Linux
 
 ---
 
-This topic describes the components and integrations you can use with {{  vars.product_full }} ({{ vars.product_short }}) to capture logs and metrics on Linux.
+This topic describes the components and integrations you can use with {{  vars.product_full }} to capture logs and metrics on Linux.
 
 
 ## <a id='overview'></a>Overview
 
-To monitor TKGI and
-TKGI-provisioned cluster VMs, you can enable one or
+To monitor {{ vars.product_short }} and
+{{ vars.product_short }}-provisioned cluster VMs, you can enable one or
 more of the following components and integrations:
 
 <table class="nice">
@@ -39,10 +39,10 @@ more of the following components and integrations:
 
 Syslog, Telegraf, and VMware vRealize Log Insight integrations are enabled in the
 **{{  vars.product }}** tile > **Host Monitoring** section.
-Healthwatch is deployed to {{ vars.platform_name }} as the Healthwatch Exporter for TKGI tile.
+Healthwatch is deployed to {{ vars.platform_name }} as the Healthwatch Exporter for {{ vars.product_short }} tile.
 
 These components and
-integrations are visible only to TKGI admins.
+integrations are visible only to {{ vars.product_short }} admins.
 They are not visible to cluster users, such as developers.
 
 For information about monitoring Kubernetes workloads on Linux,
@@ -57,19 +57,19 @@ see:
 
 ## <a id='logs'></a>Logs&#58; Syslog and vRLI
 
-You can configure Syslog or vRealize Log Insight (vSphere only) to publish logs from the TKGI control plane
-and TKGI-provisioned cluster VMs.
+You can configure Syslog or vRealize Log Insight (vSphere only) to publish logs from the {{ vars.product_short }} control plane
+and {{ vars.product_short }}-provisioned cluster VMs.
 
 You might need to inspect Syslog or vRealize Log Insight (vRLI) logs when troubleshooting or
-auditing your TKGI environment.
+auditing your {{ vars.product_short }} environment.
 For information about key
-TKGI events and the log entries they generate, see
+{{ vars.product_short }} events and the log entries they generate, see
 [Auditing {{  vars.product }} Logs](monitor-audit-logs.html).
 
 ### <a id='syslog'></a>Syslog
 
 Syslog sends log messages from all BOSH-deployed VMs in a
-TKGI environment, including Kubernetes cluster audit logs, to a syslog endpoint.
+{{ vars.product_short }} environment, including Kubernetes cluster audit logs, to a syslog endpoint.
 To configure Syslog,
 see [Syslog](installing-vsphere.html#host-syslog) in the
 _Installing_ topic for your IaaS.
@@ -81,7 +81,7 @@ However, retrieving these logs through Syslog is recommended.
 
 ### <a id='vrealize'></a>vRealize Log Insight (vSphere Only)
 
-The vRealize Log Insight (vRLI) integration for TKGI
+The vRealize Log Insight (vRLI) integration for {{ vars.product_short }}
 pulls logs from all BOSH jobs and
 containers running in the cluster, including node logs from core Kubernetes and
 BOSH processes, Kubernetes event logs, and pod `stdout` and `stderr`.
@@ -96,7 +96,7 @@ see [vRealize Log Insight](https://www.vmware.com/products/vrealize-log-insight.
 
 ## <a id='telegraf'></a>Metrics&#58; Telegraf
 
-Telegraf sends metrics from TKGI API, control plane node, and worker
+Telegraf sends metrics from {{ vars.product_short }} API, control plane node, and worker
 node VMs to a monitoring service, such as Datadog.
 
 In the **{{  vars.product }}** tile > **Host Monitoring**, you can
@@ -111,7 +111,7 @@ configure Telegraf to collect metrics from one or more the following sources:
   </tr>
   <tr>
     <td>
-      <strong>TKGI API</strong>
+      <strong>{{ vars.product_short }} API</strong>
     </td>
     <td>
       <ul>
@@ -149,7 +149,7 @@ configure Telegraf to collect metrics from one or more the following sources:
 </table>
 
 To configure Telegraf, see
-[Configuring Telegraf in TKGI](monitor-etcd.html).
+[Configuring Telegraf in {{ vars.product_short }}](monitor-etcd.html).
 
 For more information about Node Exporter,
 see [About Node Exporter](#node-exporter) below.
@@ -160,7 +160,7 @@ Node Exporter exports hardware and operating system metrics in Prometheus format
 
 In the **Host Monitoring** pane of the {{  vars.product }} tile, you can
 enable the Node Exporter BOSH job separately on control plane nodes, worker nodes,
-and the TKGI API VM.
+and the {{ vars.product_short }} API VM.
 
 Node Exporter exposes metrics on <em>localhost</em> only. For a list of
 Node Exporter metrics, see the
@@ -170,14 +170,14 @@ GitHub repository.
 
 ## <a id='healthwatch'></a>Healthwatch
 
-You can use the [Healthwatch](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html) Healthwatch Exporter for TKGI tile
-to monitor the health of the TKGI Control Plane
+You can use the [Healthwatch](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html) Healthwatch Exporter for {{ vars.product_short }} tile
+to monitor the health of the {{ vars.product_short }} Control Plane
 and your Linux and Windows cluster control plane nodes.
 
-Healthwatch enables you to monitor the functionality of your TKGI environment
+Healthwatch enables you to monitor the functionality of your {{ vars.product_short }} environment
 and can be configured to expose metrics to a service or database external to your {{ vars.platform_name }} foundation.
-For more information, see [Overview of the Healthwatch Exporter for TKGI Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
+For more information, see [Overview of the Healthwatch Exporter for {{ vars.product_short }} Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
 
 To configure cluster discovery in Healthwatch, see
-[Configuring TKGI Cluster Discovery](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/configuring-optional-config-configuring-cluster-discovery.html)
+[Configuring {{ vars.product_short }} Cluster Discovery](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/configuring-optional-config-configuring-cluster-discovery.html)
 in the Healthwatch documentation.

@@ -2,18 +2,18 @@ To configure networking, do the following:
 
 1. Click **Networking**.
 {{# evalExpression "current_page.data.windowsclusters == true"}}
-1. Under **Container Networking Interface**, select:  
-    * **NSX** for Windows worker based clusters on vSphere with NSX.  
-    <p class="note"><strong>Note</strong>: 
-      Antrea is not supported for the TKGI Windows-worker on vSphere without NSX beta feature.</p>
-1. (Optional) Enter values for **Kubernetes Pod Network CIDR Range** and **Kubernetes Service Network CIDR Range**.  
-	* For Windows worker-based clusters the **Kubernetes Service Network CIDR Range** setting must be `10.220.0.0/16`.  
+1. Under **Container Networking Interface**, select:
+    * **NSX** for Windows worker based clusters on vSphere with NSX.
+    <p class="note"><strong>Note</strong>:
+      Antrea is not supported for the {{ vars.product_short }} Windows-worker on vSphere without NSX beta feature.</p>
+1. (Optional) Enter values for **Kubernetes Pod Network CIDR Range** and **Kubernetes Service Network CIDR Range**.
+	* For Windows worker-based clusters the **Kubernetes Service Network CIDR Range** setting must be `10.220.0.0/16`.
 {{ else }}
-1. Under **Container Networking Interface**, select **Antrea**.  
+1. Under **Container Networking Interface**, select **Antrea**.
     <img src="images/networking-antrea.png" alt="Networking pane configuration" width="425">
-    Antrea is the Container Networking Interface (CNI) for TKGI {{{ vars.product_version }}}. Flannel CNI is no longer supported.
-    For more information about Flannel CNI removal, see 
-    <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-kubernetes-grid-integrated-edition/1-18/tkgi/understanding-upgrades.html#upgrade-the-cni">About Switching from the Flannel CNI to the Antrea CNI</a> in the TKGI 1.18 documentation.
+    Antrea is the Container Networking Interface (CNI) for {{ vars.product_short }} {{{ vars.product_version }}}. Flannel CNI is no longer supported.
+    For more information about Flannel CNI removal, see
+    <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/standalone-components/tanzu-kubernetes-grid-integrated-edition/1-18/tkgi/understanding-upgrades.html#upgrade-the-cni">About Switching from the Flannel CNI to the Antrea CNI</a> in the {{ vars.product_short }} 1.18 documentation.
 1. (Optional) Enter values for **Kubernetes Pod Network CIDR Range** and **Kubernetes Service Network CIDR Range**.
   * Ensure that the CIDR ranges do not overlap and have sufficient space for your deployed services.
   * Ensure that the CIDR range for the **Kubernetes Pod Network CIDR Range** is large enough to accommodate the expected maximum number of pods.

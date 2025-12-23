@@ -4,7 +4,7 @@
     ```
     Where:
 
-    * `TKGI-API` is the domain name for the TKGI API that you entered in **{{ vars.platform_name }}** > **{{  vars.product }}** > **TKGI API** > **API Hostname (FQDN)**.
+    * `TKGI-API` is the domain name for the {{ vars.product_short }} API that you entered in **{{ vars.platform_name }}** > **{{  vars.product }}** > **{{ vars.product_short }} API** > **API Hostname (FQDN)**.
     For example, `api.tkgi.example.com`.
     * `USERNAME` is your user name.
 <br><br>

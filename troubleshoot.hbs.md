@@ -3,7 +3,7 @@ title: Diagnosing and Troubleshooting {{  vars.product }}
 owner: {{ vars.platform_name }}
 ---
 
-The following topics provide assistance when diagnosing and troubleshooting issues when installing or using {{  vars.product_full }} ({{ vars.product_short }}):
+The following topics provide assistance when diagnosing and troubleshooting issues when installing or using {{  vars.product_full }}:
 
 <ul>
   <li>

@@ -1,4 +1,4 @@
-Before you use BBR to either back up TKGI or restore TKGI from backup,
+Before you use BBR to either back up {{ vars.product_short }} or restore {{ vars.product_short }} from backup,
 follow these steps to retrieve deployment information and credentials:
 
 * [Verify your BBR Version](#verify-bbr-version)
@@ -13,7 +13,7 @@ follow these steps to retrieve deployment information and credentials:
 ### <a id='verify-bbr-version'></a> Verify Your BBR Version
 
 Before running BBR, verify that the installed version of BBR is compatible with the version of {{ vars.platform_name }}
-your TKGI tile is on:
+your {{ vars.product_short }} tile is on:
 
 1. To determine the {{ vars.platform_name }} BBR version requirements,
 see the [{{ vars.platform_name }} Release Notes](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/release-notes.html)

@@ -3,18 +3,18 @@ title: Deploying and Exposing Basic Windows Workloads
 
 ---
 
-This topic describes deploying Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes deploying Windows worker-based Kubernetes clusters in {{  vars.product_full }}.
 
 <p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is enabled for
-  TKGI on vSphere with NSX and as a beta feature for TKGI on vSphere without NSX.
-<br><br>Do not enable this feature if you are using TKGI with Azure or Amazon Web Services (AWS).
+  {{ vars.product_short }} on vSphere with NSX and as a beta feature for {{ vars.product_short }} on vSphere without NSX.
+<br><br>Do not enable this feature if you are using {{ vars.product_short }} with Azure or Amazon Web Services (AWS).
 </p>
 
 
 ## <a id='overview'></a>Overview
 
 In {{  vars.product }}, you can deploy Windows-based workloads to Kubernetes clusters on vSphere with NSX.
-Additionally, TKGI provides beta support for deploying Windows-based workloads to
+Additionally, {{ vars.product_short }} provides beta support for deploying Windows-based workloads to
 Kubernetes clusters on vSphere without NSX.
 
 To deploy a new Windows-based workload to a new pod, do the following:
@@ -40,7 +40,7 @@ documentation before following the procedures below.
 You can deploy Windows workloads to Windows-based clusters only.
 
 You must configure the {{  vars.product }} tile to support Windows-based clusters
-before you can use Windows-based clusters in TKGI.
+before you can use Windows-based clusters in {{ vars.product_short }}.
 For instructions on configuring the {{  vars.product }} tile,
 see [Configuring Windows Worker-Based Clusters](windows-workers.html).
 
@@ -222,10 +222,10 @@ You must create a Windows worker deployment manifest before deploying your new W
 
     $ kubectl get nodes -o wide
     NAME                                    STATUS   ROLES    AGE    VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                          KERNEL-VERSION      CONTAINER-RUNTIME
-    0983934a-6d69-8e5g-g3k1-98r8r56l345j    Ready    <none>   19d    v1.31.9    10.85.41.118  10.85.41.118  Windows Server 2019 Datacenter    10.0.17763.503      containerd://18.9.0
-    6d69934a-7d43-9g3g-h4d1-54r9r97l395j    Ready    <none>   19d    v1.31.9    10.85.41.115  10.85.41.115  Ubuntu 16.04.6 LTS                4.15.0-50-generic   containerd://18.9.0
-    7636d69a-2e75-5l0g-k6m1-76r3r37l729k    Ready    <none>   19d    v1.31.9    10.85.41.117  10.85.41.117  Windows Server 2019 Datacenter    10.0.17763.503      containerd://18.9.0
-    406d694a-9g96-2d3g-f3j1-32r1r44l342x    Ready    <none>   19d    v1.31.9    10.85.41.116  10.85.41.116  Windows Server 2019 Datacenter    10.0.17763.503      containerd://18.9.0
+    0983934a-6d69-8e5g-g3k1-98r8r56l345j    Ready    <none>   19d    v{{ vars.k8s_version }}    10.85.41.118  10.85.41.118  Windows Server 2019 Datacenter    10.0.17763.503      containerd://18.9.0
+    6d69934a-7d43-9g3g-h4d1-54r9r97l395j    Ready    <none>   19d    v{{ vars.k8s_version }}    10.85.41.115  10.85.41.115  Ubuntu 16.04.6 LTS                4.15.0-50-generic   containerd://18.9.0
+    7636d69a-2e75-5l0g-k6m1-76r3r37l729k    Ready    <none>   19d    v{{ vars.k8s_version }}    10.85.41.117  10.85.41.117  Windows Server 2019 Datacenter    10.0.17763.503      containerd://18.9.0
+    406d694a-9g96-2d3g-f3j1-32r1r44l342x    Ready    <none>   19d    v{{ vars.k8s_version }}    10.85.41.116  10.85.41.116  Windows Server 2019 Datacenter    10.0.17763.503      containerd://18.9.0
     ```
 
     In the preceding example a new pod is created, and creation and status of the new pod and new nodes verified.

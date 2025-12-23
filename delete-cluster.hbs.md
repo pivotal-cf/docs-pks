@@ -3,24 +3,24 @@ title: Deleting Clusters
 
 ---
 
-This topic describes how to delete a Kubernetes cluster deployed by {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to delete a Kubernetes cluster deployed by {{  vars.product_full }}.
 
 
 ## <a id='overview'></a>Overview
 
-Run the `tkgi delete-cluster` command to delete a TKGI-provisioned Kubernetes cluster and all cluster objects.
+Run the `tkgi delete-cluster` command to delete a {{ vars.product_short }}-provisioned Kubernetes cluster and all cluster objects.
 
 To delete a cluster:
 
 1. [Delete Cluster ](#delete).
 1. [Verify Cluster Deletion](#verify).
 
-If you are using TKGI with NSX, see [vSphere with NSX Cluster Objects](vsphere-nsxt-cluster-objects.html) for a list of vSphere and NSX objects that will be deleted as part of the cluster deletion process.
+If you are using {{ vars.product_short }} with NSX, see [vSphere with NSX Cluster Objects](vsphere-nsxt-cluster-objects.html) for a list of vSphere and NSX objects that will be deleted as part of the cluster deletion process.
 
 
 ## <a id='delete'></a>Delete Cluster
 
-You can delete a cluster using the TKGI CLI.
+You can delete a cluster using the {{ vars.product_short }} CLI.
 
 To avoid an incomplete deletion, prepare the cluster for deletion before deleting it:
 
@@ -58,7 +58,7 @@ To delete a cluster:
 
 ## <a id='verify'></a>Verify Cluster Deletion
 
-To verify cluster deletion using the TKGI CLI:
+To verify cluster deletion using the {{ vars.product_short }} CLI:
 
 1. To verify cluster deletion, run `tkgi cluster CLUSTER-NAME`. Replace `CLUSTER-NAME`
 with the unique name for your cluster.
@@ -94,7 +94,7 @@ The cluster is deleted when the CLI returns `Error: Cluster CLUSTER-NAME not fou
 
 ## <a id='non-interactive'></a>Delete Cluster without Prompt
 
-If you do not want the TKGI CLI to prompt you to confirm cluster deletion, use the `--non-interactive` flag.
+If you do not want the {{ vars.product_short }} CLI to prompt you to confirm cluster deletion, use the `--non-interactive` flag.
 
     For example:
     ```console

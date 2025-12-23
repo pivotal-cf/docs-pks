@@ -3,17 +3,17 @@ title: Using Compute Profiles (vSphere)
 
 ---
 
-This topic describes how to use compute profiles using the {{  vars.product_full }} ({{ vars.product_short }}) Command Line Interface (TKGI CLI).
+This topic describes how to use compute profiles using the {{  vars.product_full }} Command Line Interface ({{ vars.product_short }} CLI).
 
 
 ## <a id="overview"></a>Overview
 
-A compute profile enables TKGI cluster managers to configure TKGI-provisioned Kubernetes clusters with custom settings:
+A compute profile enables {{ vars.product_short }} cluster managers to configure {{ vars.product_short }}-provisioned Kubernetes clusters with custom settings:
 
-* TKGI cluster administrators can create compute profiles with custom cluster resource parameters and settings. Cluster administrators must have `pks.clusters.admin` accounts.
-* TKGI cluster managers can configure new and existing clusters with a compute profile to override the cluster configuration settings defined by a plan. Cluster managers must have `pks.cluster.manage` accounts.
+* {{ vars.product_short }} cluster administrators can create compute profiles with custom cluster resource parameters and settings. Cluster administrators must have `pks.clusters.admin` accounts.
+* {{ vars.product_short }} cluster managers can configure new and existing clusters with a compute profile to override the cluster configuration settings defined by a plan. Cluster managers must have `pks.cluster.manage` accounts.
 
-TKGI supports creating and managing compute profiles
+{{ vars.product_short }} supports creating and managing compute profiles
 for Linux- and Windows-based Kubernetes clusters on vSphere with NSX networking and
 for Linux-based Kubernetes clusters on vSphere without NSX networking.
 
@@ -29,7 +29,7 @@ For information about using compute profiles, see:
 
 ## <a id="how-created"></a> How Compute Profiles are Created
 
-TKGI cluster administrators can create and delete compute profiles.
+{{ vars.product_short }} cluster administrators can create and delete compute profiles.
 For information on how cluster administrators create and delete compute profiles, see [Creating and Managing Compute Profiles with the CLI (vSphere)](./compute-profiles-manage.html).
 
 
@@ -56,7 +56,7 @@ dc-east-mixed                     A profile for the east datacenter with heterog
 
 ## <a id='create'></a> Create a Cluster with a Compute Profile
 
-You can assign a compute profile to a TKGI-provisioned Kubernetes cluster at the time of cluster creation.
+You can assign a compute profile to a {{ vars.product_short }}-provisioned Kubernetes cluster at the time of cluster creation.
 
 To create a cluster with a compute profile:
 
@@ -80,7 +80,7 @@ To create a cluster with a compute profile:
         if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
         </p>
     * `HOSTNAME` is your external hostname used for accessing the Kubernetes API.
-    * `PLAN-NAME` is the name of the TKGI plan you want to use for your cluster.
+    * `PLAN-NAME` is the name of the {{ vars.product_short }} plan you want to use for your cluster.
     * `COMPUTE-PROFILE-NAME` is the name of the compute profile you want to use for your cluster.
     * (Optional) `--node-pool-instances "NODE-POOL-NAME:INSTANCES"` overrides a compute profile's configured node pool worker node instance count:
         * `NODE-POOL-NAME` is the name of the node pool to configure.
@@ -92,9 +92,9 @@ To create a cluster with a compute profile:
     ```
     tkgi create-cluster custom-node-pools -e test.tkgi.shep.api.com --compute-profile custom-node-pools-compute-profile -p "small" --node-pool-instances "tiny-1:3"
 
-    TKGI Version:             1.23.0-build.33
+    TKGI Version:             {{ vars.build_number }}
     Name:                     test
-    K8s Version:              1.31.9
+    K8s Version:              {{ vars.k8s_version }}
     Plan Name:                small
     UUID:                     <UUID of deployment>1
     Last Action:              CREATE
@@ -115,7 +115,7 @@ To create a cluster with a compute profile:
 
 ## <a id="update-profile"></a> Assign a Compute Profile to an Existing Cluster
 
-TKGI supports changing the compute profile for an already created cluster.
+{{ vars.product_short }} supports changing the compute profile for an already created cluster.
 
 You can use this procedure to:
 
@@ -144,16 +144,16 @@ Before assigning a compute profile to an existing cluster:
     the value of that field is set to the value of the corresponding field from the plan.
     * `tkgi update-cluster --compute-profile` ignores the `--num-nodes` argument.
     * Values passed to `--node-pool-instances` must match a `name` property of the node pools in the compute profile.
-    * You cannot update a compute profile that was applied to a cluster in TKGI 1.8 or earlier.
+    * You cannot update a compute profile that was applied to a cluster in {{ vars.product_short }} 1.8 or earlier.
 
 1. Review the following warnings and limitations:
 
   > **Caution**
 
-  > - **Control Plane Scaling**: Do not scale out or scale in existing control plane nodes by reconfiguring the TKGI tile.
+  > - **Control Plane Scaling**: Do not scale out or scale in existing control plane nodes by reconfiguring the {{ vars.product_short }} tile.
   > Reducing a cluster's number of control plane nodes might remove a control plane node and cause the cluster to become inactive.
 
-  > - **Tile vs. Plan AZs**: The local AZs set in compute profiles under `parameters.azs` are different from the global AZs configured in the TKGI tile under **Assign AZs and Networks** and **Plans**. Do not reference the same AZs in both places. {{{ vars.recommended_by }}} recommends that you do not reconfigure TKGI AZs by switching them between global and local, because it may result in data loss. If you do switch an AZ between global and local, back up TKGI before you apply the configuration changes.
+  > - **Tile vs. Plan AZs**: The local AZs set in compute profiles under `parameters.azs` are different from the global AZs configured in the {{ vars.product_short }} tile under **Assign AZs and Networks** and **Plans**. Do not reference the same AZs in both places. {{{ vars.recommended_by }}} recommends that you do not reconfigure {{ vars.product_short }} AZs by switching them between global and local, because it may result in data loss. If you do switch an AZ between global and local, back up {{ vars.product_short }} before you apply the configuration changes.
 
   > - **Control Plane AZs**: You can only change control plane AZs for clusters that have at least 3 control plane nodes, and you cannot change multiple AZs at the same time. Each time you run `tkgi update-cluster --compute-profile ... --enforce-compute-profile-update`, the `cluster_customization.control_plane.az_names` value can only change one AZ name. Failure to meet these conditions can result in `etcd` data loss.
 
@@ -169,7 +169,7 @@ To assign a compute profile to an existing cluster:
 
 1. Select the compute profile to apply to the cluster:
 	* Choose an existing compute profile: See [List Compute Profiles](#list-profiles).
-	* Create a new compute profile: Have a TKGI cluster administrator define and create a new compute profile as described in [Create a Compute Profile](./compute-profiles-manage.html#create) in _Creating and Managing Compute Profiles with the CLI (vSphere)_.
+	* Create a new compute profile: Have a {{ vars.product_short }} cluster administrator define and create a new compute profile as described in [Create a Compute Profile](./compute-profiles-manage.html#create) in _Creating and Managing Compute Profiles with the CLI (vSphere)_.
   		* The name of the new compute profile must be unique and different from the previously assigned compute profile.
 
 1. If you are updating a cluster that uses a public cloud CSI driver,
@@ -215,13 +215,13 @@ in _Release Notes_ for additional requirements.
 	Use 'tkgi cluster test' to monitor the state of your cluster
     ```
 
-<p class="note warning"><strong>WARNING</strong>: Updating a cluster with a compute profile is not supported on a TKGI cluster that has not been upgraded to the current TKGI version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a TKGI Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
+<p class="note warning"><strong>WARNING</strong>: Updating a cluster with a compute profile is not supported on a {{ vars.product_short }} cluster that has not been upgraded to the current {{ vars.product_short }} version. For more information, see <a href="understanding-upgrades.html#control-plane-upgrades-supported-tasks">Tasks Supported Following a {{ vars.product_short }} Control Plane Upgrade</a> in <em>About {{  vars.product }} Upgrades</em>.
 </p>
 
 
 ## <a id="resize"></a> Resize a Cluster that Has an Existing Compute Profile
 
-TKGI supports using the CLI to resize a cluster already created or assigned with a compute profile, without having to create a new compute profile.
+{{ vars.product_short }} supports using the CLI to resize a cluster already created or assigned with a compute profile, without having to create a new compute profile.
 
 To resize a cluster:
 

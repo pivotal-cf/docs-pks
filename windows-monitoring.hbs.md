@@ -5,13 +5,13 @@ owner: PKS
 
 This topic describes how to set up monitoring tools to capture
 metrics from Windows worker-based Kubernetes clusters
-deployed by {{  vars.product_full }} ({{ vars.product_short }}).
+deployed by {{  vars.product_full }}.
 
 
 ## <a id='overview'></a> Overview
 
 You can use any of the following monitoring tools to capture
-metrics from TKGI Windows worker-based Kubernetes clusters:
+metrics from {{ vars.product_short }} Windows worker-based Kubernetes clusters:
 
 * [Healthwatch](#healthwatch)
 * [Prometheus with Grafana](#prometheus)
@@ -19,17 +19,17 @@ metrics from TKGI Windows worker-based Kubernetes clusters:
 
 ## <a id='healthwatch'></a>Healthwatch
 
-You can use the [Healthwatch](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html) Healthwatch Exporter for TKGI tile
-to monitor the health of the TKGI Control Plane
+You can use the [Healthwatch](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html) Healthwatch Exporter for {{ vars.product_short }} tile
+to monitor the health of the {{ vars.product_short }} Control Plane
 and your Linux and Windows cluster control plane nodes.
 
-Healthwatch enables you to monitor the functionality of your TKGI environment
+Healthwatch enables you to monitor the functionality of your {{ vars.product_short }} environment
 and can be configured to expose metrics to a service or database external to your {{ vars.platform_name }}
 foundation.
-For more information, see [Overview of the Healthwatch Exporter for TKGI Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
+For more information, see [Overview of the Healthwatch Exporter for {{ vars.product_short }} Tile](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/index.html#exporter-tkgi).
 
 To configure cluster discovery in Healthwatch, see
-[Configuring TKGI Cluster Discovery](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/configuring-optional-config-configuring-cluster-discovery.html)
+[Configuring {{ vars.product_short }} Cluster Discovery](https://techdocs.broadcom.com/us/en/vmware-tanzu/platform-services/healthwatch-for-vmware-tanzu/2-2/healthwatch/configuring-optional-config-configuring-cluster-discovery.html)
 in the Healthwatch documentation.
 
 

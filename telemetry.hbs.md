@@ -3,7 +3,7 @@ title: VMware CEIP
 
 ---
 
-This topic describes the VMware Customer Experience Improvement Program (CEIP) used in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes the VMware Customer Experience Improvement Program (CEIP) used in {{  vars.product_full }}.
 
 ## <a id="overview"></a>Overview
 
@@ -13,7 +13,7 @@ Collecting data at scale allows VMware to identify patterns and warning signals 
 {{  vars.product }} installations.
 
 Customers who participate in the CEIP receive proactive support benefits that include a weekly report based on telemetry data.
-Contact your Customer Success Manager to subscribe to this report. You can view a sample report at [TKGI
+Contact your Customer Success Manager to subscribe to this report. You can view a sample report at [{{ vars.product_short }}
 Platform Operations Report](https://via.vmw.com/TKGI).
 
 <p class="note"><strong>Note:</strong> {{  vars.product }} does not collect any personally identifiable information (PII) at either participation level.
@@ -43,7 +43,7 @@ To configure {{  vars.product }} proxy settings for CEIP and other communication
 
 The CEIP program use the following components to collect data:
 
-+ **Telemetry Server:** This component runs on the TKGI control plane. The server receives CEIP events from the TKGI API and metrics from Telemetry agent pods. The server sends events and metrics to a data lake for archiving and analysis.
++ **Telemetry Server:** This component runs on the {{ vars.product_short }} control plane. The server receives CEIP events from the {{ vars.product_short }} API and metrics from Telemetry agent pods. The server sends events and metrics to a data lake for archiving and analysis.
 
 + **Telemetry Agent Pod:** This component runs in each Kubernetes cluster as a deployment with one replica. Agent pods periodically poll the Kubernetes API for cluster metrics and send the metrics to the Telemetry server.
 
@@ -57,4 +57,4 @@ The following diagram shows how CEIP data flows through the system components:
 
 ## <a id="data-dictionary"></a>Data Dictionary
 
-For information about TKGI CEIP collection and reporting, see the [TKGI Telemetry Data](https://docs.google.com/spreadsheets/d/18UCd1kbhR3xV_XOl6KcEU64GI6ySdkRa3iG_8QAROl8/edit#gid=945250226) spreadsheet, hosted on Google Drive.
+For information about {{ vars.product_short }} CEIP collection and reporting, see the [{{ vars.product_short }} Telemetry Data](https://docs.google.com/spreadsheets/d/18UCd1kbhR3xV_XOl6KcEU64GI6ySdkRa3iG_8QAROl8/edit#gid=945250226) spreadsheet, hosted on Google Drive.

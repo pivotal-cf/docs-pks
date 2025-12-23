@@ -3,7 +3,7 @@ title: Backing Up and Restoring Tanzu Kubernetes Workloads Using Velero
 
 ---
 
-This topic describes the Velero back up and restore process for Kubernetes workloads deployed to {{  vars.product_full }} ({{ vars.product_short }}) clusters.
+This topic describes the Velero back up and restore process for Kubernetes workloads deployed to {{  vars.product_full }} clusters.
 
 ## <a id="velero-about"></a>About Tanzu Kubernetes Workload Back Up and Restore
 

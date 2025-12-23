@@ -5,7 +5,7 @@ topic: gmsa-cluster
 ---
 
 This topic describes how to integrate Microsoft Active Directory (AD)
-with your {{  vars.product }} (TKGI) Windows worker-based Kubernetes clusters.
+with your {{  vars.product }} Windows worker-based Kubernetes clusters.
 
 ## <a id='overview'></a>Overview
 

@@ -4,8 +4,8 @@ title: Shutting Down and Restarting {{  vars.product }}
 iaas: vsphere-nsxt
 ---
 
-This topic describes how to shut down and startup {{  vars.product_full }} ({{ vars.product_short }}),
-including TKGI-provisioned Kubernetes cluster nodes, TKGI components, and vSphere hosts (vSphere only).
+This topic describes how to shut down and startup {{  vars.product_full }},
+including {{ vars.product_short }}-provisioned Kubernetes cluster nodes, {{ vars.product_short }} components, and vSphere hosts (vSphere only).
 
 Many of these operations use your IaaS dashboard, such as vSphere Client, Azure Portal, or AWS Management Console.
 
@@ -16,7 +16,7 @@ To perform a graceful shutdown of all Kubernetes, {{  vars.product }}, and infra
 ###<a id="stop-resurrector"></a>Step 1: Deactivate BOSH Resurrection
 
 If you have the **Enable VM Resurrector Plugin** check box selected in the BOSH Director tile > **Director Config** pane,
-you must turn BOSH resurrection off before restarting TKGI, to prevent BOSH from recreating VMs.
+you must turn BOSH resurrection off before restarting {{ vars.product_short }}, to prevent BOSH from recreating VMs.
 
 To do this, run the command `bosh update-resurrection off`.
 
@@ -59,7 +59,7 @@ Shut down all customer apps running on {{  vars.product }}-provisioned Kubernete
 
 ###<a id="shutdown-k8s"></a>Step 4: Shut Down Kubernetes Clusters
 
-Shut down all {{  vars.product }}-provisioned Kubernetes clusters following the procedure defined in the <a href="https://knowledge.broadcom.com/external/article/298533/">How to shutdown and startup a Multi Control Plane Node TKGI cluster</a> knowledge base article.
+Shut down all {{  vars.product }}-provisioned Kubernetes clusters following the procedure defined in the <a href="https://knowledge.broadcom.com/external/article/298533/">How to shutdown and startup a Multi Control Plane Node {{ vars.product_short }} cluster</a> knowledge base article.
 
 For each Kubernetes cluster that you intend to shut down, do the following:
 
@@ -116,14 +116,14 @@ For each Kubernetes cluster that you intend to shut down, do the following:
 
         [View a larger version of this image.](images/nsxt/shutdown/shutdown-k8s-nodes.png)
 
-###<a id="shutdown-tkgi-control"></a>Step 5: Stop the TKGI Control Plane
+###<a id="shutdown-tkgi-control"></a>Step 5: Stop the {{ vars.product_short }} Control Plane
 
-To shut down the TKGI control plane, stop and shut down the TKGI API and TKGI Database VMs as follows:
+To shut down the {{ vars.product_short }} control plane, stop and shut down the {{ vars.product_short }} API and {{ vars.product_short }} Database VMs as follows:
 
-1. [Stop TKGI Control Plane Processes](#stop-tkgi-control)
-1. [Shut Down the TKGI API and Database VMs](#shutdown-tkgi-vms)
+1. [Stop {{ vars.product_short }} Control Plane Processes](#stop-tkgi-control)
+1. [Shut Down the {{ vars.product_short }} API and Database VMs](#shutdown-tkgi-vms)
 
-####<a id="stop-tkgi-control"></a>Stop TKGI Control Plane Processes
+####<a id="stop-tkgi-control"></a>Stop {{ vars.product_short }} Control Plane Processes
 
 To stop {{  vars.product }} control plane processes and services, do the following:
 
@@ -134,7 +134,7 @@ To stop {{  vars.product }} control plane processes and services, do the followi
     ```
     The {{  vars.product }} deployment ID is `pivotal-container-service-` followed by a unique BOSH-generated hash.
 
-1. Stop the TKGI control plane VM by running the following command:
+1. Stop the {{ vars.product_short }} control plane VM by running the following command:
 
     ```
     bosh -d pivotal-container-service-DEPLOYMENT-ID stop
@@ -148,9 +148,9 @@ To stop {{  vars.product }} control plane processes and services, do the followi
     $ bosh -d pivotal-container-service-1bf7b02738056cdc37e6 stop
     ```
 
-####<a id="shutdown-tkgi-vms"></a>Shut Down the TKGI API and Database VMs
+####<a id="shutdown-tkgi-vms"></a>Shut Down the {{ vars.product_short }} API and Database VMs
 
-To shut down the TKGI API and TKGI Database VMs, do the following:
+To shut down the {{ vars.product_short }} API and {{ vars.product_short }} Database VMs, do the following:
 
 1. Run the `bosh vms` command to list your {{  vars.product }} control plane VMs.
 
@@ -166,16 +166,16 @@ To shut down the TKGI API and TKGI Database VMs, do the following:
     ```
 
 1. Review the `bosh vms` output:
-    * Record the TKGI API VM name,
+    * Record the {{ vars.product_short }} API VM name,
 listed under **Instances** as `pivotal-container-service/` followed by a unique BOSH-generated hash.
-    * Record the TKGI Database VM name(s),
+    * Record the {{ vars.product_short }} Database VM name(s),
 listed under **Instances** as `pks-db/` followed by a unique BOSH-generated hash.
 
-1. Using your IaaS dashboard, locate and gracefully shut down the TKGI control plane VMs:
-    1. The TKGI API VMs.
-    1. The TKGI Database VMs.
+1. Using your IaaS dashboard, locate and gracefully shut down the {{ vars.product_short }} control plane VMs:
+    1. The {{ vars.product_short }} API VMs.
+    1. The {{ vars.product_short }} Database VMs.
 
-    <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shut Down TKGI API VM">
+    <img src="images/nsxt/shutdown/shutdown-pks.png" alt="Shut Down {{ vars.product_short }} API VM">
 
     [View a larger version of this image.](images/nsxt/shutdown/shutdown-pks.png)
 
@@ -336,25 +336,25 @@ To speed up the BOSH startup process:
     ```
     Confirm that the `uaa` and `credhub` processes are now running, and that the BOSH Director is fully up and running.
 
-###<a id="start-tkgi-control"></a>Step 6: Start the TKGI Control Plane
+###<a id="start-tkgi-control"></a>Step 6: Start the {{ vars.product_short }} Control Plane
 
-To start the TKGI Control Plane, do the following:
+To start the {{ vars.product_short }} Control Plane, do the following:
 
 1. Using your IaaS dashboard:
 
-    1. Power on the TKGI Database VMs.
-    1. Power on the TKGI API VMs.
+    1. Power on the {{ vars.product_short }} Database VMs.
+    1. Power on the {{ vars.product_short }} API VMs.
 
-1. Restart the TKGI Database deployments. The procedure to follow depends on whether the TKGI Database is scaled at `1` or `3`:
-    * **TKGI Database Scaled at `1`**:
-        To start the TKGI Database deployment:
+1. Restart the {{ vars.product_short }} Database deployments. The procedure to follow depends on whether the {{ vars.product_short }} Database is scaled at `1` or `3`:
+    * **{{ vars.product_short }} Database Scaled at `1`**:
+        To start the {{ vars.product_short }} Database deployment:
 
         ```
         bosh -d DEPLOYMENT-ID start pks-db
         ```
 
         Where `DEPLOYMENT-ID` is the BOSH-generated ID of the {{  vars.product }} deployment.
-  * **TKGI Database Scaled at `3`**:
+  * **{{ vars.product_short }} Database Scaled at `3`**:
 
         Run the `bootstrap` errand:
 
@@ -365,8 +365,8 @@ To start the TKGI Control Plane, do the following:
         Where `DEPLOYMENT-ID` is the BOSH-generated ID of the {{  vars.product }} deployment.
         <p class="note"><strong>Note:</strong> For more information about the <code>bootstrap</code> errand, see <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/data-solutions/bootstrapping.html#assisted-bootstrap">Run the Bootstrap Errand</a> in the VMware Tanzu SQL with MySQL for VMs documentation</em>.</p>
 
-    For more information on TKGI Database scaling, see [Stop the TKGI Control Plane](#shutdown-tkgi-control).
-1. To restart the TKGI API deployment:
+    For more information on {{ vars.product_short }} Database scaling, see [Stop the {{ vars.product_short }} Control Plane](#shutdown-tkgi-control).
+1. To restart the {{ vars.product_short }} API deployment:
 
     ```
     bosh -d DEPLOYMENT-ID start pivotal-container-service

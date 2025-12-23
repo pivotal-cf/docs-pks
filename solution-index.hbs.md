@@ -3,7 +3,7 @@ title: Solution Guides for {{  vars.product }}
 
 ---
 
-The following topics are solution guides you can use with {{  vars.product_full }} ({{ vars.product_short }}):
+The following topics are solution guides you can use with {{  vars.product_full }}:
 
 ## Solution Guides
 

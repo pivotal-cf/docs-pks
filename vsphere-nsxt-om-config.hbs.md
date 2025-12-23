@@ -5,7 +5,7 @@ iaas: vSphere
 authenttype: boshtile
 ---
 
-This topic describes how to configure BOSH Director for vSphere with NSX integration for {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to configure BOSH Director for vSphere with NSX integration for {{  vars.product_full }}.
 
 ##<a id='other-super-certificates'></a> How {{{ vars.platform_name }}} Accesses NSX Manager
 
@@ -31,7 +31,7 @@ Before you begin this procedure, ensure that you have successfully completed all
     <a href="./vsphere-nsxt-om-deploy.html">Deploying {{ vars.platform_name }} with NSX for {{  vars.product }}</a>
   </li>
   <li>
-    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for TKGI</em>
+    <a href="./nsxt-3-0-install.html#nsxt30-mgmt-ssl">Generate and Register the NSX-T Management SSL Certificate and Private Key</a> in <em>Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}</em>
   </li>
 </ul>
 
@@ -45,7 +45,7 @@ To configure BOSH Director:
 1. Click the **BOSH Director for vSphere** tile.
 
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-01.png" alt="{{ vars.platform_name }} UI before the TKGI tile has been imported" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-01.png" alt="{{ vars.platform_name }} UI before the {{ vars.product_short }} tile has been imported" }}
 
 ## <a id='vcenter-config'></a>Step 2: Configure vCenter for {{  vars.product }}
 
@@ -53,7 +53,7 @@ To configure BOSH Director with your vCenter settings:
 
 1. Select **vCenter Config** in BOSH Director.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-02.png" alt="TKGI tile vCenter Config tab default configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-02.png" alt="{{ vars.product_short }} tile vCenter Config tab default configuration" }}
 
 1. Enter the following information:
     * **Name**: A name that you provide for your vCenter configuration.
@@ -71,7 +71,7 @@ To configure BOSH Director with your vCenter settings:
 
 1. For Networking, select **NSX Networking**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-03p.png" alt="TKGI tile vCenter Config tab with NSX networking selected" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-03p.png" alt="{{ vars.product_short }} tile vCenter Config tab with NSX networking selected" }}
 
 1. Configure NSX networking as follows:
     * **NSX Mode**: Select **NSX** to use NSX networking for dynamically created node networks.
@@ -79,7 +79,7 @@ To configure BOSH Director with your vCenter settings:
     * **NSX Authentication**: Select the authentication mode, either **Local User Authentication** or **Certificate Authentication**.
     * **NSX Username** and **NSX Password**: If you selected **Local User Authentication**, enter the NSX Manager user name and password.
     * **NSX Manager Principal Identity Certificate** and **NSX Manager Principal Identity Private Key**: If you selected **Certificate Authentication**, enter the NSX Manager Principal Identity Certificate and Private Key. For more information, see [Generating and Registering the NSX Manager Superuser Principal Identity Certificate and Key](./nsxt-generate-pi-cert.html).
-    * **Use NSX Policy API**: Select this option to use the NSX Policy API instead of the NSX Management API. For more information, see [Considerations for Using the NSX Policy API with TKGI](./nsxt-policy-api-considerations.html).
+    * **Use NSX Policy API**: Select this option to use the NSX Policy API instead of the NSX Management API. For more information, see [Considerations for Using the NSX Policy API with {{ vars.product_short }}](./nsxt-policy-api-considerations.html).
     * **NSX CA Cert**: Provide the CA certificate in PEM format that authenticates to the NSX server. Copy the contents of the NSX CA certificate that you generated in [Generate and Register the NSX Management SSL Certificate and Private Key](./nsxt-3-0-install.html#nsxt30-mgmt-ssl) to this field.
 
 1. Configure the following folder names:
@@ -89,11 +89,11 @@ To configure BOSH Director with your vCenter settings:
 
     <p class="note"><strong>Note</strong>: After your initial deployment, you cannot edit the VM Folder, Template Folder, and Disk path Folder names.</p>
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-04.png" alt="TKGI tile vCenter Config tab NSX networking NSX CA Cert and folder config" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-04.png" alt="{{ vars.product_short }} tile vCenter Config tab NSX networking NSX CA Cert and folder config" }}
 
 1. Click **Save**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-05.png" alt="TKGI tile vCenter Config tab - Settings updated notification" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-05.png" alt="{{ vars.product_short }} tile vCenter Config tab - Settings updated notification" }}
 
 ## <a id='dir-config'></a>Step 3: Configure BOSH Director
 
@@ -101,7 +101,7 @@ To configure BOSH Director settings:
 
 1. Select **Director Config** in  BOSH Director.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-06.png" alt="TKGI tile Director Config tab default configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-06.png" alt="{{ vars.product_short }} tile Director Config tab default configuration" }}
 
 1. In the **NTP Servers (comma delimited)** field, enter your NTP server addresses.
 
@@ -125,23 +125,23 @@ To configure BOSH Director settings:
 
 1. Click **Save**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-07.png" alt="TKGI tile Director Config tab - Settings updated notification" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-07.png" alt="{{ vars.product_short }} tile Director Config tab - Settings updated notification" }}
 
 ## <a id='create-az'></a>Step 4: Create Availability Zones
 
 On vSphere with NSX, operators define and create Availability Zones (AZs) using vCenter clusters and resource pools.
-Plans defined in the TKGI tile then use these AZs to enable high availability for TKGI clusters.
+Plans defined in the {{ vars.product_short }} tile then use these AZs to enable high availability for {{ vars.product_short }} clusters.
 
 The {{  vars.product }} control plane also runs in one of the AZs.
 
-For more information on AZs in TKGI, see [Availability Zones](./control-plane.html#azs)
+For more information on AZs in {{ vars.product_short }}, see [Availability Zones](./control-plane.html#azs)
 in _{{  vars.product }} Architecture_.
 
 To configure Availability Zones:
 
 1. Select **Create Availability Zones** in BOSH Director.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-08.png" alt="TKGI tile Create Availability Zones tab default configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-08.png" alt="{{ vars.product_short }} tile Create Availability Zones tab default configuration" }}
 
 1. Use the following steps to create one or more Availability Zones for {{  vars.product }} to use:
     1. Click **Add** and create the {{  vars.product }} Management AZ.
@@ -155,49 +155,49 @@ To configure Availability Zones:
     See [Using vSphere Host Group](./vsphere-host-group.html) for more information.
     1. (Optional) If you are using a host group with vSAN Stretched Clusters,
         set the **VM-Host Affinity Rule** dropdown to `SHOULD`. This setting maintains high availability
-        by letting TKGI restart VMs in another host group if their AZ fails.
-        TKGI ignores this setting if the vSAN cluster has no host group configured.
+        by letting {{ vars.product_short }} restart VMs in another host group if their AZ fails.
+        {{ vars.product_short }} ignores this setting if the vSAN cluster has no host group configured.
 <br>
     1. Add additional clusters as necessary. Click the trash icon to delete a cluster. The first cluster cannot be deleted.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-09.png" alt="TKGI tile Create Availability Zones AZ-MGMT configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-09.png" alt="{{ vars.product_short }} tile Create Availability Zones AZ-MGMT configuration" }}
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-11.png" alt="TKGI tile Create Availability Zones AZ-COMP-1 configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-11.png" alt="{{ vars.product_short }} tile Create Availability Zones AZ-COMP-1 configuration" }}
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-13.png" alt="TKGI tile Create Availability Zones AZ-COMP-2 configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-13.png" alt="{{ vars.product_short }} tile Create Availability Zones AZ-COMP-2 configuration" }}
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-29-host-group.png" alt="TKGI tile Create Availability Zones PKS-AZ1-HostGroup1 configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-29-host-group.png" alt="{{ vars.product_short }} tile Create Availability Zones PKS-AZ1-HostGroup1 configuration" }}
 
 1. Click **Save**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-12.png" alt="TKGI tile Create Availability Zones - Settings updated notification" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-12.png" alt="{{ vars.product_short }} tile Create Availability Zones - Settings updated notification" }}
 
 ## <a id='create-networks'></a>Step 5: Create Networks
 
 You must configure and create BOSH Director networking.
 
 <p class="note"><strong>Note</strong>: If you are using <a href="nsxt-topologies.html#topology-no-nat-virtual-switch">No-NAT with Virtual Switch (VSS/VDS) Topology</a>,
-    create the infrastructure network and optionally the TKGI network by
+    create the infrastructure network and optionally the {{ vars.product_short }} network by
     following the instructions in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html#create-networks">Create Networks Pane</a> in
     <i>Configuring BOSH Director on vSphere</i> in the {{ vars.platform_name }} documentation.
     While completing the steps in <a href="https://techdocs.broadcom.com/us/en/vmware-tanzu/platform/tanzu-operations-manager/3-1/tanzu-ops-manager/vsphere-config.html#create-networks">Create Networks Pane</a>,
-    do not create the <code>services</code> network. With TKGI on NSX, NSX manages the dynamically created networks.
+    do not create the <code>services</code> network. With {{ vars.product_short }} on NSX, NSX manages the dynamically created networks.
 </p>
 
 To configure BOSH Director networking:
 
 1. Select **Create Networks** in BOSH Director.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-15.png" alt="TKGI tile Create Networks tab default configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-15.png" alt="{{ vars.product_short }} tile Create Networks tab default configuration" }}
 
 1. Select **Enable ICMP checks** to enable ICMP on your networks. {{ vars.platform_name }} uses ICMP checks to confirm that components within your network are reachable.
 
 1. Click **Add Network**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-16.png" alt="TKGI tile Create Networks tab NET-MGMT-PKS network configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-16.png" alt="{{ vars.product_short }} tile Create Networks tab NET-MGMT-PKS network configuration" }}
 
 1. Create the following network:
-  * `NET-MGMT-TKGI`: Network for {{ vars.platform_name }}, BOSH Director, and {{  vars.product }} components. This network maps to the NSX logical switch created for the {{  vars.product }} Management Network. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
+  * `NET-MGMT-TKGI`: Network for {{ vars.platform_name }}, BOSH Director, and {{  vars.product }} components. This network maps to the NSX logical switch created for the {{  vars.product }} Management Network. See [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_.
 
       <p class="note"><strong>Note</strong>: NSX automatically creates the service network to be used by the control plane and worker nodes (VMs) for Kubernetes clusters managed by {{  vars.product }}. Do not manually create this network.</p>
 
@@ -241,7 +241,7 @@ To configure BOSH Director networking:
 
 1. Click **Save**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-17.png" alt="TKGI tile Create Networks - Settings updated notification" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-17.png" alt="{{ vars.product_short }} tile Create Networks - Settings updated notification" }}
 
 ## <a id='assign-azs'></a>Step 6: Assign AZs and Networks
 
@@ -249,7 +249,7 @@ To configure the AZs and the Network for BOSH Director:
 
 1. Select **Assign AZs and Networks** in BOSH Director.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-18.png" alt="TKGI tile Assign AZs and Networks tab default configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-18.png" alt="{{ vars.product_short }} tile Assign AZs and Networks tab default configuration" }}
 
 1. Use the drop-down menu to select a **Singleton Availability Zone**. The {{ vars.platform_name }} Director installs in this Availability Zone. For {{  vars.product }}, this will be the `AZ-MGMT` availability zone.
 
@@ -257,7 +257,7 @@ To configure the AZs and the Network for BOSH Director:
 
 1. Click **Save**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-19.png" alt="TKGI tile Assign AZs and Networks - Settings updated notification" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-19.png" alt="{{ vars.product_short }} tile Assign AZs and Networks - Settings updated notification" }}
 
 ## <a id='security-config'></a>Step 7: Configure Security
 
@@ -364,15 +364,15 @@ To ensure that the Management AZ and the Compute AZs are included in the `NET-MG
 
 1. Return to the BOSH tile and click **Create Networks**.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-26.png" alt="TKGI tile Create Networks configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-26.png" alt="{{ vars.product_short }} tile Create Networks configuration" }}
 
 1. Edit the network (`NET-MGMT-TKGI`) and each COMPUTE AZ.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-27.png" alt="TKGI tile Create Networks NET-MGMT-PKS network configuration" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-27.png" alt="{{ vars.product_short }} tile Create Networks NET-MGMT-PKS network configuration" }}
 
 1. Click Save.
 
-    {{ image_tag src="images/nsxt/bosh/config-bosh-28.png" alt="TKGI tile Create Networks - Settings updated notification" }}
+    {{ image_tag src="images/nsxt/bosh/config-bosh-28.png" alt="{{ vars.product_short }} tile Create Networks - Settings updated notification" }}
 
 1. Review pending changes, and click **Apply Changes** to redeploy BOSH.
 

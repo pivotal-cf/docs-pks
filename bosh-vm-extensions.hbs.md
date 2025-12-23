@@ -3,7 +3,7 @@ title: Using BOSH VM&nbsp;Extensions
 
 ---
 
-This topic describes how to configure Kubernetes clusters with BOSH VM&nbsp;extensions using {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to configure Kubernetes clusters with BOSH VM&nbsp;extensions using {{  vars.product_full }}.
 
 ## <a id='overview'></a>Overview
 

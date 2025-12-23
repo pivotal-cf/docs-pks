@@ -3,7 +3,7 @@ title: Backing Up {{  vars.product }}
 
 ---
 
-This topic describes how to use BOSH Backup and Restore (BBR) to back up the {{  vars.product_full }} ({{ vars.product_short }}) Control Plane and its cluster deployments.
+This topic describes how to use BOSH Backup and Restore (BBR) to back up the {{  vars.product_full }} Control Plane and its cluster deployments.
 
 ##<a id="overview"></a> Overview
 
@@ -14,7 +14,7 @@ BBR orchestrates running the back up and restore scripts and transferring the ge
 If configured correctly, BBR can use TLS to communicate securely with backup targets.
 
 * To perform a restore of the BOSH Director, see [Restore the BOSH Director](bbr-restore.html#redeploy-restore-director).
-* To perform a restore of the TKGI Control Plane, see [Restore the {{  vars.product }} Control Plane](bbr-restore.html#redeploy-restore-control-plane).
+* To perform a restore of the {{ vars.product_short }} Control Plane, see [Restore the {{  vars.product }} Control Plane](bbr-restore.html#redeploy-restore-control-plane).
 * To perform a restore of a cluster deployment, see [Restore {{  vars.product }} Clusters](bbr-restore.html#redeploy-restore-clusters).
 
 To view the BBR release notes, see the Cloud Foundry documentation, [BOSH Backup and Restore Release Notes](https://docs.cloudfoundry.org/bbr/bbr-rn.html).

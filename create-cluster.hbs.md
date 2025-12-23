@@ -4,12 +4,12 @@ title: Creating Clusters
 pkscommand: create
 ---
 
-This topic describes how to create a Kubernetes cluster using the {{  vars.product_full }} Command Line Interface (TKGI CLI).
+This topic describes how to create a Kubernetes cluster using the {{  vars.product_full }} Command Line Interface ({{ vars.product_short }} CLI).
 
 
 ## <a id='overview'></a>Overview
 
-Use the TKGI CLI to create Kubernetes clusters in your {{  vars.product }} environment.
+Use the {{ vars.product_short }} CLI to create Kubernetes clusters in your {{  vars.product }} environment.
 
 To create an {{  vars.product }} Kubernetes cluster, do the following:
 
@@ -17,8 +17,8 @@ To create an {{  vars.product }} Kubernetes cluster, do the following:
 * [Create a Kubernetes Cluster](#create)
 * [Identify Kubernetes Cluster Control Plane VMs](#master-id)
 
-The `tkgi create-cluster` command creates a Kubernetes cluster with TKGI compatibility matching
-the TKGI version of the current TKGI control plane.
+The `tkgi create-cluster` command creates a Kubernetes cluster with {{ vars.product_short }} compatibility matching
+the {{ vars.product_short }} version of the current {{ vars.product_short }} control plane.
 
 
 ## <a id='cluster-access'></a>Configure Cluster Access
@@ -35,7 +35,7 @@ For more information, see [Load Balancers in {{  vars.product }} Deployments wit
 ### <a id='cluster-access-general'></a>AWS, Azure, or vSphere without NSX
 
 When you create a Kubernetes cluster, you must configure external access to the cluster by creating an external TCP or HTTPS load balancer.
-This load balancer allows you to run TKGI CLI commands on the cluster from your local workstation. For more information, see [Load Balancers in {{  vars.product }} Deployments without NSX](about-lb.html#without-nsx-t).
+This load balancer allows you to run {{ vars.product_short }} CLI commands on the cluster from your local workstation. For more information, see [Load Balancers in {{  vars.product }} Deployments without NSX](about-lb.html#without-nsx-t).
 
 You can configure any load balancer of your choice.
 If you use AWS, Azure, or vSphere without NSX, you can create a load balancer using your cloud provider console.
@@ -88,7 +88,7 @@ For more information, see the [Grant {{  vars.product }} Access to an Individual
 
     * `CLUSTER-NAME` is your unique name for your cluster.
     <p class="note"><strong>Note</strong>: The <code>CLUSTER-NAME</code> must not contain special characters such as <code>&</code>.
-    The TKGI CLI does not validate the presence of special characters in the <code>CLUSTER-NAME</code> string,
+    The {{ vars.product_short }} CLI does not validate the presence of special characters in the <code>CLUSTER-NAME</code> string,
     but cluster creation fails if one or more special characters are present.<br><br>
     Use only lowercase characters when naming your cluster
     if you manage your clusters with Tanzu Mission Control (TMC). Clusters with names that include an uppercase character cannot be attached to TMC.
@@ -259,5 +259,5 @@ If your {{  vars.product }} deployment is on:
 {{  vars.product }} workload load balancer.
 After you complete the [Create a Kubernetes Cluster](#create) procedure above,
 follow the instructions in [AWS Prerequisites](./deploy-workloads.html#aws) in _Deploying and Exposing Basic Linux Workloads_.
-* **Azure**, **vSphere**, or **vSphere with NSX**: You can use the TKGI CLI to tag clusters by following the steps in
+* **Azure**, **vSphere**, or **vSphere with NSX**: You can use the {{ vars.product_short }} CLI to tag clusters by following the steps in
 [Tagging Clusters](tag-clusters.html).

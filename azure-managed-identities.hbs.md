@@ -3,7 +3,7 @@ title: Creating Managed Identities in Azure for {{  vars.product }}
 owner: {{ vars.platform_name }}
 ---
 
-This topic describes how to create managed identities for {{  vars.product_full }} ({{ vars.product_short }}) on Microsoft Azure.
+This topic describes how to create managed identities for {{  vars.product_full }} on Microsoft Azure.
 
 
 ## <a id='overview'></a> Overview

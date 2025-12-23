@@ -4,7 +4,7 @@ title: Using a Windows Pause Image for an Air-Gapped Environment
 ---
 
 This topic describes how to configure a private registry and a Windows pause image for an air-gapped environment
-for Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
+for Windows worker-based Kubernetes clusters in {{  vars.product_full }}.
 
 
 

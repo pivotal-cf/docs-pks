@@ -4,14 +4,14 @@ title: Setting Up {{  vars.product }} Admin Users on vSphere
 iaas: vSphere
 ---
 
-This topic describes how to create admin users in {{  vars.product_full }} ({{ vars.product_short }}) with User Account and Authentication (UAA).
+This topic describes how to create admin users in {{  vars.product_full }} with User Account and Authentication (UAA).
 
 ## <a id='overview'></a> Overview
 
-You must create at least one admin user during the initial set up of TKGI.
+You must create at least one admin user during the initial set up of {{ vars.product_short }}.
 
 UAA is the identity management service for {{  vars.product }}.
-{{  vars.product }} includes a UAA server, which is hosted on the TKGI API VM.
+{{  vars.product }} includes a UAA server, which is hosted on the {{ vars.product_short }} API VM.
 
 To interact with the UAA server, you can use the UAA Command Line Interface (UAAC).
 You can either run UAAC commands from the {{ vars.platform_name }} VM or install UAAC on your local workstation.
@@ -22,15 +22,15 @@ Before setting up admin users for {{  vars.product }}, you must have one of the 
 
 * SSH access to the {{ vars.platform_name }} VM
 
-* A machine that can connect to your TKGI API VM
+* A machine that can connect to your {{ vars.product_short }} API VM
 
-## <a id='connect'></a>Step 1: Connect to the TKGI API VM
+## <a id='connect'></a>Step 1: Connect to the {{ vars.product_short }} API VM
 
-You can connect to the TKGI API VM from the {{ vars.platform_name }} VM or from a different machine such as your local workstation.
+You can connect to the {{ vars.product_short }} API VM from the {{ vars.platform_name }} VM or from a different machine such as your local workstation.
 
 ### <a name='ssh-vsphere'></a>Option 1: Connect through the {{ vars.platform_name }} VM
 
-You can connect to TKGI API VM by logging in to the {{ vars.platform_name }} VM through SSH.
+You can connect to {{ vars.product_short }} API VM by logging in to the {{ vars.platform_name }} VM through SSH.
 
 To SSH into the {{ vars.platform_name }} VM on vSphere, do the following:
 
@@ -62,7 +62,7 @@ steps in _Deploying {{ vars.platform_name }} on vSphere_.
 
 ### <a name='local-workstation'></a>Option 2: Connect through a Non-{{ vars.platform_name }} Machine
 
-To connect to the TKGI API VM and run UAA commands, do the following:
+To connect to the {{ vars.product_short }} API VM and run UAA commands, do the following:
 
 1. Install UAAC on your machine. For example:
 
@@ -94,12 +94,12 @@ For information about UAA scopes in {{  vars.product }}, see
 To create {{  vars.product }} users with the `pks.clusters.manage` or `pks.clusters.admin` UAA scope,
 perform one or more of the following procedures based on the needs of your deployment:
 
-* To assign TKGI cluster scopes to an individual user, see
+* To assign {{ vars.product_short }} cluster scopes to an individual user, see
 [Grant {{  vars.product }} Access to an Individual User](manage-users.html#uaa-user).
  Follow this procedure if you selected **Internal UAA** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} on vSphere](installing-vsphere.html#uaa).
-* To assign TKGI cluster scopes to an LDAP group, see [Grant {{  vars.product }} Access to an External LDAP Group](manage-users.html#external-group). Follow this procedure if you selected **LDAP Server** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} TKGI on vSphere](installing-vsphere.html#uaa).
-* To assign TKGI cluster scopes to a SAML group, see [Grant {{  vars.product }} Access to an External SAML Group](manage-users.html#saml). Follow this procedure if you selected **SAML Identity Provider** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} TKGI on vSphere](installing-vsphere.html#uaa).
-* To assign TKGI cluster scopes to a client, see [Grant {{  vars.product }} Access to a Client](manage-users.html#uaa-client).
+* To assign {{ vars.product_short }} cluster scopes to an LDAP group, see [Grant {{  vars.product }} Access to an External LDAP Group](manage-users.html#external-group). Follow this procedure if you selected **LDAP Server** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} on vSphere](installing-vsphere.html#uaa).
+* To assign {{ vars.product_short }} cluster scopes to a SAML group, see [Grant {{  vars.product }} Access to an External SAML Group](manage-users.html#saml). Follow this procedure if you selected **SAML Identity Provider** when you configured **UAA** in the {{  vars.product }} tile. For more information, see [Installing {{  vars.product }} on vSphere](installing-vsphere.html#uaa).
+* To assign {{ vars.product_short }} cluster scopes to a client, see [Grant {{  vars.product }} Access to a Client](manage-users.html#uaa-client).
 
 ##<a id="next-steps"></a> Next Step
 

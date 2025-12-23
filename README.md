@@ -1,6 +1,6 @@
 # Tanzu Kubernetes Grid Integrated Edition Documentation
 
-This repository contains the content for the documentation for Tanzu Kubernetes Grid Integrated Edition (TKGI).
+This repository contains the content for the documentation for Tanzu Kubernetes Grid Integrated Edition.
 
 ## How To Contribute
 

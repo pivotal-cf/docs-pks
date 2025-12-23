@@ -2,9 +2,9 @@
 title: General {{  vars.product }} Concepts
 ---
 
-This topic describes conceptual and architectural information about {{  vars.product_full }} ({{ vars.product_short }}) and its primary components.
+This topic describes conceptual and architectural information about {{  vars.product_full }} and its primary components.
 
-See the following topics for an architectural overview of TKGI systems and components:
+See the following topics for an architectural overview of {{ vars.product_short }} systems and components:
 
 <ul>
   <li>
@@ -14,7 +14,7 @@ See the following topics for an architectural overview of TKGI systems and compo
     <a href="./understanding-upgrades.html">About {{  vars.product }} Upgrades</a>
   </li>
   <li>
-    <a href="./api-auth.html">TKGI API Authentication</a>
+    <a href="./api-auth.html">{{ vars.product_short }} API Authentication</a>
   </li>
   <li>
     <a href="./about-lb.html">Load Balancers in {{  vars.product }}</a>

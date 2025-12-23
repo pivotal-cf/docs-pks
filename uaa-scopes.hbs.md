@@ -3,7 +3,7 @@ title: UAA Scopes for {{  vars.product }} Users
 
 ---
 
-This topic describes User Account and Authentication (UAA) scopes that a UAA admin can assign to {{  vars.product_full }} ({{ vars.product_short }}) users.
+This topic describes User Account and Authentication (UAA) scopes that a UAA admin can assign to {{  vars.product_full }} users.
 
 ## <a id="overview"></a> Overview
 

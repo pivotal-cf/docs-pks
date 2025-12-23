@@ -4,7 +4,7 @@ title: Install {{  vars.product }} on vSphere with VMware NSX Using {{ vars.plat
 iaas: vsphere-nsxt
 ---
 
-This topic lists the procedures to follow when installing {{  vars.product_full }} ({{ vars.product_short }}) on vSphere with NSX networking manually, using {{ vars.platform_name }}.
+This topic lists the procedures to follow when installing {{  vars.product_full }} on vSphere with NSX networking manually, using {{ vars.platform_name }}.
 
 <p class="note"><strong>Note</strong>: The recommended method for installing {{  vars.product }} on vSphere with NSX is to use the {{  vars.product }} Management Console. For information, see <a href="console-install-vsphere.html">Install on vSphere with the Management Console</a>.</p>
 
@@ -17,13 +17,13 @@ In preparation for installing {{  vars.product }} on vSphere with VMware NSX, re
 VMware NSX must be installed and configured before you install {{  vars.product }}.
 
 See <a href="./nsxt-3-0-install.html">Installing and Configuring NSX-T Data Center v3.0 for {{  vars.product }}</a>.
-    Then return here to the TKGI v1.9 docs and continue with the next step.</li></ul></ul>
+    Then return here to the {{ vars.product_short }} v1.9 docs and continue with the next step.</li></ul></ul>
 
 ##<a id='step03'></a> Step 3: Create the Management Plane for {{  vars.product }}
 
 Prepare the vSphere and NSX infrastructure for the {{  vars.product }} Management Plane where {{ vars.platform_name }}, BOSH Director, {{  vars.product }} components, and Harbor Registry are deployed. This includes creating a vSphere resource pool for {{  vars.product }} management components, an NSX Tier-1 (T1) Logical Switch, an NSX Tier-1 Logical Router and Port, and NAT rules (if you are using NAT mode).
 
-For instructions, see [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
+For instructions, see [Create Management Plane](./nsxt-3-0-install.html#nsxt30-mgmt-plane) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_.
 
 ##<a id='step04'></a> Step 4: Create the Compute Plane for {{  vars.product }}
 
@@ -33,7 +33,7 @@ Create IP blocks for the [node networks](./nsxt-prepare-env.html#nodes-ip-block)
 
 Create a [Floating IP Pool](./nsxt-prepare-env.html#plan-cidrs) from which to assign routable IP addresses to components. This network provides your load balancing address space for each Kubernetes cluster created by {{  vars.product }}. The network also provides IP addresses for Kubernetes API access and Kubernetes exposed services.
 
-For instructions, see [Create IP Blocks and Pool for Compute Plane](./nsxt-3-0-install.html#nsxt30-ip-blocks-pool) in _Installing and Configuring NSX-T Data Center v3.0 for TKGI_.
+For instructions, see [Create IP Blocks and Pool for Compute Plane](./nsxt-3-0-install.html#nsxt30-ip-blocks-pool) in _Installing and Configuring NSX-T Data Center v3.0 for {{ vars.product_short }}_.
 
 ##<a id='step05'></a> Step 5: Deploy {{ vars.platform_name }} for {{  vars.product }} with NSX
 
@@ -67,15 +67,15 @@ For instructions, see <a href="./installing-nsx-t.html">Installing {{  vars.prod
 
 ##<a id='step10'></a> Step 10: Install VMware Harbor Registry for {{  vars.product }}
 
-The VMware Harbor Registry is recommended for {{  vars.product }}. Install Harbor in the NSX Management Plane with other {{  vars.product }} components, such as the TKGI API and TKGI database, {{ vars.platform_name }}, and BOSH.
+The VMware Harbor Registry is recommended for {{  vars.product }}. Install Harbor in the NSX Management Plane with other {{  vars.product }} components, such as the {{ vars.product_short }} API and {{ vars.product_short }} database, {{ vars.platform_name }}, and BOSH.
 
-If you are using the [NAT deployment topology](nsxt-topologies.html#topology-nat), create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the TKGI management network. See <a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html#create-dnat">Create DNAT Rule</a>.
+If you are using the [NAT deployment topology](nsxt-topologies.html#topology-nat), create a DNAT rule that maps the private Harbor IP address to a routable IP address from the floating IP pool on the {{ vars.product_short }} management network. See <a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/integrating-pks.html#create-dnat">Create DNAT Rule</a>.
 
 For instructions, see <a href="https://techdocs.broadcom.com/content/broadcom/techdocs/us/en/vmware-tanzu/platform-services/harbor-registry/services/harbor-cf/installing.html">Installing VMware Harbor Registry</a>.
 
-##<a id='step11'></a> Step 11: Install the TKGI and Kubectl CLIs
+##<a id='step11'></a> Step 11: Install the {{ vars.product_short }} and Kubectl CLIs
 
-See <a href="./installing-cli.html">Installing the TKGI CLI</a> and <a href="./installing-kubectl-cli.html">Installing the Kubernetes CLI</a>.
+See <a href="./installing-cli.html">Installing the {{ vars.product_short }} CLI</a> and <a href="./installing-kubectl-cli.html">Installing the Kubernetes CLI</a>.
 
 ##<a id='step12'></a> Step 12: Create Admin Users for {{  vars.product }}
 
@@ -83,7 +83,7 @@ See <a href="vsphere-configure-users.html">Setting Up {{  vars.product }} Admin 
 
 ##<a id='step13'></a> Step 13: Verify the Installation of {{  vars.product }}
 
-Create a Kubernetes cluster using the TKGI CLI. For instructions, see [Create a Kubernetes Cluster](./create-cluster.html#create).
+Create a Kubernetes cluster using the {{ vars.product_short }} CLI. For instructions, see [Create a Kubernetes Cluster](./create-cluster.html#create).
 
 Deploy a simple workload to the Kubernetes cluster. For instructions, see [Deploy Workloads on vSphere with NSX](./deploy-workloads.html#external-lb-nsxt).
 

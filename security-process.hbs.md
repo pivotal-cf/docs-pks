@@ -2,7 +2,7 @@
 title: Process for {{ vars.product }} Security Disclosure and Release
 ---
 
-This topic describes the processes for disclosing security issues and releasing related fixes for {{  vars.product_full }} ({{ vars.product_short }}), Kubernetes, VMware NSX, and VMware Harbor.
+This topic describes the processes for disclosing security issues and releasing related fixes for {{  vars.product_full }}, Kubernetes, VMware NSX, and VMware Harbor.
 
 ##<a id='security-tkgi'></a> Security Issues in {{  vars.product }}
 

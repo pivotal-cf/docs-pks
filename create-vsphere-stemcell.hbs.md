@@ -4,7 +4,7 @@ owner: Windows
 ---
 
 This topic describes how to use the tool Stembuild to create a Windows stemcell for BOSH,
-for use by {{  vars.product }} (TKGI) on vSphere.
+for use by {{  vars.product }} on vSphere.
 
 
 ## <a id='stembuild-overview'></a> Overview of Stembuild

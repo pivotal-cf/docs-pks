@@ -3,7 +3,7 @@ title: Managing Kubernetes Clusters and Workloads
 
 ---
 
-The following topics describe how to manage {{  vars.product_full }} ({{ vars.product_short }}) provisioned Kubernetes clusters and workloads:
+The following topics describe how to manage {{  vars.product_full }} provisioned Kubernetes clusters and workloads:
 
 <ul>
   <li>

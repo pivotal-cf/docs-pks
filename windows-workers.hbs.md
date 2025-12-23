@@ -7,13 +7,13 @@ topic: #Empty var to prevent build breaking
 thistopic: #Empty var to prevent build breaking
 ---
 
-This topic describes how to configure Windows worker-based Kubernetes clusters in {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to configure Windows worker-based Kubernetes clusters in {{  vars.product_full }}.
 
 
 ## <a id='overview'></a>Overview
 
 In {{  vars.product }} you can provision a Windows worker-based Kubernetes cluster on vSphere with NSX.
-Additionally, TKGI provides beta support for provisioning Windows worker-based Kubernetes clusters on vSphere with Antrea.
+Additionally, {{ vars.product_short }} provides beta support for provisioning Windows worker-based Kubernetes clusters on vSphere with Antrea.
 
 To provision a Windows worker-based Kubernetes cluster:
 
@@ -22,19 +22,19 @@ To provision a Windows worker-based Kubernetes cluster:
 1. [Upload the Windows Server Stemcell](#upload-stemcell).
 1. [Create a Windows Worker-Based Cluster](#create-cluster).
 
-For information about the architecture of TKGI Windows worker-based Kubernetes clusters, see
+For information about the architecture of {{ vars.product_short }} Windows worker-based Kubernetes clusters, see
 [Windows Worker-Based Kubernetes Cluster High Availability](control-plane.html#windows-ha) in _{{  vars.product }} Architecture_.
 
-<p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is activated for TKGI
+<p class="note warning"><strong>Warning: </strong> Support for Windows-based Kubernetes clusters is activated for {{ vars.product_short }}
 on vSphere with NSX and as a beta feature on vSphere with Antrea.
-<br><br>Do not activate this feature if you are using TKGI
+<br><br>Do not activate this feature if you are using {{ vars.product_short }}
 with Azure or Amazon Web Services (AWS).<br>
 </p>
 
 
 ## <a id='prerequisites'></a>Prerequisites
 
-Support for Windows-based Kubernetes clusters is activated for TKGI
+Support for Windows-based Kubernetes clusters is activated for {{ vars.product_short }}
 on vSphere with NSX and as a beta feature on vSphere with Antrea.
 
 ### <a id='prerequisites-nsxt'></a>vSphere with NSX Requirements

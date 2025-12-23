@@ -4,7 +4,7 @@ owner: {{ vars.platform_name }}
 iaas: AWS
 ---
 
-The topics below describe how to install {{  vars.product_full }} ({{ vars.product_short }}) on Amazon Web Services (AWS).
+The topics below describe how to install {{  vars.product_full }} on Amazon Web Services (AWS).
 
 ## Install {{  vars.product }} on AWS
 

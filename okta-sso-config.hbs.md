@@ -3,7 +3,7 @@ title: Configuring Okta as a SAML Identity Provider
 owner: Identity
 ---
 
-This topic describes how to configure single sign-on (SSO) between Okta and {{  vars.product_full }} ({{ vars.product_short }}).
+This topic describes how to configure single sign-on (SSO) between Okta and {{  vars.product_full }}.
 
 ## <a id='prerequisites'></a> Prerequisites
 
