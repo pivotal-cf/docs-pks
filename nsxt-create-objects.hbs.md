@@ -1,5 +1,5 @@
 ---
-title: Creating VMware NSX Objects for {{  vars.product }}
+title: Creating VMware NSX Objects for Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

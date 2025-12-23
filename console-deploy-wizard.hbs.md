@@ -1,5 +1,5 @@
 ---
-title: Deploy {{  vars.product }} by Using the Configuration Wizard
+title: Deploy Tanzu Kubernetes Grid Integrated Edition by Using the Configuration Wizard
 
 thistopic: wizard
 ---

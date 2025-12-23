@@ -1,5 +1,5 @@
 ---
-title: Rotating {{  vars.product }} Control Plane Certificates
+title: Rotating Tanzu Kubernetes Grid Integrated Edition Control Plane Certificates
 
 ---
 

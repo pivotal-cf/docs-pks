@@ -1,5 +1,5 @@
 ---
-title: NSX Deployment Topologies for {{  vars.product }}
+title: NSX Deployment Topologies for Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

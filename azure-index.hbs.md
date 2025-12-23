@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }} on Microsoft Azure
+title: Installing Tanzu Kubernetes Grid Integrated Edition on Microsoft Azure
 owner: {{ vars.platform_name }}
 iaas: Azure
 ---

@@ -1,5 +1,5 @@
 ---
-title: VM Sizing for {{  vars.product }} Clusters
+title: VM Sizing for Tanzu Kubernetes Grid Integrated Edition Clusters
 
 ---
 

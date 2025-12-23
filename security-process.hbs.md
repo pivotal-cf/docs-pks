@@ -1,5 +1,5 @@
 ---
-title: Process for {{ vars.product }} Security Disclosure and Release
+title: Process for Tanzu Kubernetes Grid Integrated Edition Security Disclosure and Release
 ---
 
 This topic describes the processes for disclosing security issues and releasing related fixes for {{  vars.product_full }}, Kubernetes, VMware NSX, and VMware Harbor.

@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }} on vSphere with VMware NSX
+title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere with VMware NSX
 
 iaas: vsphere-nsxt
 ---

@@ -1,5 +1,5 @@
 ---
-title: Installing the {{ vars.product_short }} CLI
+title: Installing the TKGI CLI
 
 ---
 

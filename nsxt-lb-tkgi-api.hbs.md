@@ -1,5 +1,5 @@
 ---
-title: Provisioning a VMware NSX Load Balancer for the {{ vars.product_short }} API Server
+title: Provisioning a VMware NSX Load Balancer for the TKGI API Server
 owner: PKS-NSXT
 ---
 

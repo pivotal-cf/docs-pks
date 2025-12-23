@@ -1,5 +1,5 @@
 ---
-title: Managing {{  vars.product }} Users in {{ vars.platform_name }}
+title: Managing Tanzu Kubernetes Grid Integrated Edition Users in Tanzu Operations Manager
 
 ---
 

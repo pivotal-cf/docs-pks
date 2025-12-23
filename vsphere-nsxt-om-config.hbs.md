@@ -1,5 +1,5 @@
 ---
-title: Configuring BOSH Director with VMware NSX for {{  vars.product }}
+title: Configuring BOSH Director with VMware NSX for Tanzu Kubernetes Grid Integrated Edition
 owner: {{ vars.platform_name }}
 iaas: vSphere
 authenttype: boshtile

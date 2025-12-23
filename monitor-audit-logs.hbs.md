@@ -1,5 +1,5 @@
 ---
-title: Auditing {{  vars.product }} Logs
+title: Auditing Tanzu Kubernetes Grid Integrated Edition Logs
 
 ---
 

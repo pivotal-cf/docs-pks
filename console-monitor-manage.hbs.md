@@ -1,5 +1,5 @@
 ---
-title: Monitor and Manage {{  vars.product }} in the Management Console
+title: Monitor and Manage Tanzu Kubernetes Grid Integrated Edition in the Management Console
 
 ---
 

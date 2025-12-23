@@ -1,5 +1,5 @@
 ---
-title: Using Proxies with {{  vars.product }} on AWS
+title: Using Proxies with Tanzu Kubernetes Grid Integrated Edition on AWS
 
 topic: proxies-aws
 iaas: #Empty var to prevent build breaking

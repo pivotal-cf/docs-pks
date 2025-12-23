@@ -1,5 +1,5 @@
 ---
-title: Install {{  vars.product }} on vSphere with the Management Console
+title: Install Tanzu Kubernetes Grid Integrated Edition on vSphere with the Management Console
 
 ---
 

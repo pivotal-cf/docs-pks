@@ -1,5 +1,5 @@
 ---
-title: Setting Up {{  vars.product }} Admin Users on Azure
+title: Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on Azure
 
 iaas: Azure
 ---

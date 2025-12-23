@@ -1,5 +1,5 @@
 ---
-title: Sink Architecture in {{  vars.product }}
+title: Sink Architecture in Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

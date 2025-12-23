@@ -1,5 +1,5 @@
 ---
-title: Setting Up {{  vars.product }} Admin Users on vSphere
+title: Setting Up Tanzu Kubernetes Grid Integrated Edition Admin Users on vSphere
 
 iaas: vSphere
 ---

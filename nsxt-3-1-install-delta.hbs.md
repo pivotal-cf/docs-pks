@@ -1,5 +1,5 @@
 ---
-title: Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for {{  vars.product }}
+title: Configuring NSX-T Data Center v3.1 Transport Zones and Edge Node Switches for Tanzu Kubernetes Grid Integrated Edition
  -NSXT
 ---
 

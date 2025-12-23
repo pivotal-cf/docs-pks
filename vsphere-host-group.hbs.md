@@ -1,5 +1,5 @@
 ---
-title: Using vSphere Host Groups with {{  vars.product }}
+title: Using vSphere Host Groups with Tanzu Kubernetes Grid Integrated Edition
 owner: vsphere
 ---
 

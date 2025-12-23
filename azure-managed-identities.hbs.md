@@ -1,5 +1,5 @@
 ---
-title: Creating Managed Identities in Azure for {{  vars.product }}
+title: Creating Managed Identities in Azure for Tanzu Kubernetes Grid Integrated Edition
 owner: {{ vars.platform_name }}
 ---
 

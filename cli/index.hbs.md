@@ -1,5 +1,5 @@
 ---
-title: {{ vars.product_short }} CLI Reference
+title: TKGI CLI Reference
 
 ---
 

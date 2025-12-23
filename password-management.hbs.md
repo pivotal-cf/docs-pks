@@ -1,5 +1,5 @@
 ---
-title: Adding Infrastructure Password Changes to the {{  vars.product }} Tile
+title: Adding Infrastructure Password Changes to the Tanzu Kubernetes Grid Integrated Edition Tile
 
 ---
 

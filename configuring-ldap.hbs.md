@@ -1,5 +1,5 @@
 ---
-title: Connecting {{  vars.product }} to an LDAP Server
+title: Connecting Tanzu Kubernetes Grid Integrated Edition to an LDAP Server
 
 ---
 

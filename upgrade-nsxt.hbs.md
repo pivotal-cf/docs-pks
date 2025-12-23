@@ -1,5 +1,5 @@
 ---
-title: Upgrading {{  vars.product }} (VMware NSX Networking)
+title: Upgrading Tanzu Kubernetes Grid Integrated Edition (VMware NSX Networking)
 
 windowsclusters: #Empty var to prevent build breaking
 iaas: #Empty var to prevent build breaking

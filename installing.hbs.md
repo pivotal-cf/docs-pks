@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }}
+title: Installing Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Backing Up and Restoring the {{ vars.product_short }} Management Plane
+title: Backing Up and Restoring the TKGI Management Plane
 
 ---
 

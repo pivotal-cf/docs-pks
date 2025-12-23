@@ -1,5 +1,5 @@
 ---
-title: Upgrade Order for {{  vars.product }} Environments on vSphere
+title: Upgrade Order for Tanzu Kubernetes Grid Integrated Edition Environments on vSphere
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Working with Network Profiles in {{ vars.platform_name }}
+title: Working with Network Profiles in Tanzu Operations Manager
 
 ---
 

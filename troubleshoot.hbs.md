@@ -1,5 +1,5 @@
 ---
-title: Diagnosing and Troubleshooting {{  vars.product }}
+title: Diagnosing and Troubleshooting Tanzu Kubernetes Grid Integrated Edition
 owner: {{ vars.platform_name }}
 ---
 

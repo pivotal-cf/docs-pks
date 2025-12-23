@@ -1,5 +1,5 @@
 ---
-title: Backing Up {{ vars.product_short }} Management Plane Components
+title: Backing Up TKGI Management Plane Components
 
 ---
 

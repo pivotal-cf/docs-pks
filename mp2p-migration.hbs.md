@@ -1,5 +1,5 @@
 ---
-title: Migrating from NSX Management Plane API to Policy API Using {{ vars.platform_name }}
+title: Migrating from NSX Management Plane API to Policy API Using Tanzu Operations Manager
 
 ---
 

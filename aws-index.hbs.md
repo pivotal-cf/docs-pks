@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }} on Amazon Web Services (AWS)
+title: Installing Tanzu Kubernetes Grid Integrated Edition on Amazon Web Services (AWS)
 owner: {{ vars.platform_name }}
 iaas: AWS
 ---

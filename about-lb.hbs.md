@@ -1,5 +1,5 @@
 ---
-title: Load Balancers in {{  vars.product }}
+title: Load Balancers in Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

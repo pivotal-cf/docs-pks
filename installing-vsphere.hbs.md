@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }} on vSphere (Antrea Networking)
+title: Installing Tanzu Kubernetes Grid Integrated Edition on vSphere (Antrea Networking)
 
 iaas: vSphere
 windowsclusters: #Empty var to prevent build breaking

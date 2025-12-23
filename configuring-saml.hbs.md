@@ -1,5 +1,5 @@
 ---
-title: Connecting {{  vars.product }} to a SAML Identity Provider
+title: Connecting Tanzu Kubernetes Grid Integrated Edition to a SAML Identity Provider
 
 ---
 

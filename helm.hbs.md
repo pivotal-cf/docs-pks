@@ -1,5 +1,5 @@
 ---
-title: Using Helm with {{  vars.product }}
+title: Using Helm with Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

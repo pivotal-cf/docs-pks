@@ -1,5 +1,5 @@
 ---
-title: Troubleshooting {{  vars.product }} Management Console
+title: Troubleshooting Tanzu Kubernetes Grid Integrated Edition Management Console
 
 ---
 

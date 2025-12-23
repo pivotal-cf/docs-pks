@@ -1,5 +1,5 @@
 ---
-title: Shutting Down and Restarting {{  vars.product }}
+title: Shutting Down and Restarting Tanzu Kubernetes Grid Integrated Edition
 
 iaas: vsphere-nsxt
 ---

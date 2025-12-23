@@ -1,5 +1,5 @@
 ---
-title: Installing {{  vars.product }} on AWS (Antrea Networking)
+title: Installing Tanzu Kubernetes Grid Integrated Edition on AWS (Antrea Networking)
 
 iaas: AWS
 windowsclusters: #Empty var to prevent build breaking

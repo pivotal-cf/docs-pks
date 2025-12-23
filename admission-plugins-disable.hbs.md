@@ -1,5 +1,5 @@
 ---
-title: Deactivating Admission Control Plugins for {{  vars.product }} Clusters
+title: Deactivating Admission Control Plugins for Tanzu Kubernetes Grid Integrated Edition Clusters
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Installing and Configuring {{ vars.platform_name }} on vSphere
+title: Installing and Configuring Tanzu Operations Manager on vSphere
 owner: {{ vars.platform_name }}
 ---
 

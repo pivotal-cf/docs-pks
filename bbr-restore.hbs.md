@@ -1,5 +1,5 @@
 ---
-title: Restoring {{  vars.product }}
+title: Restoring Tanzu Kubernetes Grid Integrated Edition
 
 ---
 

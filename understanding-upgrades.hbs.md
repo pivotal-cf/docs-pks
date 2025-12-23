@@ -1,5 +1,5 @@
 ---
-title: About {{  vars.product }} Upgrades
+title: About Tanzu Kubernetes Grid Integrated Edition Upgrades
 
 ---
 

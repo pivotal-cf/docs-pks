@@ -1,5 +1,5 @@
 ---
-title: Implementing a Multi-Foundation {{  vars.product }} Deployment
+title: Implementing a Multi-Foundation Tanzu Kubernetes Grid Integrated Edition Deployment
 
 ---
 

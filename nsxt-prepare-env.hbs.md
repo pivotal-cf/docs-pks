@@ -1,5 +1,5 @@
 ---
-title: Network Planning for Installing {{ vars.product }} with VMware NSX
+title: Network Planning for Installing Tanzu Kubernetes Grid Integrated Edition with VMware NSX
 
 ---
 

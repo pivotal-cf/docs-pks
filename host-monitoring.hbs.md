@@ -1,5 +1,5 @@
 ---
-title: Monitoring {{ vars.product_short }} and {{ vars.product_short }}-Provisioned Clusters on Linux
+title: Monitoring TKGI and TKGI-Provisioned Clusters on Linux
 
 ---
 
